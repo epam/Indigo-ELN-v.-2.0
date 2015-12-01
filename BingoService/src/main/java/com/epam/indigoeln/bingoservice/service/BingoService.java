@@ -2,6 +2,7 @@ package com.epam.indigoeln.bingoservice.service;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,43 @@ public class BingoService {
     private Indigo indigo;
     private Bingo moleculeDatabase;
     private Bingo reactionDatabase;
+
+    public String getMolecule(Integer id) {
+        synchronized (MOLECULE_LOCK) {
+            return moleculeDatabase.getRecordById(id).molfile();
+        }
+    }
+
+    public Integer insertMolecule(String molecule) {
+        IndigoObject object;
+
+        synchronized (INDIGO_LOCK) {
+            object = indigo.loadMolecule(molecule);
+        }
+
+        synchronized (MOLECULE_LOCK) {
+            return moleculeDatabase.insert(object);
+        }
+    }
+
+    public void updateMolecule(Integer id, String molecule) {
+        IndigoObject object;
+
+        synchronized (INDIGO_LOCK) {
+            object = indigo.loadMolecule(molecule);
+        }
+
+        synchronized (MOLECULE_LOCK) {
+            moleculeDatabase.delete(id);
+            moleculeDatabase.insert(object, id);
+        }
+    }
+
+    public void deleteMolecule(Integer id) {
+        synchronized (MOLECULE_LOCK) {
+            moleculeDatabase.delete(id);
+        }
+    }
 
     @PostConstruct
     public void initDatabase() throws IOException {
