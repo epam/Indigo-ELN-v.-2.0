@@ -1,10 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="indigoeln">
 <head>
     <meta charset="UTF-8"/>
     <title>Indigo ELN</title>
+    
+    <!-- build:js dist/js/libs.js -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <!-- endbuild -->
+
+    <!-- build:js dist/js/app.js -->
+    <script src="js/app.js"></script>
+    <!-- endbuild -->
+        
+    <!--APPTEMPLATES-->
+
+    <!-- build:css dist/css/lib.css -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <!-- endbuild -->
+    
 </head>
 <body>
-
+    <div ui-view></div>
 </body>
 </html>
