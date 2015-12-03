@@ -1,7 +1,7 @@
 package com.epam.indigoeln.bingoservice.service;
 
 import com.epam.indigo.Indigo;
-import com.epam.indigoeln.bingoservice.dao.BingoDao;
+import com.epam.indigoeln.bingoservice.repository.BingoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,39 +12,42 @@ public class BingoService {
     private Indigo indigo;
 
     @Autowired
-    private BingoDao bingoDao;
+    private BingoRepository moleculeRepository;
+
+    @Autowired
+    private BingoRepository reactionRepository;
 
     public String getMolecule(Integer id) {
-        return bingoDao.getMoleculeById(id).molfile();
+        return moleculeRepository.getById(id).molfile();
     }
 
     public Integer insertMolecule(String molecule) {
-        return bingoDao.insertMolecule(indigo.loadMolecule(molecule));
+        return moleculeRepository.insert(indigo.loadMolecule(molecule));
     }
 
     public void updateMolecule(Integer id, String molecule) {
-        bingoDao.deleteMolecule(id);
-        bingoDao.insertMolecule(indigo.loadMolecule(molecule), id);
+        moleculeRepository.delete(id);
+        moleculeRepository.insert(indigo.loadMolecule(molecule), id);
     }
 
     public void deleteMolecule(Integer id) {
-        bingoDao.deleteMolecule(id);
+        moleculeRepository.delete(id);
     }
 
     public String getReaction(Integer id) {
-        return bingoDao.getReactionById(id).molfile();
+        return reactionRepository.getById(id).rxnfile();
     }
 
     public Integer insertReaction(String reaction) {
-        return bingoDao.insertReaction(indigo.loadReaction(reaction));
+        return reactionRepository.insert(indigo.loadReaction(reaction));
     }
 
     public void updateReaction(Integer id, String reaction) {
-        bingoDao.deleteReaction(id);
-        bingoDao.insertReaction(indigo.loadReaction(reaction), id);
+        reactionRepository.delete(id);
+        reactionRepository.insert(indigo.loadReaction(reaction), id);
     }
 
     public void deleteReaction(Integer id) {
-        bingoDao.deleteReaction(id);
+        reactionRepository.delete(id);
     }
 }
