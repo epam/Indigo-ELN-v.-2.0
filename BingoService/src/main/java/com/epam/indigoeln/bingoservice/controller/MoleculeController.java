@@ -1,17 +1,14 @@
 package com.epam.indigoeln.bingoservice.controller;
 
 import com.epam.indigoeln.bingoservice.common.BingoResult;
+import com.epam.indigoeln.bingoservice.common.ErrorHandler;
 import com.epam.indigoeln.bingoservice.service.BingoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/molecule")
 public class MoleculeController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MoleculeController.class);
 
     @Autowired
     private BingoService bingoService;
@@ -21,9 +18,7 @@ public class MoleculeController {
         try {
             return BingoResult.success().withId(id).withStructure(bingoService.getMolecule(id));
         } catch (Exception e) {
-            String errorMessage = "Cannot get Molecule with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot get Molecule with id=%s: %s", id, e.getMessage());
         }
     }
 
@@ -32,9 +27,7 @@ public class MoleculeController {
         try {
             return BingoResult.success().withId(bingoService.insertMolecule(molecule));
         } catch (Exception e) {
-            String errorMessage = "Cannot insert Molecule to Database: " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot insert Molecule to Database: %s", e.getMessage());
         }
     }
 
@@ -44,9 +37,7 @@ public class MoleculeController {
             bingoService.updateMolecule(id, molecule);
             return BingoResult.success();
         } catch (Exception e) {
-            String errorMessage = "Cannot update Molecule in Database with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot update Molecule in Database with id=%s: %s", id, e.getMessage());
         }
     }
 
@@ -56,9 +47,7 @@ public class MoleculeController {
             bingoService.deleteMolecule(id);
             return BingoResult.success();
         } catch (Exception e) {
-            String errorMessage = "Cannot delete Molecule with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot delete Molecule with id=%s: %s", id, e.getMessage());
         }
     }
 }

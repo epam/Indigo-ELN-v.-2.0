@@ -1,17 +1,14 @@
 package com.epam.indigoeln.bingoservice.controller;
 
 import com.epam.indigoeln.bingoservice.common.BingoResult;
+import com.epam.indigoeln.bingoservice.common.ErrorHandler;
 import com.epam.indigoeln.bingoservice.service.BingoService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/reaction")
 public class ReactionController {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReactionController.class);
 
     @Autowired
     private BingoService bingoService;
@@ -21,9 +18,7 @@ public class ReactionController {
         try {
             return BingoResult.success().withId(id).withStructure(bingoService.getReaction(id));
         } catch (Exception e) {
-            String errorMessage = "Cannot get Reaction with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot get Reaction with id=%s: %s", id, e.getMessage());
         }
     }
 
@@ -32,9 +27,7 @@ public class ReactionController {
         try {
             return BingoResult.success().withId(bingoService.insertReaction(reaction));
         } catch (Exception e) {
-            String errorMessage = "Cannot insert Reaction to Database: " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot insert Reaction to Database: %s", e.getMessage());
         }
     }
 
@@ -44,9 +37,7 @@ public class ReactionController {
             bingoService.updateReaction(id, reaction);
             return BingoResult.success();
         } catch (Exception e) {
-            String errorMessage = "Cannot update Reaction in Database with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot update Reaction in Database with id=%s: %s", id, e.getMessage());
         }
     }
 
@@ -56,9 +47,7 @@ public class ReactionController {
             bingoService.deleteReaction(id);
             return BingoResult.success();
         } catch (Exception e) {
-            String errorMessage = "Cannot delete Reaction with id=" + id + ": " + e.getMessage();
-            LOGGER.error(errorMessage, e);
-            return BingoResult.failure().withErrorMessage(errorMessage);
+            return ErrorHandler.handleError(e, "Cannot delete Reaction with id=%s: %s", id, e.getMessage());
         }
     }
 }
