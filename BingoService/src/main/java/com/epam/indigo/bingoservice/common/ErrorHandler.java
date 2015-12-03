@@ -1,4 +1,4 @@
-package com.epam.indigoeln.bingoservice.common;
+package com.epam.indigo.bingoservice.common;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

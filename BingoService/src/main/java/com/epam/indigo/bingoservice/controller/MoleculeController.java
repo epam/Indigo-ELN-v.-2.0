@@ -1,8 +1,8 @@
-package com.epam.indigoeln.bingoservice.controller;
+package com.epam.indigo.bingoservice.controller;
 
-import com.epam.indigoeln.bingoservice.common.BingoResult;
-import com.epam.indigoeln.bingoservice.common.ErrorHandler;
-import com.epam.indigoeln.bingoservice.service.BingoService;
+import com.epam.indigo.bingoservice.common.BingoResult;
+import com.epam.indigo.bingoservice.common.ErrorHandler;
+import com.epam.indigo.bingoservice.service.BingoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

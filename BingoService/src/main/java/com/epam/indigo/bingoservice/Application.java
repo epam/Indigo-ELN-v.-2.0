@@ -1,4 +1,4 @@
-package com.epam.indigoeln.bingoservice;
+package com.epam.indigo.bingoservice;
 
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

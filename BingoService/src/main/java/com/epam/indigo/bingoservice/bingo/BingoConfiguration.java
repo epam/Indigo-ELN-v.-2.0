@@ -1,4 +1,4 @@
-package com.epam.indigoeln.bingoservice.bingo;
+package com.epam.indigo.bingoservice.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;

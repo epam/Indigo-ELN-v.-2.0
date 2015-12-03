@@ -1,4 +1,4 @@
-package com.epam.indigoeln.bingoservice.repository;
+package com.epam.indigo.bingoservice.repository;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.BingoObject;

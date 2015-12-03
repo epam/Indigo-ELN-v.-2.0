@@ -1,9 +1,9 @@
-package com.epam.indigoeln.bingoservice.service;
+package com.epam.indigo.bingoservice.service;
 
 import com.epam.indigo.BingoObject;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.bingoservice.repository.BingoRepository;
+import com.epam.indigo.bingoservice.repository.BingoRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
