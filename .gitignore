@@ -3,3 +3,4 @@
 /src/main/webapp/bower_components
 /src/main/webapp/dist
 _index.html
+.*
