@@ -1,6 +1,5 @@
 package com.epam.indigo.bingoservice;
 
-import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
@@ -10,6 +9,6 @@ public class Application extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.bannerMode(Banner.Mode.OFF).sources(Application.class);
+        return builder.sources(Application.class);
     }
 }
