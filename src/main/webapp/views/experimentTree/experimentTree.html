@@ -1,0 +1,22 @@
+<script type="text/ng-template" id="experiment_node.html">
+  <div ui-tree-handle class="tree-node tree-node-content">
+    <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" data-nodrag 
+        ng-click="toggle(this)"><span
+        class="glyphicon"
+        ng-class="{
+          'glyphicon-chevron-right': collapsed,
+          'glyphicon-chevron-down': !collapsed
+        }"></span></a>
+    {{node.name}}
+  </div>
+  <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
+    <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'experiment_node.html'" ng-click="open(node)">
+    </li>
+  </ol>
+</script>
+
+<div ui-tree data-drag-enabled="false" class="mainTree">
+    <ol ui-tree-nodes="" ng-model="data" id="tree-root">
+        <li ng-repeat="node in data" ui-tree-node ng-include="'experiment_node.html'"></li>
+    </ol>
+</div>
