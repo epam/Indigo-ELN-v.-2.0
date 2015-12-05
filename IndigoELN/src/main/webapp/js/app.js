@@ -1,4 +1,4 @@
-angular.module('indigoeln', ['ui.bootstrap', 'ui.router'])
+angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ngMaterial'])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 	$urlRouterProvider.otherwise('/welcome');
