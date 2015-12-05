@@ -4,7 +4,7 @@
     <id>bin</id>
 
     <formats>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <fileSets>
@@ -24,7 +24,7 @@
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory/>
             <includes>
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>

@@ -10,7 +10,7 @@
     <!-- Service logging parameters -->
 
     <log mode="roll-by-size"/>
-    <logpath>%BASE%\..\logs</logpath>
+    <logpath>%BASE%\logs</logpath>
 
     <!-- JVM parameters -->
 
