@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+
+    <id>bin</id>
+
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}/src/assembly/dist</directory>
+            <outputDirectory/>
+            <excludes>
+                <exclude>*/.gitkeep</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory/>
+            <includes>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>${project.build.finalName}.${project.packaging}</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+</assembly>

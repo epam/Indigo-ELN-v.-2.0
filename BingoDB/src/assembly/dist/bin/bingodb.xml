@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+
+    <!-- Service parameters -->
+
+    <id>BingoDB</id>
+    <name>BingoDB</name>
+    <description>Bingo Database REST service</description>
+
+    <!-- Service logging parameters -->
+
+    <log mode="roll-by-size"/>
+    <logpath>%BASE%\..\logs</logpath>
+
+    <!-- JVM parameters -->
+
+    <executable>java</executable>
+    <arguments>-Xmx1024m -jar "%BASE%\bingodb.jar"</arguments>
+
+</service>
