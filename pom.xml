@@ -11,21 +11,11 @@
 
     <packaging>war</packaging>
 
-    <properties>
-        <spring-boot.version>1.3.0.RELEASE</spring-boot.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.3.0.RELEASE</version>
+    </parent>
 
     <dependencies>
 
@@ -48,33 +38,25 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Logging -->
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
     </dependencies>
 
     <profiles>
         <profile>
             <id>release</id>
-            <activation><activeByDefault>true</activeByDefault></activation>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
 
-	        <properties>
-	            <grunt-task>release</grunt-task>
+            <properties>
+                <grunt-task>release</grunt-task>
                 <webapp-includes>dist/**</webapp-includes>
-	        </properties>
+            </properties>
         </profile>
         <profile>
             <id>dev</id>
-            <activation><activeByDefault>false</activeByDefault></activation>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
 
             <properties>
                 <grunt-task>dev</grunt-task>
@@ -83,19 +65,20 @@
             </properties>
         </profile>
     </profiles>
-    
+
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>pl.allegro</groupId>
                 <artifactId>grunt-maven-plugin</artifactId>
@@ -116,17 +99,18 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.6</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingExcludes>${webapp-excludes}</packagingExcludes>
                     <packagingIncludes>WEB-INF/**, META-INF/**, _index.html, ${webapp-includes}</packagingIncludes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
@@ -136,6 +120,7 @@
                     <path>/</path>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 
