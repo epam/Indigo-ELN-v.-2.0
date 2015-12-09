@@ -1,7 +1,7 @@
-To build project:
+Build production version:
+1. Install git.
+2. Run mvn install
 
-1. Install npm.
-2. Install git.
-3. Install grunt globally: npm install -g grunt-cli.
-4. Install bower globally: npm install -g bower.
-5. Run mvn tomcat7:run. (npm, grunt, bower and git should be in PATH)
+Afterwards to build dev version:
+
+1.Run mvn install -Pdev

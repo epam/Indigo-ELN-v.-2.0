@@ -2,6 +2,7 @@
   "name": "indigo-eln",
   "version": "0.0.1",
   "dependencies": {
+    "bower": "^1.7.0",
     "grunt": "~0.4.0",
     "grunt-cache-bust": "~0.4.5",
     "grunt-cli": "~0.1.6",
@@ -14,5 +15,8 @@
     "grunt-html2js": "^0.3.5",
     "grunt-text-replace": "^0.4.0",
     "grunt-usemin": "~3.0.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-less": "^1.1.0"
   }
 }

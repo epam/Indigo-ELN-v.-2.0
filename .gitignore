@@ -2,5 +2,5 @@
 /src/main/webapp/node_modules
 /src/main/webapp/bower_components
 /src/main/webapp/dist
-_index.html
 .*
+index.html
