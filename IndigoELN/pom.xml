@@ -50,7 +50,7 @@
             <properties>
                 <grunt-task>release</grunt-task>
                 <webapp-includes>dist/**</webapp-includes>
-            </properties>
+            </properties>            
         </profile>
         <profile>
             <id>dev</id>
@@ -79,24 +79,58 @@
             </plugin>
 
             <plugin>
-                <groupId>pl.allegro</groupId>
-                <artifactId>grunt-maven-plugin</artifactId>
-                <version>1.4.1</version>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+
+                <version>0.0.26</version>
+
                 <configuration>
-                    <jsSourceDirectory>js</jsSourceDirectory>
-                    <gruntBuildDirectory>src/main/webapp/dist</gruntBuildDirectory>
-                    <target>${grunt-task}</target>
-                    <gruntOptions>
-                        <gruntOption>--force</gruntOption>
-                    </gruntOptions>
+                    <workingDirectory>src/main/webapp</workingDirectory>
                 </configuration>
+
                 <executions>
+
                     <execution>
+                        <id>install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v0.12.2</nodeVersion>
+                            <npmVersion>2.7.6</npmVersion>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
+                        </goals>
+                        <!-- Optional configuration which provides for running any npm command -->
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>bower install</id>
+                        <goals>
+                            <goal>bower</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>grunt build</id>
+                        <goals>
                             <goal>grunt</goal>
                         </goals>
-                    </execution>
+                        <configuration>
+                            <arguments>${grunt-task}</arguments>
+                        </configuration>
+                    </execution>        
                 </executions>
             </plugin>
 

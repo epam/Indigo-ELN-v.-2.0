@@ -4,41 +4,15 @@
     <meta charset="UTF-8"/>
     <title>Indigo ELN</title>
     
-    <!-- build:js dist/js/libs.js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    
-    
-    <!-- endbuild -->
+    <script src="dist/js/libs.js"></script>
 
-    <!-- build:js dist/js/app.js -->
-    <script src="src/app/app.js"></script>
-
-    <script src="src/services/experimentService.js"></script>
-
-    <script src="src/experimentTree/experimentTree.js"></script>
-    <script src="src/experimentTabs/experimentTabs.js"></script>
-    <script src="src/toolbar/toolbar.js"></script>
-
-    <script src="src/newnotebook/NewNotebookCtrl.js"></script>
-    <script src="src/experimentTabs/newExperimentTab/NewExperimentTabCtrl.js"></script>
-    <!-- endbuild -->
+    <script src="dist/js/app.js"></script>
         
-    <!--APPTEMPLATES-->
+    <script src="dist/js/templates.js"></script>
 
-    <!-- build:css dist/css/lib.css -->
-    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
-    <!-- endbuild -->
+    <link rel="stylesheet" type="text/css" href="dist/css/lib.css" />
     
-    <!-- build:css dist/css/app.css -->
-    <link href="src/experimentTree/tree.css" rel="stylesheet">
-    <link href="src/experimentTabs/newExperimentTab/newExperiment.css" rel="stylesheet">
-    <!-- endbuild -->
+    <link rel="stylesheet" type="text/css" href="dist/css/app.css" />
 </head>
 <body>
     <div ui-view></div>
