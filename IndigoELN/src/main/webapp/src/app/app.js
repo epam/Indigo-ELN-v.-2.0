@@ -1,4 +1,4 @@
-angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ngMaterial'])
+angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate'])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
 	$urlRouterProvider.otherwise('/welcome');
@@ -6,14 +6,14 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ngMaterial']
     $stateProvider.state('template', {
         views: {
             '': {
-                templateUrl: 'views/template.html'
+                templateUrl: 'src/app/template.html'
             }
         }
     })
     .state('welcome', {
         url: '/welcome',
         parent: 'template',
-        templateUrl: 'views/welcome.html'
+        templateUrl: 'src/app/welcome.html'
     })
 }]);
         

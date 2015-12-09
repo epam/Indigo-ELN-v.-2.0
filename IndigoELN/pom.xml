@@ -60,8 +60,7 @@
 
             <properties>
                 <grunt-task>dev</grunt-task>
-                <webapp-includes>**/*.js, **/*.html, **/*.css</webapp-includes>
-                <webapp-excludes>node_modules/**, dist/**</webapp-excludes>
+                <webapp-includes>src/**/*, bower_components/**/*</webapp-includes>
             </properties>
         </profile>
     </profiles>
@@ -106,8 +105,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <packagingExcludes>${webapp-excludes}</packagingExcludes>
-                    <packagingIncludes>WEB-INF/**, META-INF/**, _index.html, ${webapp-includes}</packagingIncludes>
+                    <packagingIncludes>WEB-INF/**, META-INF/**, index.html, ${webapp-includes}</packagingIncludes>
                 </configuration>
             </plugin>
 
