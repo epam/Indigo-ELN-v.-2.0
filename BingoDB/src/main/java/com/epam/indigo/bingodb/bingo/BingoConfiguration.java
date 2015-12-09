@@ -2,7 +2,6 @@ package com.epam.indigo.bingodb.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +17,9 @@ public class BingoConfiguration {
     @Value("${database.folder}/reactions")
     private String reactionDatabaseFolder;
 
-    @Autowired
-    private Indigo indigo;
+    public BingoConfiguration() {
+        System.setProperty("jna.nosys", "true");
+    }
 
     @Bean
     public Indigo indigo() {
@@ -43,12 +43,12 @@ public class BingoConfiguration {
 
         if (!dir.exists()) {
             if (dir.mkdirs()) {
-                bingo = Bingo.createDatabaseFile(indigo, folder, type);
+                bingo = Bingo.createDatabaseFile(indigo(), folder, type);
             } else {
                 throw new RuntimeException("Cannot create directory structures for Bingo: " + folder);
             }
         } else {
-            bingo = Bingo.loadDatabaseFile(indigo, folder);
+            bingo = Bingo.loadDatabaseFile(indigo(), folder);
         }
 
         bingo.optimize();

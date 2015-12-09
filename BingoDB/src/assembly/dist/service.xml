@@ -15,6 +15,6 @@
     <!-- JVM parameters -->
 
     <executable>java</executable>
-    <arguments>-Xmx1024m -jar "%BASE%\bingodb.jar"</arguments>
+    <arguments>-jar "%BASE%\bingodb.jar"</arguments>
 
 </service>
