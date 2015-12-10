@@ -50,4 +50,40 @@ public class MoleculeController {
             return ErrorHandler.handleError(e, "Cannot delete Molecule with id=%s: %s", id, e.getMessage());
         }
     }
+
+    @RequestMapping(value = "/search/exact", method = RequestMethod.POST)
+    public BingoResult searchMoleculeExact(@RequestBody String molecule, @RequestParam(required = false) String options) {
+        try {
+            return BingoResult.success().withSearchResult(bingoService.searchMoleculeExact(molecule, options));
+        } catch (Exception e) {
+            return ErrorHandler.handleError(e, "Cannot execute Molecule Exact Search: %s", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/search/substructure", method = RequestMethod.POST)
+    public BingoResult searchMoleculeSub(@RequestBody String molecule, @RequestParam(required = false) String options) {
+        try {
+            return BingoResult.success().withSearchResult(bingoService.searchMoleculeSub(molecule, options));
+        } catch (Exception e) {
+            return ErrorHandler.handleError(e, "Cannot execute Molecule Substructure Search: %s", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/search/similarity", method = RequestMethod.POST)
+    public BingoResult searchMoleculeSim(@RequestBody String molecule, @RequestParam Float min, @RequestParam Float max, @RequestParam(required = false) String metric) {
+        try {
+            return BingoResult.success().withSearchResult(bingoService.searchMoleculeSim(molecule, min, max, metric));
+        } catch (Exception e) {
+            return ErrorHandler.handleError(e, "Cannot execute Molecule Substructure Search: %s", e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/search/molformula", method = RequestMethod.POST)
+    public BingoResult searchMoleculeMolFormula(@RequestBody String molFormula, @RequestParam(required = false) String options) {
+        try {
+            return BingoResult.success().withSearchResult(bingoService.searchMoleculeMolFormula(molFormula, options));
+        } catch (Exception e) {
+            return ErrorHandler.handleError(e, "Cannot execute Molecule MolFormula Search: %s", e.getMessage());
+        }
+    }
 }
