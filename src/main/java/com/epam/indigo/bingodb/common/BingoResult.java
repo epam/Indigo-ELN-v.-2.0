@@ -2,6 +2,8 @@ package com.epam.indigo.bingodb.common;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.List;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BingoResult {
 
@@ -11,9 +13,7 @@ public class BingoResult {
     private Integer id;
     private String structure;
 
-    private BingoResult(Boolean success) {
-        this.success = success;
-    }
+    private List<Integer> searchResult;
 
     public static BingoResult success() {
         return new BingoResult(true);
@@ -21,6 +21,10 @@ public class BingoResult {
 
     public static BingoResult failure() {
         return new BingoResult(false);
+    }
+
+    private BingoResult(Boolean success) {
+        this.success = success;
     }
 
     public BingoResult withId(Integer id) {
@@ -35,6 +39,11 @@ public class BingoResult {
 
     public BingoResult withErrorMessage(String errorMessage) {
         setErrorMessage(errorMessage);
+        return this;
+    }
+
+    public BingoResult withSearchResult(List<Integer> searchResult) {
+        setSearchResult(searchResult);
         return this;
     }
 
@@ -68,5 +77,13 @@ public class BingoResult {
 
     public void setStructure(String structure) {
         this.structure = structure;
+    }
+
+    public List<Integer> getSearchResult() {
+        return searchResult;
+    }
+
+    public void setSearchResult(List<Integer> searchResult) {
+        this.searchResult = searchResult;
     }
 }
