@@ -4,7 +4,7 @@
     <id>${project.version}</id>
 
     <formats>
-        <format>zip</format>
+        <format>tgz</format>
     </formats>
 
     <fileSets>
@@ -14,6 +14,8 @@
             <excludes>
                 <exclude>*/.gitkeep</exclude>
             </excludes>
+            <fileMode>644</fileMode>
+            <directoryMode>755</directoryMode>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}</directory>
@@ -21,6 +23,8 @@
             <includes>
                 <include>README.md</include>
             </includes>
+            <fileMode>644</fileMode>
+            <directoryMode>755</directoryMode>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
@@ -28,6 +32,8 @@
             <includes>
                 <include>${project.build.finalName}.${project.packaging}</include>
             </includes>
+            <fileMode>755</fileMode>
+            <directoryMode>755</directoryMode>
         </fileSet>
     </fileSets>
 
