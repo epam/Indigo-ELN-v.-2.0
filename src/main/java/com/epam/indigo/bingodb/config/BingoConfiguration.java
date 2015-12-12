@@ -1,8 +1,8 @@
-package com.epam.indigo.bingodb.bingo;
+package com.epam.indigo.bingodb.config;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,11 +11,8 @@ import java.io.File;
 @Configuration
 public class BingoConfiguration {
 
-    @Value("${database.folder}/molecules")
-    private String moleculeDatabaseFolder;
-
-    @Value("${database.folder}/reactions")
-    private String reactionDatabaseFolder;
+    @Autowired
+    private BingoProperties properties;
 
     public BingoConfiguration() {
         System.setProperty("jna.nosys", "true");
@@ -28,12 +25,12 @@ public class BingoConfiguration {
 
     @Bean
     public Bingo moleculeDatabase() {
-        return getDatabase(moleculeDatabaseFolder, "molecule");
+        return getDatabase(properties.getDatabaseFolder() + "/molecule", "molecule");
     }
 
     @Bean
     public Bingo reactionDatabase() {
-        return getDatabase(reactionDatabaseFolder, "reaction");
+        return getDatabase(properties.getDatabaseFolder() + "/reaction", "reaction");
     }
 
     private Bingo getDatabase(String folder, String type) {
@@ -45,7 +42,7 @@ public class BingoConfiguration {
             if (dir.mkdirs()) {
                 bingo = Bingo.createDatabaseFile(indigo(), folder, type);
             } else {
-                throw new RuntimeException("Cannot create directory structures for Bingo: " + folder);
+                throw new RuntimeException("Cannot create directory structure for Bingo: " + folder);
             }
         } else {
             bingo = Bingo.loadDatabaseFile(indigo(), folder);
