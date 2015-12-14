@@ -1,4 +1,4 @@
-package com.epam.indigoeln.repositories;
+package com.epam.indigoeln.config;
 
 import com.mongodb.MongoClientURI;
 import org.springframework.beans.factory.annotation.Value;
