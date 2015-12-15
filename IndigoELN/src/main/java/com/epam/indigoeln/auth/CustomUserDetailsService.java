@@ -1,7 +1,9 @@
 package com.epam.indigoeln.auth;
 
 import com.epam.indigoeln.documents.Role;
+import com.epam.indigoeln.documents.RolePermission;
 import com.epam.indigoeln.documents.User;
+import com.epam.indigoeln.documents.UserRole;
 import com.epam.indigoeln.services.RoleService;
 import com.epam.indigoeln.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,9 +32,29 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User " + username + " cannot not be found");
         }
-        Collection<Role> roles = roleService.getRoles(user.getId());
+        String userId = user.getId();
+        Collection<UserRole> userRoles = userService.getUserRoles(userId);
+        Set<String> rolesIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
+
+        Collection<Role> roles = roleService.getRoles(rolesIds);
+
+        Set<String> rolesNames = roles.stream().map(Role::getName).collect(Collectors.toSet());
+        Collection<RolePermission> rolesPermissions = roleService.getRolesPermissions(rolesIds);
+
+        rolesPermissions.stream().filter(rp -> {
+            return !Permission.isPermission(rp.getValue());
+        }).findFirst().ifPresent((rp) -> {
+            throw new UsernameNotFoundException("Unknown permission " + rp.getValue());
+        });
+
+        Set<String> permissions = rolesPermissions.stream().map(RolePermission::getValue).collect(Collectors.toSet());
+
+        UserInfo userInfo = new UserInfo(userId, username,
+                rolesNames, permissions);
+
         return new CustomUserDetails(username, user.getPassword(),
-                roles.stream().map(Role::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                permissions.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()),
+                userInfo
         );
     }
 }
