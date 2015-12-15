@@ -1,0 +1,28 @@
+<div>
+    <form name="LoginModel.frmLogin" novalidate
+          ng-class="(LoginModel.validated && LoginModel.frmLogin.$invalid) ? 'js-validated' : ''">
+        <label for="username">User name</label>
+        <input type="text" name="username" id="username" required ng-enter="doLogin()" ng-model="LoginModel.username"
+               auto-fill-sync/>
+
+        <div ng-if="LoginModel.validated && LoginModel.frmLogin.username.$invalid">
+            <span>Enter login!</span>
+        </div>
+        <br/>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required ng-enter="doLogin()"
+               ng-model="LoginModel.password" auto-fill-sync/>
+
+        <div  ng-if="LoginModel.validated && LoginModel.frmLogin.password.$invalid">
+            <span>Enter password!</span>
+        </div>
+        <br/>
+
+        <div ng-if="LoginModel.error != null">
+            <span>{{LoginModel.error}}</span>
+        </div>
+
+        <button ng-click="doLogin()">Login</button>
+    </form>
+</div>

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@RequestMapping("/service")
 @Controller("notebookController")
 public class NotebookController {
     @Autowired
