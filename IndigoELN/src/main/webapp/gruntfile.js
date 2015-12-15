@@ -32,9 +32,9 @@ module.exports = function (grunt) {
         distdircss: '<%= distdir %>/css',
         pkg: grunt.file.readJSON('package.json'),
         src: {
-            js: 'components/**/*.js',
-            css: 'components/**/*.css',
-            html: 'components/**/*.html',
+            js: 'src/**/*.js',
+            css: 'src/**/*.css',
+            html: 'src/**/*.html',
             index: ['index.html']
         },
         clean: ['<%= distdir %>/*'],
