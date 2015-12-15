@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(new SimpleEntryPoint()).and()
                 .formLogin().loginPage("/login").successHandler(((request, response, authentication) -> {
-                    response.sendRedirect("/auth");
+                    response.sendRedirect("auth");
                 })).failureHandler(((request, response, exception) -> {
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                 })).and()
