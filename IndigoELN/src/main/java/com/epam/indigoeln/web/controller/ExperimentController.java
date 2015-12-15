@@ -14,7 +14,7 @@ import com.epam.indigoeln.service.ExperimentService;
 
 @Controller
 @EnableAutoConfiguration
-@RequestMapping("resources/")
+@RequestMapping("/service")
 public class ExperimentController {
 	@Autowired
 	ExperimentService service;

@@ -13,7 +13,14 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
     .state('welcome', {
         url: '/welcome',
         parent: 'template',
-        templateUrl: 'src/app/welcome.html'
+        templateUrl: 'src/app/welcome.html',
+        controller: 'homeController'
     })
+    .state('login', {
+        url: '/login',
+        templateUrl: 'src/app/login.html',
+        controller: 'loginController'
+    })
+
 }]);
         
