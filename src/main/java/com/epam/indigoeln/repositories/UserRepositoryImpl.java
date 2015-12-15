@@ -1,6 +1,7 @@
 package com.epam.indigoeln.repositories;
 
 import com.epam.indigoeln.documents.User;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -15,6 +16,17 @@ public class UserRepositoryImpl implements UserRepository {
     @Autowired
     public UserRepositoryImpl(final MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
+    }
+
+    @Override
+    public void saveUser(User user) {
+        mongoTemplate.save(user);
+    }
+
+    @Override
+    public void deleteUser(String id) {
+        Query query = new Query(Criteria.where("_id").is(new ObjectId(id)));
+        mongoTemplate.remove(query);
     }
 
     @Override

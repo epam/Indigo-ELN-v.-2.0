@@ -17,7 +17,7 @@
 
             authService.getAuth().then(function(response) {
                 if (response.data) {
-                    $rootScope.MODEL.loggedUser = user;
+                    $rootScope.MODEL.loggedUser = response.data;
                 } else {
                     // no user found
                     $location.path("/login");

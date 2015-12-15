@@ -21,6 +21,18 @@ public class RoleRepositoryImpl implements RoleRepository {
         this.mongoTemplate = mongoTemplate;
     }
 
+    @Override
+    public void addRole(Role role) {
+        mongoTemplate.save(role);
+    }
+
+    @Override
+    public void deleteRole(String id) {
+        Query query = new Query(Criteria.where("_id").is(new ObjectId(id)));
+        mongoTemplate.remove(query, Role.class);
+    }
+
+    @Override
     public Collection<Role> getRoles(Collection<String> rolesIds) {
         Query searchQuery = new Query(Criteria.where("_id").in(
                 rolesIds.stream().map(ObjectId::new).collect(Collectors.toList())
