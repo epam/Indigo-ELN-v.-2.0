@@ -6,6 +6,7 @@
     "angular-ui-router": "ui-router#~0.2.15",
     "angular": "~1.4.8",
     "angular-resource": "~1.4.8",
+    "angular-route": "~1.4.8",
     "angular-ui-tree": "~2.11.0",
     "bootstrap": "~3.3.6",
     "angular-bootstrap": "~0.14.3",
