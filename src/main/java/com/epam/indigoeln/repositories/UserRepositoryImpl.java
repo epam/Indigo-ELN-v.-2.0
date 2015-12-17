@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
@@ -33,5 +35,10 @@ public class UserRepositoryImpl implements UserRepository {
     public User getUser(String name) {
         Query searchQuery = new Query(Criteria.where("name").is(name));
         return mongoTemplate.findOne(searchQuery, User.class);
+    }
+
+    @Override
+    public Collection<User> getUsers() {
+        return mongoTemplate.findAll(User.class);
     }
 }
