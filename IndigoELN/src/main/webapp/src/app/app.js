@@ -20,7 +20,7 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             controller: 'loginController'
         });
 
-        $provide.factory('myHttpInterceptor', function ($q, $rootScope, $injector) {
+        $provide.factory('myHttpInterceptor', ['$q', '$rootScope', '$injector', function ($q, $rootScope, $injector) {
             return {
                 'request': function (config) {
                     return config;
@@ -40,7 +40,7 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                     return $q.reject(rejection);
                 }
             };
-        });
+        }]);
         $httpProvider.interceptors.push('myHttpInterceptor');
 
     }]);
