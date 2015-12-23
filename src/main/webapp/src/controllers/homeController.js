@@ -2,40 +2,43 @@
 
     angular.module('indigoeln').controller('homeController', homeController);
 
-    homeController.$inject = ['$rootScope', '$scope', 'authService', '$location'];
+    homeController.$inject = ['$q','$rootScope', '$scope', 'authService', 'websocketService', '$location'];
 
-    function homeController($rootScope, $scope, authService, $location) {
+    function homeController($q, $rootScope, $scope, authService, websocketService, $location) {
 
         $rootScope.MODEL = {
             loggedUser: null
         };
 
         $scope.checkLoggedUser = function () {
+            var deferred = $q.defer();
             if ($rootScope.MODEL.loggedUser != null) {
-                return true;
-            }
-
-            authService.getAuth().then(function(response) {
-                if (response.data) {
-                    $rootScope.MODEL.loggedUser = response.data;
-                } else {
-                    // no user found
+                deferred.resolve($rootScope.MODEL.loggedUser);
+            } else {
+                authService.getAuth().then(function (response) {
+                    if (response.data) {
+                        $rootScope.MODEL.loggedUser = response.data;
+                        deferred.resolve($rootScope.MODEL.loggedUser);
+                    } else {
+                        // no user found
+                        $location.path("/login");
+                        deferred.reject();
+                    }
+                }, function () {
+                    // error callback
                     $location.path("/login");
-                }
-            }, function() {
-                // error callback
-                $location.path("/login");
-            });
-            return false;
+                    deferred.reject();
+                });
+            }
+            return deferred.promise;
         };
 
         var init = function () {
-            if (!$scope.checkLoggedUser()) {
-                return;
-            }
-            // To do further initialization
+            $scope.checkLoggedUser().then(function(user) {
+                websocketService.connect();
+                // To do further initialization
+            });
         };
-
         init();
 
     }
