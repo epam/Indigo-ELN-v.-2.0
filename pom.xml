@@ -11,10 +11,14 @@
 
     <packaging>war</packaging>
 
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.3.0.RELEASE</version>
+        <version>1.3.1.RELEASE</version>
     </parent>
 
     <dependencies>
@@ -39,12 +43,14 @@
         </dependency>
 
         <!-- Security -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- Messaging -->
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
@@ -63,13 +69,10 @@
         </dependency>
 
         <!-- Websocket -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-messaging</artifactId>
         </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -84,87 +87,62 @@
     </dependencies>
 
     <profiles>
+
         <profile>
             <id>release</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-
             <properties>
                 <grunt-task>release</grunt-task>
                 <webapp-includes>dist/**</webapp-includes>
-            </properties>            
+            </properties>
         </profile>
+
         <profile>
             <id>dev</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-
             <properties>
                 <grunt-task>dev</grunt-task>
                 <webapp-includes>src/**/*, bower_components/**/*</webapp-includes>
             </properties>
         </profile>
+
     </profiles>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-
                 <version>0.0.26</version>
-
                 <configuration>
                     <workingDirectory>src/main/webapp</workingDirectory>
                 </configuration>
-
                 <executions>
-
                     <execution>
                         <id>install node and npm</id>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v0.12.2</nodeVersion>
-                            <npmVersion>2.7.6</npmVersion>
+                            <nodeVersion>v4.2.4</nodeVersion>
+                            <npmVersion>3.5.2</npmVersion>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
-                        <!-- Optional configuration which provides for running any npm command -->
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
                     </execution>
-
                     <execution>
                         <id>bower install</id>
                         <goals>
                             <goal>bower</goal>
                         </goals>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
                     </execution>
-
                     <execution>
                         <id>grunt build</id>
                         <goals>
@@ -173,7 +151,7 @@
                         <configuration>
                             <arguments>${grunt-task}</arguments>
                         </configuration>
-                    </execution>        
+                    </execution>
                 </executions>
             </plugin>
 
@@ -181,7 +159,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingIncludes>WEB-INF/**, META-INF/**, index.html, ${webapp-includes}</packagingIncludes>
                 </configuration>
             </plugin>
@@ -192,7 +169,6 @@
                 <version>2.2</version>
                 <configuration>
                     <uriEncoding>UTF-8</uriEncoding>
-                    <path>/indigoeln</path>
                 </configuration>
             </plugin>
 
