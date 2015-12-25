@@ -1,4 +1,5 @@
 (function () {
+    'use strict';
 
     angular.module('indigoeln').factory('websocketService', websocketService);
     websocketService.$inject = ['$q'];
@@ -13,7 +14,7 @@
             var deferred = $q.defer();
             client = Stomp.client(url);
 
-            client.connect({}, function() {
+            client.connect({}, function () {
                 deferred.resolve();
             });
             return deferred.promise;
