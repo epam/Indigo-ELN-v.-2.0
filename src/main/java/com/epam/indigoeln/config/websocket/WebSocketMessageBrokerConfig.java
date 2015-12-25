@@ -1,6 +1,6 @@
 package com.epam.indigoeln.config.websocket;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -12,13 +12,27 @@ import java.util.List;
 
 @Configuration
 @EnableWebSocketMessageBroker
+@ConfigurationProperties(prefix = "indigoeln.websocket")
 public class WebSocketMessageBrokerConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Value("${websocket.relay.host}")
     private String relayHost;
+    private Integer relayPort;
 
-    @Value("${websocket.relay.port}")
-    private int relayPort;
+    public String getRelayHost() {
+        return relayHost;
+    }
+
+    public void setRelayHost(String relayHost) {
+        this.relayHost = relayHost;
+    }
+
+    public Integer getRelayPort() {
+        return relayPort;
+    }
+
+    public void setRelayPort(Integer relayPort) {
+        this.relayPort = relayPort;
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -27,8 +41,7 @@ public class WebSocketMessageBrokerConfig extends AbstractWebSocketMessageBroker
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableStompBrokerRelay("/topic/", "/queue/")
-                .setRelayHost(relayHost).setRelayPort(relayPort);
+        registry.enableStompBrokerRelay("/topic/", "/queue/").setRelayHost(relayHost).setRelayPort(relayPort);
     }
 
     @Override
