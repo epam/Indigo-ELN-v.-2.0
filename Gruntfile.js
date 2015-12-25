@@ -48,6 +48,28 @@ module.exports = function (grunt) {
                 dest: '<%= app.dist %>',
                 expand: true
             }
+        },
+
+        htmlmin: {
+            dist: {
+                options: {
+                    removeCommentsFromCDATA: true,
+                    collapseWhitespace: true,
+                    collapseBooleanAttributes: true,
+                    conservativeCollapse: true,
+                    removeAttributeQuotes: true,
+                    removeRedundantAttributes: true,
+                    useShortDoctype: true,
+                    removeEmptyAttributes: true,
+                    keepClosingSlash: true
+                },
+                files: [{
+                    expand: true,
+                    cwd: '<%= app.dist %>',
+                    src: ['**/*.html'],
+                    dest: '<%= app.dist %>'
+                }]
+            }
         }
     });
 
@@ -57,6 +79,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-usemin');
+    grunt.loadNpmTasks('grunt-contrib-htmlmin');
 
     grunt.registerTask('default', [
         'clean'
@@ -69,6 +92,7 @@ module.exports = function (grunt) {
         'concat',
         'cssmin',
         'uglify',
-        'usemin'
+        'usemin',
+        'htmlmin'
     ]);
 };
