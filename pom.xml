@@ -89,22 +89,31 @@
     <profiles>
 
         <profile>
-            <id>release</id>
+            <id>dev</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <grunt-task>release</grunt-task>
-                <webapp-includes>dist/**</webapp-includes>
+                <grunt-task>default</grunt-task>
             </properties>
         </profile>
 
         <profile>
-            <id>dev</id>
+            <id>release</id>
             <properties>
-                <grunt-task>dev</grunt-task>
-                <webapp-includes>src/**/*, bower_components/**/*</webapp-includes>
+                <grunt-task>release</grunt-task>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <configuration>
+                            <warSourceDirectory>${project.build.directory}/dist</warSourceDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
     </profiles>
@@ -117,9 +126,6 @@
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>0.0.26</version>
-                <configuration>
-                    <workingDirectory>src/main/webapp</workingDirectory>
-                </configuration>
                 <executions>
                     <execution>
                         <id>install node and npm</id>
@@ -128,7 +134,7 @@
                         </goals>
                         <configuration>
                             <nodeVersion>v4.2.4</nodeVersion>
-                            <npmVersion>3.5.2</npmVersion>
+                            <npmVersion>2.14.12</npmVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -153,14 +159,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <packagingIncludes>WEB-INF/**, META-INF/**, index.html, ${webapp-includes}</packagingIncludes>
-                </configuration>
             </plugin>
 
             <plugin>
