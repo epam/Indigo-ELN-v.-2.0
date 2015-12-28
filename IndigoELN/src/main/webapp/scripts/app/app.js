@@ -33,9 +33,9 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                 },
 
                 'responseError': function (rejection) {
-                    if (rejection.status == 401 && rejection.config.url !== 'login') {
+                    if (rejection.status === 401 && rejection.config.url !== 'login') {
                         var $location = $injector.get('$location');
-                        $location.path("/login");
+                        $location.path('/login');
                     }
                     return $q.reject(rejection);
                 }

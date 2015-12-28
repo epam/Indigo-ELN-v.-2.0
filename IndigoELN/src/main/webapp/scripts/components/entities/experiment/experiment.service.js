@@ -1,13 +1,14 @@
-(function(){
+(function () {
+    'use strict';
 
-angular.module('indigoeln').
+    angular.module('indigoeln').
 
-factory('experimentService', experimentService);
+        factory('experimentService', experimentService);
 
-experimentService.$inject = ['$resource'];
+    experimentService.$inject = ['$resource'];
 
-function experimentService($resource) {
-    return $resource('service/experiments');
-}
+    function experimentService($resource) {
+        return $resource('service/experiments');
+    }
 
 })();
