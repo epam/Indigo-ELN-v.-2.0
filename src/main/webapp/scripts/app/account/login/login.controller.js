@@ -1,4 +1,5 @@
 (function () {
+    'use strict';
 
     angular.module('indigoeln').controller('loginController', loginController);
 
@@ -7,8 +8,8 @@
     function loginController($rootScope, $scope, authService, $location) {
 
         $scope.LoginModel = {
-            login: "",
-            password: "",
+            login: '',
+            password: '',
             validated: false,
             error: null
         };
@@ -22,7 +23,7 @@
                     $scope.LoginModel.error = null;
                     $rootScope.MODEL.loggedUser = response.data;
 
-                    $location.path("/");
+                    $location.path('/');
                 }, function () {
                     $scope.LoginModel.error = "Authorization failed. Invalid login or password.";
                 });

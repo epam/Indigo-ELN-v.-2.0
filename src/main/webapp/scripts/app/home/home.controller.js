@@ -1,8 +1,9 @@
 (function () {
+    'use strict';
 
     angular.module('indigoeln').controller('homeController', homeController);
 
-    homeController.$inject = ['$q','$rootScope', '$scope', 'authService', 'websocketService', '$location'];
+    homeController.$inject = ['$q', '$rootScope', '$scope', 'authService', 'websocketService', '$location'];
 
     function homeController($q, $rootScope, $scope, authService, websocketService, $location) {
 
@@ -12,7 +13,7 @@
 
         $scope.checkLoggedUser = function () {
             var deferred = $q.defer();
-            if ($rootScope.MODEL.loggedUser != null) {
+            if ($rootScope.MODEL.loggedUser !== null) {
                 deferred.resolve($rootScope.MODEL.loggedUser);
             } else {
                 authService.getAuth().then(function (response) {
@@ -21,12 +22,12 @@
                         deferred.resolve($rootScope.MODEL.loggedUser);
                     } else {
                         // no user found
-                        $location.path("/login");
+                        $location.path('/login');
                         deferred.reject();
                     }
                 }, function () {
                     // error callback
-                    $location.path("/login");
+                    $location.path('/login');
                     deferred.reject();
                 });
             }
@@ -34,7 +35,7 @@
         };
 
         var init = function () {
-            $scope.checkLoggedUser().then(function(user) {
+            $scope.checkLoggedUser().then(function (user) {
                 websocketService.connect();
                 // To do further initialization
             });

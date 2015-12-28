@@ -1,4 +1,5 @@
 (function () {
+    'use strict';
 
     angular.module('indigoeln').factory('authService', authService);
     authService.$inject = ['$http'];
