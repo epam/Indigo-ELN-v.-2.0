@@ -13,6 +13,7 @@
             link: function (scope, elem, attrs) {
                 scope.newExperiment = newExperiment;
                 scope.newNotebook = newNotebook;
+                scope.newProject = newProject;
 
                 function newExperiment(event) {
                     $rootScope.$broadcast('new-experiment', {});
@@ -28,6 +29,19 @@
 
                     modalInstance.result.then(function (notebook) {
                         $rootScope.$broadcast('created-notebook', {notebook: notebook});
+                    }, function () {
+                    });
+                }
+
+                function newProject(event) {
+                    var modalInstance = $uibModal.open({
+                      animation: true,
+                      templateUrl: 'scripts/app/entities/project/new-project.html',
+                      controller: 'NewProjectCtrl'
+                    });
+
+                    modalInstance.result.then(function (project) {
+                        $rootScope.$broadcast('created-project', {project : project});
                     }, function () {
                     });
                 }

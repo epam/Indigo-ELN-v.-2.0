@@ -1,0 +1,42 @@
+<div class="modal-header">
+    <h3 class="modal-title">New Project</h3>
+</div>
+<div class="modal-body">
+    <label for="projectName">Project name</label>
+    <input id="projectName" class="form-control" ng-model="project.name">
+    <label for="userFilter">Filter system users</label>
+    <input id="userFilter" type="text" ng-model="userFilter"/>
+    <div id="userBlock" style="display:flex;">
+        <div id="userBlockSource" style="float:left;" class="user-block">
+            <label for="userBlockSourceList">System</label>
+            <ul id="userBlockSourceList" class="userList_ul">
+                <li class="userList_li" ng-repeat="user in sourceUsers | filter:userFilter"
+                    ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
+                    {{user}}<br/>
+                </li>
+            </ul>
+        </div>
+        <div id="userBlockControl" style="float:left;margin-left: 12px;margin-top: 65px;">
+            <button class="btn btn-primary" type="button" ng-click="allToDest()">>></button>
+            <br/>
+            <button class="btn btn-primary" style="margin-top: 20px;margin-left: 4px;" type="button" ng-click="toDest()">></button>
+            <br/>
+            <button class="btn btn-primary" style="margin-top: 20px;margin-left: 4px;" type="button" ng-click="toSource()"><</button>
+            <br/>
+            <button class="btn btn-primary" style="margin-top: 20px;" type="button" ng-click="allToSource()"><<</button>
+        </div>
+        <div id="userBlockDest" class="user-block" style="float:left;">
+            <label for="userBlockDestList">Project</label>
+            <ul id="userBlockDestList" class="userList_ul">
+                <li class="userList_li" ng-repeat="user in destUsers"
+                    ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
+                    {{user}}<br/>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+    <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+</div>
