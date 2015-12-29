@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.getUser(username);
+        User user = userService.getUser(username.toUpperCase());
         if (user == null) {
             throw new UsernameNotFoundException("User " + username + " cannot not be found");
         }
