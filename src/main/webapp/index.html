@@ -2,11 +2,9 @@
 <html ng-app="indigoeln">
 <head>
     <meta charset="UTF-8"/>
-
     <title>Indigo ELN</title>
-
-    <!-- build:js scripts/deps.min.js -->
-
+    
+    <!-- build:js dist/js/libs.js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
@@ -15,45 +13,99 @@
     <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="bower_components/angular-resource/angular-resource.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
-
+    
+    
     <!-- endbuild -->
 
-    <!-- build:js scripts/app.min.js -->
+    <!-- build:js dist/js/app.js -->
+    <script src="src/app/app.js"></script>
 
-    <script src="scripts/app/app.js"></script>
+    <script src="src/services/experimentService.js"></script>
+    <script src="src/services/authService.js"></script>
 
-    <script src="scripts/app/account/login/login.controller.js"></script>
-    <script src="scripts/app/entities/experiment/tabs/new-experiment-tab.controller.js"></script>
-    <script src="scripts/app/entities/notebook/new-notebook.controller.js"></script>
-    <script src="scripts/app/entities/project/new-project.controller.js"></script>
-    <script src="scripts/app/home/home.controller.js"></script>
+    <script src="src/controllers/homeController.js"></script>
+    <script src="src/controllers/loginController.js"></script>
 
-    <script src="scripts/components/auth/auth.service.js"></script>
-    <script src="scripts/components/entities/experiment/experiment.service.js"></script>
-    <script src="scripts/components/entities/experiment/experiment-tabs.directive.js"></script>
-    <script src="scripts/components/entities/experiment/experiment-tree.directive.js"></script>
-    <script src="scripts/components/entities/project/new-project.service.js"></script>
-    <script src="scripts/components/toolbar/toolbar.directive.js"></script>
-    <script src="scripts/components/websocket/websocket.service.js"></script>
+    <script src="src/experimentTree/experimentTree.js"></script>
+    <script src="src/experimentTabs/experimentTabs.js"></script>
+    <script src="src/toolbar/toolbar.js"></script>
 
+    <script src="src/newnotebook/NewNotebookCtrl.js"></script>
+    <script src="src/experimentTabs/newExperimentTab/NewExperimentTabCtrl.js"></script>
     <!-- endbuild -->
+        
+    <!--APPTEMPLATES-->
 
-    <!-- build:css css/deps.min.css -->
-
+    <!-- build:css dist/css/lib.css -->
     <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <!-- endbuild -->
+    
+    <!-- build:css dist/css/app.css -->
+    <link href="src/experimentTree/tree.css" rel="stylesheet">
+    <link href="src/experimentTabs/newExperimentTab/newExperiment.css" rel="stylesheet">
+    <link href="src/less/styles.css" rel="stylesheet">
 
     <!-- endbuild -->
 
-    <!-- build:css css/app.min.css -->
 
-    <link href="scripts/app/entities/experiment/tree/tree.css" rel="stylesheet">
-    <link href="scripts/app/entities/experiment/tabs/new-experiment.css" rel="stylesheet">
-    <link href="scripts/app/entities/project/new-project.css" rel="stylesheet">
 
-    <!-- endbuild -->
 </head>
 <body>
-<div ui-view></div>
+    <!--<div ui-view></div>-->
+<div class="main-container">
+    <div class="main-container__head">
+        <ul class="head-controls-list head-controls-list_main">
+            <li class="head-controls-list__item head-controls-list__item_dark-color">
+                <i class="fa fa-arrow-circle-o-up"></i>
+            </li>
+            <li class="head-controls-list__item head-controls-list__item_dark-color">
+                <i class="fa fa-cog"></i>
+            </li>
+            <li class="head-controls-list__item head-controls-list__item_dark-color">
+                <i class="fa fa-th-large"></i>
+            </li>
+            <li class="head-controls-list__item head-controls-list__item_dark-color">
+                <i class="fa fa-question-circle"></i>
+            </li>
+        </ul>
+        <ul class="head-controls-list">
+            <li class="head-controls-list__item">
+                <i class="fa fa-file-o"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-files-o"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-inbox"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-folder-open"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-floppy-o"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-print"></i>
+            </li>
+            <li class="head-controls-list__item">
+                <i class="fa fa-search"></i>
+            </li>
+        </ul>
+
+    </div>
+    <div class="main-container__sitebar unit-navigation-page">
+        <ul class="unit-navigation-list-one-lvl">
+            <li class="list-item-one-lvl">My Bookmarks
+                <ul class="unit-navigation-list-two-lvl">
+                    <li class="list-item-two-lvl">My Bookmarks</li>
+                    <li class="list-item-two-lvl">All Sites</li>
+                    <li class="list-item-two-lvl">All Sites</li>
+                </ul>
+            </li>
+            <li class="list-item-one-lvl"><span>All Sites</span></li>
+        </ul>
+    </div>
+    <div class="content-page"></div>
+</div>
 </body>
 </html>
