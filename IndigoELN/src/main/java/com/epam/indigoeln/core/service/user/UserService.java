@@ -10,6 +10,7 @@ public interface UserService {
     void saveUser(User user);
     void deleteUser(String id);
     User getUser(String name);
+    Collection<User> getUsers();
 
     void addUserRole(String userId, String roleId);
     void deleteUserRole(String userId, String roleId);

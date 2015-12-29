@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Collection<User> getUsers() {
+        return userRepository.getUsers();
+    }
+
+    @Override
     public void addUserRole(String userId, String roleId) {
         UserRole userRole = new UserRole();
         userRole.setUserId(userId);
