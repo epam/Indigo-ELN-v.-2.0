@@ -17,6 +17,7 @@ public class UserRepository {
     private MongoTemplate mongoTemplate;
 
     public void saveUser(User user) {
+        user.setName(user.getName().toUpperCase());
         mongoTemplate.save(user);
     }
 
