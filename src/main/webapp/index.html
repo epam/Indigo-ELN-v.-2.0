@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html ng-app="indigoeln">
+<head>
+    <meta charset="UTF-8"/>
+
+    <title>Indigo ELN</title>
+
+    <!-- build:js scripts/deps.min.js -->
+
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
+
+    <!-- endbuild -->
+
+    <!-- build:js scripts/app.min.js -->
+
+    <script src="scripts/app/app.js"></script>
+
+    <script src="scripts/app/account/login/login.controller.js"></script>
+    <script src="scripts/app/entities/experiment/tabs/new-experiment-tab.controller.js"></script>
+    <script src="scripts/app/entities/notebook/new-notebook.controller.js"></script>
+    <script src="scripts/app/entities/project/new-project.controller.js"></script>
+    <script src="scripts/app/home/home.controller.js"></script>
+
+    <script src="scripts/components/auth/auth.service.js"></script>
+    <script src="scripts/components/entities/experiment/experiment.service.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tabs.directive.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tree.directive.js"></script>
+    <script src="scripts/components/entities/project/new-project.service.js"></script>
+    <script src="scripts/components/toolbar/toolbar.directive.js"></script>
+    <script src="scripts/components/websocket/websocket.service.js"></script>
+
+    <!-- endbuild -->
+
+    <!-- build:css css/deps.min.css -->
+
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+
+    <!-- endbuild -->
+
+    <!-- build:css css/app.min.css -->
+
+    <link href="scripts/app/entities/experiment/tree/tree.css" rel="stylesheet">
+    <link href="scripts/app/entities/experiment/tabs/new-experiment.css" rel="stylesheet">
+    <link href="scripts/app/entities/project/new-project.css" rel="stylesheet">
+
+    <!-- endbuild -->
+</head>
+<body>
+<div ui-view></div>
+</body>
+</html>
