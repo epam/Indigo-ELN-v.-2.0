@@ -7,7 +7,9 @@
     function homeController($rootScope, $scope, authService, $location) {
 
         $rootScope.MODEL = {
-            loggedUser: null
+            loggedUser: {
+                username: 'User1'
+            }
         };
 
         $scope.checkLoggedUser = function () {
