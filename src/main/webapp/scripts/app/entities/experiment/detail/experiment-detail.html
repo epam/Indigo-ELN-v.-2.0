@@ -1,0 +1,42 @@
+<div>
+    <h2><span>Experiment</span> {{vm.experiment.id}}</h2>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-condensed">
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Co-authors</th>
+                <th>Project</th>
+                <th>Creation Date</th>
+                <th>Last Edit Date</th>
+                <th>Idle Workdays</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>{{vm.experiment.title}}</td>
+                <td>{{vm.experiment.status}}</td>
+                <td>
+                    <li ng-repeat="user in vm.experiment.coAuthors">{{user.name}}</li>
+                </td>
+                <td>{{vm.experiment.project}}</td>
+                <td>{{vm.experiment.creationDate.dayOfMonth + '.' + vm.experiment.creationDate.monthValue + '.' +
+                    vm.experiment.creationDate.year}}
+                </td>
+                <td>{{vm.experiment.lastEditDate.dayOfMonth + '.' + vm.experiment.lastEditDate.monthValue + '.' +
+                    vm.experiment.lastEditDate.year}}
+                </td>
+                <td>{{0}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit"
+            onclick="window.history.back()"
+            class="btn btn-info">
+        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+</div>

@@ -1,8 +1,7 @@
   <uib-tabset>
-    <uib-tab heading="Welcome">
-        <h1>Welcome</h1><i class="icon-remove"></i>
-        <p><a ng-click="$event.preventDefault(); newExperiment()" href="#">Create new experiment</a></p>
-        <p>Find experiments</p>
+      <uib-tab heading="Home">
+          <h1>Home Page</h1><i class="icon-remove"></i>
+          <experiment-tables></experiment-tables>
     </uib-tab>
     <uib-tab ng-repeat="tab in tabs" active="tab.active">
         <uib-tab-heading>{{tab.name}} <span class="glyphicon glyphicon-remove" ng-click="$event.preventDefault(); removeTab(tab)"></span></uib-tab-heading>

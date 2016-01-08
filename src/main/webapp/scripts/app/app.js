@@ -9,7 +9,7 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                     templateUrl: 'scripts/components/template/template.html'
                 }
             }
-        }).state('welcome', {
+        }).state('home', {
             url: '/home',
             parent: 'template',
             templateUrl: 'scripts/app/home/home.html',
