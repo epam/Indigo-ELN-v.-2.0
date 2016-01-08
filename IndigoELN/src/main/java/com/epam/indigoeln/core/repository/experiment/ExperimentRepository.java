@@ -1,13 +1,15 @@
 package com.epam.indigoeln.core.repository.experiment;
 
 import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Repository
 public class ExperimentRepository {
@@ -20,22 +22,20 @@ public class ExperimentRepository {
         return experiment;
     }
 
-    public Collection<Experiment> getAllExperiments() {
+    public Experiment findExperiment(String id) {
+        return mongoTemplate.findOne(query(where("id").is(id)), Experiment.class);
+    }
+
+    public Collection<Experiment> findAllExperiments() {
         return mongoTemplate.findAll(Experiment.class);
     }
 
-//    public Collection<Experiment> getAllUserExperiments(User user) {
-//        Query query = new Query(Criteria.where("author").is(user));
-//        return mongoTemplate.find(query, Experiment.class);
-//    }
-
-    public Experiment getExperiment(String id) {
-        Query query = new Query(Criteria.where("id").is(id));
-        return mongoTemplate.findOne(query, Experiment.class);
+    public Collection<Experiment> findUserExperiments(User user) {
+        return mongoTemplate.find(query(where("author").is(user)), Experiment.class);
     }
 
     public void deleteExperiment(String id) {
-        Query query = new Query(Criteria.where("id").is(id));
-        mongoTemplate.findAndRemove(query, Experiment.class);
+        mongoTemplate.findAndRemove(query(where("id").is(id)), Experiment.class);
     }
+
 }

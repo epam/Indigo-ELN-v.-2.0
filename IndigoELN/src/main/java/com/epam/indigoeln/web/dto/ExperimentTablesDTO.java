@@ -2,35 +2,35 @@ package com.epam.indigoeln.web.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
 
-import java.util.List;
+import java.util.Collection;
 
 public class ExperimentTablesDTO {
 
-    List<Experiment> openAndCompletedExp;
-    List<Experiment> waitingSignatureExp;
-    List<Experiment> submittedAndSigningExp;
+    Collection<Experiment> openAndCompletedExp;
+    Collection<Experiment> waitingSignatureExp;
+    Collection<Experiment> submittedAndSigningExp;
 
-    public List<Experiment> getOpenAndCompletedExp() {
+    public Collection<Experiment> getOpenAndCompletedExp() {
         return openAndCompletedExp;
     }
 
-    public void setOpenAndCompletedExp(List<Experiment> openAndCompletedExp) {
+    public void setOpenAndCompletedExp(Collection<Experiment> openAndCompletedExp) {
         this.openAndCompletedExp = openAndCompletedExp;
     }
 
-    public List<Experiment> getWaitingSignatureExp() {
+    public Collection<Experiment> getWaitingSignatureExp() {
         return waitingSignatureExp;
     }
 
-    public void setWaitingSignatureExp(List<Experiment> waitingSignatureExp) {
+    public void setWaitingSignatureExp(Collection<Experiment> waitingSignatureExp) {
         this.waitingSignatureExp = waitingSignatureExp;
     }
 
-    public List<Experiment> getSubmittedAndSigningExp() {
+    public Collection<Experiment> getSubmittedAndSigningExp() {
         return submittedAndSigningExp;
     }
 
-    public void setSubmittedAndSigningExp(List<Experiment> submittedAndSigningExp) {
+    public void setSubmittedAndSigningExp(Collection<Experiment> submittedAndSigningExp) {
         this.submittedAndSigningExp = submittedAndSigningExp;
     }
 }
