@@ -1,10 +1,9 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.Experiment;
-
-import java.util.stream.Stream;
+import com.epam.indigoeln.web.dto.ExperimentTablesDTO;
 
 public interface ExperimentService {
 
-    Stream<Experiment> getExperiments();
+    ExperimentTablesDTO getExperimentTables();
+
 }

@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('indigoeln').controller('NewNotebookCtrl', NewNotebookCtrl);
+    angular
+        .module('indigoeln')
+        .controller('NewNotebookCtrl', NewNotebookCtrl);
 
     NewNotebookCtrl.$inject = ['$scope', '$uibModalInstance'];
 

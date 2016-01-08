@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('indigoeln').directive('experimentTabs', experimentTabs);
+    angular
+        .module('indigoeln')
+        .directive('experimentTabs', experimentTabs);
 
     experimentTabs.$inject = ['$timeout', '$filter'];
 
@@ -26,7 +28,7 @@
                             experiment: data.experiment,
                             active: true,
                             content: 'scripts/app/entities/experiment/tabs/experiment-tab.html',
-                            name: data.experiment.name
+                            name: data.experiment.title
                         });
                     }
 

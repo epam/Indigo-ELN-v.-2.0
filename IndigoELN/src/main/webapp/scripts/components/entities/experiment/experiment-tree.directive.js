@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    angular.module('indigoeln').directive('experimentTree', experimentTree);
+    angular
+        .module('indigoeln')
+        .directive('experimentTree', experimentTree);
 
     experimentTree.$inject = ['experimentService', '$rootScope'];
 
@@ -12,13 +14,13 @@
             templateUrl: 'scripts/app/entities/experiment/tree/experiment-tree.html',
             link: function (scope, elem, attrs) {
                 scope.data = [{
-                    name: 'Notebook 1',
+                    title: 'Notebook 1',
                     type: 'root',
                     nodes: experimentService.query()
                 }];
 
                 scope.open = function (data) {
-                    $rootScope.$broadcast('experiment-open', {experiment: data})
+                    $rootScope.$broadcast('experiment-open', {experiment: data});
                 };
 
                 scope.$on('created-experiment', function (event, data) {
@@ -32,7 +34,7 @@
                     scope.data.push(notebook);
                 });
             }
-        }
+        };
     }
 
 })();
