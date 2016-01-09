@@ -44,9 +44,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         Set<String> rolesNames = roles.stream().map(Role::getName).collect(Collectors.toSet());
         Collection<RolePermission> rolesPermissions = roleService.getRolesPermissions(rolesIds);
 
-        rolesPermissions.stream().filter(rp -> {
-            return !Permission.isPermission(rp.getValue());
-        }).findFirst().ifPresent((rp) -> {
+        rolesPermissions.stream().filter(rp -> !Permission.isPermission(rp.getValue())).findFirst().ifPresent((rp) -> {
             throw new UsernameNotFoundException("Unknown permission " + rp.getValue());
         });
 

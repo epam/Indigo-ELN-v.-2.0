@@ -1,15 +1,12 @@
-(function () {
-    'use strict';
+'use strict';
 
-    angular
-        .module('indigoeln')
-        .controller('ExperimentTablesController', ExperimentTablesController);
+angular
+    .module('indigoeln')
+    .controller('ExperimentTablesController', ExperimentTablesController);
 
-    ExperimentTablesController.$inject = ['experimentTablesService'];
+ExperimentTablesController.$inject = ['experimentTablesService'];
 
-    function ExperimentTablesController(experimentTablesService) {
-        var vm = this;
-        vm.experiments = experimentTablesService.get();
-    }
-
-})();
+function ExperimentTablesController(experimentTablesService) {
+    var vm = this;
+    vm.experiments = experimentTablesService.get();
+}
