@@ -3,18 +3,18 @@ package com.epam.indigoeln.web.controller;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@RestController
 @RequestMapping("/service")
-@Controller("notebookController")
 public class NotebookController {
     @Autowired
     private NotebookService service;

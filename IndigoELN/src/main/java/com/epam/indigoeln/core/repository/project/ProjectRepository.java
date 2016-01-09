@@ -1,14 +1,14 @@
 package com.epam.indigoeln.core.repository.project;
 
-import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Repository
 public class ProjectRepository {
@@ -26,12 +26,10 @@ public class ProjectRepository {
     }
 
     public Project getProjectByName(String name) {
-        Query searchQuery = new Query(Criteria.where("projectName").is(name));
-        return mongoTemplate.findOne(searchQuery, Project.class);
+        return mongoTemplate.findOne(query(where("projectName").is(name)), Project.class);
     }
 
     public void deleteProjectByName(String name) {
-        Query searchQuery = new Query(Criteria.where("projectName").is(name));
-        mongoTemplate.remove(searchQuery, Project.class);
+        mongoTemplate.remove(query(where("projectName").is(name)), Project.class);
     }
 }
