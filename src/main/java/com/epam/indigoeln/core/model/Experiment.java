@@ -1,5 +1,9 @@
 package com.epam.indigoeln.core.model;
 
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -27,9 +31,13 @@ public class Experiment implements Serializable {
     private String project;
 
     @CreatedDate
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
 
     @LastModifiedDate
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate lastEditDate;
 
     @LastModifiedBy

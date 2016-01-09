@@ -22,13 +22,11 @@
                     <li ng-repeat="user in vm.experiment.coAuthors">{{user.name}}</li>
                 </td>
                 <td>{{vm.experiment.project}}</td>
-                <td>{{vm.experiment.creationDate.dayOfMonth + '.' + vm.experiment.creationDate.monthValue + '.' +
-                    vm.experiment.creationDate.year}}
+                <td>{{vm.experiment.creationDate | date:'MMM dd yyyy'}}
                 </td>
-                <td>{{vm.experiment.lastEditDate.dayOfMonth + '.' + vm.experiment.lastEditDate.monthValue + '.' +
-                    vm.experiment.lastEditDate.year}}
+                <td>{{vm.experiment.lastEditDate | date:'MMM dd yyyy'}}
                 </td>
-                <td>{{0}}</td>
+                <td>{{vm.getIdleWorkdays(vm.experiment.lastEditDate) + ' day(s)'}}</td>
             </tr>
             </tbody>
         </table>
