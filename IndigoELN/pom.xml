@@ -92,6 +92,14 @@
             <version>4.0.31.Final</version>
         </dependency>
 
+        <!-- Jackson Datatype -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.6.1</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>

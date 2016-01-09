@@ -22,9 +22,9 @@
                 <li ng-repeat="user in exp.coAuthors">{{user.name}}</li>
             </td>
             <td>{{exp.project}}</td>
-            <td>{{exp.creationDate.dayOfMonth + '.' + exp.creationDate.monthValue + '.' + exp.creationDate.year}}</td>
-            <td>{{exp.lastEditDate.dayOfMonth + '.' + exp.lastEditDate.monthValue + '.' + exp.lastEditDate.year}}</td>
-            <td>{{0}}</td>
+            <td>{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+            <td>{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+            <td>{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
         </tr>
         </tbody>
     </table>
@@ -52,9 +52,9 @@
             <td>
                 <li ng-repeat="user in exp.witness">{{user.name}}</li>
             </td>
-            <td>{{exp.creationDate.dayOfMonth + '.' + exp.creationDate.monthValue + '.' + exp.creationDate.year}}</td>
-            <td>{{exp.lastEditDate.dayOfMonth + '.' + exp.lastEditDate.monthValue + '.' + exp.lastEditDate.year}}</td>
-            <td>{{0}}</td>
+            <td>{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+            <td>{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+            <td>{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
         </tr>
         </tbody>
     </table>
@@ -82,8 +82,8 @@
             <td>
                 <li ng-repeat="user in exp.witness">{{user.name}}</li>
             </td>
-            <td>{{exp.creationDate.dayOfMonth + '.' + exp.creationDate.monthValue + '.' + exp.creationDate.year}}</td>
-            <td>{{exp.lastEditDate.dayOfMonth + '.' + exp.lastEditDate.monthValue + '.' + exp.lastEditDate.year}}</td>
+            <td>{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+            <td>{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
             <td>{{exp.comments}}</td>
         </tr>
         </tbody>
