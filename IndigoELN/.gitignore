@@ -7,3 +7,4 @@
 /src/main/webapp/bower_components/
 
 /.tmp/
+/activemq-data/
