@@ -151,6 +151,8 @@
                         <configuration>
                             <nodeVersion>v4.2.4</nodeVersion>
                             <npmVersion>3.5.3</npmVersion>
+                            <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
+                            <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
                         </configuration>
                     </execution>
                     <execution>
