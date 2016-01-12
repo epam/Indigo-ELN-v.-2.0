@@ -70,9 +70,9 @@ p {
 
   }
   &__sitebar {
-      background: @bg-gray;
-      height: ~"calc(100% - 90px)";
-      width: 220px;
+    background: @bg-gray;
+    height: ~"calc(100% - 90px)";
+    width: 220px;
   }
 }
 
@@ -95,10 +95,10 @@ p {
     }
   }
   &:hover, &:focus {
-      text-decoration: none;
-      color: darken(@link-color-black-d1, 2%);
-      outline: none;
-    }
+    text-decoration: none;
+    color: darken(@link-color-black-d1, 2%);
+    outline: none;
+  }
   &.collapsed {
     &:before {
       content: "\f078";
@@ -121,7 +121,6 @@ p {
   &__btn {
     background: @bg-gray-l1;
     border: none;
-    letter-spacing: 1px;
     padding: 1px 10px;
     outline: none;
     margin: 5px;
@@ -245,91 +244,125 @@ p {
 
 .main-container {
   .unit-navigation-page {
-    ul {
-    //  list-style-type: none;
-   //   padding: 0;
-      li {
-        //border-bottom: 1px solid @br-gray-l1;
-       // cursor: pointer;
-        span {
-         // font: 14px/34px segoeui;
+    > ul {
+      margin-top: 29px;
+      > li {
+        background: @bg-gray-d2;
+        color: @link-color-blue;
+        font: 14px/34px segoeui;
+        text-align: center;
+        position: relative;
+        z-index: 5;
+        &:last-child {
+          ul {
+            &:last-child {
+              border-bottom: 1px solid @br-gray-l1;
+            }
+          }
         }
-        &.list-item-one-lvl {
-          background: @bg-gray-d2;
-          color: @link-color-blue;
-          font: 14px/34px segoeui;
-          text-align: center;
-          .unit-navigation-list-two-lvl {
+        > ul {
+          background: @bg-gray;
+          display: none;
+          > li {
             background: @bg-gray;
-            display: none;
-            .list-item-two-lvl {
-              color: @link-color-black;
-              text-align: left;
-              span {
-                padding-left: 24px;
+            color: @link-color-black;
+            position: relative;
+            text-align: left;
+            z-index: 5;
+            &:last-child {
+              border: none;
+            }
+            span {
+              padding-left: 24px;
+            }
+            ul {
+              background: @bg-gray-l1;
+              padding-left: 29px;
+              position: relative;
+              display: none;
+              &:before {
+                background: @bg-blue;
+                content: "";
+                display: block;
+                height: ~"calc(100% - 49px)";
+                position: absolute;
+                width: 1px;
+                top: 28px;
+                left: 30px;
+                z-index: 1;
               }
-              ul {
-                padding-left: 12px;
-                &.unit-navigation-list-three-lvl {
-                  background: @bg-gray-l1;
-                  padding-left: 29px;
+              > li {
+                background: @bg-gray-l1;
+                z-index: 0;
+                .fa {
+                  color: @link-color-blue;
+                  font-size: 20px;
+                  margin-left: -7px;
+                }
+                span {
+                  padding-left: 0;
+                }
+                ul {
                   display: none;
-                  .list-item-three-lvl {
+                  padding-left: 20px;
+                  &:before {
+                    content: "";
+                    left: 20px;
+                    background: @bg-gray-d3;
+                  }
+                  li {
+                    background: @bg-gray-l1;
+                    position: relative;
+                    &:after {
+                      background: @bg-blue;
+                      content: "";
+                      display: block;
+                      height: 1px;
+                      position: absolute;
+                      width: 9px;
+                      top: 14px;
+                      left: -19px;
+                      z-index: 1;
+                    }
                     .fa {
-                      color: @link-color-blue;
-                      font-size: 20px;
-                      margin-left: -7px;
-
+                      color: @link-color-gray;
                     }
                     span {
-                      padding-left: 0;
-                      /* &:before {
-                         content: "\f111";
-                         color: #4dd0e1;
-                         font-family: fontawesome;
-                         font-size: 18px;
-                         margin: 0 8px;
-                       }*/
+                      &:after {
+                        content: "";
+                        color: #4dd0e1;
+                        font-family: fontawesome;
+                      }
                     }
                     ul {
-                      border-left: 1px solid @link-color-gray;
-                      &.unit-navigation-list-four-lvl {
-                         display: none;
-                        .list-item-four-lvl {
-                          .fa {
-                            color: @link-color-gray;
-                          }
-                          span {
-                            &:after {
-                              content: "";
-                              color: #4dd0e1;
-                              font-family: fontawesome;
-                            }
-                          }
-                          .unit-navigation-list-four-lvl {
-                            //display: none;
-                          }
+                      display: none;
+                      &:before {
+                        content: "";
+                        display: none;
+                      }
+                      li {
+                        &:after {
+                          background: @bg-gray;
+                          content: "";
                         }
                       }
                     }
                   }
                 }
               }
-              &:last-child {
-                border: none;
-              }
             }
           }
         }
+        &:last-child {
+          border: none;
+        }
       }
-      &.unit-navigation-list-one-lvl {
-         margin: 30px 0px 0 0;
+      &:last-child {
+        border: none;
       }
     }
   }
 }
-
-
 
 input[type=checkbox].uui-form-element.blue:checked+label:before {
   background-color: @bg-blue;
