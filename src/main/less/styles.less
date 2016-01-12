@@ -8,8 +8,21 @@ html, body, .main-container {
   padding: 0;
 }
 
-@font-face {
+////fonts styles////
 
+h2, h3, button, span, a {
+  font: 14px/30px segoeui!important;
+}
+
+p {
+  margin: 10px 0 0 !important;
+}
+
+///
+
+@font-face {
+  font-family: segoeui;
+  src: url(../font/segoeui/segoeui.ttf);
 }
 
 .font-open-sans(@font-style: normal; @font-weight: normal; @font-size: 14px; @line-height: 20px; @font-family: open-sans-regular){
@@ -23,6 +36,17 @@ html, body, .main-container {
   left: @l;
   bottom: @b;
 }
+
+
+
+
+
+.open-menu {
+  display: block !important;
+}
+
+
+
 
 @os-bold: open-sans-regular;
 
@@ -46,9 +70,64 @@ html, body, .main-container {
 
   }
   &__sitebar {
-      background: @bg-gray-l1;
+      background: @bg-gray;
       height: ~"calc(100% - 90px)";
-      width: 270px;
+      width: 220px;
+  }
+}
+
+.accordion-toggle {
+  color: @link-color-black-d1;
+  display: block;
+  position: relative;
+  padding-left: 5px;
+  text-decoration: none;
+  width: 100%;
+  &:before {
+    content: "\f077";
+    color: @link-color-blue;
+    font-family: fontawesome;
+    position: absolute;
+    top: 0;
+    right: 5px;
+    &:hover {
+      color: darken(@link-color-blue, 2%);
+    }
+  }
+  &:hover, &:focus {
+      text-decoration: none;
+      color: darken(@link-color-black-d1, 2%);
+      outline: none;
+    }
+  &.collapsed {
+    &:before {
+      content: "\f078";
+    }
+  }
+}
+.ruling-uui-element {
+  display: block;
+  min-height: 30px;
+  width: 260px;
+  margin-right: 10px;
+  &__checkbox {
+    float: right;
+  }
+}
+.ruling-controls {
+  float: right;
+  text-align: right;
+  width: 100%;
+  &__btn {
+    background: @bg-gray-l1;
+    border: none;
+    letter-spacing: 1px;
+    padding: 1px 10px;
+    outline: none;
+    margin: 5px;
+    &:hover {
+      background: darken(@bg-gray-l1, 2%);
+    }
   }
 }
 
@@ -114,114 +193,145 @@ html, body, .main-container {
 }
 
 ////content-page landing-page////
+.main-container {
+  &__content-page {
+    padding: 5px;
+    width: ~"calc(100% - 220px)";
+  }
+}
 
-
+.accordion-table-page {
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  &__header {
+    background: @bg-blue-l1;
+    position: relative;
+    .fa {
+      color: @link-color-blue;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+    span {
+      color: @link-color-black-d1;
+      padding: 5px;
+    }
+  }
+}
 
 
 ////sitebar landing-page////
-.unit-navigation-list-one-lvl {
-  margin-top: 0;
-  .list-item-one-lvl {
-   // background: @brand-bg-light-blue;
-   /// border-bottom: 1px solid @brand-bg-white-border;
-    box-shadow: none;
-    cursor: pointer;
-    .menu-item-toggle {
-   //   background: @brand-bg-light-blue;
-      display: block;
-      line-height: 20px;
-      padding: 12px 9px 11px 7px;
-      text-decoration: none;
-      &:hover {
-      //  background: @brand-bg-light-blue-hover;
-      }
-      .fa {
-      //  color: @brand-bg-white;
-        font-size: 22px;
-        margin: 0 20px 0 12px;
-        width: 20px;
-      }
-      em {
-     //   color: @brand-bg-white;
-        font:  normal 15px 'Oswald Regular';
-        padding: 0;
-        text-transform: uppercase;
-      }
-      .fa-menu-arrow {
-        color: #fff;
-        font-size: 14px;
-        float: right;
-        margin: 5px 5px;
-        &:before {
-          content: '\f0da';
-        }
-      }
-    }
-    .unit-navigation-list-two-lvl {
-      display: none;
-    }
-    &.expanded {
-      .fa-menu-arrow {
-        &:before {
-          content: '\f0d7';
-        }
-      }
-      .unit-navigation-list-two-lvl {
-     //   background: @brand-bg-blue-gray;
-        display: block;
-        padding-left: 12px;
-        .list-item-two-lvl {
-          .sub-menu-item-toggle {
-            font:  normal 15px 'Oswald Regular';
-            text-transform: uppercase;
-            text-decoration: none;
-          }
-          .sub-menu {
-            display: none;
-          }
-          .fa-menu-plus {
-        //    color: @brand-bg-light-black;
-            float: left;
-            font-size: 14px;
-            margin-top: 17px;
-            &:before {
-              content: '\f196';
-            }
-          }
-          &.expanded {
-            &> .fa-menu-plus {
-        //     color: @brand-bg-light-black;
-              float: left;
-              &:before {
-                content: '\f147';
-              }
-            }
-          }
-          a {
-          //  background: @brand-bg-blue-gray;
-            display: block;
-            letter-spacing: 1px;
-            padding: 15px 9px 15px 7px;
-          }
-          &.expanded {
-            .sub-menu {
-              display: block;
-              .sub-menu-item {
-                .sub-menu {
-                  display: none;
-                }
-                &.expanded {
-                  .sub-menu {
-                    display: block;
-                  }
-                }
-              }
-            }
-          }
+.main-container {
+  .unit-navigation-page {
+    ul {
+      list-style-type: none;
+      padding: 0;
+      li {
+        border-bottom: 1px solid @br-gray-l1;
+        cursor: pointer;
+        span {
+          font: 14px/34px segoeui;
         }
       }
     }
   }
 }
 
+.accordion-body {
+  display: flex;
+  margin-top: 10px;
+}
 
+.main-container {
+  .unit-navigation-page {
+    ul {
+    //  list-style-type: none;
+   //   padding: 0;
+      li {
+        //border-bottom: 1px solid @br-gray-l1;
+       // cursor: pointer;
+        span {
+         // font: 14px/34px segoeui;
+        }
+        &.list-item-one-lvl {
+          background: @bg-gray-d2;
+          color: @link-color-blue;
+          font: 14px/34px segoeui;
+          text-align: center;
+          .unit-navigation-list-two-lvl {
+            background: @bg-gray;
+            display: none;
+            .list-item-two-lvl {
+              color: @link-color-black;
+              text-align: left;
+              span {
+                padding-left: 24px;
+              }
+              ul {
+                padding-left: 12px;
+                &.unit-navigation-list-three-lvl {
+                  background: @bg-gray-l1;
+                  padding-left: 29px;
+                  display: none;
+                  .list-item-three-lvl {
+                    .fa {
+                      color: @link-color-blue;
+                      font-size: 20px;
+                      margin-left: -7px;
+
+                    }
+                    span {
+                      padding-left: 0;
+                      /* &:before {
+                         content: "\f111";
+                         color: #4dd0e1;
+                         font-family: fontawesome;
+                         font-size: 18px;
+                         margin: 0 8px;
+                       }*/
+                    }
+                    ul {
+                      border-left: 1px solid @link-color-gray;
+                      &.unit-navigation-list-four-lvl {
+                         display: none;
+                        .list-item-four-lvl {
+                          .fa {
+                            color: @link-color-gray;
+                          }
+                          span {
+                            &:after {
+                              content: "";
+                              color: #4dd0e1;
+                              font-family: fontawesome;
+                            }
+                          }
+                          .unit-navigation-list-four-lvl {
+                            //display: none;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              &:last-child {
+                border: none;
+              }
+            }
+          }
+        }
+      }
+      &.unit-navigation-list-one-lvl {
+         margin: 30px 0px 0 0;
+      }
+    }
+  }
+}
+
+
+
+input[type=checkbox].uui-form-element.blue:checked+label:before {
+  background-color: @bg-blue;
+  border-color: @bg-blue;
+}
