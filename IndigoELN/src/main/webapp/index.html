@@ -5,21 +5,16 @@
     <title>Indigo ELN</title>
 
     <!-- build:css assets/styles/main.css -->
-    <link rel="stylesheet" href="src/less/styles.css">
-    <link rel="stylesheet" href="src/font/font-awesome/css/font-awesome.css">
-
-    <link rel="stylesheet" href="src/bootstrap/css/bootstrap.min.css" />
-    <script src="src/bootstrap/js/bootstrap.js"></script>
-    <link rel="stylesheet" href="src/css/awesome-bootstrap-checkbox.css" />
-    <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" />
-    <!--<link rel="stylesheet" href="scripts/app/entities/experiment/tree/tree.css">-->
-    <!--<link rel="stylesheet" href="scripts/app/entities/experiment/tabs/new-experiment.css">-->
-    <!--<link rel="stylesheet" href="scripts/app/entities/project/new-project.css">-->
-
+    <link rel="stylesheet" href="assets/styles/styles.css">
+    <link rel="stylesheet" href="assets/styles/awesome-bootstrap-checkbox.css"/>
     <!-- endbuild -->
+
     <!-- build:css assets/styles/vendor.css -->
+    <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
+    <link rel="stylesheet" href="bower_components/font-awesome-bower/css/font-awesome.css"/>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -233,30 +228,28 @@
         </section>
     </div>
 </div>
-<!-- build:js scripts/deps.min.js -->
-
+<!-- build:js scripts/vendor.js -->
+<!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
+<!-- bower:js -->
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-animate/angular-animate.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="bower_components/angular-resource/angular-resource.js"></script>
 <script src="bower_components/angular-route/angular-route.js"></script>
-<script src="bower_components/stomp-websocket/lib/stomp.js"></script>
-
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<!-- endbower -->
 <!-- endbuild -->
 
-<!-- build:js scripts/app.min.js -->
-
+<!-- build:js({.tmp,src/main/webapp}) scripts/app.js -->
 <script src="scripts/app/app.js"></script>
-
 <script src="scripts/app/account/login/login.controller.js"></script>
 <script src="scripts/app/entities/experiment/tabs/new-experiment-tab.controller.js"></script>
 <script src="scripts/app/entities/notebook/new-notebook.controller.js"></script>
 <script src="scripts/app/entities/project/new-project.controller.js"></script>
 <script src="scripts/app/home/home.controller.js"></script>
-
 <script src="scripts/components/auth/auth.service.js"></script>
 <script src="scripts/components/entities/experiment/experiment.service.js"></script>
 <script src="scripts/components/entities/experiment/experiment-tabs.directive.js"></script>
@@ -274,12 +267,10 @@
 <script src="scripts/components/util/toggle-class.directive.js"></script>
 <script src="scripts/components/util/toggle-class-child.directive.js"></script>
 <!-- endbuild -->
-<!-- jQuery-UI core -->
-<!--<link rel="stylesheet" href="src/jquery-ui/css/smoothness/jquery-ui-1.10.4.custom.min.css" />-->
-<!--<script src="src/jquery-ui/jquery-ui-1.10.4.custom.min.js"></script>-->
+
+<script src="bower_components/stomp-websocket/lib/stomp.js"></script>
 <script>
     $('.uui-slider').slider();
 </script>
-<script src="src/js/jquery-1.11.1.min.js"></script>
 </body>
 </html>
