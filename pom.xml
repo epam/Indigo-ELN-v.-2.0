@@ -118,7 +118,7 @@
         <profile>
             <id>release</id>
             <properties>
-                <grunt-task>release</grunt-task>
+                <grunt-task>build</grunt-task>
             </properties>
             <dependencies>
                 <dependency>
@@ -133,9 +133,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
                         <configuration>
-                            <warSourceDirectory>${project.build.directory}/dist</warSourceDirectory>
+                            <warSourceDirectory>${basedir}/src/main/webapp/dist</warSourceDirectory>
                         </configuration>
                     </plugin>
+
                 </plugins>
             </build>
         </profile>
