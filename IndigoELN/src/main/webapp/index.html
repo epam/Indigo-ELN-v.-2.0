@@ -4,21 +4,89 @@
     <meta charset="UTF-8"/>
     <title>Indigo ELN</title>
 
+    <!-- build:js scripts/deps.min.js -->
+
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+    <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/stomp-websocket/lib/stomp.js"></script>
+
+    <!-- endbuild -->
+
+    <!-- build:js scripts/app.min.js -->
+
+    <script src="scripts/app/app.js"></script>
+
+    <script src="scripts/app/account/login/login.controller.js"></script>
+    <script src="scripts/app/entities/experiment/tabs/new-experiment-tab.controller.js"></script>
+    <script src="scripts/app/entities/notebook/new-notebook.controller.js"></script>
+    <script src="scripts/app/entities/project/new-project.controller.js"></script>
+    <script src="scripts/app/home/home.controller.js"></script>
+
+    <script src="scripts/components/auth/auth.service.js"></script>
+    <script src="scripts/components/entities/experiment/experiment.service.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tabs.directive.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tree.directive.js"></script>
+    <script src="scripts/components/entities/project/new-project.service.js"></script>
+    <script src="scripts/app/entities/experiment/experiment.js"></script>
+    <script src="scripts/app/entities/experiment/table/experiment-tables.controller.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tables.service.js"></script>
+    <script src="scripts/components/entities/experiment/experiment-tables.directive.js"></script>
+    <script src="scripts/app/entities/experiment/detail/experiment-detail.controller.js"></script>
+    <script src="scripts/app/entities/entity.js"></script>
+    <script src="scripts/components/toolbar/toolbar.directive.js"></script>
+    <script src="scripts/components/util/dateutil.service.js"></script>
+    <script src="scripts/components/websocket/websocket.service.js"></script>
+    <script src="scripts/components/util/toggle-class.directive.js"></script>
+    <script src="scripts/components/util/toggle-class-child.directive.js"></script>
+
+    <!-- endbuild -->
+
     <!-- build:css assets/styles/vendor.css -->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css"/>
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css"/>
-    <link rel="stylesheet" href="bower_components/font-awesome-bower/css/font-awesome.css"/>
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+
     <!-- endbower -->
     <!-- endbuild -->
 
+
+
+
+
+
+
     <!-- build:css assets/styles/main.css -->
-    <link rel="stylesheet" href="assets/styles/styles.css">
+
+    <script src="src/js/jquery-1.11.1.min.js"></script>
+
+
+    <link rel="stylesheet" href="src/less/styles.css">
+    <link rel="stylesheet" href="src/font/font-awesome/css/font-awesome.css">
+
+    <link rel="stylesheet" href="src/bootstrap/css/bootstrap.min.css" />
+    <script src="src/bootstrap/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="src/css/awesome-bootstrap-checkbox.css" />
+    <link rel="stylesheet" href="fonts/font-awesome/css/font-awesome.min.css" />
+    <!-- jQuery-UI core -->
+    <!--<link rel="stylesheet" href="src/jquery-ui/css/smoothness/jquery-ui-1.10.4.custom.min.css" />-->
+    <!--<script src="src/jquery-ui/jquery-ui-1.10.4.custom.min.js"></script>-->
+    <script>
+        $('.uui-slider').slider();
+    </script>
+
+
+
     <!--<link rel="stylesheet" href="scripts/app/entities/experiment/tree/tree.css">-->
     <!--<link rel="stylesheet" href="scripts/app/entities/experiment/tabs/new-experiment.css">-->
     <!--<link rel="stylesheet" href="scripts/app/entities/project/new-project.css">-->
 
     <!-- endbuild -->
+
 
 </head>
 <body>
@@ -66,58 +134,169 @@
     </div>
     <div class="main-container__sitebar unit-navigation-page">
         <ul class="unit-navigation-list-one-lvl">
-            <li class="list-item-one-lvl">My Bookmarks
+            <li class="list-item-one-lvl" toggle-class-child="open-menu"><span>My Bookmarks</span>
                 <ul class="unit-navigation-list-two-lvl">
-                    <li class="list-item-two-lvl">My Bookmarks</li>
-                    <li class="list-item-two-lvl">All Sites</li>
-                    <li class="list-item-two-lvl">All Sites</li>
+                    <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 1</span>
+                        <ul class="unit-navigation-list-three-lvl">
+                            <li class="list-item-three-lvl" toggle-class-child="open-menu">
+                                <i class="fa fa-circle"></i>
+                                <span>User</span>
+                                <ul class="unit-navigation-list-four-lvl">
+                                    <li class="list-item-four-lvl" toggle-class-child="open-menu">
+                                        <i class="fa fa-circle"></i>
+                                        <span>111</span>
+                                        <ul class="unit-navigation-list-five-lvl">
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>Table</span>
+                                            </li>
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0001</span>
+                                            </li>
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0002</span></li>
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0003</span>
+                                            </li>
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0004</span>
+                                            </li>
+                                            <li class="list-item-five-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0005</span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 2</span>
+                        <ul class="unit-navigation-list-three-lvl">
+                            <li class="list-item-three-lvl" toggle-class-child="open-menu">
+                                <i class="fa fa-circle"></i>
+                                <span>User</span>
+                                <ul class="unit-navigation-list-four-lvl">
+                                    <li class="list-item-four-lvl" toggle-class-child="open-menu">
+                                        <i class="fa fa-circle"></i>
+                                        <span>111</span>
+                                        <ul class="unit-navigation-list-four-lvl">
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>Table</span>
+                                            </li>
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0001</span>
+                                            </li>
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0002</span></li>
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0003</span>
+                                            </li>
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0004</span>
+                                            </li>
+                                            <li class="list-item-four-lvl">
+                                                <i class="fa fa-circle"></i>
+                                                <span>0005</span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 3</span>
+                        <ul class="unit-navigation-list-three-lvl">
+                            <li class="list-item-three-lvl" toggle-class-child="open-menu"><span>User</span>
+                                <ul class="unit-navigation-list-four-lvl">
+                                    <li class="list-item-four-lvl" toggle-class-child="open-menu"><span>111</span>
+                                        <ul class="unit-navigation-list-four-lvl">
+                                            <li class="list-item-four-lvl"><span>Table</span></li>
+                                            <li class="list-item-four-lvl"><span>0001</span></li>
+                                            <li class="list-item-four-lvl"><span>0002</span></li>
+                                            <li class="list-item-four-lvl"><span>0003</span></li>
+                                            <li class="list-item-four-lvl"><span>0004</span></li>
+                                            <li class="list-item-four-lvl"><span>0005</span></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
-            <li class="list-item-one-lvl"><span>All Sites</span></li>
+            <li class="list-item-one-lvl" toggle-class-child="open-menu"><span>All Sites</span>
+                <ul class="unit-navigation-list-two-lvl">
+                    <li class="list-item-two-lvl">Site 1</li>
+                    <li class="list-item-two-lvl">Site 2</li>
+                    <li class="list-item-two-lvl">Site 3</li>
+                </ul>
+            </li>
         </ul>
     </div>
-    <div class="content-page">
-        <div ui-view></div>
+    <div class="main-container__content-page">
+        <h2>111111</h2>
+        <section class="uui-accordion" id="accordion1">
+            <div class="accordion-table-page panel accordion-item">
+                <div class="accordion-table-page__header accordion-heading">
+                    <p class="accordion-title">
+                        <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item1">Concept Details</a>
+                    </p>
+                </div>
+                <div class="accordion-collapse collapse in" id="item1">
+                    <div class="accordion-body">
+                            <div class="ruling-uui-element">
+                                <div class="uui-slider ruling-uui-element__slider"></div>
+                                <p class="checkbox ruling-uui-element__checkbox">
+                                    <input type="checkbox" id="f1" class="uui-form-element blue" />
+                                    <label for="f1">Show Structure</label>
+                                </p>
+                            </div>
+                            <div class="ruling-controls">
+                                <button class="ruling-controls__btn">Register VC</button>
+                                <button class="ruling-controls__btn">Add New Compound</button>
+                                <button class="ruling-controls__btn">Delete Compound(s)</button>
+                                <button class="ruling-controls__btn">Import SD File</button>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-table-page panel accordion-item">
+                <div class="accordion-table-page__header accordion-heading">
+                    <p class="accordion-title">
+                        <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item2">Concept Details</a>
+                    </p>
+                </div>
+                <div class="accordion-collapse collapse" id="item2">
+                    <div class="accordion-body">
+                        <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-table-page panel accordion-item">
+                <div class="accordion-table-page__header accordion-heading">
+                    <p class="accordion-title">
+                        <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item3">Concept Details</a>
+                    </p>
+                </div>
+                <div class="accordion-collapse collapse" id="item3">
+                    <div class="accordion-body">
+                        <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 </div>
-
-
-<!-- build:js scripts/vendor.js -->
-<!-- bower:js -->
-<script src="bower_components/jquery/dist/jquery.js"></script>
-<script src="bower_components/angular/angular.js"></script>
-<script src="bower_components/angular-animate/angular-animate.js"></script>
-<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-<script src="bower_components/angular-resource/angular-resource.js"></script>
-<script src="bower_components/angular-route/angular-route.js"></script>
-<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
-<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-<!-- endbower -->
-<!-- endbuild -->
-
-<!-- build:js({.tmp,src/main/webapp}) scripts/app.js -->
-<script src="scripts/app/app.js"></script>
-<script src="scripts/app/account/login/login.controller.js"></script>
-<script src="scripts/app/entities/experiment/tabs/new-experiment-tab.controller.js"></script>
-<script src="scripts/app/entities/notebook/new-notebook.controller.js"></script>
-<script src="scripts/app/entities/project/new-project.controller.js"></script>
-<script src="scripts/app/home/home.controller.js"></script>
-<script src="scripts/components/auth/auth.service.js"></script>
-<script src="scripts/components/entities/experiment/experiment.service.js"></script>
-<script src="scripts/components/entities/experiment/experiment-tabs.directive.js"></script>
-<script src="scripts/components/entities/experiment/experiment-tree.directive.js"></script>
-<script src="scripts/components/entities/project/new-project.service.js"></script>
-<script src="scripts/app/entities/experiment/experiment.js"></script>
-<script src="scripts/app/entities/experiment/table/experiment-tables.controller.js"></script>
-<script src="scripts/components/entities/experiment/experiment-tables.service.js"></script>
-<script src="scripts/components/entities/experiment/experiment-tables.directive.js"></script>
-<script src="scripts/app/entities/experiment/detail/experiment-detail.controller.js"></script>
-<script src="scripts/app/entities/entity.js"></script>
-<script src="scripts/components/toolbar/toolbar.directive.js"></script>
-<script src="scripts/components/util/dateutil.service.js"></script>
-<script src="scripts/components/websocket/websocket.service.js"></script>
-<!-- endbuild -->
-
 </body>
 </html>
