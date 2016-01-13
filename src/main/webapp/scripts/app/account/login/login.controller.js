@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('indigoeln').controller('loginController', loginController);
+angular.module('indigoeln').controller('LoginController', LoginController);
 
-loginController.$inject = ['$rootScope', '$scope', 'authService', '$location'];
+LoginController.$inject = ['$rootScope', '$scope', 'authService', '$location'];
 
-function loginController($rootScope, $scope, authService, $location) {
+function LoginController($rootScope, $scope, authService, $location) {
 
     $scope.LoginModel = {
         login: '',

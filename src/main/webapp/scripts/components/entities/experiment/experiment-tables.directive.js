@@ -14,4 +14,4 @@ function experimentTables(experimentService) {
         controllerAs: 'vm',
         bindToController: true
     };
-};
+}
