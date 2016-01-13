@@ -4,15 +4,19 @@ angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
             .state('experiment', {
-                parent: 'template',
+                parent: 'entity',
                 url: '/experiment/{id}',
                 data: {
                     authorities: ['ROLE_USER'],
                     pageTitle: 'Experiment'
                 },
-                templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
-                controller: 'ExperimentDetailController',
-                controllerAs: 'vm',
+                views: {
+                    'content@': {
+                        templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
+                        controller: 'ExperimentDetailController',
+                        controllerAs: 'vm'
+                    }
+                },
                 bindToController: true,
                 resolve: {
                     //entity: ['$stateParams', 'experimentService', function($stateParams, experimentService) {
