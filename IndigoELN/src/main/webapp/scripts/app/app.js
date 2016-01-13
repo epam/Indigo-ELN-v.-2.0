@@ -3,23 +3,28 @@
 angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute'])
 
     .config(['$stateProvider', '$urlRouterProvider', '$provide', '$httpProvider', function ($stateProvider, $urlRouterProvider, $provide, $httpProvider) {
-        $urlRouterProvider.otherwise('/home');
-
-        $stateProvider.state('template', {
+        $urlRouterProvider.otherwise('/');
+        $stateProvider.state('navbar', {
+            'abstract': true,
             views: {
-                '': {
-                    templateUrl: 'scripts/components/template/template.html'
+                'navbar@': {
+                    templateUrl: 'scripts/components/navbar/navbar.html',
+                    controller: 'NavbarController'
                 }
+            },
+            resolve: {
             }
-        }).state('home', {
-            url: '/home',
-            parent: 'template',
-            templateUrl: 'scripts/app/home/home.html',
-            controller: 'homeController'
-        }).state('login', {
-            url: '/login',
-            templateUrl: 'scripts/app/account/login/login.html',
-            controller: 'loginController'
+        }).state('sidebar', {
+            'abstract': true,
+            parent: 'navbar',
+            views: {
+                'sidebar@': {
+                    templateUrl: 'scripts/components/sidebar/sidebar.html',
+                    controller: 'SidebarController'
+                }
+            },
+            resolve: {
+            }
         });
 
         $provide.factory('myHttpInterceptor', ['$q', '$rootScope', '$injector', function ($q, $rootScope, $injector) {

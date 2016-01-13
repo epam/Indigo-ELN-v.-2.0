@@ -1,10 +1,10 @@
 'use strict';
 
-angular.module('indigoeln').controller('homeController', homeController);
+angular.module('indigoeln').controller('MainController', MainController);
 
-homeController.$inject = ['$q', '$rootScope', '$scope', 'authService', 'websocketService', '$location'];
+MainController.$inject = ['$q', '$rootScope', '$scope', 'authService', 'websocketService', '$location'];
 
-function homeController($q, $rootScope, $scope, authService, websocketService, $location) {
+function MainController($q, $rootScope, $scope, authService, websocketService, $location) {
 
     $rootScope.MODEL = {
         loggedUser: null
