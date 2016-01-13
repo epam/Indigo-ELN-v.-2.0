@@ -5,6 +5,6 @@ angular.module('indigoeln')
         $stateProvider
             .state('entity', {
                 abstract: true,
-                parent: 'template'
+                parent: 'site'
             });
     });
