@@ -1,11 +1,12 @@
 'use strict';
 
-angular.module('indigoeln')
-    .controller('SidebarController', function ($scope, $location, $state) {
-        $scope.$state = $state;
+angular
+    .module('indigoeln')
+    .controller('SidebarController', SidebarController);
 
-        //$scope.logout = function () {
-        //    Auth.logout();
-        //    $state.go('home');
-        //};
-    });
+SidebarController.$inject = ['$location', '$state', 'authService'];
+
+function SidebarController($location, $state, authService) {
+    var vm = this;
+    //vm.isAuthenticated = authService.isAuthenticated();
+}

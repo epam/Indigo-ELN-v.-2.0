@@ -9,10 +9,16 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             views: {
                 'navbar@': {
                     templateUrl: 'scripts/components/navbar/navbar.html',
-                    controller: 'NavbarController'
+                    controller: 'NavbarController',
+                    controllerAs: 'vm'
                 }
             },
             resolve: {
+                //getAuth: ['authService',
+                //    function (authService) {
+                //        return authService.getAuth();
+                //    }
+                //]
             }
         }).state('sidebar', {
             'abstract': true,
@@ -20,10 +26,16 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             views: {
                 'sidebar@': {
                     templateUrl: 'scripts/components/sidebar/sidebar.html',
-                    controller: 'SidebarController'
+                    controller: 'SidebarController',
+                    controllerAs: 'vm'
                 }
             },
             resolve: {
+                //getAuth: ['authService',
+                //    function (authService) {
+                //        return authService.getAuth();
+                //    }
+                //]
             }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');
