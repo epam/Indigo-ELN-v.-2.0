@@ -9,9 +9,9 @@ public interface RoleService {
 
     void addRole(Role role);
     void deleteRole(String id);
-    Collection<Role> getRoles(Collection<String> rolesIds);
+    Iterable<Role> getRoles(Collection<String> rolesIds);
 
     void addRolePermission(String roleId, String permission);
     void deleteRolePermission(String roleId, String permission);
-    Collection<RolePermission> getRolesPermissions(Collection<String> rolesIds);
+    Iterable<RolePermission> getRolesPermissions(Collection<String> rolesIds);
 }

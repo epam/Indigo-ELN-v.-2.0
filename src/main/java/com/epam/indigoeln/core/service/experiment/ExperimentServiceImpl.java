@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -18,6 +19,30 @@ public class ExperimentServiceImpl implements ExperimentService {
     @Autowired
     private ExperimentRepository experimentRepository;
 
+    @Override
+    public Experiment save(Experiment experiment) {
+        return experimentRepository.save(experiment);
+    }
+
+    @Override
+    public List<Experiment> findAll() {
+        return experimentRepository.findAll();
+    }
+
+    @Override
+    public Experiment findOne(String id) {
+        return experimentRepository.findOne(id);
+    }
+
+    @Override
+    public Collection<Experiment> findByAuthor(User author) {
+        return experimentRepository.findByAuthor(author);
+    }
+
+    @Override
+    public void delete(String id) {
+        experimentRepository.delete(id);
+    }
 
     @Override
     public ExperimentTablesDTO getExperimentTables() {
