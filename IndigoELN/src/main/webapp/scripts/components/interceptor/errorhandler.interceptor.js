@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('errorHandlerInterceptor', function ($q, $log) {
+    .factory('errorHandlerInterceptor', function ($q, $log, $injector) {
         return {
             'responseError': function (httpResponse) {
+
                 var addErrorAlert = function () {
                     $log.error(JSON.stringify(arguments))
                 };
@@ -26,6 +27,13 @@ angular.module('indigoeln')
                             addErrorAlert(httpResponse.data.message, httpResponse.data.message, httpResponse.data);
                         } else {
                             addErrorAlert(httpResponse.data);
+                        }
+                        break;
+
+                    case 401:
+                        if (httpResponse.config.url !== 'login') {
+                            var $location = $injector.get('$location');
+                            $location.path('/login');
                         }
                         break;
 
