@@ -37,7 +37,7 @@ public class ExperimentController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Collection<Experiment> getAllExperiments(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        User user = userRepository.getUser(userDetails.getUserInfo().getUsername());
+        User user = userRepository.findByName(userDetails.getUserInfo().getUsername());
         return experimentRepository.findUserExperiments(user);
     }
 
@@ -60,7 +60,7 @@ public class ExperimentController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ExperimentTablesDTO getExperimentTables(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        User user = userRepository.getUser(userDetails.getUserInfo().getUsername());
+        User user = userRepository.findByName(userDetails.getUserInfo().getUsername());
         ExperimentTablesDTO dto = new ExperimentTablesDTO();
 
         Collection<Experiment> userExperiments = experimentRepository.findUserExperiments(user);

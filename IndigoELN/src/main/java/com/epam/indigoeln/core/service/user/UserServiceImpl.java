@@ -20,22 +20,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void saveUser(User user) {
-        userRepository.saveUser(user);
+        userRepository.save(user);
     }
 
     @Override
     public void deleteUser(String id) {
-        userRepository.deleteUser(id);
+        userRepository.delete(id);
     }
 
     @Override
     public User getUser(String name) {
-        return userRepository.getUser(name);
+        return userRepository.findByName(name);
     }
 
     @Override
     public Collection<User> getUsers() {
-        return userRepository.getUsers();
+        return userRepository.findAll();
     }
 
     @Override
@@ -43,19 +43,19 @@ public class UserServiceImpl implements UserService {
         UserRole userRole = new UserRole();
         userRole.setUserId(userId);
         userRole.setRoleId(roleId);
-        userRoleRepository.saveUserRole(userRole);
+        userRoleRepository.save(userRole);
     }
 
     @Override
     public void deleteUserRole(String userId, String roleId) {
-        UserRole userRole = userRoleRepository.getUserRole(userId, roleId);
+        UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleId);
         if (userRole != null) {
-            userRoleRepository.deleteUserRole(userRole.getId());
+            userRoleRepository.delete(userRole.getId());
         }
     }
 
     @Override
     public Collection<UserRole> getUserRoles(String userId) {
-        return userRoleRepository.getUserRoles(userId);
+        return userRoleRepository.findByUserId(userId);
     }
 }
