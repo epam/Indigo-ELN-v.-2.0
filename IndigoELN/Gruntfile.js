@@ -154,7 +154,7 @@ module.exports = function (grunt) {
                 src: ['scripts/app/**/*.html', 'scripts/components/**/*.html',],
                 dest: '.tmp/templates/templates.js',
                 options: {
-                    module: 'indigoelnApp',
+                    module: 'indigoeln',
                     usemin: 'scripts/app.js',
                     htmlmin: '<%= htmlmin.dist.options %>'
                 }
