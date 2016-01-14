@@ -14,22 +14,22 @@ public class NotebookServiceImpl implements NotebookService {
     private NotebookRepository repository;
 
     public Notebook createNewNotebook(Notebook notebook) {
-        return repository.createNewNotebook(notebook);
+        return repository.save(notebook);
     }
 
     public Collection<Notebook> getAllNotebooks() {
-        return repository.getAllNotebooks();
+        return repository.findAll();
     }
 
     public Notebook getNotebook(String id) {
-        return repository.getNotebook(id);
+        return repository.findOne(id);
     }
 
     public Notebook updateNotebook(Notebook notebook) {
-        return repository.updateNotebook(notebook);
+        return repository.save(notebook);
     }
 
     public void deleteNotebook(String id) {
-        repository.deleteNotebook(id);
+        repository.delete(id);
     }
 }

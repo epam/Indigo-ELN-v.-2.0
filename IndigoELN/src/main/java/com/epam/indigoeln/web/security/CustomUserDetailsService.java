@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
@@ -39,16 +40,16 @@ public class CustomUserDetailsService implements UserDetailsService {
         Collection<UserRole> userRoles = userService.getUserRoles(userId);
         Set<String> rolesIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toSet());
 
-        Collection<Role> roles = roleService.getRoles(rolesIds);
+        Iterable<Role> roles = roleService.getRoles(rolesIds);
 
-        Set<String> rolesNames = roles.stream().map(Role::getName).collect(Collectors.toSet());
-        Collection<RolePermission> rolesPermissions = roleService.getRolesPermissions(rolesIds);
+        Set<String> rolesNames = StreamSupport.stream(roles.spliterator(), false).map(Role::getName).collect(Collectors.toSet());
+        Iterable<RolePermission> rolesPermissions = roleService.getRolesPermissions(rolesIds);
 
-        rolesPermissions.stream().filter(rp -> !Permission.isPermission(rp.getValue())).findFirst().ifPresent((rp) -> {
+        StreamSupport.stream(rolesPermissions.spliterator(), false).filter(rp -> !Permission.isPermission(rp.getValue())).findFirst().ifPresent((rp) -> {
             throw new UsernameNotFoundException("Unknown permission " + rp.getValue());
         });
 
-        Set<String> permissions = rolesPermissions.stream().map(RolePermission::getValue).collect(Collectors.toSet());
+        Set<String> permissions = StreamSupport.stream(rolesPermissions.spliterator(), false).map(RolePermission::getValue).collect(Collectors.toSet());
 
         UserInfo userInfo = new UserInfo(userId, username,
                 rolesNames, permissions);

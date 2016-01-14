@@ -2,7 +2,6 @@ package com.epam.indigoeln.web.controller;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.web.dto.ExperimentTablesDTO;
@@ -27,9 +26,6 @@ public class ExperimentController {
     private ExperimentService experimentService;
 
     @Autowired
-    private ExperimentRepository experimentRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
 
@@ -38,21 +34,21 @@ public class ExperimentController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Collection<Experiment> getAllExperiments(@AuthenticationPrincipal CustomUserDetails userDetails) {
         User user = userRepository.findByName(userDetails.getUserInfo().getUsername());
-        return experimentRepository.findUserExperiments(user);
+        return experimentService.findByAuthor(user);
     }
 
     @RequestMapping(value = "/experiments/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Experiment getExperiment(@PathVariable String id) {
-        return experimentRepository.findExperiment(id);
+        return experimentService.findOne(id);
     }
 
     @RequestMapping(value = "/experiments",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Experiment saveExperiment(@RequestBody Experiment experiment) {
-        return experimentRepository.saveExperiment(experiment);
+        return experimentService.save(experiment);
     }
 
     /* Tables with experiments on the home page, where current user is an author, witness, or signature requested */
@@ -63,8 +59,8 @@ public class ExperimentController {
         User user = userRepository.findByName(userDetails.getUserInfo().getUsername());
         ExperimentTablesDTO dto = new ExperimentTablesDTO();
 
-        Collection<Experiment> userExperiments = experimentRepository.findUserExperiments(user);
-        Collection<Experiment> allExperiments = experimentRepository.findAllExperiments();
+        Collection<Experiment> userExperiments = experimentService.findByAuthor(user);
+        Collection<Experiment> allExperiments = experimentService.findAll();
 
         dto.setOpenAndCompletedExp(userExperiments.stream()
                 .filter(exp -> exp.getStatus().equals("Open") || exp.getStatus().equals("Completed") || exp.getStatus().equals("Archived"))

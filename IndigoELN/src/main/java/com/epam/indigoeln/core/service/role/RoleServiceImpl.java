@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 @Service
 public class RoleServiceImpl implements RoleService {
@@ -20,17 +21,17 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void addRole(Role role) {
-        roleRepository.addRole(role);
+        roleRepository.save(role);
     }
 
     @Override
     public void deleteRole(String id) {
-        roleRepository.deleteRole(id);
+        roleRepository.delete(id);
     }
 
     @Override
-    public Collection<Role> getRoles(Collection<String> rolesIds) {
-        return roleRepository.getRoles(rolesIds);
+    public Iterable<Role> getRoles(Collection<String> rolesIds) {
+        return roleRepository.findAll(rolesIds);
     }
 
     @Override
@@ -38,19 +39,19 @@ public class RoleServiceImpl implements RoleService {
         RolePermission rolePermission = new RolePermission();
         rolePermission.setRoleId(roleId);
         rolePermission.setValue(permission);
-        rolePermissionRepository.saveRolePermission(rolePermission);
+        rolePermissionRepository.save(rolePermission);
     }
 
     @Override
     public void deleteRolePermission(String roleId, String permission) {
-        RolePermission rolePermission = rolePermissionRepository.getRolePermission(roleId, permission);
-        if (rolePermission != null) {
-            rolePermissionRepository.deleteRolePermission(rolePermission.getId());
+        Collection<RolePermission> rolePermissions = rolePermissionRepository.findByRoleIdAndValue(roleId, permission);
+        if (rolePermissions != null) {
+            rolePermissions.forEach(rolePermissionRepository::delete);
         }
     }
 
     @Override
-    public Collection<RolePermission> getRolesPermissions(Collection<String> rolesIds) {
-        return rolePermissionRepository.getRolesPermissions(rolesIds);
+    public Iterable<RolePermission> getRolesPermissions(Collection<String> rolesIds) {
+        return rolePermissionRepository.findAll(rolesIds);
     }
 }
