@@ -8,5 +8,5 @@ public interface ProjectService {
     Project saveProject(Project project);
     Collection<Project> getAllProjects();
     Project getProjectByName(String name);
-    void deleteProjectByName(String name);
+    void deleteProject(String name);
 }
