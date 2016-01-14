@@ -20,7 +20,7 @@ public class Application {
     }
 
     /**
-     * If no profile has been configured, set by default the "release" profile.
+     * If no profile has been configured, set by default the "dev" profile.
      */
     private static void addDefaultProfile(SpringApplication app, SimpleCommandLinePropertySource source) {
         if (!source.containsProperty("spring.profiles.active") &&
