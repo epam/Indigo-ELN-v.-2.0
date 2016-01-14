@@ -1,11 +1,12 @@
 'use strict';
 
-angular.module('indigoeln')
-    .controller('NavbarController', function ($scope, $location, $state) {
-        $scope.$state = $state;
+angular
+    .module('indigoeln')
+    .controller('NavbarController', NavbarController);
 
-        //$scope.logout = function () {
-        //    Auth.logout();
-        //    $state.go('home');
-        //};
-    });
+NavbarController.$inject = ['$location', '$state', 'authService'];
+
+function NavbarController($location, $state, authService) {
+    var vm = this;
+    //vm.isAuthenticated = authService.isAuthenticated();
+}

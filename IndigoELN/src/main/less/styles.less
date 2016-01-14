@@ -1,4 +1,4 @@
-@import '../font/font-awesome/less/font-awesome.less';
+//@import '../font/font-awesome/less/font-awesome.less';
 @import 'variables.less';
 @import 'mixins.less';
 
@@ -14,15 +14,12 @@ h2, h3, button, span, a {
   font: 14px/30px segoeui!important;
 }
 
-p {
-  margin: 10px 0 0 !important;
-}
 
 ///
 
 @font-face {
   font-family: segoeui;
-  src: url(../font/segoeui/segoeui.ttf);
+  src: url(../fonts/segoeui.ttf);
 }
 
 .font-open-sans(@font-style: normal; @font-weight: normal; @font-size: 14px; @line-height: 20px; @font-family: open-sans-regular){
@@ -64,14 +61,14 @@ p {
     background: @bg-gray-d1;
     box-shadow: 0 0 15px 2px black;
     flex-grow: 10;
-    height: 90px;
+    height: 70px;
     z-index: 1;
     width: 100%;
 
   }
   &__sitebar {
     background: @bg-gray;
-    height: ~"calc(100% - 90px)";
+    height: ~"calc(100% - 70px)";
     width: 220px;
   }
 }
@@ -141,18 +138,18 @@ p {
     color: #fff;
     cursor: pointer;
     display: inline-block;
-    font-size: 15px;
     list-style-type: none;
     margin-right: 8px;
-    height: 47px;
+    height: 36px;
     text-align: center;
-    width: 47px;
+    width: 36px;
+    position: relative;
     &:hover {
       border: 1px solid @br-blue;
     }
     .fa {
-      font-size: 28px;
-      margin-top: 8px;
+      font-size: 20px;
+      margin-top: 7px;
     }
     &_dark-color {
       background: @bg-dark;
@@ -237,10 +234,19 @@ p {
   }
 }
 
-.accordion-body {
-  display: flex;
-  margin-top: 10px;
+.ind-accordion {
+  &__item {
+
+  }
 }
+
+.ruling-controls {
+  &__btn {
+
+  }
+}
+
+
 
 .main-container {
   .unit-navigation-page {
@@ -367,4 +373,111 @@ p {
 input[type=checkbox].uui-form-element.blue:checked+label:before {
   background-color: @bg-blue;
   border-color: @bg-blue;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////accordion-table-page/////
+
+.ind-accordion-item {
+  box-shadow: none !important;
+  margin-bottom: 0!important;
+  &__header {
+    background: #b2ebf2;
+    position: relative;
+  }
+  &__body {
+
+  }
+}
+
+
+
+.main-table {
+  border-collapse: separate;
+  border-spacing: 3px;
+  border: none;
+}
+
+.table-list {
+  .table-list__item {
+    border: none;
+    padding: 8px;
+    &_header{
+      text-align: center;
+      background-color:@bg-blue-l2;
+      padding: 12px;
+    }
+  }
+   &__item {
+    font: 14px/34px segoeui;
+     color: @bg-gray-d1;
+    vertical-align: inherit;
+  }
+  &:nth-of-type(odd) {
+    background-color: @bg-gray-l3!important;
+  }
+}
+
+
+.head-controls-list-submenu {
+  position: absolute;
+  display: none;
+  background: @bg-white;
+  list-style-type: none;
+  text-align: center;
+  padding: 15px;
+  border: 1px solid black;
+  color: black;
+  min-width: 150px;
+  top: 44px;
+  left: 0;
+  &.open-menu {
+    display: block;
+  }
 }
