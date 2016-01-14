@@ -13,7 +13,7 @@
     "bootstrap": "3.3.6",
     "font-awesome-bower": "4.4.0",
     "jquery": "2.1.4",
-    "stomp-websocket": "2.3.0"
+    "stomp-websocket": "2.3.4"
   },
   "overrides": {
     "bootstrap": {
@@ -22,6 +22,9 @@
         "dist/css/bootstrap.css",
         "less/bootstrap.less"
       ]
+    },
+    "stomp-websocket": {
+      "main": "lib/stomp.js"
     }
   }
 }
