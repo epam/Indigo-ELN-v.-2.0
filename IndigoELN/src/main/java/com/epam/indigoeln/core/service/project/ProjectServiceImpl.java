@@ -15,21 +15,21 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Project saveProject(Project project) {
-        return projectRepository.saveProject(project);
+        return projectRepository.save(project);
     }
 
     @Override
     public Collection<Project> getAllProjects() {
-        return projectRepository.getAllProjects();
+        return projectRepository.findAll();
     }
 
     @Override
     public Project getProjectByName(String name) {
-        return projectRepository.getProjectByName(name);
+        return projectRepository.findByName(name);
     }
 
     @Override
-    public void deleteProjectByName(String name) {
-        projectRepository.deleteProjectByName(name);
+    public void deleteProject(String id) {
+        projectRepository.delete(id);
     }
 }
