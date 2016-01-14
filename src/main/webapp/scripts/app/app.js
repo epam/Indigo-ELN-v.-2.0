@@ -26,7 +26,6 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             resolve: {
             }
         });
-        $httpProvider.interceptors.push('myHttpInterceptor');
         $httpProvider.interceptors.push('errorHandlerInterceptor');
 
     }]);
