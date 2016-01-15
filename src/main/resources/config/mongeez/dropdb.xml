@@ -1,0 +1,7 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-0" author="litvinov_stepan">
+        <script>
+            db.dropDatabase();
+        </script>
+    </changeSet>
+</mongoChangeLog>
