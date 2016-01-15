@@ -13,6 +13,8 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <org.mapstruct.version>1.0.0.CR1</org.mapstruct.version>
+        <org.bsc.maven.version>2.2.4</org.bsc.maven.version>
     </properties>
 
     <parent>
@@ -116,6 +118,14 @@
             <artifactId>mongeez</artifactId>
             <version>0.9.4</version>
         </dependency>
+
+        <!--MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct-jdk8</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -207,6 +217,42 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!--Mvn processor plugin for Mapstruct generation-->
+            <plugin>
+                <groupId>org.bsc.maven</groupId>
+                <artifactId>maven-processor-plugin</artifactId>
+                <version>${org.bsc.maven.version}</version>
+                <configuration>
+                    <defaultOutputDirectory>
+                        ${project.build.directory}/generated-sources
+                    </defaultOutputDirectory>
+                    <processors>
+                        <processor>org.mapstruct.ap.MappingProcessor</processor>
+                    </processors>
+
+                    <options>
+                        <mapstruct.defaultComponentModel>spring</mapstruct.defaultComponentModel>
+                    </options>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>${org.mapstruct.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
 
         </plugins>

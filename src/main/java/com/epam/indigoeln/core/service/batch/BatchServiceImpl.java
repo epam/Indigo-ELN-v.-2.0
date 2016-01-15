@@ -1,21 +1,20 @@
 package com.epam.indigoeln.core.service.batch;
 
-import com.epam.indigoeln.core.model.Batch;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-
-import org.bson.types.ObjectId;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.text.DecimalFormat;
 import java.text.Format;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.epam.indigoeln.core.model.Batch;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 
 @Service
 public class BatchServiceImpl implements BatchService {
@@ -44,17 +43,24 @@ public class BatchServiceImpl implements BatchService {
     @Override
     public Batch saveBatch(String experimentId, Batch batchForSave) {
         Experiment experiment = experimentRepository.findOne(experimentId);
+        if(experiment.getBatches() == null) {
+            experiment.setBatches(new ArrayList<>());
+        }
+
         if(batchForSave.getId() == null) {
             batchForSave.setId(ObjectId.get().toHexString()); //generate new batch id
-        } else { //remove existing batch with the same id
+        } else {
+            //remove existing batch with the same id
             experiment.getBatches().removeIf(batchItem -> batchForSave.getId().equals(batchItem.getId()));
         }
 
-        if (batchForSave.getBatchNumber() == null) { //generate batch number automatically, if it is not specified
+        if (batchForSave.getBatchNumber() == null) {
+            //generate batch number automatically, if it is not specified
             batchForSave.setBatchNumber(getNextBatchNumber(experiment.getBatches()));
         }
 
         experiment.getBatches().add(batchForSave);
+
         //sort batches list by batch number
         experiment.getBatches().sort((Batch b1, Batch b2) -> b1.getBatchNumber().compareTo(b2.getBatchNumber()));
 
