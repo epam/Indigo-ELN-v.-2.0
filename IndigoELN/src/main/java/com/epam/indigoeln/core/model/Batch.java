@@ -1,5 +1,9 @@
 package com.epam.indigoeln.core.model;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 /**
@@ -9,7 +13,11 @@ public class Batch implements Serializable {
 
     private static final long serialVersionUID = -4780589192255949497L;
 
+    @NotNull
+    @Pattern(regexp = "^[a-z0-9]*")
     private String id;
+
+    @NotBlank
     private String batchNumber;
 
     public String getId() {
