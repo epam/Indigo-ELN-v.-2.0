@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.service.experiment;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.web.dto.ExperimentTablesDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,11 +48,11 @@ public class ExperimentServiceImpl implements ExperimentService {
     public ExperimentTablesDTO getExperimentTables() {
         ExperimentTablesDTO dto = new ExperimentTablesDTO();
         User author = new User();
-        author.setName("UserAuthor");
+        author.setLogin("UserAuthor");
         User coAuthor = new User();
-        coAuthor.setName("UserCoAuthor");
+        coAuthor.setLogin("UserCoAuthor");
         User witness = new User();
-        witness.setName("UserWitness");
+        witness.setLogin("UserWitness");
 
         List<User> witnessList = new ArrayList<>();
         List<User> coauthorsList = new ArrayList<>();

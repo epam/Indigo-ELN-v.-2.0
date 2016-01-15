@@ -7,7 +7,7 @@ angular
 experimentTablesService.$inject = ['$resource', 'DateUtils'];
 
 function experimentTablesService($resource, DateUtils) {
-    return $resource('service/experiments/tables', {}, {
+    return $resource('api/experiments/tables', {}, {
         'get': {
             method: 'GET',
             transformResponse: function (data) {

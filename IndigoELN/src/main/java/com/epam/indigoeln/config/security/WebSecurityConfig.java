@@ -1,56 +1,111 @@
 package com.epam.indigoeln.config.security;
 
-import com.epam.indigoeln.web.security.CustomUserDetailsService;
+import com.epam.indigoeln.core.security.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private Environment env;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(new Md5PasswordEncoder());
+    @Autowired
+    private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
+
+    @Autowired
+    private AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
+
+    @Autowired
+    private AjaxLogoutSuccessHandler ajaxLogoutSuccessHandler;
+
+    @Autowired
+    private Http401UnauthorizedEntryPoint authenticationEntryPoint;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder());
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring()
+                .antMatchers("/scripts/**/*.{js,html}")
+                .antMatchers("/bower_components/**")
+                .antMatchers("/i18n/**")
+                .antMatchers("/assets/**")
+                .antMatchers("/test/**");
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(new SimpleEntryPoint()).and()
-                .formLogin().loginPage("/login").successHandler(((request, response, authentication) -> {
-                    response.sendRedirect("auth");
-                })).failureHandler(((request, response, exception) -> {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-                })).and()
+                .csrf().disable() //todo: enable later
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
+                .formLogin()
+                .loginProcessingUrl("/api/authentication")
+                .successHandler(ajaxAuthenticationSuccessHandler)
+                .failureHandler(ajaxAuthenticationFailureHandler)
+                .usernameParameter("j_username")
+                .passwordParameter("j_password")
+                .permitAll()
+                .and()
+                .logout()
+                .logoutUrl("/api/logout")
+                .logoutSuccessHandler(ajaxLogoutSuccessHandler)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+                .and()
+                .headers()
+                .frameOptions()
+                .disable()
+                .and()
                 .authorizeRequests()
-                    .antMatchers("/service/**", "/api/**").authenticated()
-                    .anyRequest().permitAll();
+                .antMatchers("/api/authenticate").permitAll()
+                .antMatchers("/api/account/reset_password/init").permitAll()
+                .antMatchers("/api/account/reset_password/finish").permitAll()
+                .antMatchers("/api/**").authenticated()
+                .antMatchers("/health/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/trace/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/dump/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/shutdown/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/beans/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/configprops/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/info/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/autoconfig/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/env/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/trace/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/mappings/**").hasAuthority(AuthoritiesConstants.ADMIN)
+                .antMatchers("/protected/**").authenticated();
+
     }
 
-    public static class SimpleEntryPoint implements AuthenticationEntryPoint {
-        @Override
-        public void commence(HttpServletRequest request, HttpServletResponse response,
-                             AuthenticationException e) throws IOException, ServletException {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        }
+    @Bean
+    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+        return new SecurityEvaluationContextExtension();
     }
-
 }

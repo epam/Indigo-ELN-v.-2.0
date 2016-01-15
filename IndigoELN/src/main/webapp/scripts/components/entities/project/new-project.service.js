@@ -9,14 +9,14 @@ function projectService($http) {
     API.getUsers = function () {
         return $http({
             method: 'GET',
-            url: '/indigoeln/service/getUsers'
+            url: 'api/account/all'
         });
     }
 
     API.getProjectByName = function (projectName) {
         return $http({
             method: 'POST',
-            url: '/indigoeln/service/getProjectByName',
+            url: 'api/projects/getProjectByName', //todo: wrong for rest style api
             data: $.param({projectName: projectName}),
             headers: {'Content-Type': 'application/x-www-form-urlencoded'}
         });
@@ -25,7 +25,7 @@ function projectService($http) {
     API.createNewProject = function (newProjectData) {
         return $http({
             method: 'POST',
-            url: '/indigoeln/service/createNewProject',
+            url: 'api/projects/createNewProject', //todo: wrong for rest style api
             data: angular.toJson(newProjectData),
             headers: {'Content-Type': 'application/json'}
         });
