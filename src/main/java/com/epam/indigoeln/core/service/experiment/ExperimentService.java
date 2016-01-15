@@ -2,7 +2,7 @@ package com.epam.indigoeln.core.service.experiment;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.web.dto.ExperimentTablesDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 
 import java.util.Collection;
 import java.util.List;

@@ -7,7 +7,7 @@ angular
 experimentService.$inject = ['$resource', 'DateUtils'];
 
 function experimentService($resource, DateUtils) {
-    return $resource('service/experiments/:id', {}, {
+    return $resource('api/experiments/:id', {}, {
         'query': {method: 'GET', isArray: true},
         'get': {
             method: 'GET',
