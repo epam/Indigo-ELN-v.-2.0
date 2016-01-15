@@ -2,11 +2,11 @@
 
 angular
     .module('indigoeln')
-    .controller('NewNotebookCtrl', NewNotebookCtrl);
+    .controller('NewNotebookDialogController', NewNotebookDialogController);
 
-NewNotebookCtrl.$inject = ['$scope', '$uibModalInstance'];
+NewNotebookDialogController.$inject = ['$scope', '$uibModalInstance', '$state'];
 
-function NewNotebookCtrl($scope, $uibModalInstance) {
+function NewNotebookDialogController($scope, $uibModalInstance, $state) {
     $scope.notebook = {};
 
     $scope.ok = function () {
