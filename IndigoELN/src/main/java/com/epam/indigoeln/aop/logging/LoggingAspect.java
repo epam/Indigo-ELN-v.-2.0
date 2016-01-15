@@ -25,7 +25,7 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(com.epam.indigoeln.core.repository..*) || within(com.epam.indigoeln.core.service..*) || within(com.epam.indigoeln.web.controller..*)")
+    @Pointcut("within(com.epam.indigoeln.core.repository..*) || within(com.epam.indigoeln.core.service..*) || within(com.epam.indigoeln.web.rest..*)")
     public void loggingPointcut() {
     }
 
