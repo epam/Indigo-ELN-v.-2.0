@@ -17,6 +17,8 @@ import java.util.List;
 @Document(collection = "experiment")
 public class Experiment implements Serializable {
 
+    private static final long serialVersionUID = 279335946658061099L;
+
     @Id
     private String id;
 
@@ -47,6 +49,8 @@ public class Experiment implements Serializable {
 
     // TODO enum: open, completed, submitted, submit_fail, signing, archived
     private String status;
+
+    private List<Batch> batches;
 
     public User getAuthor() {
         return author;
@@ -136,6 +140,14 @@ public class Experiment implements Serializable {
         this.creationDate = creationDate;
     }
 
+    public List<Batch> getBatches() {
+        return batches;
+    }
+
+    public void setBatches(List<Batch> batches) {
+        this.batches = batches;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -152,6 +164,7 @@ public class Experiment implements Serializable {
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (lastEditDate != null ? !lastEditDate.equals(that.lastEditDate) : that.lastEditDate != null) return false;
+        if (batches != null ? !batches.equals(that.batches) : that.batches != null) return false;
         return comments != null ? comments.equals(that.comments) : that.comments == null;
 
     }
@@ -167,6 +180,7 @@ public class Experiment implements Serializable {
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         result = 31 * result + (lastEditDate != null ? lastEditDate.hashCode() : 0);
+        result = 31 * result + (batches != null ? batches.hashCode() : 0);
         result = 31 * result + (comments != null ? comments.hashCode() : 0);
         return result;
     }
