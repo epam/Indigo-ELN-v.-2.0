@@ -1,44 +1,36 @@
 <ul class="head-controls-list head-controls-list_main">
-    <li class="head-controls-list__item head-controls-list__item_dark-color">
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
         <i class="fa fa-arrow-circle-o-up"></i>
-        <ul class="head-controls-list-submenu ">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Experiment</a></li>
-        </ul>
+        <!--<ul class="head-controls-list-submenu ">-->
+            <!--<li class="head-controls-list-submenu__item"><a ng-click="vm.newProject($event)" href="#">Project</a></li>-->
+        <!--</ul>-->
     </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color">
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
         <i class="fa fa-cog"></i>
-        <ul class="head-controls-list-submenu ">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Experiment</a></li>
-        </ul>
+        <!--<ul class="head-controls-list-submenu ">-->
+            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
+        <!--</ul>-->
     </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color">
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
         <i class="fa fa-th-large"></i>
-        <ul class="head-controls-list-submenu ">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Experiment</a></li>
-        </ul>
+        <!--<ul class="head-controls-list-submenu ">-->
+            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
+        <!--</ul>-->
     </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color">
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
         <i class="fa fa-question-circle"></i>
-        <ul class="head-controls-list-submenu ">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Experiment</a></li>
-        </ul>
+        <!--<ul class="head-controls-list-submenu ">-->
+            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>-->
+        <!--</ul>-->
     </li>
 </ul>
 <ul class="head-controls-list">
     <li class="head-controls-list__item" toggle-class-child="open-menu">
         <i class="fa fa-file-o"></i>
         <ul class="head-controls-list-submenu">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Experiment</a></li>
+            <li class="head-controls-list-submenu__item"><a ng-click="vm.newExperiment($event)" href="#">New Experiment</a></li>
+            <li class="head-controls-list-submenu__item"><a ng-click="vm.newNotebook($event)" href="#">New Notebook</a></li>
+            <li class="head-controls-list-submenu__item"><a ng-click="vm.newProject($event)" href="#">New Project</a></li>
         </ul>
     </li>
     <li class="head-controls-list__item">

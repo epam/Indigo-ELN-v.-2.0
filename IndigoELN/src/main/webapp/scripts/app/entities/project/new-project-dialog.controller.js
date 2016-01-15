@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('indigoeln').controller('NewProjectCtrl', NewProjectCtrl);
-NewProjectCtrl.$inject = ['projectService', '$scope', '$log', '$uibModalInstance'];
+angular.module('indigoeln').controller('NewProjectDialogController', NewProjectDialogController);
+NewProjectDialogController.$inject = ['projectService', '$scope', '$log', '$uibModalInstance'];
 
-function NewProjectCtrl(projectService, $scope, $log, $uibModalInstance) {
+function NewProjectDialogController(projectService, $scope, $log, $uibModalInstance) {
     $scope.project = {};
     $scope.sourceUsers = [];
     $scope.destUsers = [];
