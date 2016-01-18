@@ -27,8 +27,6 @@ If you run the application with Maven, run mvn
 ### In production, IndigoEln has to run with the "release" profile
 Use Maven to build the application with the "release" profile: mvn -Prelease
 
-When you run the application, don't forget to add the "release" profile, by adding --spring.profiles.active=release to program arguments.
-
 You can test it with Maven, by running mvn -Prelease
 
 ## Project Structure
