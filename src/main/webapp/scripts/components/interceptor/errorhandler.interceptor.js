@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('errorHandlerInterceptor', function ($q, $log, $injector) {
+    .factory('errorHandlerInterceptor', function ($q, $log, $injector, AlertService) {
         return {
             'responseError': function (httpResponse) {
-
+                var i;
                 var addErrorAlert = function () {
-                    $log.error(JSON.stringify(arguments))
+                    AlertService.error(JSON.stringify(arguments))
                 };
                 switch (httpResponse.status) {
                     // connection refused, server not reachable
@@ -15,7 +15,12 @@ angular.module('indigoeln')
                         break;
 
                     case 400:
-                        if (httpResponse.data && httpResponse.data.fieldErrors) {
+                        var errorHeader = httpResponse.headers('X-indigoelnApp-error');
+                        var entityKey = httpResponse.headers('X-indigoelnApp-params');
+                        if (errorHeader) {
+                            var entityName = entityKey;
+                            addErrorAlert(errorHeader, errorHeader, {entityName: entityName});
+                        } else if (httpResponse.data && httpResponse.data.fieldErrors) {
                             for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
                                 var fieldError = httpResponse.data.fieldErrors[i];
                                 // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
