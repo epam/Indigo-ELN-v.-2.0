@@ -1,18 +1,13 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import com.epam.indigoeln.core.model.Batch;
-
 import java.io.Serializable;
 
-public class BatchDTO implements Serializable, Comparable<BatchDTO> {
+public class BatchDTO implements Serializable {
 
-    private static final long serialVersionUID = -7878801074903420228L;
+    private static final long serialVersionUID = 13994253258215137L;
 
     private String id;
     private String batchNumber;
-
-    public BatchDTO() {
-    }
 
     public String getId() {
         return id;
@@ -29,12 +24,7 @@ public class BatchDTO implements Serializable, Comparable<BatchDTO> {
     public void setBatchNumber(String batchNumber) {
         this.batchNumber = batchNumber;
     }
-
-    @Override
-    public int compareTo(BatchDTO obj) {
-        return obj.getBatchNumber() != null ? batchNumber.compareTo(obj.getBatchNumber()) : 1;
-    }
-
+    
     @Override
     public String toString() {
         return "BatchDTO{" +
