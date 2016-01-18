@@ -10,13 +10,14 @@ body,
   margin: 0;
   padding: 0;
 }
-h2,
-h3,
-button,
-span,
-a {
-  font: 14px/30px segoeui !important;
-}
+
+/*h2,*/
+/*h3,*/
+/*button,*/
+/*span,*/
+/*a {*/
+/*font: 14px/30px segoeui !important;*/
+/*}*/
 @font-face {
   font-family: segoeui;
   src: url(../fonts/segoeui.ttf);

@@ -15,6 +15,7 @@
         <java.version>1.8</java.version>
         <org.mapstruct.version>1.0.0.CR1</org.mapstruct.version>
         <org.bsc.maven.version>2.2.4</org.bsc.maven.version>
+        <commons-lang.version>2.6</commons-lang.version>
     </properties>
 
     <parent>
@@ -125,6 +126,13 @@
             <artifactId>mapstruct-jdk8</artifactId>
             <version>${org.mapstruct.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang.version}</version>
+        </dependency>
+
 
     </dependencies>
 

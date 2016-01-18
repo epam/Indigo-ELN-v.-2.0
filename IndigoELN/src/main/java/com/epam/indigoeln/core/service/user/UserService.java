@@ -6,6 +6,8 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.user.AuthorityRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
+import com.epam.indigoeln.core.service.util.RandomUtil;
+import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,4 +78,21 @@ public class UserService {
         return user;
     }
 
+    public User createUser(ManagedUserDTO managedUserDTO) {
+        User user = new User();
+        user.setLogin(managedUserDTO.getLogin());
+        if (managedUserDTO.getAuthorities() != null) {
+            Set<Authority> authorities = new HashSet<>();
+            managedUserDTO.getAuthorities().stream().forEach(
+                    authority -> authorities.add(authorityRepository.findOne(authority))
+            );
+            user.setAuthorities(authorities);
+        }
+        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        user.setPassword(encryptedPassword);
+        userRepository.save(user);
+        log.debug("Created Information for User: {}", user);
+        return user;
+
+    }
 }
