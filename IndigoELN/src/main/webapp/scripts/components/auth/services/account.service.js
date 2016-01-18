@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Account', function Account($resource) {
-        return $resource('api/account', {}, {
+    .factory('Account', function ($resource) {
+        return $resource('api/accounts/account', {}, {
             'get': {
                 method: 'GET', params: {}, isArray: false,
                 interceptor: {
