@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Authority;
 import com.epam.indigoeln.core.model.User;
+import org.hibernate.validator.constraints.Email;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -9,6 +10,9 @@ import javax.validation.constraints.Size;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * A DTO representing a user, with his authorities.
+ */
 public class UserDTO {
 
     public static final int PASSWORD_MIN_LENGTH = 5;
@@ -23,20 +27,39 @@ public class UserDTO {
     @Size(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
     private String password;
 
+    @Size(max = 50)
+    private String firstName;
+
+    @Size(max = 50)
+    private String lastName;
+
+    @Email
+    @Size(min = 5, max = 100)
+    private String email;
+
+    private boolean activated = false;
+
     private Set<String> authorities;
 
     public UserDTO() {
     }
 
     public UserDTO(User user) {
-        this(user.getLogin(), null,
+        this(user.getLogin(), null, user.getFirstName(), user.getLastName(),
+                user.getEmail(), user.getActivated(),
                 user.getAuthorities().stream().map(Authority::getName)
                         .collect(Collectors.toSet()));
     }
 
-    public UserDTO(String login, String password, Set<String> authorities) {
+    public UserDTO(String login, String password, String firstName, String lastName,
+                   String email, boolean activated, Set<String> authorities) {
+
         this.login = login;
         this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.activated = activated;
         this.authorities = authorities;
     }
 
@@ -46,6 +69,22 @@ public class UserDTO {
 
     public String getLogin() {
         return login;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public boolean isActivated() {
+        return activated;
     }
 
 
@@ -58,6 +97,10 @@ public class UserDTO {
         return "UserDTO{" +
                 "login='" + login + '\'' +
                 ", password='" + password + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", activated=" + activated +
                 ", authorities=" + authorities +
                 "}";
     }

@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -69,6 +70,9 @@ public class UserResource {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     /**
      * POST  /users -> Creates a new user.
      * <p>
@@ -112,6 +116,12 @@ public class UserResource {
                 .findOneById(managedUserDTO.getId())
                 .map(user -> {
                     user.setLogin(managedUserDTO.getLogin());
+                    user.setFirstName(managedUserDTO.getFirstName());
+                    user.setLastName(managedUserDTO.getLastName());
+                    user.setEmail(managedUserDTO.getEmail());
+                    user.setActivated(managedUserDTO.isActivated());
+                    String encryptedPassword = passwordEncoder.encode(managedUserDTO.getPassword());
+                    user.setPassword(encryptedPassword);
                     Set<Authority> authorities = user.getAuthorities();
                     authorities.clear();
                     managedUserDTO.getAuthorities().stream().forEach(
