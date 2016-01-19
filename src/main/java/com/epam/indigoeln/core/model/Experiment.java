@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -21,6 +22,9 @@ public class Experiment implements Serializable {
 
     @Id
     private String id;
+
+    @Version
+    private String version;
 
     private String title;
 
@@ -146,6 +150,10 @@ public class Experiment implements Serializable {
 
     public void setBatches(List<Batch> batches) {
         this.batches = batches;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Override
