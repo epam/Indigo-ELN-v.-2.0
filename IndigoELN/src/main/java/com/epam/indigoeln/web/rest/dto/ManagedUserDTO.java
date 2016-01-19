@@ -16,7 +16,7 @@ public class ManagedUserDTO extends UserDTO {
 
     private String lastModifiedBy;
 
-    private ZonedDateTime lastModifiedDate;
+    private String password;
 
     public ManagedUserDTO() {
     }
@@ -50,12 +50,13 @@ public class ManagedUserDTO extends UserDTO {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    public ZonedDateTime getLastModifiedDate() {
-        return lastModifiedDate;
+    @Override
+    public String getPassword() {
+        return password;
     }
 
-    public void setLastModifiedDate(ZonedDateTime lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
@@ -64,7 +65,6 @@ public class ManagedUserDTO extends UserDTO {
                 "id=" + id +
                 ", createdDate=" + createdDate +
                 ", lastModifiedBy='" + lastModifiedBy + '\'' +
-                ", lastModifiedDate=" + lastModifiedDate +
                 "} " + super.toString();
     }
 }

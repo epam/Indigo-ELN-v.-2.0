@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, User, ParseLinks) {
+    .controller('UserManagementController', function ($scope, User, ParseLinks, $filter) {
         $scope.users = [];
         $scope.authorities = ["ROLE_USER", "ROLE_ADMIN"];
 
@@ -29,13 +29,50 @@ angular.module('indigoeln')
         };
 
         $scope.clear = function () {
-            $scope.user = {
-                id: null, login: null, firstName: null, lastName: null, email: null,
-                activated: null, langKey: null, createdBy: null, createdDate: null,
-                lastModifiedBy: null, lastModifiedDate: null, resetDate: null,
-                resetKey: null, authorities: null
-            };
+            $scope.user = null;
             $scope.editForm.$setPristine();
             $scope.editForm.$setUntouched();
         };
+
+        var onSaveSuccess = function (result) {
+            $scope.isSaving = false;
+            $scope.user = null;
+            $scope.loadAll();
+        };
+
+        var onSaveError = function (result) {
+            $scope.isSaving = false;
+            $scope.loadAll();
+        };
+
+        $scope.save = function () {
+            $scope.isSaving = true;
+            if ($scope.user.id != null) {
+                User.update($scope.user, onSaveSuccess, onSaveError);
+            } else {
+                User.save($scope.user, onSaveSuccess, onSaveError);
+            }
+        };
+
+        $scope.authorities = ["ROLE_USER", "ROLE_ADMIN"];
+
+        $scope.create = function () {
+            $scope.user = {
+                id: null, login: null, firstName: null, lastName: null, email: null,
+                activated: true, authorities: null
+            };
+        };
+
+        $scope.edit = function (user) {
+            $scope.loadAll();
+            $scope.user = _.extend({}, user);
+        };
+
+        $scope.search = function () {
+            User.query({page: $scope.page - 1, size: 20}, function (result, headers) {
+                $scope.links = ParseLinks.parse(headers('link'));
+                $scope.totalItems = headers('X-Total-Count');
+                $scope.users = $filter('filter')(result, $scope.searchText);
+            });
+        }
     });
