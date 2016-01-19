@@ -100,3 +100,11 @@
     width: 100%;
     height: 5px;
 }
+
+.user-management.ng-hide-add {
+    animation: fadeOutUp 0.3s;
+}
+
+.user-management.ng-hide-remove {
+    animation: fadeInDown 0.3s;
+}
