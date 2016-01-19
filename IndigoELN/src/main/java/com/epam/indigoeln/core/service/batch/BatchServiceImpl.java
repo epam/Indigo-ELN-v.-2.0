@@ -8,6 +8,8 @@ import java.util.OptionalLong;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import javax.validation.ValidationException;
+
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import com.epam.indigoeln.core.model.Batch;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+
+
 
 @Service
 public class BatchServiceImpl implements BatchService {
@@ -57,6 +61,9 @@ public class BatchServiceImpl implements BatchService {
         if (batchForSave.getBatchNumber() == null) {
             //generate batch number automatically, if it is not specified
             batchForSave.setBatchNumber(getNextBatchNumber(experiment.getBatches()));
+        } else {
+            //validate batch number for uniqueness
+            validateBatchNumber(batchForSave, experiment.getBatches());
         }
 
         experiment.getBatches().add(batchForSave);
@@ -98,5 +105,19 @@ public class BatchServiceImpl implements BatchService {
 
         long nextBatchNumber = maxNumber.isPresent() ? maxNumber.getAsLong() + 1 : 1L;
         return formatter.format(nextBatchNumber);
+    }
+
+    /**
+     *  Check,that no other batches with the same number exists in current experiment
+     * @param batch batch to validate
+     * @param allBatches all existing batches of experiment
+     */
+    private void validateBatchNumber(Batch batch, List<Batch> allBatches) {
+        if(allBatches.stream().anyMatch(b -> b.getBatchNumber().equals(batch.getBatchNumber()) &&
+                !b.getId().equals(batch.getId()))) {
+            throw new ValidationException(
+                    String.format("The notebook batch number '%s' already exists in the system", batch.getBatchNumber())
+            );
+        }
     }
 }

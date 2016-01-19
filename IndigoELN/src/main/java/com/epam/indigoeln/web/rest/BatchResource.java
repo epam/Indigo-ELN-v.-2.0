@@ -25,6 +25,9 @@ public class BatchResource {
     private BatchMapper batchMapper;
 
 
+    /**
+     * PUT  /:experimentId/batches/save -> save (add or modify) batch
+     */
     @RequestMapping(value = "/{experimentId}/batches/save",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE,
@@ -35,6 +38,10 @@ public class BatchResource {
         return batchMapper.batchDtoFromBatch(batch);
     }
 
+
+    /**
+     * DELETE  /:experimentId/batches/:batchNumber -> delete batch
+     */
     @RequestMapping(value = "/{experimentId}/batches/{batchNumber}",
             method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
