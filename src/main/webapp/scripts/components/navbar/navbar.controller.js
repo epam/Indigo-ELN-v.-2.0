@@ -7,6 +7,7 @@ angular
         vm.newExperiment = newExperiment;
         vm.newNotebook = newNotebook;
         vm.newProject = newProject;
+        vm.goHome = goHome;
         function newExperiment(event) {
             //$rootScope.$broadcast('new-experiment', {});
             //event.preventDefault();
@@ -46,4 +47,7 @@ angular
             });
         }
 
+        function goHome(event) {
+            $state.go('home');
+        }
     });
