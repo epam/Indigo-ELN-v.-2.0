@@ -1,170 +1,156 @@
-<div>
-    <h2>Users</h2>
+<div class="panel panel-info user-management">
+    <div class="panel-heading">Users</div>
+    <div class="panel-body">
 
-    <button class="btn btn-primary" ng-click="create()">
-        <span class="glyphicon glyphicon-flash"></span> <span>Create a new User</span>
-    </button>
-
-    <form name="editForm" role="form" novalidate ng-submit="save()" show-validation ng-show="user"
-          class="user-management">
-        <div class="modal-body">
-            <my-input
-                    input-label="ID"
-                    input-name="id"
-                    input-type="text"
-                    input-model="user.id"
-                    input-readonly="true"></my-input>
-
-            <my-input
-                    input-label="Login"
-                    input-name="login"
-                    input-type="text"
-                    input-model="user.login"
-                    validation-obj="editForm.login"
-                    validation-required="user.id == null"
-                    validation-maxlength="50"
-                    ></my-input>
-
-            <my-input
-                    input-label="FirstName"
-                    input-name="firstName"
-                    input-type="text"
-                    input-model="user.firstName"
-                    validation-obj="editForm.firstName"
-                    validation-maxlength="50"
-                    ></my-input>
-
-            <my-input
-                    input-label="LastName"
-                    input-name="lastName"
-                    input-type="text"
-                    input-model="user.lastName"
-                    validation-obj="editForm.lastName"
-                    validation-maxlength="50"
-                    ></my-input>
-
-            <my-input
-                    input-label="Email"
-                    input-name="email"
-                    input-type="text"
-                    input-model="user.email"
-                    validation-obj="editForm.email"
-                    validation-required="user.email == null"
-                    validation-maxlength="100"
-                    ></my-input>
-
-            <my-checkbox
-                    checkbox-label="Activated"
-                    checkbox-model="user.activated"
-                    checkbox-name="activated"
-                    ></my-checkbox>
-
-            <my-select
-                    select-label="Profiles"
-                    select-name="authority"
-                    select-model="user.authorities"
-                    select-items="authorities"
-                    ></my-select>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span
-                    >Cancel</span>
-            </button>
-            <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
-                <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
-            </button>
-        </div>
-    </form>
-
-
-    <!--<div class="form-group">-->
-    <!--<label class="control-label">Login</label>-->
-    <!--<input type="text" class="form-control" name="login"-->
-    <!--ng-model="user.login" ng-required="user.id == null" ng-maxlength="50">-->
-
-    <!--<div ng-show="editForm.login.$invalid">-->
-    <!--<p class="help-block"-->
-    <!--ng-show="editForm.login.$error.required">-->
-    <!--This field is required.-->
-    <!--</p>-->
-
-    <!--<p class="help-block"-->
-    <!--ng-show="editForm.login.$error.maxlength"-->
-    <!--translate-value-max="50">-->
-    <!--This field cannot be longer than 50 characters.-->
-    <!--</p>-->
-    <!--</div>-->
-    <!--</div>-->
-    <form class="form-inline text-right">
-        <div class="form-group">
-            <label for="searchUser">Search User</label>
-            <input type="text" class="form-control" id="searchUser" placeholder="Username, first name or last name"
-                   ng-model="searchText">
-        </div>
-        <button type="submit" class="btn btn-default" ng-click="search()">
-            <span class="glyphicon glyphicon-search"></span>
-            Search
+        <button class="btn btn-primary" ng-click="create()">
+            <span class="glyphicon glyphicon-flash"></span> <span>Create a new User</span>
         </button>
-    </form>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <!--<th>ID</th>-->
-                <th>Username</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Email</th>
-                <th>Active</th>
 
-                <!--<th>Profiles</th>-->
-                <!--<th>CreatedDate</th>-->
-                <!--<th>LastModifiedBy</th>-->
-                <!--<th>LastModifiedDate</th>-->
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="user in users track by user.id">
-                <!--<td><a ui-sref="user-management-detail({login:user.login})">{{user.id}}</a></td>-->
-                <td>{{user.login}}</td>
-                <td>{{user.firstName}}</td>
-                <td>{{user.lastName}}</td>
-                <td>{{user.email}}</td>
-                <td>
+        <div ng-show="user" class="panel panel-primary edit-form">
+            <div class="panel-heading">
+                Create/Update User
+            </div>
+            <div class="panel-body ">
+                <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" show-validation
+                      class="form-horizontal" autocomplete="off">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <my-input
+                                    input-label="ID"
+                                    input-name="id"
+                                    input-type="text"
+                                    input-model="user.id"
+                                    input-readonly="true"></my-input>
+                            <my-input
+                                    input-label="First name"
+                                    input-name="firstName"
+                                    input-type="text"
+                                    input-model="user.firstName"
+                                    validation-obj="editForm.firstName"
+                                    validation-maxlength="50"
+                                    ></my-input>
+
+                            <my-input
+                                    input-label="Login"
+                                    input-name="login"
+                                    input-type="text"
+                                    input-model="user.login"
+                                    validation-obj="editForm.login"
+                                    validation-required="user.id == null"
+                                    validation-maxlength="50"
+                                    ></my-input>
+                            <my-input
+                                    input-label="Email"
+                                    input-name="email"
+                                    input-type="text"
+                                    input-model="user.email"
+                                    validation-obj="editForm.email"
+                                    validation-required="user.email == null"
+                                    validation-maxlength="100"
+                                    ></my-input>
+                        </div>
+                        <div class="col-md-6">
+                            <my-input
+                                    input-label="Last name"
+                                    input-name="lastName"
+                                    input-type="text"
+                                    input-model="user.lastName"
+                                    validation-obj="editForm.lastName"
+                                    validation-maxlength="50"
+                                    ></my-input>
+                            <my-input
+                                    input-label="Password"
+                                    input-name="password"
+                                    input-type="password"
+                                    input-model="user.password"
+                                    validation-obj="editForm.password"
+                                    validation-required="user.id == null"
+                                    validation-maxlength="50"
+                                    ></my-input>
+                            <my-select
+                                    select-label="Profiles"
+                                    select-name="authority"
+                                    select-model="user.authorities"
+                                    select-items="authorities"
+                                    ></my-select>
+                            <my-checkbox
+                                    checkbox-label="Activated"
+                                    checkbox-model="user.activated"
+                                    checkbox-name="activated"
+                                    ></my-checkbox>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span
+                        >Cancel</span>
+                </button>
+                <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving"
+                        class="btn btn-primary">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+                </button>
+            </div>
+        </div>
+
+        <form class="form-inline text-right">
+            <div class="form-group">
+                <label for="searchUser">Search User</label>
+                <input type="text" class="form-control" id="searchUser" placeholder="Username, first name or last name"
+                       ng-model="searchText">
+            </div>
+            <button type="submit" class="btn btn-default" ng-click="search()">
+                <span class="glyphicon glyphicon-search"></span>
+                Search
+            </button>
+        </form>
+
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Username</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Active</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="user in users track by user.id">
+            <!--<td><a ui-sref="user-management-detail({login:user.login})">{{user.id}}</a></td>-->
+            <td>{{user.login}}</td>
+            <td>{{user.firstName}}</td>
+            <td>{{user.lastName}}</td>
+            <td>{{user.email}}</td>
+            <td>
                     <span class="label label-danger" ng-click="setActive(user, true)" ng-show="!user.activated"
                           style="cursor: pointer;">Desactivated</span>
                     <span class="label label-success" ng-click="setActive(user, false)" ng-show="user.activated"
                           style="cursor: pointer;">Activated</span>
-                </td>
-
-                <!--<td>-->
-                <!--<div ng-repeat="authority in user.authorities">-->
-                <!--<span class="label label-info">{{ authority }}</span>-->
-                <!--</div>-->
-                <!--</td>-->
-                <!--<td>{{user.createdDate | date:'dd/MM/yy HH:mm'}}</td>-->
-                <!--<td>{{user.lastModifiedBy}}</td>-->
-                <!--<td>{{user.lastModifiedDate | date:'dd/MM/yy HH:mm'}}</td>-->
-                <td class="text-right">
-                    <button type="submit"
-                            ng-click="edit(user)"
-                            class="btn btn-primary btn-sm">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </button>
-                    <button type="submit"
-                            ui-sref="user-management.delete({login:user.login})"
-                            class="btn btn-danger btn-sm">
-                        <span class="glyphicon glyphicon-remove-circle"></span>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="text-center">
+            </td>
+            <td class="text-right">
+                <button type="submit"
+                        ng-click="edit(user)"
+                        class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+                <button type="submit"
+                        ui-sref="user-management.delete({login:user.login})"
+                        class="btn btn-danger btn-sm">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="panel-footer text-center">
         <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
                         ng-change="loadAll()"></uib-pagination>
     </div>
 </div>
+
