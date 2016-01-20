@@ -102,12 +102,12 @@ body,
 .ruling-controls__btn:hover {
   background: #c9d3d8;
 }
-.head-controls-list {
+.head-controls-list, .head-controls-list_right {
   float: left;
   margin: 25px 20px 0 20px;
   padding: 0;
 }
-.head-controls-list__item {
+.head-controls-list__item, .head-controls-list__item_user {
   background: #546e7a;
   border-radius: 26px;
   border: 1px solid #546e7a;
@@ -125,6 +125,19 @@ body,
   border: 1px solid #4dd0e1;
 }
 .head-controls-list__item .fa {
+  font-size: 20px;
+  margin-top: 7px;
+}
+.head-controls-list_right {
+  float: right;
+}
+.head-controls-list__item_user {
+  cursor: default;
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.head-controls-list__item_user .fa {
   font-size: 20px;
   margin-top: 7px;
 }
