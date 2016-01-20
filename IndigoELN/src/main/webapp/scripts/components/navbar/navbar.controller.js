@@ -2,11 +2,13 @@
 
 angular
     .module('indigoeln')
-    .controller('NavbarController', function ($location, $state, $uibModal, $rootScope) {
+    .controller('NavbarController', function ($scope, $location, $state, $uibModal, $rootScope, Principal, Auth) {
         var vm = this;
         vm.newExperiment = newExperiment;
         vm.newNotebook = newNotebook;
         vm.newProject = newProject;
+        $scope.logout = logout;
+        $scope.Principal = Principal;
         function newExperiment(event) {
             //$rootScope.$broadcast('new-experiment', {});
             //event.preventDefault();
@@ -48,5 +50,9 @@ angular
                 $rootScope.$broadcast('created-project', {project: project});
             }, function () {
             });
+        }
+
+        function logout() {
+            Auth.logout();
         }
     });
