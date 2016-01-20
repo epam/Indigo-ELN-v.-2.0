@@ -77,7 +77,7 @@ public class TemplateResource {
      * @return saved template item wrapped to ResponseEntity
      */
     @RequestMapping(value = "/templates",
-            method = RequestMethod.PUT,
+            method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<TemplateDTO> createTemplate(@RequestBody TemplateDTO template){
@@ -97,17 +97,16 @@ public class TemplateResource {
      * Template id should corresponds to existing template item.
      * </p>
      *
-     * @param id id of template
      * @param template template for save
      * @return saved template item wrapped to ResponseEntity
      */
-    @RequestMapping(value = "/templates/{id}",
+    @RequestMapping(value = "/templates",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured(AuthoritiesConstants.ADMIN)
-    public ResponseEntity<TemplateDTO> updateTemplate(@PathVariable String id, @RequestBody TemplateDTO template){
+    public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
         LOGGER.debug("REST request to update Template : {}", template);
-        if(!templateService.getTemplateById(id).isPresent()){
+        if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return  ResponseEntity.ok(templateService.updateTemplate(template));
