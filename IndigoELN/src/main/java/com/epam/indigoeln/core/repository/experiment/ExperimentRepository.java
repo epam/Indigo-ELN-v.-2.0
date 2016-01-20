@@ -10,4 +10,7 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Collection<Experiment> findByAuthor(User author);
 
+    Collection<Experiment> findByTemplateId(String templateId);
+
+    Long countByTemplateId(String templateId);
 }

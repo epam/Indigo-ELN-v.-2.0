@@ -24,7 +24,7 @@ public class Experiment implements Serializable {
     private String id;
 
     @Version
-    private String version;
+    private Long version;
 
     private String title;
 
@@ -55,6 +55,8 @@ public class Experiment implements Serializable {
     private String status;
 
     private List<Batch> batches;
+
+    private String templateId;
 
     public User getAuthor() {
         return author;
@@ -152,8 +154,16 @@ public class Experiment implements Serializable {
         this.batches = batches;
     }
 
-    public String getVersion() {
+    public Long getVersion() {
         return version;
+    }
+
+    public String getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
     }
 
     @Override
@@ -173,6 +183,7 @@ public class Experiment implements Serializable {
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (lastEditDate != null ? !lastEditDate.equals(that.lastEditDate) : that.lastEditDate != null) return false;
         if (batches != null ? !batches.equals(that.batches) : that.batches != null) return false;
+        if (templateId != null ? !templateId.equals(that.templateId) : that.templateId != null) return false;
         return comments != null ? comments.equals(that.comments) : that.comments == null;
 
     }
@@ -189,6 +200,7 @@ public class Experiment implements Serializable {
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         result = 31 * result + (lastEditDate != null ? lastEditDate.hashCode() : 0);
         result = 31 * result + (batches != null ? batches.hashCode() : 0);
+        result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
         result = 31 * result + (comments != null ? comments.hashCode() : 0);
         return result;
     }
