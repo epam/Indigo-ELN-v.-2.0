@@ -31,7 +31,7 @@ public class BatchResource {
      * PUT  /:experimentId/batches/ -> add new batch
      */
     @RequestMapping(value = "/{experimentId}/batches/",
-            method = RequestMethod.PUT,
+            method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BatchDTO> createBatch(@PathVariable String experimentId,
@@ -43,14 +43,13 @@ public class BatchResource {
     /**
      * PUT  /:experimentId/batches/:batchId -> update existing batch
      */
-    @RequestMapping(value = "/{experimentId}/batches/{batchId}",
+    @RequestMapping(value = "/{experimentId}/batches/",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BatchDTO> updateBatch(@PathVariable String experimentId,
-                                                @PathVariable String batchId,
                                                 @RequestBody  BatchDTO batchDTO) {
         LOGGER.debug("REST request to update Batch : {}", batchDTO);
-        if(!batchService.getBatch(experimentId, batchId).isPresent()){
+        if(!batchService.getBatch(experimentId, batchDTO.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return  ResponseEntity.ok(batchService.updateBatch(experimentId, batchDTO));
