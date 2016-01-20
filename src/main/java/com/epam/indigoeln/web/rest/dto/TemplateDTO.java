@@ -90,4 +90,13 @@ public class TemplateDTO implements Serializable {
     public void setTemplateContent(String templateContent) {
         this.templateContent = templateContent;
     }
+
+    @Override
+    public String toString() {
+        return "TemplateDTO{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", templateContent='" + templateContent + '\'' +
+                '}';
+    }
 }

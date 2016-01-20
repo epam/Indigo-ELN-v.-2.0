@@ -1,5 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
+import com.epam.indigoeln.core.model.Batch;
+
 import java.io.Serializable;
 
 public class BatchDTO implements Serializable {
@@ -8,6 +10,20 @@ public class BatchDTO implements Serializable {
 
     private String id;
     private String batchNumber;
+
+    public BatchDTO() {
+    }
+
+    public BatchDTO(Batch batch) {
+        this(batch.getId(), batch.getBatchNumber());
+    }
+
+    public BatchDTO(String id, String batchNumber) {
+        this.id = id;
+        this.batchNumber = batchNumber;
+    }
+
+
 
     public String getId() {
         return id;
