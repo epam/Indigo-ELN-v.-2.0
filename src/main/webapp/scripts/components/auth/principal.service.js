@@ -68,6 +68,9 @@ angular.module('indigoeln')
                         deferred.resolve(_identity);
                     });
                 return deferred.promise;
+            },
+            getIdentity: function () {
+                return _identity;
             }
         };
     });
