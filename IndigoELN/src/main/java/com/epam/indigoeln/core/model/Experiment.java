@@ -1,9 +1,8 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -14,6 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
 
 @Document(collection = "experiment")
 public class Experiment implements Serializable {
@@ -26,6 +28,9 @@ public class Experiment implements Serializable {
     @Version
     private Long version;
 
+    @NotBlank
+    private String experimentNumber;
+
     private String title;
 
     private User author;
@@ -34,6 +39,7 @@ public class Experiment implements Serializable {
 
     private List<User> witness;
 
+    @NotBlank
     private String project;
 
     @CreatedDate
@@ -164,6 +170,14 @@ public class Experiment implements Serializable {
 
     public void setTemplateId(String templateId) {
         this.templateId = templateId;
+    }
+
+    public String getExperimentNumber() {
+        return experimentNumber;
+    }
+
+    public void setExperimentNumber(String experimentNumber) {
+        this.experimentNumber = experimentNumber;
     }
 
     @Override

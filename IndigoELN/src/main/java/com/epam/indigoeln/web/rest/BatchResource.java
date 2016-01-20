@@ -30,7 +30,7 @@ public class BatchResource {
     /**
      * PUT  /:experimentId/batches/ -> add new batch
      */
-    @RequestMapping(value = "/{experimentId}/batches/",
+    @RequestMapping(value = "/{experimentId}/batches",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -43,7 +43,7 @@ public class BatchResource {
     /**
      * PUT  /:experimentId/batches/:batchId -> update existing batch
      */
-    @RequestMapping(value = "/{experimentId}/batches/",
+    @RequestMapping(value = "/{experimentId}/batches",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BatchDTO> updateBatch(@PathVariable String experimentId,
