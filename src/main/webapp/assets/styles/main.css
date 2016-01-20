@@ -101,10 +101,18 @@
     height: 5px;
 }
 
-.user-management.ng-hide-add {
+.user-management .edit-form.ng-hide-add {
     animation: fadeOutUp 0.3s;
 }
 
-.user-management.ng-hide-remove {
+.user-management .edit-form.ng-hide-remove {
     animation: fadeInDown 0.3s;
+}
+
+.user-management .pagination {
+    margin: 0;
+}
+
+.user-management, .user-management .edit-form {
+    margin-top: 20px;
 }

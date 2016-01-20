@@ -33,16 +33,20 @@ angular.module('indigoeln')
                 inputName: '@',
                 inputModel: '=',
                 inputReadonly: '=',
+                inputType: '@',
                 validationObj: '=',
                 validationRequired: '=',
-                validationMaxlength: '@'
+                validationMaxlength: '@',
+                labelClasses: '@'
             },
             template: '<div class="form-group">' +
-            '<label>{{inputLabel}}</label>' +
-            '<input type="text" class="form-control" name="{{inputName}}" ng-model="inputModel" ng-readonly="inputReadonly" ng-required="validationRequired" ng-maxlength="validationMaxlength">' +
+            '<label class="col-sm-2 control-label">{{inputLabel}}</label>' +
+            '<div class="col-sm-10">' +
+            '<input type="{{inputType}}" class="form-control" name="{{inputName}}" ng-model="inputModel" ng-readonly="inputReadonly" ng-required="validationRequired" ng-maxlength="validationMaxlength">' +
             '<div ng-show="validationObj.$invalid">' +
             '<p class="help-block" ng-show="validationObj.$error.required"> This field is required. </p>' +
             '<p class="help-block" ng-show="validationObj.$error.maxlength" > This field cannot be longer than {{validationMaxlength}} characters.</p>' +
+            '</div>' +
             '</div>' +
             '</div>'
         };
@@ -56,10 +60,13 @@ angular.module('indigoeln')
                 checkboxName: '@'
             },
             template: '<div class="form-group">' +
-            '<label for="{{checkboxName}}">' +
-            '<input type="checkbox" id="{{checkboxName}}" ng-model="checkboxModel">' +
-            '<span> {{checkboxLabel}}</span>' +
-            '</label>' +
+            '<div class="col-sm-offset-2 col-sm-10">' +
+            '<div class="checkbox">' +
+            '<label>' +
+            '<input type="checkbox" id="{{checkboxName}}" ng-model="checkboxModel"> {{checkboxLabel}}' +
+            '</label> ' +
+            '</div> ' +
+            '</div> ' +
             '</div> '
         };
     }).directive('mySelect', function () {
@@ -73,8 +80,10 @@ angular.module('indigoeln')
                 selectItems: '='
             },
             template: '<div class="form-group">' +
-            '<label>{{selectLabel}}</label>' +
+            '<label class="col-sm-2 control-label">{{selectLabel}}</label>' +
+            '<div class="col-sm-10">' +
             '<select class="form-control" multiple name="{{selectName}}" ng-model="selectModel" ng-options="item for item in selectItems" ></select>' +
+            '</div>' +
             '</div>'
         };
     });
