@@ -1,10 +1,16 @@
 package com.epam.indigoeln.core.service.batch;
 
-import com.epam.indigoeln.core.model.Batch;
+import com.epam.indigoeln.web.rest.dto.BatchDTO;
+
+import java.util.Optional;
 
 public interface BatchService {
 
-    Batch saveBatch(String experimentId, Batch batch);
+    BatchDTO createBatch(String experimentId, BatchDTO batch);
 
-    void deleteBatch(String experimentId, String batchNumber);
+    BatchDTO updateBatch(String experimentId, BatchDTO batch);
+
+    void deleteBatch(String experimentId, String batchId);
+
+    Optional<BatchDTO> getBatch(String experimentId, String batchId);
 }
