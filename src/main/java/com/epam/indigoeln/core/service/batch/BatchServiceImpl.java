@@ -1,16 +1,13 @@
 package com.epam.indigoeln.core.service.batch;
 
-import java.text.DecimalFormat;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalLong;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import javax.validation.ValidationException;
 
+import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
 import com.epam.indigoeln.web.rest.dto.BatchDTO;
 import org.bson.types.ObjectId;
 
@@ -25,9 +22,6 @@ import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 
 @Service
 public class BatchServiceImpl implements BatchService {
-
-    private static final String PATTERN_BATCH_NUMBER = "[0-9]+";
-    private static final String NUMBER_FORMAT_BATCH_NUMBER = "000";
 
     @Autowired
     private ExperimentRepository experimentRepository;
@@ -56,7 +50,8 @@ public class BatchServiceImpl implements BatchService {
         Batch batchForSave = new Batch();
         batchForSave.setId(batchDTO.getId() != null ? batchDTO.getId() : ObjectId.get().toHexString());
         //if batch number is not specified, new value will be generated
-        batchForSave.setBatchNumber(batchDTO.getBatchNumber() != null ? batchDTO.getBatchNumber() : getNextBatchNumber(experiment.getBatches()));
+        batchForSave.setBatchNumber(batchDTO.getBatchNumber() != null ? batchDTO.getBatchNumber() :
+                getNextBatchNumber(experiment.getBatches()));
 
         return saveBatch(batchForSave, experiment);
     }
@@ -113,17 +108,9 @@ public class BatchServiceImpl implements BatchService {
      * @return next formatted numeric value of batch number
      */
     private String getNextBatchNumber(List<Batch> batches) {
-        Pattern pattern = Pattern.compile(PATTERN_BATCH_NUMBER);
-        Format formatter = new DecimalFormat(NUMBER_FORMAT_BATCH_NUMBER);
-
-        Stream<String> batchNumbers = batches.stream().map(Batch::getBatchNumber);
-        OptionalLong maxNumber = batchNumbers.
-                filter(item -> item != null && pattern.matcher(item).matches()).
-                mapToLong(Long::parseLong).
-                max();
-
-        long nextBatchNumber = maxNumber.isPresent() ? maxNumber.getAsLong() + 1 : 1L;
-        return formatter.format(nextBatchNumber);
+        return SequenceNumberGenerationUtil.generateNextBatchNumber(
+                batches.stream().map(Batch::getBatchNumber).collect(Collectors.toList())
+        );
     }
 
     /**
