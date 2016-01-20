@@ -3,15 +3,20 @@ package com.epam.indigoeln.core.service.experiment;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
+import com.epam.indigoeln.web.rest.dto.ExperimentShortDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ValidationException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExperimentServiceImpl implements ExperimentService {
@@ -21,7 +26,7 @@ public class ExperimentServiceImpl implements ExperimentService {
 
     @Override
     public Experiment save(Experiment experiment) {
-        return experimentRepository.save(experiment);
+        return experimentRepository.save(validateAndSetExperimentNumber(experiment));
     }
 
     @Override
@@ -123,4 +128,28 @@ public class ExperimentServiceImpl implements ExperimentService {
         return dto;
     }
 
+    /**
+     * Auto generate experiment number if not specified, otherwise
+     * validate experiment number for uniqueness (experiment number is unique in Project)
+     * @param experiment experiment
+     * @return experiment enriched by experiment number
+     * @throws ValidationException if experiment number is unique
+     */
+    private Experiment validateAndSetExperimentNumber(Experiment experiment) {
+        Collection<ExperimentShortDTO> projectExperiments = experimentRepository.findExperimentsByProject(experiment.getProject());
+        Collection<String> projectExperimentNumbers = projectExperiments.stream().
+                map(ExperimentShortDTO::getExperimentNumber).
+                collect(Collectors.toList());
+
+        if(experiment.getExperimentNumber() == null) {
+            experiment.setExperimentNumber(
+                    SequenceNumberGenerationUtil.generateNextExperimentNumber(projectExperimentNumbers));
+        } else if(projectExperimentNumbers.contains(experiment.getExperimentNumber())){
+            throw new ValidationException(
+                    String.format("The experiment number '%s' already exists in the system", experiment.getExperimentNumber())
+            );
+        }
+
+        return experiment;
+    }
 }
