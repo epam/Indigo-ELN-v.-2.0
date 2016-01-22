@@ -84,7 +84,7 @@ public class NotebookResource {
     @Secured(AuthoritiesConstants.NOTEBOOK_CREATOR)
     public ResponseEntity<NotebookDTO> createNotebook(@RequestBody NotebookDTO notebookDTO,
                                    @RequestParam(value = "projectId") String projectId) throws URISyntaxException {
-        log.debug("REST request to create notebook for project: {}", notebookDTO, projectId);
+        log.debug("REST request to create notebook: {} for project: {}", notebookDTO, projectId);
         User user = userService.getUserWithAuthorities();
 
         Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);
@@ -98,7 +98,7 @@ public class NotebookResource {
     @RequestMapping(value="/{id}", method = RequestMethod.PUT)
     @Secured(AuthoritiesConstants.NOTEBOOK_CREATOR)
     public ResponseEntity<NotebookDTO> updateNotebook(@PathVariable("id") String id, @RequestBody NotebookDTO notebookDTO) {
-        log.debug("REST request to update notebook: {}", id, notebookDTO);
+        log.debug("REST request to update notebook: {} with id: {}", notebookDTO, id);
         User user = userService.getUserWithAuthorities();
 
         Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);

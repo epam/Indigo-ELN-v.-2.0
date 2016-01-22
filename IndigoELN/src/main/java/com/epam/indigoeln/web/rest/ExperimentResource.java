@@ -91,7 +91,7 @@ public class ExperimentResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
     public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody ExperimentDTO experimentDTO,
                                      @RequestParam(value = "notebookId") String notebookId) throws URISyntaxException {
-        log.debug("REST request to create experiment for notebook: {}", experimentDTO, notebookId);
+        log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = ConverterUtils.convertFromDTO(experimentDTO);
         experiment = experimentService.createExperiment(experiment, notebookId, user);
@@ -105,7 +105,7 @@ public class ExperimentResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
     public ResponseEntity<ExperimentDTO> updateExperiment(@PathVariable("id") String id,
                                                           @RequestBody ExperimentDTO experimentDTO) {
-        log.debug("REST request to update experiment: {}", id, experimentDTO);
+        log.debug("REST request to update experiment: {} with id: {}", experimentDTO, id);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = ConverterUtils.convertFromDTO(experimentDTO);
         experiment.setId(id);

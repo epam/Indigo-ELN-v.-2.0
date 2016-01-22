@@ -94,7 +94,7 @@ public class ProjectResource {
     @RequestMapping(value="/{id}", method = RequestMethod.PUT)
     @Secured(AuthoritiesConstants.PROJECT_CREATOR)
     public ResponseEntity<ProjectDTO> updateProject(@PathVariable("id") String id, @RequestBody ProjectDTO projectDTO) {
-        log.debug("REST request to update project: {}", id, projectDTO);
+        log.debug("REST request to update project: {} with id: {}", projectDTO, id);
         User user = userService.getUserWithAuthorities();
 
         Project project = ConverterUtils.convertFromDTO(projectDTO);
