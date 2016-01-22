@@ -1,0 +1,49 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-3" author="zubkov_timofey">
+        <script>
+            db.authority.insert({"_id" : "ROLE_VIEWER"});
+            db.authority.insert({"_id" : "ROLE_PROJECT_READER"});
+            db.authority.insert({"_id" : "ROLE_PROJECT_CREATOR"});
+            db.authority.insert({"_id" : "ROLE_PROJECT_REMOVER"});
+            db.authority.insert({"_id" : "ROLE_NOTEBOOK_READER"});
+            db.authority.insert({"_id" : "ROLE_NOTEBOOK_CREATOR"});
+            db.authority.insert({"_id" : "ROLE_NOTEBOOK_REMOVER"});
+            db.authority.insert({"_id" : "ROLE_EXPERIMENT_READER"});
+            db.authority.insert({"_id" : "ROLE_EXPERIMENT_CREATOR"});
+            db.authority.insert({"_id" : "ROLE_EXPERIMENT_REMOVER"});
+        </script>
+    </changeSet>
+    <changeSet changeId="ChangeSet-4" author="zubkov_timofey">
+        <script>
+            db.user.insert(
+            {
+            "_id" : "user-2",
+            "login" : "viewer",
+            "password" : "$2a$10$eGMJRoxRYd2H6NAkTGDAoOYou5zAHisj9HwXc/5gIYVmsureZHnju",
+            "first_name": "",
+            "last_name": "Viewer",
+            "email": "user@localhost",
+            "activated": "true",
+            "lang_key": "en",
+            "created_by": "system",
+            "created_date": new Date(),
+            "authorities": [
+                {"_id": "ROLE_VIEWER"},
+                {"_id": "ROLE_PROJECT_READER"}, {"_id": "ROLE_NOTEBOOK_READER"}, {"_id": "ROLE_EXPERIMENT_READER"}
+            ]
+            });
+            db.user.update({"login": "admin"}, {"$push": {"authorities": {"$each" : [
+                {"_id": "ROLE_VIEWER"},
+                {"_id": "ROLE_PROJECT_READER"}, {"_id": "ROLE_PROJECT_CREATOR"}, {"_id": "ROLE_PROJECT_REMOVER"},
+                {"_id": "ROLE_NOTEBOOK_READER"}, {"_id": "ROLE_NOTEBOOK_CREATOR"}, {"_id": "ROLE_NOTEBOOK_REMOVER"},
+                {"_id": "ROLE_EXPERIMENT_READER"}, {"_id": "ROLE_EXPERIMENT_CREATOR"}, {"_id": "ROLE_EXPERIMENT_REMOVER"}
+            ]}}});
+            db.user.update({"login": "user"}, {"$push": {"authorities": {"$each": [
+                {"_id": "ROLE_VIEWER"},
+                {"_id": "ROLE_PROJECT_READER"}, {"_id": "ROLE_PROJECT_CREATOR"},
+                {"_id": "ROLE_NOTEBOOK_READER"}, {"_id": "ROLE_NOTEBOOK_CREATOR"},
+                {"_id": "ROLE_EXPERIMENT_READER"}, {"_id": "ROLE_EXPERIMENT_CREATOR"}
+            ]}}});
+        </script>
+    </changeSet>
+</mongoChangeLog>

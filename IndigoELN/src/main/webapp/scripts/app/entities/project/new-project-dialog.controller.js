@@ -10,7 +10,15 @@ function NewProjectDialogController(projectService, $scope, $log, $uibModalInsta
     $scope.selectedUser = null;
 
     $scope.ok = function () {
-        $scope.project.users = $scope.destUsers;
+        $scope.project.accessList = [];
+        $scope.destUsers.forEach(function(element) {
+            var userPermission = {
+                userId: element, // TODO must be userId
+                // TODO must be configurable in UI
+                permissions: 'RERSCSUE' // permissions for OWNER (Read Entity, Read Sub-Entity, Create Sub-Entity, Update Entity)
+            };
+            $scope.project.accessList.push(userPermission);
+        });
         projectService.createNewProject($scope.project)
             .success(function (response) {
                 $log.log('Project created successfully.');

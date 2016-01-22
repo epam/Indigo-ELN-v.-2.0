@@ -36,7 +36,10 @@ angular.module('indigoeln')
                 bindToController: true,
                 resolve: {
                     notebook: function(notebookService, $stateParams) {
-                        return notebookService.save({name : $stateParams.notebookName}).$promise;
+                        return notebookService.save({projectId: 'need_project_id'}, { // TODO added projectId
+                            name : $stateParams.notebookName,
+                            accessList: [] //TODO add access list [{userId: 'userId', permissions: 'RERSCSUE'}, {...}]
+                        }).$promise;
                     }
                 }
             });
