@@ -7,7 +7,6 @@ angular
         vm.newExperiment = newExperiment;
         vm.newNotebook = newNotebook;
         vm.newProject = newProject;
-        $scope.logout = logout;
         $scope.Principal = Principal;
         function newExperiment(event) {
             //$rootScope.$broadcast('new-experiment', {});
@@ -52,7 +51,8 @@ angular
             });
         }
 
-        function logout() {
+        $scope.logout = function () {
             Auth.logout();
+            $state.go('home');
         }
     });

@@ -9,6 +9,7 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +121,12 @@ public class UserResource {
                     user.setLastName(managedUserDTO.getLastName());
                     user.setEmail(managedUserDTO.getEmail());
                     user.setActivated(managedUserDTO.isActivated());
-                    String encryptedPassword = passwordEncoder.encode(managedUserDTO.getPassword());
+                    String encryptedPassword = null;
+                    if (!Strings.isNullOrEmpty(managedUserDTO.getPassword())) {
+                        encryptedPassword = passwordEncoder.encode(managedUserDTO.getPassword());
+                    } else {
+                        encryptedPassword = user.getPassword();
+                    }
                     user.setPassword(encryptedPassword);
                     Set<Authority> authorities = user.getAuthorities();
                     authorities.clear();
