@@ -21,6 +21,9 @@ public class NotebookDTO implements Serializable {
 
     private List<UserPermission> accessList;
 
+    public NotebookDTO() {
+    }
+
     public NotebookDTO(Notebook notebook) {
         this.id = notebook.getId();
         this.name = notebook.getName();
