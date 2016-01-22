@@ -55,11 +55,11 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                 }
             },
             resolve: {
-                //authorize: ['Auth',
-                //    function (Auth) {
-                //        return Auth.authorize();
-                //    }
-                //]
+                authorize: ['Auth',
+                    function (Auth) {
+                        return Auth.authorize();
+                    }
+                ]
             }
         }).state('sidebar', {
             'abstract': true,
