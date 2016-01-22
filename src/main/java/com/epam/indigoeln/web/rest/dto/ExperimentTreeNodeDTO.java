@@ -11,6 +11,9 @@ public class ExperimentTreeNodeDTO implements Serializable {
     Object node;
     String nodeType;
 
+    public ExperimentTreeNodeDTO(){
+    }
+
     public ExperimentTreeNodeDTO(Object node) {
         this.node = node;
     }

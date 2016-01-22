@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "experiment")
@@ -45,7 +46,7 @@ public class Experiment extends ExperimentShort {
 
     private List<Batch> batches;
 
-    private List<UserPermission> accessList;
+    private List<UserPermission> accessList = new ArrayList<>();
 
     public User getAuthor() {
         return author;

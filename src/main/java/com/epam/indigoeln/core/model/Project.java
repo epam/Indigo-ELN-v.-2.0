@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection="project")
@@ -15,9 +16,9 @@ public class Project {
     private String name;
 
     @DBRef(lazy = true)
-    private List<Notebook> notebooks;
+    private List<Notebook> notebooks = new ArrayList<>();
 
-    private List<UserPermission> accessList;
+    private List<UserPermission> accessList = new ArrayList<>();
 
     public String getId() {
         return id;

@@ -18,6 +18,9 @@ public class ExperimentDTO implements Serializable {
     private String experimentNumber;
     private String templateId;
 
+    public ExperimentDTO() {
+    }
+
     public ExperimentDTO(Experiment experiment) {
         this.id =experiment.getId();
         this.title =experiment.getTitle();

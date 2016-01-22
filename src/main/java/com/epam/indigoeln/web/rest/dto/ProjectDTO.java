@@ -21,6 +21,9 @@ public class ProjectDTO implements Serializable {
 
     private List<UserPermission> accessList;
 
+    public ProjectDTO() {
+    }
+
     public ProjectDTO(Project project) {
         this.id = project.getId();
         this.name = project.getName();

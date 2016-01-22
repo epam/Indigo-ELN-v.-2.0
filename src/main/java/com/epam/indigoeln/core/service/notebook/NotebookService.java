@@ -87,7 +87,7 @@ public class NotebookService {
 
         /* Validation of a name (no data, wrong style, already exists) */
         if (StringUtils.isEmpty(notebook.getName()) || !notebook.getName().matches("^\\d{8}") ||
-                notebookRepository.findByName(notebook.getName()) == null) {
+                notebookRepository.findByName(notebook.getName()) != null) {
             // TODO Eduard_Burkov: Create more flexible validation and more detailed exception message
             // Or use a HeaderUtil for popup message
             throw new ValidationException("Validation failed");

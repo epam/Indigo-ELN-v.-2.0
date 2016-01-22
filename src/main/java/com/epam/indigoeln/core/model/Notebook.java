@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection="notebook")
@@ -15,9 +16,9 @@ public class Notebook {
     private String name;
 
     @DBRef
-    private List<Experiment> experiments;
+    private List<Experiment> experiments = new ArrayList<>();
 
-    private List<UserPermission> accessList;
+    private List<UserPermission> accessList = new ArrayList<>();
 
     public Notebook() {
     }
