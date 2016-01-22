@@ -39,6 +39,11 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
         };
     })
     .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider) {
+
+        //enable CSRF
+        $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
+        $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
+
         $urlRouterProvider.otherwise('/');
         $stateProvider.state('navbar', {
             'abstract': true,
@@ -50,11 +55,11 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                 }
             },
             resolve: {
-                authorize: ['Auth',
-                    function (Auth) {
-                        return Auth.authorize();
-                    }
-                ]
+                //authorize: ['Auth',
+                //    function (Auth) {
+                //        return Auth.authorize();
+                //    }
+                //]
             }
         }).state('sidebar', {
             'abstract': true,
