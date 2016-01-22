@@ -22,8 +22,7 @@
     "bootstrap": {
       "main": [
         "dist/js/bootstrap.js",
-        "dist/css/bootstrap.css",
-        "less/bootstrap.less"
+        "../../assets/styles/indigo-bootstrap.css"
       ]
     },
     "stomp-websocket": {

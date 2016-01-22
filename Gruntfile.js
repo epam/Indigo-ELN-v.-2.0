@@ -26,6 +26,10 @@ module.exports = function (grunt) {
             bower: {
                 files: ['bower.json'],
                 tasks: ['wiredep']
+            },
+            less: {
+                files: ['src/main/less/**/*.{less}'],
+                tasks: ['less:compileBootstrap']
             }
         },
         autoprefixer: {
@@ -228,6 +232,12 @@ module.exports = function (grunt) {
                     dest: '.tmp/concat/scripts'
                 }]
             }
+        },
+        less: {
+            compileBootstrap: {
+                src: 'src/main/less/indigo-bootstrap.less',
+                dest: 'src/main/webapp/assets/styles/indigo-bootstrap.css'
+            }
         }
     });
 
@@ -248,6 +258,7 @@ module.exports = function (grunt) {
         'wiredep:app',
         'useminPrepare',
         'ngtemplates',
+        'less:compileBootstrap',
         'imagemin',
         'svgmin',
         'concat',
