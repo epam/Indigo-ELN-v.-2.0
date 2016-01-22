@@ -1,7 +1,7 @@
 <div class="panel panel-info user-management">
     <div class="panel-heading">Users</div>
     <div class="panel-body">
-
+        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
         <button class="btn btn-primary" ng-click="create()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create a new User</span>
         </button>
@@ -16,6 +16,9 @@
 
                     <div class="row">
                         <div class="col-md-6">
+                            <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
+                            <input style="display:none" type="text" name="fakeusernameremembered"/>
+                            <input style="display:none" type="password" name="fakepasswordremembered"/>
                             <my-input
                                     input-label="ID"
                                     input-name="id"
