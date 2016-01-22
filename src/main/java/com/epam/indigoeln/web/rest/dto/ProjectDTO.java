@@ -1,6 +1,6 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.UserPermission;
 
 import javax.validation.constraints.NotNull;
@@ -9,9 +9,9 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * DTO for Notebook
+ * DTO for Project
  */
-public class NotebookDTO implements Serializable {
+public class ProjectDTO implements Serializable {
 
     private String id;
 
@@ -21,10 +21,10 @@ public class NotebookDTO implements Serializable {
 
     private List<UserPermission> accessList;
 
-    public NotebookDTO(Notebook notebook) {
-        this.id = notebook.getId();
-        this.name = notebook.getName();
-        this.accessList = notebook.getAccessList();
+    public ProjectDTO(Project project) {
+        this.id = project.getId();
+        this.name = project.getName();
+        this.accessList = project.getAccessList();
     }
 
     public String getId() {
@@ -53,7 +53,7 @@ public class NotebookDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "NotebookDTO{" +
+        return "ProjectDTO{" +
                 "name='" + name + "\'" +
                 "}";
     }

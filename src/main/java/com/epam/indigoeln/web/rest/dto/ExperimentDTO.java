@@ -1,12 +1,14 @@
 package com.epam.indigoeln.web.rest.dto;
 
+import com.epam.indigoeln.core.model.Experiment;
+
 import java.io.Serializable;
 
 /**
- * Light-weight transfer object for Experiments
- * Does not contain embedded fields, such as Author, Batch, etc.
+ * DTO for Experiment
+ * Does not contain embedded fields, such as Author, Batch, etc. // TODO Need to supplement
  */
-public class ExperimentShortDTO implements Serializable {
+public class ExperimentDTO implements Serializable {
 
     private static final long serialVersionUID = -305591958439648518L;
 
@@ -15,6 +17,14 @@ public class ExperimentShortDTO implements Serializable {
     private String project;
     private String experimentNumber;
     private String templateId;
+
+    public ExperimentDTO(Experiment experiment) {
+        this.id =experiment.getId();
+        this.title =experiment.getTitle();
+        this.project =experiment.getProject();
+        this.experimentNumber =experiment.getExperimentNumber();
+        this.templateId =experiment.getTemplateId();
+    }
 
     public String getId() {
         return id;

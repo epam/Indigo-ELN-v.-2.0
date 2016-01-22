@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.model;
 
 
+import com.epam.indigoeln.core.security.AuthoritiesConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,10 +15,22 @@ import java.io.Serializable;
 @Document(collection = "authority")
 public class Authority implements Serializable {
 
+    public static final Authority ADMIN = new Authority(AuthoritiesConstants.ADMIN);
+    public static final Authority USER = new Authority(AuthoritiesConstants.USER);
+    public static final Authority VIEWER = new Authority(AuthoritiesConstants.VIEWER);
+
     @NotNull
     @Size(min = 0, max = 50)
     @Id
     private String name;
+
+    public Authority() {
+
+    }
+
+    public Authority(String name) {
+        this.name = name;
+    }
 
     public String getName() {
         return name;

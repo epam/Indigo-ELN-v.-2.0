@@ -2,10 +2,12 @@ package com.epam.indigoeln.core.repository.notebook;
 
 import com.epam.indigoeln.core.model.Notebook;
 import org.springframework.data.mongodb.repository.MongoRepository;
-
-import java.util.Optional;
+import org.springframework.data.mongodb.repository.Query;
 
 public interface NotebookRepository extends MongoRepository<Notebook, String> {
 
-    Optional<Notebook> findOneByName(String name);
+    @Query("{'experiments.id': ?0}") //TODO try experiments DBref $id
+    Notebook findByExperimentId(String experimentId);
+
+    Notebook findByName(String name);
 }
