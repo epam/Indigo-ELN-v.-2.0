@@ -2,4 +2,5 @@
     <file path="dropdb.xml"/>
     <file path="authorities.xml"/>
     <file path="users.xml"/>
+    <file path="authorities_for_entity_operations.xml"/>
 </changeFiles>

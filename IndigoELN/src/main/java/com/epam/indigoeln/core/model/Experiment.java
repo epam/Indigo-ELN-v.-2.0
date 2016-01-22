@@ -1,46 +1,29 @@
 package com.epam.indigoeln.core.model;
 
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
-
 @Document(collection = "experiment")
-public class Experiment implements Serializable {
-
-    private static final long serialVersionUID = 279335946658061099L;
-
-    @Id
-    private String id;
+public class Experiment extends ExperimentShort {
 
     @Version
     private Long version;
-
-    @NotBlank
-    private String experimentNumber;
-
-    private String title;
 
     private User author;
 
     private List<User> coAuthors;
 
     private List<User> witness;
-
-    @NotBlank
-    private String project;
 
     @CreatedDate
     @JsonSerialize(using = LocalDateSerializer.class)
@@ -62,7 +45,7 @@ public class Experiment implements Serializable {
 
     private List<Batch> batches;
 
-    private String templateId;
+    private List<UserPermission> accessList;
 
     public User getAuthor() {
         return author;
@@ -88,36 +71,12 @@ public class Experiment implements Serializable {
         this.comments = comments;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
-    }
-
     public String getStatus() {
         return status;
     }
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public List<User> getWitness() {
@@ -164,20 +123,12 @@ public class Experiment implements Serializable {
         return version;
     }
 
-    public String getTemplateId() {
-        return templateId;
+    public List<UserPermission> getAccessList() {
+        return accessList;
     }
 
-    public void setTemplateId(String templateId) {
-        this.templateId = templateId;
-    }
-
-    public String getExperimentNumber() {
-        return experimentNumber;
-    }
-
-    public void setExperimentNumber(String experimentNumber) {
-        this.experimentNumber = experimentNumber;
+    public void setAccessList(List<UserPermission> accessList) {
+        this.accessList = accessList;
     }
 
     @Override
@@ -198,7 +149,10 @@ public class Experiment implements Serializable {
         if (lastEditDate != null ? !lastEditDate.equals(that.lastEditDate) : that.lastEditDate != null) return false;
         if (batches != null ? !batches.equals(that.batches) : that.batches != null) return false;
         if (templateId != null ? !templateId.equals(that.templateId) : that.templateId != null) return false;
-        return comments != null ? comments.equals(that.comments) : that.comments == null;
+        if (comments != null ? !comments.equals(that.comments) : that.comments != null) return false;
+        if (accessList != null ? !accessList.equals(that.accessList) : that.accessList != null) return false;
+
+        return true;
 
     }
 
@@ -216,6 +170,17 @@ public class Experiment implements Serializable {
         result = 31 * result + (batches != null ? batches.hashCode() : 0);
         result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
         result = 31 * result + (comments != null ? comments.hashCode() : 0);
+        result = 31 * result + (accessList != null ? accessList.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Experiment{" +
+                "status='" + status + '\'' +
+                ", creationDate='" + creationDate + '\'' +
+                ", lastEditDate='" + lastEditDate + '\'' +
+                ", comments='" + comments + '\'' +
+                "} " + super.toString();
     }
 }
