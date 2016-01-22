@@ -27,14 +27,12 @@
     <dependencies>
 
         <!-- Database -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
         <!-- Spring Configuration -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -42,14 +40,12 @@
         </dependency>
 
         <!-- Web MVC -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <!-- Security -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -59,8 +55,8 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-data</artifactId>
         </dependency>
-        <!-- Messaging -->
 
+        <!-- Messaging -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jms</artifactId>
@@ -79,7 +75,6 @@
         </dependency>
 
         <!-- Websocket -->
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
@@ -95,20 +90,19 @@
         </dependency>
 
         <!-- Jackson Datatype -->
-
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.6.1</version>
         </dependency>
 
-        <!--logging-->
+        <!-- Logging -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
 
-        <!--Aspects-->
+        <!-- Aspects -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -120,7 +114,7 @@
             <version>0.9.4</version>
         </dependency>
 
-        <!--MapStruct -->
+        <!-- MapStruct -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct-jdk8</artifactId>
@@ -133,6 +127,12 @@
             <version>${commons-lang.version}</version>
         </dependency>
 
+        <!-- Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>15.0</version>
+        </dependency>
 
     </dependencies>
 

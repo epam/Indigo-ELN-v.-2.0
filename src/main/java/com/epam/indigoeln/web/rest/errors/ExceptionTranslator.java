@@ -23,7 +23,7 @@ public class ExceptionTranslator {
     @ExceptionHandler(ConcurrencyFailureException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public ErrorDTO processConcurencyError(ConcurrencyFailureException ex) {
+    public ErrorDTO processConcurrencyError(ConcurrencyFailureException ex) {
         return new ErrorDTO(ErrorConstants.ERR_CONCURRENCY_FAILURE);
     }
 
@@ -37,17 +37,17 @@ public class ExceptionTranslator {
         return processFieldErrors(fieldErrors);
     }
 
-    @ExceptionHandler(CustomParameterizedException.class)
+    @ExceptionHandler(CustomParametrizedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ParameterizedErrorDTO processParameterizedValidationError(CustomParameterizedException ex) {
+    public ParametrizedErrorDTO processParametrizedValidationError(CustomParametrizedException ex) {
         return ex.getErrorDTO();
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ResponseBody
-    public ErrorDTO processAccessDeniedExcpetion(AccessDeniedException e) {
+    public ErrorDTO processAccessDeniedException(AccessDeniedException e) {
         return new ErrorDTO(ErrorConstants.ERR_ACCESS_DENIED, e.getMessage());
     }
 

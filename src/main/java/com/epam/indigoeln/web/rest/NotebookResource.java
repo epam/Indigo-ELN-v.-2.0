@@ -1,83 +1,120 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(NotebookResource.URL_MAPPING)
 public class NotebookResource {
 
-    @Autowired
-    private NotebookRepository notebookRepository;
+    static final String URL_MAPPING = "/api/notebooks";
+
+    private final Logger log = LoggerFactory.getLogger(NotebookResource.class);
 
     @Autowired
     private NotebookService notebookService;
 
-    /**
-     * POST /api/notebooks
-     * Create new notebook
-     **/
-    @RequestMapping(value = "/notebooks", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public NotebookDTO createNewNotebook(@RequestBody NotebookDTO notebook) {
-        Notebook newNotebook = new Notebook();
+    @Autowired
+    private ExperimentService experimentService;
 
-        /* Validation of a name (no data, wrong style, already exists) */
-        if (!StringUtils.isEmpty(notebook.getName()) && notebook.getName().matches("^\\d{8}") &&
-                !notebookRepository.findOneByName(notebook.getName()).isPresent()) {
-            newNotebook = notebookService.createNewNotebook(notebook);
-        }
-
-        return new NotebookDTO(newNotebook);
-    }
+    @Autowired
+    private UserService userService;
 
     /**
-     * PUT /api/notebooks
-     * Update notebook
-     **/
-    @RequestMapping(value = "/notebooks", method = RequestMethod.PUT)
-    public void updateNotebook(@RequestBody NotebookDTO notebook) {
-        notebookService.updateNotebook(notebook);
-    }
-
-    @RequestMapping(value = "/getAllNotebooksIds", method = RequestMethod.GET)
-    public ModelAndView getAllNotebooks(ModelMap model) {
-        Collection<Notebook> notebooks = notebookService.getAllNotebooks();
-        List<String> ids = new ArrayList<String>();
-        for (Notebook notebook: notebooks) {
-            ids.add(notebook.getId());
+     * GET  /notebooks?:projectId -> Returns all notebooks of specified project
+     * for tree representation according to User permissions
+     * <p>
+     * If User has <b>ADMIN</b> authority, than all notebooks for specified project have to be returned
+     * </p>
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    @Secured(AuthoritiesConstants.NOTEBOOK_READER)
+    public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllNotebooks(
+            @RequestParam(value = "projectId") String projectId) {
+        log.debug("REST request to get all notebooks of project: {}", projectId);
+        User user = userService.getUserWithAuthorities();
+        Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
+        List<ExperimentTreeNodeDTO> result = new ArrayList<>(notebooks.size());
+        for (Notebook notebook : notebooks) {
+            NotebookDTO notebookDTO = new NotebookDTO(notebook);
+            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(notebookDTO);
+            dto.setNodeType("notebook");
+            dto.setHasChildren(experimentService.hasExperiments(notebook, user));
+            result.add(dto);
         }
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("notebookIds", ids);
-        return modelAndView;
+        return ResponseEntity.ok(result);
     }
 
-    @RequestMapping(value = "/getNotebook", method = RequestMethod.GET)
-    public ModelAndView getNotebook(ModelMap model) {
-        Notebook notebook = notebookService.getNotebook((String)model.get("notebookId"));
-        ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("notebook", notebook);
-        return modelAndView;
+    /**
+     * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @Secured(AuthoritiesConstants.NOTEBOOK_READER)
+    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable("id") String id) {
+        log.debug("REST request to get notebook: {}", id);
+        User user = userService.getUserWithAuthorities();
+        Notebook notebook = notebookService.getNotebookById(id, user);
+        return ResponseEntity.ok(new NotebookDTO(notebook));
     }
 
-    @RequestMapping(value = "/deleteNotebook", method = RequestMethod.GET)
-    public ModelAndView deleteNotebook(ModelMap model) {
-        notebookService.deleteNotebook((String)model.get("notebookId"));
-        ModelAndView modelAndView = new ModelAndView();
-        return modelAndView;
+    /**
+     * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User
+     * as child for specified Project
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    @Secured(AuthoritiesConstants.NOTEBOOK_CREATOR)
+    public ResponseEntity<NotebookDTO> createNotebook(@RequestBody NotebookDTO notebookDTO,
+                                   @RequestParam(value = "projectId") String projectId) throws URISyntaxException {
+        log.debug("REST request to create notebook: {} for project: {}", notebookDTO, projectId);
+        User user = userService.getUserWithAuthorities();
+
+        Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);
+        notebook = notebookService.createNotebook(notebook, projectId, user);
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId())).body(new NotebookDTO(notebook));
+    }
+
+    /**
+     * PUT  /notebooks/:id -> Updates notebook with specified id according to User permissions
+     */
+    @RequestMapping(value="/{id}", method = RequestMethod.PUT)
+    @Secured(AuthoritiesConstants.NOTEBOOK_CREATOR)
+    public ResponseEntity<NotebookDTO> updateNotebook(@PathVariable("id") String id, @RequestBody NotebookDTO notebookDTO) {
+        log.debug("REST request to update notebook: {} with id: {}", notebookDTO, id);
+        User user = userService.getUserWithAuthorities();
+
+        Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);
+        notebook.setId(id);
+        notebook = notebookService.updateNotebook(notebook, user);
+        return ResponseEntity.ok(new NotebookDTO(notebook));
+    }
+
+    /**
+     * DELETE  /notebooks/:id -> Removes notebook with specified id
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @Secured(AuthoritiesConstants.NOTEBOOK_REMOVER)
+    public ResponseEntity<?> deleteNotebook(@PathVariable("id") String id) {
+        log.debug("REST request to remove notebook: {}", id);
+        notebookService.deleteNotebook(id);
+        return ResponseEntity.ok(null);
     }
 }

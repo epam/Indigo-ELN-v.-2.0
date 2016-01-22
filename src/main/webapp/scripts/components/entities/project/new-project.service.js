@@ -25,7 +25,7 @@ function projectService($http) {
     API.createNewProject = function (newProjectData) {
         return $http({
             method: 'POST',
-            url: 'api/projects/createNewProject', //todo: wrong for rest style api
+            url: 'api/projects', //todo: wrong for rest style api
             data: angular.toJson(newProjectData),
             headers: {'Content-Type': 'application/json'}
         });
