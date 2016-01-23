@@ -50,8 +50,7 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             views: {
                 'navbar@': {
                     templateUrl: 'scripts/components/navbar/navbar.html',
-                    controller: 'NavbarController',
-                    controllerAs: 'vm'
+                    controller: 'NavbarController'
                 }
             },
             resolve: {
@@ -67,16 +66,8 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             views: {
                 'sidebar@': {
                     templateUrl: 'scripts/components/sidebar/sidebar.html',
-                    controller: 'SidebarController',
-                    controllerAs: 'vm'
+                    controller: 'SidebarController'
                 }
-            },
-            resolve: {
-                //getAuth: ['authService',
-                //    function (authService) {
-                //        return authService.getAuth();
-                //    }
-                //]
             }
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');

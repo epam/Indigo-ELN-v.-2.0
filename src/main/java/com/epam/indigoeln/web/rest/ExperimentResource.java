@@ -9,6 +9,9 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +53,20 @@ public class ExperimentResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_READER)
     public ResponseEntity<?> getAllExperiments(
             @RequestParam(value = "notebookId", required = false) String notebookId) {
+        if (true) {
+            //stub
+            List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
+            for (int i = 0; i < RandomUtils.nextInt(15); i++) {
+                ExperimentDTO experimentDTO = new ExperimentDTO();
+                experimentDTO.setTitle(RandomStringUtils.randomAlphabetic(10));
+                experimentDTO.setId(RandomStringUtils.randomAlphanumeric(10));
+                experimentDTO.setExperimentNumber(RandomStringUtils.randomAlphanumeric(10));
+                experimentDTO.setProject(RandomStringUtils.randomAlphanumeric(10));
+                experimentDTO.setTemplateId(RandomStringUtils.randomAlphanumeric(10));
+                result.add(new ExperimentTreeNodeDTO(experimentDTO));
+            }
+            return ResponseEntity.ok(result);
+        }
         if (notebookId == null) {
             log.debug("REST request to get all experiments of current User");
             Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(

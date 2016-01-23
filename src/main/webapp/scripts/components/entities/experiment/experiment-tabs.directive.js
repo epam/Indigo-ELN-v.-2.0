@@ -2,52 +2,49 @@
 
 angular
     .module('indigoeln')
-    .directive('experimentTabs', experimentTabs);
+    .directive('experimentTabs', function experimentTabs($timeout, $filter) {
+        return {
+            scope: {},
+            restrict: 'E',
+            templateUrl: 'scripts/app/entities/experiment/tabs/experiment-tabs.html',
+            link: function (scope, elem, attrs) {
+                scope.tabs = [];
+                scope.newExperiment = newExperiment;
 
-experimentTabs.$inject = ['$timeout', '$filter'];
+                scope.removeTab = removeTab;
 
-function experimentTabs($timeout, $filter) {
-    return {
-        scope: {},
-        restrict: 'E',
-        templateUrl: 'scripts/app/entities/experiment/tabs/experiment-tabs.html',
-        link: function (scope, elem, attrs) {
-            scope.tabs = [];
-            scope.newExperiment = newExperiment;
+                scope.$on('experiment-open', function (event, data) {
+                    var openedTab = $filter('filter')(scope.tabs, {experiment: data.experiment});//-1;//scope.tabs.indexOf(data.experiment);
 
-            scope.removeTab = removeTab;
+                    if (openedTab.length > 0) {
+                        openedTab[0].active = true;
+                    } else {
+                        scope.tabs.push({
+                            experiment: data.experiment,
+                            active: true,
+                            content: 'scripts/app/entities/experiment/tabs/experiment-tab.html',
+                            name: data.experiment.title
+                        });
+                    }
 
-            scope.$on('experiment-open', function (event, data) {
-                var openedTab = $filter('filter')(scope.tabs, {experiment: data.experiment});//-1;//scope.tabs.indexOf(data.experiment);
+                });
 
-                if (openedTab.length > 0) {
-                    openedTab[0].active = true;
-                } else {
+                scope.$on('new-experiment', newExperiment);
+
+                function newExperiment() {
                     scope.tabs.push({
-                        experiment: data.experiment,
                         active: true,
-                        content: 'scripts/app/entities/experiment/tabs/experiment-tab.html',
-                        name: data.experiment.title
+                        content: 'scripts/app/entities/experiment/tabs/new-experiment-tab.html',
+                        name: 'New experiment'
                     });
                 }
 
-            });
+                function removeTab(tab) {
+                    var indx = scope.tabs.indexOf(tab);
 
-            scope.$on('new-experiment', newExperiment);
-
-            function newExperiment() {
-                scope.tabs.push({
-                    active: true,
-                    content: 'scripts/app/entities/experiment/tabs/new-experiment-tab.html',
-                    name: 'New experiment'
-                });
+                    scope.tabs.splice(indx, 1);
+                }
             }
+        };
+    });
 
-            function removeTab(tab) {
-                var indx = scope.tabs.indexOf(tab);
-
-                scope.tabs.splice(indx, 1);
-            }
-        }
-    };
-}

@@ -9,6 +9,9 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,17 @@ public class ProjectResource {
     @RequestMapping(method = RequestMethod.GET)
     @Secured(AuthoritiesConstants.PROJECT_READER)
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllProjects() {
+        if (true) {
+            List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
+            for (int i = 0; i < RandomUtils.nextInt(15); i++) {
+                ProjectDTO projectDTO = new ProjectDTO();
+                projectDTO.setId(RandomStringUtils.randomAlphanumeric(10));
+                projectDTO.setName(RandomStringUtils.randomAlphanumeric(10));
+                ExperimentTreeNodeDTO element = new ExperimentTreeNodeDTO(projectDTO);
+                result.add(element);
+            }
+            return ResponseEntity.ok(result);
+        }
         log.debug("REST request to get all projects");
         User user = userService.getUserWithAuthorities();
         Collection<Project> projects = projectService.getAllProjects(user);
