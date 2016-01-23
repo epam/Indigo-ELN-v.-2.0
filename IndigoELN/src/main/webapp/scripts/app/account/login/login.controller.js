@@ -17,13 +17,13 @@ angular.module('indigoeln')
                 rememberMe: $scope.rememberMe
             }).then(function () {
                 $scope.authenticationError = false;
-                if ($rootScope.previousStateName === 'register') {
-                    $state.go('home');
-                } else {
-                    $rootScope.back();
-                }
+                $rootScope.back();
             }).catch(function () {
                 $scope.authenticationError = true;
+                $scope.hasError = true;
+                $timeout(function () {
+                    $scope.hasError = false;
+                }, 1000)
             });
         };
     });

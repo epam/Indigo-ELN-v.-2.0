@@ -120,3 +120,6 @@
 .login-form {
     margin-top: 50px;
 }
+.login-form .panel-info.has-error{
+    animation: shake 0.7s;
+}
