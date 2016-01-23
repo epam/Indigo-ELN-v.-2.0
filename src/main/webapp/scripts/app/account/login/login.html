@@ -5,7 +5,7 @@
                 Sign in
             </div>
             <div class="panel-body">
-                <form class="form" role="form" ng-submit="login($event)">
+                <form class="form" id="login-form" role="form" ng-submit="login($event)">
                     <div class="form-group">
                         <label for="username">Login</label>
                         <input type="text" class="form-control" id="username" placeholder="Your username"
@@ -22,10 +22,10 @@
                             <span>Remember me</span>
                         </label>
                     </div>
-                    <div class="text-right">
-                        <button type="submit" class="btn btn-primary">Sign in</button>
-                    </div>
                 </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="submit" class="btn btn-primary" form="login-form">Sign in</button>
             </div>
         </div>
             <div class="alert alert-danger" ng-show="authenticationError">
