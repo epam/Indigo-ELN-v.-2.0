@@ -20,10 +20,7 @@ angular.module('indigoeln')
                 $rootScope.back();
             }).catch(function () {
                 $scope.authenticationError = true;
-                $scope.hasError = true;
-                $timeout(function () {
-                    $scope.hasError = false;
-                }, 1000)
+                $scope.shake = !$scope.shake;
             });
         };
     });
