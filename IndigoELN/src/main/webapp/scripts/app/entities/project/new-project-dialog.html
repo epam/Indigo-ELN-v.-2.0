@@ -12,7 +12,7 @@
             <ul id="userBlockSourceList" class="userList_ul">
                 <li class="userList_li" ng-repeat="user in sourceUsers | filter:userFilter"
                     ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
-                    {{user}}<br/>
+                    {{user.login}}<br/>
                 </li>
             </ul>
         </div>
@@ -30,7 +30,7 @@
             <ul id="userBlockDestList" class="userList_ul">
                 <li class="userList_li" ng-repeat="user in destUsers"
                     ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
-                    {{user}}<br/>
+                    {{user.login}}<br/>
                 </li>
             </ul>
         </div>

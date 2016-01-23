@@ -1,109 +1,29 @@
-    <ul class="unit-navigation-list-one-lvl">
-        <li class="list-item-one-lvl" toggle-class-child="open-menu"><span>My Bookmarks</span>
-            <ul class="unit-navigation-list-two-lvl">
-                <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 1</span>
-                    <ul class="unit-navigation-list-three-lvl">
-                        <li class="list-item-three-lvl" toggle-class-child="open-menu">
-                            <i class="fa fa-circle"></i>
-                            <span>User</span>
-                            <ul class="unit-navigation-list-four-lvl">
-                                <li class="list-item-four-lvl" toggle-class-child="open-menu">
-                                    <i class="fa fa-circle"></i>
-                                    <span>111</span>
-                                    <ul class="unit-navigation-list-five-lvl">
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>Table</span>
-                                        </li>
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0001</span>
-                                        </li>
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0002</span></li>
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0003</span>
-                                        </li>
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0004</span>
-                                        </li>
-                                        <li class="list-item-five-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0005</span>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 2</span>
-                    <ul class="unit-navigation-list-three-lvl">
-                        <li class="list-item-three-lvl" toggle-class-child="open-menu">
-                            <i class="fa fa-circle"></i>
-                            <span>User</span>
-                            <ul class="unit-navigation-list-four-lvl">
-                                <li class="list-item-four-lvl" toggle-class-child="open-menu">
-                                    <i class="fa fa-circle"></i>
-                                    <span>111</span>
-                                    <ul class="unit-navigation-list-four-lvl">
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>Table</span>
-                                        </li>
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0001</span>
-                                        </li>
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0002</span></li>
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0003</span>
-                                        </li>
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0004</span>
-                                        </li>
-                                        <li class="list-item-four-lvl">
-                                            <i class="fa fa-circle"></i>
-                                            <span>0005</span>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-                <li class="list-item-two-lvl" toggle-class-child="open-menu"><span>Site 3</span>
-                    <ul class="unit-navigation-list-three-lvl">
-                        <li class="list-item-three-lvl" toggle-class-child="open-menu"><span>User</span>
-                            <ul class="unit-navigation-list-four-lvl">
-                                <li class="list-item-four-lvl" toggle-class-child="open-menu"><span>111</span>
-                                    <ul class="unit-navigation-list-four-lvl">
-                                        <li class="list-item-four-lvl"><span>Table</span></li>
-                                        <li class="list-item-four-lvl"><span>0001</span></li>
-                                        <li class="list-item-four-lvl"><span>0002</span></li>
-                                        <li class="list-item-four-lvl"><span>0003</span></li>
-                                        <li class="list-item-four-lvl"><span>0004</span></li>
-                                        <li class="list-item-four-lvl"><span>0005</span></li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-        <li class="list-item-one-lvl" toggle-class-child="open-menu"><span>All Sites</span>
-            <ul class="unit-navigation-list-two-lvl">
-                <li class="list-item-two-lvl">Site 1</li>
-                <li class="list-item-two-lvl">Site 2</li>
-                <li class="list-item-two-lvl">Site 3</li>
-            </ul>
-        </li>
-    </ul>
+<ul>
+    <li ng-click="toggleProjects()"><span>My Bookmarks</span>
+        <ul ng-class="{'open-menu': projects.length}">
+            <li ng-repeat="project in projects" ng-click="toggleNotebooks(project); $event.stopPropagation();">
+                <span>{{project.node.name}}</span>
+                <ul ng-class="{'open-menu': project.notebooks.length}">
+                    <li ng-repeat="notebook in project.notebooks"
+                        ng-click="toggleExperiments(notebook); $event.stopPropagation();">
+                        <i class="fa fa-circle"></i>
+                        <span>{{notebook.node.title}}</span>
+                        <ul ng-class="{'open-menu': notebook.experiments.length}">
+                            <li ng-click="$event.stopPropagation();">
+                                <i class="fa fa-circle"></i>
+                                <span>Table</span>
+                                <ul ng-class="{'open-menu': notebook.experiments.length}">
+                                    <li ng-repeat="experiment in notebook.experiments"
+                                        ng-click="onExperimentClick(experiment); $event.stopPropagation();">
+                                        <i class="fa fa-circle"></i>
+                                        <span>{{experiment.node.title}}</span>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>

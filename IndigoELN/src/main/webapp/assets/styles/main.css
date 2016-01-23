@@ -125,3 +125,7 @@
 .login-form .panel-info.has-error-remove {
     animation: shake 0.7s;
 }
+
+.main-container__sitebar .open-menu-add {
+    animation: fadeInLeft 0.5s;
+}

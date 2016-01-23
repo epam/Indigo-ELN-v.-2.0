@@ -1,91 +1,179 @@
-<div>
-    <h2>Open and Completed Experiments</h2>
-    <table class="main-table table table-striped table-condensed">
-        <thead class="main-table__header">
-            <tr class="table-list">
-                <th class="table-list__item table-list__item_header">Experiment ID</th>
-                <th class="table-list__item table-list__item_header">Title</th>
-                <th class="table-list__item table-list__item_header">Status</th>
-                <th class="table-list__item table-list__item_header">Co-authors</th>
-                <th class="table-list__item table-list__item_header">Project</th>
-                <th class="table-list__item table-list__item_header">Creation Date</th>
-                <th class="table-list__item table-list__item_header">Last Edit Date</th>
-                <th class="table-list__item table-list__item_header">Idle Workdays</th>
-            </tr>
-        </thead>
-        <tbody class="main-table__body">
-            <tr class="table-list" ng-repeat="exp in vm.experiments.openAndCompletedExp">
-                <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
-                <td class="table-list__item">{{exp.title}}</td>
-                <td class="table-list__item">{{exp.status}}</td>
-                <td class="table-list__item">
-                    <ul><li ng-repeat="user in exp.coAuthors">{{user.name}}</li></ul>
-                </td>
-                <td class="table-list__item">{{exp.project}}</td>
-                <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
-            </tr>
-        </tbody>
-    </table>
+<h2>111111</h2>
+<section class="ind-accordion   uui-accordion" id="accordion1">
+    <div class="ind-accordion-item   panel accordion-item">
+        <div class="ind-accordion-item__header   accordion-heading ind-accordion-item__header">
+            <p class="accordion-title">
+                <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item1">Concept
+                    Details</a>
+            </p>
+        </div>
+        <div class="ind-accordion-item__body   accordion-collapse collapse in" id="item1">
+            <div class="accordion-body">
+                <div class="ruling-slider">
+                    <div class="ruling-slider__uui-element">
+                        <div class="unit-uui-element">
+                            <div id="slider" class="unit-uui-element__i-slider"></div>
+                            <p class="checkbox unit-uui-element__ind-checkbox">
+                                <input type="checkbox" id="f1" class="uui-form-element blue"/>
+                                <label for="f1">Show Structure</label>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ruling-controls">
+                    <button class="ruling-controls__btn">Register VC</button>
+                    <button class="ruling-controls__btn">Add New Compound</button>
+                    <button class="ruling-controls__btn">Delete Compound(s)</button>
+                    <button class="ruling-controls__btn">Import SD File</button>
+                </div>
+                <div class="accordion-body-unit__table-page">
+                    <table class="main-table table table-striped table-condensed">
+                        <thead class="main-table__header">
+                        <tr class="head-table-list">
+                            <th class="table-list__item">Nbk Batch#</th>
+                            <th class="table-list__item">Select</th>
+                            <th class="table-list__item">Virtual Compound id</th>
+                            <th class="table-list__item">Select</th>
+                            <th class="table-list__item">Nbk Batch#</th>
+                            <th class="table-list__item">Creation Date</th>
+                            <th class="table-list__item">Last Edit Date</th>
+                            <th class="table-list__item">Comments</th>
+                        </tr>
+                        </thead>
+                        <tbody class="main-table__body">
+                        <tr class="table-list">
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item">
+                                <p class="checkbox checkbox_grid">
+                                    <input type="checkbox" id="f2" class="uui-form-element blue"/>
+                                    <label for="f2"></label>
+                                </p>
+                            </td>
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                        </tr>
+                        <tr class="table-list">
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item">
+                                <p class="checkbox checkbox_grid">
+                                    <input type="checkbox" id="f3" class="uui-form-element blue"/>
+                                    <label for="f3"></label>
+                                </p>
+                            </td>
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                        </tr>
+                        <tr class="table-list">
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item">
+                                <p class="checkbox checkbox_grid">
+                                    <input type="checkbox" id="f4" class="uui-form-element blue"/>
+                                    <label for="f4"></label>
+                                </p>
+                            </td>
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                        </tr>
+                        <tr class="table-list">
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item ">
+                                <p class="checkbox checkbox_grid">
+                                    <input type="checkbox" id="f5" class="uui-form-element blue"/>
+                                    <label for="f5"></label>
+                                </p>
+                            </td>
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item "></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                        </tr>
+                        <tr class="table-list">
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item">
+                                <p class="checkbox checkbox_grid">
+                                    <input type="checkbox" id="f6" class="uui-form-element blue"/>
+                                    <label for="f6"></label>
+                                </p>
+                            </td>
+                            <td class="table-list__item">001</td>
+                            <td class="table-list__item "></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                            <td class="table-list__item"></td>
+                        </tr>
+                        <!--
+                        <tr ng-repeat="exp in vm.experiments.submittedAndSigningExp">
+                            <td><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
+                            <td>{{exp.title}}
+                            001
+                            </td>
+                            <td>{{exp.status}}</td>
+                            <td>{{exp.author.name}}</td>
+                            <td>
+                                <li ng-repeat="user in exp.witness">{{user.name}}</li>
+                            </td>
+                            <td>{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+                            <td>{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+                            <td>{{exp.comments}}</td>
+                        </tr>-->
+                        </tbody>
+                    </table>
+                </div>
 
-    <h2>Experiments Waiting Author’s Signature</h2>
-    <table class="main-table table table-striped table-condensed">
-        <thead class="main-table__header">
-            <tr class="table-list">
-                <th class="table-list__item table-list__item_header">Experiment ID</th>
-                <th class="table-list__item table-list__item_header">Title</th>
-                <th class="table-list__item table-list__item_header">Status</th>
-                <th class="table-list__item table-list__item_header">Author</th>
-                <th class="table-list__item table-list__item_header">Witness</th>
-                <th class="table-list__item table-list__item_header">Creation Date</th>
-                <th class="table-list__item table-list__item_header">Last Action Date</th>
-                <th class="table-list__item table-list__item_header">Idle Workdays</th>
-            </tr>
-        </thead>
-        <tbody class="main-table__body">
-            <tr class="table-list" ng-repeat="exp in vm.experiments.waitingSignatureExp">
-                <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
-                <td class="table-list__item">{{exp.title}}</td>
-                <td class="table-list__item">{{exp.status}}</td>
-                <td class="table-list__item">{{exp.author.name}}</td>
-                <td class="table-list__item">
-                    <ul><li ng-repeat="user in exp.witness">{{user.name}}</li></ul>
-                </td>
-                <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <h2>Experiments Submitted by Author</h2>
-    <table class="main-table table table-striped table-condensed">
-        <thead class="main-table__header">
-            <tr class="table-list">
-                <th class="table-list__item table-list__item_header">Experiment ID</th>
-                <th class="table-list__item table-list__item_header">Title</th>
-                <th class="table-list__item table-list__item_header">Status</th>
-                <th class="table-list__item table-list__item_header">Author</th>
-                <th class="table-list__item table-list__item_header">Witness</th>
-                <th class="table-list__item table-list__item_header">Creation Date</th>
-                <th class="table-list__item table-list__item_header">Last Edit Date</th>
-                <th class="table-list__item table-list__item_header">Comments</th>
-            </tr>
-        </thead>
-        <tbody class="main-table__body">
-            <tr class="table-list" ng-repeat="exp in vm.experiments.submittedAndSigningExp">
-                <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
-                <td class="table-list__item">{{exp.title}}</td>
-                <td class="table-list__item">{{exp.status}}</td>
-                <td class="table-list__item">{{exp.author.name}}</td>
-                <td class="table-list__item">
-                    <ul><li ng-repeat="user in exp.witness">{{user.name}}</li></ul>
-                </td>
-                <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.comments}}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-table-page panel accordion-item">
+        <div class="accordion-table-page__header accordion-heading">
+            <p class="accordion-title">
+                <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item2">Concept
+                    Details</a>
+            </p>
+        </div>
+        <div class="accordion-collapse collapse" id="item2">
+            <div class="accordion-body">
+                <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
+                    wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
+                    eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
+                    assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
+                    sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
+                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
+                    labore sustainable VHS.</p>
+            </div>
+        </div>
+    </div>
+    <div class="accordion-table-page panel accordion-item">
+        <div class="accordion-table-page__header accordion-heading">
+            <p class="accordion-title">
+                <a data-toggle="collapse" data-parent="#accordion1" class="accordion-toggle" href="#item3">Concept
+                    Details</a>
+            </p>
+        </div>
+        <div class="accordion-collapse collapse" id="item3">
+            <div class="accordion-body">
+                <p>Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3
+                    wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum
+                    eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla
+                    assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt
+                    sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer
+                    farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
+                    labore sustainable VHS.</p>
+            </div>
+        </div>
+    </div>
+</section>

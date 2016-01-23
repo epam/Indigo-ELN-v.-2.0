@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.security.AuthoritiesConstants;
@@ -9,6 +10,10 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +55,22 @@ public class NotebookResource {
     @Secured(AuthoritiesConstants.NOTEBOOK_READER)
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllNotebooks(
             @RequestParam(value = "projectId") String projectId) {
+        if (true) {
+            //stub
+            List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
+            for (int i = 0; i < RandomUtils.nextInt(15); i++) {
+                Notebook notebook = new Notebook();
+                notebook.setId(RandomStringUtils.randomAlphanumeric(10));
+                notebook.setName(RandomStringUtils.randomAlphanumeric(10));
+                Experiment experiment = new Experiment();
+                experiment.setId(RandomStringUtils.randomAlphanumeric(10));
+                experiment.setTitle(RandomStringUtils.randomAlphabetic(10));
+                notebook.setExperiments(ImmutableList.of(experiment));
+                ExperimentTreeNodeDTO element = new ExperimentTreeNodeDTO(experiment);
+                result.add(element);
+            }
+            return ResponseEntity.ok(result);
+        }
         log.debug("REST request to get all notebooks of project: {}", projectId);
         User user = userService.getUserWithAuthorities();
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);

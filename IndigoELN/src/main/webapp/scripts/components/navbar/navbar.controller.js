@@ -3,12 +3,7 @@
 angular
     .module('indigoeln')
     .controller('NavbarController', function ($scope, $location, $state, $uibModal, $rootScope, Principal, Auth) {
-        var vm = this;
-        vm.newExperiment = newExperiment;
-        vm.newNotebook = newNotebook;
-        vm.newProject = newProject;
-        $scope.Principal = Principal;
-        function newExperiment(event) {
+        $scope.newExperiment = function () {
             //$rootScope.$broadcast('new-experiment', {});
             //event.preventDefault();
             var modalInstance = $uibModal.open({
@@ -21,9 +16,9 @@ angular
                 $state.go('experiment.new');
             }, function () {
             });
-        }
+        };
 
-        function newNotebook(event) {
+        $scope.newNotebook = function () {
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
@@ -37,19 +32,28 @@ angular
                 $state.go('notebook.new', {notebookName: notebookName});
             }, function () {
             });
-        }
+        };
 
-        function newProject(event) {
+        $scope.newProject = function () {
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/app/entities/project/new-project-dialog.html',
-                controller: 'NewProjectDialogController'
+                controller: 'NewProjectDialogController',
+                resolve: {
+                    users: ['User',
+                        function (User) {
+                            return User.query();
+                        }
+                    ]
+                }
             });
             modalInstance.result.then(function (project) {
                 $rootScope.$broadcast('created-project', {project: project});
             }, function () {
             });
-        }
+        };
+
+        $scope.Principal = Principal;
 
         $scope.logout = function () {
             Auth.logout();

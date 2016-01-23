@@ -1,32 +1,27 @@
 'use strict';
 
-angular.module('indigoeln').controller('NewProjectDialogController', NewProjectDialogController);
-NewProjectDialogController.$inject = ['projectService', '$scope', '$log', '$uibModalInstance'];
-
-function NewProjectDialogController(projectService, $scope, $log, $uibModalInstance) {
+angular.module('indigoeln').controller('NewProjectDialogController', function (projectService, $scope, $log, $uibModalInstance, users) {
     $scope.project = {};
-    $scope.sourceUsers = [];
+    $scope.sourceUsers = users;
     $scope.destUsers = [];
     $scope.selectedUser = null;
 
     $scope.ok = function () {
         $scope.project.accessList = [];
-        $scope.destUsers.forEach(function(element) {
+        $scope.destUsers.forEach(function (element) {
             var userPermission = {
-                userId: element, // TODO must be userId
+                userId: element.id, // TODO must be userId
                 // TODO must be configurable in UI
                 permissions: 'RERSCSUE' // permissions for OWNER (Read Entity, Read Sub-Entity, Create Sub-Entity, Update Entity)
             };
             $scope.project.accessList.push(userPermission);
         });
-        projectService.createNewProject($scope.project)
-            .success(function (response) {
-                $log.log('Project created successfully.');
-            })
-            .error(function (response) {
-                $log.warn('Project wasn\'t created.');
-            });
-        $uibModalInstance.close($scope.project);
+        projectService.save($scope.project, function (response) {
+            $log.log('Project created successfully.');
+            $uibModalInstance.close($scope.project);
+        }, function (response) {
+            $log.warn('Project wasn\'t created.');
+        });
     };
 
     $scope.cancel = function () {
@@ -69,14 +64,5 @@ function NewProjectDialogController(projectService, $scope, $log, $uibModalInsta
         $scope.selectedUser = user;
     };
 
-    var init = function () {
-        projectService.getUsers()
-            .success(function (response) {
-                $scope.sourceUsers = response;
-            })
-            .error(function (response) {
-            });
-    };
+});
 
-    init();
-}
