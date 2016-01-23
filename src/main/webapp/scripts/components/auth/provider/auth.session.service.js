@@ -18,6 +18,8 @@ angular.module('indigoeln')
             logout: function () {
                 // logout from the server
                 $http.post('api/logout').success(function (response) {
+                    // to get a new csrf token call the api
+                    $http.get('api/account');
                     return response;
                 });
             }
