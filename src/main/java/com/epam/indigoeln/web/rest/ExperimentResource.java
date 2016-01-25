@@ -56,7 +56,7 @@ public class ExperimentResource {
         if (true) {
             //stub
             List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
-            for (int i = 1; i < RandomUtils.nextInt(15); i++) {
+            for (int i = 0; i < RandomUtils.nextInt(15) + 1; i++) {
                 ExperimentDTO experimentDTO = new ExperimentDTO();
                 experimentDTO.setTitle(RandomStringUtils.randomAlphabetic(10));
                 experimentDTO.setId(RandomStringUtils.randomAlphanumeric(10));
