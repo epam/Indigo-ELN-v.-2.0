@@ -293,6 +293,7 @@
 
                     <options>
                         <mapstruct.defaultComponentModel>spring</mapstruct.defaultComponentModel>
+                        <mapstruct.unmappedTargetPolicy>IGNORE</mapstruct.unmappedTargetPolicy>
                     </options>
 
                 </configuration>
