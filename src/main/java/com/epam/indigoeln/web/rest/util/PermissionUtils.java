@@ -3,8 +3,6 @@ package com.epam.indigoeln.web.rest.util;
 import com.epam.indigoeln.core.model.Authority;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -14,8 +12,8 @@ public class PermissionUtils {
         return user.getAuthorities().contains(Authority.ADMIN);
     }
 
-    public static @Nullable UserPermission findPermissionsByUserId(
-            @NotNull List<UserPermission> accessList, @NotNull String userId) {
+    public static UserPermission findPermissionsByUserId(
+            List<UserPermission> accessList, String userId) {
         for (UserPermission userPermission : accessList) {
             if (userPermission.getUserId().equals(userId)) {
                 return userPermission;
@@ -24,9 +22,9 @@ public class PermissionUtils {
         return null;
     }
 
-    public static boolean hasPermissions(@NotNull User user,
-                                         @NotNull List<UserPermission> accessList,
-                                         @NotNull String permission) {
+    public static boolean hasPermissions(User user,
+                                         List<UserPermission> accessList,
+                                         String permission) {
         if (isAdmin(user)) {
             return true;
         } else {
@@ -40,10 +38,10 @@ public class PermissionUtils {
         return false;
     }
 
-    public static boolean hasPermissions(@NotNull User user, @NotNull List<UserPermission> parentAccessList,
-                                         @NotNull String parentPermission,
-                                         @NotNull List<UserPermission> childAccessList,
-                                         @NotNull String childPermission) {
+    public static boolean hasPermissions(User user, List<UserPermission> parentAccessList,
+                                         String parentPermission,
+                                         List<UserPermission> childAccessList,
+                                         String childPermission) {
         return hasPermissions(user, parentAccessList, parentPermission) &&
                 hasPermissions(user, childAccessList, childPermission);
     }
@@ -52,7 +50,7 @@ public class PermissionUtils {
     /**
      * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent
      */
-    public static void addOwnerToAccessList(@NotNull List<UserPermission> accessList, @NotNull String userId) {
+    public static void addOwnerToAccessList(List<UserPermission> accessList, String userId) {
         UserPermission userPermission = findPermissionsByUserId(accessList, userId);
         if (userPermission != null) {
             userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
