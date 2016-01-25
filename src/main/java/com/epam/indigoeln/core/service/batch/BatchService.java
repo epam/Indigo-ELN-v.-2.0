@@ -13,8 +13,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
-import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoObject;
+//import com.epam.indigo.Indigo;
+//import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.core.model.Batch;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
@@ -205,10 +205,10 @@ public class BatchService {
         BatchDTO batchDTO = new BatchDTO(batch);
         if(batch.getBingoDbId() != null) {
             String molfile = bingoDbService.getMolecule(batch.getBingoDbId());
-            IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
+            //IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
             batchDTO.setMolfile(molfile);
-            batchDTO.setMolecularWeight(indigoObjectMolecule.molecularWeight());
-            batchDTO.setFormula(indigoObjectMolecule.grossFormula());
+            batchDTO.setMolecularWeight(null);//indigoObjectMolecule.molecularWeight());
+            batchDTO.setFormula(null);//indigoObjectMolecule.grossFormula());
         }
         return batchDTO;
     }

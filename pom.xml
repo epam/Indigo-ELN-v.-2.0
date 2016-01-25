@@ -128,11 +128,11 @@
         </dependency>
 
         <!-- Indigo -->
-        <dependency>
-            <groupId>com.epam.indigo</groupId>
-            <artifactId>indigo</artifactId>
-            <version>1.2.2beta-r37</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.epam.indigo</groupId>-->
+            <!--<artifactId>indigo</artifactId>-->
+            <!--<version>1.2.2beta-r37</version>-->
+        <!--</dependency>-->
 
         <!-- Apache -->
         <dependency>
