@@ -128,19 +128,13 @@
         </dependency>
 
         <!-- Indigo -->
-        <!--<dependency>-->
-            <!--<groupId>com.epam.indigo</groupId>-->
-            <!--<artifactId>indigo</artifactId>-->
-            <!--<version>1.2.2beta-r37</version>-->
-        <!--</dependency>-->
-
-        <!-- Apache -->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.5</version>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo</artifactId>
+            <version>1.2.2beta-r37</version>
         </dependency>
 
+        <!-- Apache -->
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
