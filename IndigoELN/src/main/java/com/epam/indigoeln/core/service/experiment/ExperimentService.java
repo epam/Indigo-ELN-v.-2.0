@@ -7,7 +7,6 @@ import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -33,7 +32,7 @@ public class ExperimentService {
         return experimentRepository.findAll();
     }
 
-    public Collection<Experiment> getAllExperiments(@NotNull String notebookId, @NotNull User user) {
+    public Collection<Experiment> getAllExperiments(String notebookId, User user) {
         Notebook notebook = notebookRepository.findOne(notebookId);
         if(notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
@@ -51,7 +50,7 @@ public class ExperimentService {
                 "experiments of notebook with id = " + notebook.getId());
     }
 
-    public Experiment getExperiment(@NotNull String id, @NotNull User user) {
+    public Experiment getExperiment(String id, User user) {
         Experiment experiment = experimentRepository.findOne(id);
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(id);
@@ -79,7 +78,7 @@ public class ExperimentService {
         return experimentRepository.findByAuthor(user);
     }
 
-    public Experiment createExperiment(@NotNull Experiment experiment, @NotNull String notebookId, @NotNull User user) {
+    public Experiment createExperiment(Experiment experiment, String notebookId, User user) {
         Notebook notebook = notebookRepository.findOne(notebookId);
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
@@ -103,7 +102,7 @@ public class ExperimentService {
         return experiment;
     }
 
-    public Experiment updateExperiment(@NotNull Experiment experiment, @NotNull User user) {
+    public Experiment updateExperiment(Experiment experiment, User user) {
         Experiment experimentFromDB = experimentRepository.findOne(experiment.getId());
         if (experimentFromDB == null) {
             throw EntityNotFoundException.createWithExperimentId(experiment.getId());
@@ -128,7 +127,7 @@ public class ExperimentService {
         return experimentRepository.save(experiment);
     }
 
-    public void deleteExperiment(@NotNull String id) {
+    public void deleteExperiment(String id) {
         Experiment experiment = experimentRepository.findOne(id);
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(id);
@@ -145,7 +144,7 @@ public class ExperimentService {
         experimentRepository.delete(experiment);
     }
 
-    public boolean hasExperiments(@NotNull Notebook notebook, @NotNull User user) {
+    public boolean hasExperiments(Notebook notebook, User user) {
         if (PermissionUtils.isAdmin(user)) {
             return !notebook.getExperiments().isEmpty();
         } else {

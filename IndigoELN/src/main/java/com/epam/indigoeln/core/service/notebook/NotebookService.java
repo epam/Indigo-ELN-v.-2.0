@@ -9,7 +9,6 @@ import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.util.PermissionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class NotebookService {
     @Autowired
     private NotebookRepository notebookRepository;
 
-    public Collection<Notebook> getAllNotebooks(@NotNull String projectId, @NotNull User user) {
+    public Collection<Notebook> getAllNotebooks(String projectId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(projectId);
@@ -47,7 +46,7 @@ public class NotebookService {
                 "notebooks of project with id = " + project.getId());
     }
 
-    public Notebook getNotebookById(@NotNull String id, @NotNull User user) {
+    public Notebook getNotebookById(String id, User user) {
         Notebook notebook = notebookRepository.findOne(id);
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(id);
@@ -71,7 +70,7 @@ public class NotebookService {
         return notebook;
     }
 
-    public Notebook createNotebook(@NotNull Notebook notebook, @NotNull String projectId, @NotNull User user) {
+    public Notebook createNotebook(Notebook notebook, String projectId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(projectId);
@@ -102,7 +101,7 @@ public class NotebookService {
         return notebook;
     }
 
-    public Notebook updateNotebook(@NotNull Notebook notebook, @NotNull User user) {
+    public Notebook updateNotebook(Notebook notebook, User user) {
         Notebook notebookFromDB = notebookRepository.findOne(notebook.getId());
         if (notebookFromDB == null) {
             throw EntityNotFoundException.createWithNotebookId(notebook.getId());
@@ -128,7 +127,7 @@ public class NotebookService {
         return notebookRepository.save(notebook);
     }
 
-    public void deleteNotebook(@NotNull String id) {
+    public void deleteNotebook(String id) {
         Notebook notebook = notebookRepository.findOne(id);
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookId(id);
@@ -149,7 +148,7 @@ public class NotebookService {
         notebookRepository.delete(notebook);
     }
 
-    public boolean hasNotebooks(@NotNull Project project, @NotNull User user) {
+    public boolean hasNotebooks(Project project, User user) {
         boolean isAdmin = PermissionUtils.isAdmin(user);
         if (isAdmin) {
             return !project.getNotebooks().isEmpty();

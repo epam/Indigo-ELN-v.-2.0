@@ -7,7 +7,6 @@ import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.util.PermissionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,12 +25,12 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Collection<Project> getAllProjects(@NotNull User user) {
+    public Collection<Project> getAllProjects(User user) {
         return PermissionUtils.isAdmin(user) ?
                 projectRepository.findAll() : projectRepository.findByUserId(user.getId());
     }
 
-    public Project getProjectById(@NotNull String projectId, @NotNull User user) {
+    public Project getProjectById(String projectId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(projectId);
@@ -47,17 +46,17 @@ public class ProjectService {
         return project;
     }
 
-    public Project getProjectByName(@NotNull String name) {
+    public Project getProjectByName(String name) {
         return projectRepository.findByName(name);
     }
 
-    public Project createProject(@NotNull Project project, @NotNull User user) {
+    public Project createProject(Project project, User user) {
         // Adding of OWNER's permissions to project
         PermissionUtils.addOwnerToAccessList(project.getAccessList(), user.getId());
         return projectRepository.save(project);
     }
 
-    public Project updateProject(@NotNull Project project, @NotNull User user) {
+    public Project updateProject(Project project, User user) {
         Project projectFromDb = projectRepository.findOne(project.getId());
         if (projectFromDb == null) {
             throw EntityNotFoundException.createWithProjectId(project.getId());
@@ -75,7 +74,7 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public void deleteProject(@NotNull String id) {
+    public void deleteProject(String id) {
         Project project = projectRepository.findOne(id);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectId(id);
