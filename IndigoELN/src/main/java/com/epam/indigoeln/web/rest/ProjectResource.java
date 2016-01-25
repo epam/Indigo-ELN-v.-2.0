@@ -53,7 +53,7 @@ public class ProjectResource {
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllProjects() {
         if (true) {
             List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
-            for (int i = 0; i < RandomUtils.nextInt(15); i++) {
+            for (int i = 1; i < RandomUtils.nextInt(15); i++) {
                 ProjectDTO projectDTO = new ProjectDTO();
                 projectDTO.setId(RandomStringUtils.randomAlphanumeric(10));
                 projectDTO.setName(RandomStringUtils.randomAlphanumeric(10));

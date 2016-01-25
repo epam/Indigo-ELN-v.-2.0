@@ -58,7 +58,7 @@ public class NotebookResource {
         if (true) {
             //stub
             List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
-            for (int i = 0; i < RandomUtils.nextInt(15); i++) {
+            for (int i = 1; i < RandomUtils.nextInt(15); i++) {
                 Notebook notebook = new Notebook();
                 notebook.setId(RandomStringUtils.randomAlphanumeric(10));
                 notebook.setName(RandomStringUtils.randomAlphanumeric(10));

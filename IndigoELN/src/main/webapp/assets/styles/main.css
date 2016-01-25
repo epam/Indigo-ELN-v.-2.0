@@ -126,6 +126,6 @@
     animation: shake 0.7s;
 }
 
-.main-container__sitebar .open-menu-add {
+.main-container__sitebar ul .ng-enter {
     animation: fadeInLeft 0.5s;
 }
