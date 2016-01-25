@@ -16,8 +16,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
-import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoObject;
+import com.ggasoftware.indigo.Indigo;
+import com.ggasoftware.indigo.IndigoObject;
+
 import com.epam.indigoeln.core.model.Batch;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;

@@ -129,10 +129,15 @@
 
         <!-- Indigo -->
         <dependency>
-            <groupId>com.epam.indigo</groupId>
+            <groupId>com.ggasoftware</groupId>
             <artifactId>indigo</artifactId>
-            <version>1.2.2beta-r37</version>
+            <version>1.2.1-dev5-moderna</version>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.epam.indigo</groupId>-->
+            <!--<artifactId>indigo</artifactId>-->
+            <!--<version>1.2.2beta-r12</version>-->
+        <!--</dependency>-->
 
         <!-- Apache -->
         <dependency>
@@ -160,6 +165,27 @@
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                 </dependency>
             </dependencies>
+
+
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>http://artifactory.epam.com/artifactory/repos/</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                        <checksumPolicy>warn</checksumPolicy>
+                    </snapshots>
+                    <releases>
+                        <enabled>true</enabled>
+                        <updatePolicy>always</updatePolicy>
+                        <checksumPolicy>warn</checksumPolicy>
+                    </releases>
+
+
+                </repository>
+
+            </repositories>
         </profile>
 
         <profile>
