@@ -12,48 +12,14 @@ public class BingoResult implements Serializable {
 
     private Boolean success;
     private String  errorMessage;
-
     private Integer id;
     private String structure;
-
     private List<Integer> searchResult;
-
-    public static BingoResult success() {
-        return new BingoResult(true);
-    }
-
-    public static BingoResult failure() {
-        return new BingoResult(false);
-    }
 
     public BingoResult() {
     }
 
-    private BingoResult(Boolean success) {
-        this.success = success;
-    }
-
-    public BingoResult withId(Integer id) {
-        setId(id);
-        return this;
-    }
-
-    public BingoResult withStructure(String structure) {
-        setStructure(structure);
-        return this;
-    }
-
-    public BingoResult withErrorMessage(String errorMessage) {
-        setErrorMessage(errorMessage);
-        return this;
-    }
-
-    public BingoResult withSearchResult(List<Integer> searchResult) {
-        setSearchResult(searchResult);
-        return this;
-    }
-
-    public Boolean getSuccess() {
+    public Boolean isSuccess() {
         return success;
     }
 
