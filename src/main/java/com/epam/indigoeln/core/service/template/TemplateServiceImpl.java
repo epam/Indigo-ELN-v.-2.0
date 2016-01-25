@@ -22,7 +22,7 @@ import com.epam.indigoeln.core.security.AuthoritiesConstants;
 @Service
 public class TemplateServiceImpl implements TemplateService {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TemplateServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(TemplateServiceImpl.class);
 
     @Autowired
     TemplateRepository templateRepository;
@@ -54,7 +54,7 @@ public class TemplateServiceImpl implements TemplateService {
         template.setTemplateContent(templateDTO.getTemplateContent());
         Template savedTemplate = templateRepository.save(template);
 
-        LOGGER.debug("Created Information for Template: {}", savedTemplate);
+        log.debug("Created Information for Template: {}", savedTemplate);
         return new TemplateDTO(savedTemplate);
     }
 
@@ -66,7 +66,7 @@ public class TemplateServiceImpl implements TemplateService {
         template.setTemplateContent(templateDTO.getTemplateContent());
         Template savedTemplate = templateRepository.save(template);
 
-        LOGGER.debug("Updated Information for Template: {}", savedTemplate);
+        log.debug("Updated Information for Template: {}", savedTemplate);
         return new TemplateDTO(savedTemplate);
     }
 
@@ -74,6 +74,6 @@ public class TemplateServiceImpl implements TemplateService {
     @Secured(AuthoritiesConstants.ADMIN)
     public void deleteTemplate(String id) {
         templateRepository.delete(id);
-        LOGGER.debug("user with id {} deleted", id);
+        log.debug("user with id {} deleted", id);
     }
 }
