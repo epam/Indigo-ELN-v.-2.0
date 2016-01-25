@@ -1,8 +1,5 @@
 package com.epam.indigoeln.web.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +23,6 @@ import java.util.List;
 @RequestMapping("/api/experiments")
 public class BatchResource {
 
-    private final Logger log = LoggerFactory.getLogger(BatchResource.class);
-
     @Autowired
     private BatchService batchService;
 
@@ -41,7 +36,6 @@ public class BatchResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
     public ResponseEntity<BatchDTO> createBatch(@PathVariable String experimentId,
                                                 @RequestBody  BatchDTO batchDTO) {
-        log.debug("REST request to create Batch : {}", batchDTO);
         return batchService.createBatch(experimentId, batchDTO).
                     map(ResponseEntity::ok).
                     orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
@@ -56,7 +50,6 @@ public class BatchResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
     public ResponseEntity<BatchDTO> updateBatch(@PathVariable String experimentId,
                                                 @RequestBody  BatchDTO batchDTO) {
-        log.debug("REST request to update Batch : {}", batchDTO);
         if(!batchService.getBatch(experimentId, batchDTO.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -75,7 +68,6 @@ public class BatchResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
     public ResponseEntity<Void> deleteBatch(@PathVariable String experimentId,
                                             @PathVariable String batchId) {
-        log.debug("REST request to delete Batch with id: {} in experiment : {}", batchId, experimentId);
         batchService.deleteBatch(experimentId, batchId);
         return ResponseEntity.ok().headers(
                     HeaderUtil.createAlert("A Batch is deleted with identifier " + batchId, batchId)).build();
@@ -90,7 +82,6 @@ public class BatchResource {
     @Secured(AuthoritiesConstants.EXPERIMENT_READER)
     public ResponseEntity<BatchDTO> getBatch(@PathVariable  String experimentId,
                                                 @PathVariable  String batchId) {
-        log.debug("REST request to get Batch details for batch with id: {}", batchId);
         return batchService.getBatch(experimentId, batchId).
                 map(ResponseEntity::ok).
                 orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -104,7 +95,6 @@ public class BatchResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @Secured(AuthoritiesConstants.EXPERIMENT_READER)
     public ResponseEntity<List<BatchDTO>> getAllExperimentBatches(@PathVariable  String experimentId) {
-        log.debug("REST request to get all batches for experiment with id: {}", experimentId);
         return batchService.getAllExperimentBatches(experimentId).
                 map(ResponseEntity::ok).
                 orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
