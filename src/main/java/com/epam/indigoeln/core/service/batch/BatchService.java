@@ -8,20 +8,22 @@ import java.util.stream.Collectors;
 
 import javax.validation.ValidationException;
 
+import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
+
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
-//import com.epam.indigo.Indigo;
-//import com.epam.indigo.IndigoObject;
+import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.core.model.Batch;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
 import com.epam.indigoeln.web.rest.dto.BatchDTO;
 import com.epam.indigoeln.core.security.AuthoritiesConstants;
-import com.epam.indigoeln.web.rest.util.ConverterUtils;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.util.PermissionUtils;
@@ -64,7 +66,7 @@ public class BatchService {
             throw new ValidationException("Batch with the same id already exists");
         }
 
-        Batch batchForSave = ConverterUtils.convertFromDTO(batchDTO, experiment);
+        Batch batchForSave = convertFromDTO(batchDTO, experiment);
         if(batchDTO.getMolfile() != null){ //save new item to BingoDb if molfile is not empty
             batchForSave.setBingoDbId(bingoDbService.addMolecule(batchDTO.getMolfile()));
         }
@@ -99,7 +101,7 @@ public class BatchService {
     }
 
     private Optional<BatchDTO> updateBatchInternal(BatchDTO batchDTO, Experiment experiment, Batch batch) {
-        Batch batchForSave = ConverterUtils.mergeFromDTO(batch, batchDTO, experiment);
+        Batch batchForSave = mergeFromDTO(batch, batchDTO, experiment);
         if(batchDTO.getMolfile() != null) { // if molfile is not empty update or create new item in BingoDB
             batchForSave.setBingoDbId((batchForSave.getBingoDbId() == null) ?
                     bingoDbService.addMolecule(batchDTO.getMolfile()) : // add new molecule
@@ -205,10 +207,10 @@ public class BatchService {
         BatchDTO batchDTO = new BatchDTO(batch);
         if(batch.getBingoDbId() != null) {
             String molfile = bingoDbService.getMolecule(batch.getBingoDbId());
-            //IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
+            IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
             batchDTO.setMolfile(molfile);
-            batchDTO.setMolecularWeight(null);//indigoObjectMolecule.molecularWeight());
-            batchDTO.setFormula(null);//indigoObjectMolecule.grossFormula());
+            batchDTO.setMolecularWeight(indigoObjectMolecule.molecularWeight());
+            batchDTO.setFormula(indigoObjectMolecule.grossFormula());
         }
         return batchDTO;
     }
@@ -228,5 +230,36 @@ public class BatchService {
 
     private Optional<Batch> getBatchById(String id, Experiment experiment) {
         return experiment.getBatches().stream().filter(b -> b.getId().equals(id)).findFirst();
+    }
+
+
+    /**
+     * Create new batch item from DTO
+     * @param batchDTO batch DTO
+     * @param experiment experiment
+     * @return new Batch item converted from DTO
+     */
+    private Batch convertFromDTO(BatchDTO batchDTO, Experiment experiment) {
+        return mergeFromDTO(new Batch(), batchDTO, experiment);
+    }
+
+    /**
+     * Merge batch DTO fields to batch item
+     * @param batch batch item to be filled from Batch DTO
+     * @param batchDTO DTO
+     * @param experiment experiment
+     * @return batch item filled from batch DTO
+     */
+    private Batch mergeFromDTO(Batch batch, BatchDTO batchDTO, Experiment experiment) {
+        batch.setId(Optional.ofNullable(batchDTO.getId()).orElse(ObjectId.get().toHexString()));
+        batch.setStereoIsomerCode(batchDTO.getStereoIsomerCode());
+        batch.setVirtualCompoundId(batchDTO.getVirtualCompoundId());
+        batch.setComments(batchDTO.getComments());
+        batch.setStructureComments(batchDTO.getStructureComments());
+        List<String> allBatchNumbers = experiment.getBatches().stream().map(Batch::getBatchNumber).collect(Collectors.toList());
+
+        batch.setBatchNumber(Optional.ofNullable(batchDTO.getBatchNumber())
+                .orElse(SequenceNumberGenerationUtil.generateNextBatchNumber(allBatchNumbers)));
+        return batch;
     }
 }
