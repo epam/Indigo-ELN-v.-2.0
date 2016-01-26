@@ -2,17 +2,18 @@ package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class TemplateDTO implements Serializable {
+import com.epam.indigoeln.core.model.ComponentTemplate;
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
 
-    private static final long serialVersionUID = 7951973267736585187L;
+public class ComponentTemplateDTO implements Serializable {
+
+    private static final long serialVersionUID = 7244336182712916004L;
 
     private String id;
     private String name;
@@ -29,19 +30,11 @@ public class TemplateDTO implements Serializable {
     private String lastModifiedBy;
     private String templateContent;
 
-    public TemplateDTO() {
+    public ComponentTemplateDTO() {
     }
 
-    public TemplateDTO(Template template) {
-        this(template.getId(), template.getName(),
-                template.getCreationDate(), template.getLastEditDate(),
-                template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
-                template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-                template.getTemplateContent());
-    }
-
-    public TemplateDTO(String id, String name, LocalDate creationDate, LocalDate lastEditDate, String createdBy,
-                       String lastModifiedBy, String templateContent) {
+    public ComponentTemplateDTO(String id, String name, LocalDate creationDate, LocalDate lastEditDate,
+                                String createdBy, String lastModifiedBy, String templateContent) {
         this.id = id;
         this.name = name;
         this.creationDate = creationDate;
@@ -49,6 +42,16 @@ public class TemplateDTO implements Serializable {
         this.createdBy = createdBy;
         this.lastModifiedBy = lastModifiedBy;
         this.templateContent = templateContent;
+    }
+
+    public ComponentTemplateDTO(ComponentTemplate template) {
+        this(template.getId(),
+             template.getName(),
+             template.getCreationDate(),
+             template.getLastEditDate(),
+             template.getCreatedBy()!= null ? template.getCreatedBy().getLogin() : null,
+             template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
+             template.getTemplateContent());
     }
 
     public String getId() {
@@ -79,10 +82,6 @@ public class TemplateDTO implements Serializable {
         return templateContent;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -93,7 +92,7 @@ public class TemplateDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "TemplateDTO{" +
+        return "ComponentTemplateDTO{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", templateContent='" + templateContent + '\'' +

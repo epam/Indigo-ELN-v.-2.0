@@ -1,12 +1,16 @@
 package com.epam.indigoeln.web.rest.util;
 
 import com.epam.indigoeln.core.model.Batch;
+import com.epam.indigoeln.core.model.ComponentTemplate;
 import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentTemplate;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.web.rest.dto.BatchDTO;
+import com.epam.indigoeln.web.rest.dto.ComponentTemplateDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentTemplateDTO;
 import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
@@ -37,4 +41,8 @@ public interface CustomDtoMapper {
     Experiment convertFromDTO(ExperimentDTO dto);
 
     Batch convertFromDTO(BatchDTO batchDTO);
+
+    ComponentTemplate convertFromDTO(ComponentTemplateDTO componentTemplateDTO);
+
+    ExperimentTemplate convertFromDTO(ExperimentTemplateDTO experimentTemplateDTO);
 }
