@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NewNotebookController', function ($stateParams, notebookService, notebook) {
-        var vm = this;
-        vm.notebook = notebook;
-        vm.description = "";
+    .controller('NewNotebookController', function ($scope, $stateParams, notebookService, notebook) {
+        $scope.notebook = notebook;
+        $scope.description = '';
     });

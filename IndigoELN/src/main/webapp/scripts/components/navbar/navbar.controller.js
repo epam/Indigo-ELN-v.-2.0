@@ -23,8 +23,6 @@ angular
                 animation: true,
                 templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
                 controller: 'NewNotebookDialogController',
-                controllerAs: 'vm',
-                bindToController: true,
                 size: 'lg'
             });
             modalInstance.result.then(function (notebookName) {
@@ -58,5 +56,5 @@ angular
         $scope.logout = function () {
             Auth.logout();
             $state.go('login');
-        }
+        };
     });

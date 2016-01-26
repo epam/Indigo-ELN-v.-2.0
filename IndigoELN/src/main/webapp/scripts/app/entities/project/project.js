@@ -16,7 +16,6 @@ angular.module('indigoeln')
                     authorities: ['ROLE_ADMIN', 'ROLE_USER'],
                     pageTitle: 'indigoeln'
                 },
-                bindToController: true,
                 resolve: {
                     data: ['$stateParams', 'Project', function($stateParams, Project) {
                         return Project.get({id : $stateParams.id});

@@ -1,14 +1,13 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NewNotebookDialogController', function ($uibModalInstance) {
-        var vm = this;
-        vm.notebookName = "";
-        vm.ok = okPressed;
-        vm.cancel = cancelPressed;
+    .controller('NewNotebookDialogController', function ($scope, $uibModalInstance) {
+        $scope.notebookName = '';
+        $scope.ok = okPressed;
+        $scope.cancel = cancelPressed;
 
         function okPressed () {
-            $uibModalInstance.close(vm.notebookName);
+            $uibModalInstance.close($scope.notebookName);
         }
 
         function cancelPressed () {

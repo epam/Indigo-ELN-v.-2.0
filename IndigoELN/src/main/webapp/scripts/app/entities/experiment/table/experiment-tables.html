@@ -14,7 +14,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in vm.experiments.openAndCompletedExp">
+        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp">
             <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
             <td class="table-list__item">{{exp.title}}</td>
             <td class="table-list__item">{{exp.status}}</td>
@@ -26,7 +26,7 @@
             <td class="table-list__item">{{exp.project}}</td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
             <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+            <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
         </tr>
         </tbody>
     </table>
@@ -46,7 +46,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in vm.experiments.waitingSignatureExp">
+        <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp">
             <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
             <td class="table-list__item">{{exp.title}}</td>
             <td class="table-list__item">{{exp.status}}</td>
@@ -58,7 +58,7 @@
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
             <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{vm.getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+            <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
         </tr>
         </tbody>
     </table>
@@ -78,7 +78,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in vm.experiments.submittedAndSigningExp">
+        <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp">
             <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
             <td class="table-list__item">{{exp.title}}</td>
             <td class="table-list__item">{{exp.status}}</td>
