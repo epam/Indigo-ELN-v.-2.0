@@ -15,8 +15,8 @@ angular.module('indigoeln')
                         break;
 
                     case 400:
-                        var errorHeader = httpResponse.headers('X-indigoelnApp-error');
-                        var entityKey = httpResponse.headers('X-indigoelnApp-params');
+                        var errorHeader = httpResponse.headers('X-indigoeln-error');
+                        var entityKey = httpResponse.headers('X-indigoeln-params');
                         if (errorHeader) {
                             var entityName = entityKey;
                             addErrorAlert(errorHeader, errorHeader, {entityName: entityName});
