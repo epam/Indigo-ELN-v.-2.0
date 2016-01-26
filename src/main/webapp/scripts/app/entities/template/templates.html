@@ -1,6 +1,5 @@
 <div>
     <h2>Templates</h2>
-    <jh-alert></jh-alert>
     <div class="container">
         <div class="row">
             <div class="col-md-4">
@@ -14,9 +13,9 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
-            <tr jh-sort="predicate" ascending="reverse" callback="loadAll()">
-                <th jh-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>
-                <th jh-sort-by="name"><span>Name</span> <span class="glyphicon glyphicon-sort"></span></th>
+            <tr my-sort="predicate" ascending="reverse" callback="loadAll()">
+                <th my-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>
+                <th my-sort-by="name"><span>Name</span> <span class="glyphicon glyphicon-sort"></span></th>
                 <th></th>
             </tr>
             </thead>
