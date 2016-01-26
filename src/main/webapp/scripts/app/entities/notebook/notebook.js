@@ -9,11 +9,9 @@ angular.module('indigoeln')
                 views: {
                     'content@': {
                         templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',
-                        controller: 'NotebookDetailController',
-                        controllerAs: 'vm'
+                        controller: 'NotebookDetailController'
                     }
                 },
-                bindToController: true,
                 resolve: {
                 }
             })
@@ -29,8 +27,7 @@ angular.module('indigoeln')
                 views: {
                     'content@': {
                         templateUrl: 'scripts/app/entities/notebook/new/new-notebook.html',
-                        controller: 'NewNotebookController',
-                        controllerAs: 'vm'
+                        controller: 'NewNotebookController'
                     }
                 },
                 bindToController: true,

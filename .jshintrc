@@ -20,6 +20,7 @@
     "white": true,
     "predef": [
         "angular",
-        "$"
+        "$",
+        "_"
     ]
 }
