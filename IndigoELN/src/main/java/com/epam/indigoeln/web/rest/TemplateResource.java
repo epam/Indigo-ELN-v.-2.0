@@ -1,23 +1,28 @@
 package com.epam.indigoeln.web.rest;
 
-import java.util.List;
-
+import com.epam.indigoeln.core.model.Template;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.service.template.TemplateService;
+import com.epam.indigoeln.web.rest.dto.TemplateDTO;
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.epam.indigoeln.web.rest.util.PaginationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.service.template.TemplateService;
-import com.epam.indigoeln.core.security.AuthoritiesConstants;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
-import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import javax.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Resources
@@ -34,13 +39,15 @@ public class TemplateResource {
     @Autowired
     ExperimentRepository experimentRepository;
 
+    private final Logger log = LoggerFactory.getLogger(TemplateResource.class);
+
     /**
      * GET /templates/:id -> get template by id
      */
     @RequestMapping(value = "/templates/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> getTemplateById(@PathVariable String id) {
+    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
         return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -52,8 +59,14 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TemplateDTO>> getAllTemplates() {
-        return  new ResponseEntity<>(templateService.getAllTemplates(), HttpStatus.OK);
+    public ResponseEntity<List<TemplateDTO>> getAllTemplates(Pageable pageable)
+            throws URISyntaxException {
+        log.debug("REST request to get a page of Templates");
+        Page<Template> page = templateService.getAllTemplates(pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
+        return new ResponseEntity<>(page.getContent().stream()
+                .map(TemplateDTO::new)
+                .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
     }
 
     /**
@@ -67,15 +80,21 @@ public class TemplateResource {
      * Other parameters will be auto-generated
      * </p>
      *
-     * @param template template for save
+     * @param templateDTO template for save
      * @return saved template item wrapped to ResponseEntity
      */
     @RequestMapping(value = "/templates",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
-    public ResponseEntity<TemplateDTO> createTemplate(@RequestBody TemplateDTO template){
-        return ResponseEntity.ok(templateService.createTemplate(template));
+    public ResponseEntity<TemplateDTO> createTemplate(@Valid @RequestBody TemplateDTO templateDTO) throws URISyntaxException {
+        log.debug("REST request to save Template : {}", templateDTO);
+        if (templateDTO.getId() != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template", "idexists", "A new template cannot already have an ID")).body(null);
+        }
+        TemplateDTO result = templateService.createTemplate(templateDTO);
+        return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert("template", result.getId().toString()))
+                .body(result);
     }
 
     /**
@@ -96,12 +115,14 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
+        log.debug("REST request to update Template : {}", template);
         if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return  ResponseEntity.ok(templateService.updateTemplate(template));
+        return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getId().toString()))
+                .body(templateService.updateTemplate(template));
     }
 
     /**
@@ -120,8 +141,8 @@ public class TemplateResource {
     @RequestMapping(value = "/templates/{id}",
             method = RequestMethod.DELETE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
     public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
+        log.debug("REST request to delete Template : {}", id);
         //do not delete template if  experiments assigned
         if(experimentRepository.countByTemplateId(id) > 0){
             String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, id);
@@ -130,7 +151,7 @@ public class TemplateResource {
         }
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
-                        HeaderUtil.createAlert("A template is deleted with identifier " + id, id)).build();
+                HeaderUtil.createEntityDeletionAlert("template", id.toString())).build();
     }
 
 }
