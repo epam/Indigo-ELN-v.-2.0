@@ -1,12 +1,12 @@
 <div>
     <h2>Notebook Page</h2>
-    <h3 ng-if="vm.notebook.name == null">Notebook wasn't created</h3>
-    <div ng-if="vm.notebook.name != null">
-        <h3>Notebook name: {{vm.notebook.name}}</h3>
+    <h3 ng-if="notebook.name == null">Notebook wasn't created</h3>
+    <div ng-if="notebook.name != null">
+        <h3>Notebook name: {{notebook.name}}</h3>
         <br>
         <label for="description">Description:</label>
         <br>
-        <textarea id="description" cols="100" ng-model="vm.description"></textarea>
+        <textarea id="description" cols="100" ng-model="description"></textarea>
     </div>
 
 

@@ -1,10 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentDetailController', function(Experiment, $stateParams) {
-        var vm = this;
-        vm.experiment = Experiment.get({id: $stateParams.id});
-        vm.getIdleWorkdays = getIdleWorkdays;
+    .controller('ExperimentDetailController', function($scope, $stateParams, Experiment) {
+        $scope.experiment = Experiment.get({id: $stateParams.id});
+        $scope.getIdleWorkdays = getIdleWorkdays;
 
         function getIdleWorkdays(lastEditDate) {
             var now = new Date();

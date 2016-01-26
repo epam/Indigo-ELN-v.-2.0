@@ -1,11 +1,6 @@
 'use strict';
 
-angular
-    .module('indigoeln')
-    .controller('NewExperimentController', NewExperimentController);
-
-NewExperimentController.$inject = ['$scope', '$uibModalInstance'];
-
-function NewExperimentController($scope, $uibModalInstance) {
-
-}
+angular.module('indigoeln')
+    .controller('NewExperimentController', function($scope, $uibModalInstance) {
+        //code
+});

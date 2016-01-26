@@ -1,5 +1,5 @@
 <div>
-    <h2><span>Experiment</span> {{vm.experiment.id}}</h2>
+    <h2><span>Experiment</span> {{experiment.id}}</h2>
 
     <div class="table-responsive">
         <table class="main-table table table-striped table-condensed">
@@ -16,17 +16,17 @@
             </thead>
             <tbody class="main-table__body">
             <tr class="table-list">
-                <td class="table-list__item">{{vm.experiment.title}}</td>
-                <td class="table-list__item">{{vm.experiment.status}}</td>
+                <td class="table-list__item">{{experiment.title}}</td>
+                <td class="table-list__item">{{experiment.status}}</td>
                 <td class="table-list__item">
-                    <li ng-repeat="user in vm.experiment.coAuthors">{{user.name}}</li>
+                    <li ng-repeat="user in experiment.coAuthors">{{user.name}}</li>
                 </td>
-                <td class="table-list__item">{{vm.experiment.project}}</td>
-                <td class="table-list__item">{{vm.experiment.creationDate | date:'MMM dd yyyy'}}
+                <td class="table-list__item">{{experiment.project}}</td>
+                <td class="table-list__item">{{experiment.creationDate | date:'MMM dd yyyy'}}
                 </td>
-                <td class="table-list__item">{{vm.experiment.lastEditDate | date:'MMM dd yyyy'}}
+                <td class="table-list__item">{{experiment.lastEditDate | date:'MMM dd yyyy'}}
                 </td>
-                <td class="table-list__item">{{vm.getIdleWorkdays(vm.experiment.lastEditDate) + ' day(s)'}}</td>
+                <td class="table-list__item">{{getIdleWorkdays(experiment.lastEditDate) + ' day(s)'}}</td>
             </tr>
             </tbody>
         </table>
