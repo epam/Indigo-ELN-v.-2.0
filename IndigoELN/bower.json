@@ -22,7 +22,8 @@
     "stomp-websocket": "2.3.4",
     "underscore": "1.8.3",
     "angular-validator": "0.2.6",
-    "angular-form-builder": "0.1.0"
+    "angular-form-builder": "0.1.0",
+    "angular-cookies": "1.4.8"
   },
   "overrides": {
     "bootstrap": {

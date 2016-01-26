@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('FileUploaderController', function($scope, FileUploader) {
+    .controller('FileUploaderController', function($scope, FileUploader, $cookies, $http) {
 
         var entity = $scope.entity;
         var entityid = $scope.entityid;
@@ -9,6 +9,9 @@ angular.module('indigoeln')
         var uploader = $scope.uploader = new FileUploader({
             url: 'api/projects/uploadfile',
             alias: 'file',
+            headers: {
+                'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
+            },
             formData: [{ entityid: entityid, entity: entity }]
         });
 
