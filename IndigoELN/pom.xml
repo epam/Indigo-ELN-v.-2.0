@@ -129,15 +129,10 @@
 
         <!-- Indigo -->
         <dependency>
-            <groupId>com.ggasoftware</groupId>
+            <groupId>com.epam.indigo</groupId>
             <artifactId>indigo</artifactId>
-            <version>1.2.1-dev5-moderna</version>
+            <version>1.2.2beta-r37</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.epam.indigo</groupId>-->
-            <!--<artifactId>indigo</artifactId>-->
-            <!--<version>1.2.2beta-r12</version>-->
-        <!--</dependency>-->
 
         <!-- Apache -->
         <dependency>
