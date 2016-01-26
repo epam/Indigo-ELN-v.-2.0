@@ -109,11 +109,12 @@
     animation: fadeInDown 0.3s;
 }
 
-.user-management .pagination {
+.user-management .pagination, .templates .pagination {
     margin: 0;
 }
 
-.user-management, .user-management .edit-form {
+.user-management, .user-management .edit-form,
+.templates {
     margin-top: 20px;
 }
 
