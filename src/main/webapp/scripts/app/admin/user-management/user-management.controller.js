@@ -3,7 +3,7 @@
 angular.module('indigoeln')
     .controller('UserManagementController', function ($scope, User, ParseLinks, $filter) {
         $scope.users = [];
-        $scope.authorities = ["ROLE_USER", "ROLE_ADMIN"];
+        $scope.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
 
         $scope.page = 1;
         $scope.loadAll = function () {
@@ -54,7 +54,7 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.authorities = ["ROLE_USER", "ROLE_ADMIN"];
+        $scope.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
 
         $scope.create = function () {
             $scope.user = {
@@ -74,5 +74,5 @@ angular.module('indigoeln')
                 $scope.totalItems = headers('X-Total-Count');
                 $scope.users = $filter('filter')(result, $scope.searchText);
             });
-        }
+        };
     });

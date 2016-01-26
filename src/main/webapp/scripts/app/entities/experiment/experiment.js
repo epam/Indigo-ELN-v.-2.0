@@ -9,8 +9,7 @@ angular.module('indigoeln')
                 views: {
                     'content@': {
                         templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
-                        controller: 'ExperimentDetailController',
-                        controllerAs: 'vm'
+                        controller: 'ExperimentDetailController'
                     }
                 },
                 bindToController: true,
@@ -23,15 +22,13 @@ angular.module('indigoeln')
                 views: {
                     'content@': {
                         templateUrl: 'scripts/app/entities/experiment/new/new-experiment.html',
-                        controller: 'NewExperimentController',
-                        controllerAs: 'vm'
+                        controller: 'NewExperimentController'
                     }
                 },
                 data: {
                     authorities: ['ROLE_ADMIN', 'ROLE_USER'],
                     pageTitle: 'indigoeln'
                 },
-                bindToController: true,
                 resolve: {
                 }
             });

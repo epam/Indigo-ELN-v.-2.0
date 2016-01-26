@@ -1,19 +1,14 @@
 'use strict';
 
-angular
-    .module('indigoeln')
-    .controller('NewExperimentDialogController', NewExperimentDialogController);
+angular.module('indigoeln')
+    .controller('NewExperimentDialogController', function($scope, $uibModalInstance) {
+        $scope.notebook = {};
 
-NewExperimentDialogController.$inject = ['$scope', '$uibModalInstance'];
+        $scope.ok = function () {
+            $uibModalInstance.close($scope.notebook);
+        };
 
-function NewExperimentDialogController($scope, $uibModalInstance) {
-    $scope.notebook = {};
-
-    $scope.ok = function () {
-        $uibModalInstance.close($scope.notebook);
-    };
-
-    $scope.cancel = function () {
-        $uibModalInstance.dismiss();
-    };
-}
+        $scope.cancel = function () {
+            $uibModalInstance.dismiss();
+        };
+    });

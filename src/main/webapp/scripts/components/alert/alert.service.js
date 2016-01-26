@@ -13,8 +13,8 @@ angular.module('indigoeln')
             delay: 5000,
             timer: 1000,
             placement: {
-                from: "bottom",
-                align: "right"
+                from: 'bottom',
+                align: 'right'
             }
         };
         return {

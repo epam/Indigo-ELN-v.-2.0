@@ -5,8 +5,6 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             templateUrl: 'scripts/app/entities/experiment/table/experiment-tables.html',
-            controller: 'ExperimentTablesController',
-            controllerAs: 'vm',
-            bindToController: true
+            controller: 'ExperimentTablesController'
         };
     });

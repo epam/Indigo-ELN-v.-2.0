@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'user-management',
                 url: '/{login}/delete',
                 data: {
-                    authorities: ['ROLE_ADMIN'],
+                    authorities: ['ROLE_ADMIN']
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
@@ -38,7 +38,7 @@ angular.module('indigoeln')
                             $state.go('user-management', null, {reload: true});
                         }, function () {
                             $state.go('^');
-                        })
+                        });
                 }]
             });
     });
