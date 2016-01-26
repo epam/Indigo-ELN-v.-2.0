@@ -1,8 +1,7 @@
 'use strict';
 
-angular
-    .module('indigoeln')
-    .factory('experimentService', function ($resource, DateUtils) {
+angular.module('indigoeln')
+    .factory('Experiment', function($resource, DateUtils) {
         return $resource('api/experiments/:id', {}, {
             'query': {method: 'GET', isArray: true},
             'get': {
@@ -23,6 +22,4 @@ angular
                 }
             }
         });
-    }
-);
-
+    });

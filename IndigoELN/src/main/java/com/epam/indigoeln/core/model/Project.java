@@ -15,10 +15,43 @@ public class Project {
 
     private String name;
 
+    private User author;
+
+    private List<User> users;
+
     @DBRef(lazy = true)
     private List<Notebook> notebooks = new ArrayList<>();
 
     private List<UserPermission> accessList = new ArrayList<>();
+
+    private List<String> tags;
+
+    private List<String> keywords;
+
+    private String references;
+
+    private String description;
+
+//    In MongoDB the size of a document is limited to 16 MB
+//    GridFS divide the files in chunks of 256K and use two collections to store the files, one for metadata
+//    and one for the file chunks, this collections are called fs.files and fs.chunks respectively.
+//    private List<String> attachments; // move to another document with ref?
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getId() {
         return id;
@@ -26,6 +59,30 @@ public class Project {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
+    }
+
+    public String getReferences() {
+        return references;
+    }
+
+    public void setReferences(String references) {
+        this.references = references;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
     public String getName() {
@@ -52,10 +109,18 @@ public class Project {
         this.accessList = accessList;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Project)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Project project = (Project) o;
 
@@ -63,8 +128,14 @@ public class Project {
         if (name != null ? !name.equals(project.name) : project.name != null) return false;
         if (notebooks != null ? !notebooks.equals(project.notebooks) : project.notebooks != null) return false;
         if (accessList != null ? !accessList.equals(project.accessList) : project.accessList != null) return false;
+        if (users != null ? !users.equals(project.users) : project.users != null) return false;
+        if (author != null ? !author.equals(project.author) : project.author != null) return false;
+        if (notebooks != null ? !notebooks.equals(project.notebooks) : project.notebooks != null) return false;
+        if (keywords != null ? !keywords.equals(project.keywords) : project.keywords != null) return false;
+        if (references != null ? !references.equals(project.references) : project.references != null)
+            return false;
+        return description != null ? description.equals(project.description) : project.description == null;
 
-        return true;
     }
 
     @Override
@@ -72,7 +143,12 @@ public class Project {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (accessList != null ? accessList.hashCode() : 0);
+        result = 31 * result + (users != null ? users.hashCode() : 0);
+        result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (notebooks != null ? notebooks.hashCode() : 0);
+        result = 31 * result + (keywords != null ? keywords.hashCode() : 0);
+        result = 31 * result + (references != null ? references.hashCode() : 0);
+        result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
     }
 

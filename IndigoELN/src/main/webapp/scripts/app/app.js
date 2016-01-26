@@ -1,7 +1,9 @@
 'use strict';
 
-angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute'])
-    .run(function ($rootScope, $location, $window, $http, $state, Auth, Principal) {
+angular.module('indigoeln',
+    ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute',
+        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput'])
+    .run(function ($rootScope, $window, $state, editableOptions, Auth, Principal) {
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
             $rootScope.toStateParams = toStateParams;
@@ -18,7 +20,7 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
             // reset the state memory after logout. If we're redirected to login, our
             // previousState is already set in the authExpiredInterceptor. If we're going
             // to login directly, we don't want to be sent to some previous state anyway
-            if (toState.name != 'login' && $rootScope.previousStateName) {
+            if (toState.name !== 'login' && $rootScope.previousStateName) {
                 $rootScope.previousStateName = fromState.name;
                 $rootScope.previousStateParams = fromParams;
             }
@@ -37,6 +39,9 @@ angular.module('indigoeln', ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap
                 $state.go($rootScope.previousStateName, $rootScope.previousStateParams);
             }
         };
+
+        // Theme for angular-xeditable. Can also be 'bs2', 'default'
+        editableOptions.theme = 'bs3';
     })
     .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider) {
 

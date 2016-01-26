@@ -1,0 +1,63 @@
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="editable-text">
+                <h2 editable-text="project.name">{{ project.name }}</h2>
+            </div>
+
+            <h4>Project Participants</h4>
+            <div class="editable-users">
+                <ul onkeypress="handle(event)">
+                    <li ng-repeat="user in project.users">{{user.login}}</li>
+                </ul>
+            </div>
+
+            <!--<button class="btn btn-primary" type="button" ng-click="addUser()">Add User</button>-->
+
+            <h4>Tags</h4>
+            <tags-input ng-model="tags"></tags-input>
+
+            <h4>Keywords</h4>
+            <div>
+                <a href="#" editable-textarea="keywords" e-rows="3" e-cols="60">
+                    <pre>{{ keywords || 'no keywords' }}</pre>
+                </a>
+            </div>
+
+            <h4>Literature References</h4>
+
+            <div>
+                <a href="#" editable-textarea="project.references" e-rows="3" e-cols="60">
+                    <pre>{{ project.references || 'no literature references' }}</pre>
+                </a>
+            </div>
+
+            <!--<div class="editable-list">-->
+                <!--<ul contenteditable="true">-->
+                    <!--<li ng-repeat="ref in project.references"> {{ ref || 'no literature references' }}</li>-->
+                <!--</ul>-->
+            <!--</div>-->
+
+            <h4>Description</h4>
+            <div class="editable-textarea">
+                <a href="#" editable-textarea="project.description" e-rows="5" e-cols="60">
+                    <pre>{{ project.description || 'no description' }}</pre>
+                </a>
+            </div>
+
+            <!-- Attach files-->
+            <div>
+                <h4>Attachments</h4>
+                <button class="btn btn-default" style="margin: 5px;" type="button" ng-click="attachFile()">Attach files</button>
+                <div>Here will be list of attachments</div>
+            </div>
+
+
+        </div>
+    </div>
+    <div style="margin-top: 30px;">
+        <button class="btn btn-success" style="margin: 5px;" type="button" ng-click="save()">Save</button>
+        <button class="btn btn-info" style="margin: 5px;" type="button" ng-click="newNotebook($event)">Create Notebook</button>
+    </div>
+</div>

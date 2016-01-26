@@ -15,14 +15,11 @@ angular.module('indigoeln')
                 },
                 bindToController: true,
                 resolve: {
-                    //entity: ['$stateParams', 'experimentService', function($stateParams, experimentService) {
-                    //    return experimentService.get({id : $stateParams.id});
-                    //}]
                 }
             })
-            .state('experiment.new', {
-                parent: 'experiment',
-                url: '/experiment/new',
+            .state('newexperiment', {
+                parent: 'entity',
+                url: '/newexperiment',
                 views: {
                     'content@': {
                         templateUrl: 'scripts/app/entities/experiment/new/new-experiment.html',
@@ -30,11 +27,12 @@ angular.module('indigoeln')
                         controllerAs: 'vm'
                     }
                 },
+                data: {
+                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    pageTitle: 'indigoeln'
+                },
                 bindToController: true,
                 resolve: {
-                    //entity: ['$stateParams', 'experimentService', function($stateParams, experimentService) {
-                    //    return experimentService.get({id : $stateParams.id});
-                    //}]
                 }
             });
     });
