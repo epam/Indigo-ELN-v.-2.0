@@ -40,13 +40,13 @@ _____________________________________________________________________*/
   src: url(../fonts/segoeui.ttf);
 }
 
-.main-container h2,
-.main-container h3,
-.main-container button,
-.main-container span,
-.main-container a {
-  font: 14px/30px segoeui;
-}
+/*.main-container h2,*/
+/*.main-container h3,*/
+/*.main-container button,*/
+/*.main-container span,*/
+/*.main-container a {*/
+/*font: 14px/30px segoeui;*/
+/*}*/
 
 /****sitebar landing-page****/
 .main-container .unit-navigation-page ul {
@@ -245,13 +245,13 @@ body,
   padding: 0;
 }
 
-.main-container h2,
-.main-container h3,
-.main-container button,
-.main-container span,
-.main-container a {
-  font: 14px/30px segoeui;
-}
+/*.main-container h2,*/
+/*.main-container h3,*/
+/*.main-container button,*/
+/*.main-container span,*/
+/*.main-container a {*/
+/*font: 14px/30px segoeui;*/
+/*}*/
 
 @font-face {
   font-family: segoeui;

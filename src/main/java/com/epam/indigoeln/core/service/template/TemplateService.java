@@ -1,20 +1,18 @@
 package com.epam.indigoeln.core.service.template;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import com.epam.indigoeln.core.model.Template;
+import com.epam.indigoeln.core.repository.template.TemplateRepository;
+import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import com.epam.indigoeln.web.rest.dto.TemplateDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
-import com.epam.indigoeln.core.repository.template.TemplateRepository;
-import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import java.util.Optional;
 
 /**
  * Service class for managing Templates
@@ -37,9 +35,8 @@ public class TemplateService {
         return Optional.ofNullable(template != null ? new TemplateDTO(template) : null);
     }
 
-    public List<TemplateDTO> getAllTemplates() {
-        List<Template> templateList = templateRepository.findAll();
-        return templateList.stream().map(TemplateDTO::new).collect(Collectors.toList());
+    public Page<Template> getAllTemplates(Pageable pageable) {
+        return templateRepository.findAll(pageable);
     }
 
     @Secured(AuthoritiesConstants.ADMIN)
