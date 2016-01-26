@@ -2,7 +2,7 @@
 
 angular
     .module('indigoeln')
-    .directive('experimentTree', function (experimentService, $rootScope) {
+    .directive('experimentTree', function (Experiment, $rootScope) {
         return {
             scope: {},
             restrict: 'E',
@@ -11,7 +11,7 @@ angular
                 scope.data = [{
                     title: 'Notebook 1',
                     type: 'root',
-                    nodes: experimentService.query()
+                    nodes: Experiment.query()
                 }];
 
                 scope.open = function (data) {

@@ -13,7 +13,7 @@ angular
             });
             modalInstance.result.then(function (experiment) {
                 $rootScope.$broadcast('created-experiment', {experiment: experiment});
-                $state.go('experiment.new');
+                $state.go('newexperiment');
             }, function () {
             });
         };
