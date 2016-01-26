@@ -1,13 +1,14 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.service.template.TemplateService;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
+import com.epam.indigoeln.core.service.template.experiment.ExperimentTemplateService;
+import com.epam.indigoeln.web.rest.dto.ExperimentTemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -34,7 +39,7 @@ public class TemplateResource {
     private final static String WARNING_EXPERIMENTS_ASSIGNED = "Template with identifier %s could not be deleted : any assigned experiments exists.";
 
     @Autowired
-    TemplateService templateService;
+    ExperimentTemplateService templateService;
 
     @Autowired
     ExperimentRepository experimentRepository;
@@ -47,7 +52,7 @@ public class TemplateResource {
     @RequestMapping(value = "/templates/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
+    public ResponseEntity<ExperimentTemplateDTO> getTemplate(@PathVariable String id) {
         return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -59,13 +64,12 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TemplateDTO>> getAllTemplates(Pageable pageable)
+    public ResponseEntity<List<ExperimentTemplateDTO>> getAllTemplates(Pageable pageable)
             throws URISyntaxException {
         log.debug("REST request to get a page of Templates");
-        Page<Template> page = templateService.getAllTemplates(pageable);
+        Page<ExperimentTemplateDTO> page = templateService.getAllTemplates(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
         return new ResponseEntity<>(page.getContent().stream()
-                .map(TemplateDTO::new)
                 .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
     }
 
@@ -86,14 +90,16 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> createTemplate(@Valid @RequestBody TemplateDTO templateDTO) throws URISyntaxException {
+    public ResponseEntity<ExperimentTemplateDTO> createTemplate(@Valid @RequestBody ExperimentTemplateDTO templateDTO)
+            throws URISyntaxException {
+
         log.debug("REST request to save Template : {}", templateDTO);
         if (templateDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template", "idexists", "A new template cannot already have an ID")).body(null);
         }
-        TemplateDTO result = templateService.createTemplate(templateDTO);
+        ExperimentTemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("template", result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreationAlert("template", result.getId()))
                 .body(result);
     }
 
@@ -115,13 +121,13 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
+    public ResponseEntity<ExperimentTemplateDTO> updateTemplate(@RequestBody ExperimentTemplateDTO template){
         log.debug("REST request to update Template : {}", template);
         if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getId()))
                 .body(templateService.updateTemplate(template));
     }
 
@@ -151,7 +157,7 @@ public class TemplateResource {
         }
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert("template", id.toString())).build();
+                HeaderUtil.createEntityDeletionAlert("template", id)).build();
     }
 
 }
