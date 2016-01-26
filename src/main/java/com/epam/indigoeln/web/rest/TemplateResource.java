@@ -1,7 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.service.template.experiment.ExperimentTemplateService;
+import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -39,7 +39,7 @@ public class TemplateResource {
     private final static String WARNING_EXPERIMENTS_ASSIGNED = "Template with identifier %s could not be deleted : any assigned experiments exists.";
 
     @Autowired
-    ExperimentTemplateService templateService;
+    TemplateService templateService;
 
     @Autowired
     ExperimentRepository experimentRepository;
