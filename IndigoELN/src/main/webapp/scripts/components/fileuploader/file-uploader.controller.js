@@ -7,12 +7,12 @@ angular.module('indigoeln')
         var entityid = $scope.entityid;
 
         var uploader = $scope.uploader = new FileUploader({
-            url: 'api/projects/uploadfile',
+            url: 'api/project_files',
             alias: 'file',
             headers: {
                 'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
             },
-            formData: [{ entityid: entityid, entity: entity }]
+            formData: [{projectId: entityid}]
         });
 
         // FILTERS
