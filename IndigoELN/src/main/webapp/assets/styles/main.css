@@ -149,3 +149,7 @@
 .fb-component, .fb-form-object-editable {
     padding: 0 !important;
 }
+
+.batches .batch > .panel-body {
+    display: none;
+}
