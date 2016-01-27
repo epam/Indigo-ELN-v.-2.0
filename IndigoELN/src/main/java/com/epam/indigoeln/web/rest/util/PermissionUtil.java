@@ -6,10 +6,14 @@ import com.epam.indigoeln.core.model.UserPermission;
 
 import java.util.List;
 
-public class PermissionUtils {
+public class PermissionUtil {
 
     public static boolean isAdmin(User user) {
         return user.getAuthorities().contains(Authority.ADMIN);
+    }
+
+    public static boolean hasAuthority(User user, String authority) {
+        return user.getAuthorities().stream().anyMatch(auth -> auth.getName().equals(authority));
     }
 
     public static UserPermission findPermissionsByUserId(

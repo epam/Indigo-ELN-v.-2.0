@@ -9,7 +9,7 @@ import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
-import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.RandomStringUtils;
@@ -44,6 +44,9 @@ public class NotebookResource {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    CustomDtoMapper dtoMapper;
+
     /**
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project
      * for tree representation according to User permissions
@@ -76,7 +79,7 @@ public class NotebookResource {
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
         List<ExperimentTreeNodeDTO> result = new ArrayList<>(notebooks.size());
         for (Notebook notebook : notebooks) {
-            NotebookDTO notebookDTO = new NotebookDTO(notebook);
+            NotebookDTO notebookDTO = dtoMapper.convertToDTO(notebook);
             ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(notebookDTO);
             dto.setNodeType("notebook");
             dto.setHasChildren(experimentService.hasExperiments(notebook, user));
@@ -94,7 +97,7 @@ public class NotebookResource {
         log.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
         Notebook notebook = notebookService.getNotebookById(id, user);
-        return ResponseEntity.ok(new NotebookDTO(notebook));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(notebook));
     }
 
     /**
@@ -108,9 +111,10 @@ public class NotebookResource {
         log.debug("REST request to create notebook: {} for project: {}", notebookDTO, projectId);
         User user = userService.getUserWithAuthorities();
 
-        Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);
+        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
         notebook = notebookService.createNotebook(notebook, projectId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId())).body(new NotebookDTO(notebook));
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId()))
+                .body(dtoMapper.convertToDTO(notebook));
     }
 
     /**
@@ -122,10 +126,10 @@ public class NotebookResource {
         log.debug("REST request to update notebook: {} with id: {}", notebookDTO, id);
         User user = userService.getUserWithAuthorities();
 
-        Notebook notebook = ConverterUtils.convertFromDTO(notebookDTO);
+        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
         notebook.setId(id);
         notebook = notebookService.updateNotebook(notebook, user);
-        return ResponseEntity.ok(new NotebookDTO(notebook));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(notebook));
     }
 
     /**

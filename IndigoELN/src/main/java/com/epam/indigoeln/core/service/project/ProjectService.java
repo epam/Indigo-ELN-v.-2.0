@@ -6,14 +6,14 @@ import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
-import com.epam.indigoeln.web.rest.util.PermissionUtils;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
-import static com.epam.indigoeln.web.rest.util.PermissionUtils.hasPermissions;
+import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasPermissions;
 
 @Service
 public class ProjectService {
@@ -26,7 +26,7 @@ public class ProjectService {
     }
 
     public Collection<Project> getAllProjects(User user) {
-        return PermissionUtils.isAdmin(user) ?
+        return PermissionUtil.isAdmin(user) ?
                 projectRepository.findAll() : projectRepository.findByUserId(user.getId());
     }
 
@@ -52,7 +52,7 @@ public class ProjectService {
 
     public Project createProject(Project project, User user) {
         // Adding of OWNER's permissions to project
-        PermissionUtils.addOwnerToAccessList(project.getAccessList(), user.getId());
+        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user.getId());
         return projectRepository.save(project);
     }
 

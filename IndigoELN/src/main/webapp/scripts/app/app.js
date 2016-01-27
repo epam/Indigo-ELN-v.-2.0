@@ -2,7 +2,7 @@
 
 angular.module('indigoeln',
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute',
-        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'builder'])
+        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'builder', 'ngCookies'])
     .run(function ($rootScope, $window, $state, editableOptions, Auth, Principal) {
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
@@ -11,7 +11,6 @@ angular.module('indigoeln',
             if (Principal.isIdentityResolved()) {
                 Auth.authorize();
             }
-
         });
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
             var titleKey = 'indigoeln';
