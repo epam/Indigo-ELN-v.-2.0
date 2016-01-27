@@ -19,7 +19,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
 @EnableMongoAuditing
-//@EnableMongoRepositories("com.epam.indigoeln.core.repository")
+@EnableMongoRepositories("com.epam.indigoeln.core.repository")
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration extends AbstractMongoConfiguration {
 

@@ -15,4 +15,7 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
     Project findByNotebookId(String notebookId);
 
     Project findByName(String name);
+
+    @Query("{'fileIds': ?0}") //TODO try notebooks DBref $id
+    Project findByFileId(String fileId);
 }
