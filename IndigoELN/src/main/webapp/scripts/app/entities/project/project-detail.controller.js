@@ -5,6 +5,14 @@ angular.module('indigoeln')
 
         $scope.project = data;
         $scope.users = User.query();
+        var toolbar = ['title', 'bold','italic','underline','strikethrough','fontScale','color','ol','ul',
+            'blockquote','code','table','link','image','hr','indent','outdent','alignment'];
+        var editor = new Simditor({
+            textarea: $('#editor'),
+            toolbar: toolbar,
+            placeholder: ''
+        });
+
 
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
@@ -41,7 +49,7 @@ angular.module('indigoeln')
         $scope.newNotebook = function(event) {
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/notebook/new-notebook-dialog.html',
+                templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
                 controller: 'NewNotebookDialogController'
             });
             modalInstance.result.then(function (notebook) {
@@ -55,6 +63,7 @@ angular.module('indigoeln')
         $scope.attachFile = function() {
             var modal = $uibModal.open({
                 animation: true,
+                size: 'lg',
                 templateUrl: 'scripts/components/fileuploader/file-uploader-modal.html',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.entityid = entityid;
