@@ -2,16 +2,17 @@ package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import org.json.JSONObject;
 
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.epam.indigoeln.core.util.JSONObjectDeserializer;
+import com.epam.indigoeln.core.util.JSONObjectSerializer;
 
 public class TemplateDTO implements Serializable {
 
@@ -30,7 +31,10 @@ public class TemplateDTO implements Serializable {
 
     private String createdBy;
     private String lastModifiedBy;
-    private List<ComponentTemplateDTO> components = new ArrayList<>();
+
+    @JsonSerialize(using = JSONObjectSerializer.class)
+    @JsonDeserialize(using = JSONObjectDeserializer.class)
+    private JSONObject templateContent;
 
     public TemplateDTO() {
     }
@@ -42,7 +46,7 @@ public class TemplateDTO implements Serializable {
                 template.getLastEditDate(),
                 template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
                 template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-                template.getComponents().stream().map(ComponentTemplateDTO::new).collect(Collectors.toList()));
+                template.getTemplateContent() != null ?  new JSONObject(template.getTemplateContent().toString()) : null);
     }
 
     public TemplateDTO(String id,
@@ -51,14 +55,14 @@ public class TemplateDTO implements Serializable {
                        LocalDate lastEditDate,
                        String createdBy,
                        String lastModifiedBy,
-                       List<ComponentTemplateDTO> components) {
+                       JSONObject templateContent) {
         this.id = id;
         this.name = name;
         this.creationDate = creationDate;
         this.lastEditDate = lastEditDate;
         this.createdBy = createdBy;
         this.lastModifiedBy = lastModifiedBy;
-        this.components = components != null ? new ArrayList<>(components) : new ArrayList<>();
+        this.templateContent = templateContent;
     }
 
     public String getId() {
@@ -85,8 +89,8 @@ public class TemplateDTO implements Serializable {
         return lastModifiedBy;
     }
 
-    public List<ComponentTemplateDTO> getComponents() {
-        return components;
+    public JSONObject getTemplateContent() {
+        return templateContent;
     }
 
     public void setId(String id) {
@@ -97,7 +101,7 @@ public class TemplateDTO implements Serializable {
         this.name = name;
     }
 
-    public void setComponents(List<ComponentTemplateDTO> components) {
-        this.components = components != null ? new ArrayList<>(components) : new ArrayList<>();
+    public void setTemplateContent(JSONObject templateContent) {
+        this.templateContent = templateContent;
     }
 }

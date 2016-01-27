@@ -2,10 +2,11 @@ package com.epam.indigoeln.core.util;
 
 import java.io.IOException;
 
+import org.json.JSONObject;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import org.json.JSONObject;
 
 public class JSONObjectDeserializer  extends JsonDeserializer<JSONObject> {
 
