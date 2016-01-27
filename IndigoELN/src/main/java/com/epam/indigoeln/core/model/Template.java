@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.google.common.base.Objects;
+import com.mongodb.BasicDBObject;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,13 +15,14 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
-import org.springframework.data.mongodb.core.mapping.Field;
+
 
 /**
  * Entity class presents Template
@@ -57,7 +59,7 @@ public class Template implements Serializable, Persistable<String> {
     private User lastModifiedBy;
 
     @Field("content")
-    private String templateContent;
+    private BasicDBObject templateContent;
 
     @Override
     public boolean isNew() {
@@ -92,7 +94,7 @@ public class Template implements Serializable, Persistable<String> {
         return version;
     }
 
-    public String getTemplateContent() {
+    public BasicDBObject getTemplateContent() {
         return templateContent;
     }
 
@@ -104,7 +106,7 @@ public class Template implements Serializable, Persistable<String> {
         this.name = name;
     }
 
-    public void setTemplateContent(String templateContent) {
+    public void setTemplateContent(BasicDBObject templateContent) {
         this.templateContent = templateContent;
     }
 

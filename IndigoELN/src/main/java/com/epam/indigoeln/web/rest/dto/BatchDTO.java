@@ -1,8 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import com.epam.indigoeln.core.model.Batch;
-
 import java.io.Serializable;
+import com.epam.indigoeln.core.model.Batch;
 
 public class BatchDTO implements Serializable {
 
@@ -10,13 +9,9 @@ public class BatchDTO implements Serializable {
 
     private String id;
     private String batchNumber;
-    private String virtualCompoundId;
-    private String stereoIsomerCode;
-    private String comments;
-    private String structureComments;
-    private Float  molecularWeight;
-    private String formula;
+    private String jsonContent;
     private String molfile;
+    private String componentTemplateId;
 
     public BatchDTO() {
     }
@@ -24,24 +19,18 @@ public class BatchDTO implements Serializable {
     public BatchDTO(Batch batch) {
         this(batch.getId(),
              batch.getBatchNumber(),
-             batch.getVirtualCompoundId(),
-             batch.getStereoIsomerCode(),
-             batch.getComments(),
-             batch.getStructureComments());
+             batch.getJsonContent(),
+             batch.getComponentTemplateId());
     }
 
-    public BatchDTO(String  id,
-                    String  batchNumber,
-                    String  virtualCompoundId,
-                    String  stereoIsomerCode,
-                    String  comments,
-                    String  structureComments) {
+    public BatchDTO(String id,
+                    String batchNumber,
+                    String jsonContent,
+                    String componentTemplateId) {
         this.id = id;
         this.batchNumber = batchNumber;
-        this.virtualCompoundId = virtualCompoundId;
-        this.stereoIsomerCode = stereoIsomerCode;
-        this.comments = comments;
-        this.structureComments = structureComments;
+        this.jsonContent = jsonContent;
+        this.componentTemplateId = componentTemplateId;
     }
 
     public String getId() {
@@ -52,32 +41,16 @@ public class BatchDTO implements Serializable {
         return batchNumber;
     }
 
-    public String getVirtualCompoundId() {
-        return virtualCompoundId;
-    }
-
-    public String getStereoIsomerCode() {
-        return stereoIsomerCode;
-    }
-
-    public String getComments() {
-        return comments;
-    }
-
-    public String getStructureComments() {
-        return structureComments;
-    }
-
-    public Float getMolecularWeight() {
-        return molecularWeight;
-    }
-
-    public String getFormula() {
-        return formula;
-    }
-
     public String getMolfile() {
         return molfile;
+    }
+
+    public String getJsonContent() {
+        return jsonContent;
+    }
+
+    public String getComponentTemplateId() {
+        return componentTemplateId;
     }
 
     public void setId(String id) {
@@ -88,32 +61,16 @@ public class BatchDTO implements Serializable {
         this.batchNumber = batchNumber;
     }
 
-    public void setVirtualCompoundId(String virtualCompoundId) {
-        this.virtualCompoundId = virtualCompoundId;
-    }
-
-    public void setStereoIsomerCode(String stereoIsomerCode) {
-        this.stereoIsomerCode = stereoIsomerCode;
-    }
-
-    public void setComments(String comments) {
-        this.comments = comments;
-    }
-
-    public void setStructureComments(String structureComments) {
-        this.structureComments = structureComments;
-    }
-
-    public void setMolecularWeight(Float molecularWeight) {
-        this.molecularWeight = molecularWeight;
-    }
-
-    public void setFormula(String formula) {
-        this.formula = formula;
-    }
-
     public void setMolfile(String molfile) {
         this.molfile = molfile;
+    }
+
+    public void setJsonContent(String jsonContent) {
+        this.jsonContent = jsonContent;
+    }
+
+    public void setComponentTemplateId(String componentTemplateId) {
+        this.componentTemplateId = componentTemplateId;
     }
 
     @Override
@@ -121,13 +78,9 @@ public class BatchDTO implements Serializable {
         return "BatchDTO{" +
                 "id='" + id + '\'' +
                 ", batchNumber='" + batchNumber + '\'' +
-                ", virtualCompoundId='" + virtualCompoundId + '\'' +
-                ", stereoIsomerCode='" + stereoIsomerCode + '\'' +
-                ", comments='" + comments + '\'' +
-                ", structureComments='" + structureComments + '\'' +
-                ", molecularWeight=" + molecularWeight +
-                ", formula='" + formula + '\'' +
+                ", jsonContent='" + jsonContent + '\'' +
                 ", molfile='" + molfile + '\'' +
+                ", componentTemplateId='" + componentTemplateId + '\'' +
                 '}';
     }
 }

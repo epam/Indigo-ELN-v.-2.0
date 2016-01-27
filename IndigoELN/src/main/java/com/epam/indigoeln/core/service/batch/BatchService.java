@@ -212,8 +212,8 @@ public class BatchService {
             String molfile = bingoDbService.getMolecule(batch.getBingoDbId());
             IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
             batchDTO.setMolfile(molfile);
-            batchDTO.setMolecularWeight(indigoObjectMolecule.molecularWeight());
-            batchDTO.setFormula(indigoObjectMolecule.grossFormula());
+            //batchDTO.setMolecularWeight(indigoObjectMolecule.molecularWeight());
+            //batchDTO.setFormula(indigoObjectMolecule.grossFormula());
         }
         return batchDTO;
     }

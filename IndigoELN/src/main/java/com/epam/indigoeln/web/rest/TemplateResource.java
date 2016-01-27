@@ -1,10 +1,9 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.repository.template.experiment.ExperimentTemplateRepository;
+import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.service.template.TemplateService;
-import com.epam.indigoeln.web.rest.dto.ComponentTemplateDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentTemplateDTO;
+import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
 
@@ -36,7 +35,6 @@ import java.util.stream.Collectors;
 public class TemplateResource {
 
     private final static String WARNING_EXPERIMENTS_ASSIGNED = "Template with identifier %s could not be deleted : any assigned experiments exists.";
-    private final static String WARNING_TEMPLATES_ASSIGNED = "Component template with identifier %s could not be deleted : any assigned templates exists.";
 
     @Autowired
     TemplateService templateService;
@@ -45,7 +43,7 @@ public class TemplateResource {
     ExperimentRepository experimentRepository;
 
     @Autowired
-    ExperimentTemplateRepository experimentTemplateRepository;
+    TemplateRepository templateRepository;
 
     /**
      * GET /templates/:id -> get template by id
@@ -53,7 +51,7 @@ public class TemplateResource {
     @RequestMapping(value = "/templates/{id}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentTemplateDTO> getTemplate(@PathVariable String id) {
+    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
         return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -66,9 +64,9 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ExperimentTemplateDTO>> getAllTemplates(Pageable pageable)
+    public ResponseEntity<List<TemplateDTO>> getAllTemplates(Pageable pageable)
             throws URISyntaxException {
-        Page<ExperimentTemplateDTO> page = templateService.getAllTemplates(pageable);
+        Page<TemplateDTO> page = templateService.getAllTemplates(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
         return new ResponseEntity<>(page.getContent().stream()
                 .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
@@ -90,14 +88,14 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentTemplateDTO> createTemplate(@Valid @RequestBody ExperimentTemplateDTO templateDTO)
+    public ResponseEntity<TemplateDTO> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
 
         if (templateDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template", "idexists",
                     "A new template cannot already have an ID")).body(null);
         }
-        ExperimentTemplateDTO result = templateService.createTemplate(templateDTO);
+        TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert("template", result.getId()))
                 .body(result);
@@ -121,7 +119,7 @@ public class TemplateResource {
     @RequestMapping(value = "/templates",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentTemplateDTO> updateTemplate(@RequestBody ExperimentTemplateDTO template){
+    public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
         if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -156,85 +154,4 @@ public class TemplateResource {
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeletionAlert("template", id)).build();
     }
-
-
-    /**
-     * GET /templates/components/:id -> get template by id
-     */
-    @RequestMapping(value = "/templates/components/{id}",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ComponentTemplateDTO> getComponentTemplate(@PathVariable String id) {
-        return templateService.getComponentTemplateById(id)
-                .map(component -> new ResponseEntity<>(component, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    /**
-     * GET /templates/components -> fetch all component template list
-     */
-    @RequestMapping(value = "/templates/components",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ComponentTemplateDTO>> getAllComponentTemplates(Pageable pageable)
-            throws URISyntaxException {
-        Page<ComponentTemplateDTO> page = templateService.getAllComponentTemplates(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates/components");
-        return new ResponseEntity<>(page.getContent().stream()
-                .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
-    }
-
-    /**
-     *  POST /templates/components -> create new component template
-     */
-    @RequestMapping(value = "/templates/components",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ComponentTemplateDTO> createComponentTemplate(@Valid @RequestBody ComponentTemplateDTO templateDTO)
-            throws URISyntaxException {
-
-        if (templateDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("component", "idexists",
-                    "A new component template cannot already have an ID")).body(null);
-        }
-        ComponentTemplateDTO result = templateService.createComponentTemplate(templateDTO);
-        return ResponseEntity.created(new URI("/api/templates/components/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("component", result.getId()))
-                .body(result);
-    }
-
-    /**
-     *  PUT /templates/components -> update component template
-     */
-    @RequestMapping(value = "/templates/components",
-            method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ComponentTemplateDTO> updateComponentTemplate(@RequestBody ComponentTemplateDTO componentTemplate){
-        if(!templateService.getComponentTemplateById(componentTemplate.getId()).isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("componentTemplate", componentTemplate.getId()))
-                .body(templateService.updateComponentTemplate(componentTemplate));
-    }
-
-
-    /**
-     *  DELETE /templates/components/:id -> delete component template by id
-     */
-    @RequestMapping(value = "/templates/components/{id}",
-            method = RequestMethod.DELETE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> deleteComponentTemplate(@PathVariable String id) {
-        //do not delete component template if  it is assigned with any experiment template
-        if(experimentTemplateRepository.countByComponentId(id) > 0){
-            String message = String.format(WARNING_TEMPLATES_ASSIGNED, id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createAlert(message, id)).
-                    build();
-        }
-        templateService.deleteComponentTemplate(id);
-        return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert("componentTemplate", id)).build();
-    }
-
 }
