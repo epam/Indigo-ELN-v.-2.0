@@ -12,6 +12,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -33,6 +34,7 @@ public class ComponentTemplate implements Serializable, Persistable<String> {
     private Long version;
 
     @NotBlank
+    @Indexed(unique = true)
     private String name;
 
     @CreatedDate
