@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, entity, Template, $state) {
+    function ($scope, $stateParams, entity, Template, $state, $builder, $validator) {
 
         $scope.template = entity;
         $scope.load = function (id) {
@@ -26,5 +26,17 @@ angular.module('indigoeln').controller('TemplateDialogController',
             } else {
                 Template.save($scope.template, onSaveSuccess, onSaveError);
             }
+        };
+
+        //$builder.addFormObject('default', {
+        //    component: 'name'
+        //});
+        $scope.form = $builder.forms['default'];
+        $scope.submit = function () {
+            return $validator.validate($scope, 'default').success(function () {
+                return console.log('success');
+            }).error(function () {
+                return console.log('error');
+            });
         };
     });
