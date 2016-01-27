@@ -11,7 +11,6 @@ angular.module('indigoeln',
             if (Principal.isIdentityResolved()) {
                 Auth.authorize();
             }
-
         });
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
             var titleKey = 'indigoeln';

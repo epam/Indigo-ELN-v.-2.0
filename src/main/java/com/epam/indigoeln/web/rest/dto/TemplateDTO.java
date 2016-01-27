@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.epam.indigoeln.core.model.ExperimentTemplate;
+import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class ExperimentTemplateDTO implements Serializable {
+public class TemplateDTO implements Serializable {
 
     private static final long serialVersionUID = 7951973267736585187L;
 
@@ -32,10 +32,10 @@ public class ExperimentTemplateDTO implements Serializable {
     private String lastModifiedBy;
     private List<ComponentTemplateDTO> components = new ArrayList<>();
 
-    public ExperimentTemplateDTO() {
+    public TemplateDTO() {
     }
 
-    public ExperimentTemplateDTO(ExperimentTemplate template) {
+    public TemplateDTO(Template template) {
         this(template.getId(),
                 template.getName(),
                 template.getCreationDate(),
@@ -45,13 +45,13 @@ public class ExperimentTemplateDTO implements Serializable {
                 template.getComponents().stream().map(ComponentTemplateDTO::new).collect(Collectors.toList()));
     }
 
-    public ExperimentTemplateDTO(String id,
-                                 String name,
-                                 LocalDate creationDate,
-                                 LocalDate lastEditDate,
-                                 String createdBy,
-                                 String lastModifiedBy,
-                                 List<ComponentTemplateDTO> components) {
+    public TemplateDTO(String id,
+                       String name,
+                       LocalDate creationDate,
+                       LocalDate lastEditDate,
+                       String createdBy,
+                       String lastModifiedBy,
+                       List<ComponentTemplateDTO> components) {
         this.id = id;
         this.name = name;
         this.creationDate = creationDate;

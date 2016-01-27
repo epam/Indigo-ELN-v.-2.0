@@ -15,15 +15,6 @@ public class Project {
 
     private String name;
 
-    private User author;
-
-    private List<User> users;
-
-    @DBRef(lazy = true)
-    private List<Notebook> notebooks = new ArrayList<>();
-
-    private List<UserPermission> accessList = new ArrayList<>();
-
     private List<String> tags;
 
     private List<String> keywords;
@@ -32,26 +23,18 @@ public class Project {
 
     private String description;
 
-//    In MongoDB the size of a document is limited to 16 MB
-//    GridFS divide the files in chunks of 256K and use two collections to store the files, one for metadata
-//    and one for the file chunks, this collections are called fs.files and fs.chunks respectively.
-//    private List<String> attachments; // move to another document with ref?
+    //TODO may be need to use @DBRef
+    private User author;
 
-    public User getAuthor() {
-        return author;
-    }
+    //TODO may be need to use @DBRef
+    private List<User> users;
 
-    public void setAuthor(User author) {
-        this.author = author;
-    }
+    @DBRef(lazy = true)
+    private List<Notebook> notebooks = new ArrayList<>();
 
-    public String getDescription() {
-        return description;
-    }
+    private List<UserPermission> accessList = new ArrayList<>();
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    private List<String> fileIds = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -59,6 +42,14 @@ public class Project {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<String> getKeywords() {
@@ -85,12 +76,28 @@ public class Project {
         this.tags = tags;
     }
 
-    public String getName() {
-        return name;
+    public String getDescription() {
+        return description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public User getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(User author) {
+        this.author = author;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 
     public List<Notebook> getNotebooks() {
@@ -109,12 +116,12 @@ public class Project {
         this.accessList = accessList;
     }
 
-    public List<User> getUsers() {
-        return users;
+    public List<String> getFileIds() {
+        return fileIds;
     }
 
-    public void setUsers(List<User> users) {
-        this.users = users;
+    public void setFileIds(List<String> fileIds) {
+        this.fileIds = fileIds;
     }
 
     @Override

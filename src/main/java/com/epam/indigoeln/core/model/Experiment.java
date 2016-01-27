@@ -20,10 +20,13 @@ public class Experiment extends ExperimentShort {
     @Version
     private Long version;
 
+    //TODO may be need to use @DBRef
     private User author;
 
+    //TODO may be need to use @DBRef
     private List<User> coAuthors;
 
+    //TODO may be need to use @DBRef
     private List<User> witness;
 
     @CreatedDate
@@ -37,6 +40,7 @@ public class Experiment extends ExperimentShort {
     private LocalDate lastEditDate;
 
     @LastModifiedBy
+    //TODO may be need to use @DBRef
     private User lastModifiedBy;
 
     private String comments;
@@ -47,6 +51,8 @@ public class Experiment extends ExperimentShort {
     private List<Batch> batches;
 
     private List<UserPermission> accessList = new ArrayList<>();
+
+    private List<String> fileIds = new ArrayList<>();
 
     public User getAuthor() {
         return author;
@@ -130,6 +136,14 @@ public class Experiment extends ExperimentShort {
 
     public void setAccessList(List<UserPermission> accessList) {
         this.accessList = accessList;
+    }
+
+    public List<String> getFileIds() {
+        return fileIds;
+    }
+
+    public void setFileIds(List<String> fileIds) {
+        this.fileIds = fileIds;
     }
 
     @Override

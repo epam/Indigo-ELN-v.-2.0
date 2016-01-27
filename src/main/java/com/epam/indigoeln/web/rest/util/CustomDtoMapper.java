@@ -36,9 +36,15 @@ public interface CustomDtoMapper {
 
     Project convertFromDTO(ProjectDTO dto);
 
+    ProjectDTO convertToDTO(Project project);
+
     Notebook convertFromDTO(NotebookDTO dto);
 
+    NotebookDTO convertToDTO(Notebook notebook);
+
     Experiment convertFromDTO(ExperimentDTO dto);
+
+    ExperimentDTO convertToDTO(Experiment experiment);
 
     Batch convertFromDTO(BatchDTO batchDTO);
 

@@ -1,9 +1,9 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,18 +14,21 @@ import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
 /**
- * Entity class for Component ExperimentTemplate
+ * Entity class presents Template
  */
-@Document(collection = "component_template")
-public class ComponentTemplate implements Serializable, Persistable<String> {
+@Document(collection = "template")
+public class Template implements Serializable, Persistable<String> {
 
-    private static final long serialVersionUID = -6007156075722705432L;
+    private static final long serialVersionUID = 4518230352458447262L;
 
     @Id
     private String id;
@@ -56,15 +59,13 @@ public class ComponentTemplate implements Serializable, Persistable<String> {
     @Field("content")
     private String templateContent;
 
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -87,6 +88,10 @@ public class ComponentTemplate implements Serializable, Persistable<String> {
         return lastModifiedBy;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
     public String getTemplateContent() {
         return templateContent;
     }
@@ -107,20 +112,14 @@ public class ComponentTemplate implements Serializable, Persistable<String> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        ComponentTemplate that = (ComponentTemplate) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        return templateContent != null ? templateContent.equals(that.templateContent) : that.templateContent == null;
-
+        Template that = (Template) o;
+        return  Objects.equal(id, that.id) &&
+                Objects.equal(name, that.name) &&
+                Objects.equal(templateContent, that.templateContent);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (templateContent != null ? templateContent.hashCode() : 0);
-        return result;
+        return Objects.hashCode(id, name, templateContent);
     }
 }

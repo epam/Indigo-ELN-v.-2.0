@@ -8,7 +8,7 @@
 
             <h4>Project Participants</h4>
             <div class="editable-users">
-                <ul onkeypress="handle(event)">
+                <ul>
                     <li ng-repeat="user in project.users">{{user.login}}</li>
                 </ul>
             </div>
@@ -40,7 +40,9 @@
             <!--</div>-->
 
             <h4>Description</h4>
-
+            <textarea id="editor" autofocus></textarea>
+            <div eln-simditor ng-model="editor" placeholder="some placeholder"></div>
+            <div>{{editor}}</div>
 
             <!-- Attach files-->
             <div>
