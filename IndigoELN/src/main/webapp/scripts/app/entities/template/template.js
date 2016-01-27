@@ -38,53 +38,43 @@ angular.module('indigoeln')
                 }
             })
             .state('template.new', {
-                parent: 'template',
-                url: '/new',
+                parent: 'entity',
+                url: '/templates/new',
                 data: {
                     authorities: ['ROLE_USER'],
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
-                    $uibModal.open({
+                views: {
+                    'content@': {
                         templateUrl: 'scripts/app/entities/template/template-dialog.html',
-                        controller: 'TemplateDialogController',
-                        size: 'lg',
-                        resolve: {
-                            entity: function () {
-                                return {
-                                    name: null,
-                                    id: null
-                                };
-                            }
-                        }
-                    }).result.then(function (result) {
-                            $state.go('template', null, {reload: true});
-                        }, function () {
-                            $state.go('template');
-                        })
-                }]
+                        controller: 'TemplateDialogController'
+                    }
+                },
+                resolve: {
+                    entity: function () {
+                        return {
+                            name: null,
+                            id: null
+                        };
+                    }
+                }
             })
             .state('template.edit', {
-                parent: 'template',
-                url: '/{id}/edit',
+                parent: 'entity',
+                url: '/template/{id}/edit',
                 data: {
                     authorities: ['ROLE_USER'],
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
-                    $uibModal.open({
+                views: {
+                    'content@': {
                         templateUrl: 'scripts/app/entities/template/template-dialog.html',
-                        controller: 'TemplateDialogController',
-                        size: 'lg',
-                        resolve: {
-                            entity: ['Template', function (Template) {
-                                return Template.get({id: $stateParams.id});
-                            }]
-                        }
-                    }).result.then(function (result) {
-                            $state.go('template', null, {reload: true});
-                        }, function () {
-                            $state.go('^');
-                        })
-                }]
+                        controller: 'TemplateDialogController'
+                    }
+                },
+                resolve: {
+                    entity: function (Template, $stateParams) {
+                        return Template.get({id: $stateParams.id});
+                    }
+                }
             })
             .state('template.delete', {
                 parent: 'template',

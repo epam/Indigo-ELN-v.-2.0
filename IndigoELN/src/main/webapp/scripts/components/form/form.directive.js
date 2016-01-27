@@ -1,7 +1,16 @@
 /* globals $ */
 'use strict';
-
 angular.module('indigoeln')
+    .factory('formUtils', function () {
+        return {
+            doVertical: function (tAttrs, tElement) {
+                if (tAttrs.myLabelVertical) {
+                    tElement.find('.col-sm-2').removeClass('col-sm-2');
+                    tElement.find('.col-sm-10').children().unwrap();
+                }
+            }
+        }
+    })
     .directive('showValidation', function () {
         return {
             restrict: 'A',
@@ -24,66 +33,142 @@ angular.module('indigoeln')
                 });
             }
         };
-    }).directive('myInput', function () {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: {
-                inputLabel: '@',
-                inputName: '@',
-                inputModel: '=',
-                inputReadonly: '=',
-                inputType: '@',
-                validationObj: '=',
-                validationRequired: '=',
-                validationMaxlength: '@',
-                labelClasses: '@'
-            },
-            template: '<div class="form-group">' +
-            '<label class="col-sm-2 control-label">{{inputLabel}}</label>' +
-            '<div class="col-sm-10">' +
-            '<input type="{{inputType}}" class="form-control" name="{{inputName}}" ng-model="inputModel" ng-readonly="inputReadonly" ng-required="validationRequired" ng-maxlength="validationMaxlength">' +
-            '<div ng-show="validationObj.$invalid">' +
-            '<p class="help-block" ng-show="validationObj.$error.required"> This field is required. </p>' +
-            '<p class="help-block" ng-show="validationObj.$error.maxlength" > This field cannot be longer than {{validationMaxlength}} characters.</p>' +
-            '</div>' +
-            '</div>' +
-            '</div>'
-        };
-    }).directive('myCheckbox', function () {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: {
-                checkboxLabel: '@',
-                checkboxModel: '=',
-                checkboxName: '@'
-            },
-            template: '<div class="form-group">' +
-            '<div class="col-sm-offset-2 col-sm-10">' +
-            '<div class="checkbox">' +
-            '<label>' +
-            '<input type="checkbox" id="{{checkboxName}}" ng-model="checkboxModel"> {{checkboxLabel}}' +
-            '</label> ' +
-            '</div> ' +
-            '</div> ' +
-            '</div> '
-        };
-    }).directive('mySelect', function () {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: {
-                selectLabel: '@',
-                selectName: '@',
-                selectModel: '=',
-                selectItems: '='
-            },
-            template: '<div class="form-group">' +
-            '<label class="col-sm-2 control-label">{{selectLabel}}</label>' +
-            '<div class="col-sm-10">' +
-            '<select class="form-control" multiple name="{{selectName}}" ng-model="selectModel" ng-options="item for item in selectItems" ></select>' +
-            '</div>' +
-            '</div>'
-        };
-    });
+    }).directive('myInput', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myLabelVertical: '=',
+            myName: '@',
+            myModel: '=',
+            myReadonly: '=',
+            myType: '@',
+            myValidationObj: '=',
+            myValidationRequired: '=',
+            myValidationMaxlength: '@'
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-sm-10">' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength">' +
+        '<div ng-show="myValidationObj.$invalid">' +
+        '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
+        '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field cannot be longer than {{myValidationMaxlength}} characters.</p>' +
+        '</div>' +
+        '</div>' +
+        '</div>'
+    };
+}).directive('myCheckbox', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myModel: '=',
+            myName: '@'
+        },
+        template: '<div class="form-group">' +
+        '<div class="col-sm-offset-2 col-sm-10">' +
+        '<div class="checkbox">' +
+        '<label>' +
+        '<input type="checkbox" id="{{myName}}" ng-model="myModel"> {{myLabel}}' +
+        '</label> ' +
+        '</div> ' +
+        '</div> ' +
+        '</div> '
+    };
+}).directive('mySelect', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myName: '@',
+            myModel: '=',
+            myItems: '=',
+            myMultiple: '=',
+            myLabelVertical: '='
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            tElement.find('select').prop("multiple", tAttrs.myMultiple);
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-sm-10">' +
+        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item for item in myItems" ></select>' +
+        '</div>' +
+        '</div>'
+    };
+}).directive('myTwoToggle', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myModel: '=',
+            myFirst: '@',
+            mySecond: '@',
+            myLabelVertical: '='
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+            if (tAttrs.myLabelVertical) {
+                $("<br/>").insertAfter(tElement.find('label').first());
+            }
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-sm-10">' +
+        '<div class="btn-group">' +
+        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="myFirst" uncheckable>{{myFirst}}</label>' +
+        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="mySecond" uncheckable>{{mySecond}}</label>' +
+        '</div>' +
+        '</div> ' +
+        '</div> '
+    };
+}).directive('myTextArea', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myModel: '=',
+            myLabelVertical: '='
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-sm-2 control-label">{{myLabel}}</label> ' +
+        '<div class="col-sm-10">' +
+        '<textarea class="form-control" rows="3" ng-model="myModel"></textarea>' +
+        '</div> ' +
+        '</div> '
+    };
+}).directive('mySimpleText', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myModel: '=',
+            myEmptyText: '@'
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            //formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-sm-2 control-label">' +
+        '{{myLabel}} ' +
+        '</label>' +
+        '<div class="col-sm-10" style="padding-top: 7px;">' +
+        '{{myModel||myEmptyText}}' +
+        '</div>' +
+        '</div>'
+    };
+});

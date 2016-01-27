@@ -1,43 +1,45 @@
-<form name="editForm" role="form" novalidate ng-submit="save()" show-validation>
-
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="clear()">&times;</button>
-        <h4 class="modal-title" id="myTemplateLabel">Create or edit a Template</h4>
-    </div>
-    <div class="modal-body">
-        <jh-alert-error></jh-alert-error>
-        <div class="form-group">
-            <label for="id">ID</label>
-            <input type="text" class="form-control" id="id" name="id"
-                   ng-model="template.id" readonly/>
-        </div>
-        <div class="form-group">
-            <label class="control-label" for="field_name">Name</label>
-            <input type="text" class="form-control" name="name" id="field_name"
-                   ng-model="template.name"
-                   required ng-maxlength="20"/>
-
-            <div ng-show="editForm.name.$invalid">
-                <p class="help-block"
-                   ng-show="editForm.name.$error.required">
-                    This field is required.
-                </p>
-
-                <p class="help-block"
-                   ng-show="editForm.name.$error.maxlength" translate-value-max="20">
-                    This field cannot be longer than 20 characters.
-                </p>
+<div class="panel panel-info templates">
+    <div class="panel-heading">Create or edit a Template</div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="row">
+                <div class="col-xs-12">
+                    <my-input my-label="Name" my-model="template.name"></my-input>
+                </div>
+            </div>
+        </form>
+        <br/>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Template Builder</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div fb-builder="default" class="builder"></div>
+                    </div>
+                </div>
             </div>
         </div>
-
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Batches</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div fb-components class="batches"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+    <div class="panel-footer text-right">
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
-        <button type="submit" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+        <button ng-click="save()" class="btn btn-primary">
             <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
         </button>
     </div>
-</form>
+</div>

@@ -5,14 +5,24 @@ angular.module('indigoeln')
 
         $scope.project = data;
         $scope.users = User.query();
-        var toolbar = ['title', 'bold','italic','underline','strikethrough','fontScale','color','ol','ul',
-            'blockquote','code','table','link','image','hr','indent','outdent','alignment'];
+
+        // editor options
+        var toolbar = ['title','bold','italic','underline','strikethrough','fontScale','color',
+            'ol','ul','blockquote','table','link','image','hr','indent','outdent','alignment'];
+        Simditor.locale = 'en_EN';
         var editor = new Simditor({
             textarea: $('#editor'),
             toolbar: toolbar,
             placeholder: ''
         });
+        var preview = $('#preview');
+        if (preview.length > 0) {
+            editor.on('valuechanged', function(e) {
+                preview.html(editor.getValue);
+            });
+        }
 
+        //$scope.editorValue = editor.getValue;
 
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
