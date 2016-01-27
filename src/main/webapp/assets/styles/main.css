@@ -145,3 +145,7 @@
 .editable-checklist label {
     display: block;
 }
+
+.fb-component, .fb-form-object-editable {
+    padding: 0 !important;
+}
