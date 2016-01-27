@@ -8,19 +8,16 @@ import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import com.epam.indigoeln.web.rest.util.ConverterUtils;
-import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,6 +41,9 @@ public class ProjectResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    CustomDtoMapper dtoMapper;
 
     /**
      * GET  /projects -> Returns all projects for tree representation according to User permissions
