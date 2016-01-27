@@ -108,14 +108,14 @@ public class ProjectResource {
     /**
      * PUT  /projects/:id -> Updates project with specified id according to User permissions
      */
-    @RequestMapping(value="/{id}", method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT)
     @Secured(AuthoritiesConstants.PROJECT_CREATOR)
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable("id") String id, @RequestBody ProjectDTO projectDTO) {
-        log.debug("REST request to update project: {} with id: {}", projectDTO, id);
+    public ResponseEntity<ProjectDTO> updateProject(@RequestBody ProjectDTO projectDTO) {
+        log.debug("REST request to update project: {} with id: {}", projectDTO, projectDTO.getId());
         User user = userService.getUserWithAuthorities();
 
         Project project = ConverterUtils.convertFromDTO(projectDTO);
-        project.setId(id);
+        project.setId(project.getId());
         project = projectService.updateProject(project, user);
         return ResponseEntity.ok(new ProjectDTO(project));
     }

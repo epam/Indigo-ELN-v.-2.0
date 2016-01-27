@@ -21,6 +21,7 @@
     "predef": [
         "angular",
         "$",
-        "_"
+        "_",
+        "Simditor"
     ]
 }
