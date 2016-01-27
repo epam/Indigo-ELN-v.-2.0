@@ -1,32 +1,30 @@
 package com.epam.indigoeln.core.service.batch;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.validation.ValidationException;
-
+import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoObject;
+import com.epam.indigoeln.core.model.Batch;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
+import com.epam.indigoeln.web.rest.dto.BatchDTO;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 
-import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.core.model.Batch;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
-import com.epam.indigoeln.web.rest.dto.BatchDTO;
-import com.epam.indigoeln.core.security.AuthoritiesConstants;
-import com.epam.indigoeln.core.model.UserPermission;
-import com.epam.indigoeln.core.service.user.UserService;
-import com.epam.indigoeln.web.rest.util.PermissionUtils;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
+import javax.validation.ValidationException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BatchService {
@@ -226,7 +224,7 @@ public class BatchService {
      * @param permission permission to check
      */
     private void checkPermissions(Experiment experiment, String permission) {
-        if (!PermissionUtils.hasPermissions(userService.getUserWithAuthorities(),
+        if (!PermissionUtil.hasPermissions(userService.getUserWithAuthorities(),
                 experiment.getAccessList(), permission)) {
             throw new AccessDeniedException("Current user doesn't have permissions " +
                     "to perform operation for experiment with id = " + experiment.getId());
