@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.validator.constraints.NotBlank;
-
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -14,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -38,6 +38,7 @@ public class ExperimentTemplate implements Serializable, Persistable<String> {
     private Long version;
 
     @NotBlank
+    @Indexed(unique = true)
     private String name;
 
     @CreatedDate
@@ -56,7 +57,7 @@ public class ExperimentTemplate implements Serializable, Persistable<String> {
     @LastModifiedBy
     private User lastModifiedBy;
 
-    @DBRef(lazy = true)
+    @DBRef
     private List<ComponentTemplate> components = new ArrayList<>();
 
     @Override

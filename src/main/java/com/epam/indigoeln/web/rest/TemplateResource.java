@@ -109,7 +109,6 @@ public class TemplateResource {
      *
      * <p>
      * Edit existing Template.
-     * Method enabled for users with "ADMIN" authorities.
      * For correct saving  only <b>name</b>, <b>content(optional)</b> and <b>id</b> params should be specified
      * in the received template DTO.
      * Other parameters will be auto-generated.
@@ -136,7 +135,6 @@ public class TemplateResource {
      *
      * <p>
      * Delete Template.
-     * Method enabled for users with "ADMIN" authorities.
      * Template id should corresponds to existing template item.
      * Template will not be deleted if any Experiments assigned on it
      * </p>
