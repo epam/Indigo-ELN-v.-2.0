@@ -8,9 +8,9 @@ angular.module('indigoeln')
                 $scope.template = result;
             });
         };
-        var unsubscribe = $rootScope.$on('indigoeln:templateUpdate', function (event, result) {
-            $scope.template = result;
-        });
-        $scope.$on('$destroy', unsubscribe);
+        //var unsubscribe = $rootScope.$on('indigoeln:templateUpdate', function (event, result) {
+        //    $scope.template = result;
+        //});
+        //$scope.$on('$destroy', unsubscribe);
 
     });

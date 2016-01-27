@@ -20,67 +20,69 @@
                             <input style="display:none" type="text" name="fakeusernameremembered"/>
                             <input style="display:none" type="password" name="fakepasswordremembered"/>
                             <my-input
-                                    input-label="ID"
-                                    input-name="id"
-                                    input-type="text"
-                                    input-model="user.id"
-                                    input-readonly="true"></my-input>
+                                    my-label="ID"
+                                    my-name="id"
+                                    my-type="text"
+                                    my-model="user.id"
+                                    my-readonly="true"></my-input>
                             <my-input
-                                    input-label="First name"
-                                    input-name="firstName"
-                                    input-type="text"
-                                    input-model="user.firstName"
-                                    validation-obj="editForm.firstName"
-                                    validation-maxlength="50"
+                                    my-label="First name"
+                                    my-name="firstName"
+                                    my-type="text"
+                                    my-model="user.firstName"
+                                    my-validation-obj="editForm.firstName"
+                                    my-validation-maxlength="50"
                                     ></my-input>
 
                             <my-input
-                                    input-label="Login"
-                                    input-name="login"
-                                    input-type="text"
-                                    input-model="user.login"
-                                    validation-obj="editForm.login"
-                                    validation-required="user.id == null"
-                                    validation-maxlength="50"
+                                    my-label="Login"
+                                    my-name="login"
+                                    my-type="text"
+                                    my-model="user.login"
+                                    my-validation-obj="editForm.login"
+                                    my-validation-required="user.id == null"
+                                    my-validation-maxlength="50"
                                     ></my-input>
                             <my-input
-                                    input-label="Email"
-                                    input-name="email"
-                                    input-type="text"
-                                    input-model="user.email"
-                                    validation-obj="editForm.email"
-                                    validation-required="user.email == null"
-                                    validation-maxlength="100"
+                                    my-label="Email"
+                                    my-name="email"
+                                    my-type="text"
+                                    my-model="user.email"
+                                    my-validation-obj="editForm.email"
+                                    my-validation-required="user.email == null"
+                                    my-validation-maxlength="100"
                                     ></my-input>
                         </div>
                         <div class="col-md-6">
                             <my-input
-                                    input-label="Last name"
-                                    input-name="lastName"
-                                    input-type="text"
-                                    input-model="user.lastName"
-                                    validation-obj="editForm.lastName"
-                                    validation-maxlength="50"
+                                    my-label="Last name"
+                                    my-name="lastName"
+                                    my-type="text"
+                                    my-model="user.lastName"
+                                    my-validation-obj="editForm.lastName"
+                                    my-validation-maxlength="50"
                                     ></my-input>
                             <my-input
-                                    input-label="Password"
-                                    input-name="password"
-                                    input-type="password"
-                                    input-model="user.password"
-                                    validation-obj="editForm.password"
-                                    validation-required="user.id == null"
-                                    validation-maxlength="50"
+                                    my-label="Password"
+                                    my-name="password"
+                                    my-type="password"
+                                    my-model="user.password"
+                                    my-validation-obj="editForm.password"
+                                    my-validation-required="user.id == null"
+                                    my-validation-maxlength="50"
                                     ></my-input>
                             <my-select
-                                    select-label="Profiles"
-                                    select-name="authority"
-                                    select-model="user.authorities"
-                                    select-items="authorities"
+                                    my-label="Profiles"
+                                    my-name="authority"
+                                    my-model="user.authorities"
+                                    my-items="authorities"
+                                    my-multiple="true"
                                     ></my-select>
                             <my-checkbox
-                                    checkbox-label="Activated"
-                                    checkbox-model="user.activated"
-                                    checkbox-name="activated"
+                                    my-label="Activated"
+                                    my-model="user.activated"
+                                    my-name="activated"
+                                    my-multiple="true"
                                     ></my-checkbox>
                         </div>
                     </div>
