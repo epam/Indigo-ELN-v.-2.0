@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.Email;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,6 +18,7 @@ import java.util.Set;
  * A user.
  */
 @Document(collection = "user")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
 
     @Id

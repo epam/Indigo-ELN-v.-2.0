@@ -70,7 +70,7 @@ public class ProjectResource {
         Collection<Project> projects = projectService.getAllProjects(user);
         List<ExperimentTreeNodeDTO> result = new ArrayList<>(projects.size());
         for (Project project : projects) {
-            ProjectDTO projectDTO = new ProjectDTO(project);
+            ProjectDTO projectDTO = dtoMapper.convertToDTO(project);
             ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(projectDTO);
             dto.setNodeType("project");
             dto.setHasChildren(notebookService.hasNotebooks(project, user));
@@ -88,7 +88,7 @@ public class ProjectResource {
         log.debug("REST request to get project: {}", id);
         User user = userService.getUserWithAuthorities();
         Project project = projectService.getProjectById(id, user);
-        return ResponseEntity.ok(new ProjectDTO(project));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(project));
     }
 
     /**
@@ -100,9 +100,10 @@ public class ProjectResource {
         log.debug("REST request to create project: {}", projectDTO);
         User user = userService.getUserWithAuthorities();
 
-        Project project = ConverterUtils.convertFromDTO(projectDTO);
+        Project project = dtoMapper.convertFromDTO(projectDTO);
         project = projectService.createProject(project, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId())).body(new ProjectDTO(project));
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId()))
+                .body(dtoMapper.convertToDTO(project));
     }
 
     /**
@@ -114,10 +115,10 @@ public class ProjectResource {
         log.debug("REST request to update project: {} with id: {}", projectDTO, projectDTO.getId());
         User user = userService.getUserWithAuthorities();
 
-        Project project = ConverterUtils.convertFromDTO(projectDTO);
+        Project project = dtoMapper.convertFromDTO(projectDTO);
         project.setId(project.getId());
         project = projectService.updateProject(project, user);
-        return ResponseEntity.ok(new ProjectDTO(project));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(project));
     }
 
     /**
@@ -129,16 +130,5 @@ public class ProjectResource {
         log.debug("REST request to remove project: {}", id);
         projectService.deleteProject(id);
         return ResponseEntity.ok(null);
-    }
-
-    // TODO move
-    @RequestMapping(value = "/uploadfile",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> attachFile(@RequestParam MultipartFile file,
-                                           @RequestParam String entityid,
-                                           @RequestParam String entity) {
-        log.debug("File for project : {}", entityid);
-        return ResponseEntity.ok().headers(HeaderUtil.createAlert("Project", entityid)).build();
     }
 }
