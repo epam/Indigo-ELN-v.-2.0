@@ -1,0 +1,109 @@
+package com.epam.indigoeln.web.rest;
+
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import com.epam.indigoeln.core.service.file.FileService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.FileDTO;
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.epam.indigoeln.web.rest.util.PaginationUtil;
+import com.mongodb.gridfs.GridFSDBFile;
+import com.mongodb.gridfs.GridFSFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping(ExperimentFileResource.URL_MAPPING)
+public class ExperimentFileResource {
+
+    static final String URL_MAPPING = "/api/experiment_files";
+
+    private final Logger log = LoggerFactory.getLogger(ExperimentFileResource.class);
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * GET  /experiment_files?experimentId -> Returns metadata for all files of specified experiment<br/>
+     * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
+     * Example: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
+     * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
+     * By default: <b>page</b> = 0, <b>size</b> = 20 and no <b>sort</b><br/>
+     * Available <b>sort</b> options: <b>filename</b>, <b>contentType</b>, <b>length</b>, <b>uploadDate</b>
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    @Secured(AuthoritiesConstants.EXPERIMENT_READER)
+    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam String experimentId,
+                                                     Pageable pageable)
+            throws URISyntaxException {
+        log.debug("REST request to get files's metadata for experiment: {}", experimentId);
+        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId, pageable);
+        String urlParameter = "experimentId=" + experimentId;
+
+        List<FileDTO> fileDTOs = page.getContent().stream().map(FileDTO::new).collect(Collectors.toList());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
+        return new ResponseEntity<>(fileDTOs, headers, HttpStatus.OK);
+
+    }
+
+    /**
+     * GET  /experiment_files/:id -> Returns file with specified id
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @Secured(AuthoritiesConstants.EXPERIMENT_READER)
+    public ResponseEntity<InputStreamResource> getFile(@PathVariable("id") String id) {
+        log.debug("REST request to get experiment file: {}", id);
+        GridFSDBFile gridFSDBFile = fileService.getFileById(id);
+
+        HttpHeaders headers = HeaderUtil.createAttachmentDescription(gridFSDBFile.getFilename(),
+                gridFSDBFile.getContentType(), gridFSDBFile.getLength());
+
+        InputStreamResource inputStreamResource = new InputStreamResource(gridFSDBFile.getInputStream());
+        return new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+    }
+
+    /**
+     * POST  /experiment_files?experimentId -> Saves file for specified experiment
+     */
+    @RequestMapping(method = RequestMethod.POST)
+    @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
+    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String experimentId)
+            throws URISyntaxException, IOException {
+        log.debug("REST request to save file for experiment: {}", experimentId);
+        User user = userService.getUserWithAuthorities();
+        GridFSFile gridFSFile = fileService.saveFileForExperiment(experimentId, file.getInputStream(),
+                file.getOriginalFilename(), file.getContentType(), user);
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
+                .body(new FileDTO(gridFSFile));
+    }
+
+    /**
+     * DELETE  /experiment_files/:id -> Removes file with specified id
+     */
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @Secured(AuthoritiesConstants.EXPERIMENT_CREATOR)
+    public ResponseEntity<?> deleteFile(@PathVariable("id") String id) {
+        log.debug("REST request to remove experiment file: {}", id);
+        fileService.deleteExperimentFile(id);
+        return ResponseEntity.ok(null);
+    }
+}

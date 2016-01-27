@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 /**
@@ -66,5 +68,19 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorDTO processMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
         return new ErrorDTO(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, exception.getMessage());
+    }
+
+    @ExceptionHandler(URISyntaxException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO processURISyntaxException(URISyntaxException exception) {
+        return new ErrorDTO(ErrorConstants.ERR_URI_SYNTAX, exception.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO processIOException(IOException exception) {
+        return new ErrorDTO(ErrorConstants.ERR_IO, exception.getMessage());
     }
 }

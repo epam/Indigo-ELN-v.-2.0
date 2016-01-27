@@ -8,7 +8,7 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
-import com.epam.indigoeln.web.rest.util.ConverterUtils;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -40,6 +40,9 @@ public class ExperimentResource {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    CustomDtoMapper dtoMapper;
 
     /**
      * GET  /experiments -> Returns all experiments, which author is current User, according to User permissions<br/>
@@ -79,7 +82,7 @@ public class ExperimentResource {
 
             List<ExperimentTreeNodeDTO> result = new ArrayList<>(experiments.size());
             for (Experiment experiment : experiments) {
-                ExperimentDTO experimentDTO = new ExperimentDTO(experiment);
+                ExperimentDTO experimentDTO = dtoMapper.convertToDTO(experiment);
                 ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(experimentDTO);
                 dto.setNodeType("experiment");
                 result.add(dto);
@@ -97,7 +100,7 @@ public class ExperimentResource {
         log.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = experimentService.getExperiment(id, user);
-        return ResponseEntity.ok(new ExperimentDTO(experiment));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(experiment));
     }
 
     /**
@@ -110,9 +113,10 @@ public class ExperimentResource {
                                      @RequestParam(value = "notebookId") String notebookId) throws URISyntaxException {
         log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
-        Experiment experiment = ConverterUtils.convertFromDTO(experimentDTO);
+        Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
         experiment = experimentService.createExperiment(experiment, notebookId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + experiment.getId())).body(new ExperimentDTO(experiment));
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + experiment.getId()))
+                .body(dtoMapper.convertToDTO(experiment));
     }
 
     /**
@@ -124,10 +128,10 @@ public class ExperimentResource {
                                                           @RequestBody ExperimentDTO experimentDTO) {
         log.debug("REST request to update experiment: {} with id: {}", experimentDTO, id);
         User user = userService.getUserWithAuthorities();
-        Experiment experiment = ConverterUtils.convertFromDTO(experimentDTO);
+        Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
         experiment.setId(id);
         experiment = experimentService.updateExperiment(experiment, user);
-        return ResponseEntity.ok(new ExperimentDTO(experiment));
+        return ResponseEntity.ok(dtoMapper.convertToDTO(experiment));
     }
 
     /**
