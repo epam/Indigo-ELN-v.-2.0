@@ -1,8 +1,16 @@
 <div class="panel panel-info templates">
     <div class="panel-heading">Create or edit a Template</div>
     <div class="panel-body">
+        <form class="form-horizontal">
+            <div class="row">
+                <div class="col-xs-12">
+                    <my-input my-label="Name" my-model="template.name"></my-input>
+                </div>
+            </div>
+        </form>
+        <br/>
         <div class="row">
-            <div class="col-xs-6">
+            <div class="col-xs-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Template Builder</h3>
@@ -12,13 +20,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-6">
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Batches</h3>
                     </div>
                     <div class="panel-body">
-                        <div fb-components></div>
+                        <div fb-components class="batches"></div>
                     </div>
                 </div>
             </div>
@@ -28,7 +38,7 @@
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
-        <button type="submit" class="btn btn-primary">
+        <button ng-click="save()" class="btn btn-primary">
             <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
         </button>
     </div>

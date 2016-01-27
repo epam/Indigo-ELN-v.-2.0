@@ -3,7 +3,7 @@
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, entity, Template, $state, $builder, $validator) {
 
-        $scope.template = entity;
+        $scope.template = entity || {};
         $scope.load = function (id) {
             Template.get({id: id}, function (result) {
                 $scope.template = result;
@@ -31,7 +31,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
         //$builder.addFormObject('default', {
         //    component: 'name'
         //});
-        $scope.form = $builder.forms['default'];
+        $scope.template.templateContent = $builder.forms['default'];
         $scope.submit = function () {
             return $validator.validate($scope, 'default').success(function () {
                 return console.log('success');
