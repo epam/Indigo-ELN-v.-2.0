@@ -18,6 +18,6 @@ public final class MappingAdvancedUtil {
     }
 
     public static Set<Authority> convertAuthorities(Set<String> authorities) {
-        return authorities.stream().map(s -> new Authority(s)).collect(Collectors.toSet());
+        return authorities.stream().map(Authority::new).collect(Collectors.toSet());
     }
 }
