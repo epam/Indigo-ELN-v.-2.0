@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $rootScope, $state, $uibModal, Project, User, data) {
+    .controller('ProjectDetailController', function($scope, $rootScope, $state, $uibModal, Project, User, data, $cookies) {
 
         $scope.project = data;
         $scope.users = User.query();
@@ -13,16 +13,19 @@ angular.module('indigoeln')
         var editor = new Simditor({
             textarea: $('#editor'),
             toolbar: toolbar,
-            placeholder: ''
+            placeholder: '',
+            pasteImage: true,
+            defaultImage: 'assets/images/image.gif'
+            //fileKey: 'upload_file',
+            //upload: {
+            //    url: '/api/project_files/123abc',
+            //    params: {'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')}
+            //}
         });
-        var preview = $('#preview');
-        if (preview.length > 0) {
-            editor.on('valuechanged', function(e) {
-                preview.html(editor.getValue);
-            });
-        }
 
-        //$scope.editorValue = editor.getValue;
+        if ($scope.project.description) {
+            editor.setValue($scope.project.description);
+        }
 
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
@@ -46,13 +49,19 @@ angular.module('indigoeln')
             $scope.isSaving = true;
             // prepare tags and keywords for Server
             $scope.project.tags = [];
-            angular.forEach($scope.tags, function(tag, key) {
-                $scope.project.tags.push(tag.text);
-            });
+            if ($scope.tags) {
+                angular.forEach($scope.tags, function(tag, key) {
+                    $scope.project.tags.push(tag.text);
+                });
+            }
             $scope.project.keywords = [];
-            angular.forEach($scope.keywords.split(','), function(ref) {
-                $scope.project.keywords.push(ref.trim());
-            });
+            if ($scope.keywords) {
+                angular.forEach($scope.keywords.split(','), function(ref) {
+                    $scope.project.keywords.push(ref.trim());
+                });
+            }
+
+            $scope.project.description = editor.getValue();
             Project.update($scope.project, onSaveSuccess, onSaveError);
         };
 

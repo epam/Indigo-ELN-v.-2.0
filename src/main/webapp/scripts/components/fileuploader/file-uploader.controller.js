@@ -1,9 +1,8 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('FileUploaderController', function($scope, FileUploader, $cookies, $http) {
+    .controller('FileUploaderController', function($scope, FileUploader, $cookies) {
 
-        var entity = $scope.entity;
         var entityid = $scope.entityid;
 
         var uploader = $scope.uploader = new FileUploader({
