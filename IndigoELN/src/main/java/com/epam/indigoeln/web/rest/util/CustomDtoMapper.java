@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Authority;
 import com.epam.indigoeln.core.model.Batch;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Template;
