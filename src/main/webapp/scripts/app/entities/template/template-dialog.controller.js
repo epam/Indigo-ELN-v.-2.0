@@ -4,6 +4,12 @@ angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, entity, Template, $state, $builder, $validator) {
 
         $scope.template = entity || {};
+        $builder.forms['default'].length = 0;
+        _.each($scope.template.templateContent, function (item) {
+            if (item) {
+                $builder.addFormObject("default", item);
+            }
+        });
         $scope.load = function (id) {
             Template.get({id: id}, function (result) {
                 $scope.template = result;
@@ -21,6 +27,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         $scope.save = function () {
             $scope.isSaving = true;
+            $scope.template.templateContent = $builder.forms['default'];
             if ($scope.template.id != null) {
                 Template.update($scope.template, onSaveSuccess, onSaveError);
             } else {
@@ -28,10 +35,6 @@ angular.module('indigoeln').controller('TemplateDialogController',
             }
         };
 
-        //$builder.addFormObject('default', {
-        //    component: 'name'
-        //});
-        $scope.template.templateContent = $builder.forms['default'];
         $scope.submit = function () {
             return $validator.validate($scope, 'default').success(function () {
                 return console.log('success');

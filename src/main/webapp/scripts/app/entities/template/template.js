@@ -33,7 +33,7 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     entity: ['$stateParams', 'Template', function ($stateParams, Template) {
-                        return Template.get({id: $stateParams.id});
+                        return Template.get({id: $stateParams.id}).$promise;
                     }]
                 }
             })
@@ -72,7 +72,7 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     entity: function (Template, $stateParams) {
-                        return Template.get({id: $stateParams.id});
+                        return Template.get({id: $stateParams.id}).$promise;
                     }
                 }
             })
