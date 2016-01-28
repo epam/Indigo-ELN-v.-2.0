@@ -2,17 +2,18 @@ package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Map;
 
 import org.json.JSONObject;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
-import com.epam.indigoeln.core.util.JSONObjectDeserializer;
-import com.epam.indigoeln.core.util.JSONObjectSerializer;
+import com.epam.indigoeln.web.rest.util.JsonUtil;
 
 public class TemplateDTO implements Serializable {
 
@@ -32,9 +33,7 @@ public class TemplateDTO implements Serializable {
     private String createdBy;
     private String lastModifiedBy;
 
-    @JsonSerialize(using = JSONObjectSerializer.class)
-    @JsonDeserialize(using = JSONObjectDeserializer.class)
-    private JSONObject templateContent;
+    private Map templateContent;
 
     public TemplateDTO() {
     }
@@ -46,7 +45,7 @@ public class TemplateDTO implements Serializable {
                 template.getLastEditDate(),
                 template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
                 template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-                template.getTemplateContent() != null ?  new JSONObject(template.getTemplateContent().toString()) : null);
+                template.getTemplateContent() != null ? template.getTemplateContent().toMap() : null);
     }
 
     public TemplateDTO(String id,
@@ -55,7 +54,7 @@ public class TemplateDTO implements Serializable {
                        LocalDate lastEditDate,
                        String createdBy,
                        String lastModifiedBy,
-                       JSONObject templateContent) {
+                       Map templateContent) {
         this.id = id;
         this.name = name;
         this.creationDate = creationDate;
@@ -89,8 +88,13 @@ public class TemplateDTO implements Serializable {
         return lastModifiedBy;
     }
 
-    public JSONObject getTemplateContent() {
+    public Map getTemplateContent() {
         return templateContent;
+    }
+
+    @JsonIgnore
+    public JSONObject getTemplateContentAsJson() {
+        return templateContent != null ? JsonUtil.mapToJson(templateContent) : null;
     }
 
     public void setId(String id) {
@@ -101,7 +105,13 @@ public class TemplateDTO implements Serializable {
         this.name = name;
     }
 
-    public void setTemplateContent(JSONObject templateContent) {
-        this.templateContent = templateContent;
+    public void setTemplateContent(Map templateContentMap) {
+        this.templateContent = templateContentMap;
     }
+
+    @JsonIgnore
+    public void setTemplateContentFromJson(JSONObject templateContent) {
+        this.templateContent = templateContent != null ? JsonUtil.jsonToMap(templateContent) : null;
+    }
+
 }

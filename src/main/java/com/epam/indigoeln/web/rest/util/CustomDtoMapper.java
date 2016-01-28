@@ -15,14 +15,9 @@ import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
-import org.json.JSONObject;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Custom MapStruct mapper for converting DTO/Model objects
@@ -30,10 +25,12 @@ import java.util.stream.Collectors;
 @Mapper
 public interface CustomDtoMapper {
 
-    @Mapping(target = "authorities", expression = "java(MappingAdvancedUtil.convertAuthorities(userDTO.getAuthorities()))")
+    String AUTHORITIES_CONVERTER_EXPR = "java(userDTO.getAuthorities().stream().map(com.epam.indigoeln.core.model.Authority::new).collect(java.util.stream.Collectors.toSet()))";
+
+    @Mapping(target = "authorities", expression = AUTHORITIES_CONVERTER_EXPR)
     User convertFromDTO(UserDTO userDTO);
 
-    @Mapping(target = "authorities", expression = "java(MappingAdvancedUtil.convertAuthorities(userDTO.getAuthorities()))")
+    @Mapping(target = "authorities", expression = AUTHORITIES_CONVERTER_EXPR)
     User convertFromDTO(ManagedUserDTO userDTO);
 
     Project convertFromDTO(ProjectDTO dto);
@@ -50,7 +47,7 @@ public interface CustomDtoMapper {
 
     Batch convertFromDTO(BatchDTO batchDTO);
 
-    @Mapping(target = "templateContent", expression = "java(MappingAdvancedUtil.convertJsonToDbObject(templateDTO.getTemplateContent()))")
+    @Mapping(target = "templateContent", expression = "java(new com.mongodb.BasicDBObject(templateDTO.getTemplateContentMap()))")
     Template convertFromDTO(TemplateDTO templateDTO);
 
 }
