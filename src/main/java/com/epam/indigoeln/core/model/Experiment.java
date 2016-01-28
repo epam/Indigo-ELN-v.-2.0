@@ -40,7 +40,6 @@ public class Experiment extends ExperimentShort {
     private LocalDate lastEditDate;
 
     @LastModifiedBy
-    //TODO may be need to use @DBRef
     private User lastModifiedBy;
 
     private String comments;
