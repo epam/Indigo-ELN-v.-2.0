@@ -30,10 +30,10 @@ import java.util.stream.Collectors;
 @Mapper
 public interface CustomDtoMapper {
 
-    @Mapping(target = "authorities", expression = "java(convertAuthorities(userDTO.getAuthorities()))")
+    @Mapping(target = "authorities", expression = "java(MappingAdvancedUtil.convertAuthorities(userDTO.getAuthorities()))")
     User convertFromDTO(UserDTO userDTO);
 
-    @Mapping(target = "authorities", expression = "java(convertAuthorities(userDTO.getAuthorities()))")
+    @Mapping(target = "authorities", expression = "java(MappingAdvancedUtil.convertAuthorities(userDTO.getAuthorities()))")
     User convertFromDTO(ManagedUserDTO userDTO);
 
     Project convertFromDTO(ProjectDTO dto);
@@ -50,15 +50,7 @@ public interface CustomDtoMapper {
 
     Batch convertFromDTO(BatchDTO batchDTO);
 
-    @Mapping(target = "templateContent", expression = "java(convertJsonToDbObject(templateDTO.getTemplateContent()))")
+    @Mapping(target = "templateContent", expression = "java(MappingAdvancedUtil.convertJsonToDbObject(templateDTO.getTemplateContent()))")
     Template convertFromDTO(TemplateDTO templateDTO);
 
-
-    default BasicDBObject convertJsonToDbObject(JSONObject json) {
-        return json != null ? (BasicDBObject) JSON.parse(json.toString()) : null;
-    }
-
-    default Set<Authority> convertAuthorities(Set<String> authorities) {
-        return authorities.stream().map(s -> new Authority(s)).collect(Collectors.toSet());
-    }
 }
