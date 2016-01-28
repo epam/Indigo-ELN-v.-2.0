@@ -24,7 +24,7 @@ angular.module('indigoeln').controller('NewProjectDialogController', function ($
                 var userPermission = {
                     userId: element.id, // TODO must be userId
                     // TODO must be configurable in UI
-                    permissions: 'RERSCSUE' // permissions for OWNER (Read Entity, Read Sub-Entity, Create Sub-Entity, Update Entity)
+                    permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY'] // permissions for USER (Read Entity, Read Sub-Entity, Create Sub-Entity)
                 };
                 $scope.project.accessList.push(userPermission);
             });
