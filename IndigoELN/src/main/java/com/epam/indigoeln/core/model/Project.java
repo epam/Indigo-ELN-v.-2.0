@@ -124,6 +124,14 @@ public class Project {
         this.fileIds = fileIds;
     }
 
+//    public String getEditorMarkup() {
+//        return editorMarkup;
+//    }
+//
+//    public void setEditorMarkup(String editorMarkup) {
+//        this.editorMarkup = editorMarkup;
+//    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
