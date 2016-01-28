@@ -47,7 +47,7 @@ public interface CustomDtoMapper {
 
     Batch convertFromDTO(BatchDTO batchDTO);
 
-    @Mapping(target = "templateContent", expression = "java(new com.mongodb.BasicDBObject(templateDTO.getTemplateContentMap()))")
+    @Mapping(target = "templateContent", expression = "java(new com.mongodb.BasicDBObject(templateDTO.getTemplateContent()))")
     Template convertFromDTO(TemplateDTO templateDTO);
 
 }
