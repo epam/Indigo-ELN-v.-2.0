@@ -30,7 +30,7 @@
 .userList_li {
     list-style: none;
     background-color: rgba(0, 0, 0, 0.05);
-    padding: 10px 10px 10px 10px;
+    padding: 1px 1px 1px 10px;
     border: 1px solid #CCC;
     box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.5);
     margin-bottom: 5px;
