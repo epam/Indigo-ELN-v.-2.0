@@ -150,6 +150,6 @@
     padding: 0 !important;
 }
 
-.batches .batch > .panel-body {
+.components .component > .panel-body {
     display: none;
 }

@@ -1,26 +1,12 @@
 <div class="panel panel-info templates">
     <div class="panel-heading">
-        <span>Template</span> {{template.id}}
+        <span>Template</span> {{template.name}}
     </div>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Field</th>
-            <th>Value</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <span>Name</span>
-            </td>
-            <td>
-                <span class="form-control-static">{{template.name}}</span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <div ng-model="formData" fb-form="default"></div>
+        </form>
+    </div>
     <div class="panel-footer">
         <button type="submit"
                 onclick="window.history.back()"
