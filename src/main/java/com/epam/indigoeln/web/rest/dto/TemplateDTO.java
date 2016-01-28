@@ -2,13 +2,12 @@ package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Map;
-
-import org.json.JSONObject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import org.json.JSONArray;
 
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
@@ -33,7 +32,7 @@ public class TemplateDTO implements Serializable {
     private String createdBy;
     private String lastModifiedBy;
 
-    private Map templateContent;
+    private Object[] templateContent;
 
     public TemplateDTO() {
     }
@@ -45,7 +44,7 @@ public class TemplateDTO implements Serializable {
                 template.getLastEditDate(),
                 template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
                 template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-                template.getTemplateContent() != null ? template.getTemplateContent().toMap() : null);
+                template.getTemplateContent() != null ? template.getTemplateContent().toArray() : null);
     }
 
     public TemplateDTO(String id,
@@ -54,7 +53,7 @@ public class TemplateDTO implements Serializable {
                        LocalDate lastEditDate,
                        String createdBy,
                        String lastModifiedBy,
-                       Map templateContent) {
+                       Object[] templateContent) {
         this.id = id;
         this.name = name;
         this.creationDate = creationDate;
@@ -88,13 +87,13 @@ public class TemplateDTO implements Serializable {
         return lastModifiedBy;
     }
 
-    public Map getTemplateContent() {
+    public Object[] getTemplateContent() {
         return templateContent;
     }
 
     @JsonIgnore
-    public JSONObject getTemplateContentAsJson() {
-        return templateContent != null ? JsonUtil.mapToJson(templateContent) : null;
+    public JSONArray getTemplateContentAsJson() {
+        return templateContent != null ? JsonUtil.arrayToJson(templateContent) : null;
     }
 
     public void setId(String id) {
@@ -105,13 +104,13 @@ public class TemplateDTO implements Serializable {
         this.name = name;
     }
 
-    public void setTemplateContent(Map templateContentMap) {
+    public void setTemplateContent(Object[] templateContentMap) {
         this.templateContent = templateContentMap;
     }
 
     @JsonIgnore
-    public void setTemplateContentFromJson(JSONObject templateContent) {
-        this.templateContent = templateContent != null ? JsonUtil.jsonToMap(templateContent) : null;
+    public void setTemplateContentFromJson(JSONArray templateContent) {
+        this.templateContent = templateContent != null ? JsonUtil.jsonToArray(templateContent) : null;
     }
 
 }

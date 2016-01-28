@@ -7,12 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.mongodb.BasicDBObject;
-
 import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import com.epam.indigoeln.web.rest.util.JsonUtil;
 
 /**
  * Service class for managing Templates
@@ -49,7 +48,7 @@ public class TemplateService {
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = templateRepository.findOne(templateDTO.getId());
         template.setName(templateDTO.getName());
-        template.setTemplateContent(new BasicDBObject(templateDTO.getTemplateContent()));
+        template.setTemplateContent(JsonUtil.basicDBListFromArray(templateDTO.getTemplateContent()));
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }

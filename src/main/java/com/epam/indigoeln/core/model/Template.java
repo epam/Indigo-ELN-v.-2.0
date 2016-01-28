@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.google.common.base.Objects;
-import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBList;
+
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -59,7 +60,7 @@ public class Template implements Serializable, Persistable<String> {
     private User lastModifiedBy;
 
     @Field("content")
-    private BasicDBObject templateContent;
+    private BasicDBList templateContent;
 
     @Override
     public boolean isNew() {
@@ -94,7 +95,7 @@ public class Template implements Serializable, Persistable<String> {
         return version;
     }
 
-    public BasicDBObject getTemplateContent() {
+    public BasicDBList getTemplateContent() {
         return templateContent;
     }
 
@@ -106,7 +107,7 @@ public class Template implements Serializable, Persistable<String> {
         this.name = name;
     }
 
-    public void setTemplateContent(BasicDBObject templateContent) {
+    public void setTemplateContent(BasicDBList templateContent) {
         this.templateContent = templateContent;
     }
 
