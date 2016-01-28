@@ -3,15 +3,13 @@
 </div>
 <div class="modal-body">
     <label for="projectName">Project name</label>
-    <input id="projectName" class="form-control" ng-model="project.name">
-    <label for="userFilter">Filter system users</label>
-    <input id="userFilter" type="text" ng-model="userFilter"/>
-    <div id="userBlock" style="display:flex;">
+    <input id="projectName" class="form-control" ng-model="project.name" ng-focus="canSort = false" ng-blur="canSort = true">
+    <div key-logger id="userBlock" style="display:flex;">
         <div id="userBlockSource" style="float:left;" class="user-block">
-            <label for="userBlockSourceList">System</label>
+            <label for="userBlockSourceList">System users</label>
             <ul id="userBlockSourceList" class="userList_ul">
                 <li class="userList_li" ng-repeat="user in sourceUsers | filter:userFilter"
-                    ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
+                    ng-click="selectUser($event, user)" ng-class="{'user-selected': selectedUsers.indexOf(user) > -1}">
                     {{user.login}}<br/>
                 </li>
             </ul>
@@ -26,10 +24,10 @@
             <button class="btn btn-primary" style="margin-top: 20px;" type="button" ng-click="allToSource()">&lt;&lt;</button>
         </div>
         <div id="userBlockDest" class="user-block" style="float:left;">
-            <label for="userBlockDestList">Project</label>
+            <label for="userBlockDestList">Project users</label>
             <ul id="userBlockDestList" class="userList_ul">
                 <li class="userList_li" ng-repeat="user in destUsers"
-                    ng-click="selectUser(user)" ng-class="{'user-selected': user == selectedUser}">
+                    ng-click="selectUser($event, user)" ng-class="{'user-selected': selectedUsers.indexOf(user) > -1}">
                     {{user.login}}<br/>
                 </li>
             </ul>
