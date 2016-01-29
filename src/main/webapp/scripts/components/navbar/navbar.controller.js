@@ -27,7 +27,7 @@ angular
             });
             modalInstance.result.then(function (notebookName) {
                 $rootScope.$broadcast('created-notebook', {notebookName: notebookName});
-                $state.go('notebook.new', {notebookName: notebookName, projectId: '56aa35cb395783ba69ad87ac'});
+                $state.go('notebook.new', {notebookName: notebookName, projectId: 'unknown_project'});
             }, function () {
             });
         };
