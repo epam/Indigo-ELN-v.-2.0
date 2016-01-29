@@ -18,4 +18,13 @@ angular.module('indigoeln')
                 });
             }
         };
+    }).directive('innerMenuToggleButton', function () {
+    return {
+        restrict: 'C',
+        link: function (scope, element, attrs) {
+            element.on('click', function () {
+                $('.main-container').toggleClass('hide-menu');
+            })
+        }
+    };
     });
