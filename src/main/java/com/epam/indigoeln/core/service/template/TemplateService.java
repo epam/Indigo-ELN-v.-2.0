@@ -11,7 +11,7 @@ import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.epam.indigoeln.web.rest.util.JsonUtil;
+import com.epam.indigoeln.core.util.JsonUtil;
 
 /**
  * Service class for managing Templates
