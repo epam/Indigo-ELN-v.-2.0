@@ -1,4 +1,4 @@
-package com.epam.indigoeln.web.rest.util;
+package com.epam.indigoeln.core.util;
 
 import java.io.IOException;
 import java.util.Arrays;
