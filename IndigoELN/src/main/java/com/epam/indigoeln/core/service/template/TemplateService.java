@@ -48,7 +48,7 @@ public class TemplateService {
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = templateRepository.findOne(templateDTO.getId());
         template.setName(templateDTO.getName());
-        template.setTemplateContent(JsonUtil.basicDBListFromArray(templateDTO.getTemplateContent()));
+        template.setTemplateContent(JsonUtil.basicDBListFromJsonArray(templateDTO.getTemplateContent()));
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }

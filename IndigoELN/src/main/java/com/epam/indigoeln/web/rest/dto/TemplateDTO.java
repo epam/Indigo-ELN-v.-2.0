@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -32,6 +33,7 @@ public class TemplateDTO implements Serializable {
     private String createdBy;
     private String lastModifiedBy;
 
+    @JsonProperty("templateContent")
     private Object[] templateContent;
 
     public TemplateDTO() {
@@ -87,15 +89,6 @@ public class TemplateDTO implements Serializable {
         return lastModifiedBy;
     }
 
-    public Object[] getTemplateContent() {
-        return templateContent;
-    }
-
-    @JsonIgnore
-    public JSONArray getTemplateContentAsJson() {
-        return templateContent != null ? JsonUtil.arrayToJson(templateContent) : null;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -104,12 +97,13 @@ public class TemplateDTO implements Serializable {
         this.name = name;
     }
 
-    public void setTemplateContent(Object[] templateContentMap) {
-        this.templateContent = templateContentMap;
+    @JsonIgnore
+    public JSONArray getTemplateContent() {
+        return templateContent != null ? new JSONArray(templateContent) : null;
     }
 
     @JsonIgnore
-    public void setTemplateContentFromJson(JSONArray templateContent) {
+    public void setTemplateContent(JSONArray templateContent) {
         this.templateContent = templateContent != null ? JsonUtil.jsonToArray(templateContent) : null;
     }
 

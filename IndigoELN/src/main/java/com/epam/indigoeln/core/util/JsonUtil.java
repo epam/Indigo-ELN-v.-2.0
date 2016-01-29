@@ -17,14 +17,11 @@ public final class JsonUtil {
 
     private JsonUtil() {}
 
-    public static BasicDBList basicDBListFromArray(Object[] array) {
-        BasicDBList result = new BasicDBList();
-        result.addAll(Arrays.asList(array));
-        return result;
-    }
 
-    public static JSONArray arrayToJson(Object[] array) {
-        return new JSONArray(array);
+    public static BasicDBList basicDBListFromJsonArray(JSONArray jsonArray) {
+        BasicDBList result = new BasicDBList();
+        result.addAll(Arrays.asList(jsonToArray(jsonArray)));
+        return result;
     }
 
     public static Object[] jsonToArray(JSONArray array) {

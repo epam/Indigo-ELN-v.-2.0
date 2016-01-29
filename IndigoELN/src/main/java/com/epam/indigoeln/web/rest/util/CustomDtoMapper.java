@@ -46,7 +46,7 @@ public interface CustomDtoMapper {
 
     Batch convertFromDTO(BatchDTO batchDTO);
 
-    @Mapping(target = "templateContent", expression = "java(JsonUtil.basicDBListFromArray(templateDTO.getTemplateContent()))")
+    @Mapping(target = "templateContent", expression = "java(com.epam.indigoeln.core.util.JsonUtil.basicDBListFromJsonArray(templateDTO.getTemplateContent()))")
     Template convertFromDTO(TemplateDTO templateDTO);
 
 }
