@@ -28,11 +28,8 @@
 </head>
 <body>
 
-<div class="main-container">
-    <div ui-view="navbar" ng-cloak="" class="main-container__head"></div>
-    <div ui-view="sidebar" ng-cloak="" class="main-container__sitebar unit-navigation-page"></div>
-    <div ui-view="content" ng-cloak="" class="main-container__content-page"></div>
-</div>
+<div ui-view="app_page" ng-cloak="" class="main-container"></div>
+
 <!-- build:js scripts/vendor.js -->
 <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
 <!-- bower:js -->

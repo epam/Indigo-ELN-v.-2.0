@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/project/{id}',
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/project/project-detail.html',
                         controller: 'ProjectDetailController'
                     }

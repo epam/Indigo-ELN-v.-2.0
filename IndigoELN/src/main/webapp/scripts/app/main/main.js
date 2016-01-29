@@ -10,7 +10,7 @@ angular.module('indigoeln')
                     authorities: []
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/main/main.html',
                         controller: 'MainController'
                     }

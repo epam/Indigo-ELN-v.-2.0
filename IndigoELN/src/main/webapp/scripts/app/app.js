@@ -49,12 +49,11 @@ angular.module('indigoeln',
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
 
         $urlRouterProvider.otherwise('/');
-        $stateProvider.state('navbar', {
-            'abstract': true,
+        $stateProvider.state('app_page', {
+            abstract: true,
             views: {
-                'navbar@': {
-                    templateUrl: 'scripts/components/navbar/navbar.html',
-                    controller: 'NavbarController'
+                'app_page@': {
+                    templateUrl: 'scripts/components/app_page/app_page.html'
                 }
             },
             resolve: {
@@ -64,11 +63,20 @@ angular.module('indigoeln',
                     }
                 ]
             }
+        }).state('navbar', {
+            abstract: true,
+            parent: 'app_page',
+            views: {
+                'navbar@app_page': {
+                    templateUrl: 'scripts/components/navbar/navbar.html',
+                    controller: 'NavbarController'
+                }
+            }
         }).state('sidebar', {
-            'abstract': true,
+            abstract: true,
             parent: 'navbar',
             views: {
-                'sidebar@': {
+                'sidebar@app_page': {
                     templateUrl: 'scripts/components/sidebar/sidebar.html',
                     controller: 'SidebarController'
                 }
@@ -78,4 +86,3 @@ angular.module('indigoeln',
         $httpProvider.interceptors.push('notificationInterceptor');
 
     });
-        

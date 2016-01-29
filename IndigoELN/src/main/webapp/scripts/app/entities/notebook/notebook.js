@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/notebook',
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',
                         controller: 'NotebookDetailController'
                     }
@@ -25,7 +25,7 @@ angular.module('indigoeln')
                     notebookName: ''
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/new/new-notebook.html',
                         controller: 'NewNotebookController'
                     }

@@ -11,7 +11,7 @@ angular.module('indigoeln')
                     pageTitle: 'Templates'
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/template/templates.html',
                         controller: 'TemplateController'
                     }
@@ -26,7 +26,7 @@ angular.module('indigoeln')
                     pageTitle: 'Template'
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/template/template-detail.html',
                         controller: 'TemplateDetailController'
                     }
@@ -44,7 +44,7 @@ angular.module('indigoeln')
                     authorities: ['ROLE_USER'],
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/template/template-dialog.html',
                         controller: 'TemplateDialogController'
                     }
@@ -65,7 +65,7 @@ angular.module('indigoeln')
                     authorities: ['ROLE_USER'],
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/template/template-dialog.html',
                         controller: 'TemplateDialogController'
                     }

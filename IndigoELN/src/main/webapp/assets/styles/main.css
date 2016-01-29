@@ -127,7 +127,7 @@
     animation: shake 0.7s;
 }
 
-.main-container__sitebar ul .ng-enter {
+.main-container__sidebar ul .ng-enter {
     animation: fadeInLeft 0.5s;
 }
 

@@ -4,7 +4,6 @@ angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
             .state('account', {
-                abstract: true,
-                parent: 'sidebar'
+                abstract: true
             });
     });

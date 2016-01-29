@@ -11,7 +11,7 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/admin/user-management/user-management.html',
                         controller: 'UserManagementController'
                     }
