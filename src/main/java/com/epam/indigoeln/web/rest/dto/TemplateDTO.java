@@ -22,15 +22,20 @@ public class TemplateDTO implements Serializable {
     private String id;
     private String name;
 
+    @JsonProperty("creationDate")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
 
+    @JsonProperty("lastEditDate")
     @JsonSerialize(using = LocalDateSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate lastEditDate;
 
+    @JsonProperty("createdBy")
     private String createdBy;
+
+    @JsonProperty("lastModifiedBy")
     private String lastModifiedBy;
 
     @JsonProperty("templateContent")
@@ -40,30 +45,15 @@ public class TemplateDTO implements Serializable {
     }
 
     public TemplateDTO(Template template) {
-        this(template.getId(),
-             template.getName(),
-             template.getCreationDate(),
-             template.getLastEditDate(),
-             template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
-             template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-             template.getTemplateContent() != null ? template.getTemplateContent().toArray() : null);
+        this.id              = template.getId();
+        this.name            = template.getName();
+        this.creationDate    = template.getCreationDate();
+        this.lastEditDate    = template.getLastEditDate();
+        this.createdBy       = template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null;
+        this.lastModifiedBy  = template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null;
+        this.templateContent = template.getTemplateContent() != null ? template.getTemplateContent().toArray() : null;
     }
 
-    public TemplateDTO(String id,
-                       String name,
-                       LocalDate creationDate,
-                       LocalDate lastEditDate,
-                       String createdBy,
-                       String lastModifiedBy,
-                       Object[] templateContent) {
-        this.id = id;
-        this.name = name;
-        this.creationDate = creationDate;
-        this.lastEditDate = lastEditDate;
-        this.createdBy = createdBy;
-        this.lastModifiedBy = lastModifiedBy;
-        this.templateContent = templateContent;
-    }
 
     public String getId() {
         return id;
@@ -73,20 +63,9 @@ public class TemplateDTO implements Serializable {
         return name;
     }
 
-    public LocalDate getCreationDate() {
-        return creationDate;
-    }
-
-    public LocalDate getLastEditDate() {
-        return lastEditDate;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
+    @JsonIgnore
+    public JSONArray getTemplateContent() {
+        return templateContent != null ? new JSONArray(templateContent) : null;
     }
 
     public void setId(String id) {
@@ -95,11 +74,6 @@ public class TemplateDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @JsonIgnore
-    public JSONArray getTemplateContent() {
-        return templateContent != null ? new JSONArray(templateContent) : null;
     }
 
     @JsonIgnore

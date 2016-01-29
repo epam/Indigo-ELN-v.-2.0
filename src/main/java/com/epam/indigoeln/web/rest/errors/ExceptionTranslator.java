@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.ValidationException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -37,6 +40,22 @@ public class ExceptionTranslator {
         List<FieldError> fieldErrors = result.getFieldErrors();
 
         return processFieldErrors(fieldErrors);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO processJpaValidationError(ValidationException exception) {
+        return (exception instanceof ConstraintViolationException) ?
+                    processConstraintViolationError((ConstraintViolationException)exception) :
+                    new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
+    }
+
+    private ErrorDTO processConstraintViolationError(ConstraintViolationException exception) {
+        List<FieldErrorDTO> fieldErrors = exception.getConstraintViolations().stream().
+                map(v -> new FieldErrorDTO(v.getRootBeanClass().getName(), v.getPropertyPath().toString(), v.getMessage())).
+                collect(Collectors.toList());
+        return new ErrorDTO(ErrorConstants.ERR_VALIDATION, null, fieldErrors);
     }
 
     @ExceptionHandler(CustomParametrizedException.class)

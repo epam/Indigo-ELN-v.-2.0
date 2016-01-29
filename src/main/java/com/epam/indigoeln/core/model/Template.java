@@ -3,9 +3,6 @@ package com.epam.indigoeln.core.model;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-import com.google.common.base.Objects;
-import com.mongodb.BasicDBList;
-
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,12 +15,15 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import org.json.JSONArray;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
+import com.mongodb.BasicDBList;
 
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
-
+import com.epam.indigoeln.core.util.JsonUtil;
 
 /**
  * Entity class presents Template
@@ -109,6 +109,10 @@ public class Template implements Serializable, Persistable<String> {
 
     public void setTemplateContent(BasicDBList templateContent) {
         this.templateContent = templateContent;
+    }
+
+    public void setTemplateContent(JSONArray templateContent) {
+        this.templateContent = templateContent != null ? JsonUtil.basicDBListFromJsonArray(templateContent) : null;
     }
 
     @Override
