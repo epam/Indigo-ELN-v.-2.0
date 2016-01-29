@@ -11,7 +11,6 @@ import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.epam.indigoeln.core.util.JsonUtil;
 
 /**
  * Service class for managing Templates
@@ -48,7 +47,7 @@ public class TemplateService {
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
         Template template = templateRepository.findOne(templateDTO.getId());
         template.setName(templateDTO.getName());
-        template.setTemplateContent(JsonUtil.basicDBListFromJsonArray(templateDTO.getTemplateContent()));
+        template.setTemplateContent(templateDTO.getTemplateContent());
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }
