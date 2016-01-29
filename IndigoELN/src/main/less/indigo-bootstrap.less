@@ -1,9 +1,55 @@
 @import "../webapp/bower_components/bootstrap/less/bootstrap.less";
+@import "variables.less";
+
+///panel-heading
+
+@state-info-bg: @bg-blue-l1;
+@brand-primary: @bg-blue-l1;
+@btn-primary-color: @bg-dark;
+@panel-primary-text: @bg-dark;
 
 @border-radius-base: 0px;
 @border-radius-large: 0px;
 @border-radius-small: 0px;
+@btn-primary-border: @bg-gray-l1;
+@table-border-color: @bg-white;
 
 @font-size-base: 12px;
 @grid-gutter-width: 15px;
 @panel-body-padding: 10px;
+
+.btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus {
+  outline: none;
+  outline-offset: -2px;
+}
+
+.form-control:focus {
+  border-color: @bg-blue-l1;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
+}
+
+input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focus {
+  outline: 0 auto -webkit-focus-ring-color;
+  outline-offset: 0;
+}
+
+.main-container {
+  .panel {
+    margin-top: 24px;
+  }
+  .checkbox {
+    label {
+      &:before {
+        content: "";
+        display: none;
+      }
+      input {
+        top: 7px;
+        left: 0;
+        margin-left: 0;
+      }
+    }
+
+  }
+}
