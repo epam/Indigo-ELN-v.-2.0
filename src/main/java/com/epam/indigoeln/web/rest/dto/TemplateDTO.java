@@ -12,7 +12,7 @@ import org.json.JSONArray;
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
-import com.epam.indigoeln.web.rest.util.JsonUtil;
+import com.epam.indigoeln.core.util.JsonUtil;
 
 public class TemplateDTO implements Serializable {
 
@@ -39,12 +39,12 @@ public class TemplateDTO implements Serializable {
 
     public TemplateDTO(Template template) {
         this(template.getId(),
-                template.getName(),
-                template.getCreationDate(),
-                template.getLastEditDate(),
-                template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
-                template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
-                template.getTemplateContent() != null ? template.getTemplateContent().toArray() : null);
+             template.getName(),
+             template.getCreationDate(),
+             template.getLastEditDate(),
+             template.getCreatedBy() != null ? template.getCreatedBy().getLogin() : null,
+             template.getLastModifiedBy() != null ? template.getLastModifiedBy().getLogin() : null,
+             template.getTemplateContent() != null ? template.getTemplateContent().toArray() : null);
     }
 
     public TemplateDTO(String id,
