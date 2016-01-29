@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/experiment/{id}',
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
                         controller: 'ExperimentDetailController'
                     }
@@ -20,7 +20,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/newexperiment',
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/new/new-experiment.html',
                         controller: 'NewExperimentController'
                     }

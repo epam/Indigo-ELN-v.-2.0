@@ -273,7 +273,7 @@ body,
   z-index: 1;
 }
 
-.main-container__sitebar {
+.main-container__sidebar {
   background: #90a4ae;
   height: calc(100% - 70px);
   width: 220px;

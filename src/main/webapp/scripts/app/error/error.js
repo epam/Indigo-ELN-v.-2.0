@@ -11,7 +11,7 @@ angular.module('indigoeln')
                     pageTitle: 'Error page!'
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/error/error.html'
                     }
                 },
@@ -24,7 +24,7 @@ angular.module('indigoeln')
                     authorities: []
                 },
                 views: {
-                    'content@': {
+                    'content@app_page': {
                         templateUrl: 'scripts/app/error/accessdenied.html'
                     }
                 },

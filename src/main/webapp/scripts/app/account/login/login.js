@@ -11,7 +11,7 @@ angular.module('indigoeln')
                     pageTitle: 'Sign in'
                 },
                 views: {
-                    'content@': {
+                    'app_page@': {
                         templateUrl: 'scripts/app/account/login/login.html',
                         controller: 'LoginController'
                     }
