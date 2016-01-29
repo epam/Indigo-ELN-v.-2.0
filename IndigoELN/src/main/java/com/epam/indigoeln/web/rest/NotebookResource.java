@@ -58,22 +58,6 @@ public class NotebookResource {
     @Secured(AuthoritiesConstants.NOTEBOOK_READER)
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllNotebooks(
             @RequestParam(value = "projectId") String projectId) {
-        if (true) {
-            //stub
-            List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
-            for (int i = 0; i < RandomUtils.nextInt(15) + 1; i++) {
-                Notebook notebook = new Notebook();
-                notebook.setId(RandomStringUtils.randomAlphanumeric(10));
-                notebook.setName(RandomStringUtils.randomAlphanumeric(10));
-                Experiment experiment = new Experiment();
-                experiment.setId(RandomStringUtils.randomAlphanumeric(10));
-                experiment.setTitle(RandomStringUtils.randomAlphabetic(10));
-                notebook.setExperiments(ImmutableList.of(experiment));
-                ExperimentTreeNodeDTO element = new ExperimentTreeNodeDTO(experiment);
-                result.add(element);
-            }
-            return ResponseEntity.ok(result);
-        }
         log.debug("REST request to get all notebooks of project: {}", projectId);
         User user = userService.getUserWithAuthorities();
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);

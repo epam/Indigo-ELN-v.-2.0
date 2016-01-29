@@ -54,17 +54,6 @@ public class ProjectResource {
     @RequestMapping(method = RequestMethod.GET)
     @Secured(AuthoritiesConstants.PROJECT_READER)
     public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllProjects() {
-        if (true) {
-            List<ExperimentTreeNodeDTO> result = Lists.newArrayList();
-            for (int i = 0; i < RandomUtils.nextInt(15) + 1; i++) {
-                ProjectDTO projectDTO = new ProjectDTO();
-                projectDTO.setId(RandomStringUtils.randomAlphanumeric(10));
-                projectDTO.setName(RandomStringUtils.randomAlphanumeric(10));
-                ExperimentTreeNodeDTO element = new ExperimentTreeNodeDTO(projectDTO);
-                result.add(element);
-            }
-            return ResponseEntity.ok(result);
-        }
         log.debug("REST request to get all projects");
         User user = userService.getUserWithAuthorities();
         Collection<Project> projects = projectService.getAllProjects(user);
