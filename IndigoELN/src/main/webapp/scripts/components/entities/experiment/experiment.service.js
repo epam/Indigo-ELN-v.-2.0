@@ -13,6 +13,14 @@ angular.module('indigoeln')
                     return data;
                 }
             },
+            'post': {
+                method: 'POST',
+                transformRequest: function (data) {
+                    data.creationDate = DateUtils.convertLocaleDateToServer(data.creationDate);
+                    data.lastEditDate = DateUtils.convertLocaleDateToServer(data.lastEditDate);
+                    return angular.toJson(data);
+                }
+            },
             'update': {
                 method: 'PUT',
                 transformRequest: function (data) {

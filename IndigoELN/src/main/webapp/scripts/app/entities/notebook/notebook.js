@@ -22,6 +22,7 @@ angular.module('indigoeln')
                     authorities: []
                 },
                 params: {
+                    projectId: '',
                     notebookName: ''
                 },
                 views: {
@@ -32,11 +33,14 @@ angular.module('indigoeln')
                 },
                 bindToController: true,
                 resolve: {
-                    notebook: function(notebookService, $stateParams) {
-                        return notebookService.save({projectId: 'need_project_id'}, { // TODO added projectId
+                    notebook: function(Notebook, $stateParams) {
+                        return Notebook.save({projectId: $stateParams.projectId}, {
                             name : $stateParams.notebookName,
                             accessList: [] //TODO add access list [{userId: 'userId', permissions: 'RERSCSUE'}, {...}]
                         }).$promise;
+                    },
+                    projectId: function($stateParams) {
+                        return $stateParams.projectId;
                     }
                 }
             });

@@ -69,10 +69,12 @@ angular.module('indigoeln')
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
-                controller: 'NewNotebookDialogController'
+                controller: 'NewNotebookDialogController',
+                size: 'lg'
             });
-            modalInstance.result.then(function (notebook) {
-                $rootScope.$broadcast('created-notebook', {notebook: notebook});
+            modalInstance.result.then(function (notebookName) {
+                $rootScope.$broadcast('created-notebook', {notebookName: notebookName});
+                $state.go('notebook.new', {notebookName: notebookName, projectId: $scope.project.id});
             }, function () {
             });
         };

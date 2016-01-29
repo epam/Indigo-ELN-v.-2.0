@@ -25,11 +25,18 @@ angular.module('indigoeln')
                         controller: 'NewExperimentController'
                     }
                 },
+                params: {
+                    experiment: {}
+                },
                 data: {
                     authorities: ['ROLE_ADMIN', 'ROLE_USER'],
                     pageTitle: 'indigoeln'
                 },
+                bindToController: true,
                 resolve: {
+                    experiment : function($stateParams) {
+                        return $stateParams.experiment;
+                    }
                 }
             });
     });
