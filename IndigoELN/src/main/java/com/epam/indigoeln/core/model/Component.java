@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 /**
  * Component model object
  */
+@Document(collection = "component")
 public class Component implements Serializable {
 
     private static final long serialVersionUID = -3522699714105273016L;

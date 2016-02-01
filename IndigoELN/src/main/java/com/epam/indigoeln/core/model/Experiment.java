@@ -8,6 +8,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Version;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -47,6 +48,7 @@ public class Experiment extends ExperimentShort {
     // TODO enum: open, completed, submitted, submit_fail, signing, archived
     private String status;
 
+    @DBRef
     private List<Component> components;
 
     private List<UserPermission> accessList = new ArrayList<>();
