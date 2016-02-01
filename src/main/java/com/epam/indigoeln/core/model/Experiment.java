@@ -47,7 +47,7 @@ public class Experiment extends ExperimentShort {
     // TODO enum: open, completed, submitted, submit_fail, signing, archived
     private String status;
 
-    private List<Batch> batches;
+    private List<Component> components;
 
     private List<UserPermission> accessList = new ArrayList<>();
 
@@ -117,12 +117,12 @@ public class Experiment extends ExperimentShort {
         this.creationDate = creationDate;
     }
 
-    public List<Batch> getBatches() {
-        return batches;
+    public List<Component> getComponents() {
+        return components;
     }
 
-    public void setBatches(List<Batch> batches) {
-        this.batches = batches;
+    public void setComponents(List<Component> components) {
+        this.components = components;
     }
 
     public Long getVersion() {
@@ -161,7 +161,7 @@ public class Experiment extends ExperimentShort {
         if (status != null ? !status.equals(that.status) : that.status != null) return false;
         if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
         if (lastEditDate != null ? !lastEditDate.equals(that.lastEditDate) : that.lastEditDate != null) return false;
-        if (batches != null ? !batches.equals(that.batches) : that.batches != null) return false;
+        if (components != null ? !components.equals(that.components) : that.components != null) return false;
         if (templateId != null ? !templateId.equals(that.templateId) : that.templateId != null) return false;
         if (comments != null ? !comments.equals(that.comments) : that.comments != null) return false;
         if (accessList != null ? !accessList.equals(that.accessList) : that.accessList != null) return false;
@@ -181,7 +181,7 @@ public class Experiment extends ExperimentShort {
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
         result = 31 * result + (lastEditDate != null ? lastEditDate.hashCode() : 0);
-        result = 31 * result + (batches != null ? batches.hashCode() : 0);
+        result = 31 * result + (components != null ? components.hashCode() : 0);
         result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
         result = 31 * result + (comments != null ? comments.hashCode() : 0);
         result = 31 * result + (accessList != null ? accessList.hashCode() : 0);

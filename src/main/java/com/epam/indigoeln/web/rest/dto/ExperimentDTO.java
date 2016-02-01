@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 /**
  * DTO for Experiment
- * Does not contain embedded fields, such as Author, Batch, etc. // TODO Need to supplement
+ * Does not contain embedded fields, such as Author, Component, etc. // TODO Need to supplement
  */
 public class ExperimentDTO implements Serializable {
 

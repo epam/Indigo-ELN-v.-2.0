@@ -9,9 +9,9 @@ import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 
 /**
- * Batch model object
+ * Component model object
  */
-public class Batch implements Serializable {
+public class Component implements Serializable {
 
     private static final long serialVersionUID = -3522699714105273016L;
 
@@ -20,7 +20,7 @@ public class Batch implements Serializable {
     private String id;
 
     @NotBlank
-    private String batchNumber;
+    private String componentNumber;
 
     private Integer bingoDbId;
 
@@ -34,8 +34,8 @@ public class Batch implements Serializable {
         return id;
     }
 
-    public String getBatchNumber() {
-        return batchNumber;
+    public String getComponentNumber() {
+        return componentNumber;
     }
 
     public Integer getBingoDbId() {
@@ -54,8 +54,8 @@ public class Batch implements Serializable {
         this.id = id;
     }
 
-    public void setBatchNumber(String batchNumber) {
-        this.batchNumber = batchNumber;
+    public void setComponentNumber(String componentNumber) {
+        this.componentNumber = componentNumber;
     }
 
     public void setBingoDbId(Integer bingoDbId) {
@@ -75,16 +75,16 @@ public class Batch implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Batch batch = (Batch) o;
-        return Objects.equal(id, batch.id) &&
-               Objects.equal(batchNumber, batch.batchNumber) &&
-               Objects.equal(bingoDbId, batch.bingoDbId) &&
-               Objects.equal(jsonContent, batch.jsonContent) &&
-               Objects.equal(componentTemplateId, batch.componentTemplateId);
+        Component component = (Component) o;
+        return Objects.equal(id, component.id) &&
+               Objects.equal(componentNumber, component.componentNumber) &&
+               Objects.equal(bingoDbId, component.bingoDbId) &&
+               Objects.equal(jsonContent, component.jsonContent) &&
+               Objects.equal(componentTemplateId, component.componentTemplateId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, batchNumber, bingoDbId, jsonContent, componentTemplateId);
+        return Objects.hashCode(id, componentNumber, bingoDbId, jsonContent, componentTemplateId);
     }
 }

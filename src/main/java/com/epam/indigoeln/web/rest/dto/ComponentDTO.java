@@ -1,34 +1,34 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
-import com.epam.indigoeln.core.model.Batch;
+import com.epam.indigoeln.core.model.Component;
 
-public class BatchDTO implements Serializable {
+public class ComponentDTO implements Serializable {
 
     private static final long serialVersionUID = 13994253258215137L;
 
     private String id;
-    private String batchNumber;
+    private String componentNumber;
     private String jsonContent;
     private String molfile;
     private String componentTemplateId;
 
-    public BatchDTO() {
+    public ComponentDTO() {
     }
 
-    public BatchDTO(Batch batch) {
-        this(batch.getId(),
-             batch.getBatchNumber(),
-             batch.getJsonContent(),
-             batch.getComponentTemplateId());
+    public ComponentDTO(Component component) {
+        this(component.getId(),
+             component.getComponentNumber(),
+             component.getJsonContent(),
+             component.getComponentTemplateId());
     }
 
-    public BatchDTO(String id,
-                    String batchNumber,
-                    String jsonContent,
-                    String componentTemplateId) {
+    public ComponentDTO(String id,
+                        String componentNumber,
+                        String jsonContent,
+                        String componentTemplateId) {
         this.id = id;
-        this.batchNumber = batchNumber;
+        this.componentNumber = componentNumber;
         this.jsonContent = jsonContent;
         this.componentTemplateId = componentTemplateId;
     }
@@ -37,8 +37,8 @@ public class BatchDTO implements Serializable {
         return id;
     }
 
-    public String getBatchNumber() {
-        return batchNumber;
+    public String getComponentNumber() {
+        return componentNumber;
     }
 
     public String getMolfile() {
@@ -57,8 +57,8 @@ public class BatchDTO implements Serializable {
         this.id = id;
     }
 
-    public void setBatchNumber(String batchNumber) {
-        this.batchNumber = batchNumber;
+    public void setComponentNumber(String componentNumber) {
+        this.componentNumber = componentNumber;
     }
 
     public void setMolfile(String molfile) {
@@ -75,9 +75,9 @@ public class BatchDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "BatchDTO{" +
+        return "ComponentDTO{" +
                 "id='" + id + '\'' +
-                ", batchNumber='" + batchNumber + '\'' +
+                ", componentNumber='" + componentNumber + '\'' +
                 ", jsonContent='" + jsonContent + '\'' +
                 ", molfile='" + molfile + '\'' +
                 ", componentTemplateId='" + componentTemplateId + '\'' +
