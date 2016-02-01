@@ -2,6 +2,8 @@ package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
 import com.epam.indigoeln.core.model.Component;
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
 
 public class ComponentDTO implements Serializable {
 
@@ -9,7 +11,7 @@ public class ComponentDTO implements Serializable {
 
     private String id;
     private String componentNumber;
-    private String jsonContent;
+    private BasicDBObject content;
     private String molfile;
     private String componentTemplateId;
 
@@ -19,17 +21,17 @@ public class ComponentDTO implements Serializable {
     public ComponentDTO(Component component) {
         this(component.getId(),
              component.getComponentNumber(),
-             component.getJsonContent(),
+             component.getContent(),
              component.getComponentTemplateId());
     }
 
     public ComponentDTO(String id,
                         String componentNumber,
-                        String jsonContent,
+                        BasicDBObject content,
                         String componentTemplateId) {
         this.id = id;
         this.componentNumber = componentNumber;
-        this.jsonContent = jsonContent;
+        this.content = content;
         this.componentTemplateId = componentTemplateId;
     }
 
@@ -45,8 +47,8 @@ public class ComponentDTO implements Serializable {
         return molfile;
     }
 
-    public String getJsonContent() {
-        return jsonContent;
+    public BasicDBObject getContent() {
+        return content;
     }
 
     public String getComponentTemplateId() {
@@ -65,8 +67,8 @@ public class ComponentDTO implements Serializable {
         this.molfile = molfile;
     }
 
-    public void setJsonContent(String jsonContent) {
-        this.jsonContent = jsonContent;
+    public void setContent(BasicDBObject content) {
+        this.content = content;
     }
 
     public void setComponentTemplateId(String componentTemplateId) {
@@ -78,7 +80,7 @@ public class ComponentDTO implements Serializable {
         return "ComponentDTO{" +
                 "id='" + id + '\'' +
                 ", componentNumber='" + componentNumber + '\'' +
-                ", jsonContent='" + jsonContent + '\'' +
+                ", content='" + content + '\'' +
                 ", molfile='" + molfile + '\'' +
                 ", componentTemplateId='" + componentTemplateId + '\'' +
                 '}';
