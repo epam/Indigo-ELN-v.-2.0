@@ -29,7 +29,7 @@
 </ul>
 <ul>
     <li ng-click="toggleAdministration()"><span>Administration</span>
-        <ul>
+        <ul ng-if="adminToggled">
             <li ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
                 <span>Users and Roles</span>
             </li>
