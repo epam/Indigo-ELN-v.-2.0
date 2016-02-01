@@ -22,7 +22,9 @@ import com.epam.indigoeln.core.integration.BingoResult;
 public class BingoDbIntegrationService {
 
     private static final String BINGO_URL_MOLECULE = "%s/molecule";
+    private static final String BINGO_URL_REACTION = "%s/reaction";
     private static final String BINGO_URL_GET_OR_UPDATE_MOLECULE = BINGO_URL_MOLECULE + "/%s";
+    private static final String BINGO_URL_GET_OR_UPDATE_REACTION = BINGO_URL_REACTION + "/%s";
 
 
     @Value("${integration.bingodb.url}")
@@ -44,7 +46,7 @@ public class BingoDbIntegrationService {
     }
 
     /**
-     * Add molecule to BingoDB id and return Bingo DB id
+     * Add molecule to BingoDB and return Bingo DB id
      * @param molfile structure of molecule
      * @return id of created molecule
      */
@@ -69,6 +71,43 @@ public class BingoDbIntegrationService {
      */
     public void deleteMolecule(Integer id) {
         execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.DELETE, null);
+    }
+
+    /**
+     * Get reaction by Bingo DB Id
+     * @param id bingo DB id
+     * @return structure of reaction (molfile)
+     */
+    public String getReaction(Integer id) {
+        return execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.GET, null).getStructure();
+    }
+
+    /**
+     * Add reaction to BingoDB and return Bingo DB id
+     * @param molfile structure of reaction
+     * @return id of created reaction
+     */
+    public Integer addReaction(String molfile) {
+        return execute(String.format(BINGO_URL_REACTION, bingoUrl), HttpMethod.POST, molfile).getId();
+    }
+
+    /**
+     * Update existing reaction by id
+     * @param id id of existing reaction
+     * @param molfile structure of reaction (molfile)
+     * @return id of updated reaction
+     */
+    public Integer updateReaction(Integer id, String molfile) {
+        execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.PUT, molfile);
+        return id;
+    }
+
+    /**
+     * Delete reaction from Bingo DB by id
+     * @param id id of deleted reaction
+     */
+    public void deleteReaction(Integer id) {
+        execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.DELETE, null);
     }
 
 
