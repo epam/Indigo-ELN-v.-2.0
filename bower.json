@@ -30,8 +30,7 @@
     "bootstrap": {
       "main": [
         "dist/js/bootstrap.js",
-        "../../assets/styles/indigo-bootstrap.css",
-        "dist/css/bootstrap-theme.css"
+        "../../assets/styles/indigo-bootstrap.css"
       ]
     },
     "stomp-websocket": {
