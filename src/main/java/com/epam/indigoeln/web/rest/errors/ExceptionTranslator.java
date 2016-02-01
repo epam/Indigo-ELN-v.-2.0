@@ -14,10 +14,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.epam.indigo.IndigoException;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -56,6 +59,13 @@ public class ExceptionTranslator {
                 map(v -> new FieldErrorDTO(v.getRootBeanClass().getName(), v.getPropertyPath().toString(), v.getMessage())).
                 collect(Collectors.toList());
         return new ErrorDTO(ErrorConstants.ERR_VALIDATION, null, fieldErrors);
+    }
+
+    @ExceptionHandler(IndigoException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDTO processJpaValidationError(IndigoException exception) {
+        return new ErrorDTO(ErrorConstants.ERR_VALIDATION, exception.getMessage());
     }
 
     @ExceptionHandler(CustomParametrizedException.class)
