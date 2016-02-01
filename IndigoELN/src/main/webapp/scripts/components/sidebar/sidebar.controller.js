@@ -2,7 +2,7 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, Project, Notebook, Experiment, AlertService) {
+    .controller('SidebarController', function ($scope, $state, Project, Notebook, Experiment, AlertService) {
         $scope.toggleProjects = function () {
             if (!$scope.projects) {
                 Project.query(function (result) {
@@ -35,6 +35,26 @@ angular
 
         $scope.onExperimentClick = function (experiment) {
             AlertService.info('experiment with id: ' + experiment.node.id + ' clicked');
+        };
+
+        $scope.toggleAdministration = function() {
+
+        };
+
+        $scope.toggleUsersAndRoles = function() {
+            $state.go('user-management');
+        };
+
+        $scope.togglePermissions = function() {
+
+        };
+
+        $scope.toggleTemplates = function() {
+
+        };
+
+        $scope.toggleDictionaries = function() {
+
         };
     });
 
