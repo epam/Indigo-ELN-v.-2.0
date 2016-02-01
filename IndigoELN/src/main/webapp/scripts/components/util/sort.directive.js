@@ -19,7 +19,7 @@ angular.module('indigoeln')
                     $scope.predicate = field;
                     $scope.$apply();
                     $scope.callback();
-                }
+                };
                 this.applyClass = function (element) {
                     var allThIcons = element.parent().find('span.glyphicon'),
                         sortIcon = 'glyphicon-sort',
@@ -36,9 +36,9 @@ angular.module('indigoeln')
                     allThIcons.addClass(sortIcon);
                     thisIcon.removeClass(remove);
                     thisIcon.addClass(add);
-                }
+                };
             }]
-        }
+        };
     }).directive('mySortBy', function () {
         return {
             restrict: 'A',
