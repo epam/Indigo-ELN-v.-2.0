@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
+import com.mongodb.BasicDBObject;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -26,7 +27,7 @@ public class Component implements Serializable {
 
     private Integer bingoDbId;
 
-    private String jsonContent;
+    private BasicDBObject content;
 
     @NotNull
     @Pattern(regexp = "^[a-z0-9]*")
@@ -44,8 +45,8 @@ public class Component implements Serializable {
         return bingoDbId;
     }
 
-    public String getJsonContent() {
-        return jsonContent;
+    public BasicDBObject getContent() {
+        return content;
     }
 
     public String getComponentTemplateId() {
@@ -64,8 +65,8 @@ public class Component implements Serializable {
         this.bingoDbId = bingoDbId;
     }
 
-    public void setJsonContent(String jsonContent) {
-        this.jsonContent = jsonContent;
+    public void setContent(BasicDBObject content) {
+        this.content = content;
     }
 
     public void setComponentTemplateId(String componentTemplateId) {
@@ -81,12 +82,12 @@ public class Component implements Serializable {
         return Objects.equal(id, component.id) &&
                Objects.equal(componentNumber, component.componentNumber) &&
                Objects.equal(bingoDbId, component.bingoDbId) &&
-               Objects.equal(jsonContent, component.jsonContent) &&
+               Objects.equal(content, component.content) &&
                Objects.equal(componentTemplateId, component.componentTemplateId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, componentNumber, bingoDbId, jsonContent, componentTemplateId);
+        return Objects.hashCode(id, componentNumber, bingoDbId, content, componentTemplateId);
     }
 }
