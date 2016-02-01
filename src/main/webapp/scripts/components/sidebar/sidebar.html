@@ -7,7 +7,7 @@
                     <li ng-repeat="notebook in project.notebooks"
                         ng-click="toggleExperiments(notebook); $event.stopPropagation();">
                         <i class="fa fa-circle"></i>
-                        <span>{{notebook.node.title}}</span>
+                        <span>{{notebook.node.name}}</span>
                         <ul ng-if="notebook.experiments.length">
                             <li ng-click="$event.stopPropagation();">
                                 <i class="fa fa-circle"></i>
@@ -16,13 +16,31 @@
                                     <li ng-repeat="experiment in notebook.experiments"
                                         ng-click="onExperimentClick(experiment); $event.stopPropagation();">
                                         <i class="fa fa-circle"></i>
-                                        <span>{{experiment.node.title}}</span>
+                                        <span>{{experiment.node.experimentNumber}}</span>
                                     </li>
                                 </ul>
                             </li>
                         </ul>
                     </li>
                 </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+<ul>
+    <li ng-click="toggleAdministration()"><span>Administration</span>
+        <ul>
+            <li ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
+                <span>Users and Roles</span>
+            </li>
+            <li ng-click="togglePermissions(); $event.stopPropagation();">
+                <span>Permissions</span>
+            </li>
+            <li ng-click="toggleTemplates(); $event.stopPropagation();">
+                <span>Manage Templates</span>
+            </li>
+            <li ng-click="toggleDictionaries(); $event.stopPropagation();">
+                <span>Dictionaries</span>
             </li>
         </ul>
     </li>
