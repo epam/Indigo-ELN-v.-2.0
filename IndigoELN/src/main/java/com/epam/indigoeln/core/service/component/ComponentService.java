@@ -209,7 +209,7 @@ public class ComponentService {
     private ComponentDTO createComponentDTOFromComponent(Component component) {
         ComponentDTO componentDTO = new ComponentDTO(component);
         if(component.getBingoDbId() != null) {
-            String molfile = bingoDbService.getMolecule(component.getBingoDbId());
+            String molfile = bingoDbService.getMolecule(component.getBingoDbId()).get();
             IndigoObject indigoObjectMolecule = new Indigo().loadMolecule(molfile);
             componentDTO.setMolfile(molfile);
             //componentDTO.setMolecularWeight(indigoObjectMolecule.molecularWeight());
