@@ -5,7 +5,7 @@ angular.module('indigoeln')
         $stateProvider
             .state('project', {
                 parent: 'entity',
-                url: '/project/{id}',
+                url: '/projects/{id}',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/project/project-detail.html',
@@ -17,9 +17,12 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    data: ['$stateParams', 'Project', function($stateParams, Project) {
-                        return Project.get({id : $stateParams.id});
-                    }]
+                    project: function($stateParams, Project) {
+                        return Project.get({id : $stateParams.id}).$promise;
+                    },
+                    users: function(User) {
+                        return User.query().$promise;
+                    }
                 }
             });
     });

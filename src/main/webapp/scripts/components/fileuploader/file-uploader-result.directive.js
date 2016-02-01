@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('indigoeln')
-    .directive('myFileUploader', function() {
+    .directive('myFileUploaderResult', function() {
         return {
             restrict: 'E',
             replace: true,
-            controller: 'FileUploaderController',
-            templateUrl: 'scripts/components/fileuploader/file-uploader.html',
+            controller: 'FileUploaderResultController',
+            templateUrl: 'scripts/components/fileuploader/file-uploader-result.html',
             scope: {
                 entityid: '='
             }

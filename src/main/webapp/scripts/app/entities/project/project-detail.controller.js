@@ -1,39 +1,10 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $rootScope, $state, $uibModal, Project, User, data, $cookies) {
+    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, Project, project,users) {
 
-        $scope.project = data;
-        $scope.users = User.query();
-
-        // editor options
-        var toolbar = ['title','bold','italic','underline','strikethrough','fontScale','color',
-            'ol','ul','blockquote','table','link','image','hr','indent','outdent','alignment'];
-        Simditor.locale = 'en_EN';
-        var editor = new Simditor({
-            textarea: $('#editor'),
-            toolbar: toolbar,
-            placeholder: '',
-            pasteImage: true,
-            defaultImage: 'assets/images/image.gif'
-            //fileKey: 'upload_file',
-            //upload: {
-            //    url: '/api/project_files/123abc',
-            //    params: {'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')}
-            //}
-        });
-
-        if ($scope.project.description) {
-            editor.setValue($scope.project.description);
-        }
-
-        var onSaveSuccess = function (result) {
-            $scope.isSaving = false;
-        };
-
-        var onSaveError = function (result) {
-            $scope.isSaving = false;
-        };
+        $scope.project = project;
+        $scope.users = users;
 
         // prepare tags and keywords for UI
         $scope.tags = [];
@@ -44,6 +15,14 @@ angular.module('indigoeln')
         if ($scope.project.keywords) {
             $scope.keywords = $scope.project.keywords.join(', ');
         }
+
+        var onSaveSuccess = function (result) {
+            $scope.isSaving = false;
+        };
+
+        var onSaveError = function (result) {
+            $scope.isSaving = false;
+        };
 
         $scope.save = function () {
             $scope.isSaving = true;
@@ -60,8 +39,6 @@ angular.module('indigoeln')
                     $scope.project.keywords.push(ref.trim());
                 });
             }
-
-            $scope.project.description = editor.getValue();
             Project.update($scope.project, onSaveSuccess, onSaveError);
         };
 
@@ -79,20 +56,5 @@ angular.module('indigoeln')
             });
         };
 
-        var entityid = $scope.project.id;
-
-        $scope.attachFile = function() {
-            var modal = $uibModal.open({
-                animation: true,
-                size: 'lg',
-                templateUrl: 'scripts/components/fileuploader/file-uploader-modal.html',
-                controller: function ($scope, $uibModalInstance) {
-                    $scope.entityid = entityid;
-                    $scope.cancel = function () {
-                        $uibModalInstance.dismiss('cancel');
-                    };
-                }
-            });
-        };
 
     });
