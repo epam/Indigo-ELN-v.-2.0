@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('FileUploaderController', function($scope, FileUploader, $cookies) {
+    .controller('FileUploaderController', function($scope, FileUploader, FileUploaderService, $cookies) {
 
         var entityid = $scope.entityid;
 
@@ -13,6 +13,8 @@ angular.module('indigoeln')
             },
             formData: [{projectId: entityid}]
         });
+
+        // TODO: maximum permitted size 1048576 bytes
 
         // FILTERS
 

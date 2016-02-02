@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.bingodb;
 
 import java.util.Base64;
+import java.util.Optional;
 
 import javax.validation.ValidationException;
 
@@ -22,7 +23,9 @@ import com.epam.indigoeln.core.integration.BingoResult;
 public class BingoDbIntegrationService {
 
     private static final String BINGO_URL_MOLECULE = "%s/molecule";
+    private static final String BINGO_URL_REACTION = "%s/reaction";
     private static final String BINGO_URL_GET_OR_UPDATE_MOLECULE = BINGO_URL_MOLECULE + "/%s";
+    private static final String BINGO_URL_GET_OR_UPDATE_REACTION = BINGO_URL_REACTION + "/%s";
 
 
     @Value("${integration.bingodb.url}")
@@ -39,17 +42,19 @@ public class BingoDbIntegrationService {
      * @param id bingo DB id
      * @return structure of molecule (molfile)
      */
-    public String getMolecule(Integer id) {
-        return execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.GET, null).getStructure();
+    public Optional<String> getMolecule(Integer id) {
+        return Optional.ofNullable(
+                execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.GET, null).getStructure());
     }
 
     /**
-     * Add molecule to BingoDB id and return Bingo DB id
+     * Add molecule to BingoDB and return Bingo DB id
      * @param molfile structure of molecule
      * @return id of created molecule
      */
     public Integer addMolecule(String molfile) {
-        return execute(String.format(BINGO_URL_MOLECULE, bingoUrl), HttpMethod.POST, molfile).getId();
+        BingoResult result = execute(String.format(BINGO_URL_MOLECULE, bingoUrl), HttpMethod.POST, molfile);
+        return checkBingoResult(result).getId();
     }
 
     /**
@@ -59,7 +64,8 @@ public class BingoDbIntegrationService {
      * @return id of updated molecule
      */
     public Integer updateMolecule(Integer id, String molfile) {
-        execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.PUT, molfile);
+        BingoResult result = execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.PUT, molfile);
+        checkBingoResult(result);
         return id;
     }
 
@@ -71,20 +77,68 @@ public class BingoDbIntegrationService {
         execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.DELETE, null);
     }
 
-
-    private BingoResult execute(String url, HttpMethod method, String content) {
-        RestTemplate template = new RestTemplate();
-        return  handleErrorResponse(template.exchange(url, method, basicAuthorization(content), BingoResult.class));
+    /**
+     * Get reaction by Bingo DB Id
+     * @param id bingo DB id
+     * @return structure of reaction (molfile)
+     */
+    public Optional<String> getReaction(Integer id) {
+        return Optional.ofNullable(
+                execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.GET, null).getStructure());
     }
 
-    private BingoResult handleErrorResponse(ResponseEntity<BingoResult> response) {
+    /**
+     * Add reaction to BingoDB and return Bingo DB id
+     * @param molfile structure of reaction
+     * @return id of created reaction
+     */
+    public Integer addReaction(String molfile) {
+        BingoResult result = execute(String.format(BINGO_URL_REACTION, bingoUrl), HttpMethod.POST, molfile);
+        return checkBingoResult(result).getId();
+    }
+
+    /**
+     * Update existing reaction by id
+     * @param id id of existing reaction
+     * @param molfile structure of reaction (molfile)
+     * @return id of updated reaction
+     */
+    public Integer updateReaction(Integer id, String molfile) {
+        BingoResult result = execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.PUT, molfile);
+        checkBingoResult(result);
+        return id;
+    }
+
+    /**
+     * Delete reaction from Bingo DB by id
+     * @param id id of deleted reaction
+     */
+    public void deleteReaction(Integer id) {
+        execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.DELETE, null);
+    }
+
+    /**
+     * Execute REST request
+     * @param url request url
+     * @param method request method
+     * @param content request content
+     * @return result of request
+     */
+    private BingoResult execute(String url, HttpMethod method, String content) {
+        RestTemplate template = new RestTemplate();
+        ResponseEntity<BingoResult> response = template.exchange(url, method, basicAuthorization(content), BingoResult.class);
+        //handle invalid http status code
         if(!response.getStatusCode().is2xxSuccessful()) {
             throw new HttpClientErrorException(response.getStatusCode());
         }
-        if (!response.getBody().isSuccess()) {
-            throw new ValidationException("BingoDB request failed with error: " + response.getBody().getErrorMessage());
-        }
         return response.getBody();
+    }
+
+    private BingoResult checkBingoResult(BingoResult result) {
+        if (!result.isSuccess()) {
+            throw new ValidationException("BingoDB request failed with error: " + result.getErrorMessage());
+        }
+        return result;
     }
 
     @SuppressWarnings("unchecked")
