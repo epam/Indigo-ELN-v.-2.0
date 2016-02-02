@@ -5,8 +5,8 @@ angular.module('indigoeln')
         return {
             doVertical: function (tAttrs, tElement) {
                 if (tAttrs.myLabelVertical) {
-                    tElement.find('.col-sm-2').removeClass('col-sm-2');
-                    tElement.find('.col-sm-10').children().unwrap();
+                    tElement.find('.col-xs-2').removeClass('col-xs-2');
+                    tElement.find('.col-xs-10').children().unwrap();
                 }
             }
         }
@@ -52,8 +52,8 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group">' +
-        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-sm-10">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength">' +
         '<div ng-show="myValidationObj.$invalid">' +
         '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
@@ -72,7 +72,7 @@ angular.module('indigoeln')
             myName: '@'
         },
         template: '<div class="form-group">' +
-        '<div class="col-sm-offset-2 col-sm-10">' +
+        '<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
         '<label>' +
         '<input type="checkbox" id="{{myName}}" ng-model="myModel"> {{myLabel}}' +
@@ -98,8 +98,8 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group">' +
-        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-sm-10">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
         '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item for item in myItems" ></select>' +
         '</div>' +
         '</div>'
@@ -122,8 +122,8 @@ angular.module('indigoeln')
             }
         },
         template: '<div class="form-group">' +
-        '<label class="col-sm-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-sm-10">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
         '<div class="btn-group">' +
         '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="myFirst" uncheckable>{{myFirst}}</label>' +
         '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="mySecond" uncheckable>{{mySecond}}</label>' +
@@ -144,8 +144,8 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group">' +
-        '<label class="col-sm-2 control-label">{{myLabel}}</label> ' +
-        '<div class="col-sm-10">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
+        '<div class="col-xs-10">' +
         '<textarea class="form-control" rows="3" ng-model="myModel"></textarea>' +
         '</div> ' +
         '</div> '
@@ -163,10 +163,10 @@ angular.module('indigoeln')
             //formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group">' +
-        '<label class="col-sm-2 control-label">' +
+        '<label class="col-xs-2 control-label">' +
         '{{myLabel}} ' +
         '</label>' +
-        '<div class="col-sm-10" style="padding-top: 7px;">' +
+        '<div class="col-xs-10" style="padding-top: 7px;">' +
         '{{myModel||myEmptyText}}' +
         '</div>' +
         '</div>'

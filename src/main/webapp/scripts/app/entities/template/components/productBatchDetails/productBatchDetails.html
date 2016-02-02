@@ -5,8 +5,7 @@
     <div class="panel-body">
         <form>
             <div class="row">
-                <div class="col-xs-12">
-
+                <div class="col-xs-6">
                     <my-input my-label="Notebook Batch #"
                     ></my-input>
                     <my-two-toggle my-label="Product"
@@ -23,13 +22,10 @@
                     ></my-select>
                     <my-select my-label="Source Detail"
                     ></my-select>
-
-                    <my-text-area my-label="Health Hazards"
-                    ></my-text-area>
-                    <my-text-area my-label="Handling Precautions"
-                    ></my-text-area>
-                    <my-text-area my-label="Storage Instructions"
-                    ></my-text-area>
+                    <my-simple-text my-label="Calculated Batch MW"
+                                    my-empty-text="none"></my-simple-text>
+                    <my-simple-text my-label="Calculated Batch MF"
+                                    my-empty-text="none"></my-simple-text>
                     <my-select my-label="Salt Code & Name"
                     ></my-select>
                     <my-input my-label="Salt Equivalent"
@@ -42,6 +38,8 @@
                     ></my-select>
                     <my-text-area my-label="Batch Comments"
                     ></my-text-area>
+                </div>
+                <div class="col-xs-6">
                     <my-text-area my-label="External Supplier"
                     ></my-text-area>
                     <my-text-area my-label="Purity"
@@ -66,7 +64,16 @@
                                     my-empty-text="none"></my-simple-text>
                     <my-simple-text my-label="mMoles"
                                     my-empty-text="none"></my-simple-text>
-
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <my-text-area my-label="Health Hazards"
+                    ></my-text-area>
+                    <my-text-area my-label="Handling Precautions"
+                    ></my-text-area>
+                    <my-text-area my-label="Storage Instructions"
+                    ></my-text-area>
                     <div class="form-group">
                         <label class="control-label">Vials/Tubes Containing this Batch</label>
                         <div class="table-responsive">
@@ -85,7 +92,6 @@
                             </table>
                         </div>
                     </div>
-
                 </div>
             </div>
         </form>
