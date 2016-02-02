@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('indigoeln').controller('NewProjectDialogController', function ($scope, $state, $log, $uibModalInstance, Project, users) {
+angular.module('indigoeln').controller('NewProjectDialogController', function ($scope, $rootScope, $state, $log, $uibModalInstance, Project, users) {
     $scope.project = {};
     $scope.sourceUsers = users;
     $scope.destUsers = [];
@@ -13,6 +13,7 @@ angular.module('indigoeln').controller('NewProjectDialogController', function ($
         $uibModalInstance.close(result);
         $scope.isSaving = false;
         $state.go('project', {id: result.id});
+        $rootScope.$broadcast('project-created', {id: result.id});
     };
 
     var onCreateError = function (result) {

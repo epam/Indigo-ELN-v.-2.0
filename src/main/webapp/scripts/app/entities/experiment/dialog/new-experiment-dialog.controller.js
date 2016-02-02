@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NewExperimentDialogController', function ($scope, $uibModalInstance, $log, Experiment, templates, notebook) {
+    .controller('NewExperimentDialogController', function ($scope, $rootScope, $uibModalInstance, $log, Experiment, templates, notebook) {
         $scope.experiment = {};
         $scope.templates = templates;
         $scope.experiment.templateId = '';
@@ -10,6 +10,8 @@ angular.module('indigoeln')
         var onCreateSuccess = function (result) {
             $log.log('Experiment created successfully.');
             $uibModalInstance.close({experiment: {id: notebook.notebookName + '-' + result.experimentNumber}});
+            $rootScope.$broadcast('experiment-created',
+                {projectId: notebook.projectId, notebookId: notebook.notebookId, id: result.experimentNumber});
         };
 
         var onCreateError = function (result) {

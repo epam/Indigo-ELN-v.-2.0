@@ -12,8 +12,14 @@ angular.module('indigoeln')
                         controller: 'ExperimentDetailController'
                     }
                 },
-                bindToController: true,
+                data: {
+                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    pageTitle: 'indigoeln'
+                },
                 resolve: {
+                    data: ['$stateParams', 'Experiment', function($stateParams, Experiment) {
+                        return Experiment.get({id : $stateParams.id}).$promise;
+                    }]
                 }
             })
             .state('newexperiment', {
