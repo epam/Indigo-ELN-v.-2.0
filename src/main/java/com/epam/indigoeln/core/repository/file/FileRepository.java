@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.repository.file;
 
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.util.ConverterUtil;
+import com.google.common.collect.Ordering;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -10,11 +10,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.gridfs.GridFsCriteria.where;
@@ -34,9 +39,12 @@ public class FileRepository {
     }
 
     public Page<GridFSDBFile> findAll(List<String> ids, Pageable pageable) {
-        List<GridFSDBFile> list = gridFsTemplate.find(query(where("_id").in(ids))
-                .with(pageable));
-        return new PageImpl<>(list, pageable, ids.size());
+        // gridFsTemplate uses a driver that doesn't know about "sort", "skip", "limit"
+        // pageable is not suitable for this, therefore pagination have to be in memory
+        List<GridFSDBFile> list = gridFsTemplate.find(query(where("_id").in(ids)));
+
+        list = applyPageable(list, pageable);
+        return new PageImpl<>(list, pageable, list.size());
     }
 
     public void delete(String id) {
@@ -46,8 +54,27 @@ public class FileRepository {
     private DBObject getMetadata(User author) {
         DBObject metadata = new BasicDBObject(1);
         // Adding metadata about "author"
-        ConverterUtil.setAuthorToFileMetadata(metadata, author);
+        GridFSFileUtil.setAuthorToMetadata(metadata, author);
 
         return metadata;
+    }
+
+    private List<GridFSDBFile> applyPageable(List<GridFSDBFile> files, Pageable pageable) {
+        Ordering<GridFSFile> ordering = null;
+        if (pageable.getSort() != null) {
+            for (Sort.Order order : pageable.getSort()) {
+                Optional<Comparator<GridFSFile>> optional = GridFSFileUtil.getComparator(order.getProperty());
+                if (optional.isPresent()) {
+                    Comparator<GridFSFile> comparator = order.isAscending() ?
+                            optional.get() : optional.get().reversed();
+                    ordering = ordering != null ? ordering.compound(comparator) : Ordering.from(comparator);
+                }
+            }
+        }
+        if (ordering == null) ordering = Ordering.from(GridFSFileUtil.UPLOAD_DATE_COMPARATOR.reversed());
+        Collections.sort(files, ordering);
+
+        return files.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())
+                .collect(Collectors.toList());
     }
 }
