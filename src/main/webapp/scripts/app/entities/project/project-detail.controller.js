@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, Project, project,users) {
+    .controller('ProjectDetailController', function($scope, $state, $rootScope, $uibModal, Project, project,users) {
 
         $scope.project = project;
         $scope.users = users;
@@ -51,7 +51,7 @@ angular.module('indigoeln')
             });
             modalInstance.result.then(function (notebookName) {
                 $rootScope.$broadcast('created-notebook', {notebookName: notebookName});
-                $state.go('notebook.new', {notebookName: notebookName, projectId: $scope.project.id});
+                $state.go('newnotebook', {notebookName: notebookName, projectId: $scope.project.id});
             }, function () {
             });
         };
