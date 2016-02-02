@@ -9,9 +9,6 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,6 +86,7 @@ public class ProjectResource {
         log.debug("REST request to create project: {}", projectDTO);
         User user = userService.getUserWithAuthorities();
 
+        projectDTO.setAuthor(user);
         Project project = dtoMapper.convertFromDTO(projectDTO);
         project = projectService.createProject(project, user);
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId()))

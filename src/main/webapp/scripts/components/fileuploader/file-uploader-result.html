@@ -1,0 +1,59 @@
+<div class="panel panel-info user-management">
+    <div class="panel-heading">Attachments</div>
+    <div class="panel-body">
+        <button class="btn btn-primary" ng-click="attach()">
+            <span class="glyphicon glyphicon-flash"></span> <span>Attach File</span>
+        </button>
+
+        <form class="form-inline text-right">
+            <div class="form-group">
+                <label for="searchFile">Search File</label>
+                <input type="text" class="form-control" id="searchFile" placeholder="File name, author or type"
+                       ng-model="searchText">
+            </div>
+            <button type="submit" class="btn btn-default" ng-click="search()">
+                <span class="glyphicon glyphicon-search"></span>
+                Search
+            </button>
+        </form>
+
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Content Type</th>
+            <th>Author</th>
+            <th>Length (bytes)</th>
+            <th>Upload Date</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="file in files track by file.id">
+            <td>{{file.filename}}</td>
+            <td>{{file.contentType}}</td>
+            <td>{{file.author.login  || file.author.firstName}}</td>
+            <td>{{file.length | prettyBytes}}</td>
+            <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
+            <td class="text-right">
+                <button type="submit"
+                        ng-click="download(file.id)"
+                        class="btn btn-success btn-sm">
+                    <span class="glyphicon glyphicon-download"></span>
+                </button>
+                <button type="submit"
+                        ng-click="delete(file.id)"
+                        class="btn btn-danger btn-sm">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="panel-footer text-center">
+        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
+                        ng-change="loadAll()"></uib-pagination>
+    </div>
+</div>
+

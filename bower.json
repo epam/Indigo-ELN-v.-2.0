@@ -24,7 +24,8 @@
     "angular-validator": "0.2.6",
     "angular-form-builder": "0.1.0",
     "angular-cookies": "1.4.8",
-    "simditor": "2.3.6"
+    "simditor": "2.3.6",
+    "angular-pretty-bytes": "1.0.1"
   },
   "overrides": {
     "bootstrap": {

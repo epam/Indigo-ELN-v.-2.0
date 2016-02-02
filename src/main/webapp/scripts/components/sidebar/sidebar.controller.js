@@ -38,7 +38,11 @@ angular
         };
 
         $scope.toggleAdministration = function() {
-
+            if (!$scope.adminToggled) {
+                $scope.adminToggled = true;
+            } else {
+                $scope.adminToggled = false;
+            }
         };
 
         $scope.toggleUsersAndRoles = function() {
