@@ -8,7 +8,11 @@ angular.module('indigoeln')
 
         $scope.page = 1;
         $scope.loadAll = function () {
-            FileUploaderService.query({projectId: entityid, page: $scope.page - 1, size: 20}, function (result, headers) {
+            FileUploaderService.query({
+                projectId: entityid,
+                page: $scope.page - 1,
+                size: 20
+            }, function (result, headers) {
                 $scope.links = ParseLinks.parse(headers('link'));
                 $scope.totalItems = headers('X-Total-Count');
                 $scope.files = result;
@@ -49,10 +53,6 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.download = function (id) {
-            FileUploaderService.get({id: id});
-        };
-
         $scope.delete = function (id) {
             $uibModal.open({
                 animation: true,
@@ -61,16 +61,16 @@ angular.module('indigoeln')
                     $scope.delete = function () {
                         FileUploaderService.delete({id: id})
                             .$promise.then(
-                                function(result){
-                                    AlertService.success('File was successfully deleted');
-                                    thatScope.loadAll();
-                                    $uibModalInstance.close(true);
-                                },
-                                function(error){
-                                    AlertService.error('Error deleting the file: ' +  error);
-                                    $uibModalInstance.close(true);
-                                }
-                            );
+                            function (result) {
+                                AlertService.success('File was successfully deleted');
+                                thatScope.loadAll();
+                                $uibModalInstance.close(true);
+                            },
+                            function (error) {
+                                AlertService.error('Error deleting the file: ' + error);
+                                $uibModalInstance.close(true);
+                            }
+                        );
                     };
                     $scope.clear = function () {
                         $uibModalInstance.dismiss('cancel');
@@ -79,7 +79,11 @@ angular.module('indigoeln')
             });
         };
         $scope.search = function () {
-            FileUploaderService.query({projectId: entityid, page: $scope.page - 1, size: 5}, function (result, headers) {
+            FileUploaderService.query({
+                projectId: entityid,
+                page: $scope.page - 1,
+                size: 5
+            }, function (result, headers) {
                 $scope.links = ParseLinks.parse(headers('link'));
                 $scope.totalItems = headers('X-Total-Count');
                 $scope.files = $filter('filter')(result, $scope.searchText);

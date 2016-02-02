@@ -1,8 +1,6 @@
 package com.epam.indigoeln.web.rest.util;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.InvalidMediaTypeException;
-import org.springframework.http.MediaType;
 
 /**
  * Utility class for http header creation.
@@ -23,15 +21,9 @@ public class HeaderUtil {
         return headers;
     }
 
-    public static HttpHeaders createAttachmentDescription(String filename, String contentType, long contentLength) {
+    public static HttpHeaders createAttachmentDescription(String filename) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentDispositionFormData("attachment", filename);
-        headers.setContentLength(contentLength);
-        try {
-            headers.setContentType(MediaType.parseMediaType(contentType));
-        } catch (InvalidMediaTypeException ex) {
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        }
+        headers.add("Content-Disposition", "attachment; filename=\"" + filename + "\"");
         return headers;
     }
 

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ProjectFileResource.URL_MAPPING)
+//@Controller
 public class ProjectFileResource {
 
     static final String URL_MAPPING = "/api/project_files";
@@ -67,17 +69,13 @@ public class ProjectFileResource {
     /**
      * GET  /project_files/:id -> Returns file with specified id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Secured(AuthoritiesConstants.PROJECT_READER)
     public ResponseEntity<InputStreamResource> getFile(@PathVariable("id") String id) {
         log.debug("REST request to get project file: {}", id);
-        GridFSDBFile gridFSDBFile = fileService.getFileById(id);
-
-        HttpHeaders headers = HeaderUtil.createAttachmentDescription(gridFSDBFile.getFilename(),
-                gridFSDBFile.getContentType(), gridFSDBFile.getLength());
-
-        InputStreamResource inputStreamResource = new InputStreamResource(gridFSDBFile.getInputStream());
-        return new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+        GridFSDBFile file = fileService.getFileById(id);
+        HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
+        return new ResponseEntity<>(new InputStreamResource(file.getInputStream()), headers, HttpStatus.OK);
     }
 
     /**
