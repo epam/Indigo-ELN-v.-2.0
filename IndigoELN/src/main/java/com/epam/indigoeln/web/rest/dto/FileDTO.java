@@ -1,7 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.util.ConverterUtil;
+import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.mongodb.DBObject;
 import com.mongodb.gridfs.GridFSFile;
 
@@ -77,6 +77,6 @@ public class FileDTO {
     }
 
     private void convertMetadata(DBObject metadata) {
-        author = ConverterUtil.getAuthorFromFileMetadata(metadata);
+        author = GridFSFileUtil.getAuthorFromMetadata(metadata);
     }
 }
