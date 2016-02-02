@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -68,17 +69,13 @@ public class ExperimentFileResource {
     /**
      * GET  /experiment_files/:id -> Returns file with specified id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Secured(AuthoritiesConstants.EXPERIMENT_READER)
     public ResponseEntity<InputStreamResource> getFile(@PathVariable("id") String id) {
         log.debug("REST request to get experiment file: {}", id);
         GridFSDBFile gridFSDBFile = fileService.getFileById(id);
-
-        HttpHeaders headers = HeaderUtil.createAttachmentDescription(gridFSDBFile.getFilename(),
-                gridFSDBFile.getContentType(), gridFSDBFile.getLength());
-
-        InputStreamResource inputStreamResource = new InputStreamResource(gridFSDBFile.getInputStream());
-        return new ResponseEntity<>(inputStreamResource, headers, HttpStatus.OK);
+        HttpHeaders headers = HeaderUtil.createAttachmentDescription(gridFSDBFile.getFilename());
+        return new ResponseEntity<>(new InputStreamResource(gridFSDBFile.getInputStream()), headers, HttpStatus.OK);
     }
 
     /**
