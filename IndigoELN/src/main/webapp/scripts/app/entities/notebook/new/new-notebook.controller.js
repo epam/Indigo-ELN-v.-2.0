@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NewNotebookController', function ($scope, $state, $stateParams, $uibModal, notebook, projectId) {
+    .controller('NewNotebookController', function ($scope, $rootScope, $state, $stateParams, $uibModal, notebook, projectId) {
         $scope.notebook = notebook;
         $scope.description = '';
 
@@ -31,4 +31,10 @@ angular.module('indigoeln')
             }, function () {
             });
         }
+
+        function init() {
+            $rootScope.$broadcast('notebook-created', {projectId: projectId, id: notebook.id});
+        }
+
+        init();
     });

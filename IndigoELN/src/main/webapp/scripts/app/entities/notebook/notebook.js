@@ -5,19 +5,29 @@ angular.module('indigoeln')
         $stateProvider
             .state('notebook', {
                 parent: 'entity',
-                url: '/notebook',
+                url: '/notebook/{id}',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',
                         controller: 'NotebookDetailController'
                     }
                 },
+                params: {
+                    projectId: ''
+                },
+                data: {
+                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    pageTitle: 'indigoeln'
+                },
                 resolve: {
+                    data: ['$stateParams', 'Notebook', function($stateParams, Notebook) {
+                        return Notebook.get({id : $stateParams.id}).$promise;
+                    }]
                 }
             })
-            .state('notebook.new', {
-                parent: 'notebook',
-                url: '/new',
+            .state('newnotebook', {
+                parent: 'entity',
+                url: '/newnotebook',
                 data: {
                     authorities: []
                 },

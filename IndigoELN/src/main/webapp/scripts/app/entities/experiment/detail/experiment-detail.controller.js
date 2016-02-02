@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentDetailController', function($scope, $stateParams, Experiment) {
-        $scope.experiment = Experiment.get({id: $stateParams.id});
+    .controller('ExperimentDetailController', function($scope, $stateParams, data) {
+        $scope.experiment = data;
         $scope.getIdleWorkdays = getIdleWorkdays;
 
         function getIdleWorkdays(lastEditDate) {

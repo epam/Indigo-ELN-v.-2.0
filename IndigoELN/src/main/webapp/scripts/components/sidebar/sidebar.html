@@ -5,7 +5,7 @@
                 <span>{{project.node.name}}</span>
                 <ul ng-if="project.notebooks.length">
                     <li ng-repeat="notebook in project.notebooks"
-                        ng-click="toggleExperiments(notebook); $event.stopPropagation();">
+                        ng-click="notebook.projectId = project.node.id; toggleExperiments(notebook); $event.stopPropagation();">
                         <i class="fa fa-circle"></i>
                         <span>{{notebook.node.name}}</span>
                         <ul ng-if="notebook.experiments.length">
@@ -33,8 +33,8 @@
             <li ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
                 <span>Users and Roles</span>
             </li>
-            <li ng-click="togglePermissions(); $event.stopPropagation();">
-                <span>Permissions</span>
+            <li ng-click="toggleAuthorities(); $event.stopPropagation();">
+                <span>Manage Authorities</span>
             </li>
             <li ng-click="toggleTemplates(); $event.stopPropagation();">
                 <span>Manage Templates</span>
