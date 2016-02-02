@@ -96,7 +96,7 @@ angular
             $state.go('user-management');
         };
 
-        $scope.togglePermissions = function() {
+        $scope.toggleAuthorities = function() {
 
         };
 
