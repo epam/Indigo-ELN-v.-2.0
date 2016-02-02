@@ -3,7 +3,6 @@ package com.epam.indigoeln.web.rest;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
+import com.epam.indigoeln.core.integration.BingoResult;
 
 @RestController
 @RequestMapping("/api/bingodb")
@@ -50,10 +50,14 @@ public class BingoDbIntegrationResource {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addMolecule(@RequestBody String molecule) throws URISyntaxException {
-        Integer result = bingoDbService.addMolecule(molecule);
-        return ResponseEntity.created(new URI(BINGODB_MOLECULE_PATH + result))
-                    .headers(HeaderUtil.createEntityCreationAlert(BINGODB_MOLECULE, result.toString()))
-                    .body(result.toString());
+        BingoResult result = bingoDbService.addMolecule(molecule);
+        if(result.isSuccess()) {
+            return ResponseEntity.created(new URI(BINGODB_MOLECULE_PATH + result.getId()))
+                    .headers(HeaderUtil.createEntityCreationAlert(BINGODB_MOLECULE, result.getId().toString()))
+                    .body(result.getId().toString());
+        } else {
+            return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -67,9 +71,15 @@ public class BingoDbIntegrationResource {
         if(!bingoDbService.getMolecule(id).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_MOLECULE, id.toString()))
-                .body(bingoDbService.updateMolecule(id, molecule).toString());
+
+        BingoResult result = bingoDbService.updateMolecule(id, molecule);
+        if(result.isSuccess()) {
+            return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_MOLECULE, id.toString()))
+                    .body(id.toString());
+        } else {
+            return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -103,10 +113,14 @@ public class BingoDbIntegrationResource {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addReaction(@RequestBody String reaction) throws URISyntaxException {
-        Integer result = bingoDbService.addReaction(reaction);
-        return ResponseEntity.created(new URI(BINGODB_REACTION_PATH + result))
-                .headers(HeaderUtil.createEntityCreationAlert(BINGODB_REACTION, result.toString()))
-                .body(result.toString());
+        BingoResult result = bingoDbService.addReaction(reaction);
+        if(result.isSuccess()) {
+            return ResponseEntity.created(new URI(BINGODB_REACTION_PATH + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(BINGODB_REACTION, result.getId().toString()))
+                .body(result.getId().toString());
+        } else {
+            return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -121,9 +135,15 @@ public class BingoDbIntegrationResource {
         if(!bingoDbService.getReaction(id).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_REACTION, id.toString()))
-                .body(bingoDbService.updateReaction(id, reaction).toString());
+
+        BingoResult result = bingoDbService.updateReaction(id, reaction);
+        if(result.isSuccess()) {
+            return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_REACTION, id.toString()))
+                    .body(id.toString());
+        } else {
+            return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**

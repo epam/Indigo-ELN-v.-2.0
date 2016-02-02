@@ -3,8 +3,6 @@ package com.epam.indigoeln.core.service.bingodb;
 import java.util.Base64;
 import java.util.Optional;
 
-import javax.validation.ValidationException;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -50,23 +48,20 @@ public class BingoDbIntegrationService {
     /**
      * Add molecule to BingoDB and return Bingo DB id
      * @param molfile structure of molecule
-     * @return id of created molecule
+     * @return result of operation
      */
-    public Integer addMolecule(String molfile) {
-        BingoResult result = execute(String.format(BINGO_URL_MOLECULE, bingoUrl), HttpMethod.POST, molfile);
-        return checkBingoResult(result).getId();
+    public BingoResult addMolecule(String molfile) {
+        return execute(String.format(BINGO_URL_MOLECULE, bingoUrl), HttpMethod.POST, molfile);
     }
 
     /**
      * Update existing molecule by id
      * @param id id of existing molecule
      * @param molfile structure of molecule (molfile)
-     * @return id of updated molecule
+     * @return result of operation
      */
-    public Integer updateMolecule(Integer id, String molfile) {
-        BingoResult result = execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.PUT, molfile);
-        checkBingoResult(result);
-        return id;
+    public BingoResult updateMolecule(Integer id, String molfile) {
+        return execute(String.format(BINGO_URL_GET_OR_UPDATE_MOLECULE, bingoUrl, id), HttpMethod.PUT, molfile);
     }
 
     /**
@@ -90,23 +85,20 @@ public class BingoDbIntegrationService {
     /**
      * Add reaction to BingoDB and return Bingo DB id
      * @param molfile structure of reaction
-     * @return id of created reaction
+     * @return result of operation
      */
-    public Integer addReaction(String molfile) {
-        BingoResult result = execute(String.format(BINGO_URL_REACTION, bingoUrl), HttpMethod.POST, molfile);
-        return checkBingoResult(result).getId();
+    public BingoResult addReaction(String molfile) {
+        return execute(String.format(BINGO_URL_REACTION, bingoUrl), HttpMethod.POST, molfile);
     }
 
     /**
      * Update existing reaction by id
      * @param id id of existing reaction
      * @param molfile structure of reaction (molfile)
-     * @return id of updated reaction
+     * @return result of operation
      */
-    public Integer updateReaction(Integer id, String molfile) {
-        BingoResult result = execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.PUT, molfile);
-        checkBingoResult(result);
-        return id;
+    public BingoResult updateReaction(Integer id, String molfile) {
+        return execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.PUT, molfile);
     }
 
     /**
@@ -132,13 +124,6 @@ public class BingoDbIntegrationService {
             throw new HttpClientErrorException(response.getStatusCode());
         }
         return response.getBody();
-    }
-
-    private BingoResult checkBingoResult(BingoResult result) {
-        if (!result.isSuccess()) {
-            throw new ValidationException("BingoDB request failed with error: " + result.getErrorMessage());
-        }
-        return result;
     }
 
     @SuppressWarnings("unchecked")
