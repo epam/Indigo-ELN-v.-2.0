@@ -32,7 +32,6 @@ angular.module('indigoeln').controller('NewProjectDialogController', function ($
             $scope.project.accessList.push(userPermission);
         });
         $scope.isSaving = true;
-        //$scope.project.author = currentUser;
         $scope.project.users = $scope.destUsers;
         if ($scope.project.id) {
             Project.update($scope.project, onCreateSuccess, onCreateError);
@@ -95,17 +94,17 @@ angular.module('indigoeln').controller('NewProjectDialogController', function ($
         // 'is letter' check
         if ((event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)) {
             $scope.filterData = String.fromCharCode(event.charCode);
-        } else if (event.charCode == 32) {
+        } else if (event.charCode === 32) {
             $scope.filterData = '';
         }
-    }
+    };
 
     $scope.userFilter = function(user) {
         if (user.login.indexOf($scope.filterData) > -1) {
             return true;
         }
         return false;
-    }
+    };
 
 });
 

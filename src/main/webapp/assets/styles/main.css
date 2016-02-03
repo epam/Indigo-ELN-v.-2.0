@@ -153,3 +153,15 @@
 .components .component > .panel-body {
     display: none;
 }
+
+/* editable text fields */
+.editable, .editable:hover {
+    cursor: pointer !important;
+    text-decoration: none;
+}
+
+.disabled, .disabled:hover  {
+    color: black;
+    text-decoration: none;
+    cursor: default !important;
+}

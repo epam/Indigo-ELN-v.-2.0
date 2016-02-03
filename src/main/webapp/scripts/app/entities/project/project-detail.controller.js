@@ -1,10 +1,22 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $state, $rootScope, $uibModal, Project, project,users) {
+    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, project, users) {
 
         $scope.project = project;
         $scope.users = users;
+
+        $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');
+        $scope.show = function(form) {
+            if (!$scope.editDisabled) {
+                form.$show();
+            }
+        };
+
+        // 'PROJECT_READER'
+        // 'PROJECT_CREATOR'
+        // 'PROJECT_REMOVER'
+        // 'CONTENT_EDITOR'
 
         // prepare tags and keywords for UI
         $scope.tags = [];
@@ -18,10 +30,12 @@ angular.module('indigoeln')
 
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
+            AlertService.success('Project successfully saved');
         };
 
         var onSaveError = function (result) {
             $scope.isSaving = false;
+            AlertService.error('Error saving project: ' + result);
         };
 
         $scope.save = function () {

@@ -25,17 +25,6 @@ angular.module('indigoeln')
         };
         $scope.loadAll();
 
-        var onSaveSuccess = function (result) {
-            $scope.isSaving = false;
-            $scope.file = null;
-            $scope.loadAll();
-        };
-
-        var onSaveError = function (result) {
-            $scope.isSaving = false;
-            $scope.loadAll();
-        };
-
         var thatScope = $scope;
 
         $scope.attach = function () {
