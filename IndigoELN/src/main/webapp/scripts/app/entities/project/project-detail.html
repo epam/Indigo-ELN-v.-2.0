@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-xs-10">
             <div class="editable-text">
-                <h2 editable-text="project.name">{{ project.name }}</h2>
+                <h2 editable-text="project.name" ng-class="{disabled: editDisabled}" e-form="namefield" ng-click="show(namefield)">{{ project.name }}</h2>
             </div>
 
             <h4>Project Participants</h4>
@@ -13,14 +13,14 @@
                 </ul>
             </div>
 
-            <!--<button class="btn btn-primary" type="button" ng-click="addUser()">Add User</button>-->
+            <!--<button class="btn btn-primary" type="button" ng-click="addUser()">Manage Users</button>-->
 
             <h4>Tags</h4>
-            <tags-input ng-model="tags"></tags-input>
-
+            <tags-input ng-model="tags" ng-disabled="editDisabled"></tags-input>
+            
             <h4>Keywords</h4>
             <div>
-                <a href="#" editable-textarea="keywords" e-rows="3" e-cols="60">
+                <a ng-class="{disabled: editDisabled}" e-form="keyfield" ng-click="show(keyfield)"  editable-textarea="keywords" e-rows="3" e-cols="60">
                     <pre>{{ keywords || 'no keywords' }}</pre>
                 </a>
             </div>
@@ -28,16 +28,12 @@
             <h4>Literature References</h4>
 
             <div>
-                <a href="#" editable-textarea="project.references" e-rows="3" e-cols="60">
+                <a ng-class="{disabled: editDisabled}" e-form="refsfield" ng-click="show(refsfield)" editable-textarea="project.references" e-rows="3" e-cols="60">
                     <pre>{{ project.references || 'no literature references' }}</pre>
                 </a>
             </div>
 
-            <!--<div class="editable-list">-->
-                <!--<ul contenteditable="true">-->
-                    <!--<li ng-repeat="ref in project.references"> {{ ref || 'no literature references' }}</li>-->
-                <!--</ul>-->
-            <!--</div>-->
+            <!--<button ng-click="editDisabled=!editDisabled">disable all / enable all</button>-->
 
             <h4>Description</h4>
             <textarea autofocus my-text-editor ng-model="project.description"></textarea>
