@@ -1,12 +1,17 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
-import com.epam.indigoeln.core.util.SequenceNumberGenerationUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -16,7 +21,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,6 +34,9 @@ public class ExperimentService {
 
     @Autowired
     private ExperimentRepository experimentRepository;
+
+    @Autowired
+    private ComponentRepository componentRepository;
 
     public Collection<Experiment> getAllExperiments() {
         return experimentRepository.findAll();
@@ -94,7 +104,8 @@ public class ExperimentService {
 
         // Adding of OWNER's permissions for specified User to experiment
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user.getId());
-        validateAndSetExperimentNumber(experiment);
+
+        experiment.setComponents(updateComponents(null, experiment.getComponents()));
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
@@ -102,30 +113,75 @@ public class ExperimentService {
         return experiment;
     }
 
-    public Experiment updateExperiment(Experiment experiment, User user) {
-        Experiment experimentFromDB = experimentRepository.findOne(experiment.getId());
+    public Experiment updateExperiment(Experiment experimentForSave, User user) {
+        Experiment experimentFromDB = experimentRepository.findOne(experimentForSave.getId());
         if (experimentFromDB == null) {
-            throw EntityNotFoundException.createWithExperimentId(experiment.getId());
+            throw EntityNotFoundException.createWithExperimentId(experimentForSave.getId());
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
         // "Update Entity" in experiment's access list, or must have ADMIN authority)
         if (!PermissionUtil.isContentEditor(user)) {
-            Notebook notebook = notebookRepository.findByExperimentId(experiment.getId());
+            Notebook notebook = notebookRepository.findByExperimentId(experimentForSave.getId());
             if (notebook == null) {
-                throw EntityNotFoundException.createWithNotebookChildId(experiment.getId());
+                throw EntityNotFoundException.createWithNotebookChildId(experimentForSave.getId());
             }
 
             if (!PermissionUtil.hasPermissions(user,
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
-                        "Current user doesn't have permissions to update experiment with id = " + experiment.getId());
+                        "Current user doesn't have permissions to update experiment with id = " + experimentForSave.getId());
             }
         }
-        validateAndSetExperimentNumber(experiment);
-        return experimentRepository.save(experiment);
+
+        experimentFromDB.setExperimentNumber(experimentForSave.getExperimentNumber());
+        experimentFromDB.setTitle(experimentForSave.getTitle());
+        experimentFromDB.setProject(experimentForSave.getProject());
+        experimentFromDB.setTemplateId(experimentForSave.getTemplateId());
+        experimentFromDB.setAccessList(experimentForSave.getAccessList());
+        experimentFromDB.setAuthor(experimentForSave.getAuthor());
+        experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
+        experimentFromDB.setComments(experimentForSave.getComments());
+        experimentFromDB.setFileIds(experimentForSave.getFileIds());
+        experimentFromDB.setStatus(experimentForSave.getStatus());
+        experimentFromDB.setWitness(experimentForSave.getWitness());
+
+        experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
+
+        return experimentRepository.save(experimentFromDB);
     }
+
+    private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
+
+        List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
+        List<String> componentIdsForRemove = componentsFromDb.stream().map(Component::getId).collect(Collectors.toList());
+
+        List<Component> componentsForSave = new ArrayList<>();
+        for(Component component : newComponents) {
+            if(component.getId() != null) {
+                Optional<Component> existing = componentsFromDb.stream().filter(c -> c.getId().equals(component.getId())).findFirst();
+                if(existing.isPresent()) {
+                    Component componentForSave = existing.get();
+                    componentForSave.setBingoDbId(component.getBingoDbId());
+                    componentForSave.setComponentTemplateId(component.getComponentTemplateId());
+                    componentForSave.setContent(component.getContent());
+                    componentIdsForRemove.remove(componentForSave.getId());
+                    componentsForSave.add(componentForSave);
+                } else {
+                    throw new ValidationException("Cannot find component with id=" + component.getId());
+                }
+            } else {
+                componentsForSave.add(component);
+            }
+        }
+
+        componentRepository.delete(
+                componentsFromDb.stream().filter(c -> componentIdsForRemove.contains(c.getId())).collect(Collectors.toList()));
+
+        return componentRepository.save(componentsForSave);
+    }
+
 
     public void deleteExperiment(String id) {
         Experiment experiment = experimentRepository.findOne(id);
@@ -248,29 +304,5 @@ public class ExperimentService {
         dto.setWaitingSignatureExp(Arrays.asList(set2));
         dto.setSubmittedAndSigningExp(Arrays.asList(set3));
         return dto;
-    }
-
-    /**
-     * Auto generate experiment number if not specified, otherwise
-     * validate experiment number for uniqueness (experiment number is unique in Project)
-     * @param experiment experiment
-     * @return experiment enriched by experiment number
-     * @throws ValidationException if experiment number isn't unique
-     */
-    private Experiment validateAndSetExperimentNumber(Experiment experiment) {
-        Collection<ExperimentShort> projectExperiments = experimentRepository.findExperimentsByProject(experiment.getProject());
-        Collection<String> projectExperimentNumbers = projectExperiments.stream().
-                map(ExperimentShort::getExperimentNumber).collect(Collectors.toList());
-
-        if(experiment.getExperimentNumber() == null) {
-            experiment.setExperimentNumber(
-                    SequenceNumberGenerationUtil.generateNextExperimentNumber(projectExperimentNumbers));
-        } else if(projectExperimentNumbers.contains(experiment.getExperimentNumber())){
-            throw new ValidationException(
-                    String.format("The experiment number '%s' already exists in the system", experiment.getExperimentNumber())
-            );
-        }
-
-        return experiment;
     }
 }

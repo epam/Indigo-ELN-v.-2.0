@@ -31,5 +31,7 @@ public interface CustomDtoMapper {
 
     Component convertFromDTO(ComponentDTO componentDTO);
 
+    ComponentDTO convertToDTO(Component component);
+
     Template convertFromDTO(TemplateDTO templateDTO);
 }

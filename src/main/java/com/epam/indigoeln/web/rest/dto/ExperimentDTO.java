@@ -3,10 +3,12 @@ package com.epam.indigoeln.web.rest.dto;
 import com.epam.indigoeln.core.model.Experiment;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * DTO for Experiment
- * Does not contain embedded fields, such as Author, Component, etc. // TODO Need to supplement
  */
 public class ExperimentDTO implements Serializable {
 
@@ -17,6 +19,7 @@ public class ExperimentDTO implements Serializable {
     private String project;
     private String experimentNumber;
     private String templateId;
+    private List<ComponentDTO> components = new ArrayList<>();
 
     public ExperimentDTO() {
     }
@@ -27,6 +30,8 @@ public class ExperimentDTO implements Serializable {
         this.project =experiment.getProject();
         this.experimentNumber =experiment.getExperimentNumber();
         this.templateId =experiment.getTemplateId();
+        this.components = experiment.getComponents() != null ?
+            experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     public String getId() {
@@ -49,6 +54,10 @@ public class ExperimentDTO implements Serializable {
         return project;
     }
 
+    public List<ComponentDTO> getComponents() {
+        return components;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
@@ -67,5 +76,9 @@ public class ExperimentDTO implements Serializable {
 
     public void setProject(String project) {
         this.project = project;
+    }
+
+    public void setComponents(List<ComponentDTO> components) {
+        this.components = components != null ? components : new ArrayList<>();
     }
 }
