@@ -1,34 +1,25 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.Authority;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.user.AuthorityRepository;
-import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.security.AuthoritiesConstants;
+import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -56,23 +47,52 @@ import java.util.stream.Collectors;
  * <p>Another option would be to have a specific JPA entity graph to handle this case.</p>
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping(UserResource.URL_MAPPING)
 public class UserResource {
 
+    static final String URL_MAPPING = "/api/users";
+
     private final Logger log = LoggerFactory.getLogger(UserResource.class);
-
-    @Autowired
-    private UserRepository userRepository;
-
-
-    @Autowired
-    private AuthorityRepository authorityRepository;
 
     @Autowired
     private UserService userService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    CustomDtoMapper dtoMapper;
+
+    /**
+     * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
+     * GET  /users -> Returns all users<br/>
+     * Also use a <b>pageable</b> interface: <b>page</b>, <b>size</b>, <b>sort</b><br/>
+     * <b>Example</b>: page=0&size=30&sort=firstname&sort=lastname,asc - retrieves all elements in specified order
+     * (<b>firstname</b>: ASC, <b>lastname</b>: ASC) from 0 page with size equals to 30<br/>
+     * <b>By default</b>: page = 0, size = 20 and no sort<br/>
+     * <b>Available sort options</b>: login, firstName, lastName, email, activated
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ManagedUserDTO>> getAllUsers(Pageable pageable) throws URISyntaxException {
+        log.debug("REST request to get all users");
+        Page<User> page = userService.getAllUsers(pageable);
+
+        List<ManagedUserDTO> managedUserDTOs = page.getContent().stream()
+                .map(ManagedUserDTO::new).collect(Collectors.toList());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
+        return ResponseEntity.ok().headers(headers).body(managedUserDTOs);
+    }
+
+    /**
+     * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
+     * GET  /users/:login -> Returns specified user.
+     */
+    @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ManagedUserDTO> getUser(@PathVariable String login) {
+        log.debug("REST request to get User : {}", login);
+        User user = userService.getUserWithAuthoritiesByLogin(login);
+
+        return ResponseEntity.ok(new ManagedUserDTO(user));
+    }
 
     /**
      * POST  /users -> Creates a new user.
@@ -82,107 +102,50 @@ public class UserResource {
      * The user needs to be activated on creation.
      * </p>
      */
-    @RequestMapping(value = "/users",
-            method = RequestMethod.POST,
+    @RequestMapping(method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
-    public ResponseEntity<?> createUser(@RequestBody ManagedUserDTO managedUserDTO, HttpServletRequest request) throws URISyntaxException {
-        log.debug("REST request to save User : {}", managedUserDTO);
-        if (userRepository.findOneByLogin(managedUserDTO.getLogin()).isPresent()) {
-            return ResponseEntity.badRequest()
-                    .headers(HeaderUtil.createFailureAlert("user-management", "userexists", "Login already in use"))
-                    .body(null);
-        } else {
-            User newUser = userService.createUser(managedUserDTO);
-            return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
-                    .headers(HeaderUtil.createAlert("A user is created with identifier " + newUser.getLogin(), newUser.getLogin()))
-                    .body(newUser);
-        }
+    public ResponseEntity<ManagedUserDTO> createUser(@RequestBody ManagedUserDTO managedUserDTO)
+            throws URISyntaxException {
+        log.debug("REST request to create User: {}", managedUserDTO);
+        User user = dtoMapper.convertFromDTO(managedUserDTO);
+        user = userService.createUser(user);
+        HttpHeaders headers = HeaderUtil.createAlert(
+                "A user is created with identifier " + user.getLogin(), user.getLogin());
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + user.getLogin()))
+                .headers(headers).body(new ManagedUserDTO(user));
     }
 
     /**
      * PUT  /users -> Updates an existing User.
      */
-    @RequestMapping(value = "/users",
-            method = RequestMethod.PUT,
+    @RequestMapping(method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
-    public ResponseEntity<ManagedUserDTO> updateUser(@RequestBody ManagedUserDTO managedUserDTO) throws URISyntaxException {
-        log.debug("REST request to update User : {}", managedUserDTO);
-        Optional<User> existingUser = userRepository.findOneByLogin(managedUserDTO.getLogin());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(managedUserDTO.getId()))) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("user-management", "userexists", "Login already in use")).body(null);
-        }
-        return userRepository
-                .findOneById(managedUserDTO.getId())
-                .map(user -> {
-                    user.setLogin(managedUserDTO.getLogin());
-                    user.setFirstName(managedUserDTO.getFirstName());
-                    user.setLastName(managedUserDTO.getLastName());
-                    user.setEmail(managedUserDTO.getEmail());
-                    user.setActivated(managedUserDTO.isActivated());
-                    String encryptedPassword = null;
-                    if (!Strings.isNullOrEmpty(managedUserDTO.getPassword())) {
-                        encryptedPassword = passwordEncoder.encode(managedUserDTO.getPassword());
-                    } else {
-                        encryptedPassword = user.getPassword();
-                    }
-                    user.setPassword(encryptedPassword);
-                    Set<Authority> authorities = user.getAuthorities();
-                    authorities.clear();
-                    managedUserDTO.getAuthorities().stream().forEach(
-                            authority -> authorities.add(authorityRepository.findOne(authority))
-                    );
-                    userRepository.save(user);
-                    return ResponseEntity.ok()
-                            .headers(HeaderUtil.createAlert("A user is updated with identifier " + managedUserDTO.getLogin(), managedUserDTO.getLogin()))
-                            .body(new ManagedUserDTO(userRepository
-                                    .findOne(managedUserDTO.getId())));
-                })
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
-
-    }
-
-    /**
-     * GET  /users -> get all users.
-     */
-    @RequestMapping(value = "/users",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ManagedUserDTO>> getAllUsers(Pageable pageable)
-            throws URISyntaxException {
-        Page<User> page = userRepository.findAll(pageable);
-        List<ManagedUserDTO> managedUserDTOs = page.getContent().stream()
-                .map(ManagedUserDTO::new)
-                .collect(Collectors.toList());
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/users");
-        return new ResponseEntity<>(managedUserDTOs, headers, HttpStatus.OK);
-    }
-
-    /**
-     * GET  /users/:login -> get the "login" user.
-     */
-    @RequestMapping(value = "/users/{login:[_'.@a-z0-9-]+}",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ManagedUserDTO> getUser(@PathVariable String login) {
-        log.debug("REST request to get User : {}", login);
-        return userService.getUserWithAuthoritiesByLogin(login)
-                .map(ManagedUserDTO::new)
-                .map(managedUserDTO -> new ResponseEntity<>(managedUserDTO, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<ManagedUserDTO> updateUser(@RequestBody ManagedUserDTO managedUserDTO) {
+        log.debug("REST request to update User: {}", managedUserDTO);
+        User user = dtoMapper.convertFromDTO(managedUserDTO);
+        user = userService.updateUser(user);
+        HttpHeaders headers = HeaderUtil.createAlert(
+                "A user is updated with identifier " + user.getLogin(), user.getLogin());
+        return ResponseEntity.ok().headers(headers).body(new ManagedUserDTO(user));
     }
 
     /**
      * DELETE  USER :login -> delete the "login" User.
      */
-    @RequestMapping(value = "/users/{login}",
-            method = RequestMethod.DELETE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    @Secured(AuthoritiesConstants.ADMIN)
+    @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
         log.debug("REST request to delete User: {}", login);
-        userService.deleteUserInformation(login);
-        return ResponseEntity.ok().headers(HeaderUtil.createAlert("A user is deleted with identifier " + login, login)).build();
+        userService.deleteUserByLogin(login);
+        HttpHeaders headers = HeaderUtil.createAlert("A user is deleted with identifier " + login, login);
+        return ResponseEntity.ok().headers(headers).build();
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<Void> userAlreadyExists() {
+        HttpHeaders headers = HeaderUtil.createFailureAlert(
+                "user-management", "userexists", "Login already in use");
+        return ResponseEntity.badRequest().headers(headers).build();
     }
 }

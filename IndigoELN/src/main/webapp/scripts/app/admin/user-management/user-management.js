@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'admin',
                 url: '/user-management',
                 data: {
-                    authorities: ['ROLE_ADMIN'],
+                    authorities: ['USER_EDITOR'],
                     pageTitle: 'indigoeln'
                 },
                 views: {
@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'user-management',
                 url: '/{login}/delete',
                 data: {
-                    authorities: ['ROLE_ADMIN']
+                    authorities: ['USER_EDITOR']
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({

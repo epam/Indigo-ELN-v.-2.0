@@ -101,7 +101,7 @@ angular
         };
 
         $scope.toggleTemplates = function() {
-
+            $state.go('template');
         };
 
         $scope.toggleDictionaries = function() {

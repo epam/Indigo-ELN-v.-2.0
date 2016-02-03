@@ -1,19 +1,15 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Authority;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.security.Authority;
 
 import java.util.List;
 
 public class PermissionUtil {
 
-    public static boolean isAdmin(User user) {
-        return user.getAuthorities().contains(Authority.ADMIN);
-    }
-
-    public static boolean hasAuthority(User user, String authority) {
-        return user.getAuthorities().stream().anyMatch(auth -> auth.getName().equals(authority));
+    public static boolean isContentEditor(User user) {
+        return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }
 
     public static UserPermission findPermissionsByUserId(
@@ -29,7 +25,7 @@ public class PermissionUtil {
     public static boolean hasPermissions(User user,
                                          List<UserPermission> accessList,
                                          String permission) {
-        if (isAdmin(user)) {
+        if (isContentEditor(user)) {
             return true;
         } else {
             // Check of UserPermission

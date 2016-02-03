@@ -13,7 +13,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -35,7 +35,7 @@ angular.module('indigoeln')
                     experiment: {}
                 },
                 data: {
-                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 bindToController: true,

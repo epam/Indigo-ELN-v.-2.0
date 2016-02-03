@@ -2,7 +2,6 @@ package com.epam.indigoeln.core.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -46,7 +45,7 @@ public final class SecurityUtils {
         Collection<? extends GrantedAuthority> authorities = securityContext.getAuthentication().getAuthorities();
         if (authorities != null) {
             for (GrantedAuthority authority : authorities) {
-                if (authority.getAuthority().equals(AuthoritiesConstants.ANONYMOUS)) {
+                if (authority.equals(Authority.ANONYMOUS)) {
                     return false;
                 }
             }
@@ -76,13 +75,13 @@ public final class SecurityUtils {
      * <p>
      * <p>The name of this method comes from the isUserInRole() method in the Servlet API</p>
      */
-    public static boolean isCurrentUserInRole(String authority) {
+    public static boolean isCurrentUserHasAuthority(Authority authority) {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
         if (authentication != null) {
             if (authentication.getPrincipal() instanceof UserDetails) {
                 UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-                return springSecurityUser.getAuthorities().contains(new SimpleGrantedAuthority(authority));
+                return springSecurityUser.getAuthorities().contains(authority);
             }
         }
         return false;
