@@ -72,7 +72,7 @@ body,
 }
 
 .main-container__content-page {
-  padding: 5px 25px;
+  /*padding: 5px 25px;*/
   width: calc(100% - 220px);
   transition: width 500ms;
 }
