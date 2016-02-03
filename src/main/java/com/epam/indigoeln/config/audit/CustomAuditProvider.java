@@ -1,15 +1,13 @@
 package com.epam.indigoeln.config.audit;
 
-import java.util.Optional;
-
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.user.UserService;
 
 /**
  * Custom Provider for auditing
@@ -25,7 +23,11 @@ public class CustomAuditProvider implements AuditorAware<User>  {
     @Override
     public User getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Optional<User> user =  userService.getUserWithAuthoritiesByLogin(auth.getName());
-        return user.isPresent() ? user.get() : null;
+        User user = null;
+        try {
+            user = userService.getUserWithAuthoritiesByLogin(auth.getName());
+        } catch (EntityNotFoundException ignored) {
+        }
+        return user;
     }
 }

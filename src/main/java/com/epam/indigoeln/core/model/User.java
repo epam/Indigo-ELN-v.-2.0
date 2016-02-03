@@ -1,9 +1,11 @@
 package com.epam.indigoeln.core.model;
 
+import com.epam.indigoeln.core.security.Authority;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.hibernate.validator.constraints.Email;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -11,7 +13,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,7 +53,8 @@ public class User implements Serializable {
     private boolean activated = false;
 
     @JsonIgnore
-    private Set<Authority> authorities = new HashSet<>();
+    @DBRef(lazy = true)
+    private List<Role> roles = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -107,12 +112,21 @@ public class User implements Serializable {
         this.activated = activated;
     }
 
-    public Set<Authority> getAuthorities() {
-        return authorities;
+    public List<Role> getRoles() {
+        return roles;
     }
 
-    public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+    public Set<Authority> getAuthorities() {
+        roles.size();
+        Set<Authority> authorities = new HashSet<>();
+        for (Role role : roles) {
+            authorities.addAll(role.getAuthorities());
+        }
+        return authorities;
     }
 
     @Override

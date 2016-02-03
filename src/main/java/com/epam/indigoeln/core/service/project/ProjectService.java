@@ -26,7 +26,7 @@ public class ProjectService {
     }
 
     public Collection<Project> getAllProjects(User user) {
-        return PermissionUtil.isAdmin(user) ?
+        return PermissionUtil.isContentEditor(user) ?
                 projectRepository.findAll() : projectRepository.findByUserId(user.getId());
     }
 

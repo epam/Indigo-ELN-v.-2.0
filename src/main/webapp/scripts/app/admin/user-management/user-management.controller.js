@@ -3,7 +3,12 @@
 angular.module('indigoeln')
     .controller('UserManagementController', function ($scope, User, ParseLinks, $filter) {
         $scope.users = [];
-        $scope.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        $scope.roles = [
+            {id: 'role-0', name: 'Role0'},
+            {id: 'role-1', name: 'Role1'},
+            {id: 'role-2', name: 'Role2'},
+            {id: 'role-3', name: 'Role3'}
+        ]; //TODO get from resource controller
 
         $scope.page = 1;
         $scope.loadAll = function () {
@@ -54,12 +59,10 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
-
         $scope.create = function () {
             $scope.user = {
                 id: null, login: null, firstName: null, lastName: null, email: null,
-                activated: true, authorities: null
+                activated: true, roles: null
             };
         };
 

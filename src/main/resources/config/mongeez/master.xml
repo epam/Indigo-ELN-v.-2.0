@@ -3,4 +3,5 @@
     <file path="authorities.xml"/>
     <file path="users.xml"/>
     <file path="authorities_for_entity_operations.xml"/>
+    <file path="new_role_authority_schema.xml"/>
 </changeFiles>

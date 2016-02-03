@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest.filter;
 
+import com.epam.indigoeln.core.security.CookieConstants;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,7 +25,7 @@ public class CsrfCookieGeneratorFilter extends OncePerRequestFilter {
         String actualToken = request.getHeader("X-CSRF-TOKEN");
         if (actualToken == null || !actualToken.equals(csrfToken.getToken())) {
             // Session cookie that will be used by AngularJS
-            String pCookieName = "CSRF-TOKEN";
+            String pCookieName = CookieConstants.CSRF_TOKEN;
             Cookie cookie = new Cookie(pCookieName, csrfToken.getToken());
             cookie.setMaxAge(-1);
             cookie.setHttpOnly(false);
