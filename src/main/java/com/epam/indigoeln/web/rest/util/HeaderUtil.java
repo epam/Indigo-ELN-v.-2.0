@@ -14,7 +14,7 @@ public class HeaderUtil {
         return headers;
     }
 
-    public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
+    public static HttpHeaders createFailureAlert(String entityName, String defaultMessage) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-indigoeln-error", defaultMessage);
         headers.add("X-indigoeln-params", entityName);

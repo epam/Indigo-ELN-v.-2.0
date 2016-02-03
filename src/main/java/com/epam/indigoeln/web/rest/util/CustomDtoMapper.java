@@ -17,13 +17,9 @@ public interface CustomDtoMapper {
     @Mapping(target = "authorities", ignore = true)
     User convertFromDTO(ManagedUserDTO userDTO);
 
-    Project convertFromDTO(ProjectDTO dto);
+    RoleDTO convertToDTO(Role role);
 
-    ProjectDTO convertToDTO(Project project);
-
-    Notebook convertFromDTO(NotebookDTO dto);
-
-    NotebookDTO convertToDTO(Notebook notebook);
+    Role convertFromDTO(RoleDTO roleDTO);
 
     Experiment convertFromDTO(ExperimentDTO dto);
 

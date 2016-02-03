@@ -7,8 +7,6 @@ import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
-import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +37,6 @@ public class ProjectResource {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    CustomDtoMapper dtoMapper;
-
     /**
      * GET  /projects -> Returns all projects for tree representation according to User permissions
      * <p>
@@ -56,8 +51,7 @@ public class ProjectResource {
         Collection<Project> projects = projectService.getAllProjects(user);
         List<ExperimentTreeNodeDTO> result = new ArrayList<>(projects.size());
         for (Project project : projects) {
-            ProjectDTO projectDTO = dtoMapper.convertToDTO(project);
-            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(projectDTO);
+            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(project);
             dto.setNodeType("project");
             dto.setHasChildren(notebookService.hasNotebooks(project, user));
             result.add(dto);
@@ -70,11 +64,11 @@ public class ProjectResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProjectDTO> getProject(@PathVariable("id") String id) {
+    public ResponseEntity<Project> getProject(@PathVariable("id") String id) {
         log.debug("REST request to get project: {}", id);
         User user = userService.getUserWithAuthorities();
         Project project = projectService.getProjectById(id, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(project));
+        return ResponseEntity.ok(project);
     }
 
     /**
@@ -83,15 +77,11 @@ public class ProjectResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) throws URISyntaxException {
-        log.debug("REST request to create project: {}", projectDTO);
+    public ResponseEntity<Project> createProject(@RequestBody Project project) throws URISyntaxException {
+        log.debug("REST request to create project: {}", project);
         User user = userService.getUserWithAuthorities();
-
-        projectDTO.setAuthor(user);
-        Project project = dtoMapper.convertFromDTO(projectDTO);
         project = projectService.createProject(project, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId()))
-                .body(dtoMapper.convertToDTO(project));
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId())).body(project);
     }
 
     /**
@@ -100,13 +90,11 @@ public class ProjectResource {
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProjectDTO> updateProject(@RequestBody ProjectDTO projectDTO) {
-        log.debug("REST request to update project: {}", projectDTO);
+    public ResponseEntity<Project> updateProject(@RequestBody Project project) {
+        log.debug("REST request to update project: {}", project);
         User user = userService.getUserWithAuthorities();
-
-        Project project = dtoMapper.convertFromDTO(projectDTO);
         project = projectService.updateProject(project, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(project));
+        return ResponseEntity.ok(project);
     }
 
     /**
