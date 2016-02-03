@@ -57,7 +57,6 @@ public class ComponentNumberResource {
         if(!projectRepository.exists(projectId)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
         return ResponseEntity.ok(componentNumberService.generateNextExperimentNumber(projectId));
     }
 
