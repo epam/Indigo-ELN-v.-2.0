@@ -7,8 +7,6 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
-import com.epam.indigoeln.web.rest.dto.NotebookDTO;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -39,9 +38,6 @@ public class NotebookResource {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    CustomDtoMapper dtoMapper;
-
     /**
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project
      * for tree representation according to User permissions
@@ -58,8 +54,7 @@ public class NotebookResource {
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
         List<ExperimentTreeNodeDTO> result = new ArrayList<>(notebooks.size());
         for (Notebook notebook : notebooks) {
-            NotebookDTO notebookDTO = dtoMapper.convertToDTO(notebook);
-            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(notebookDTO);
+            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(notebook);
             dto.setNodeType("notebook");
             dto.setHasChildren(experimentService.hasExperiments(notebook, user));
             result.add(dto);
@@ -72,11 +67,11 @@ public class NotebookResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable("id") String id) {
+    public ResponseEntity<Notebook> getNotebook(@PathVariable("id") String id) {
         log.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
         Notebook notebook = notebookService.getNotebookById(id, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(notebook));
+        return ResponseEntity.ok(notebook);
     }
 
     /**
@@ -86,15 +81,12 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> createNotebook(@RequestBody NotebookDTO notebookDTO,
+    public ResponseEntity<Notebook> createNotebook(@RequestBody @Valid Notebook notebook,
                                    @RequestParam(value = "projectId") String projectId) throws URISyntaxException {
-        log.debug("REST request to create notebook: {} for project: {}", notebookDTO, projectId);
+        log.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
-
-        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
         notebook = notebookService.createNotebook(notebook, projectId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId()))
-                .body(dtoMapper.convertToDTO(notebook));
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId())).body(notebook);
     }
 
     /**
@@ -103,13 +95,11 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> updateNotebook(@RequestBody NotebookDTO notebookDTO) {
-        log.debug("REST request to update notebook: {}", notebookDTO);
+    public ResponseEntity<Notebook> updateNotebook(@RequestBody @Valid Notebook notebook) {
+        log.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
-
-        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
         notebook = notebookService.updateNotebook(notebook, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(notebook));
+        return ResponseEntity.ok(notebook);
     }
 
     /**

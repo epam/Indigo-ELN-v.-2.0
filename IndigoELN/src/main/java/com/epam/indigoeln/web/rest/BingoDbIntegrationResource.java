@@ -49,6 +49,7 @@ public class BingoDbIntegrationResource {
     @RequestMapping(value = "/molecule/",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @SuppressWarnings("unchecked")
     public ResponseEntity<String> addMolecule(@RequestBody String molecule) throws URISyntaxException {
         BingoResult result = bingoDbService.addMolecule(molecule);
         if(result.isSuccess()) {
@@ -66,6 +67,7 @@ public class BingoDbIntegrationResource {
     @RequestMapping(value = "/molecule/{id}",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @SuppressWarnings("unchecked")
     public ResponseEntity<String> updateMolecule(@PathVariable Integer id,
                                                  @RequestBody  String molecule) {
         if(!bingoDbService.getMolecule(id).isPresent()){
@@ -112,6 +114,7 @@ public class BingoDbIntegrationResource {
     @RequestMapping(value = "/reaction/",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @SuppressWarnings("unchecked")
     public ResponseEntity<String> addReaction(@RequestBody String reaction) throws URISyntaxException {
         BingoResult result = bingoDbService.addReaction(reaction);
         if(result.isSuccess()) {
@@ -130,6 +133,7 @@ public class BingoDbIntegrationResource {
     @RequestMapping(value = "/reaction/{id}",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @SuppressWarnings("unchecked")
     public ResponseEntity<String> updateReaction(@PathVariable Integer id,
                                                  @RequestBody  String reaction) {
         if(!bingoDbService.getReaction(id).isPresent()){

@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ExperimentRepository extends MongoRepository<Experiment, String> {
 
@@ -17,6 +18,10 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
     @Query(value="{ 'project' : ?0 }", fields="{ 'id' : 1, 'title' : 1, 'experimentNumber' : 1, " +
             "'templateId' : 1, 'project' : 1}")
     Collection<ExperimentShort> findExperimentsByProject(String project);
+
+    @Query(value="{ 'project' : ?0, 'experimentNumber' : ?1 }", fields="{ 'id' : 1, 'title' : 1, 'experimentNumber' : 1, " +
+            "'templateId' : 1, 'project' : 1}")
+    Optional<ExperimentShort> findOneExperimentByProjectAndExperimentNumber(String project, String experimentNumber);
 
     @Query("{'fileIds': ?0}") //TODO try notebooks DBref $id
     Experiment findByFileId(String fileId);

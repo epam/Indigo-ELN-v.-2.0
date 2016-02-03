@@ -8,10 +8,10 @@ import java.util.OptionalLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.epam.indigoeln.core.model.Experiment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentShort;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 
@@ -95,8 +95,7 @@ public class ComponentNumberService {
      */
     public boolean isExperimentNumberExists(String projectId, String experimentNumber) {
         synchronized (experimentLock) {
-            return experimentRepository.findExperimentsByProject(projectId).
-                    stream().anyMatch(c -> nullSafeEquals(c.getExperimentNumber(), experimentNumber));
+            return  experimentRepository.findOneExperimentByProjectAndExperimentNumber(projectId, experimentNumber).isPresent();
         }
     }
 

@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.model;
 
 import com.epam.indigoeln.core.util.LocalDateDeserializer;
 import com.epam.indigoeln.core.util.LocalDateSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.data.annotation.CreatedDate;
@@ -48,11 +49,13 @@ public class Experiment extends ExperimentShort {
     // TODO enum: open, completed, submitted, submit_fail, signing, archived
     private String status;
 
+    @JsonIgnore
     @DBRef
     private List<Component> components;
 
     private List<UserPermission> accessList = new ArrayList<>();
 
+    @JsonIgnore
     private List<String> fileIds = new ArrayList<>();
 
     public User getAuthor() {

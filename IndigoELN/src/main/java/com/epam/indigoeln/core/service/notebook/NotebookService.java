@@ -7,14 +7,13 @@ import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
+import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import javax.validation.ValidationException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,14 +83,13 @@ public class NotebookService {
                     "Current user doesn't have permissions to create notebook");
         }
 
-        /* Validation of a name (no data, wrong style, already exists) */
-        if (StringUtils.isEmpty(notebook.getName()) || !notebook.getName().matches("^\\d{8}") ||
-                notebookRepository.findByName(notebook.getName()) != null) {
-            // TODO Eduard_Burkov: Create more flexible validation and more detailed exception message
-            // Or use a HeaderUtil for popup message
-            throw new ValidationException("Validation failed");
+        // check for duplication of name
+        if (notebookRepository.findByName(notebook.getName()) != null) {
+            throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
         }
 
+        // reset notebook's id
+        notebook.setId(null);
         // Adding of OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user.getId());
         notebook = notebookRepository.save(notebook);
@@ -122,6 +120,13 @@ public class NotebookService {
                         "Current user doesn't have permissions to update notebook with id = " + notebook.getId());
             }
         }
+
+        // check for duplication of name
+        notebookFromDB = notebookRepository.findByName(notebook.getName());
+        if (!notebookFromDB.getId().equals(notebook.getId())) {
+            throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
+        }
+
         // Set old notebook's experiment ids to new notebook
         notebook.setExperiments(notebookFromDB.getExperiments());
         return notebookRepository.save(notebook);

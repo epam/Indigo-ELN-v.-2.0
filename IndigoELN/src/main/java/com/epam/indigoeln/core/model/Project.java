@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -26,14 +27,16 @@ public class Project {
     //TODO may be need to use @DBRef
     private User author;
 
-    //TODO may be need to use @DBRef
+    //TODO may be need to use @DBRef. Also may be use accessList for this
     private List<User> users;
 
+    @JsonIgnore
     @DBRef(lazy = true)
     private List<Notebook> notebooks = new ArrayList<>();
 
     private List<UserPermission> accessList = new ArrayList<>();
 
+    @JsonIgnore
     private List<String> fileIds = new ArrayList<>();
 
     public String getId() {

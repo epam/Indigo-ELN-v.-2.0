@@ -81,12 +81,12 @@ public class TemplateResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
+    public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
 
         if (templateDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template", "idexists",
-                    "A new template cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template",
+                    "A new template can't already have an ID")).build();
         }
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
