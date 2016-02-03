@@ -2,7 +2,8 @@ package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
 import com.mongodb.BasicDBObject;
-import org.hibernate.validator.constraints.NotBlank;
+
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -18,12 +19,8 @@ public class Component implements Serializable {
 
     private static final long serialVersionUID = -3522699714105273016L;
 
-    @NotNull
-    @Pattern(regexp = "^[a-z0-9]*")
+    @Id
     private String id;
-
-    @NotBlank
-    private String componentNumber;
 
     private Integer bingoDbId;
 
@@ -35,10 +32,6 @@ public class Component implements Serializable {
 
     public String getId() {
         return id;
-    }
-
-    public String getComponentNumber() {
-        return componentNumber;
     }
 
     public Integer getBingoDbId() {
@@ -55,10 +48,6 @@ public class Component implements Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setComponentNumber(String componentNumber) {
-        this.componentNumber = componentNumber;
     }
 
     public void setBingoDbId(Integer bingoDbId) {
@@ -80,7 +69,6 @@ public class Component implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         Component component = (Component) o;
         return Objects.equal(id, component.id) &&
-               Objects.equal(componentNumber, component.componentNumber) &&
                Objects.equal(bingoDbId, component.bingoDbId) &&
                Objects.equal(content, component.content) &&
                Objects.equal(componentTemplateId, component.componentTemplateId);
@@ -88,6 +76,6 @@ public class Component implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, componentNumber, bingoDbId, content, componentTemplateId);
+        return Objects.hashCode(id, bingoDbId, content, componentTemplateId);
     }
 }
