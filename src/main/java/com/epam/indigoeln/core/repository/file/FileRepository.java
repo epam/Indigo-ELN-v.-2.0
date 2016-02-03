@@ -42,9 +42,10 @@ public class FileRepository {
         // gridFsTemplate uses a driver that doesn't know about "sort", "skip", "limit"
         // pageable is not suitable for this, therefore pagination have to be in memory
         List<GridFSDBFile> list = gridFsTemplate.find(query(where("_id").in(ids)));
+        long totalCount = list.size();
 
         list = applyPageable(list, pageable);
-        return new PageImpl<>(list, pageable, list.size());
+        return new PageImpl<>(list, pageable, totalCount);
     }
 
     public void delete(String id) {

@@ -40,7 +40,7 @@ public class ExperimentService {
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list,
         // or must have ADMIN authority)
-        if (PermissionUtil.isAdmin(user)) {
+        if (PermissionUtil.isContentEditor(user)) {
             return notebook.getExperiments();
         } else if (PermissionUtil.hasPermissions(user, notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
@@ -58,7 +58,7 @@ public class ExperimentService {
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
         // "Read Entity" in experiment's access list, or must have ADMIN authority)
-        if (!PermissionUtil.isAdmin(user)) {
+        if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(id);
             if (notebook == null) {
                 throw EntityNotFoundException.createWithNotebookChildId(id);
@@ -110,7 +110,7 @@ public class ExperimentService {
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
         // "Update Entity" in experiment's access list, or must have ADMIN authority)
-        if (!PermissionUtil.isAdmin(user)) {
+        if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(experiment.getId());
             if (notebook == null) {
                 throw EntityNotFoundException.createWithNotebookChildId(experiment.getId());
@@ -145,7 +145,7 @@ public class ExperimentService {
     }
 
     public boolean hasExperiments(Notebook notebook, User user) {
-        if (PermissionUtil.isAdmin(user)) {
+        if (PermissionUtil.isContentEditor(user)) {
             return !notebook.getExperiments().isEmpty();
         } else {
             UserPermission userPermission = PermissionUtil.findPermissionsByUserId(

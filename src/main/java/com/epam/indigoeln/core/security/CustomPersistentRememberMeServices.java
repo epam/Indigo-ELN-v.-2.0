@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.security;
 
 import com.epam.indigoeln.core.model.PersistentToken;
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.PersistentTokenRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ import java.util.Arrays;
  * more powerful than the standard implementations:
  * <ul>
  * <li>It allows a user to see the list of his currently opened sessions, and invalidate them</li>
- * <li>It stores more information, such as the IP address and the user agent, for audit purposes<li>
+ * <li>It stores more information, such as the IP address and the user agent, for audit purposes</li>
  * <li>When a user logs out, only his current session is invalidated, and not all of his sessions</li>
  * </ul>
  * <p>
@@ -50,8 +51,7 @@ import java.util.Arrays;
  * <p>
  */
 @Service
-public class CustomPersistentRememberMeServices extends
-        AbstractRememberMeServices {
+public class CustomPersistentRememberMeServices extends AbstractRememberMeServices {
 
     private final Logger log = LoggerFactory.getLogger(CustomPersistentRememberMeServices.class);
 
@@ -72,10 +72,8 @@ public class CustomPersistentRememberMeServices extends
     @Autowired
     private UserRepository userRepository;
 
-
     @Autowired
-    public CustomPersistentRememberMeServices(Environment env, org.springframework.security.core.userdetails
-            .UserDetailsService userDetailsService) {
+    public CustomPersistentRememberMeServices(Environment env, UserDetailsService userDetailsService) {
 
         super(env.getProperty("indigoeln.security.rememberme.key"), userDetailsService);
         random = new SecureRandom();
@@ -100,28 +98,30 @@ public class CustomPersistentRememberMeServices extends
             addCookie(token, request, response);
         } catch (DataAccessException e) {
             log.error("Failed to update token: ", e);
-            throw new RememberMeAuthenticationException("Autologin failed due to data access problem", e);
+            throw new RememberMeAuthenticationException("Auto-login failed due to data access problem", e);
         }
         return getUserDetailsService().loadUserByUsername(login);
     }
 
     @Override
-    protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response, Authentication
-            successfulAuthentication) {
+    protected void onLoginSuccess(HttpServletRequest request, HttpServletResponse response,
+                                  Authentication successfulAuthentication) {
 
         String login = successfulAuthentication.getName();
 
         log.debug("Creating new persistent login for user {}", login);
-        PersistentToken token = userRepository.findOneByLogin(login).map(u -> {
-            PersistentToken t = new PersistentToken();
-            t.setSeries(generateSeriesData());
-            t.setUser(u);
-            t.setTokenValue(generateTokenData());
-            t.setTokenDate(LocalDate.now());
-            t.setIpAddress(request.getRemoteAddr());
-            t.setUserAgent(request.getHeader("User-Agent"));
-            return t;
-        }).orElseThrow(() -> new UsernameNotFoundException("User " + login + " was not found in the database"));
+        User user = userRepository.findOneByLogin(login);
+        if (user == null) {
+            throw new UsernameNotFoundException("User " + login + " was not found in the database");
+        }
+        PersistentToken token = new PersistentToken();
+        token.setSeries(generateSeriesData());
+        token.setUser(user);
+        token.setTokenValue(generateTokenData());
+        token.setTokenDate(LocalDate.now());
+        token.setIpAddress(request.getRemoteAddr());
+        token.setUserAgent(request.getHeader("User-Agent"));
+
         try {
             persistentTokenRepository.save(token);
             addCookie(token, request, response);
