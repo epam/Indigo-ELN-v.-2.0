@@ -145,7 +145,7 @@ public class UserResource {
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<Void> userAlreadyExists() {
         HttpHeaders headers = HeaderUtil.createFailureAlert(
-                "user-management", "userexists", "Login already in use");
+                "user-management", "Login already in use");
         return ResponseEntity.badRequest().headers(headers).build();
     }
 }

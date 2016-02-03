@@ -1,29 +1,20 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +28,9 @@ public class ExperimentService {
 
     @Autowired
     private ComponentRepository componentRepository;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     public Collection<Experiment> getAllExperiments() {
         return experimentRepository.findAll();
@@ -102,6 +96,8 @@ public class ExperimentService {
                     "Current user doesn't have permissions to create experiment");
         }
 
+        // reset experiment's id
+        experiment.setId(null);
         // Adding of OWNER's permissions for specified User to experiment
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user.getId());
 
@@ -143,7 +139,6 @@ public class ExperimentService {
         experimentFromDB.setAuthor(experimentForSave.getAuthor());
         experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
         experimentFromDB.setComments(experimentForSave.getComments());
-        experimentFromDB.setFileIds(experimentForSave.getFileIds());
         experimentFromDB.setStatus(experimentForSave.getStatus());
         experimentFromDB.setWitness(experimentForSave.getWitness());
 
@@ -184,6 +179,7 @@ public class ExperimentService {
 
 
     public void deleteExperiment(String id) {
+        //TODO don't forget about Components
         Experiment experiment = experimentRepository.findOne(id);
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(id);
@@ -197,6 +193,7 @@ public class ExperimentService {
         notebook.getExperiments().remove(experiment);
         notebookRepository.save(notebook);
 
+        fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
     }
 
