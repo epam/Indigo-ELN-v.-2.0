@@ -13,7 +13,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_READER'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {

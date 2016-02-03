@@ -1,21 +1,24 @@
 package com.epam.indigoeln.core.service.user;
 
 
-import com.epam.indigoeln.core.model.Authority;
+import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.user.AuthorityRepository;
+import com.epam.indigoeln.core.repository.role.RoleRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
-import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
+import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
+import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service class for managing users.
@@ -32,54 +35,102 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private AuthorityRepository authorityRepository;
+    private RoleRepository roleRepository;
 
 
-    public User createUser(ManagedUserDTO managedUserDTO) {
-        User user = new User();
-        user.setLogin(managedUserDTO.getLogin());
-        user.setFirstName(managedUserDTO.getFirstName());
-        user.setLastName(managedUserDTO.getLastName());
-        user.setEmail(managedUserDTO.getEmail());
-        if (managedUserDTO.getAuthorities() != null) {
-            Set<Authority> authorities = new HashSet<>();
-            managedUserDTO.getAuthorities().stream().forEach(
-                    authority -> authorities.add(authorityRepository.findOne(authority))
-            );
-            user.setAuthorities(authorities);
+    public Page<User> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
+    public User createUser(User user) {
+        if (userRepository.findOneByLogin(user.getLogin()) != null) {
+            throw EntityAlreadyExistsException.createWithUserLogin(user.getLogin());
         }
-        String encryptedPassword = passwordEncoder.encode(managedUserDTO.getPassword());
+
+        String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         user.setActivated(true);
-        userRepository.save(user);
+        // Checking for roles existence
+        user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
+
+        user = userRepository.save(user);
         log.debug("Created Information for User: {}", user);
+
         return user;
     }
 
-    public void deleteUserInformation(String login) {
-        userRepository.findOneByLogin(login).ifPresent(u -> {
-            userRepository.delete(u);
-            log.debug("Deleted User: {}", u);
-        });
+    public User updateUser(User user) {
+        User userFromDB = userRepository.findOneByLogin(user.getLogin());
+        if (userFromDB == null) {
+            throw EntityNotFoundException.createWithUserLogin(user.getLogin());
+        } else if (!userFromDB.getId().equals(user.getId())) {
+            throw EntityAlreadyExistsException.createWithUserLogin(user.getLogin());
+        }
+
+        // Encoding of user's password, or getting from DB entity
+        String encryptedPassword;
+        if (!Strings.isNullOrEmpty(user.getPassword())) {
+            encryptedPassword = passwordEncoder.encode(user.getPassword());
+        } else {
+            encryptedPassword = userFromDB.getPassword();
+        }
+        user.setPassword(encryptedPassword);
+
+        // Checking for roles existence
+        user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
+
+        user = userRepository.save(user);
+        log.debug("Created Information for User: {}", user);
+
+        return user;
     }
 
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneByLogin(login).map(u -> {
-            u.getAuthorities().size();
-            return u;
-        });
+    public void deleteUserByLogin(String login) {
+        User user = userRepository.findOneByLogin(login);
+        if (user == null) {
+            throw EntityNotFoundException.createWithUserLogin(login);
+        }
+
+        userRepository.delete(user);
+        log.debug("Deleted User: {}", user);
+    }
+
+    public User getUserWithAuthorities() {
+        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername());
+        user.getRoles().size(); // eagerly load the association
+        return user;
     }
 
     public User getUserWithAuthorities(String id) {
         User user = userRepository.findOne(id);
-        user.getAuthorities().size(); // eagerly load the association
+        if (user == null) {
+            throw EntityNotFoundException.createWithUserId(id);
+        }
+
+        user.getRoles().size(); // eagerly load the association
         return user;
     }
 
-    public User getUserWithAuthorities() {
-        User user = userRepository.findOneByLogin(SecurityUtils.getCurrentUser().getUsername()).get();
-        user.getAuthorities().size(); // eagerly load the association
+    public User getUserWithAuthoritiesByLogin(String login) {
+        User user = userRepository.findOneByLogin(login);
+        if (user == null) {
+            throw EntityNotFoundException.createWithUserLogin(login);
+        }
+
+        user.getRoles().size(); // eagerly load the association
         return user;
     }
 
+    private List<Role> checkRolesExistenceAndGet(List<Role> roles) {
+        List<Role> checkedRoles = new ArrayList<>(roles.size());
+        for (Role role : roles) {
+            Role roleFromDB = roleRepository.findOne(role.getId());
+            if (roleFromDB == null) {
+                throw EntityNotFoundException.createWithRoleId(role.getId());
+            }
+            checkedRoles.add(roleFromDB);
+        }
+
+        return checkedRoles;
+    }
 }

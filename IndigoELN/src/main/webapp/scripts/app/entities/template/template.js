@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/templates',
                 data: {
-                    authorities: ['ROLE_USER'],
+                    authorities: ['TEMPLATE_EDITOR'],
                     pageTitle: 'Templates'
                 },
                 views: {
@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/template/{id}',
                 data: {
-                    authorities: ['ROLE_USER'],
+                    authorities: ['TEMPLATE_EDITOR'],
                     pageTitle: 'Template'
                 },
                 views: {
@@ -41,7 +41,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/templates/new',
                 data: {
-                    authorities: ['ROLE_USER'],
+                    authorities: ['TEMPLATE_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -62,7 +62,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/template/{id}/edit',
                 data: {
-                    authorities: ['ROLE_USER'],
+                    authorities: ['TEMPLATE_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -80,7 +80,7 @@ angular.module('indigoeln')
                 parent: 'template',
                 url: '/{id}/delete',
                 data: {
-                    authorities: ['ROLE_USER'],
+                    authorities: ['TEMPLATE_EDITOR']
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({

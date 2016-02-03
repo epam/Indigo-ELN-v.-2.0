@@ -3,7 +3,7 @@
 angular.module('indigoeln')
     .controller('FileUploaderResultController', function ($scope, FileUploaderService, ParseLinks, AlertService, $uibModal, $filter) {
         $scope.files = [];
-        $scope.authorities = ['ROLE_USER', 'ROLE_ADMIN'];
+        $scope.authorities = ['PROJECT_CREATOR', 'PROJECT_READER', 'CONTENT_EDITOR']; // TODO separate for READ actions and CREATE actions
         var entityid = $scope.entityid;
 
         $scope.page = 1;

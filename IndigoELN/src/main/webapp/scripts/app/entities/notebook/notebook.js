@@ -16,7 +16,7 @@ angular.module('indigoeln')
                     projectId: ''
                 },
                 data: {
-                    authorities: ['ROLE_ADMIN', 'ROLE_USER'],
+                    authorities: ['NOTEBOOK_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -29,7 +29,7 @@ angular.module('indigoeln')
                 parent: 'entity',
                 url: '/newnotebook',
                 data: {
-                    authorities: []
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
                 params: {
                     projectId: '',

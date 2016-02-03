@@ -100,7 +100,7 @@ angular.module('indigoeln')
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item for item in myItems" ></select>' +
+        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item.name for item in myItems" ></select>' +
         '</div>' +
         '</div>'
     };

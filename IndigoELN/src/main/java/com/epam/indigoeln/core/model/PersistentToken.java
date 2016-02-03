@@ -45,7 +45,6 @@ public class PersistentToken implements Serializable {
     private String userAgent;
 
     @JsonIgnore
-
     @DBRef
     private User user;
 
