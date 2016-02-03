@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.project;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
@@ -20,6 +21,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private FileRepository fileRepository;
 
     public Collection<Project> getAllProjects() {
         return projectRepository.findAll();
@@ -51,7 +55,10 @@ public class ProjectService {
     }
 
     public Project createProject(Project project, User user) {
-        // Adding of OWNER's permissions to project
+        // reset project's id
+        project.setId(null);
+        // Adding of author and OWNER's permissions to project
+        project.setAuthor(user);
         PermissionUtil.addOwnerToAccessList(project.getAccessList(), user.getId());
         return projectRepository.save(project);
     }
@@ -69,8 +76,10 @@ public class ProjectService {
             throw new AccessDeniedException(
                     "Current user doesn't have permissions to edit project with id = " + project.getId());
         }
-        // Set old project's notebook ids to new project
+        // Set old project's notebooks and file ids to new project
         project.setNotebooks(projectFromDb.getNotebooks());
+        project.setFileIds(projectFromDb.getFileIds());
+
         return projectRepository.save(project);
     }
 
@@ -83,6 +92,8 @@ public class ProjectService {
         if (!project.getNotebooks().isEmpty()) {
             throw new ChildReferenceException(project.getId());
         }
+
+        fileRepository.delete(project.getFileIds());
         projectRepository.delete(project);
     }
 }

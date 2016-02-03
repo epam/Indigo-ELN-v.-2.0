@@ -1,9 +1,11 @@
 package com.epam.indigoeln.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,8 +15,10 @@ public class Notebook {
     @Id
     private String id;
 
+    @Pattern(regexp = "^\\d{8}")
     private String name;
 
+    @JsonIgnore
     @DBRef
     private List<Experiment> experiments = new ArrayList<>();
 

@@ -18,4 +18,8 @@ public class EntityAlreadyExistsException extends CustomParametrizedException {
     public static EntityAlreadyExistsException createWithRoleName(String name) {
         return new EntityAlreadyExistsException("Role with name = " + name + " already exists", name);
     }
+
+    public static EntityAlreadyExistsException createWithNotebookName(String name) {
+        return new EntityAlreadyExistsException("Notebook with name = " + name + " already exists", name);
+    }
 }

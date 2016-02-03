@@ -158,8 +158,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
-                    // templates
-                    .antMatchers("/api/templates/**").authenticated() // TODO Which Authority do need to use?
                     // others
                     .antMatchers("/health/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?

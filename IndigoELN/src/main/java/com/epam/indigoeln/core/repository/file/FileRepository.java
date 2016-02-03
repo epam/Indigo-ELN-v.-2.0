@@ -52,6 +52,10 @@ public class FileRepository {
         gridFsTemplate.delete(query(where("_id").is(id)));
     }
 
+    public void delete(List<String> ids) {
+        gridFsTemplate.delete(query(where("_id").in(ids)));
+    }
+
     private DBObject getMetadata(User author) {
         DBObject metadata = new BasicDBObject(1);
         // Adding metadata about "author"

@@ -52,14 +52,13 @@ public class ExperimentResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
             @RequestParam(value = "notebookId", required = false) String notebookId) {
+        User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
             log.debug("REST request to get all experiments of current User");
-            Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(
-                    userService.getUserWithAuthorities());
-            return ResponseEntity.ok(experiments);
+            Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(user);
+            return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
             log.debug("REST request to get all experiments of notebook: {}", notebookId);
-            User user = userService.getUserWithAuthorities();
             Collection<Experiment> experiments = experimentService.getAllExperiments(notebookId, user);
 
             List<ExperimentTreeNodeDTO> result = new ArrayList<>(experiments.size());
