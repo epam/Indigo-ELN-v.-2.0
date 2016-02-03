@@ -1,0 +1,14 @@
+<div class="panel panel-primary component" ng-controller="StructureSchemeController">
+    <div class="panel-heading">
+        Structure Scheme
+        <div class="btn-group pull-right">
+            <i class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add Reaction Scheme" ng-click="openEditor()"></i>
+            <i class="fa fa-copy btn" title="Copy Structure Scheme" ngclipboard data-clipboard-text={{structure}}></i>
+            <i class="fa fa-paste btn" title="Paste Reaction Scheme"></i>
+            <i class="fa fa-cut btn" title="Cut Reaction Scheme"></i>
+        </div>
+    </div>
+    <div class="panel-body">
+            <img class="img-fill-width" ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
+    </div>
+</div>

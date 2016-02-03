@@ -225,3 +225,16 @@
 .nav, .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
+
+.nav-tabs > li > a {
+    color: gray;
+}
+
+.structure-editor-modal .modal-dialog {
+    width: min-content;
+}
+
+.img-fill-width {
+    min-width: 100%;
+    height: auto;
+}
