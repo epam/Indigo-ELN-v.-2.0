@@ -59,8 +59,8 @@ angular
         };
 
         $scope.toggleNotebooks = function (project) {
+            $state.go('project', {id: project.node.id});
             if (!project.notebooks) {
-                $state.go('project', {id: project.node.id})
                 Notebook.query({projectId: project.node.id}, function (result) {
                     project.notebooks = result;
                 });
@@ -70,8 +70,8 @@ angular
         };
 
         $scope.toggleExperiments = function (notebook) {
+            $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
             if (!notebook.experiments) {
-                $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
                 Experiment.query({notebookId: notebook.node.id}, function (result) {
                     notebook.experiments = result;
                 });
@@ -85,11 +85,7 @@ angular
         };
 
         $scope.toggleAdministration = function() {
-            if (!$scope.adminToggled) {
-                $scope.adminToggled = true;
-            } else {
-                $scope.adminToggled = false;
-            }
+            $scope.adminToggled = !$scope.adminToggled;
         };
 
         $scope.toggleUsersAndRoles = function() {
