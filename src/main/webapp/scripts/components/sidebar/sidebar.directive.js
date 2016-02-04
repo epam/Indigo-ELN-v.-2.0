@@ -24,7 +24,7 @@ angular.module('indigoeln')
         link: function (scope, element, attrs) {
             element.on('click', function () {
                 $('.main-container').toggleClass('hide-menu');
-            })
+            });
         }
     };
     });
