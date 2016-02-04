@@ -48,14 +48,8 @@ angular
             }
         });
 
-        $scope.toggleUsers = function () {
-            if (!$scope.users) {
-                User.query(function (result) {
-                    $scope.users = result;
-                });
-            } else {
-                $scope.users = null;
-            }
+        $scope.toggleUsers = function (project) {
+            //TODO: get users from server by project.node.id and set to project.users
         };
 
         $scope.toggleProjects = function (userId) {
@@ -79,6 +73,10 @@ angular
             } else {
                 project.notebooks = null;
             }
+        };
+
+        $scope.toggleNotebooksByUser = function (user) {
+            //TODO: get notebooks from server by user.node.id and set to user.notebooks
         };
 
         $scope.toggleExperiments = function (notebook, userId) {
