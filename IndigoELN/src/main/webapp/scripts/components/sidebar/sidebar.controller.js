@@ -2,7 +2,7 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, Project, Notebook, Experiment, AlertService) {
+    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AlertService) {
         $scope.$on('project-created', function(event, data) {
             if ($scope.projects) {
                 Project.query(function (result) {
@@ -48,9 +48,20 @@ angular
             }
         });
 
-        $scope.toggleProjects = function () {
+        $scope.toggleUsers = function () {
+            if (!$scope.users) {
+                User.query(function (result) {
+                    $scope.users = result;
+                });
+            } else {
+                $scope.users = null;
+            }
+        };
+
+        $scope.toggleProjects = function (userId) {
+            var params = (!!userId) ? {userId: userId} : {};
             if (!$scope.projects) {
-                Project.query(function (result) {
+                Project.query(params, function (result) {
                     $scope.projects = result;
                 });
             } else {
@@ -58,10 +69,11 @@ angular
             }
         };
 
-        $scope.toggleNotebooks = function (project) {
+        $scope.toggleNotebooks = function (project, userId) {
+            var params = (!!userId) ? {projectId: project.node.id, userId: userId} : {projectId: project.node.id};
             $state.go('project', {id: project.node.id});
-            if (!project.notebooks) {
-                Notebook.query({projectId: project.node.id}, function (result) {
+            if (!project.notebooks && project.hasChildren) {
+                Notebook.query(params, function (result) {
                     project.notebooks = result;
                 });
             } else {
@@ -69,10 +81,11 @@ angular
             }
         };
 
-        $scope.toggleExperiments = function (notebook) {
+        $scope.toggleExperiments = function (notebook, userId) {
+            var params = (!!userId) ? {notebookId: notebook.node.id, userId: userId} : {notebookId: notebook.node.id};
             $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
-            if (!notebook.experiments) {
-                Experiment.query({notebookId: notebook.node.id}, function (result) {
+            if (!notebook.experiments && notebook.hasChildren) {
+                Experiment.query(params, function (result) {
                     notebook.experiments = result;
                 });
             } else {
@@ -81,7 +94,7 @@ angular
         };
 
         $scope.onExperimentClick = function (experiment) {
-            $state.go('experiment', {id: experiment.node.id})
+            $state.go('experiment', {id: experiment.node.id});
         };
 
         $scope.toggleAdministration = function() {
