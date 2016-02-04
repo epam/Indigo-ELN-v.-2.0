@@ -165,3 +165,7 @@
     text-decoration: none;
     cursor: default !important;
 }
+
+.main-container__content-page > .content.ng-enter {
+    animation: fadeIn 0.7s;
+}
