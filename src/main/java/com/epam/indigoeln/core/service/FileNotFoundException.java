@@ -9,6 +9,6 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 public class FileNotFoundException extends CustomParametrizedException {
 
     public FileNotFoundException(String fileId) {
-        super("File with id = " + fileId + " not found", fileId);
+        super("The file with id = " + fileId + " not found", fileId);
     }
 }

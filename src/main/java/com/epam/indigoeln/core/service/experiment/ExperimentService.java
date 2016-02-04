@@ -43,14 +43,14 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (PermissionUtil.isContentEditor(user)) {
             return notebook.getExperiments();
         } else if (PermissionUtil.hasPermissions(user, notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
             return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
         }
-        throw new AccessDeniedException("Current user doesn't have permissions to read " +
+        throw new AccessDeniedException("The current user doesn't have permissions to read " +
                 "experiments of notebook with id = " + notebook.getId());
     }
 
@@ -61,7 +61,7 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
-        // "Read Entity" in experiment's access list, or must have ADMIN authority)
+        // "Read Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(id);
             if (notebook == null) {
@@ -71,7 +71,7 @@ public class ExperimentService {
             if (!PermissionUtil.hasPermissions(user,
                     notebook.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     experiment.getAccessList(), UserPermission.READ_ENTITY)) {
-                throw new AccessDeniedException("Current user doesn't have permissions " +
+                throw new AccessDeniedException("The current user doesn't have permissions " +
                         "to read experiment with id = " + experiment.getId());
             }
         }
@@ -89,11 +89,11 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasPermissions(user, notebook.getAccessList(),
                 UserPermission.CREATE_SUB_ENTITY)) {
             throw new AccessDeniedException(
-                    "Current user doesn't have permissions to create experiment");
+                    "The current user doesn't have permissions to create experiment");
         }
 
         // reset experiment's id
@@ -116,7 +116,7 @@ public class ExperimentService {
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
-        // "Update Entity" in experiment's access list, or must have ADMIN authority)
+        // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(experimentForSave.getId());
             if (notebook == null) {
@@ -127,7 +127,7 @@ public class ExperimentService {
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
-                        "Current user doesn't have permissions to update experiment with id = " + experimentForSave.getId());
+                        "The current user doesn't have permissions to update experiment with id = " + experimentForSave.getId());
             }
         }
 

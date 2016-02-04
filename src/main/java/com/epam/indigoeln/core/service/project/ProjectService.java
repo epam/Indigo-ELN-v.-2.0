@@ -41,11 +41,11 @@ public class ProjectService {
         }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (!hasPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw new AccessDeniedException(
-                    "Current user doesn't have permissions to read project with id = " + projectId);
+                    "The current user doesn't have permissions to read project with id = " + projectId);
         }
         return project;
     }
@@ -70,11 +70,11 @@ public class ProjectService {
         }
 
         // Check of EntityAccess (User must have "Update Entity" permission in project's access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (!hasPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw new AccessDeniedException(
-                    "Current user doesn't have permissions to edit project with id = " + project.getId());
+                    "The current user doesn't have permissions to edit project with id = " + project.getId());
         }
         // Set old project's notebooks and file ids to new project
         project.setNotebooks(projectFromDb.getNotebooks());
