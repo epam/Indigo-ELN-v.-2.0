@@ -9,6 +9,6 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 public class ChildReferenceException extends CustomParametrizedException {
 
     public ChildReferenceException(String parentId) {
-        super("Parent with id = " + parentId + " has child reference", parentId);
+        super("The parent with id = " + parentId + " has child reference", parentId);
     }
 }

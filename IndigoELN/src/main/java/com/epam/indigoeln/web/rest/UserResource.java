@@ -88,9 +88,8 @@ public class UserResource {
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> getUser(@PathVariable String login) {
-        log.debug("REST request to get User : {}", login);
+        log.debug("REST request to get user : {}", login);
         User user = userService.getUserWithAuthoritiesByLogin(login);
-
         return ResponseEntity.ok(new ManagedUserDTO(user));
     }
 
@@ -107,11 +106,11 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> createUser(@RequestBody ManagedUserDTO managedUserDTO)
             throws URISyntaxException {
-        log.debug("REST request to create User: {}", managedUserDTO);
+        log.debug("REST request to create user: {}", managedUserDTO);
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.createUser(user);
         HttpHeaders headers = HeaderUtil.createAlert(
-                "A user is created with identifier " + user.getLogin(), user.getLogin());
+                "The user is created with identifier " + user.getLogin(), user.getLogin());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + user.getLogin()))
                 .headers(headers).body(new ManagedUserDTO(user));
     }
@@ -123,11 +122,12 @@ public class UserResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> updateUser(@RequestBody ManagedUserDTO managedUserDTO) {
-        log.debug("REST request to update User: {}", managedUserDTO);
+        log.debug("REST request to update user: {}", managedUserDTO);
+        User currentUser = userService.getUserWithAuthorities();
         User user = dtoMapper.convertFromDTO(managedUserDTO);
-        user = userService.updateUser(user);
+        user = userService.updateUser(user, currentUser);
         HttpHeaders headers = HeaderUtil.createAlert(
-                "A user is updated with identifier " + user.getLogin(), user.getLogin());
+                "The user is updated with identifier " + user.getLogin(), user.getLogin());
         return ResponseEntity.ok().headers(headers).body(new ManagedUserDTO(user));
     }
 
@@ -136,16 +136,16 @@ public class UserResource {
      */
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
-        log.debug("REST request to delete User: {}", login);
-        userService.deleteUserByLogin(login);
-        HttpHeaders headers = HeaderUtil.createAlert("A user is deleted with identifier " + login, login);
+        log.debug("REST request to delete user: {}", login);
+        User currentUser = userService.getUserWithAuthorities();
+        userService.deleteUserByLogin(login, currentUser);
+        HttpHeaders headers = HeaderUtil.createAlert("The user is deleted with identifier " + login, login);
         return ResponseEntity.ok().headers(headers).build();
     }
 
     @ExceptionHandler(EntityAlreadyExistsException.class)
     public ResponseEntity<Void> userAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createFailureAlert(
-                "user-management", "Login already in use");
+        HttpHeaders headers = HeaderUtil.createFailureAlert("user-management", "Login is already in use");
         return ResponseEntity.badRequest().headers(headers).build();
     }
 }

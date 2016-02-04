@@ -1,9 +1,6 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.web.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +16,10 @@ public interface CustomDtoMapper {
 
     @Mapping(target = "authorities", ignore = true)
     User convertFromDTO(ManagedUserDTO userDTO);
+
+    RoleDTO convertToDTO(Role role);
+
+    Role convertFromDTO(RoleDTO roleDTO);
 
     Experiment convertFromDTO(ExperimentDTO dto);
 

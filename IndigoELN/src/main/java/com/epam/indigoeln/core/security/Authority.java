@@ -43,6 +43,9 @@ public enum Authority implements GrantedAuthority {
             USER_EDITOR.name(), EXPERIMENT_CREATOR.name(),
             NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
 
+    public final static String[] ROLE_READERS = new String[] {
+            USER_EDITOR.name(), ROLE_EDITOR.name()};
+
     public final static String[] PROJECT_READERS = new String[] {
             PROJECT_READER.name(), CONTENT_EDITOR.name()};
     public final static String[] PROJECT_CREATORS = new String[] {

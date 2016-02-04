@@ -111,12 +111,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     //TODO set up
                     // calculation resource
                     //TODO set up
-                    // component resource
-                    .antMatchers(HttpMethod.GET, "/api/experiments/*/components").hasAnyAuthority(COMPONENT_READERS)
-                    .antMatchers(HttpMethod.GET, "/api/experiments/*/components/*").hasAnyAuthority(COMPONENT_READERS)
-                    .antMatchers(HttpMethod.POST, "/api/experiments/*/components").hasAnyAuthority(COMPONENT_EDITORS)
-                    .antMatchers(HttpMethod.PUT, "/api/experiments/*/components").hasAnyAuthority(COMPONENT_EDITORS)
-                    .antMatchers(HttpMethod.DELETE, "/api/experiments/*/components/*").hasAnyAuthority(COMPONENT_EDITORS)
+                    // component number resource
+                    //TODO set up
                     // experiment_file resource
                     .antMatchers(HttpMethod.GET, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_READERS)
                     .antMatchers(HttpMethod.GET, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_READERS)
@@ -146,6 +142,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)
                     .antMatchers(HttpMethod.PUT, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)
                     .antMatchers(HttpMethod.DELETE, "/api/projects/*").hasAnyAuthority(PROJECT_REMOVERS)
+                    // role resource
+                    .antMatchers(HttpMethod.GET, "/api/roles").hasAnyAuthority(ROLE_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/roles/*").hasAuthority(ROLE_EDITOR.name())
+                    .antMatchers(HttpMethod.POST, "/api/roles").hasAuthority(ROLE_EDITOR.name())
+                    .antMatchers(HttpMethod.PUT, "/api/roles").hasAuthority(ROLE_EDITOR.name())
+                    .antMatchers(HttpMethod.DELETE, "/api/roles/*").hasAuthority(ROLE_EDITOR.name())
                     // template resource
                     .antMatchers(HttpMethod.GET, "/api/templates").hasAnyAuthority(TEMPLATE_READERS)
                     .antMatchers(HttpMethod.GET, "/api/templates/*").hasAuthority(TEMPLATE_EDITOR.name())

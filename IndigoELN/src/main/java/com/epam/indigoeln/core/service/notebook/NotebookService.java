@@ -34,14 +34,14 @@ public class NotebookService {
         }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (PermissionUtil.isContentEditor(user)) {
             return project.getNotebooks();
         } else if (PermissionUtil.hasPermissions(user, project.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
             return getNotebooksWithAccess(project.getNotebooks(), user.getId());
         }
-        throw new AccessDeniedException("Current user doesn't have permissions to read " +
+        throw new AccessDeniedException("The current user doesn't have permissions to read " +
                 "notebooks of project with id = " + project.getId());
     }
 
@@ -62,7 +62,7 @@ public class NotebookService {
             if (!PermissionUtil.hasPermissions(user,
                     project.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
-                throw new AccessDeniedException("Current user doesn't have permissions " +
+                throw new AccessDeniedException("The current user doesn't have permissions " +
                         "to read notebook with id = " + notebook.getId());
             }
         }
@@ -76,11 +76,11 @@ public class NotebookService {
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
-        // or must have ADMIN authority)
+        // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasPermissions(user, project.getAccessList(),
                     UserPermission.CREATE_SUB_ENTITY)) {
             throw new AccessDeniedException(
-                    "Current user doesn't have permissions to create notebook");
+                    "The current user doesn't have permissions to create notebook");
         }
 
         // check for duplication of name
@@ -117,13 +117,13 @@ public class NotebookService {
                     project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
-                        "Current user doesn't have permissions to update notebook with id = " + notebook.getId());
+                        "The current user doesn't have permissions to update notebook with id = " + notebook.getId());
             }
         }
 
         // check for duplication of name
-        notebookFromDB = notebookRepository.findByName(notebook.getName());
-        if (!notebookFromDB.getId().equals(notebook.getId())) {
+        Notebook notebookByName = notebookRepository.findByName(notebook.getName());
+        if (notebookByName != null && !notebookByName.getId().equals(notebook.getId())) {
             throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
         }
 

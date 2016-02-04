@@ -12,14 +12,14 @@ public class EntityAlreadyExistsException extends CustomParametrizedException {
     }
 
     public static EntityAlreadyExistsException createWithUserLogin(String login) {
-        return new EntityAlreadyExistsException("User with login = " + login + " already exists", login);
+        return new EntityAlreadyExistsException("The user with login = " + login + " already exists", login);
     }
 
     public static EntityAlreadyExistsException createWithRoleName(String name) {
-        return new EntityAlreadyExistsException("Role with name = " + name + " already exists", name);
+        return new EntityAlreadyExistsException("The role with name = " + name + " already exists", name);
     }
 
     public static EntityAlreadyExistsException createWithNotebookName(String name) {
-        return new EntityAlreadyExistsException("Notebook with name = " + name + " already exists", name);
+        return new EntityAlreadyExistsException("The notebook with name = " + name + " already exists", name);
     }
 }

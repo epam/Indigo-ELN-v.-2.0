@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +60,7 @@ public class UserService {
         return user;
     }
 
-    public User updateUser(User user) {
+    public User updateUser(User user, User executingUser) {
         User userFromDB = userRepository.findOneByLogin(user.getLogin());
         if (userFromDB == null) {
             throw EntityNotFoundException.createWithUserLogin(user.getLogin());
@@ -67,7 +68,7 @@ public class UserService {
             throw EntityAlreadyExistsException.createWithUserLogin(user.getLogin());
         }
 
-        // Encoding of user's password, or getting from DB entity
+        // encoding of user's password, or getting from DB entity
         String encryptedPassword;
         if (!Strings.isNullOrEmpty(user.getPassword())) {
             encryptedPassword = passwordEncoder.encode(user.getPassword());
@@ -76,8 +77,13 @@ public class UserService {
         }
         user.setPassword(encryptedPassword);
 
-        // Checking for roles existence
+        // checking for roles existence and for disallowed operation for current user
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
+        if(user.getId().equals(executingUser.getId()) &&
+                (user.getRoles().size() != executingUser.getRoles().size()
+                        || !user.getRoles().containsAll(executingUser.getRoles()))) {
+            throw new AccessDeniedException("The current user can't change roles to himself");
+        }
 
         user = userRepository.save(user);
         log.debug("Created Information for User: {}", user);
@@ -85,14 +91,19 @@ public class UserService {
         return user;
     }
 
-    public void deleteUserByLogin(String login) {
-        User user = userRepository.findOneByLogin(login);
-        if (user == null) {
+    public void deleteUserByLogin(String login, User executingUser) {
+        User userByLogin = userRepository.findOneByLogin(login);
+        if (userByLogin == null) {
             throw EntityNotFoundException.createWithUserLogin(login);
         }
 
-        userRepository.delete(user);
-        log.debug("Deleted User: {}", user);
+        // checking for disallowed operation for current user
+        if (userByLogin.getId().equals(executingUser.getId())) {
+            throw new AccessDeniedException("The current user can't delete himself");
+        }
+
+        userRepository.delete(userByLogin);
+        log.debug("Deleted User: {}", userByLogin);
     }
 
     public User getUserWithAuthorities() {
