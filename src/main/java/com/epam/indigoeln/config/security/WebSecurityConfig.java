@@ -119,12 +119,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_CREATORS)
                     .antMatchers(HttpMethod.DELETE, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_CREATORS)
                     // experiment resource
-                    .antMatchers(HttpMethod.GET, "/api/experiments").hasAnyAuthority(EXPERIMENT_READERS)
-                    .antMatchers(HttpMethod.GET, "/api/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
-                    .antMatchers(HttpMethod.POST, "/api/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                    .antMatchers(HttpMethod.PUT, "/api/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                    .antMatchers(HttpMethod.DELETE, "/api/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
-                    .antMatchers(HttpMethod.GET, "/api/experiments/tables").permitAll() // TODO Need to configure
+                .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
+                .antMatchers(HttpMethod.POST, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.PUT, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                .antMatchers(HttpMethod.DELETE, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
                     // notebook resource
                     .antMatchers(HttpMethod.GET, "/api/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
                     .antMatchers(HttpMethod.GET, "/api/notebooks/*").hasAnyAuthority(NOTEBOOK_READERS)

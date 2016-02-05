@@ -5,7 +5,6 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.slf4j.Logger;
@@ -20,13 +19,12 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
 public class ExperimentResource {
 
-    static final String URL_MAPPING = "/api/experiments";
+    static final String URL_MAPPING = "/api/notebooks/";
 
     private final Logger log = LoggerFactory.getLogger(ExperimentResource.class);
 
@@ -46,10 +44,11 @@ public class ExperimentResource {
      * GET  /experiments?:notebookId&:userId -> Returns all experiments of specified notebook for <b>specified user</b>
      * for tree representation according to his User permissions
      */
-    @RequestMapping(method = RequestMethod.GET,
+    @RequestMapping(value = "{notebookId}/experiments",
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
-            @RequestParam(required = false) String notebookId,
+            @PathVariable String notebookId,
             @RequestParam(required = false) String userId) {
         User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
@@ -76,9 +75,11 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "{notebookId}/experiments/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> getExperiment(@PathVariable String id) {
+    public ResponseEntity<ExperimentDTO> getExperiment(
+            @PathVariable String notebookId,
+            @PathVariable String id) {
         log.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = experimentService.getExperiment(id, user);
@@ -89,11 +90,13 @@ public class ExperimentResource {
      * POST  /experiments?:notebookId -> Creates experiment with OWNER's permissions for current User
      * as child for specified Notebook
      */
-    @RequestMapping(method = RequestMethod.POST,
+    @RequestMapping(
+            value = "{notebookId}/experiments",
+            method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody ExperimentDTO experimentDTO,
-                                                          @RequestParam String notebookId) throws URISyntaxException {
+                                                          @PathVariable String notebookId) throws URISyntaxException {
         log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
@@ -105,10 +108,12 @@ public class ExperimentResource {
     /**
      * PUT  /experiments/:id -> Updates experiment according to User permissions
      */
-    @RequestMapping(method = RequestMethod.PUT,
+    @RequestMapping(
+            value = "{notebookId}/experiments",
+            method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody ExperimentDTO experimentDTO) {
+    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody ExperimentDTO experimentDTO, @PathVariable String notebookId) {
         log.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
@@ -119,32 +124,10 @@ public class ExperimentResource {
     /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExperiment(@PathVariable String id) {
+    @RequestMapping(value = "{notebookId}/experiments/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteExperiment(@PathVariable String id, @PathVariable String notebookId) {
         log.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id);
         return ResponseEntity.ok().build();
-    }
-
-    /* Tables with experiments on the home page, where current user is an author, witness, or signature requested */
-    @RequestMapping(value = "/tables", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ExperimentTablesDTO getExperimentTables() { //TODO Elena Polyakova: Convert to ResponseEntity<ExperimentTablesDTO>
-        User user = userService.getUserWithAuthorities();
-        ExperimentTablesDTO dto = new ExperimentTablesDTO();
-
-        Collection<Experiment> userExperiments = experimentService.getExperimentsByAuthor(user);
-        Collection<Experiment> allExperiments = experimentService.getAllExperiments();
-
-        dto.setOpenAndCompletedExp(userExperiments.stream()
-                .filter(exp -> exp.getStatus().equals("Open") || exp.getStatus().equals("Completed") || exp.getStatus().equals("Archived"))
-                .collect(Collectors.toList()));
-        dto.setSubmittedAndSigningExp(userExperiments.stream()
-                .filter(exp -> exp.getStatus().equals("Submitted") || exp.getStatus().equals("Signing"))
-                .collect(Collectors.toList()));
-        dto.setWaitingSignatureExp(allExperiments.stream()
-                .filter(exp -> exp.getCoAuthors().contains(user) /* || exp.getAuthor().equals(user) && in template for signing indicated that author's signature is required*/)
-                .collect(Collectors.toList()));
-        return dto;
     }
 }
