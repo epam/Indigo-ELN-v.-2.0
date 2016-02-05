@@ -7,7 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Pattern;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection="notebook")
 public class Notebook {
@@ -22,7 +24,7 @@ public class Notebook {
     @DBRef
     private List<Experiment> experiments = new ArrayList<>();
 
-    private List<UserPermission> accessList = new ArrayList<>();
+    private Set<UserPermission> accessList = new HashSet<>();
 
     public Notebook() {
     }
@@ -55,11 +57,11 @@ public class Notebook {
         this.experiments = experiments;
     }
 
-    public List<UserPermission> getAccessList() {
+    public Set<UserPermission> getAccessList() {
         return accessList;
     }
 
-    public void setAccessList(List<UserPermission> accessList) {
+    public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = accessList;
     }
 

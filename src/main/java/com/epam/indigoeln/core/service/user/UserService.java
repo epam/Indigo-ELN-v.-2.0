@@ -6,7 +6,6 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
-import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -43,10 +42,6 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        if (userRepository.findOneByLogin(user.getLogin()) != null) {
-            throw EntityAlreadyExistsException.createWithUserLogin(user.getLogin());
-        }
-
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         user.setActivated(true);
@@ -63,8 +58,6 @@ public class UserService {
         User userFromDB = userRepository.findOneByLogin(user.getLogin());
         if (userFromDB == null) {
             throw EntityNotFoundException.createWithUserLogin(user.getLogin());
-        } else if (!userFromDB.getId().equals(user.getId())) {
-            throw EntityAlreadyExistsException.createWithUserLogin(user.getLogin());
         }
 
         // encoding of user's password, or getting from DB entity
@@ -100,6 +93,8 @@ public class UserService {
         if (userByLogin.getId().equals(executingUser.getId())) {
             throw new AccessDeniedException("The current user can't delete himself");
         }
+
+        //TODO check for projects, notebooks, experiments with him
 
         userRepository.delete(userByLogin);
         log.debug("Deleted User: {}", userByLogin);

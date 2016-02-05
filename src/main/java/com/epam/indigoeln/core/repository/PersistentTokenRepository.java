@@ -15,5 +15,4 @@ public interface PersistentTokenRepository extends MongoRepository<PersistentTok
     List<PersistentToken> findByUser(User user);
 
     List<PersistentToken> findByTokenDateBefore(LocalDate localDate);
-
 }

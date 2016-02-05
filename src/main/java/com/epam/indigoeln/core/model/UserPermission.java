@@ -1,8 +1,9 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * UserPermission contains types of permissions on entity for User.<br/>
@@ -22,38 +23,40 @@ public class UserPermission {
     public static final String READ_SUB_ENTITY = "READ_SUB_ENTITY";
     public static final String CREATE_SUB_ENTITY = "CREATE_SUB_ENTITY";
 
-    public static final List<String> VIEWER_PERMISSIONS = ImmutableList.of(READ_ENTITY);
-    public static final List<String> CHILD_VIEWER_PERMISSIONS = ImmutableList.of(READ_ENTITY, READ_SUB_ENTITY);
-    public static final List<String> USER_PERMISSIONS =
-            ImmutableList.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY);
-    public static final List<String> OWNER_PERMISSIONS =
-            ImmutableList.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY, UPDATE_ENTITY);
+    public static final Set<String> VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY);
+    public static final Set<String> CHILD_VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY);
+    public static final Set<String> USER_PERMISSIONS =
+            ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY);
+    public static final Set<String> OWNER_PERMISSIONS =
+            ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY, UPDATE_ENTITY);
+    public static final Set<String> ALL_PERMISSIONS = OWNER_PERMISSIONS;
 
-    private String userId;
+    @DBRef
+    private User user;
 
-    private List<String> permissions;
+    private Set<String> permissions;
 
     public UserPermission() {
     }
 
-    public UserPermission(String userId, List<String> permissions) {
-        this.userId = userId;
+    public UserPermission(User user, Set<String> permissions) {
+        this.user = user;
         this.permissions = permissions;
     }
 
-    public String getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public List<String> getPermissions() {
+    public Set<String> getPermissions() {
         return permissions;
     }
 
-    public void setPermissions(List<String> permissions) {
+    public void setPermissions(Set<String> permissions) {
         this.permissions = permissions;
     }
 
@@ -75,5 +78,28 @@ public class UserPermission {
 
     public boolean hasPermission(String permission) {
         return permission != null && this.permissions.contains(permission);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserPermission userPermission = (UserPermission) o;
+
+        return user != null ? user.equals(userPermission.user) : userPermission.user == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return user != null ? user.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "UserPermission{" +
+                "id='" + user.getId() + '\'' +
+                ", permissions='" + permissions + '\'' +
+                "}";
     }
 }

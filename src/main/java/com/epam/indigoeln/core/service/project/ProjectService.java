@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -22,6 +23,9 @@ public class ProjectService {
 
     @Autowired
     private FileRepository fileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Collection<Project> getAllProjects(User user) {
         return projectRepository.findByUserId(user.getId());
@@ -43,16 +47,15 @@ public class ProjectService {
         return project;
     }
 
-    public Project getProjectByName(String name) {
-        return projectRepository.findByName(name);
-    }
-
     public Project createProject(Project project, User user) {
         // reset project's id
         project.setId(null);
-        // Adding of author and OWNER's permissions to project
+        // set author
         project.setAuthor(user);
-        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user.getId());
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        // add OWNER's permissions to project
+        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user);
         return projectRepository.save(project);
     }
 
@@ -62,14 +65,18 @@ public class ProjectService {
             throw EntityNotFoundException.createWithProjectId(project.getId());
         }
 
-        // Check of EntityAccess (User must have "Update Entity" permission in project's access list,
+        // check of EntityAccess (User must have "Update Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw new AccessDeniedException(
                     "The current user doesn't have permissions to edit project with id = " + project.getId());
         }
-        // Set old project's notebooks and file ids to new project
+
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+
+        // set old project's notebooks and file ids to new project
         project.setNotebooks(projectFromDb.getNotebooks());
         project.setFileIds(projectFromDb.getFileIds());
 

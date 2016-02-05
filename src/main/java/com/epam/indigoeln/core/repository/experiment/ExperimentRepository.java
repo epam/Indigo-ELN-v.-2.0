@@ -23,6 +23,6 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
             "'templateId' : 1, 'project' : 1}")
     Optional<ExperimentShort> findOneExperimentByProjectAndExperimentNumber(String project, String experimentNumber);
 
-    @Query("{'fileIds': ?0}") //TODO try notebooks DBref $id
+    @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 }

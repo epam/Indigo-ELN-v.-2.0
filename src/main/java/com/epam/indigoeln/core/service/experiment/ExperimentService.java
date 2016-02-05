@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -31,6 +32,9 @@ public class ExperimentService {
 
     @Autowired
     private FileRepository fileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Collection<Experiment> getAllExperiments() {
         return experimentRepository.findAll();
@@ -86,7 +90,7 @@ public class ExperimentService {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
         }
 
-        // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
+        // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.CREATE_SUB_ENTITY)) {
@@ -96,8 +100,10 @@ public class ExperimentService {
 
         // reset experiment's id
         experiment.setId(null);
-        // Adding of OWNER's permissions for specified User to experiment
-        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user.getId());
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
+        // add OWNER's permissions for specified User to experiment
+        PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
 
         experiment.setComponents(updateComponents(null, experiment.getComponents()));
         experiment = experimentRepository.save(experiment);
@@ -128,6 +134,9 @@ public class ExperimentService {
                         "The current user doesn't have permissions to update experiment with id = " + experimentForSave.getId());
             }
         }
+
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
 
         experimentFromDB.setExperimentNumber(experimentForSave.getExperimentNumber());
         experimentFromDB.setTitle(experimentForSave.getTitle());
