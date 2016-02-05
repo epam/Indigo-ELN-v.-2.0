@@ -42,16 +42,14 @@ public class ExperimentService {
             throw EntityNotFoundException.createWithNotebookId(notebookId);
         }
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list,
-        // or must have CONTENT_EDITOR authority)
-        if (PermissionUtil.isContentEditor(user)) {
-            return notebook.getExperiments();
-        } else if (PermissionUtil.hasPermissions(user, notebook.getAccessList(),
+        // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
+        if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
-            return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
+            throw new AccessDeniedException("The current user doesn't have permissions to read " +
+                    "experiments of notebook with id = " + notebook.getId());
         }
-        throw new AccessDeniedException("The current user doesn't have permissions to read " +
-                "experiments of notebook with id = " + notebook.getId());
+
+        return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
     }
 
     public Experiment getExperiment(String id, User user) {
@@ -68,7 +66,7 @@ public class ExperimentService {
                 throw EntityNotFoundException.createWithNotebookChildId(id);
             }
 
-            if (!PermissionUtil.hasPermissions(user,
+            if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     experiment.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw new AccessDeniedException("The current user doesn't have permissions " +
@@ -90,7 +88,7 @@ public class ExperimentService {
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
         // or must have CONTENT_EDITOR authority)
-        if (!PermissionUtil.hasPermissions(user, notebook.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.CREATE_SUB_ENTITY)) {
             throw new AccessDeniedException(
                     "The current user doesn't have permissions to create experiment");
@@ -123,7 +121,7 @@ public class ExperimentService {
                 throw EntityNotFoundException.createWithNotebookChildId(experimentForSave.getId());
             }
 
-            if (!PermissionUtil.hasPermissions(user,
+            if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
@@ -198,16 +196,11 @@ public class ExperimentService {
     }
 
     public boolean hasExperiments(Notebook notebook, User user) {
-        if (PermissionUtil.isContentEditor(user)) {
-            return !notebook.getExperiments().isEmpty();
-        } else {
-            UserPermission userPermission = PermissionUtil.findPermissionsByUserId(
-                    notebook.getAccessList(), user.getId());
-            // Checking userPermission for "Read Sub-Entity" possibility,
-            // and that notebook has experiments with UserPermission for specified User
-            return userPermission != null && userPermission.canReadSubEntity() &&
-                    hasExperimentsWithAccess(notebook.getExperiments(), user.getId());
-        }
+        // Checking userPermission for "Read Sub-Entity" possibility,
+        // and that notebook has experiments with UserPermission for specified User
+        return PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
+                UserPermission.READ_SUB_ENTITY) &&
+                hasExperimentsWithAccess(notebook.getExperiments(), user.getId());
     }
 
     private static boolean hasExperimentsWithAccess(List<Experiment> experiments, String userId) {
