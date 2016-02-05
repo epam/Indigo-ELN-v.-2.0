@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.model;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
@@ -12,12 +11,12 @@ public class ExperimentShort implements Serializable {
     @Id
     protected String id;
 
-    @NotBlank
+    //    @NotBlank
     protected String experimentNumber;
 
     protected String title;
 
-    @NotBlank
+    //    @NotBlank
     protected String project;
 
     protected String templateId;

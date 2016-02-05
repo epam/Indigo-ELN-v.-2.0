@@ -7,7 +7,7 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,10 +61,10 @@ public class ExperimentResource {
             log.debug("REST request to get all experiments of notebook: {}", notebookId);
             Collection<Experiment> experiments = experimentService.getAllExperiments(notebookId, user);
 
-            List<ExperimentTreeNodeDTO> result = new ArrayList<>(experiments.size());
+            List<TreeNodeDTO> result = new ArrayList<>(experiments.size());
             for (Experiment experiment : experiments) {
                 ExperimentDTO experimentDTO = dtoMapper.convertToDTO(experiment);
-                ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(experimentDTO);
+                TreeNodeDTO dto = new TreeNodeDTO(experimentDTO);
                 dto.setNodeType("experiment");
                 result.add(dto);
             }

@@ -3,21 +3,6 @@
 angular
     .module('indigoeln')
     .controller('NavbarController', function ($scope, $location, $state, $uibModal, $rootScope, Principal, Auth) {
-        $scope.newExperiment = function () {
-            //$rootScope.$broadcast('new-experiment', {});
-            //event.preventDefault();
-            var modalInstance = $uibModal.open({
-                animation: true,
-                templateUrl: 'scripts/app/entities/experiment/dialog/new-experiment-dialog.html',
-                controller: 'NewExperimentDialogController'
-            });
-            modalInstance.result.then(function (experiment) {
-                $rootScope.$broadcast('created-experiment', {experiment: experiment});
-                $state.go('newexperiment');
-            }, function () {
-            });
-        };
-
         $scope.newNotebook = function () {
             var modalInstance = $uibModal.open({
                 animation: true,

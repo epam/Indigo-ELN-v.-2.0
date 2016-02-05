@@ -6,19 +6,19 @@ import java.io.Serializable;
  * A DTO for representing an Project, Notebook or Experiment like a Tree Node with its properties like as
  * "hasChildren" flag, "nodeType"('project', 'notebook' or 'experiment')
  */
-public class ExperimentTreeNodeDTO implements Serializable {
+public class TreeNodeDTO implements Serializable {
     boolean hasChildren;
     Object node;
     String nodeType;
 
-    public ExperimentTreeNodeDTO(){
+    public TreeNodeDTO() {
     }
 
-    public ExperimentTreeNodeDTO(Object node) {
+    public TreeNodeDTO(Object node) {
         this.node = node;
     }
 
-    public ExperimentTreeNodeDTO(Object node, boolean hasChildren) {
+    public TreeNodeDTO(Object node, boolean hasChildren) {
         this.node = node;
         this.hasChildren = hasChildren;
     }
