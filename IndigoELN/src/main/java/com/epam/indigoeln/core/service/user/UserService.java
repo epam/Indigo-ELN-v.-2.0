@@ -18,8 +18,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Service class for managing users.
@@ -37,7 +37,6 @@ public class UserService {
 
     @Autowired
     private RoleRepository roleRepository;
-
 
     public Page<User> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable);
@@ -132,8 +131,8 @@ public class UserService {
         return user;
     }
 
-    private List<Role> checkRolesExistenceAndGet(List<Role> roles) {
-        List<Role> checkedRoles = new ArrayList<>(roles.size());
+    private Set<Role> checkRolesExistenceAndGet(Set<Role> roles) {
+        Set<Role> checkedRoles = new HashSet<>(roles.size());
         for (Role role : roles) {
             Role roleFromDB = roleRepository.findOne(role.getId());
             if (roleFromDB == null) {

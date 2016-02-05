@@ -2,7 +2,6 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
@@ -38,21 +37,25 @@ public class ProjectResource {
     private UserService userService;
 
     /**
-     * GET  /projects -> Returns all projects for tree representation according to User permissions
-     * <p>
-     * If User has {@link Authority#CONTENT_EDITOR}, than all projects have to be returned
-     * </p>
+     * GET  /projects -> Returns all projects for <b>current user</b>
+     * for tree representation according to his User permissions<br/>
+     * GET  /projects?:userId -> Returns all projects for <b>specified user</b>
+     * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
-        log.debug("REST request to get all projects");
+    public ResponseEntity<List<TreeNodeDTO>> getAllProjects(
+            @RequestParam(required = false) String userId) {
+        log.debug("REST request to get all projects for user: {}", userId);
         User user = userService.getUserWithAuthorities();
+        if (userId != null && !user.getId().equals(userId)) {
+            // change executing user
+            user = userService.getUserWithAuthorities(userId);
+        }
         Collection<Project> projects = projectService.getAllProjects(user);
         List<TreeNodeDTO> result = new ArrayList<>(projects.size());
         for (Project project : projects) {
             TreeNodeDTO dto = new TreeNodeDTO(project);
-            dto.setNodeType("project");
             dto.setHasChildren(notebookService.hasNotebooks(project, user));
             result.add(dto);
         }
@@ -64,7 +67,7 @@ public class ProjectResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Project> getProject(@PathVariable("id") String id) {
+    public ResponseEntity<Project> getProject(@PathVariable String id) {
         log.debug("REST request to get project: {}", id);
         User user = userService.getUserWithAuthorities();
         Project project = projectService.getProjectById(id, user);
@@ -101,7 +104,7 @@ public class ProjectResource {
      * DELETE  /projects/:id -> Removes project with specified id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteProject(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
         log.debug("REST request to remove project: {}", id);
         projectService.deleteProject(id);
         return ResponseEntity.ok().build();

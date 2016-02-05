@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.security;
 import org.springframework.security.core.GrantedAuthority;
 
 /**
- * Constants for Spring Security authorities.
+ * Enum for Spring Security authorities.
  */
 public enum Authority implements GrantedAuthority {
     ANONYMOUS,
@@ -30,17 +30,12 @@ public enum Authority implements GrantedAuthority {
         return name();
     }
 
-    public final static String[] COMPONENT_READERS = new String[] {
-            EXPERIMENT_READER.name(), CONTENT_EDITOR.name()};
-    public final static String[] COMPONENT_EDITORS = new String[] {
-            EXPERIMENT_CREATOR.name(), CONTENT_EDITOR.name()};
-
     public final static String[] TEMPLATE_READERS = new String[] {
             TEMPLATE_EDITOR.name(), EXPERIMENT_CREATOR.name(),
             NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
 
     public final static String[] USER_READERS = new String[] {
-            USER_EDITOR.name(), EXPERIMENT_CREATOR.name(),
+            USER_EDITOR.name(), CONTENT_EDITOR.name(), EXPERIMENT_CREATOR.name(),
             NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
 
     public final static String[] ROLE_READERS = new String[] {
@@ -66,6 +61,4 @@ public enum Authority implements GrantedAuthority {
             EXPERIMENT_CREATOR.name(), CONTENT_EDITOR.name()};
     public final static String[] EXPERIMENT_REMOVERS = new String[] {
             EXPERIMENT_REMOVER.name(), CONTENT_EDITOR.name()};
-
-
 }
