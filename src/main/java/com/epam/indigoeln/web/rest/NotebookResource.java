@@ -2,7 +2,6 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
@@ -39,23 +38,26 @@ public class NotebookResource {
     private UserService userService;
 
     /**
-     * GET  /notebooks?:projectId -> Returns all notebooks of specified project
-     * for tree representation according to User permissions
-     * <p>
-     * If User has {@link Authority#CONTENT_EDITOR}, than all notebooks for specified project have to be returned
-     * </p>
+     * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
+     * for tree representation according to his User permissions<br/>
+     * GET  /notebooks?:projectId&:userId -> Returns all notebooks of specified project for <b>specified user</b>
+     * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
-            @RequestParam(value = "projectId") String projectId) {
-        log.debug("REST request to get all notebooks of project: {}", projectId);
+            @RequestParam String projectId,
+            @RequestParam(required = false) String userId) {
+        log.debug("REST request to get all notebooks of project: {} for user: {}", projectId, userId);
         User user = userService.getUserWithAuthorities();
+        if (userId != null && !user.getId().equals(userId)) {
+            // change executing user
+            user = userService.getUserWithAuthorities(userId);
+        }
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
         List<TreeNodeDTO> result = new ArrayList<>(notebooks.size());
         for (Notebook notebook : notebooks) {
             TreeNodeDTO dto = new TreeNodeDTO(notebook);
-            dto.setNodeType("notebook");
             dto.setHasChildren(experimentService.hasExperiments(notebook, user));
             result.add(dto);
         }
@@ -67,7 +69,7 @@ public class NotebookResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Notebook> getNotebook(@PathVariable("id") String id) {
+    public ResponseEntity<Notebook> getNotebook(@PathVariable String id) {
         log.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
         Notebook notebook = notebookService.getNotebookById(id, user);
@@ -82,7 +84,7 @@ public class NotebookResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Notebook> createNotebook(@RequestBody @Valid Notebook notebook,
-                                   @RequestParam(value = "projectId") String projectId) throws URISyntaxException {
+                                   @RequestParam String projectId) throws URISyntaxException {
         log.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.createNotebook(notebook, projectId, user);
@@ -106,7 +108,7 @@ public class NotebookResource {
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteNotebook(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deleteNotebook(@PathVariable String id) {
         log.debug("REST request to remove notebook: {}", id);
         notebookService.deleteNotebook(id);
         return ResponseEntity.ok().build();

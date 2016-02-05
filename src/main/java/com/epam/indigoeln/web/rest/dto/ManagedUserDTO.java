@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.model.User;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.ZonedDateTime;
-import java.util.List;
+import java.util.Set;
 
 /**
  * A DTO extending the UserDTO, which is meant to be used in the user management UI.
@@ -26,7 +26,7 @@ public class ManagedUserDTO extends UserDTO {
 
     private String lastModifiedBy;
 
-    private List<Role> roles;
+    private Set<Role> roles;
 
     public ManagedUserDTO() {
     }
@@ -70,11 +70,11 @@ public class ManagedUserDTO extends UserDTO {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    public List<Role> getRoles() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
+    public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 

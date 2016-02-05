@@ -22,30 +22,27 @@ public class PermissionUtil {
         return null;
     }
 
-    public static boolean hasPermissions(User user,
+    public static boolean hasPermissions(String userId,
                                          List<UserPermission> accessList,
                                          String permission) {
-        if (isContentEditor(user)) {
-            return true;
-        } else {
-            // Check of UserPermission
-            UserPermission userPermission = findPermissionsByUserId(
-                    accessList, user.getId());
-            if (userPermission != null && userPermission.hasPermission(permission)) {
-                return true;
-            }
-        }
-        return false;
+        // Check of UserPermission
+        UserPermission userPermission = findPermissionsByUserId(accessList, userId);
+        return userPermission != null && userPermission.hasPermission(permission);
     }
 
-    public static boolean hasPermissions(User user, List<UserPermission> parentAccessList,
+    public static boolean hasEditorAuthorityOrPermissions(User user,
+                                         List<UserPermission> accessList,
+                                         String permission) {
+        return isContentEditor(user) || hasPermissions(user.getId(), accessList, permission);
+    }
+
+    public static boolean hasPermissions(String userId, List<UserPermission> parentAccessList,
                                          String parentPermission,
                                          List<UserPermission> childAccessList,
                                          String childPermission) {
-        return hasPermissions(user, parentAccessList, parentPermission) &&
-                hasPermissions(user, childAccessList, childPermission);
+        return hasPermissions(userId, parentAccessList, parentPermission) &&
+                hasPermissions(userId, childAccessList, childPermission);
     }
-
 
     /**
      * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent

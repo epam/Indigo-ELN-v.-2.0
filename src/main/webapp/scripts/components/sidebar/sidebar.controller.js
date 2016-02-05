@@ -3,6 +3,7 @@
 angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AlertService) {
+        $scope.myBookmarks = {};
         $scope.$on('project-created', function(event, data) {
             if ($scope.projects) {
                 Project.query(function (result) {
@@ -48,26 +49,34 @@ angular
             }
         });
 
-        $scope.toggleUsers = function (project) {
-            //TODO: get users from server by project.node.id and set to project.users
-        };
-
-        $scope.toggleProjects = function (userId) {
-            var params = (!!userId) ? {userId: userId} : {};
-            if (!$scope.projects) {
-                Project.query(params, function (result) {
-                    $scope.projects = result;
+        $scope.toggleUsers = function () {
+            if (!$scope.users) {
+                User.query({
+                    page: 0,
+                    size: 1000,
+                    sort: ['lastName', 'firstName']
+                }, function (result) {
+                    $scope.users = result;
                 });
             } else {
-                $scope.projects = null;
+                $scope.users = null;
+            }
+        };
+
+        $scope.toggleProjects = function (parent) {
+            if (!parent.projects) {
+                Project.query({userId: parent.id}, function (result) {
+                    parent.projects = result;
+                });
+            } else {
+                parent.projects = null;
             }
         };
 
         $scope.toggleNotebooks = function (project, userId) {
-            var params = (!!userId) ? {projectId: project.node.id, userId: userId} : {projectId: project.node.id};
             $state.go('project', {id: project.node.id});
-            if (!project.notebooks && project.hasChildren) {
-                Notebook.query(params, function (result) {
+            if (!project.notebooks) {
+                Notebook.query({projectId: project.node.id, userId: userId}, function (result) {
                     project.notebooks = result;
                 });
             } else {
@@ -75,15 +84,10 @@ angular
             }
         };
 
-        $scope.toggleNotebooksByUser = function (user) {
-            //TODO: get notebooks from server by user.node.id and set to user.notebooks
-        };
-
         $scope.toggleExperiments = function (notebook, userId) {
-            var params = (!!userId) ? {notebookId: notebook.node.id, userId: userId} : {notebookId: notebook.node.id};
             $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
-            if (!notebook.experiments && notebook.hasChildren) {
-                Experiment.query(params, function (result) {
+            if (!notebook.experiments) {
+                Experiment.query({notebookId: notebook.node.id, userId: userId}, function (result) {
                     notebook.experiments = result;
                 });
             } else {

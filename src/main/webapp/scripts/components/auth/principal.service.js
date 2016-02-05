@@ -36,18 +36,6 @@ angular.module('indigoeln')
 
                 return false;
             },
-            hasAnyAuthorityExcept: function (authority) {
-                if (!_authenticated) {
-                    return $q.when(true);
-                }
-
-                return this.identity().then(function (_id) {
-                    return !(_id.authorities && _id.authorities.indexOf(authority) !== -1);
-                }, function (err) {
-                    return true;
-                });
-
-            },
             authenticate: function (identity) {
                 _identity = identity;
                 _authenticated = identity !== null;
