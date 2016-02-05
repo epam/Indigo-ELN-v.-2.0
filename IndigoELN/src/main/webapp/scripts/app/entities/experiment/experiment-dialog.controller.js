@@ -4,11 +4,6 @@ angular.module('indigoeln').controller('ExperimentDialogController',
     function ($scope, $stateParams, entity, Experiment) {
 
         $scope.experiment = entity;
-        $scope.load = function (id) {
-            Experiment.get({id: id}, function (result) {
-                $scope.experiment = result;
-            });
-        };
 
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
@@ -22,9 +17,12 @@ angular.module('indigoeln').controller('ExperimentDialogController',
         $scope.save = function () {
             $scope.isSaving = true;
             if ($scope.experiment.id != null) {
-                Experiment.update($scope.experiment, onSaveSuccess, onSaveError);
+                Experiment.update({
+                    notebookId: $stateParams.notebookId,
+                    id: $scope.experiment.id
+                }, $scope.experiment, onSaveSuccess, onSaveError);
             } else {
-                Experiment.save($scope.experiment, onSaveSuccess, onSaveError);
+                Experiment.save({notebookId: $stateParams.notebookId}, $scope.experiment, onSaveSuccess, onSaveError);
             }
         };
 

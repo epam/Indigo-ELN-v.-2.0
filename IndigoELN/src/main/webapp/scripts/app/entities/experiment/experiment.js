@@ -18,9 +18,32 @@ angular.module('indigoeln')
                 },
                 resolve: {}
             })
+            .state('experiment.new', {
+                parent: 'experiment',
+                url: 'notebook/{notebookId}/experiment/new',
+                data: {
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                },
+                views: {
+                    'content@app_page': {
+                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
+                        controller: 'ExperimentDialogController'
+                    }
+                },
+                resolve: {
+                    entity: function () {
+                        return {
+                            title: null,
+                            experimentNumber: null,
+                            templateId: null,
+                            id: null
+                        };
+                    }
+                }
+            })
             .state('experiment.detail', {
                 parent: 'entity',
-                url: '/experiment/{id}',
+                url: '/notebook/{notebookId}/experiment/{id}',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'Experiment'
@@ -33,37 +56,13 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     entity: ['$stateParams', 'Experiment', function ($stateParams, Experiment) {
-                        return Experiment.get({id: $stateParams.id});
+                        return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
                     }]
-                }
-            })
-            .state('experiment.new', {
-                parent: 'experiment',
-                url: 'new/{notebookId}',
-                data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
-                },
-                views: {
-                    'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
-                        controller: 'ExperimentDialogController'
-                    }
-                },
-                resolve: {
-                    entity: function ($stateParams) {
-                        return {
-                            title: null,
-                            experimentNumber: null,
-                            templateId: null,
-                            notebookId: $stateParams.notebookId,
-                            id: null
-                        };
-                    }
                 }
             })
             .state('experiment.edit', {
                 parent: 'experiment',
-                url: '{id}/edit',
+                url: 'notebook/{notebookId}/experiment/{id}/edit',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                 },
@@ -75,13 +74,13 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     entity: ['Experiment', function (Experiment) {
-                        return Experiment.get({id: $stateParams.id});
+                        return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
                     }]
                 }
             })
             .state('experiment.delete', {
                 parent: 'experiment',
-                url: '{id}/delete',
+                url: 'notebook/{notebookId}/experiment/{id}/delete',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
@@ -92,7 +91,10 @@ angular.module('indigoeln')
                         size: 'md',
                         resolve: {
                             entity: ['Experiment', function (Experiment) {
-                                return Experiment.get({id: $stateParams.id});
+                                return Experiment.get({
+                                    experimentId: $stateParams.id,
+                                    notebookId: $stateParams.notebookId
+                                });
                             }]
                         }
                     }).result.then(function (result) {

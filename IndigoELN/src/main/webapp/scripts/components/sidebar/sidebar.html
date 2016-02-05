@@ -14,9 +14,9 @@
                                 <span>Table</span>
                                 <ul ng-if="notebook.experiments.length">
                                     <li ng-repeat="experiment in notebook.experiments"
-                                        ng-click="onExperimentClick(experiment); $event.stopPropagation();">
+                                        ng-click="onExperimentClick(experiment, notebook); $event.stopPropagation();">
                                         <i class="fa fa-circle"></i>
-                                        <span>{{experiment.node.experimentNumber}}</span>
+                                        <span>{{experiment.node.title}}</span>
                                     </li>
                                 </ul>
                             </li>

@@ -95,8 +95,8 @@ angular
             }
         };
 
-        $scope.onExperimentClick = function (experiment) {
-            $state.go('experiment', {id: experiment.node.id});
+        $scope.onExperimentClick = function (experiment, notebook) {
+            $state.go('experiment.detail', {id: experiment.node.id, notebookId: notebook.node.id});
         };
 
         $scope.toggleAdministration = function() {
