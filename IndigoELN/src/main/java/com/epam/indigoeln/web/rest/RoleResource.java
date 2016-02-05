@@ -1,16 +1,14 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Role;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.role.RoleService;
-import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +29,6 @@ public class RoleResource {
 
     @Autowired
     private RoleService roleService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     CustomDtoMapper dtoMapper;
@@ -84,9 +79,8 @@ public class RoleResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> updateUser(@RequestBody @Valid RoleDTO roleDTO) {
         log.debug("REST request to update role: {}", roleDTO);
-        User user = userService.getUserWithAuthorities();
         Role role = dtoMapper.convertFromDTO(roleDTO);
-        role = roleService.updateRole(role, user);
+        role = roleService.updateRole(role);
         HttpHeaders headers = HeaderUtil.createAlert("The role is updated", role.getId());
         return ResponseEntity.ok().headers(headers).body(dtoMapper.convertToDTO(role));
     }
@@ -97,13 +91,12 @@ public class RoleResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         log.debug("REST request to delete role: {}", id);
-        User user = userService.getUserWithAuthorities();
-        roleService.deleteRole(id, user);
+        roleService.deleteRole(id);
         HttpHeaders headers = HeaderUtil.createAlert("The role is deleted", id);
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ExceptionHandler(EntityAlreadyExistsException.class)
+    @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<Void> roleAlreadyExists() {
         HttpHeaders headers = HeaderUtil.createFailureAlert("role-management", "Role name is already in use");
         return ResponseEntity.badRequest().headers(headers).build();

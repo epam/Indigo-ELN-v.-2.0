@@ -6,9 +6,12 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -112,5 +115,11 @@ public class NotebookResource {
         log.debug("REST request to remove notebook: {}", id);
         notebookService.deleteNotebook(id);
         return ResponseEntity.ok().build();
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<Void> notebookAlreadyExists() {
+        HttpHeaders headers = HeaderUtil.createFailureAlert("notebook-management", "Notebook name is already in use");
+        return ResponseEntity.badRequest().headers(headers).build();
     }
 }

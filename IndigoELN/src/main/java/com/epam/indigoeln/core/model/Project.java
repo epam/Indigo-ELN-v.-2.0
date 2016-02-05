@@ -6,7 +6,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection="project")
 public class Project {
@@ -24,20 +26,17 @@ public class Project {
 
     private String description;
 
-    //TODO may be need to use @DBRef
+    @DBRef
     private User author;
-
-    //TODO may be need to use @DBRef. Also may be use accessList for this
-    private List<User> users;
 
     @JsonIgnore
     @DBRef(lazy = true)
     private List<Notebook> notebooks = new ArrayList<>();
 
-    private List<UserPermission> accessList = new ArrayList<>();
+    private Set<UserPermission> accessList = new HashSet<>();
 
     @JsonIgnore
-    private List<String> fileIds = new ArrayList<>();
+    private Set<String> fileIds = new HashSet<>();
 
     public String getId() {
         return id;
@@ -95,14 +94,6 @@ public class Project {
         this.author = author;
     }
 
-    public List<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<User> users) {
-        this.users = users;
-    }
-
     public List<Notebook> getNotebooks() {
         return notebooks;
     }
@@ -111,29 +102,21 @@ public class Project {
         this.notebooks = notebooks;
     }
 
-    public List<UserPermission> getAccessList() {
+    public Set<UserPermission> getAccessList() {
         return accessList;
     }
 
-    public void setAccessList(List<UserPermission> accessList) {
+    public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = accessList;
     }
 
-    public List<String> getFileIds() {
+    public Set<String> getFileIds() {
         return fileIds;
     }
 
-    public void setFileIds(List<String> fileIds) {
+    public void setFileIds(Set<String> fileIds) {
         this.fileIds = fileIds;
     }
-
-//    public String getEditorMarkup() {
-//        return editorMarkup;
-//    }
-//
-//    public void setEditorMarkup(String editorMarkup) {
-//        this.editorMarkup = editorMarkup;
-//    }
 
     @Override
     public boolean equals(Object o) {
@@ -146,7 +129,6 @@ public class Project {
         if (name != null ? !name.equals(project.name) : project.name != null) return false;
         if (notebooks != null ? !notebooks.equals(project.notebooks) : project.notebooks != null) return false;
         if (accessList != null ? !accessList.equals(project.accessList) : project.accessList != null) return false;
-        if (users != null ? !users.equals(project.users) : project.users != null) return false;
         if (author != null ? !author.equals(project.author) : project.author != null) return false;
         if (notebooks != null ? !notebooks.equals(project.notebooks) : project.notebooks != null) return false;
         if (keywords != null ? !keywords.equals(project.keywords) : project.keywords != null) return false;
@@ -161,7 +143,6 @@ public class Project {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (accessList != null ? accessList.hashCode() : 0);
-        result = 31 * result + (users != null ? users.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
         result = 31 * result + (notebooks != null ? notebooks.hashCode() : 0);
         result = 31 * result + (keywords != null ? keywords.hashCode() : 0);

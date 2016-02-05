@@ -8,14 +8,12 @@ import java.util.Collection;
 
 public interface ProjectRepository extends MongoRepository<Project, String> {
 
-    @Query("{'accessList.userId': ?0}")
+    @Query("{'accessList.user.$id': ?0}")
     Collection<Project> findByUserId(String userId);
 
-    @Query("{'notebooks.id': ?0}") //TODO try notebooks DBref $id
+    @Query("{'notebooks.$id': ?0}")
     Project findByNotebookId(String notebookId);
 
-    Project findByName(String name);
-
-    @Query("{'fileIds': ?0}") //TODO try notebooks DBref $id
+    @Query("{'fileIds': ?0}")
     Project findByFileId(String fileId);
 }

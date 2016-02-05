@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -10,6 +9,7 @@ import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -143,7 +143,7 @@ public class UserResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ExceptionHandler(EntityAlreadyExistsException.class)
+    @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<Void> userAlreadyExists() {
         HttpHeaders headers = HeaderUtil.createFailureAlert("user-management", "Login is already in use");
         return ResponseEntity.badRequest().headers(headers).build();

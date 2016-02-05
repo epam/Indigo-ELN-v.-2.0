@@ -15,10 +15,7 @@ import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.mongodb.core.query.Query.query;
@@ -38,7 +35,7 @@ public class FileRepository {
         return gridFsTemplate.findOne(query(where("_id").is(id)));
     }
 
-    public Page<GridFSDBFile> findAll(List<String> ids, Pageable pageable) {
+    public Page<GridFSDBFile> findAll(Collection<String> ids, Pageable pageable) {
         // gridFsTemplate uses a driver that doesn't know about "sort", "skip", "limit"
         // pageable is not suitable for this, therefore pagination have to be in memory
         List<GridFSDBFile> list = gridFsTemplate.find(query(where("_id").in(ids)));
@@ -52,7 +49,7 @@ public class FileRepository {
         gridFsTemplate.delete(query(where("_id").is(id)));
     }
 
-    public void delete(List<String> ids) {
+    public void delete(Collection<String> ids) {
         gridFsTemplate.delete(query(where("_id").in(ids)));
     }
 

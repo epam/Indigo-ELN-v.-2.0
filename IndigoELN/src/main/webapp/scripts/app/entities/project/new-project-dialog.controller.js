@@ -25,14 +25,14 @@ angular.module('indigoeln').controller('NewProjectDialogController', function ($
         $scope.project.accessList = [];
         $scope.destUsers.forEach(function (element) {
             var userPermission = {
-                userId: element.id, // TODO must be userId
+                user: element,
                 // TODO must be configurable in UI
-                permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY'] // permissions for USER (Read Entity, Read Sub-Entity, Create Sub-Entity)
+                // permissions for USER (Read Entity, Read Sub-Entity, Create Sub-Entity)
+                permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY']
             };
             $scope.project.accessList.push(userPermission);
         });
         $scope.isSaving = true;
-        $scope.project.users = $scope.destUsers;
         if ($scope.project.id) {
             Project.update($scope.project, onCreateSuccess, onCreateError);
         } else {

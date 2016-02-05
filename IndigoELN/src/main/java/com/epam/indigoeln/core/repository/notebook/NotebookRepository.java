@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface NotebookRepository extends MongoRepository<Notebook, String> {
 
-    @Query("{'experiments.id': ?0}") //TODO try experiments DBref $id
+    @Query("{'experiments.$id': ?0}")
     Notebook findByExperimentId(String experimentId);
 
     Notebook findByName(String name);

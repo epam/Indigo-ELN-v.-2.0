@@ -6,8 +6,8 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
-import com.epam.indigoeln.core.service.EntityAlreadyExistsException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,9 @@ public class NotebookService {
 
     @Autowired
     private NotebookRepository notebookRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Collection<Notebook> getAllNotebooks(String projectId, User user) {
         Project project = projectRepository.findOne(projectId);
@@ -81,15 +84,12 @@ public class NotebookService {
                     "The current user doesn't have permissions to create notebook");
         }
 
-        // check for duplication of name
-        if (notebookRepository.findByName(notebook.getName()) != null) {
-            throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
-        }
-
         // reset notebook's id
         notebook.setId(null);
-        // Adding of OWNER's permissions for specified User to notebook
-        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user.getId());
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+        // add OWNER's permissions for specified User to notebook
+        PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
         notebook = notebookRepository.save(notebook);
 
         project.getNotebooks().add(notebook);
@@ -119,11 +119,8 @@ public class NotebookService {
             }
         }
 
-        // check for duplication of name
-        Notebook notebookByName = notebookRepository.findByName(notebook.getName());
-        if (notebookByName != null && !notebookByName.getId().equals(notebook.getId())) {
-            throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
-        }
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
         // Set old notebook's experiments to new notebook
         notebook.setExperiments(notebookFromDB.getExperiments());

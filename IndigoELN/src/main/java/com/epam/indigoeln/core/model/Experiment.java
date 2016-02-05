@@ -13,8 +13,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Document(collection = "experiment")
 public class Experiment extends ExperimentShort {
@@ -53,10 +54,10 @@ public class Experiment extends ExperimentShort {
     @DBRef
     private List<Component> components;
 
-    private List<UserPermission> accessList = new ArrayList<>();
+    private Set<UserPermission> accessList = new HashSet<>();
 
     @JsonIgnore
-    private List<String> fileIds = new ArrayList<>();
+    private Set<String> fileIds = new HashSet<>();
 
     public User getAuthor() {
         return author;
@@ -134,19 +135,19 @@ public class Experiment extends ExperimentShort {
         return version;
     }
 
-    public List<UserPermission> getAccessList() {
+    public Set<UserPermission> getAccessList() {
         return accessList;
     }
 
-    public void setAccessList(List<UserPermission> accessList) {
+    public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = accessList;
     }
 
-    public List<String> getFileIds() {
+    public Set<String> getFileIds() {
         return fileIds;
     }
 
-    public void setFileIds(List<String> fileIds) {
+    public void setFileIds(Set<String> fileIds) {
         this.fileIds = fileIds;
     }
 
