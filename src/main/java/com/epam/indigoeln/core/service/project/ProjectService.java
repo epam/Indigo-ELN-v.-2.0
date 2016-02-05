@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
-import static com.epam.indigoeln.web.rest.util.PermissionUtil.hasPermissions;
-
 @Service
 public class ProjectService {
 
@@ -25,13 +23,8 @@ public class ProjectService {
     @Autowired
     private FileRepository fileRepository;
 
-    public Collection<Project> getAllProjects() {
-        return projectRepository.findAll();
-    }
-
     public Collection<Project> getAllProjects(User user) {
-        return PermissionUtil.isContentEditor(user) ?
-                projectRepository.findAll() : projectRepository.findByUserId(user.getId());
+        return projectRepository.findByUserId(user.getId());
     }
 
     public Project getProjectById(String projectId, User user) {
@@ -42,7 +35,7 @@ public class ProjectService {
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
-        if (!hasPermissions(user, project.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw new AccessDeniedException(
                     "The current user doesn't have permissions to read project with id = " + projectId);
@@ -71,7 +64,7 @@ public class ProjectService {
 
         // Check of EntityAccess (User must have "Update Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
-        if (!hasPermissions(user, projectFromDb.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw new AccessDeniedException(
                     "The current user doesn't have permissions to edit project with id = " + project.getId());

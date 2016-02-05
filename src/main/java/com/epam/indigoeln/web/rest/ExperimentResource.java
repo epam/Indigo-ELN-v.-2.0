@@ -2,12 +2,11 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,32 +40,34 @@ public class ExperimentResource {
     CustomDtoMapper dtoMapper;
 
     /**
-     * GET  /experiments -> Returns all experiments, which author is current User, according to User permissions<br/>
-     * GET  /experiments?:notebookId -> Returns all experiments of specified notebook
-     * for tree representation according to User permissions
-     * <p>
-     * If User has {@link Authority#CONTENT_EDITOR}, than all experiments for specified notebook have to be returned
-     * </p>
+     * GET  /experiments -> Returns all experiments, which author is current User<br/>
+     * GET  /experiments?:notebookId -> Returns all experiments of specified notebook for <b>current user</b>
+     * for tree representation according to his User permissions<br/>
+     * GET  /experiments?:notebookId&:userId -> Returns all experiments of specified notebook for <b>specified user</b>
+     * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
-            @RequestParam(value = "notebookId", required = false) String notebookId) {
+            @RequestParam(required = false) String notebookId,
+            @RequestParam(required = false) String userId) {
         User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
-            log.debug("REST request to get all experiments of current User");
+            log.debug("REST request to get all experiments, which author is current user");
             Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(user);
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
-            log.debug("REST request to get all experiments of notebook: {}", notebookId);
+            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookId, userId);
+            if (userId != null && !user.getId().equals(userId)) {
+                // change executing user
+                user = userService.getUserWithAuthorities(userId);
+            }
             Collection<Experiment> experiments = experimentService.getAllExperiments(notebookId, user);
 
-            List<ExperimentTreeNodeDTO> result = new ArrayList<>(experiments.size());
+            List<TreeNodeDTO> result = new ArrayList<>(experiments.size());
             for (Experiment experiment : experiments) {
                 ExperimentDTO experimentDTO = dtoMapper.convertToDTO(experiment);
-                ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(experimentDTO);
-                dto.setNodeType("experiment");
-                result.add(dto);
+                result.add(new TreeNodeDTO(experimentDTO));
             }
             return ResponseEntity.ok(result);
         }
@@ -77,7 +78,7 @@ public class ExperimentResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> getExperiment(@PathVariable("id") String id) {
+    public ResponseEntity<ExperimentDTO> getExperiment(@PathVariable String id) {
         log.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = experimentService.getExperiment(id, user);
@@ -92,7 +93,7 @@ public class ExperimentResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody ExperimentDTO experimentDTO,
-                                     @RequestParam(value = "notebookId") String notebookId) throws URISyntaxException {
+                                                          @RequestParam String notebookId) throws URISyntaxException {
         log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
@@ -119,7 +120,7 @@ public class ExperimentResource {
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExperiment(@PathVariable("id") String id) {
+    public ResponseEntity<?> deleteExperiment(@PathVariable String id) {
         log.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id);
         return ResponseEntity.ok().build();

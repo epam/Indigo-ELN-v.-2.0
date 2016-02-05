@@ -33,16 +33,14 @@ public class NotebookService {
             throw EntityNotFoundException.createWithProjectId(projectId);
         }
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list,
-        // or must have CONTENT_EDITOR authority)
-        if (PermissionUtil.isContentEditor(user)) {
-            return project.getNotebooks();
-        } else if (PermissionUtil.hasPermissions(user, project.getAccessList(),
+        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
+        if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
-            return getNotebooksWithAccess(project.getNotebooks(), user.getId());
+            throw new AccessDeniedException("The current user doesn't have permissions to read " +
+                    "notebooks of project with id = " + project.getId());
         }
-        throw new AccessDeniedException("The current user doesn't have permissions to read " +
-                "notebooks of project with id = " + project.getId());
+
+        return getNotebooksWithAccess(project.getNotebooks(), user.getId());
     }
 
     public Notebook getNotebookById(String id, User user) {
@@ -52,14 +50,14 @@ public class NotebookService {
         }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
-        // "Read Entity" permission in notebook access list, or must have <b>ADMIN</b> authority)
+        // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(id);
             if (project == null) {
                 throw EntityNotFoundException.createWithProjectChildId(id);
             }
 
-            if (!PermissionUtil.hasPermissions(user,
+            if (!PermissionUtil.hasPermissions(user.getId(),
                     project.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw new AccessDeniedException("The current user doesn't have permissions " +
@@ -77,7 +75,7 @@ public class NotebookService {
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
         // or must have CONTENT_EDITOR authority)
-        if (!PermissionUtil.hasPermissions(user, project.getAccessList(),
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                     UserPermission.CREATE_SUB_ENTITY)) {
             throw new AccessDeniedException(
                     "The current user doesn't have permissions to create notebook");
@@ -106,14 +104,14 @@ public class NotebookService {
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
-        // "Update Entity" permission in notebook access list, or must have <b>ADMIN</b> authority)
+        // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(notebook.getId());
             if (project == null) {
                 throw EntityNotFoundException.createWithNotebookChildId(notebook.getId());
             }
 
-            if (!PermissionUtil.hasPermissions(user,
+            if (!PermissionUtil.hasPermissions(user.getId(),
                     project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
@@ -127,7 +125,7 @@ public class NotebookService {
             throw EntityAlreadyExistsException.createWithNotebookName(notebook.getName());
         }
 
-        // Set old notebook's experiment ids to new notebook
+        // Set old notebook's experiments to new notebook
         notebook.setExperiments(notebookFromDB.getExperiments());
         return notebookRepository.save(notebook);
     }
@@ -154,17 +152,11 @@ public class NotebookService {
     }
 
     public boolean hasNotebooks(Project project, User user) {
-        boolean isAdmin = PermissionUtil.isContentEditor(user);
-        if (isAdmin) {
-            return !project.getNotebooks().isEmpty();
-        } else {
-            UserPermission userPermission = PermissionUtil.findPermissionsByUserId(
-                    project.getAccessList(), user.getId());
-            // Checking of userPermission for "Read Sub-Entity" possibility,
-            // and that project has notebooks with UserPermission for specified User
-            return userPermission != null && userPermission.canReadSubEntity()
-                    && hasNotebooksWithAccess(project.getNotebooks(), user.getId());
-        }
+        // Checking of userPermission for "Read Sub-Entity" possibility,
+        // and that project has notebooks with UserPermission for specified User
+        return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
+                UserPermission.READ_SUB_ENTITY) &&
+                hasNotebooksWithAccess(project.getNotebooks(), user.getId());
     }
 
     private static boolean hasNotebooksWithAccess(List<Notebook> notebooks, String userId) {
