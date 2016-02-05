@@ -36,7 +36,7 @@
             <!--<button ng-click="editDisabled=!editDisabled">disable all / enable all</button>-->
 
             <h4>Description</h4>
-            <textarea autofocus my-text-editor ng-model="project.description"></textarea>
+            <my-text-editor content="project.description"></my-text-editor>
 
             <!-- Attach files-->
             <my-file-uploader-result entityid="project.id"></my-file-uploader-result>

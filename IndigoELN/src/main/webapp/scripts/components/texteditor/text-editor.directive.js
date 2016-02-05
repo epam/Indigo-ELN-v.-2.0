@@ -1,48 +1,41 @@
 'use strict';
 
 angular.module('indigoeln')
-    .directive('myTextEditor', function() {
+    .constant('textEditorConfig', {
+        placeholder: 'Add a description',
+        toolbar: ['title', 'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color',
+            'ol', 'ul', 'blockquote', 'table', 'link', 'image', 'hr', 'indent', 'outdent', 'alignment'],
+        pasteImage: true,
+        defaultImage: 'assets/images/image.gif'
+    })
+    .directive('myTextEditor', function ($timeout, textEditorConfig) {
         return {
-            require: '?^ngModel',
-            link: function (scope, element, attrs, ngModel) {
-                element.append('<div style="height:300px;"></div>');
-                var TOOLBAR_DEFAULT = ['title','bold','italic','underline','strikethrough','fontScale','color',
-                    'ol','ul','blockquote','table','link','image','hr','indent','outdent','alignment'];
-                var toolbar = scope.$eval(attrs.toolbar) || TOOLBAR_DEFAULT;
+            scope: {
+                content: '='
+            },
+            restrict: 'E',
+            template: '<textarea data-autosave="editor-content" autofocus></textarea>',
+            replace: true,
+            link: function (scope, elem, attrs) {
                 Simditor.locale = 'en_EN';
-                scope.editor = new Simditor({
-                    textarea: element,
-                    pasteImage: true,
-                    toolbar: toolbar,
-                    defaultImage: 'assets/images/image.gif'
-                    //fileKey: 'upload_file',
-                    //upload: {
-                    //    url: '/api/project_files/123abc',
-                    //    params: {'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')}
-                    //}
+                var editor = new Simditor(
+                    angular.extend({textarea: elem}, textEditorConfig)
+                );
+
+                var newContent = '';
+
+                scope.$watch('content', function (value, old) {
+                    if (typeof value !== 'undefined' && value !== newContent) {
+                        editor.setValue(value);
+                    }
                 });
 
-                var $target = scope.editor.body;
-
-                function readViewText() {
-                    ngModel.$setViewValue($target.html());
-                    if (attrs.ngRequired !== undefined && attrs.ngRequired !== 'false') {
-                        var text = $target.text();
-                        if(text.trim() === '') {
-                            ngModel.$setValidity('required', false);
-                        } else {
-                            ngModel.$setValidity('required', true);
-                        }
+                editor.on('valuechanged', function (e) {
+                    if (scope.content !== editor.getValue()) {
+                        $timeout(function () {
+                            scope.content = newContent = editor.getValue();
+                        });
                     }
-                }
-
-                ngModel.$render = function () {
-                    scope.editor.focus();
-                    $target.html(ngModel.$viewValue);
-                };
-
-                scope.editor.on('valuechanged', function () {
-                    scope.$apply(readViewText);
                 });
             }
         };
