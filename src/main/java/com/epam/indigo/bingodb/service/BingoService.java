@@ -42,7 +42,7 @@ public class BingoService {
     }
 
     public List<Integer> searchMoleculeExact(String molecule, String options) {
-        return processSearchExact(moleculeRepository, indigo.loadQueryMolecule(molecule), options);
+        return processSearchExact(moleculeRepository, indigo.loadMolecule(molecule), options);
     }
 
     public List<Integer> searchMoleculeSub(String molecule, String options) {
@@ -50,7 +50,7 @@ public class BingoService {
     }
 
     public List<Integer> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
-        return processSearchSim(moleculeRepository, indigo.loadQueryMolecule(molecule), min, max, metric);
+        return processSearchSim(moleculeRepository, indigo.loadMolecule(molecule), min, max, metric);
     }
 
     public List<Integer> searchMoleculeMolFormula(String molFormula, String options) {
@@ -76,7 +76,7 @@ public class BingoService {
     }
 
     public List<Integer> searchReactionExact(String reaction, String options) {
-        return processSearchExact(reactionRepository, indigo.loadQueryReaction(reaction), options);
+        return processSearchExact(reactionRepository, indigo.loadReaction(reaction), options);
     }
 
     public List<Integer> searchReactionSub(String reaction, String options) {
@@ -84,7 +84,7 @@ public class BingoService {
     }
 
     public List<Integer> searchReactionSim(String reaction, Float min, Float max, String metric) {
-        return processSearchSim(reactionRepository, indigo.loadQueryReaction(reaction), min, max, metric);
+        return processSearchSim(reactionRepository, indigo.loadReaction(reaction), min, max, metric);
     }
 
     public List<Integer> searchReactionMolFormula(String molFormula, String options) {
