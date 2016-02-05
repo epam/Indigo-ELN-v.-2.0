@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
-import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +45,13 @@ public class ProjectResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllProjects() {
+    public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
         log.debug("REST request to get all projects");
         User user = userService.getUserWithAuthorities();
         Collection<Project> projects = projectService.getAllProjects(user);
-        List<ExperimentTreeNodeDTO> result = new ArrayList<>(projects.size());
+        List<TreeNodeDTO> result = new ArrayList<>(projects.size());
         for (Project project : projects) {
-            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(project);
+            TreeNodeDTO dto = new TreeNodeDTO(project);
             dto.setNodeType("project");
             dto.setHasChildren(notebookService.hasNotebooks(project, user));
             result.add(dto);

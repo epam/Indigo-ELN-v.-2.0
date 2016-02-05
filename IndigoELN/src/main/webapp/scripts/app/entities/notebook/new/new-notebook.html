@@ -7,6 +7,7 @@
         <h4>Description</h4>
         <textarea id="description" cols="100" ng-model="description" autofocus></textarea>
         <br>
-        <button class="btn btn-info" style="margin: 5px;" type="button" ng-click="newExperiment()">Create Experiment</button>
+        <a class="btn btn-info" style="margin: 5px;" type="button" ui-sref="experiment.new({notebookId:experiment.id})">Create
+            Experiment</a>
     </div>
 </div>

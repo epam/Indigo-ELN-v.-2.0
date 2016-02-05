@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
-import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +47,14 @@ public class NotebookResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ExperimentTreeNodeDTO>> getAllNotebooks(
+    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
             @RequestParam(value = "projectId") String projectId) {
         log.debug("REST request to get all notebooks of project: {}", projectId);
         User user = userService.getUserWithAuthorities();
         Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
-        List<ExperimentTreeNodeDTO> result = new ArrayList<>(notebooks.size());
+        List<TreeNodeDTO> result = new ArrayList<>(notebooks.size());
         for (Notebook notebook : notebooks) {
-            ExperimentTreeNodeDTO dto = new ExperimentTreeNodeDTO(notebook);
+            TreeNodeDTO dto = new TreeNodeDTO(notebook);
             dto.setNodeType("notebook");
             dto.setHasChildren(experimentService.hasExperiments(notebook, user));
             result.add(dto);

@@ -5,44 +5,101 @@ angular.module('indigoeln')
         $stateProvider
             .state('experiment', {
                 parent: 'entity',
-                url: '/experiment/{id}',
+                url: '/',
+                data: {
+                    authorities: [],
+                    pageTitle: 'Experiments'
+                },
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
+                        templateUrl: 'scripts/app/entities/experiment/experiments.html',
+                        controller: 'ExperimentController'
+                    }
+                },
+                resolve: {}
+            })
+            .state('experiment.detail', {
+                parent: 'entity',
+                url: '/experiment/{id}',
+                data: {
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                    pageTitle: 'Experiment'
+                },
+                views: {
+                    'content@app_page': {
+                        templateUrl: 'scripts/app/entities/experiment/experiment-detail.html',
                         controller: 'ExperimentDetailController'
                     }
                 },
-                data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
-                    pageTitle: 'indigoeln'
-                },
                 resolve: {
-                    data: ['$stateParams', 'Experiment', function($stateParams, Experiment) {
-                        return Experiment.get({id : $stateParams.id}).$promise;
+                    entity: ['$stateParams', 'Experiment', function ($stateParams, Experiment) {
+                        return Experiment.get({id: $stateParams.id});
                     }]
                 }
             })
-            .state('newexperiment', {
-                parent: 'entity',
-                url: '/newexperiment',
+            .state('experiment.new', {
+                parent: 'experiment',
+                url: 'new/{notebookId}',
+                data: {
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                },
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/new/new-experiment.html',
-                        controller: 'NewExperimentController'
+                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
+                        controller: 'ExperimentDialogController'
                     }
                 },
-                params: {
-                    experiment: {}
-                },
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
-                    pageTitle: 'indigoeln'
-                },
-                bindToController: true,
                 resolve: {
-                    experiment : function($stateParams) {
-                        return $stateParams.experiment;
+                    entity: function ($stateParams) {
+                        return {
+                            title: null,
+                            experimentNumber: null,
+                            templateId: null,
+                            notebookId: $stateParams.notebookId,
+                            id: null
+                        };
                     }
                 }
+            })
+            .state('experiment.edit', {
+                parent: 'experiment',
+                url: '{id}/edit',
+                data: {
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                },
+                views: {
+                    'content@app_page': {
+                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
+                        controller: 'ExperimentDialogController'
+                    }
+                },
+                resolve: {
+                    entity: ['Experiment', function (Experiment) {
+                        return Experiment.get({id: $stateParams.id});
+                    }]
+                }
+            })
+            .state('experiment.delete', {
+                parent: 'experiment',
+                url: '{id}/delete',
+                data: {
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
+                },
+                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                    $uibModal.open({
+                        templateUrl: 'scripts/app/entities/experiment/experiment-delete-dialog.html',
+                        controller: 'ExperimentDeleteController',
+                        size: 'md',
+                        resolve: {
+                            entity: ['Experiment', function (Experiment) {
+                                return Experiment.get({id: $stateParams.id});
+                            }]
+                        }
+                    }).result.then(function (result) {
+                        $state.go('experiment', null, {reload: true});
+                    }, function () {
+                        $state.go('^');
+                    })
+                }]
             });
     });

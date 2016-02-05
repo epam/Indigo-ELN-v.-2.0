@@ -25,13 +25,13 @@
     </li>
 </ul>
 <ul class="head-controls-list">
-    <li class="head-controls-list__item" ui-sref="home">
+    <li class="head-controls-list__item" ui-sref="experiment">
         <i class="fa fa-home"></i>
     </li>
     <li class="head-controls-list__item" toggle-class-child="open-menu">
         <i class="fa fa-file-o"></i>
         <ul class="head-controls-list-submenu">
-            <li class="head-controls-list-submenu__item"><a ng-click="newExperiment($event)" href="#">New Experiment</a>
+            <li class="head-controls-list-submenu__item"><a ui-sref="experiment.new">New Experiment</a>
             </li>
             <li class="head-controls-list-submenu__item"><a ng-click="newNotebook($event)" href="#">New Notebook</a>
             </li>
