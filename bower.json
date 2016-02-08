@@ -29,8 +29,8 @@
     "simditor": "2.3.6",
     "stomp-websocket": "2.3.4",
     "underscore": "1.8.3",
-    "ng-idle": "1.0.0"
-    "underscore": "1.8.3"
+    "ng-idle": "1.0.0",
+    "underscore": "1.8.3",
     "angular-pretty-bytes": "1.0.1",
   },
   "overrides": {
