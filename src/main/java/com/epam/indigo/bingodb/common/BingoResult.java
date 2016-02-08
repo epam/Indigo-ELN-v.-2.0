@@ -12,6 +12,7 @@ public class BingoResult {
 
     private Integer id;
     private String structure;
+    private byte[] picture;
 
     private List<Integer> searchResult;
 
@@ -34,6 +35,11 @@ public class BingoResult {
 
     public BingoResult withStructure(String structure) {
         setStructure(structure);
+        return this;
+    }
+
+    public BingoResult withPicture(byte[] picture) {
+        setPicture(picture);
         return this;
     }
 
@@ -78,6 +84,15 @@ public class BingoResult {
     public void setStructure(String structure) {
         this.structure = structure;
     }
+
+    public byte[] getPicture() {
+        return picture;
+    }
+
+    public void setPicture(byte[] picture) {
+        this.picture = picture;
+    }
+
 
     public List<Integer> getSearchResult() {
         return searchResult;

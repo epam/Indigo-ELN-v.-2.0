@@ -33,6 +33,14 @@
             <version>${bingo.version}</version>
         </dependency>
 
+        <!-- Indigo-renderer -->
+
+        <dependency>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo-renderer</artifactId>
+            <version>${bingo.version}</version>
+        </dependency>
+
         <!-- Apache Commons -->
 
         <dependency>
