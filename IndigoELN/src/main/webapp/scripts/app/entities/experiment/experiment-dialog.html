@@ -4,26 +4,26 @@
     </div>
     <div class="panel-body">
         <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" show-validation>
-            <div class="form-group">
-                <label for="id">ID</label>
-                <input type="text" class="form-control" id="id" name="id"
-                       ng-model="experiment.id" readonly/>
-            </div>
-            <div class="form-group">
-                <label class="control-label" for="field_title">Title</label>
-                <input type="text" class="form-control" name="title" id="field_title"
-                       ng-model="experiment.title"
-                       required/>
-                <div ng-show="editForm.title.$invalid">
-                    <p class="help-block"
-                       ng-show="editForm.title.$error.required">
-                        This field is required.
-                    </p>
-                </div>
-            </div>
+            <my-input
+                    my-label="ID"
+                    my-label-vertical="true"
+                    my-model="experiment.id"
+                    my-name="id"
+                    my-validation-obj="editForm.id"
+                    my-readonly="true"
+            ></my-input>
+            <my-input
+                    my-label="Title"
+                    my-validation-required="true"
+                    my-label-vertical="true"
+                    my-model="experiment.title"></my-input>
         </form>
     </div>
     <div class="panel-footer text-right">
+        <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
+           ng-if="mode == 'edit'">
+            <span class="glyphicon glyphicon-trash"></span>&nbsp;<span>Delete</span>
+        </a>
         <a class="btn btn-default" data-dismiss="modal" ng-click="back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </a>

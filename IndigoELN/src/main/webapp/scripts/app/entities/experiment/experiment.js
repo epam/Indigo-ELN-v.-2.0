@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'experiment',
                 url: 'notebook/{notebookId}/experiment/new',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -38,6 +38,12 @@ angular.module('indigoeln')
                             templateId: null,
                             id: null
                         };
+                    },
+                    templates: function (Template) {
+                        return Template.query().$promise;
+                    },
+                    mode: function () {
+                        return 'new';
                     }
                 }
             })
@@ -55,16 +61,16 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: ['$stateParams', 'Experiment', function ($stateParams, Experiment) {
+                    entity: function ($stateParams, Experiment) {
                         return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
-                    }]
+                    }
                 }
             })
             .state('experiment.edit', {
                 parent: 'experiment',
                 url: 'notebook/{notebookId}/experiment/{id}/edit',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -73,14 +79,20 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: ['Experiment', function (Experiment) {
+                    entity: function (Experiment, $stateParams) {
                         return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
-                    }]
+                    },
+                    templates: function (Template) {
+                        return Template.query().$promise;
+                    },
+                    mode: function () {
+                        return 'edit'
+                    }
                 }
             })
             .state('experiment.delete', {
-                parent: 'experiment',
-                url: 'notebook/{notebookId}/experiment/{id}/delete',
+                parent: 'experiment.edit',
+                url: '/delete',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },

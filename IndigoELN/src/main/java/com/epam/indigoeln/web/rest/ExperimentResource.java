@@ -127,7 +127,7 @@ public class ExperimentResource {
     @RequestMapping(value = "{notebookId}/experiments/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExperiment(@PathVariable String id, @PathVariable String notebookId) {
         log.debug("REST request to remove experiment: {}", id);
-        experimentService.deleteExperiment(id);
+        experimentService.deleteExperiment(id, notebookId);
         return ResponseEntity.ok().build();
     }
 }

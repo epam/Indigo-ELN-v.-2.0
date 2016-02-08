@@ -1,29 +1,15 @@
-<div>
-    <h2><span>Experiment</span> {{experiment.id}}</h2>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Field</th>
-                <th>Value</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <span>Title</span>
-                </td>
-                <td>
-                    <span class="form-control-static">{{experiment.title}}</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+<div class="panel panel-info" style="margin-top: 30px">
+    <div class="panel-heading">
+        <span>Experiment {{experiment.id}}</span>
     </div>
-
-    <button type="submit"
-            onclick="window.history.back()"
-            class="btn btn-info">
-        <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
-    </button>
+    <div class="panel-body">
+        <form>
+            <my-simple-text my-label="Title" my-model="experiment.title"></my-simple-text>
+        </form>
+    </div>
+    <div class="panel-footer text-right">
+        <a ui-sref="experiment.edit({id:experiment.id,notebookId: notebookId})" class="btn btn-info">
+            <span class="glyphicon glyphicon-edit"></span>&nbsp;<span> Edit</span>
+        </a>
+    </div>
 </div>
