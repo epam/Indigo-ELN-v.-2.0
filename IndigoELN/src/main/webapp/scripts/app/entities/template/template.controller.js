@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('TemplateController', function ($scope, $state, Template, ParseLinks, $builder) {
+    .controller('TemplateController', function ($scope, $state, Template, ParseLinks) {
 
         $scope.templates = [];
         $scope.predicate = 'id';
