@@ -3,6 +3,7 @@ package com.epam.indigo.bingodb.service;
 import com.epam.indigo.BingoObject;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
+import com.epam.indigo.IndigoRenderer;
 import com.epam.indigo.bingodb.repository.BingoRepository;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class BingoService {
     private Indigo indigo;
 
     @Autowired
+    private IndigoRenderer renderer;
+
+    @Autowired
     private BingoRepository moleculeRepository;
 
     @Autowired
@@ -26,7 +30,17 @@ public class BingoService {
     /* Molecule */
 
     public String getMolecule(Integer id) {
-        return moleculeRepository.getById(id).molfile();
+        IndigoObject io = moleculeRepository.getById(id);
+        // TODO auto generating coordinates to render structure (bingo nosql does not store coordinates)
+        io.layout();
+        return io.molfile();
+    }
+
+    public byte[] getMoleculePicture(Integer id, Integer width, Integer height) {
+        IndigoObject io = moleculeRepository.getById(id);
+        if (width != null && height != null)
+            indigo.setOption("render-image-size", width, height);
+        return renderer.renderToBuffer(io);
     }
 
     public Integer insertMolecule(String molecule) {
@@ -60,7 +74,17 @@ public class BingoService {
     /* Reaction */
 
     public String getReaction(Integer id) {
-        return reactionRepository.getById(id).rxnfile();
+        IndigoObject io = reactionRepository.getById(id);
+        // TODO auto generating coordinates to render structure (bingo nosql does not store coordinates)
+        io.layout();
+        return io.rxnfile();
+    }
+
+    public byte[] getReactionPicture(Integer id, Integer width, Integer height) {
+        IndigoObject io = reactionRepository.getById(id);
+        if (width != null && height != null)
+            indigo.setOption("render-image-size", width, height);
+        return renderer.renderToBuffer(io);
     }
 
     public Integer insertReaction(String reaction) {

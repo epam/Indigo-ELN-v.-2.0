@@ -31,10 +31,10 @@ Supported molecule/reaction formats are:
 
 <b>Molecules:</b>
 
-    <b>POST   /molecule</b>      - Add a molecule to Database and return an ID for it;
-    <b>GET    /molecule/{id}</b> - Return molecule with given ID from Database;
-    <b>PUT    /molecule/{id}</b> - Update molecule with given ID in Database;
-    <b>DELETE /molecule/{id}</b> - Delete molecule with given ID from Database;
+    <b>POST   /molecule</b>                             - Add a molecule to Database and return an ID for it;
+    <b>GET    /molecule/{id}?width=val1&height=val2</b> - Return molecule with given ID from Database and structure image;
+    <b>PUT    /molecule/{id}</b>                        - Update molecule with given ID in Database;
+    <b>DELETE /molecule/{id}</b>                        - Delete molecule with given ID from Database;
 
     <b>POST   /molecule/search/exact</b>        - Process Exact search in Database
     <b>POST   /molecule/search/substructure</b> - Process Substructure search in Database
@@ -43,10 +43,10 @@ Supported molecule/reaction formats are:
 
 <b>Reactions:</b>
 
-    <b>POST   /reaction</b>      - Add a reaction to Database and return an ID for it;
-    <b>GET    /reaction/{id}</b> - Return reaction with given ID from Database;
-    <b>PUT    /reaction/{id}</b> - Update reaction with given ID in Database;
-    <b>DELETE /reaction/{id}</b> - Delete reaction with given ID from Database;
+    <b>POST   /reaction</b>                             - Add a reaction to Database and return an ID for it;
+    <b>GET    /reaction/{id}?width=val1&height=val2</b> - Return reaction with given ID from Database and structure image;
+    <b>PUT    /reaction/{id}</b>                        - Update reaction with given ID in Database;
+    <b>DELETE /reaction/{id}</b>                        - Delete reaction with given ID from Database;
 
     <b>POST   /reaction/search/exact</b>        - Process Exact search in Database
     <b>POST   /reaction/search/substructure</b> - Process Substructure search in Database
