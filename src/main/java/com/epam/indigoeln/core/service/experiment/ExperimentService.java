@@ -185,14 +185,14 @@ public class ExperimentService {
     }
 
 
-    public void deleteExperiment(String id) {
+    public void deleteExperiment(String id, String notebookId) {
         //TODO don't forget about Components
         Experiment experiment = experimentRepository.findOne(id);
         if (experiment == null) {
             throw EntityNotFoundException.createWithExperimentId(id);
         }
 
-        Notebook notebook = notebookRepository.findByExperimentId(experiment.getId());
+        Notebook notebook = notebookRepository.findOne(notebookId);
         if (notebook == null) {
             throw EntityNotFoundException.createWithNotebookChildId(experiment.getId());
         }
