@@ -7,13 +7,13 @@
     <!-- build:css assets/styles/vendor.css -->
     <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
     <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
+    <link rel="stylesheet" href="bower_components/angular-dragula/dist/dragula.css"/>
     <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css" />
+    <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css"/>
     <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
     <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css" />
     <link rel="stylesheet" href="bower_components/font-awesome-bower/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
-    <link rel="stylesheet" href="bower_components/angular-form-builder/dist/angular-form-builder.css" />
     <link rel="stylesheet" href="bower_components/simditor/styles/simditor.css" />
     <!-- endbower -->
     <!-- endbuild -->
@@ -37,29 +37,29 @@
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-animate/angular-animate.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-dragula/dist/angular-dragula.js"></script>
+<script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
+<script src="bower_components/pretty-bytes/pretty-bytes.js"></script>
+<script src="bower_components/angular-pretty-bytes/angular-pretty-bytes.js"></script>
 <script src="bower_components/angular-resource/angular-resource.js"></script>
 <script src="bower_components/angular-route/angular-route.js"></script>
 <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
-<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
-<script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
 <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
+<script src="bower_components/angular-mocks/angular-mocks.js"></script>
+<script src="bower_components/angular-validator/dist/angular-validator.js"></script>
+<script src="bower_components/angular-validator/dist/angular-validator-rules.js"></script>
+<script src="bower_components/angular-xeditable/dist/js/xeditable.js"></script>
 <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="bower_components/checklist-model/checklist-model.js"></script>
 <script src="bower_components/ng-tags-input/ng-tags-input.min.js"></script>
 <script src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.js"></script>
-<script src="bower_components/stomp-websocket/lib/stomp.js"></script>
-<script src="bower_components/underscore/underscore.js"></script>
-<script src="bower_components/angular-mocks/angular-mocks.js"></script>
-<script src="bower_components/angular-validator/dist/angular-validator.js"></script>
-<script src="bower_components/angular-validator/dist/angular-validator-rules.js"></script>
-<script src="bower_components/angular-form-builder/dist/angular-form-builder.js"></script>
-<script src="bower_components/angular-cookies/angular-cookies.js"></script>
 <script src="bower_components/simple-module/lib/module.js"></script>
 <script src="bower_components/simple-hotkeys/lib/hotkeys.js"></script>
 <script src="bower_components/simple-uploader/lib/uploader.js"></script>
 <script src="bower_components/simditor/lib/simditor.js"></script>
-<script src="bower_components/pretty-bytes/pretty-bytes.js"></script>
-<script src="bower_components/angular-pretty-bytes/angular-pretty-bytes.js"></script>
+<script src="bower_components/stomp-websocket/lib/stomp.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -113,19 +113,19 @@
 <script src="scripts/app/entities/template/template-detail.controller.js"></script>
 <script src="scripts/components/entities/template/template.service.js"></script>
 <script src="scripts/components/util/sort.directive.js"></script>
-<script src="scripts/app/entities/template/components/productBatchDetails/productBatchDetails.js"></script>
 <script src="scripts/components/entities/project/new-project-dialog.directive.js"></script>
 <script src="scripts/components/fileuploader/file-uploader.service.js"></script>
 <script src="scripts/components/fileuploader/file-uploader-result.controller.js"></script>
 <script src="scripts/components/fileuploader/file-uploader-result.directive.js"></script>
 <script src="scripts/components/texteditor/text-editor.directive.js"></script>
-<script src="scripts/app/entities/template/components/conceptDetails/conceptDetails.js"></script>
 <script src="scripts/app/entities/experiment/experiment.js"></script>
 <script src="scripts/app/entities/experiment/experiment.controller.js"></script>
 <script src="scripts/app/entities/experiment/experiment-dialog.controller.js"></script>
 <script src="scripts/app/entities/experiment/experiment-delete-dialog.controller.js"></script>
 <script src="scripts/app/entities/experiment/experiment-detail.controller.js"></script>
 <script src="scripts/components/entities/experiment/experiment.service.js"></script>
+<script src="scripts/components/entities/template/components/conceptDetails/conceptDetails.directive.js"></script>
+<script src="scripts/components/entities/template/components/productBatchDetails/productBatchDetails.directive.js"></script>
 <!-- endbuild -->
 </body>
 </html>
