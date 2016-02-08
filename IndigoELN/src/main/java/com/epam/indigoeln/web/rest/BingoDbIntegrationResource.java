@@ -2,6 +2,9 @@ package com.epam.indigoeln.web.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,11 +14,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
 import com.epam.indigoeln.core.integration.BingoResult;
+
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 @RestController
 @RequestMapping("/api/bingodb")
@@ -27,6 +33,9 @@ public class BingoDbIntegrationResource {
     private static final String BINGODB_MOLECULE_PATH = "/api/bingodb/molecule/";
     private static final String BINGODB_REACTION_PATH = "/api/bingodb/reaction/";
 
+    private static final String PARAM_OPTIONS = "options";
+    private static final String PARAM_MIN = "min";
+    private static final String PARAM_MAX = "max";
 
     @Autowired
     private BingoDbIntegrationService bingoDbService;
@@ -160,5 +169,124 @@ public class BingoDbIntegrationResource {
         bingoDbService.deleteReaction(id);
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeletionAlert(BINGODB_REACTION, id.toString())).build();
+    }
+
+    /**
+     * POST /molecule/search/exact?options=:options -> exact search molecule
+     */
+    @RequestMapping(value = "/molecule/search/exact",
+                    method = RequestMethod.POST,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchMoleculeExact(@RequestBody String structure,
+                                                 @RequestParam(required = false) String options) {
+        return search(structure, CHEMISTRY_SEARCH_EXACT,  getParamsWithOptions(options), false);
+    }
+
+
+    /**
+     * POST /molecule/search/substructure?options=:options -> substructure search molecule
+     */
+    @RequestMapping(value = "/molecule/search/substructure",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchMoleculeSubstructure(@RequestBody String structure,
+                                                        @RequestParam(required = false) String options) {
+        return search(structure, CHEMISTRY_SEARCH_SUBSTRUCTURE, getParamsWithOptions(options), false);
+    }
+
+    /**
+     * POST /molecule/search/similarity?min=:min&max=:max&options=:options -> substructure search molecule
+     */
+    @RequestMapping(value = "/molecule/search/similarity",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchMoleculeSimilarity(@RequestBody String structure,
+                                                      @RequestParam Float min,
+                                                      @RequestParam Float max,
+                                                      @RequestParam(required = false) String options) {
+        Map<String, String> params = getParamsWithOptions(options);
+        params.put(PARAM_MIN, min.toString());
+        params.put(PARAM_MAX, max.toString());
+        return search(structure, CHEMISTRY_SEARCH_SIMILARITY, params, false);
+    }
+
+    /**
+     * POST /molecule/search/molformula?options=:options ->  search molecule by formula
+     */
+    @RequestMapping(value = "/molecule/search/molformula",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchMoleculeByMolFormula(@RequestBody String molFormula,
+                                                        @RequestParam(required = false) String options) {
+        return search(molFormula, CHEMISTRY_SEARCH_MOLFORMULA, getParamsWithOptions(options), false);
+    }
+
+    /**
+     * POST /reaction/search/exact?options=:options -> exact search reaction
+     */
+    @RequestMapping(value = "/reaction/search/exact",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchReactionExact(@RequestBody String structure,
+                                                 @RequestParam(required = false) String options) {
+        return search(structure, CHEMISTRY_SEARCH_EXACT,  getParamsWithOptions(options), true);
+    }
+
+
+    /**
+     * POST /reaction/search/substructure?options=:options -> substructure search reaction
+     */
+    @RequestMapping(value = "/reaction/search/substructure",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchReactionSubstructure(@RequestBody String structure,
+                                                        @RequestParam(required = false) String options) {
+        return search(structure, CHEMISTRY_SEARCH_SUBSTRUCTURE, getParamsWithOptions(options), true);
+    }
+
+    /**
+     * POST /reaction/search/similarity?min=:min&max=:max&options=:options -> substructure search reaction
+     */
+    @RequestMapping(value = "/reaction/search/similarity",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchReactionSimilarity(@RequestBody String structure,
+                                                      @RequestParam Float min,
+                                                      @RequestParam Float max,
+                                                      @RequestParam(required = false) String options) {
+        Map<String, String> params = getParamsWithOptions(options);
+        params.put(PARAM_MIN, min.toString());
+        params.put(PARAM_MAX, max.toString());
+        return search(structure, CHEMISTRY_SEARCH_SIMILARITY, params, true);
+    }
+
+    /**
+     * POST /reaction/search/molformula?options=:options ->  search reaction by formula
+     */
+    @RequestMapping(value = "/reaction/search/molformula",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> searchReactionByMolFormula(@RequestBody String molFormula,
+                                                        @RequestParam(required = false) String options) {
+        return search(molFormula, CHEMISTRY_SEARCH_MOLFORMULA, getParamsWithOptions(options), true);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private ResponseEntity search(String body,
+                                  String type,
+                                  Map<String, String> params,
+                                  boolean isReaction) {
+
+        BingoResult result = isReaction ? bingoDbService.searchReaction(body, type, params) :
+                bingoDbService.searchMolecule(body, type, params);
+        return result.isSuccess() ? ResponseEntity.ok().body(result.getSearchResult()) :
+                new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private Map<String, String> getParamsWithOptions(String options) {
+        Map<String, String> params = new HashMap<>();
+        Optional.ofNullable(options).ifPresent(opt -> params.put(PARAM_OPTIONS, opt));
+        return params;
     }
 }
