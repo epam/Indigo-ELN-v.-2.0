@@ -1,17 +1,17 @@
 'use strict';
 
-angular
-    .module('indigoeln')
+angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $http, $uibModal) {
 
         var BINGO_URL = 'http://localhost:12345/';
         var PIC_WIDTH = 100;
         var PIC_HEIGHT = 50;
 
-        // TODO: get experiment from server and set structureId and strutureType values
-        $scope.structureId = 3;
-        $scope.strutureType = "molecule"; // "reaction"
+        $scope.strutureType = 'molecule'; // value by default
 
+        // TODO: get experiment from server and set structureId value
+        $scope.structureId = 7;
+        $scope.structure = null; // will be set by following HTTP GET method
 
         $http({
             url: BINGO_URL + $scope.strutureType + '/' + $scope.structureId + '?callback=JSON_CALLBACK',
@@ -58,28 +58,33 @@ angular
                     $http({
                         url: BINGO_URL + structureTypeTemp,
                         method: "POST",
+                        withCredentials: true,
                         data: {structure: structure}
                     }).success(function(result){
                             $scope.structureId = result.structure;
                             //$scope.image = result.picture;
                     }).error(function(data){
-                            console.info('The experiment contains no saved structure.');
+                            console.info('Could not save structure.');
                         });
                 }
 
             });
         };
 
-        //$scope.copyReaction = function() {
-        //};
+        $scope.importStructure = function () {
 
-        $scope.pasteReaction = function() {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'scripts/app/entities/template/components/structureScheme/structure-import-modal.html',
+                controller: 'StructureImportControllerModal',
+                windowClass: 'structure-import-modal'
+            });
 
+            // assign structure if picked
+            modalInstance.result.then(function (structure) {
+                // TODO: get id from bingo, change pic
+                $scope.structure = structure;
+            });
         };
-
-        $scope.cutReaction = function() {
-
-        };
-
 
     });

@@ -1,11 +1,16 @@
-<div class="panel panel-primary component" ng-controller="StructureSchemeController">
+<div class="panel panel-primary component">
     <div class="panel-heading">
-        Structure Scheme
-        <div class="btn-group pull-right">
-            <i class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add Reaction Scheme" ng-click="openEditor()"></i>
-            <i class="fa fa-copy btn" title="Copy Structure Scheme" ngclipboard data-clipboard-text={{structure}}></i>
-            <i class="fa fa-paste btn" title="Paste Reaction Scheme"></i>
-            <i class="fa fa-cut btn" title="Cut Reaction Scheme"></i>
+        <div class="panel-title">
+                Structure Scheme for:
+                <select class="select-structure" ng-model="strutureType">
+                    <option value="molecule">Molecule</option>
+                    <option value="reaction">Reaction</option>
+                </select>
+                <span class="btn-group pull-right">
+                    <i class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add Reaction Scheme" ng-click="openEditor()"></i>
+                    <i class="fa  fa-folder-open-o btn" title="Import Structure" ng-click="importStructure()"></i>
+                    <i class="fa fa-save btn" title="Export Structure"></i>
+                </span>
         </div>
     </div>
     <div class="panel-body">

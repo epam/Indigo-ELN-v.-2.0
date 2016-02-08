@@ -238,3 +238,15 @@
     min-width: 100%;
     height: auto;
 }
+
+.select-structure {
+    border:0px;
+    outline:0px;
+    background-color: transparent;
+    font-weight: bold;
+}
+
+.textarea-structure {
+    resize: vertical;
+}
+
