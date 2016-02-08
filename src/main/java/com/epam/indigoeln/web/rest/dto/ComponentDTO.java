@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import java.io.Serializable;
+
 import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBObject;
 
@@ -10,23 +11,19 @@ public class ComponentDTO implements Serializable {
 
     private String id;
     private BasicDBObject content;
-    private String componentTemplateId;
 
     public ComponentDTO() {
     }
 
     public ComponentDTO(Component component) {
         this(component.getId(),
-             component.getContent(),
-             component.getComponentTemplateId());
+             component.getContent());
     }
 
     public ComponentDTO(String id,
-                        BasicDBObject content,
-                        String componentTemplateId) {
+                        BasicDBObject content) {
         this.id = id;
         this.content = content;
-        this.componentTemplateId = componentTemplateId;
     }
 
     public String getId() {
@@ -37,10 +34,6 @@ public class ComponentDTO implements Serializable {
         return content;
     }
 
-    public String getComponentTemplateId() {
-        return componentTemplateId;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
@@ -49,16 +42,11 @@ public class ComponentDTO implements Serializable {
         this.content = content;
     }
 
-    public void setComponentTemplateId(String componentTemplateId) {
-        this.componentTemplateId = componentTemplateId;
-    }
-
     @Override
     public String toString() {
         return "ComponentDTO{" +
                 "id='" + id + '\'' +
-                ", content='" + content + '\'' +
-                ", componentTemplateId='" + componentTemplateId + '\'' +
+                ", content=" + content +
                 '}';
     }
 }

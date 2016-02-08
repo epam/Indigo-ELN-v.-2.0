@@ -1,7 +1,15 @@
 package com.epam.indigoeln.core.repository.component;
 
-import com.epam.indigoeln.core.model.Component;
+import java.util.List;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+
+import com.epam.indigoeln.core.model.Component;
 
 public interface ComponentRepository extends MongoRepository<Component, String> {
+
+    @Query(value="{ 'content.component' : 'batchDetails', 'content.bingoDbId' : { $in : ?0 } }")
+    List<Component> findBatchesByBingoDbIds(List<String> bingoIds);
+
 }
