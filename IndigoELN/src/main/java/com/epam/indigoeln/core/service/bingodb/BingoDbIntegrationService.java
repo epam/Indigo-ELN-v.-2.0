@@ -1,7 +1,10 @@
 package com.epam.indigoeln.core.service.bingodb;
 
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -25,6 +28,8 @@ public class BingoDbIntegrationService {
     private static final String BINGO_URL_GET_OR_UPDATE_MOLECULE = BINGO_URL_MOLECULE + "/%s";
     private static final String BINGO_URL_GET_OR_UPDATE_REACTION = BINGO_URL_REACTION + "/%s";
 
+    private static final String BINGO_URL_SEARCH_MOLECULE = BINGO_URL_MOLECULE + "/search/%s";
+    private static final String BINGO_URL_SEARCH_REACTION = BINGO_URL_REACTION + "/search/%s";
 
     @Value("${integration.bingodb.url}")
     private String bingoUrl;
@@ -109,6 +114,29 @@ public class BingoDbIntegrationService {
         execute(String.format(BINGO_URL_GET_OR_UPDATE_REACTION, bingoUrl, id), HttpMethod.DELETE, null);
     }
 
+
+    /**
+     * Search molecule by structure
+     * @param structure structure of molecule
+     * @param type type of search
+     * @return result of search operation
+     */
+    public BingoResult searchMolecule(String structure, String type, Map requestParams) {
+        String url = buildSearchUrl(BINGO_URL_SEARCH_MOLECULE, type, requestParams);
+        return execute(url, HttpMethod.POST, structure);
+    }
+
+    /**
+     * Search reaction by structure
+     * @param structure structure of reaction
+     * @param type type of search
+     * @return result of search operation
+     */
+    public BingoResult searchReaction(String structure, String type, Map requestParams) {
+        String url = buildSearchUrl(BINGO_URL_SEARCH_REACTION, type, requestParams);
+        return execute(url, HttpMethod.POST, structure);
+    }
+
     /**
      * Execute REST request
      * @param url request url
@@ -133,5 +161,16 @@ public class BingoDbIntegrationService {
                 Base64.getEncoder().encode(String.format("%s:%s", bingoUsername, bingoPassword).getBytes()));
         headers.add(HttpHeaders.AUTHORIZATION, "Basic " + base64Credentials);
         return new HttpEntity(requestBody, headers);
+    }
+
+    @SuppressWarnings("unchecked")
+    private String buildSearchUrl(String baseUrl, String type, Map requestParameters) {
+        String res = String.format(baseUrl, bingoUrl, type);
+        if(requestParameters!=null && !requestParameters.isEmpty()){
+            Stream<Map.Entry> stream = requestParameters.entrySet().stream();
+            res  += '?' + stream.map(e -> String.format("%s=%s", e.getKey(), e.getValue())).
+                    collect(Collectors.joining("&"));
+        }
+        return res;
     }
 }
