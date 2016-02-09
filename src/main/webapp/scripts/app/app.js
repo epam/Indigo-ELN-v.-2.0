@@ -3,7 +3,8 @@
 angular.module('indigoeln',
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute',
         'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
-        'cgBusy'])
+        'cgBusy', 
+        'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
     .run(function ($rootScope, $window, $state, editableOptions, Auth, Principal) {
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
