@@ -12,8 +12,8 @@ angular.module('indigoeln')
         return {
             restrict: 'A',
             replace: true,
-            scope: {
-                myComponent: '@'
+            link: function (scope, iElement, iAttrs, controller) {
+                scope.myComponent = iAttrs.myComponent;
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +

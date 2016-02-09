@@ -18,6 +18,7 @@ public class Component implements Serializable {
 
     @Id
     private String id;
+    private String name;
     private BasicDBObject content;
 
     public String getId() {
@@ -35,6 +36,14 @@ public class Component implements Serializable {
 
     public void setContent(BasicDBObject content) {
         this.content = content;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
