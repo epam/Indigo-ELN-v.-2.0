@@ -2,20 +2,22 @@
 
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, entity, Template, $state, dragulaService, Components) {
-        $scope.components = [
-            {name: 'Concept Details', id: "concept-details"},
-            {name: 'Product Batch Details', id: "product-batch-details"}
-        ];
-        $scope.selectedComponents = [];
+        $scope.components = Components;
         dragulaService.options($scope, 'template', {
             revertOnSpill: true
         });
         $scope.template = entity || {};
+        $scope.template.templateContent = $scope.template.templateContent || [];
         $scope.load = function (id) {
             Template.get({id: id}, function (result) {
                 $scope.template = result;
             });
         };
+        $scope.components = _.filter($scope.components, function (component) {
+            return !_.find($scope.template.templateContent, function (item) {
+                return component.id == item.id;
+            })
+        });
 
         var onSaveSuccess = function (result) {
             $state.go('template');
@@ -28,7 +30,6 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         $scope.save = function () {
             $scope.isSaving = true;
-            //$scope.template.templateContent = $builder.forms['default'];
             if ($scope.template.id != null) {
                 Template.update($scope.template, onSaveSuccess, onSaveError);
             } else {
