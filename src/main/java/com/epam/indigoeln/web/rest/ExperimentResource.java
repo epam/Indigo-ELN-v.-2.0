@@ -44,24 +44,24 @@ public class ExperimentResource {
      * GET  /experiments?:notebookId&:userId -> Returns all experiments of specified notebook for <b>specified user</b>
      * for tree representation according to his User permissions
      */
-    @RequestMapping(value = "{notebookId}/experiments",
+    @RequestMapping(value = "{notebookSequenceId}/experiments",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
-            @PathVariable String notebookId,
+            @PathVariable Long notebookSequenceId,
             @RequestParam(required = false) String userId) {
         User user = userService.getUserWithAuthorities();
-        if (notebookId == null) {
+        if (notebookSequenceId == null) {
             log.debug("REST request to get all experiments, which author is current user");
             Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(user);
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
-            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookId, userId);
+            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookSequenceId, userId);
             if (userId != null && !user.getId().equals(userId)) {
                 // change executing user
                 user = userService.getUserWithAuthorities(userId);
             }
-            Collection<Experiment> experiments = experimentService.getAllExperiments(notebookId, user);
+            Collection<Experiment> experiments = experimentService.getAllExperiments(notebookSequenceId, user);
 
             List<TreeNodeDTO> result = new ArrayList<>(experiments.size());
             for (Experiment experiment : experiments) {

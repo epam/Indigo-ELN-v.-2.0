@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -20,6 +21,8 @@ import java.util.Set;
 @Document(collection = Experiment.COLLECTION_NAME)
 public class Experiment extends ExperimentShort {
     public static final String COLLECTION_NAME = "experiment";
+
+    private static final long serialVersionUID = -4215770980241351691L;
 
     @Version
     private Long version;
@@ -152,47 +155,30 @@ public class Experiment extends ExperimentShort {
         this.fileIds = fileIds;
     }
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (!(o instanceof Experiment)) return false;
+        if (!super.equals(o)) return false;
         Experiment that = (Experiment) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (title != null ? !title.equals(that.title) : that.title != null) return false;
-        if (author != null ? !author.equals(that.author) : that.author != null) return false;
-        if (coAuthors != null ? !coAuthors.equals(that.coAuthors) : that.coAuthors != null) return false;
-        if (witness != null ? !witness.equals(that.witness) : that.witness != null) return false;
-        if (project != null ? !project.equals(that.project) : that.project != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
-        if (creationDate != null ? !creationDate.equals(that.creationDate) : that.creationDate != null) return false;
-        if (lastEditDate != null ? !lastEditDate.equals(that.lastEditDate) : that.lastEditDate != null) return false;
-        if (components != null ? !components.equals(that.components) : that.components != null) return false;
-        if (templateId != null ? !templateId.equals(that.templateId) : that.templateId != null) return false;
-        if (comments != null ? !comments.equals(that.comments) : that.comments != null) return false;
-        if (accessList != null ? !accessList.equals(that.accessList) : that.accessList != null) return false;
-
-        return true;
-
+        return  Objects.equal(author, that.author) &&
+                Objects.equal(coAuthors, that.coAuthors) &&
+                Objects.equal(witness, that.witness) &&
+                Objects.equal(creationDate, that.creationDate) &&
+                Objects.equal(lastEditDate, that.lastEditDate) &&
+                Objects.equal(lastModifiedBy, that.lastModifiedBy) &&
+                Objects.equal(comments, that.comments) &&
+                Objects.equal(status, that.status) &&
+                Objects.equal(components, that.components) &&
+                Objects.equal(accessList, that.accessList);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (author != null ? author.hashCode() : 0);
-        result = 31 * result + (coAuthors != null ? coAuthors.hashCode() : 0);
-        result = 31 * result + (witness != null ? witness.hashCode() : 0);
-        result = 31 * result + (project != null ? project.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (creationDate != null ? creationDate.hashCode() : 0);
-        result = 31 * result + (lastEditDate != null ? lastEditDate.hashCode() : 0);
-        result = 31 * result + (components != null ? components.hashCode() : 0);
-        result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
-        result = 31 * result + (comments != null ? comments.hashCode() : 0);
-        result = 31 * result + (accessList != null ? accessList.hashCode() : 0);
-        return result;
+        return Objects.hashCode(super.hashCode(), author, coAuthors, witness, creationDate, lastEditDate,
+                lastModifiedBy, comments, status, components, accessList);
     }
 
     @Override
@@ -204,4 +190,6 @@ public class Experiment extends ExperimentShort {
                 ", comments='" + comments + '\'' +
                 "} " + super.toString();
     }
+
+
 }

@@ -1,19 +1,29 @@
 package com.epam.indigoeln.core.service.project;
 
+import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectService {
@@ -27,70 +37,100 @@ public class ProjectService {
     @Autowired
     private UserRepository userRepository;
 
-    public Collection<Project> getAllProjects(User user) {
-        return projectRepository.findByUserId(user.getId());
+    @Autowired
+    private CustomDtoMapper mapper;
+
+    @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+
+    public Collection<ProjectDTO> getAllProjects(User user) {
+        Collection<Project> projects = projectRepository.findByUserId(user.getId());
+        return projects != null ? projects.stream().map(ProjectDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
-    public Project getProjectById(String projectId, User user) {
-        Project project = projectRepository.findOne(projectId);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectId(projectId);
-        }
+    public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
+        Collection<Project> projects = projectRepository.findByUserId(user.getId());
+        return projects.stream().
+                map(project -> new TreeNodeDTO(new ProjectDTO(project), hasNotebooks(project, user))).
+                collect(Collectors.toList());
+    }
+
+    private boolean hasNotebooks(Project project, User user) {
+        // Checking of userPermission for "Read Sub-Entity" possibility,
+        // and that project has notebooks with UserPermission for specified User
+        return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
+                UserPermission.READ_SUB_ENTITY) &&
+                hasNotebooksWithAccess(project.getNotebooks(), user.getId());
+    }
+
+    private boolean hasNotebooksWithAccess(List<Notebook> notebooks, String userId) {
+        // Because we have one at least Notebook with UserPermission for Read Entity
+        return notebooks != null &&
+                notebooks.stream().anyMatch(notebook -> PermissionUtil.findPermissionsByUserId(notebook.getAccessList(), userId) != null);
+
+    }
+
+    public ProjectDTO getProjectById(Long projectSequenceId, User user) {
+        Optional<Project> projectOpt = projectRepository.findBySequenceId(projectSequenceId);
+        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw new AccessDeniedException(
-                    "The current user doesn't have permissions to read project with id = " + projectId);
+                    "The current user doesn't have permissions to read project with id = " + projectSequenceId);
         }
-        return project;
+        return new ProjectDTO(project);
     }
 
-    public Project createProject(Project project, User user) {
-        // reset project's id
-        project.setId(null);
+    public ProjectDTO createProject(ProjectDTO project, User user) {
         // set author
         project.setAuthor(user);
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
         // add OWNER's permissions to project
         PermissionUtil.addOwnerToAccessList(project.getAccessList(), user);
-        return projectRepository.save(project);
+        // reset project's id
+        project.setSequenceId(sequenceIdRepository.getNextProjectId());
+
+        Project saved = projectRepository.save(mapper.convertFromDTO(project));
+        return new ProjectDTO(saved);
     }
 
-    public Project updateProject(Project project, User user) {
-        Project projectFromDb = projectRepository.findOne(project.getId());
-        if (projectFromDb == null) {
-            throw EntityNotFoundException.createWithProjectId(project.getId());
-        }
+    public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
+        Optional<Project> projectOpt =  projectRepository.findBySequenceId(projectDTO.getSequenceId());
+        Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getSequenceId().toString()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw new AccessDeniedException(
-                    "The current user doesn't have permissions to edit project with id = " + project.getId());
+                    "The current user doesn't have permissions to edit project with id = " + projectDTO.getSequenceId());
         }
 
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, projectDTO.getAccessList());
 
-        // set old project's notebooks and file ids to new project
-        project.setNotebooks(projectFromDb.getNotebooks());
-        project.setFileIds(projectFromDb.getFileIds());
+        // do not change old project's notebooks and file ids and author
+        projectFromDb.setName(projectDTO.getName());
+        projectFromDb.setDescription(projectDTO.getDescription());
+        projectFromDb.setTags(projectDTO.getTags());
+        projectFromDb.setKeywords(projectDTO.getKeywords());
+        projectFromDb.setReferences(projectDTO.getReferences());
+        projectFromDb.setAccessList(projectDTO.getAccessList());
 
-        return projectRepository.save(project);
+        Project savedProject = projectRepository.save(projectFromDb);
+        return new ProjectDTO(savedProject);
     }
 
-    public void deleteProject(String id) {
-        Project project = projectRepository.findOne(id);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectId(id);
-        }
+    public void deleteProject(Long sequenceId) {
+        Optional<Project> projectOpt =  projectRepository.findBySequenceId(sequenceId);
+        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(sequenceId.toString()));
 
-        if (!project.getNotebooks().isEmpty()) {
-            throw new ChildReferenceException(project.getId());
+        if (project.getNotebooks() != null && !project.getNotebooks().isEmpty()) {
+            throw new ChildReferenceException(project.getSequenceId().toString());
         }
 
         fileRepository.delete(project.getFileIds());

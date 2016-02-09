@@ -5,6 +5,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +19,9 @@ public class Project {
 
     @Id
     private String id;
+
+//    @NotNull
+    private Long sequenceId;
 
     private String name;
 
@@ -119,6 +125,14 @@ public class Project {
         this.fileIds = fileIds;
     }
 
+    public Long getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(Long sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -127,6 +141,7 @@ public class Project {
         Project project = (Project) o;
 
         if (id != null ? !id.equals(project.id) : project.id != null) return false;
+        if (sequenceId != null ? !sequenceId.equals(project.sequenceId) : project.sequenceId != null) return false;
         if (name != null ? !name.equals(project.name) : project.name != null) return false;
         if (notebooks != null ? !notebooks.equals(project.notebooks) : project.notebooks != null) return false;
         if (accessList != null ? !accessList.equals(project.accessList) : project.accessList != null) return false;
@@ -142,6 +157,7 @@ public class Project {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (sequenceId != null ? sequenceId.hashCode() : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (accessList != null ? accessList.hashCode() : 0);
         result = 31 * result + (author != null ? author.hashCode() : 0);
@@ -155,8 +171,9 @@ public class Project {
     @Override
     public String toString() {
         return "Project{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                "}";
+                "name='" + name + '\'' +
+                ", sequenceId=" + sequenceId +
+                ", id='" + id + '\'' +
+                '}';
     }
 }
