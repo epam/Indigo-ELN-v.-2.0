@@ -18,6 +18,7 @@ angular.module('indigoeln')
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
             '<div ng-switch-when="product-batch-details"><product-batch-details /></div>' +
+            '<div ng-switch-when="product-batch-summary"><product-batch-summary /></div>' +
             '</div>'
         }
     });
