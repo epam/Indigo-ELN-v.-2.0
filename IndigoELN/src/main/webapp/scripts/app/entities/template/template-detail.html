@@ -4,7 +4,7 @@
     </div>
     <div class="panel-body">
         <form class="form-horizontal">
-            <div ng-model="formData" fb-form="default"></div>
+            <div ng-repeat="component in template.templateContent" my-component={{component.id}}/></div>
         </form>
     </div>
     <div class="panel-footer">

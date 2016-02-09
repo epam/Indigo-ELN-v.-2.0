@@ -30,8 +30,10 @@
                         <h3 class="panel-title">Template Builder</h3>
                     </div>
                     <div class="panel-body" dragula='"bag"'>
-                        <div class="list-group templates-holder" dragula='"bag"' dragula-model='selectedComponents'>
-                            <button type="button" class="list-group-item" ng-repeat="component in selectedComponents">
+                        <div class="list-group templates-holder" dragula='"bag"'
+                             dragula-model='template.templateContent'>
+                            <button type="button" class="list-group-item"
+                                    ng-repeat="component in template.templateContent">
                                 {{component.name}}
                             </button>
                         </div>
@@ -54,7 +56,7 @@
         </div>
     </div>
     <div class="panel-footer text-right">
-        <button type="button" class="btn btn-default" onclick="back()">
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
         <button ng-click="save()" class="btn btn-primary">
