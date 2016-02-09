@@ -1,10 +1,10 @@
-<div class="panel panel-info" style="margin-top: 30px">
+<div class="panel panel-default" style="margin-top: 30px">
     <div class="panel-heading">
-        <span>Experiment {{experiment.id}}</span>
+        <span>Experiment {{experiment.title}}</span>
     </div>
     <div class="panel-body">
         <form>
-            <my-simple-text my-label="Title" my-model="experiment.title"></my-simple-text>
+            <div ng-repeat="component in template.templateContent" my-component={{component.id}}></div>
         </form>
     </div>
     <div class="panel-footer text-right">

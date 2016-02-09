@@ -3,7 +3,8 @@
         Create or edit a Experiment
     </div>
     <div class="panel-body">
-        <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" show-validation>
+        <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" show-validation
+              class="form-horizontal">
             <my-input
                     my-label="ID"
                     my-label-vertical="true"
@@ -17,6 +18,13 @@
                     my-validation-required="true"
                     my-label-vertical="true"
                     my-model="experiment.title"></my-input>
+            <my-select
+                    my-label="Template"
+                    my-name="template"
+                    my-model="template"
+                    my-items="templates"
+                    my-label-vertical="true"
+            ></my-select>
         </form>
     </div>
     <div class="panel-footer text-right">
