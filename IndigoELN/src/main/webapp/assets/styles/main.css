@@ -169,3 +169,7 @@
 .main-container__content-page > .content.ng-enter {
     animation: fadeIn 0.7s;
 }
+
+.templates-holder{
+    min-height: 200px;
+}
