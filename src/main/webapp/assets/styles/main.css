@@ -137,6 +137,7 @@
     text-align: center;
     height: 150px;
 }
+
 .nv-file-over {
     border: dotted 3px #4dd0e1 !important;
 }
@@ -160,7 +161,7 @@
     text-decoration: none;
 }
 
-.disabled, .disabled:hover  {
+.disabled, .disabled:hover {
     color: black;
     text-decoration: none;
     cursor: default !important;
@@ -170,6 +171,10 @@
     animation: fadeIn 0.7s;
 }
 
-.templates-holder{
+.templates-holder {
     min-height: 200px;
+}
+
+.nav, .pagination, .carousel, .panel-title a {
+    cursor: pointer;
 }
