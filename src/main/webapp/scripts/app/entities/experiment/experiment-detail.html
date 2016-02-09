@@ -1,15 +1,21 @@
-<div class="panel panel-info" style="margin-top: 30px">
+<div class="panel panel-default" style="margin-top: 30px">
     <div class="panel-heading">
-        <span>Experiment {{experiment.id}}</span>
+        <span>Experiment {{experiment.title}}</span>
     </div>
     <div class="panel-body">
         <form>
-            <my-simple-text my-label="Title" my-model="experiment.title"></my-simple-text>
+            <div ng-repeat="component in template.templateContent" my-component={{component.id}}></div>
         </form>
     </div>
     <div class="panel-footer text-right">
         <a ui-sref="experiment.edit({id:experiment.id,notebookId: notebookId})" class="btn btn-info">
             <span class="glyphicon glyphicon-edit"></span>&nbsp;<span> Edit</span>
+        </a>
+        <a class="btn btn-default" onclick="window.history.back()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
+        </a>
+        <a ng-click="save()" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
         </a>
     </div>
 </div>

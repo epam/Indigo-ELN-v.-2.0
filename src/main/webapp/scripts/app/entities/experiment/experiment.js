@@ -61,8 +61,20 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: function ($stateParams, Experiment) {
-                        return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
+                    data: function ($stateParams, Experiment, $q, Template) {
+                        var deferred = $q.defer();
+                        Experiment
+                            .get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId})
+                            .$promise
+                            .then(function (experiment) {
+                                Template
+                                    .get({id: experiment.templateId})
+                                    .$promise
+                                    .then(function (template) {
+                                        deferred.resolve({entity: experiment, template: template});
+                                    })
+                            });
+                        return deferred.promise;
                     }
                 }
             })
@@ -80,7 +92,10 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     entity: function (Experiment, $stateParams) {
-                        return Experiment.get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId});
+                        return Experiment.get({
+                            experimentId: $stateParams.id,
+                            notebookId: $stateParams.notebookId
+                        }).$promise;
                     },
                     templates: function (Template) {
                         return Template.query().$promise;
@@ -106,7 +121,7 @@ angular.module('indigoeln')
                                 return Experiment.get({
                                     experimentId: $stateParams.id,
                                     notebookId: $stateParams.notebookId
-                                });
+                                }).$promise;
                             }]
                         }
                     }).result.then(function (result) {

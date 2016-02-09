@@ -1,15 +1,16 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import java.io.Serializable;
-
 import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBObject;
+
+import java.io.Serializable;
 
 public class ComponentDTO implements Serializable {
 
     private static final long serialVersionUID = 13994253258215137L;
 
     private String id;
+    private String name;
     private BasicDBObject content;
 
     public ComponentDTO() {
@@ -40,6 +41,14 @@ public class ComponentDTO implements Serializable {
 
     public void setContent(BasicDBObject content) {
         this.content = content;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
