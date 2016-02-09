@@ -33,7 +33,7 @@ angular.module('indigoeln')
                 resolve: {
                     entity: function () {
                         return {
-                            title: null,
+                            name: null,
                             experimentNumber: null,
                             templateId: null,
                             id: null

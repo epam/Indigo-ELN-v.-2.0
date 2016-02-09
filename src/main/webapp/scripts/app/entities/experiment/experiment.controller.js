@@ -32,7 +32,7 @@ angular.module('indigoeln')
 
         $scope.clear = function () {
             $scope.experiment = {
-                title: null,
+                name: null,
                 experimentNumber: null,
                 templateId: null,
                 id: null

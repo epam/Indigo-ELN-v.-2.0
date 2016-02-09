@@ -13,55 +13,29 @@ import java.util.Set;
 /**
  * DTO for Notebook
  */
-public class NotebookDTO implements Serializable {
+public class NotebookDTO extends BasicDTO {
 
     private static final long serialVersionUID = -510169140377086627L;
 
-    @JsonProperty("id")
-    private Long sequenceId;
-
-    @NotNull
-    @Pattern(regexp = "^\\d{8}")
-    private String name;
-
-    private Set<UserPermission> accessList;
+//    @NotNull
+//    @Pattern(regexp = "^\\d{8}")
+//    private String name;
 
     public NotebookDTO() {
     }
 
     public NotebookDTO(Notebook notebook) {
-        this.sequenceId = notebook.getSequenceId();
-        this.name = notebook.getName();
-        this.accessList = notebook.getAccessList();
-    }
-
-    public Long getSequenceId() {
-        return sequenceId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Set<UserPermission> getAccessList() {
-        return accessList;
-    }
-
-    public void setSequenceId(Long sequenceId) {
-        this.sequenceId = sequenceId;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setAccessList(Set<UserPermission> accessList) {
-        this.accessList = accessList;
+        super(notebook.getSequenceId(),
+              notebook.getName(),
+              notebook.getAccessList(),
+              new UserDTO(notebook.getAuthor()),
+              new UserDTO(notebook.getLastModifiedBy()),
+              notebook.getCreationDate(),
+              notebook.getLastEditDate());
     }
 
     @Override
     public String toString() {
-        return "NotebookDTO{" +
-                "name='" + name + "\'" +
-                "}";
+        return "NotebookDTO{} " + super.toString();
     }
 }

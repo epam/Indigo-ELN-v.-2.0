@@ -6,9 +6,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
-@Document(collection = "sequence_id")
+@Document(collection = SequenceId.COLLECTION_NAME)
 public class SequenceId implements Serializable {
 
+    public static final String COLLECTION_NAME = "sequence_id";
     private static final long serialVersionUID = 2661973943428932165L;
 
     @Id
