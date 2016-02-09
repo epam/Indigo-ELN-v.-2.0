@@ -10,13 +10,31 @@
         </form>
         <br/>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Components</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="list-group templates-holder" dragula='"bag"' dragula-model='components'>
+                            <button type="button" class="list-group-item" ng-repeat="component in components">
+                                {{component.name}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">Template Builder</h3>
                     </div>
-                    <div class="panel-body">
-                        <div fb-builder="default" class="builder"></div>
+                    <div class="panel-body" dragula='"bag"'>
+                        <div class="list-group templates-holder" dragula='"bag"' dragula-model='selectedComponents'>
+                            <button type="button" class="list-group-item" ng-repeat="component in selectedComponents">
+                                {{component.name}}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -24,12 +42,12 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Components</h3>
+                    <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false"
+                         ng-click="showPreview = !showPreview">
+                        <h3 class="panel-title">Show Preview</h3>
                     </div>
-                    <div class="panel-body">
-                        <concept-details></concept-details>
-                        <!--<div fb-components class="components"></div>-->
+                    <div class="panel-body" ng-if="showPreview && selectedComponents.length">
+                        <div ng-repeat="component in selectedComponents" my-component={{component.id}}/></div>
                     </div>
                 </div>
             </div>
