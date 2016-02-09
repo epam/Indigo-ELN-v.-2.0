@@ -20,5 +20,5 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
     @Query("{'fileIds': ?0}")
     Project findByFileId(String fileId);
 
-    Optional<Project> findBySequenceId(Long sequenceId);
+    Optional<Project> findOneBySequenceId(Long sequenceId);
 }

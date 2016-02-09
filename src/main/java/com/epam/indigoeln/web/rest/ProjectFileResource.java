@@ -17,7 +17,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -50,7 +54,7 @@ public class ProjectFileResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam String projectId,
+    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam Long projectId,
                                                      Pageable pageable)
             throws URISyntaxException {
         log.debug("REST request to get files's metadata for project: {}", projectId);
@@ -80,7 +84,7 @@ public class ProjectFileResource {
      */
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String projectId)
+    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam Long projectId)
             throws URISyntaxException, IOException {
         log.debug("REST request to save file for project: {}", projectId);
         User user = userService.getUserWithAuthorities();
