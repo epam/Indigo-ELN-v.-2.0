@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,31 +15,30 @@ import java.util.stream.Collectors;
 /**
  * DTO for Project
  */
-public class ProjectDTO implements Serializable {
+public class ProjectDTO extends BasicDTO {
 
     private static final long serialVersionUID = -4754176248352140289L;
 
-    @JsonProperty("id")
-    private Long sequenceId;
-
-    private String name;
     private List<String> tags;
     private List<String> keywords;
     private String references;
     private String description;
-    private User author;
     private List<NotebookDTO> notebooks;
     private Set<String> fileIds;
-    private Set<UserPermission> accessList;
 
     public ProjectDTO() {
     }
 
     public ProjectDTO(Project project) {
-        this.sequenceId = project.getSequenceId();
-        this.name = project.getName();
-        this.accessList = project.getAccessList();
-        this.author = project.getAuthor();
+
+        super(project.getSequenceId(),
+              project.getName(),
+              project.getAccessList(),
+              new UserDTO(project.getAuthor()),
+              new UserDTO(project.getLastModifiedBy()),
+              project.getCreationDate(),
+              project.getLastEditDate());
+
         this.description = project.getDescription();
         this.fileIds = project.getFileIds();
         this.keywords = project.getKeywords();
@@ -46,22 +46,6 @@ public class ProjectDTO implements Serializable {
                 project.getNotebooks().stream().map(NotebookDTO::new).collect(Collectors.toList()) : new ArrayList<>();
         this.references = project.getReferences();
         this.tags = project.getTags();
-    }
-
-    public Set<UserPermission> getAccessList() {
-        return accessList;
-    }
-
-    public void setAccessList(Set<UserPermission> accessList) {
-        this.accessList = accessList;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
     }
 
     public String getDescription() {
@@ -80,28 +64,12 @@ public class ProjectDTO implements Serializable {
         this.fileIds = fileIds;
     }
 
-    public Long getSequenceId() {
-        return sequenceId;
-    }
-
-    public void setSequenceId(Long id) {
-        this.sequenceId = id;
-    }
-
     public List<String> getKeywords() {
         return keywords;
     }
 
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<NotebookDTO> getNotebooks() {
@@ -128,11 +96,8 @@ public class ProjectDTO implements Serializable {
         this.tags = tags;
     }
 
-
     @Override
     public String toString() {
-        return "ProjectDTO{" +
-                "name='" + name + "\'" +
-                "}";
+        return "ProjectDTO{} " + super.toString();
     }
 }

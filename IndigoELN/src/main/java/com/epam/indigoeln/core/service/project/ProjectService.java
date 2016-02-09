@@ -85,8 +85,6 @@ public class ProjectService {
     }
 
     public ProjectDTO createProject(ProjectDTO project, User user) {
-        // set author
-        project.setAuthor(user);
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
         // add OWNER's permissions to project
