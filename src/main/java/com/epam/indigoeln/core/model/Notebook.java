@@ -11,8 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Document(collection="notebook")
+@Document(collection=Notebook.COLLECTION_NAME)
 public class Notebook {
+    public static final String COLLECTION_NAME = "notebook";
 
     @Id
     private String id;

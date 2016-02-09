@@ -10,8 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Document(collection="project")
+@Document(collection=Project.COLLECTION_NAME)
 public class Project {
+    public static final String COLLECTION_NAME = "project";
 
     @Id
     private String id;

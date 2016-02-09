@@ -18,12 +18,11 @@ import java.time.format.DateTimeFormatter;
  *
  * @see CustomPersistentRememberMeServices
  */
-@Document(collection = "indigo_persistent_token")
+@Document(collection = PersistentToken.COLLECTION_NAME)
 public class PersistentToken implements Serializable {
-
+    public static final String COLLECTION_NAME = "indigo_persistent_token";
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy");
-
 
     private static final int MAX_USER_AGENT_LEN = 255;
 
