@@ -1,6 +1,8 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,7 +16,8 @@ public class ExperimentDTO implements Serializable {
 
     private static final long serialVersionUID = -305591958439648518L;
 
-    private String id;
+    @JsonProperty("id")
+    private Long sequenceId;
     private String title;
     private String project;
     private String experimentNumber;
@@ -25,7 +28,7 @@ public class ExperimentDTO implements Serializable {
     }
 
     public ExperimentDTO(Experiment experiment) {
-        this.id =experiment.getId();
+        this.sequenceId = experiment.getSequenceId();
         this.title =experiment.getTitle();
         this.project =experiment.getProject();
         this.experimentNumber =experiment.getExperimentNumber();
@@ -34,8 +37,8 @@ public class ExperimentDTO implements Serializable {
             experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
-    public String getId() {
-        return id;
+    public Long getSequenceId() {
+        return sequenceId;
     }
 
     public String getExperimentNumber() {
@@ -58,8 +61,8 @@ public class ExperimentDTO implements Serializable {
         return components;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setSequenceId(Long id) {
+        this.sequenceId = id;
     }
 
     public void setExperimentNumber(String experimentNumber) {

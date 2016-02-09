@@ -10,6 +10,7 @@ import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.ExperimentTablesDTO;
@@ -47,16 +48,21 @@ public class ExperimentService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+
+
     public Collection<Experiment> getAllExperiments() {
         return experimentRepository.findAll();
     }
 
-    public Collection<Experiment> getAllExperiments(String notebookId, User user) {
-        Notebook notebook = notebookRepository.findOne(notebookId);
-        if(notebook == null) {
-            throw EntityNotFoundException.createWithNotebookId(notebookId);
+    public Collection<Experiment> getAllExperiments(Long notebookId, User user) {
+        Optional<Notebook> notebookOpt = notebookRepository.findBySequenceId(notebookId);
+        if(!notebookOpt.isPresent()) {
+            throw EntityNotFoundException.createWithNotebookId(notebookId.toString());
         }
 
+        Notebook notebook = notebookOpt.get();
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
         if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
@@ -117,6 +123,8 @@ public class ExperimentService {
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
 
         experiment.setComponents(updateComponents(null, experiment.getComponents()));
+        //increment sequence Id
+        experiment.setSequenceId(sequenceIdRepository.getNextExperimentId());
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
@@ -125,9 +133,9 @@ public class ExperimentService {
     }
 
     public Experiment updateExperiment(Experiment experimentForSave, User user) {
-        Experiment experimentFromDB = experimentRepository.findOne(experimentForSave.getId());
+        Experiment experimentFromDB = experimentRepository.findOneBySequenceId(experimentForSave.getSequenceId());
         if (experimentFromDB == null) {
-            throw EntityNotFoundException.createWithExperimentId(experimentForSave.getId());
+            throw EntityNotFoundException.createWithExperimentId(experimentForSave.getSequenceId().toString());
         }
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
@@ -211,24 +219,6 @@ public class ExperimentService {
 
         fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
-    }
-
-    public boolean hasExperiments(Notebook notebook, User user) {
-        // Checking userPermission for "Read Sub-Entity" possibility,
-        // and that notebook has experiments with UserPermission for specified User
-        return PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
-                UserPermission.READ_SUB_ENTITY) &&
-                hasExperimentsWithAccess(notebook.getExperiments(), user.getId());
-    }
-
-    private static boolean hasExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        for (Experiment experiment : experiments) {
-            if (PermissionUtil.findPermissionsByUserId(experiment.getAccessList(), userId) != null) {
-                // Because we have one at least Experiment with UserPermission for Read Entity
-                return true;
-            }
-        }
-        return false;
     }
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {

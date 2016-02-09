@@ -1,7 +1,8 @@
 package com.epam.indigoeln.core.model;
 
+import com.google.common.base.Objects;
 import org.springframework.data.annotation.Id;
-
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class ExperimentShort implements Serializable {
@@ -9,17 +10,20 @@ public class ExperimentShort implements Serializable {
     private static final long serialVersionUID = 279335946658061099L;
 
     @Id
-    protected String id;
+    private String id;
+
+    @NotNull
+    private Long sequenceId;
 
     //    @NotBlank
-    protected String experimentNumber;
+    private String experimentNumber;
 
-    protected String title;
+    private String title;
 
     //    @NotBlank
-    protected String project;
+    private String project;
 
-    protected String templateId;
+    private String templateId;
 
     public String getId() {
         return id;
@@ -61,39 +65,40 @@ public class ExperimentShort implements Serializable {
         this.experimentNumber = experimentNumber;
     }
 
+    public Long getSequenceId() {
+        return sequenceId;
+    }
+
+    public void setSequenceId(Long sequenceId) {
+        this.sequenceId = sequenceId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (!(o instanceof ExperimentShort)) return false;
         ExperimentShort that = (ExperimentShort) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        if (title != null ? !title.equals(that.title) : that.title != null) return false;
-        if (project != null ? !project.equals(that.project) : that.project != null) return false;
-        if (templateId != null ? !templateId.equals(that.templateId) : that.templateId != null) return false;
-
-        return true;
-
+        return  Objects.equal(id, that.id) &&
+                Objects.equal(sequenceId, that.sequenceId) &&
+                Objects.equal(title, that.title) &&
+                Objects.equal(project, that.project) &&
+                Objects.equal(templateId, that.templateId);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (project != null ? project.hashCode() : 0);
-        result = 31 * result + (templateId != null ? templateId.hashCode() : 0);
-        return result;
+        return Objects.hashCode(id, sequenceId, title, project, templateId);
     }
 
     @Override
     public String toString() {
         return "ExperimentShort{" +
                 "id='" + id + '\'' +
+                ", sequenceId=" + sequenceId +
+                ", experimentNumber='" + experimentNumber + '\'' +
                 ", title='" + title + '\'' +
                 ", project='" + project + '\'' +
                 ", templateId='" + templateId + '\'' +
-                ", experimentNumber='" + experimentNumber + '\'' +
-                "}";
+                '}';
     }
 }

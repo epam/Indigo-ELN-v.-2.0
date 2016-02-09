@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface ProjectRepository extends MongoRepository<Project, String> {
 
@@ -18,4 +19,6 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
 
     @Query("{'fileIds': ?0}")
     Project findByFileId(String fileId);
+
+    Optional<Project> findBySequenceId(Long sequenceId);
 }

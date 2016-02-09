@@ -1,26 +1,33 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -49,7 +56,7 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
-            @RequestParam String projectId,
+            @RequestParam Long projectId,
             @RequestParam(required = false) String userId) {
         log.debug("REST request to get all notebooks of project: {} for user: {}", projectId, userId);
         User user = userService.getUserWithAuthorities();
@@ -57,25 +64,19 @@ public class NotebookResource {
             // change executing user
             user = userService.getUserWithAuthorities(userId);
         }
-        Collection<Notebook> notebooks = notebookService.getAllNotebooks(projectId, user);
-        List<TreeNodeDTO> result = new ArrayList<>(notebooks.size());
-        for (Notebook notebook : notebooks) {
-            TreeNodeDTO dto = new TreeNodeDTO(notebook);
-            dto.setHasChildren(experimentService.hasExperiments(notebook, user));
-            result.add(dto);
-        }
+        List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId, user);
         return ResponseEntity.ok(result);
     }
 
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Notebook> getNotebook(@PathVariable String id) {
-        log.debug("REST request to get notebook: {}", id);
+    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable Long sequenceId) {
+        log.debug("REST request to get notebook: {}", sequenceId);
         User user = userService.getUserWithAuthorities();
-        Notebook notebook = notebookService.getNotebookById(id, user);
+        NotebookDTO notebook = notebookService.getNotebookById(sequenceId, user);
         return ResponseEntity.ok(notebook);
     }
 
@@ -86,12 +87,12 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Notebook> createNotebook(@RequestBody @Valid Notebook notebook,
-                                   @RequestParam String projectId) throws URISyntaxException {
+    public ResponseEntity<NotebookDTO> createNotebook(@RequestBody @Valid NotebookDTO notebook,
+                                   @RequestParam Long projectId) throws URISyntaxException {
         log.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.createNotebook(notebook, projectId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId())).body(notebook);
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getSequenceId())).body(notebook);
     }
 
     /**
@@ -100,7 +101,7 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Notebook> updateNotebook(@RequestBody @Valid Notebook notebook) {
+    public ResponseEntity<NotebookDTO> updateNotebook(@RequestBody @Valid NotebookDTO notebook) {
         log.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.updateNotebook(notebook, user);
@@ -110,10 +111,10 @@ public class NotebookResource {
     /**
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteNotebook(@PathVariable String id) {
-        log.debug("REST request to remove notebook: {}", id);
-        notebookService.deleteNotebook(id);
+    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteNotebook(@PathVariable Long sequenceId) {
+        log.debug("REST request to remove notebook: {}", sequenceId);
+        notebookService.deleteNotebook(sequenceId);
         return ResponseEntity.ok().build();
     }
 
