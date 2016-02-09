@@ -8,19 +8,28 @@
                 <div class="col-xs-8">
                     <my-input my-label="Concept Subject / Title" my-label-vertical="true"
                               my-model="model.conceptDetails.title"></my-input>
-                    <my-select my-label="Therapeutic Area" my-label-vertical="true"></my-select>
-                    <my-select my-label="Project Code & Name" my-label-vertical="true"></my-select>
-                    <my-select my-label="Experiment creator" my-label-vertical="true"></my-select>
+                    <my-select my-label="Therapeutic Area"
+                               my-items="[{name:'fake item'}]" my-model="model.conceptDetails.therapeuticArea"
+                               my-label-vertical="true"></my-select>
+                    <my-select my-label="Project Code & Name"
+                               my-items="[{name:'fake item'}]" my-model="model.conceptDetails.codeAndName"
+                               my-label-vertical="true"></my-select>
+                    <my-input my-label="Experiment creator" my-label-vertical="true"
+                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
+                              my-readonly="true"></my-input>
                 </div>
                 <div class="col-xs-4">
-                    <my-input my-label="Creation Date" my-label-vertical="true"></my-input>
-                    <my-input my-label="Linked Experiment" my-label-vertical="true"></my-input>
-                    <my-text-area my-label="Designers" my-label-vertical="true"></my-text-area>
+                    <my-date-picker my-label="Creation Date" my-label-vertical="true"
+                                    my-model="model.conceptDetails.creationDate"></my-date-picker>
+                    <!--<my-input my-label="Linked Experiment" my-label-vertical="true"></my-input>-->
+                    <my-text-area my-label="Designers" my-label-vertical="true"
+                                  my-model="model.conceptDetails.designers"></my-text-area>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <my-text-area my-label="Concept Keywords" my-label-vertical="true"></my-text-area>
+                    <my-text-area my-label="Concept Keywords" my-label-vertical="true"
+                                  my-model="model.conceptDetails.keywords"></my-text-area>
                 </div>
             </div>
         </div>

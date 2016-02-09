@@ -31,7 +31,6 @@
   "overrides": {
     "bootstrap": {
       "main": [
-        "dist/js/bootstrap.js",
         "../../assets/styles/indigo-bootstrap.css"
       ]
     },
