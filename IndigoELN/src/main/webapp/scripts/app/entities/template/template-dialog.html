@@ -17,9 +17,10 @@
                     </div>
                     <div class="panel-body">
                         <div class="list-group templates-holder" dragula='"bag"' dragula-model='components'>
-                            <button type="button" class="list-group-item" ng-repeat="component in components">
-                                {{component.name}}
-                            </button>
+                            <a class="list-group-item" ng-repeat="component in components">
+                                <h4 class="list-group-item-heading">{{component.name}}</h4>
+                                <p class="list-group-item-text">{{component.desc}} </p>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -32,10 +33,10 @@
                     <div class="panel-body" dragula='"bag"'>
                         <div class="list-group templates-holder" dragula='"bag"'
                              dragula-model='template.templateContent'>
-                            <button type="button" class="list-group-item"
-                                    ng-repeat="component in template.templateContent">
-                                {{component.name}}
-                            </button>
+                            <a class="list-group-item" ng-repeat="component in template.templateContent">
+                                <h4 class="list-group-item-heading">{{component.name}}</h4>
+                                <p class="list-group-item-text">{{component.desc}} </p>
+                            </a>
                         </div>
                     </div>
                 </div>
