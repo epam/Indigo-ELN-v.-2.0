@@ -55,7 +55,7 @@ angular.module('indigoeln')
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength">' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
         '<div ng-show="myValidationObj.$invalid">' +
         '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field cannot be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -101,7 +101,7 @@ angular.module('indigoeln')
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item.name for item in myItems" ></select>' +
+        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item.name for item in myItems track by item.name" ></select>' +
         '</div>' +
         '</div>'
     };
@@ -169,6 +169,39 @@ angular.module('indigoeln')
         '</label>' +
         '<div class="col-xs-10" style="padding-top: 7px;">' +
         '{{myModel||myEmptyText}}' +
+        '</div>' +
+        '</div>'
+    };
+}).directive('myDatePicker', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myLabelVertical: '=',
+            myName: '@',
+            myModel: '=',
+            myReadonly: '=',
+            myType: '@',
+            myValidationObj: '=',
+            myValidationRequired: '=',
+            myValidationMaxlength: '@'
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
+        '<div class="input-group">' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="yyyy/MM/dd" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
+        '<span class="input-group-btn">' +
+        '<button type="button" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
+        '<div ng-show="myValidationObj.$invalid">' +
+        '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
+        '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field cannot be longer than {{myValidationMaxlength}} characters.</p>' +
+        '</div>' +
+        '</div>' +
         '</div>' +
         '</div>'
     };

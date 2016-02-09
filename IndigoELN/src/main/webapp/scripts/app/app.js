@@ -2,7 +2,8 @@
 
 angular.module('indigoeln',
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute',
-        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular)])
+        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
+        'cgBusy'])
     .run(function ($rootScope, $window, $state, editableOptions, Auth, Principal) {
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;

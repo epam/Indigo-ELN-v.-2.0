@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentDialogController',
-    function ($scope, $stateParams, entity, Experiment, templates, mode) {
+    function ($scope, $stateParams, entity, Experiment, templates, mode, $state) {
 
         $scope.experiment = entity;
         $scope.notebookId = $stateParams.notebookId;
@@ -12,7 +12,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
         });
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
-            $scope.back();
+            $state.go('experiment.detail', {notebookId: $stateParams.notebookId, id: result.id});
         };
 
         var onSaveError = function (result) {
