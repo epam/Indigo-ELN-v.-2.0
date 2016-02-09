@@ -1,8 +1,15 @@
 'use strict';
 
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, entity, Template, $state) {
-
+    function ($scope, $stateParams, entity, Template, $state, dragulaService, Components) {
+        $scope.components = [
+            {name: 'Concept Details', id: "concept-details"},
+            {name: 'Product Batch Details', id: "product-batch-details"}
+        ];
+        $scope.selectedComponents = [];
+        dragulaService.options($scope, 'template', {
+            revertOnSpill: true
+        });
         $scope.template = entity || {};
         $scope.load = function (id) {
             Template.get({id: id}, function (result) {
