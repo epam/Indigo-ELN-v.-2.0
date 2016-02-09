@@ -8,8 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection="role")
+@Document(collection=Role.COLLECTION_NAME)
 public class Role {
+    public static final String COLLECTION_NAME = "role";
 
     @Id
     private String id;

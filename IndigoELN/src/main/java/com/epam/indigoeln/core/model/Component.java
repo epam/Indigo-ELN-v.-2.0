@@ -2,7 +2,6 @@ package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
 import com.mongodb.BasicDBObject;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,8 +10,9 @@ import java.io.Serializable;
 /**
  * Component model object
  */
-@Document(collection = "component")
+@Document(collection = Component.COLLECTION_NAME)
 public class Component implements Serializable {
+    public static final String COLLECTION_NAME = "component";
 
     private static final long serialVersionUID = -3522699714105273016L;
 
