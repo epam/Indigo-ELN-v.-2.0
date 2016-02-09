@@ -18,12 +18,12 @@ angular.module('indigoeln')
             $scope.isSaving = true;
             var experimentForSave = _.extend({}, $scope.experiment, {components: toComponents($scope.model)});
             if ($scope.template.id != null) {
-                Experiment.update({
+                $scope.loading = Experiment.update({
                     notebookId: $stateParams.notebookId,
                     projectId: $stateParams.projectId
-                }, experimentForSave, onSaveSuccess, onSaveError);
+                }, experimentForSave, onSaveSuccess, onSaveError).$promise;
             } else {
-                Experiment.save(experimentForSave, onSaveSuccess, onSaveError);
+                $scope.loading = Experiment.save(experimentForSave, onSaveSuccess, onSaveError).$promise;
             }
         };
 
