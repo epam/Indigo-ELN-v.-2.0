@@ -5,6 +5,7 @@ import com.epam.indigo.bingodb.common.ErrorHandler;
 import com.epam.indigo.bingodb.service.BingoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.AbstractJsonpResponseBodyAdvice;
 
 @RestController
 @RequestMapping("/reaction")
@@ -13,10 +14,21 @@ public class ReactionController {
     @Autowired
     private BingoService bingoService;
 
+    @ControllerAdvice
+    static class JsonpAdvice extends AbstractJsonpResponseBodyAdvice {
+
+        public JsonpAdvice() {
+            super("callback");
+        }
+
+    }
+
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public BingoResult getReaction(@PathVariable Integer id) {
+    public BingoResult getReaction(@PathVariable Integer id, @RequestParam(value = "width", required=false) Integer width,
+                                   @RequestParam(value = "height", required=false) Integer height) {
         try {
-            return BingoResult.success().withId(id).withStructure(bingoService.getReaction(id));
+            return BingoResult.success().withId(id).withStructure(bingoService.getReaction(id))
+                    .withPicture(bingoService.getReactionPicture(id, width, height));
         } catch (Exception e) {
             return ErrorHandler.handleError(e, "Cannot get Reaction with id=%s: %s", id, e.getMessage());
         }
