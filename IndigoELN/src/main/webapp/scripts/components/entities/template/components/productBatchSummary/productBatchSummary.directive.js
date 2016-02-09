@@ -16,20 +16,20 @@ angular.module('indigoeln')
                     enableSelectAll: true,
                     selectionRowHeaderWidth: 35,                    
                     columnDefs: [
-                      { field: 'f1', displayName : 'Nbk Batch #', enableCellEdit: false},
+                      { field: 'batchNbk', displayName : 'Nbk Batch #', enableCellEdit: false},
                       { 
-                            field: 'f2', displayName : 'Total Weight', 
+                            field: 'totalWeight', displayName : 'Total Weight', 
                             editableCellTemplate: 'ui-grid/dropdownEditor', 
                             editDropdownValueLabel: 'label', editDropdownOptionsArray: [
                                 { id: 10, label: 'ten' },
                                 { id: 20, label: 'twenty' }
                             ]
                       },
-                      { field: 'f3', displayName : 'Total Volume'}/*,
-                      { field: 'f4', displayName : 'Total Moles'},
-                      { field: 'f5', displayName : 'Theo. Wgt.'},
-                      { field: 'f6', displayName : 'Theo. Moles'},
-                      { field: 'f6', displayName : '%Yield'},
+                      { field: 'totalVolume', displayName : 'Total Volume'},
+                      { field: 'totalMoles', displayName : 'Total Moles'},
+                      { field: 'theoWgt', displayName : 'Theo. Wgt.'},
+                      { field: 'theoMoles', displayName : 'Theo. Moles'}
+                      /*{ field: 'f6', displayName : '%Yield'},
                       { field: 'f7', displayName : 'Compound State'},
                       { field: 'f8', displayName : 'Purity'},
                       { field: 'f9', displayName : 'Melting Point'},
@@ -37,16 +37,17 @@ angular.module('indigoeln')
                     ],
                     onRegisterApi : function( gridApi ) {
                     },
+                    /*TODO replace with real data*/
                     data: [
                         {
-                            "Nbk Batch #": "Ethel Price",
-                            "Total Weight": "female",
-                            "www": "Enersol"
+                            "batchNbk": "1",
+                            "totalWeight": "10",
+                            "totalVolume": "100"
                         },
                         {
-                            "Nbk Batch #": "Claudine Neal",
-                            "Total Weight": "female",
-                            "www": "Sealoud"
+                            "batchNbk": "2",
+                            "totalWeight": "20",
+                            "totalVolume": "five hundred"
                         }
                         ]
 
@@ -56,6 +57,10 @@ angular.module('indigoeln')
                 	if (columnDef.enableCellEdit != false) {
                 		columnDef.menuItems = [{
                                    title: 'Set value for ' + columnDef.displayName, 
+                                   action: function($event) {
+                                   }
+                        }, {
+                                   title: 'Set default units for ' + columnDef.displayName, 
                                    action: function($event) {
                                    }
                         }];
