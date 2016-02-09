@@ -1,24 +1,29 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
@@ -33,9 +38,6 @@ public class ExperimentResource {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    CustomDtoMapper dtoMapper;
 
     /**
      * GET  /experiments -> Returns all experiments, which author is current User<br/>
@@ -53,7 +55,7 @@ public class ExperimentResource {
         User user = userService.getUserWithAuthorities();
         if (notebookSequenceId == null) {
             log.debug("REST request to get all experiments, which author is current user");
-            Collection<Experiment> experiments = experimentService.getExperimentsByAuthor(user);
+            Collection<ExperimentDTO> experiments = experimentService.getExperimentsByAuthor(user);
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
             log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookSequenceId, userId);
@@ -61,13 +63,8 @@ public class ExperimentResource {
                 // change executing user
                 user = userService.getUserWithAuthorities(userId);
             }
-            Collection<Experiment> experiments = experimentService.getAllExperiments(notebookSequenceId, user);
-
-            List<TreeNodeDTO> result = new ArrayList<>(experiments.size());
-            for (Experiment experiment : experiments) {
-                ExperimentDTO experimentDTO = dtoMapper.convertToDTO(experiment);
-                result.add(new TreeNodeDTO(experimentDTO));
-            }
+            Collection<ExperimentDTO> experiments = experimentService.getAllExperiments(notebookSequenceId, user);
+            List<TreeNodeDTO> result = experiments.stream().map(TreeNodeDTO::new).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
     }
@@ -75,15 +72,14 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions
      */
-    @RequestMapping(value = "{notebookId}/experiments/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "{notebookSequenceId}/experiments/{sequenceId}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
-            @PathVariable String notebookId,
-            @PathVariable String id) {
-        log.debug("REST request to get experiment: {}", id);
+            @PathVariable Long notebookSequenceId,
+            @PathVariable Long sequenceId) {
+        log.debug("REST request to get experiment: {}", sequenceId);
         User user = userService.getUserWithAuthorities();
-        Experiment experiment = experimentService.getExperiment(id, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(experiment));
+        return ResponseEntity.ok(experimentService.getExperiment(sequenceId, user));
     }
 
     /**
@@ -91,43 +87,42 @@ public class ExperimentResource {
      * as child for specified Notebook
      */
     @RequestMapping(
-            value = "{notebookId}/experiments",
+            value = "{notebookSequenceId}/experiments",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody ExperimentDTO experimentDTO,
-                                                          @PathVariable String notebookId) throws URISyntaxException {
-        log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
+    public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody  ExperimentDTO experimentDTO,
+                                                          @PathVariable Long notebookSequenceId)
+            throws URISyntaxException {
+        log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookSequenceId);
         User user = userService.getUserWithAuthorities();
-        Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
-        experiment = experimentService.createExperiment(experiment, notebookId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + experiment.getId()))
-                .body(dtoMapper.convertToDTO(experiment));
+        experimentDTO = experimentService.createExperiment(experimentDTO, notebookSequenceId, user);
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + experimentDTO.getSequenceId()))
+                .body(experimentDTO);
     }
 
     /**
      * PUT  /experiments/:id -> Updates experiment according to User permissions
      */
     @RequestMapping(
-            value = "{notebookId}/experiments",
+            value = "{notebookSequenceId}/experiments",
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody ExperimentDTO experimentDTO, @PathVariable String notebookId) {
+    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody  ExperimentDTO experimentDTO,
+                                                          @PathVariable Long notebookSequenceId) {
         log.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
-        Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
-        experiment = experimentService.updateExperiment(experiment, user);
-        return ResponseEntity.ok(dtoMapper.convertToDTO(experiment));
+        return ResponseEntity.ok(experimentService.updateExperiment(experimentDTO, user));
     }
 
     /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
-    @RequestMapping(value = "{notebookId}/experiments/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExperiment(@PathVariable String id, @PathVariable String notebookId) {
-        log.debug("REST request to remove experiment: {}", id);
-        experimentService.deleteExperiment(id, notebookId);
+    @RequestMapping(value = "{notebookSequenceId}/experiments/{sequenceId}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteExperiment(@PathVariable Long sequenceId, @PathVariable Long notebookSequenceId) {
+        log.debug("REST request to remove experiment: {}", sequenceId);
+        experimentService.deleteExperiment(sequenceId, notebookSequenceId);
         return ResponseEntity.ok().build();
     }
 }

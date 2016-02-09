@@ -71,7 +71,7 @@ public class ProjectService {
     }
 
     public ProjectDTO getProjectById(Long projectSequenceId, User user) {
-        Optional<Project> projectOpt = projectRepository.findBySequenceId(projectSequenceId);
+        Optional<Project> projectOpt = projectRepository.findOneBySequenceId(projectSequenceId);
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
@@ -99,7 +99,7 @@ public class ProjectService {
     }
 
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
-        Optional<Project> projectOpt =  projectRepository.findBySequenceId(projectDTO.getSequenceId());
+        Optional<Project> projectOpt =  projectRepository.findOneBySequenceId(projectDTO.getSequenceId());
         Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getSequenceId().toString()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
@@ -126,7 +126,7 @@ public class ProjectService {
     }
 
     public void deleteProject(Long sequenceId) {
-        Optional<Project> projectOpt =  projectRepository.findBySequenceId(sequenceId);
+        Optional<Project> projectOpt =  projectRepository.findOneBySequenceId(sequenceId);
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(sequenceId.toString()));
 
         if (project.getNotebooks() != null && !project.getNotebooks().isEmpty()) {

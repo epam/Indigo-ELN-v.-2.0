@@ -26,5 +26,5 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 
-    Experiment findOneBySequenceId(Long sequenceId);
+    Optional<Experiment> findOneBySequenceId(Long sequenceId);
 }

@@ -14,5 +14,5 @@ public interface NotebookRepository extends MongoRepository<Notebook, String> {
 
     Optional<Notebook> findByName(String name);
 
-    Optional<Notebook> findBySequenceId(Long sequenceId);
+    Optional<Notebook> findOneBySequenceId(Long sequenceId);
 }

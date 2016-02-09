@@ -50,7 +50,7 @@ public class NotebookService {
     }
 
     public Collection<Notebook> getAllNotebooks(Long  projectSequenceId, User user) {
-        Project project = projectRepository.findBySequenceId(projectSequenceId).
+        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
@@ -78,7 +78,7 @@ public class NotebookService {
 
 
     public NotebookDTO getNotebookById(Long sequenceId, User user) {
-        Notebook notebook = notebookRepository.findBySequenceId(sequenceId).
+        Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(sequenceId.toString()));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
@@ -101,7 +101,7 @@ public class NotebookService {
     }
 
     public NotebookDTO createNotebook(NotebookDTO notebookDTO, Long projectSequenceId, User user) {
-        Project project = projectRepository.findBySequenceId(projectSequenceId).
+        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
@@ -123,6 +123,7 @@ public class NotebookService {
 
         //set notebook sequence #
         notebook.setSequenceId(sequenceIdRepository.getNextNotebookId());
+
         notebook = notebookRepository.save(notebook);
 
         project.getNotebooks().add(notebook);
@@ -132,7 +133,7 @@ public class NotebookService {
     }
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, User user) {
-        Notebook notebookFromDB = notebookRepository.findBySequenceId(notebookDTO.getSequenceId()).
+        Notebook notebookFromDB = notebookRepository.findOneBySequenceId(notebookDTO.getSequenceId()).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getSequenceId().toString()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
@@ -160,7 +161,7 @@ public class NotebookService {
     }
 
     public void deleteNotebook(Long sequenceId) {
-        Notebook notebook = notebookRepository.findBySequenceId(sequenceId).orElseThrow(
+        Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).orElseThrow(
                 () -> EntityNotFoundException.createWithNotebookId(sequenceId.toString()));
 
         if(notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
@@ -176,24 +177,6 @@ public class NotebookService {
         projectRepository.save(project);
 
         notebookRepository.delete(notebook);
-    }
-
-    public boolean hasNotebooks(Project project, User user) {
-        // Checking of userPermission for "Read Sub-Entity" possibility,
-        // and that project has notebooks with UserPermission for specified User
-        return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_SUB_ENTITY) &&
-                hasNotebooksWithAccess(project.getNotebooks(), user.getId());
-    }
-
-    private static boolean hasNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        for (Notebook notebook : notebooks) {
-            if (PermissionUtil.findPermissionsByUserId(notebook.getAccessList(), userId) != null) {
-                // Because we have one at least Notebook with UserPermission for Read Entity
-                return true;
-            }
-        }
-        return false;
     }
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
