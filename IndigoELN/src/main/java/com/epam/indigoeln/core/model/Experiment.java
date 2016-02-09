@@ -17,8 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Document(collection = "experiment")
+@Document(collection = Experiment.COLLECTION_NAME)
 public class Experiment extends ExperimentShort {
+    public static final String COLLECTION_NAME = "experiment";
 
     @Version
     private Long version;

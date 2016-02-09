@@ -1,35 +1,29 @@
 package com.epam.indigoeln.core.model;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-
+import com.epam.indigoeln.core.util.JsonUtil;
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.Objects;
+import com.mongodb.BasicDBList;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.json.JSONArray;
+import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import org.json.JSONArray;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Objects;
-import com.mongodb.BasicDBList;
-
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
-import com.epam.indigoeln.core.util.JsonUtil;
+import java.io.Serializable;
+import java.time.LocalDate;
 
 /**
  * Entity class presents Template
  */
-@Document(collection = "template")
+@Document(collection = Template.COLLECTION_NAME)
 public class Template implements Serializable, Persistable<String> {
+    public static final String COLLECTION_NAME = "template";
 
     private static final long serialVersionUID = 4518230352458447262L;
 

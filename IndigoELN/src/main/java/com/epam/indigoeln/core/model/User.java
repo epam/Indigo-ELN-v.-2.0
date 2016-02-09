@@ -19,9 +19,10 @@ import java.util.Set;
 /**
  * A user.
  */
-@Document(collection = "user")
+@Document(collection = User.COLLECTION_NAME)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
+    public static final String COLLECTION_NAME = "user";
 
     @Id
     private String id;
