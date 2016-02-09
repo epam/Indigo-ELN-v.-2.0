@@ -11,5 +11,11 @@
         <a ui-sref="experiment.edit({id:experiment.id,notebookId: notebookId})" class="btn btn-info">
             <span class="glyphicon glyphicon-edit"></span>&nbsp;<span> Edit</span>
         </a>
+        <a class="btn btn-default" onclick="window.history.back()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
+        </a>
+        <a ng-click="save()" class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
+        </a>
     </div>
 </div>
