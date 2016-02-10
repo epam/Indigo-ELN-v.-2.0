@@ -6,7 +6,10 @@ angular.module('indigoeln',
         'cgBusy', 'angular.filter',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
-        var countdownDialog = null;
+        var countdownDialog = null,
+            idleTime = 30,  // 30 minutes
+            countdown = 30; // 30 seconds
+
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
             $rootScope.toStateParams = toStateParams;
@@ -43,7 +46,10 @@ angular.module('indigoeln',
                     windowClass: 'modal-danger',
                     resolve: {
                         countdown: function() {
-                            return 30;
+                            return countdown;
+                        },
+                        idleTime: function() {
+                            return idleTime;
                         }
                     }
                 });
@@ -119,6 +125,6 @@ angular.module('indigoeln',
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
 
-        IdleProvider.idle(300); // 5 min of idleness
+        IdleProvider.idle(30 * 60); // 30 min of idleness
         IdleProvider.timeout(30); // 30 sec to do something
     });
