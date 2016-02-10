@@ -3,6 +3,10 @@ package com.epam.indigoeln.core.service.calculation;
 import java.util.List;
 import java.util.Map;
 
+import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoObject;
+import com.epam.indigo.IndigoRenderer;
+import com.epam.indigoeln.core.service.calculation.helper.RenderedStructure;
 import org.springframework.stereotype.Service;
 
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
@@ -15,6 +19,10 @@ import com.epam.indigoeln.core.service.calculation.helper.CommonCalcHelper;
  */
 @Service
 public class CalculationService {
+
+    private static boolean STEREOCHEM_ERRORS = true;
+    private static String MOLECULE_TYPE = "molecule";
+    private static String REACTION_TYPE = "reaction";
 
     /**
      * Check, that chemistry structures of reactions or molecules are equals
@@ -87,4 +95,30 @@ public class CalculationService {
     public boolean isValidReaction(String reaction) {
         return ReactionCalcHelper.isValidReaction(reaction);
     }
+
+    /**
+     * Render molecule/reaction by its string representation
+     * @param structure string structure representation (Mol, Smiles etc.)
+     * @param structureType molecule or reaction
+     * @param width width of final image
+     * @param height height of fnal image
+     * @return RenderedStructure
+     */
+    public RenderedStructure getStructureWithImage(String structure, String structureType, Integer width, Integer height) {
+
+        Indigo indigo = new Indigo();
+        indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
+
+        IndigoRenderer renderer = CommonCalcHelper.getRenderer(indigo, width, height);
+        IndigoObject io =  MOLECULE_TYPE.equals(structureType) ? indigo.loadMolecule(structure) :
+                indigo.loadReaction(structure);
+
+        // auto-generate coordinates as Bingo DB doesn't store them
+        io.layout();
+
+        String genStructure = MOLECULE_TYPE.equals(structureType) ? io.molfile() : io.rxnfile();
+        return new RenderedStructure(genStructure, renderer.renderToBuffer(io));
+    }
+
+
 }

@@ -115,6 +115,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     //TODO set up
                     // component number resource
                     //TODO set up
+                    // structure renderer resource
+                    //TODO set up
                     // experiment_file resource
                     .antMatchers(HttpMethod.GET, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_READERS)
                     .antMatchers(HttpMethod.GET, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_READERS)
