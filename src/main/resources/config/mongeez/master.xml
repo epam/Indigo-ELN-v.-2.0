@@ -6,4 +6,5 @@
     <file path="new_role_authority_schema.xml"/>
     <file path="index_improvements.xml"/>
     <file path="sequences.xml"/>
+    <file path="sequence_improvements.xml"/>
 </changeFiles>
