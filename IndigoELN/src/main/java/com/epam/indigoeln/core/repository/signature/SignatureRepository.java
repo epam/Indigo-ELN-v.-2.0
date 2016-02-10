@@ -13,6 +13,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -30,6 +31,21 @@ public class SignatureRepository {
     private String password;
 
     private RestTemplate restTemplate = new RestTemplate();
+
+    public String getReasons() {
+        return exchange(signatureServiceUrl + "/api/getReasons", HttpMethod.GET, null,
+                String.class, new HashMap<>()).getBody();
+    }
+
+    public String getStatuses() {
+        return exchange(signatureServiceUrl + "/api/getStatuses", HttpMethod.GET, null,
+                String.class, new HashMap<>()).getBody();
+    }
+
+    public String getFinalStatus() {
+        return exchange(signatureServiceUrl + "/api/getFinalStatus", HttpMethod.GET, null,
+                String.class, new HashMap<>()).getBody();
+    }
 
     public String getSignatureTemplates(String username) {
         return exchange(signatureServiceUrl + "/api/getTemplates?username={username}", HttpMethod.GET, null,
@@ -54,6 +70,43 @@ public class SignatureRepository {
 
         return exchange(signatureServiceUrl + "/api/uploadDocument", HttpMethod.POST, map,
                 String.class, new HashMap<>()).getBody();
+    }
+
+    public String getDocumentInfo(String documentId) {
+        if (StringUtils.isBlank(documentId)) {
+            return StringUtils.EMPTY;
+        }
+
+        return exchange(signatureServiceUrl + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
+                String.class, Collections.singletonMap("id", documentId)).getBody();
+    }
+
+    public String getDocumentsInfo(List<String> documentIds) {
+        if (documentIds == null || documentIds.size() < 1) {
+            return org.apache.commons.lang.StringUtils.EMPTY;
+        }
+
+
+        return exchange(signatureServiceUrl + "/api/getDocumentsByIds", HttpMethod.POST,
+                Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
+    }
+
+    public String getDocuments(String username) {
+        if (StringUtils.isBlank(username)) {
+            return StringUtils.EMPTY;
+        }
+
+        return exchange(signatureServiceUrl + "/api/getDocuments?username={username}", HttpMethod.GET, null,
+                String.class, Collections.singletonMap("username", username)).getBody();
+    }
+
+    public byte[] downloadDocument(String documentId) {
+        if (StringUtils.isBlank(documentId)) {
+            return new byte[0];
+        }
+
+        return exchange(signatureServiceUrl + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
+                byte[].class, Collections.singletonMap("id", documentId)).getBody();
     }
 
     private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz,
