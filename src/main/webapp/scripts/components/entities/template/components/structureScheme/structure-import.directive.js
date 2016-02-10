@@ -7,17 +7,16 @@ angular.module('indigoeln')
             scope: false,
             controller: 'ImportController',
             link: function (scope, element, attrs) {
-                var func = $parse(attrs.onReadFile);
+
+                var showFunc = $parse(attrs.onReadFile);
 
                 element.on('change', function (onChangeEvent) {
                     var reader = new FileReader();
-
                     reader.onload = function (onLoadEvent) {
                         scope.$apply(function () {
-                            func(scope, {$fileContent: onLoadEvent.target.result});
+                            showFunc(scope, {$fileContent: onLoadEvent.target.result});
                         });
                     };
-
                     reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
                 });
             }

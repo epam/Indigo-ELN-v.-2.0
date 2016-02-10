@@ -1,19 +1,19 @@
-<div class="panel panel-primary component">
+<div class="panel panel-primary component" my-model="model.structureScheme.structureId">
     <div class="panel-heading">
         <div class="panel-title">
                 Structure Scheme for:
-                <select class="select-structure" ng-model="strutureType">
+                <select class="select-structure" ng-model="structureType">
                     <option value="molecule">Molecule</option>
                     <option value="reaction">Reaction</option>
                 </select>
                 <span class="btn-group pull-right">
                     <i class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add Reaction Scheme" ng-click="openEditor()"></i>
                     <i class="fa  fa-folder-open-o btn" title="Import Structure" ng-click="importStructure()"></i>
-                    <i class="fa fa-save btn" title="Export Structure"></i>
+                    <i class="fa fa-save btn" title="Export Structure"  ng-click="exportStructure()"></i>
                 </span>
         </div>
     </div>
     <div class="panel-body">
-            <img class="img-fill-width" ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
+            <img class="img-fill" ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
     </div>
 </div>
