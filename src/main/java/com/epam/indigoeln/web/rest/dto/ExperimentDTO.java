@@ -13,20 +13,14 @@ public class ExperimentDTO extends BasicDTO {
     private static final long serialVersionUID = -305591958439648518L;
 
     private String experimentNumber;
-    private String templateId;
+    private Long templateId;
     private List<ComponentDTO> components = new ArrayList<>();
 
     public ExperimentDTO() {
     }
 
     public ExperimentDTO(Experiment experiment) {
-        super(experiment.getSequenceId(),
-              experiment.getName(),
-              experiment.getAccessList(),
-              new UserDTO(experiment.getAuthor()),
-              new UserDTO(experiment.getLastModifiedBy()),
-              experiment.getLastEditDate(),
-              experiment.getCreationDate());
+        super(experiment);
 
         this.experimentNumber = experiment.getExperimentNumber();
         this.templateId = experiment.getTemplateId();
@@ -38,7 +32,7 @@ public class ExperimentDTO extends BasicDTO {
         return experimentNumber;
     }
 
-    public String getTemplateId() {
+    public Long getTemplateId() {
         return templateId;
     }
 
@@ -50,7 +44,7 @@ public class ExperimentDTO extends BasicDTO {
         this.experimentNumber = experimentNumber;
     }
 
-    public void setTemplateId(String templateId) {
+    public void setTemplateId(Long templateId) {
         this.templateId = templateId;
     }
 

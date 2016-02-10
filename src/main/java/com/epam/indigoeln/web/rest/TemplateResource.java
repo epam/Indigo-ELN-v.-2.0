@@ -1,11 +1,16 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -37,16 +41,13 @@ public class TemplateResource {
     @Autowired
     ExperimentRepository experimentRepository;
 
-    @Autowired
-    TemplateRepository templateRepository;
-
     /**
      * GET /templates/:id -> get template by id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{sequenceId:[\\d]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
-        return templateService.getTemplateById(id)
+    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable Long sequenceId) {
+        return templateService.getTemplateById(sequenceId)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -84,13 +85,13 @@ public class TemplateResource {
     public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
 
-        if (templateDTO.getId() != null) {
+        if (templateDTO.getSequenceId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template",
                     "A new template can't already have an ID")).build();
         }
         TemplateDTO result = templateService.createTemplate(templateDTO);
-        return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert("template", result.getId()))
+        return ResponseEntity.created(new URI("/api/templates/" + result.getSequenceId()))
+                .headers(HeaderUtil.createEntityCreationAlert("template", result.getSequenceId().toString()))
                 .body(result);
     }
 
@@ -113,11 +114,11 @@ public class TemplateResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
-        if(!templateService.getTemplateById(template.getId()).isPresent()){
+        if(!templateService.getTemplateById(template.getSequenceId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getId()))
+                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getSequenceId().toString()))
                 .body(templateService.updateTemplate(template));
     }
 
@@ -130,19 +131,19 @@ public class TemplateResource {
      * Template will not be deleted if any Experiments assigned on it
      * </p>
      *
-     * @param id id of template
+     * @param sequenceId id of template
      * @return operation status Response Entity
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
+    @RequestMapping(value = "/{sequenceId:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteTemplate(@PathVariable Long sequenceId) {
         //do not delete template if  experiments assigned
-        if(experimentRepository.countByTemplateId(id) > 0){
-            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createAlert(message, id)).
+        if(experimentRepository.countByTemplateId(sequenceId) > 0){
+            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, sequenceId);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createAlert(message, sequenceId.toString())).
                     build();
         }
-        templateService.deleteTemplate(id);
+        templateService.deleteTemplate(sequenceId);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert("template", id)).build();
+                HeaderUtil.createEntityDeletionAlert("template", sequenceId.toString())).build();
     }
 }

@@ -1,13 +1,8 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,13 +26,7 @@ public class ProjectDTO extends BasicDTO {
 
     public ProjectDTO(Project project) {
 
-        super(project.getSequenceId(),
-              project.getName(),
-              project.getAccessList(),
-              new UserDTO(project.getAuthor()),
-              new UserDTO(project.getLastModifiedBy()),
-              project.getCreationDate(),
-              project.getLastEditDate());
+        super(project);
 
         this.description = project.getDescription();
         this.fileIds = project.getFileIds();

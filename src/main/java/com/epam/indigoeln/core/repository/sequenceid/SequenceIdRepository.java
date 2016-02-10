@@ -19,6 +19,7 @@ public class SequenceIdRepository {
     public static final String EXPERIMENT_SEQ_KEY = "experiment";
     public static final String NOTEBOOK_SEQ_KEY   = "notebook";
     public static final String PROJECT_SEQ_KEY    = "project";
+    public static final String TEMPLATE_SEQ_KEY   = "template";
 
     @Autowired
     private MongoOperations mongoOperations;
@@ -48,4 +49,7 @@ public class SequenceIdRepository {
         return getNextSequenceId(NOTEBOOK_SEQ_KEY);
     }
 
+    public Long getNextTemplateId(){
+        return getNextSequenceId(TEMPLATE_SEQ_KEY);
+    }
 }

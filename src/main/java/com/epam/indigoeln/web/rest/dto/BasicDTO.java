@@ -1,7 +1,12 @@
 package com.epam.indigoeln.web.rest.dto;
 
+import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.util.LocalDateDeserializer;
+import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -20,26 +25,26 @@ public abstract class BasicDTO implements Serializable {
     //Read-Only auto-generated audit parameters
     private UserDTO   author;
     private UserDTO   lastModifiedBy;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate lastEditDate;
+
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate creationDate;
 
     public BasicDTO() {
     }
 
-    public BasicDTO(Long sequenceId,
-                    String name,
-                    Set<UserPermission> accessList,
-                    UserDTO author,
-                    UserDTO lastModifiedBy,
-                    LocalDate creationDate,
-                    LocalDate lastEditDate) {
-        this.sequenceId = sequenceId;
-        this.name = name;
-        this.accessList = accessList;
-        this.author = author;
-        this.lastModifiedBy = lastModifiedBy;
-        this.lastEditDate = lastEditDate;
-        this.creationDate = creationDate;
+    protected BasicDTO(BasicModelObject modelObject) {
+        this.sequenceId = modelObject.getSequenceId();
+        this.name = modelObject.getName();
+        this.accessList = modelObject.getAccessList();
+        this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
+        this.lastModifiedBy = modelObject.getLastModifiedBy() != null ? new UserDTO(modelObject.getLastModifiedBy()) : null;
+        this.lastEditDate = modelObject.getLastEditDate();
+        this.creationDate = modelObject.getCreationDate();
     }
 
     public Long getSequenceId() {
