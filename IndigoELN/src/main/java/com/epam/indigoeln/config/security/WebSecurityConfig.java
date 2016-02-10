@@ -171,6 +171,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/env/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/mappings/**").authenticated() // TODO Which Authority do need to use?
+                    .antMatchers("/api/signature/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/protected/**").authenticated();
     }
 
