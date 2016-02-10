@@ -16,7 +16,11 @@ angular.module('indigoeln')
                         controller: 'UserManagementController'
                     }
                 },
-                resolve: {}
+                resolve: {
+                    roles: ['Role', function(Role) {
+                        return Role.query().$promise;
+                    }]
+                }
             })
             .state('user-management.delete', {
                 parent: 'user-management',

@@ -1,0 +1,114 @@
+<div class="panel panel-info role-management">
+    <div class="panel-heading">Roles</div>
+    <div class="panel-body">
+        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
+        <button class="btn btn-primary" ng-click="create()">
+            <span class="glyphicon glyphicon-flash"></span> <span>Create a new Role</span>
+        </button>
+
+        <div ng-show="role" class="panel panel-primary edit-form">
+            <div class="panel-heading">
+                Create/Update Role
+            </div>
+            <div class="panel-body ">
+                <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" show-validation
+                      class="form-horizontal" autocomplete="off">
+
+                    <div class="row">
+                        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
+                        <input style="display:none" type="text" name="fakeusernameremembered"/>
+                        <input style="display:none" type="password" name="fakepasswordremembered"/>
+                        <div class="col-xs-6">
+                            <my-input
+                                    my-label="ID"
+                                    my-name="id"
+                                    my-type="text"
+                                    my-model="role.id"
+                                    my-readonly="true"></my-input>
+                        </div>
+                        <div class="col-xs-6">
+                            <my-input
+                                    my-label="Name"
+                                    my-name="name"
+                                    my-type="text"
+                                    my-model="role.name"
+                                    my-validation-obj="editForm.name"
+                                    my-validation-maxlength="50"
+                            ></my-input>
+                        </div>
+                        <div class="col-xs-12 form-group">
+                            <div class="col-xs-1 control-label">
+                                <label>Authorities:</label>
+                            </div>
+                            <div class="col-xs-11">
+                                <div class="col-xs-3" ng-repeat="authority in authorities">
+                                    <div class="checkbox">
+                                        <label uib-tooltip="{{authority.tooltip}}" tooltip-placement="right">
+                                            <input type="checkbox" name="authorities"
+                                                   ng-checked="isAuthoritySelected(authority)"
+                                                   ng-click="updateAuthoritySelection($event, authority)">
+                                            {{authority.description}}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+                </button>
+                <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving"
+                        class="btn btn-primary">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+                </button>
+            </div>
+        </div>
+
+        <form class="form-inline text-right">
+            <div class="form-group">
+                <label for="searchRole">Search Role</label>
+                <input type="text" class="form-control" id="searchRole" placeholder="Role name"
+                       ng-model="searchText">
+            </div>
+            <button type="submit" class="btn btn-default" ng-click="search()">
+                <span class="glyphicon glyphicon-search"></span>
+                Search
+            </button>
+        </form>
+
+    </div>
+
+    <table class="table table-striped authoritiesTable">
+        <thead>
+        <tr>
+            <th>Role name</th>
+            <th ng-repeat="authority in authorities">{{authority.description}}</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="role in roles track by role.id">
+            <td>{{role.name}}</td>
+            <td ng-repeat="authority in authorities">
+                <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"></span>
+            </td>
+            <td class="text-right">
+                <button type="submit"
+                        ng-click="edit(role)"
+                        class="btn btn-primary btn-sm">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                </button>
+                <button type="submit"
+                        ui-sref="role-management.delete({id:role.id})"
+                        class="btn btn-danger btn-sm">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

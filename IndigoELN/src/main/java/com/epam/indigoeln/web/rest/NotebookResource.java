@@ -7,25 +7,16 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -35,6 +26,7 @@ import java.util.List;
 public class NotebookResource {
 
     static final String URL_MAPPING = "/api/notebooks";
+    private static final String ENTITY_NAME = "Notebook";
 
     private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
 
@@ -94,7 +86,9 @@ public class NotebookResource {
         log.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.createNotebook(notebook, projectId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getSequenceId())).body(notebook);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, notebook.getSequenceId().toString());
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getSequenceId()))
+                .headers(headers).body(notebook);
     }
 
     /**
@@ -107,7 +101,8 @@ public class NotebookResource {
         log.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.updateNotebook(notebook, user);
-        return ResponseEntity.ok(notebook);
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, notebook.getSequenceId().toString());
+        return ResponseEntity.ok().headers(headers).body(notebook) ;
     }
 
     /**
@@ -117,12 +112,13 @@ public class NotebookResource {
     public ResponseEntity<Void> deleteNotebook(@PathVariable Long sequenceId) {
         log.debug("REST request to remove notebook: {}", sequenceId);
         notebookService.deleteNotebook(sequenceId);
-        return ResponseEntity.ok().build();
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, sequenceId.toString());
+        return ResponseEntity.ok().headers(headers).build();
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<Void> notebookAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createFailureAlert("notebook-management", "Notebook name is already in use");
+        HttpHeaders headers = HeaderUtil.createErrorAlert("Notebook name is already in use", ENTITY_NAME);
         return ResponseEntity.badRequest().headers(headers).build();
     }
 }

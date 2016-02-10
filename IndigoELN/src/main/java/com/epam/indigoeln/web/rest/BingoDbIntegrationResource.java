@@ -1,25 +1,19 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.integration.BingoResult;
+import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.epam.indigoeln.web.rest.util.HeaderUtil;
-import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
-import com.epam.indigoeln.core.integration.BingoResult;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
@@ -63,7 +57,7 @@ public class BingoDbIntegrationResource {
         BingoResult result = bingoDbService.addMolecule(molecule);
         if(result.isSuccess()) {
             return ResponseEntity.created(new URI(BINGODB_MOLECULE_PATH + result.getId()))
-                    .headers(HeaderUtil.createEntityCreationAlert(BINGODB_MOLECULE, result.getId().toString()))
+                    .headers(HeaderUtil.createEntityCreateAlert(BINGODB_MOLECULE, result.getId().toString()))
                     .body(result.getId().toString());
         } else {
             return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -102,7 +96,7 @@ public class BingoDbIntegrationResource {
     public ResponseEntity<Void> deleteTemplate(@PathVariable Integer id) {
         bingoDbService.deleteMolecule(id);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert(BINGODB_MOLECULE, id.toString())).build();
+                HeaderUtil.createEntityDeleteAlert(BINGODB_MOLECULE, id.toString())).build();
     }
 
     /**
@@ -128,7 +122,7 @@ public class BingoDbIntegrationResource {
         BingoResult result = bingoDbService.addReaction(reaction);
         if(result.isSuccess()) {
             return ResponseEntity.created(new URI(BINGODB_REACTION_PATH + result.getId()))
-                .headers(HeaderUtil.createEntityCreationAlert(BINGODB_REACTION, result.getId().toString()))
+                .headers(HeaderUtil.createEntityCreateAlert(BINGODB_REACTION, result.getId().toString()))
                 .body(result.getId().toString());
         } else {
             return new ResponseEntity(result.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -168,7 +162,7 @@ public class BingoDbIntegrationResource {
     public ResponseEntity<Void> deleteReaction(@PathVariable Integer id) {
         bingoDbService.deleteReaction(id);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert(BINGODB_REACTION, id.toString())).build();
+                HeaderUtil.createEntityDeleteAlert(BINGODB_REACTION, id.toString())).build();
     }
 
     /**

@@ -109,8 +109,7 @@ public class UserResource {
         log.debug("REST request to create user: {}", managedUserDTO);
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.createUser(user);
-        HttpHeaders headers = HeaderUtil.createAlert(
-                "The user is created with identifier " + user.getLogin(), user.getLogin());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert("User", user.getLogin());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + user.getLogin()))
                 .headers(headers).body(new ManagedUserDTO(user));
     }
@@ -126,8 +125,7 @@ public class UserResource {
         User currentUser = userService.getUserWithAuthorities();
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.updateUser(user, currentUser);
-        HttpHeaders headers = HeaderUtil.createAlert(
-                "The user is updated with identifier " + user.getLogin(), user.getLogin());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert("User", user.getLogin());
         return ResponseEntity.ok().headers(headers).body(new ManagedUserDTO(user));
     }
 
@@ -139,13 +137,13 @@ public class UserResource {
         log.debug("REST request to delete user: {}", login);
         User currentUser = userService.getUserWithAuthorities();
         userService.deleteUserByLogin(login, currentUser);
-        HttpHeaders headers = HeaderUtil.createAlert("The user is deleted with identifier " + login, login);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert("User", login);
         return ResponseEntity.ok().headers(headers).build();
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
     public ResponseEntity<Void> userAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createFailureAlert("user-management", "Login is already in use");
+        HttpHeaders headers = HeaderUtil.createErrorAlert("Login is already in use", "user-management");
         return ResponseEntity.badRequest().headers(headers).build();
     }
 }

@@ -1,14 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, User, ParseLinks, $filter) {
+    .controller('UserManagementController', function ($scope, User, ParseLinks, $filter, roles) {
         $scope.users = [];
-        $scope.roles = [
-            {id: 'role-0', name: 'Role0'},
-            {id: 'role-1', name: 'Role1'},
-            {id: 'role-2', name: 'Role2'},
-            {id: 'role-3', name: 'Role3'}
-        ]; //TODO get from resource controller
+        $scope.roles = roles;
 
         $scope.page = 1;
         $scope.loadAll = function () {

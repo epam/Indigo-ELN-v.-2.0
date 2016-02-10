@@ -7,17 +7,37 @@ import org.springframework.http.HttpHeaders;
  */
 public class HeaderUtil {
 
-    public static HttpHeaders createAlert(String message, String param) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-indigoeln-alert", message);
-        headers.add("X-indigoeln-params", param);
-        return headers;
+    private static final String SUCCESS_ALERT = "X-indigoeln-success-alert";
+    private static final String ERROR_ALERT = "X-indigoeln-error-alert";
+    private static final String WARNING_ALERT = "X-indigoeln-warning-alert";
+    private static final String INFO_ALERT = "X-indigoeln-info-alert";
+    private static final String FAILURE_ALERT = "X-indigoeln-error";
+    private static final String ALERT_PARAMS = "X-indigoeln-params";
+
+    public static HttpHeaders createSuccessAlert(String message, String param) {
+        return createAlert(SUCCESS_ALERT, message, param);
     }
 
-    public static HttpHeaders createFailureAlert(String entityName, String defaultMessage) {
+    public static HttpHeaders createErrorAlert(String message, String param) {
+        return createAlert(ERROR_ALERT, message, param);
+    }
+
+    public static HttpHeaders createWarningAlert(String message, String param) {
+        return createAlert(WARNING_ALERT, message, param);
+    }
+
+    public static HttpHeaders createInfoAlert(String message, String param) {
+        return createAlert(INFO_ALERT, message, param);
+    }
+
+    public static HttpHeaders createFailureAlert(String message, String entityName) {
+        return createAlert(FAILURE_ALERT, message, entityName);
+    }
+
+    private static HttpHeaders createAlert(String type, String message, String params) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-indigoeln-error", defaultMessage);
-        headers.add("X-indigoeln-params", entityName);
+        headers.add(type, message);
+        headers.add(ALERT_PARAMS, params);
         return headers;
     }
 
@@ -27,15 +47,15 @@ public class HeaderUtil {
         return headers;
     }
 
-    public static HttpHeaders createEntityCreationAlert(String entityName, String param) {
-        return createAlert("A new " + entityName + " is created with identifier " + param, param);
+    public static HttpHeaders createEntityCreateAlert(String entityName, String param) {
+        return createSuccessAlert("New " + entityName + " is created with identifier " + param, param);
     }
 
-    public static HttpHeaders createEntityDeletionAlert(String entityName, String param) {
-        return createAlert("A " + entityName + " is deleted with identifier " + param, param);
+    public static HttpHeaders createEntityDeleteAlert(String entityName, String param) {
+        return createSuccessAlert("The " + entityName + " is deleted with identifier " + param, param);
     }
 
     public static HttpHeaders createEntityUpdateAlert(String entityName, String param) {
-        return createAlert("A " + entityName + " is updated with identifier " + param, param);
+        return createSuccessAlert("The " + entityName + " is updated with identifier " + param, param);
     }
 }

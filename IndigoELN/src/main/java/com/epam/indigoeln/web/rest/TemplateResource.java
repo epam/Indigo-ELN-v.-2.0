@@ -5,12 +5,6 @@ import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -86,12 +81,12 @@ public class TemplateResource {
             throws URISyntaxException {
 
         if (templateDTO.getSequenceId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("template",
-                    "A new template can't already have an ID")).build();
+            return ResponseEntity.badRequest().headers(HeaderUtil.createErrorAlert(
+                    "A new template can't already have an ID", "template")).build();
         }
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getSequenceId()))
-                .headers(HeaderUtil.createEntityCreationAlert("template", result.getSequenceId().toString()))
+                .headers(HeaderUtil.createEntityCreateAlert("template", result.getSequenceId().toString()))
                 .body(result);
     }
 
@@ -139,11 +134,11 @@ public class TemplateResource {
         //do not delete template if  experiments assigned
         if(experimentRepository.countByTemplateId(sequenceId) > 0){
             String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, sequenceId);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createAlert(message, sequenceId.toString())).
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createErrorAlert(message, sequenceId.toString())).
                     build();
         }
         templateService.deleteTemplate(sequenceId);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeletionAlert("template", sequenceId.toString())).build();
+                HeaderUtil.createEntityDeleteAlert("template", sequenceId.toString())).build();
     }
 }
