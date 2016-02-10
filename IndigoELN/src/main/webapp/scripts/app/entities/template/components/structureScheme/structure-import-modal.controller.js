@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('StructureImportControllerModal', function ($scope, $uibModalInstance) {
+    .controller('StructureImportModalController', function ($scope, $uibModalInstance) {
 
         $scope.import = function() {
             $uibModalInstance.close($scope.content);

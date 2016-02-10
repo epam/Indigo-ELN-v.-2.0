@@ -1,0 +1,22 @@
+<div>
+    <div class="modal-header">
+        <h3 class="modal-title">Export Structure</h3>
+    </div>
+    <div class="modal-body">
+        <div >
+            <h4>Choose format</h4>
+            <select class="select-format" ng-model="format">
+                <option value="molfile" selected="selected">MDL Molfile</option>
+            </select>
+        </div>
+        <br/><br/>
+        <div>
+            <h4>Input Structure</h4>
+            <textarea class="textarea-structure" name="structureText" cols="90" rows="15" ng-model="structureToSave" />
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a ng-href="{{urlObj}}" class="btn btn-primary" ng-click="download()" download="{{filename}}">Download</a>
+        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+    </div>
+</div>
