@@ -4,9 +4,9 @@
     </div>
     <div class="panel-body">
         <form>
-            <fieldset ng-disabled="!isContentEditor">
-                <div ng-repeat="component in template.templateContent" my-component={{component.id}}></div>
-            </fieldset>
+            <my-components my-template="template.templateContent"
+                           my-disabled="!isContentEditor"
+                           my-model="model"></my-components>
         </form>
     </div>
     <div class="panel-footer text-right">

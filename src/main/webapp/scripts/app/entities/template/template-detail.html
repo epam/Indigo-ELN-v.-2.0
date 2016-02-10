@@ -4,7 +4,9 @@
     </div>
     <div class="panel-body">
         <form class="form-horizontal">
-            <div ng-repeat="component in template.templateContent" my-component={{component.id}}></div>
+            <my-components my-template="template.templateContent"
+                           my-disabled="true"
+            ></my-components>
         </form>
     </div>
     <div class="panel-footer">

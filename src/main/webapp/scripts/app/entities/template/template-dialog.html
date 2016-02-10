@@ -1,67 +1,71 @@
-<div class="panel panel-info templates">
-    <div class="panel-heading">Create or edit a Template</div>
-    <div class="panel-body">
-        <form class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-12">
-                    <my-input my-label="Name" my-model="template.name"></my-input>
-                </div>
-            </div>
-        </form>
-        <br/>
-        <div class="row">
-            <div class="col-xs-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Components</h3>
+<div>
+    <div class="panel panel-info templates">
+        <div class="panel-heading">Create or edit a Template</div>
+        <div class="panel-body">
+            <form class="form-horizontal">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <my-input my-label="Name" my-model="template.name"></my-input>
                     </div>
-                    <div class="panel-body">
-                        <div class="list-group templates-holder" dragula='"bag"' dragula-model='components'>
-                            <a class="list-group-item" ng-repeat="component in components">
-                                <h4 class="list-group-item-heading">{{component.name}}</h4>
-                                <p class="list-group-item-text">{{component.desc}} </p>
-                            </a>
+                </div>
+            </form>
+            <br/>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Components</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="list-group templates-holder" dragula='"bag"' dragula-model='components'>
+                                <a class="list-group-item" ng-repeat="component in components">
+                                    <h4 class="list-group-item-heading">{{component.name}}</h4>
+                                    <p class="list-group-item-text">{{component.desc}} </p>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xs-6">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Template Builder</h3>
-                    </div>
-                    <div class="panel-body" dragula='"bag"'>
-                        <div class="list-group templates-holder" dragula='"bag"'
-                             dragula-model='template.templateContent'>
-                            <a class="list-group-item" ng-repeat="component in template.templateContent">
-                                <h4 class="list-group-item-heading">{{component.name}}</h4>
-                                <p class="list-group-item-text">{{component.desc}} </p>
-                            </a>
+                <div class="col-xs-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Template Builder</h3>
+                        </div>
+                        <div class="panel-body" dragula='"bag"'>
+                            <div class="list-group templates-holder" dragula='"bag"'
+                                 dragula-model='template.templateContent'>
+                                <a class="list-group-item" ng-repeat="component in template.templateContent">
+                                    <h4 class="list-group-item-heading">{{component.name}}</h4>
+                                    <p class="list-group-item-text">{{component.desc}} </p>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false"
-                         ng-click="showPreview = !showPreview">
-                        <h3 class="panel-title">Show Preview</h3>
-                    </div>
-                    <div class="panel-body" ng-if="showPreview && template.templateContent.length">
-                        <div ng-repeat="component in template.templateContent" my-component={{component.id}}></div>
-                    </div>
-                </div>
-            </div>
+        <div class="panel-footer text-right">
+            <button type="button" class="btn btn-default" onclick="window.history.back()">
+                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            </button>
+            <button ng-click="save()" class="btn btn-primary">
+                <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+            </button>
         </div>
     </div>
-    <div class="panel-footer text-right">
-        <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
-        </button>
-        <button ng-click="save()" class="btn btn-primary">
-            <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
-        </button>
+</div>
+<div class="row">
+    <div class="col-xs-12">
+        <div class="panel panel-default">
+            <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false"
+                 ng-click="showPreview = !showPreview">
+                <h3 class="panel-title">Show Preview</h3>
+            </div>
+            <div class="panel-body" ng-if="showPreview && template.templateContent.length">
+                <my-components my-template="template.templateContent"
+                               my-disabled="true"
+                ></my-components>
+            </div>
+        </div>
     </div>
 </div>
