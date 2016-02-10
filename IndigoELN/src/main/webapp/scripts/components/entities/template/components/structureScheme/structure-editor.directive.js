@@ -34,7 +34,7 @@ angular.module('indigoeln')
                 myStructure: '=',
                 myEditorname: '@'
             },
-            templateUrl: 'scripts/app/entities/template/components/structureScheme/structure-editor-template.html',
+            templateUrl: 'scripts/components/entities/template/components/structureScheme/structure-editor-template.html',
             controller: "EditorController",
             link: function (scope, element, attrs, controller) {
 

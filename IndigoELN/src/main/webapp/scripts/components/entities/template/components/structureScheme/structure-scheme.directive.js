@@ -4,7 +4,7 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
-            templateUrl: 'scripts/app/entities/template/components/structureScheme/structure-scheme.html',
+            templateUrl: 'scripts/components/entities/template/components/structureScheme/structure-scheme.html',
             controller: 'StructureSchemeController'
         };
     });
