@@ -134,6 +134,14 @@
             <version>1.2.2beta-r37</version>
         </dependency>
 
+        <!-- Indigo-renderer -->
+
+        <dependency>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo-renderer</artifactId>
+            <version>1.2.2beta-r37</version>
+        </dependency>
+
         <!-- Apache -->
         <dependency>
             <groupId>commons-lang</groupId>
