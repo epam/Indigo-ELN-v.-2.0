@@ -9,13 +9,13 @@ public class ExperimentShort extends BasicModelObject {
     //    @NotBlank
     private String experimentNumber;
 
-    private String templateId;
+    private Long templateId;
 
-    public String getTemplateId() {
+    public Long getTemplateId() {
         return templateId;
     }
 
-    public void setTemplateId(String templateId) {
+    public void setTemplateId(Long templateId) {
         this.templateId = templateId;
     }
 

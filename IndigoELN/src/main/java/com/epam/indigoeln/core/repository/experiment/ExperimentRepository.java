@@ -13,7 +13,7 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Collection<Experiment> findByAuthor(User author);
 
-    Long countByTemplateId(String templateId);
+    Long countByTemplateId(Long templateId);
 
     @Query(value="{ 'project' : ?0 }", fields="{ 'id' : 1, 'title' : 1, 'experimentNumber' : 1, " +
             "'templateId' : 1, 'project' : 1}")

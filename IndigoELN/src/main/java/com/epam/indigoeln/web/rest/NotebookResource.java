@@ -36,6 +36,8 @@ public class NotebookResource {
 
     static final String URL_MAPPING = "/api/notebooks";
 
+    private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
+
     private final Logger log = LoggerFactory.getLogger(NotebookResource.class);
 
     @Autowired
@@ -71,7 +73,7 @@ public class NotebookResource {
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
      */
-    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.GET,
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> getNotebook(@PathVariable Long sequenceId) {
         log.debug("REST request to get notebook: {}", sequenceId);
@@ -111,7 +113,7 @@ public class NotebookResource {
     /**
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
-    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteNotebook(@PathVariable Long sequenceId) {
         log.debug("REST request to remove notebook: {}", sequenceId);
         notebookService.deleteNotebook(sequenceId);

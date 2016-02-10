@@ -29,7 +29,8 @@ import java.util.stream.Collectors;
 @RequestMapping(ExperimentResource.URL_MAPPING)
 public class ExperimentResource {
 
-    static final String URL_MAPPING = "/api/notebooks/";
+    static final String URL_MAPPING = "/api/notebooks/{notebookSequenceId:[\\d]+}/experiments";
+    private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
 
     private final Logger log = LoggerFactory.getLogger(ExperimentResource.class);
 
@@ -46,9 +47,8 @@ public class ExperimentResource {
      * GET  /experiments?:notebookId&:userId -> Returns all experiments of specified notebook for <b>specified user</b>
      * for tree representation according to his User permissions
      */
-    @RequestMapping(value = "{notebookSequenceId}/experiments",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.GET,
+                    produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
             @PathVariable Long notebookSequenceId,
             @RequestParam(required = false) String userId) {
@@ -72,7 +72,7 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions
      */
-    @RequestMapping(value = "{notebookSequenceId}/experiments/{sequenceId}", method = RequestMethod.GET,
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
             @PathVariable Long notebookSequenceId,
@@ -87,7 +87,6 @@ public class ExperimentResource {
      * as child for specified Notebook
      */
     @RequestMapping(
-            value = "{notebookSequenceId}/experiments",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -97,7 +96,7 @@ public class ExperimentResource {
         log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookSequenceId);
         User user = userService.getUserWithAuthorities();
         experimentDTO = experimentService.createExperiment(experimentDTO, notebookSequenceId, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + experimentDTO.getSequenceId()))
+        return ResponseEntity.created(new URI("/api/notebooks/" + notebookSequenceId + "/experiments" + experimentDTO.getSequenceId()))
                 .body(experimentDTO);
     }
 
@@ -105,7 +104,6 @@ public class ExperimentResource {
      * PUT  /experiments/:id -> Updates experiment according to User permissions
      */
     @RequestMapping(
-            value = "{notebookSequenceId}/experiments",
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -119,7 +117,7 @@ public class ExperimentResource {
     /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
-    @RequestMapping(value = "{notebookSequenceId}/experiments/{sequenceId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteExperiment(@PathVariable Long sequenceId, @PathVariable Long notebookSequenceId) {
         log.debug("REST request to remove experiment: {}", sequenceId);
         experimentService.deleteExperiment(sequenceId, notebookSequenceId);

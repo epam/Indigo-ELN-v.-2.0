@@ -13,14 +13,17 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.Persistable;
 
 import javax.validation.constraints.NotNull;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class BasicModelObject implements Serializable {
+public abstract class BasicModelObject implements Serializable, Persistable<String> {
+
     private static final long serialVersionUID = 315161850216225505L;
 
     @Id
@@ -135,5 +138,10 @@ public abstract class BasicModelObject implements Serializable {
                 ", sequenceId=" + sequenceId +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() == null;
     }
 }

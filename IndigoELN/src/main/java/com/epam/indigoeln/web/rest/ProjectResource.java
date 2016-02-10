@@ -28,6 +28,7 @@ import java.util.List;
 public class ProjectResource {
 
     static final String URL_MAPPING = "/api/projects";
+    private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
 
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
@@ -61,7 +62,7 @@ public class ProjectResource {
     /**
      * GET  /projects/:id -> Returns project with specified id according to User permissions
      */
-    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.GET,
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> getProject(@PathVariable Long sequenceId) {
         log.debug("REST request to get project: {}", sequenceId);
@@ -99,7 +100,7 @@ public class ProjectResource {
     /**
      * DELETE  /projects/:id -> Removes project with specified id
      */
-    @RequestMapping(value = "/{sequenceId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProject(@PathVariable Long sequenceId) {
         log.debug("REST request to remove project: {}", sequenceId);
         projectService.deleteProject(sequenceId);

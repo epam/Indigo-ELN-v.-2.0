@@ -1,9 +1,10 @@
 <mongoChangeLog>
     <changeSet changeId="ChangeSet-Seq" author="bolbin_sergey">
         <script>
-            db.sequence_id.insert({"_id" : "experiment", "seq" : 0});
-            db.sequence_id.insert({"_id" : "notebook", "seq" : 0 });
-            db.sequence_id.insert({"_id" : "project", "seq" : 0 });
+            db.sequence_id.insert({"_id" : "experiment", "seq" : 0 });
+            db.sequence_id.insert({"_id" : "notebook",   "seq" : 0 });
+            db.sequence_id.insert({"_id" : "project",    "seq" : 0 });
+            db.sequence_id.insert({"_id" : "template",   "seq" : 0 });
         </script>
     </changeSet>
 </mongoChangeLog>

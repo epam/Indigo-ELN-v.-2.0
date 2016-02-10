@@ -2,6 +2,8 @@ package com.epam.indigoeln.core.service.template;
 
 import java.util.Optional;
 
+import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
+import com.epam.indigoeln.core.service.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,16 +24,17 @@ public class TemplateService {
     private TemplateRepository templateRepository;
 
     @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+
+    @Autowired
     private CustomDtoMapper dtoMapper;
 
-    public Optional<TemplateDTO> getTemplateById(String id) {
-        Template template = templateRepository.findOne(id);
-        return Optional.ofNullable(template != null ? new TemplateDTO(template) : null);
+    public Optional<TemplateDTO> getTemplateById(Long sequenceId) {
+        return templateRepository.findOneBySequenceId(sequenceId).map(TemplateDTO::new);
     }
 
     public Optional<TemplateDTO> getTemplateByName(String name) {
-        Template template = templateRepository.findOneByName(name);
-        return Optional.ofNullable(template != null ? new TemplateDTO(template) : null);
+        return templateRepository.findOneByName(name).map(TemplateDTO::new);
     }
 
     public Page<TemplateDTO> getAllTemplates(Pageable pageable) {
@@ -40,20 +43,23 @@ public class TemplateService {
 
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
         Template template = dtoMapper.convertFromDTO(templateDTO);
+        template.setSequenceId(sequenceIdRepository.getNextTemplateId());
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }
 
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
-        Template template = templateRepository.findOne(templateDTO.getId());
+        Template template = templateRepository.findOneBySequenceId(templateDTO.getSequenceId()).
+                orElseThrow(() -> new EntityNotFoundException("Template with id does not exists", templateDTO.getSequenceId().toString()));
+
         template.setName(templateDTO.getName());
         template.setTemplateContent(templateDTO.getTemplateContent());
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }
 
-    public void deleteTemplate(String id) {
-        templateRepository.delete(id);
+    public void deleteTemplate(Long sequenceId) {
+        templateRepository.deleteBySequenceId(sequenceId);
     }
 
 }
