@@ -1,11 +1,14 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, data, Experiment) {
+    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, data, Experiment, Principal) {
         $scope.experiment = data.entity;
         $scope.template = data.template;
         $scope.notebookId = $stateParams.notebookId;
         $scope.model = toModel($scope.experiment.components);
+        Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
+            $scope.isContentEditor = result;
+        });
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
         };

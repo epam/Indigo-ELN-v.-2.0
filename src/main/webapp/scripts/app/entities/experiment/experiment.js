@@ -75,6 +75,9 @@ angular.module('indigoeln')
                                     })
                             });
                         return deferred.promise;
+                    },
+                    identity: function (Principal) {
+                        return Principal.identity()
                     }
                 }
             })
