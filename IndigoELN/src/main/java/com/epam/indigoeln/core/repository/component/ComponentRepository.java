@@ -13,6 +13,6 @@ public interface ComponentRepository extends MongoRepository<Component, String> 
     List<Component> findBatchesByBingoDbIds(List<String> bingoIds);
 
     @Query(value="{'id' : { $in : ?0}}", delete = true)
-    List<Component> deleteAllById(List<String> componentIds);
+    void deleteAllById(List<String> componentIds);
 
 }
