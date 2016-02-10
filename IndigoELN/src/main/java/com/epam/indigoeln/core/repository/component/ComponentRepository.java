@@ -12,4 +12,7 @@ public interface ComponentRepository extends MongoRepository<Component, String> 
     @Query(value="{ 'content.component' : 'batchDetails', 'content.bingoDbId' : { $in : ?0 } }")
     List<Component> findBatchesByBingoDbIds(List<String> bingoIds);
 
+    @Query(value="{'id' : { $in : ?0}}", delete = true)
+    List<Component> deleteAllById(List<String> componentIds);
+
 }

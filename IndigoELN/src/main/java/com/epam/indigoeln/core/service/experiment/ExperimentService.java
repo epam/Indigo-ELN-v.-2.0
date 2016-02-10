@@ -199,7 +199,6 @@ public class ExperimentService {
 
 
     public void deleteExperiment(Long sequenceId, Long notebookSequenceId) {
-        //TODO don't forget about Components
         Experiment experiment = experimentRepository.findOneBySequenceId(sequenceId).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(sequenceId.toString()));
 
@@ -208,6 +207,11 @@ public class ExperimentService {
 
         notebook.getExperiments().remove(experiment);
         notebookRepository.save(notebook);
+
+        //delete experiment components
+        Optional.ofNullable(experiment.getComponents()).ifPresent(components ->
+            componentRepository.deleteAllById(components.stream().map(Component::getId).collect(Collectors.toList()))
+        );
 
         fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
