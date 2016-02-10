@@ -17,14 +17,9 @@ public class ComponentDTO implements Serializable {
     }
 
     public ComponentDTO(Component component) {
-        this(component.getId(),
-             component.getContent());
-    }
-
-    public ComponentDTO(String id,
-                        BasicDBObject content) {
-        this.id = id;
-        this.content = content;
+        this.id = component.getId();
+        this.content = component.getContent();
+        this.name = component.getName();
     }
 
     public String getId() {
