@@ -1,11 +1,12 @@
 'use strict';
 
 angular.module('indigoeln',
-    ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute',
+    ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle',
         'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
         'cgBusy', 'angular.filter',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
-    .run(function ($rootScope, $window, $state, editableOptions, Auth, Principal) {
+    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
+        var countdownDialog = null;
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
             $rootScope.toStateParams = toStateParams;
@@ -24,6 +25,7 @@ angular.module('indigoeln',
             if (toState.name !== 'login') {
                 $rootScope.previousStateName = fromState.name;
                 $rootScope.previousStateParams = fromParams;
+                Idle.watch();
             }
 
             // Set the page title key to the one configured in state or use default one
@@ -32,6 +34,36 @@ angular.module('indigoeln',
             }
             $window.document.title = titleKey;
         });
+        $rootScope.$on('IdleStart', function() {
+            if (!countdownDialog) {
+                countdownDialog = $uibModal.open({
+                    animation: false,
+                    templateUrl: 'scripts/app/countdowndialog/countdown-dialog.html',
+                    controller: 'CountdownDialogController',
+                    windowClass: 'modal-danger',
+                    resolve: {
+                        countdown: function() {
+                            return 30;
+                        }
+                    }
+                });
+            }
+        });
+        $rootScope.$on('IdleEnd', function() {
+            if (countdownDialog) {
+                countdownDialog.close();
+                countdownDialog = null;
+            }
+        });
+        $rootScope.$on('IdleTimeout', function() {
+            if (countdownDialog) {
+                countdownDialog.close();
+                countdownDialog = null;
+            }
+            Auth.logout();
+            $state.go('login');
+        });
+
         $rootScope.back = function () {
             // If previous state is 'activate' or do not exist go to 'home'
             if ($rootScope.previousStateName === 'activate' || $state.get($rootScope.previousStateName) === null) {
@@ -44,7 +76,7 @@ angular.module('indigoeln',
         // Theme for angular-xeditable. Can also be 'bs2', 'default'
         editableOptions.theme = 'bs3';
     })
-    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, IdleProvider) {
 
         //enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
@@ -87,4 +119,6 @@ angular.module('indigoeln',
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
 
+        IdleProvider.idle(300); // 5 min of idleness
+        IdleProvider.timeout(30); // 30 sec to do something
     });

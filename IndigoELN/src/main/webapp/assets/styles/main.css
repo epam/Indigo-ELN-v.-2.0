@@ -1,3 +1,14 @@
+.countdown-dialog {
+    position: relative;
+}
+
+.countdown-dialog span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+}
+
 .user-selected {
     background: lightblue !important;
 }
