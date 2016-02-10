@@ -3,6 +3,12 @@
 angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AlertService) {
+        $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
+        $scope.USER_EDITOR = 'USER_EDITOR';
+        $scope.ROLE_EDITOR = 'ROLE_EDITOR';
+        $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
+        $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
+            $scope.TEMPLATE_EDITOR].join(',');
         $scope.myBookmarks = {};
         $scope.$on('project-created', function(event, data) {
             if ($scope.projects) {
@@ -108,7 +114,7 @@ angular
         };
 
         $scope.toggleAuthorities = function() {
-
+            $state.go('role-management');
         };
 
         $scope.toggleTemplates = function() {
@@ -119,4 +125,3 @@ angular
 
         };
     });
-

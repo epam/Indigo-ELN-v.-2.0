@@ -107,6 +107,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .authorizeRequests()
                     .antMatchers("/api/**").authenticated()
+                    // account resource
+                    .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
                     // bingoDbIntegration resource
                     //TODO set up
                     // calculation resource
@@ -119,11 +121,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_CREATORS)
                     .antMatchers(HttpMethod.DELETE, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_CREATORS)
                     // experiment resource
-                .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
-                .antMatchers(HttpMethod.POST, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.PUT, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
-                .antMatchers(HttpMethod.DELETE, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
+                    .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
+                    .antMatchers(HttpMethod.POST, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                    .antMatchers(HttpMethod.PUT, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
+                    .antMatchers(HttpMethod.DELETE, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
                     // notebook resource
                     .antMatchers(HttpMethod.GET, "/api/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
                     .antMatchers(HttpMethod.GET, "/api/notebooks/*").hasAnyAuthority(NOTEBOOK_READERS)

@@ -5,19 +5,14 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
-
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,6 +26,7 @@ public class ExperimentResource {
 
     static final String URL_MAPPING = "/api/notebooks/{notebookSequenceId:[\\d]+}/experiments";
     private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
+    private static final String ENTITY_NAME = "Experiment";
 
     private final Logger log = LoggerFactory.getLogger(ExperimentResource.class);
 
@@ -96,8 +92,9 @@ public class ExperimentResource {
         log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookSequenceId);
         User user = userService.getUserWithAuthorities();
         experimentDTO = experimentService.createExperiment(experimentDTO, notebookSequenceId, user);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, experimentDTO.getSequenceId().toString());
         return ResponseEntity.created(new URI("/api/notebooks/" + notebookSequenceId + "/experiments" + experimentDTO.getSequenceId()))
-                .body(experimentDTO);
+                .headers(headers).body(experimentDTO);
     }
 
     /**
@@ -111,7 +108,9 @@ public class ExperimentResource {
                                                           @PathVariable Long notebookSequenceId) {
         log.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
-        return ResponseEntity.ok(experimentService.updateExperiment(experimentDTO, user));
+        experimentDTO = experimentService.updateExperiment(experimentDTO, user);
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, experimentDTO.getSequenceId().toString());
+        return ResponseEntity.ok().headers(headers).body(experimentDTO);
     }
 
     /**
@@ -121,6 +120,7 @@ public class ExperimentResource {
     public ResponseEntity<?> deleteExperiment(@PathVariable Long sequenceId, @PathVariable Long notebookSequenceId) {
         log.debug("REST request to remove experiment: {}", sequenceId);
         experimentService.deleteExperiment(sequenceId, notebookSequenceId);
-        return ResponseEntity.ok().build();
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, sequenceId.toString());
+        return ResponseEntity.ok().headers(headers).build();
     }
 }

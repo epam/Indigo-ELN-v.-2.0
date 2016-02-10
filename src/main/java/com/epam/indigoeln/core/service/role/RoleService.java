@@ -2,6 +2,8 @@ package com.epam.indigoeln.core.service.role;
 
 import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.service.AlreadyInUseException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ public class RoleService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public Collection<Role> getAllRoles() {
         return roleRepository.findAll();
@@ -41,6 +46,10 @@ public class RoleService {
         Role role = roleRepository.findOne(id);
         if (role == null) {
             throw EntityNotFoundException.createWithRoleId(id);
+        }
+
+        if (userRepository.countUsersByRoleId(id) > 0) {
+            throw AlreadyInUseException.createWithRoleId(id);
         }
 
         roleRepository.delete(id);

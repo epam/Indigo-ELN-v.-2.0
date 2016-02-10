@@ -5,19 +5,14 @@ import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
-
+import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,6 +24,7 @@ public class ProjectResource {
 
     static final String URL_MAPPING = "/api/projects";
     private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
+    private static final String ENTITY_NAME = "Project";
 
     private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
 
@@ -81,7 +77,9 @@ public class ProjectResource {
         log.debug("REST request to create project: {}", project);
         User user = userService.getUserWithAuthorities();
         project = projectService.createProject(project, user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getSequenceId())).body(project);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, project.getSequenceId().toString());
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getSequenceId()))
+                .headers(headers).body(project);
     }
 
     /**
@@ -94,7 +92,8 @@ public class ProjectResource {
         log.debug("REST request to update project: {}", project);
         User user = userService.getUserWithAuthorities();
         project = projectService.updateProject(project, user);
-        return ResponseEntity.ok(project);
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, project.getSequenceId().toString());
+        return ResponseEntity.ok().headers(headers).body(project);
     }
 
     /**
@@ -104,6 +103,7 @@ public class ProjectResource {
     public ResponseEntity<Void> deleteProject(@PathVariable Long sequenceId) {
         log.debug("REST request to remove project: {}", sequenceId);
         projectService.deleteProject(sequenceId);
-        return ResponseEntity.ok().build();
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, sequenceId.toString());
+        return ResponseEntity.ok().headers(headers).build();
     }
 }

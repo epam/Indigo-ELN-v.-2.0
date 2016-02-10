@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.security.Authority;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ public class RoleDTO {
 
     private String id;
 
+    @NotNull
     @Size(min = 1, max = 50)
     private String name;
 

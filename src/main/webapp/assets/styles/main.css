@@ -124,7 +124,43 @@
     margin: 0;
 }
 
+.role-management .edit-form.ng-hide-add {
+    animation: fadeOutUp 0.3s;
+}
+
+.role-management .edit-form.ng-hide-remove {
+    animation: fadeInDown 0.3s;
+}
+
+.table.authoritiesTable thead tr th {
+    line-height: 14px;
+}
+.authoritiesTable th {
+    height: 90px;
+    -webkit-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    /* IE */
+    writing-mode: tb-rl;
+}
+.authoritiesTable th:first-child, .authoritiesTable th:last-child {
+    -webkit-transform: inherit;
+    -o-transform: inherit;
+    /* IE */
+    writing-mode: inherit;
+}
+
+.authoritiesTable td {
+    text-align: center;
+}
+.authoritiesTable td:first-child {
+    text-align: inherit;
+}
+.authoritiesTable td:last-child, .authoritiesTable th:last-child{
+    width: 90px;
+}
+
 .user-management, .user-management .edit-form,
+.role-management, .role-management .edit-form,
 .templates {
     margin-top: 20px;
 }

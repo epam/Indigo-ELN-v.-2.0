@@ -27,7 +27,7 @@
         </ul>
     </li>
 </ul>
-<ul has-authority="CONTENT_EDITOR">
+<ul has-authority="{{CONTENT_EDITOR}}">
     <li ng-click="toggleUsers()"><span>All Projects</span>
         <ul ng-if="users.length">
             <li ng-repeat="user in users" ng-click="toggleProjects(user); $event.stopPropagation();">
@@ -65,16 +65,19 @@
         </ul>
     </li>
 </ul>
-<ul has-authority="CONTENT_EDITOR">
+<ul has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
     <li ng-click="toggleAdministration()"><span>Administration</span>
         <ul ng-if="adminToggled">
-            <li ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
+            <li has-authority="{{USER_EDITOR}}"
+                ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
                 <span>Users and Roles</span>
             </li>
-            <li ng-click="toggleAuthorities(); $event.stopPropagation();">
+            <li has-authority="{{ROLE_EDITOR}}"
+                ng-click="toggleAuthorities(); $event.stopPropagation();">
                 <span>Manage Authorities</span>
             </li>
-            <li ng-click="toggleTemplates(); $event.stopPropagation();">
+            <li has-authority="{{TEMPLATE_EDITOR}}"
+                ng-click="toggleTemplates(); $event.stopPropagation();">
                 <span>Manage Templates</span>
             </li>
             <li ng-click="toggleDictionaries(); $event.stopPropagation();">
