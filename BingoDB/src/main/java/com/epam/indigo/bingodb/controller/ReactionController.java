@@ -27,8 +27,7 @@ public class ReactionController {
     public BingoResult getReaction(@PathVariable Integer id, @RequestParam(value = "width", required=false) Integer width,
                                    @RequestParam(value = "height", required=false) Integer height) {
         try {
-            return BingoResult.success().withId(id).withStructure(bingoService.getReaction(id))
-                    .withPicture(bingoService.getReactionPicture(id, width, height));
+            return BingoResult.success().withId(id).withStructure(bingoService.getReaction(id));
         } catch (Exception e) {
             return ErrorHandler.handleError(e, "Cannot get Reaction with id=%s: %s", id, e.getMessage());
         }
