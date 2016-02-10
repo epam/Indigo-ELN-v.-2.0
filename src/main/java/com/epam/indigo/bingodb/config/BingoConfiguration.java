@@ -2,22 +2,16 @@ package com.epam.indigo.bingodb.config;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
+import javax.servlet.Filter;
 import com.epam.indigo.IndigoRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 
 import java.io.File;
 
 @Configuration
 public class BingoConfiguration {
-
-    private static String LABEL_MODE = "hetero";
-    private static String PICTURE_FORMAT = "svg";
-    private static double BOND_LENGTH = -1d;
-    private static boolean COLOR = true;
-    private static boolean STEREOCHEM_ERRORS = true;
 
     @Autowired
     private BingoProperties properties;
@@ -28,25 +22,7 @@ public class BingoConfiguration {
 
     @Bean
     public Indigo indigo() {
-        Indigo indigo = new Indigo();
-
-        indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
-
-        return indigo;
-    }
-
-    @Bean
-    public IndigoRenderer renderer() {
-
-        Indigo indigo = indigo();
-        IndigoRenderer renderer = new IndigoRenderer(indigo());
-
-        indigo.setOption("render-bond-length", BOND_LENGTH);
-        indigo.setOption("render-label-mode", LABEL_MODE);
-        indigo.setOption("render-output-format", PICTURE_FORMAT);
-        indigo.setOption("render-coloring", COLOR);
-
-        return renderer;
+        return new Indigo();
     }
 
     @Bean
@@ -78,4 +54,5 @@ public class BingoConfiguration {
 
         return bingo;
     }
+
 }

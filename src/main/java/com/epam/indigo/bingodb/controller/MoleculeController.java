@@ -29,8 +29,7 @@ public class MoleculeController {
     public BingoResult getMolecule(@PathVariable Integer id, @RequestParam(value = "width", required=false) Integer width,
                                    @RequestParam(value = "height", required=false) Integer height) {
         try {
-            return BingoResult.success().withId(id).withStructure(bingoService.getMolecule(id))
-                                        .withPicture(bingoService.getMoleculePicture(id, width, height));
+            return BingoResult.success().withId(id).withStructure(bingoService.getMolecule(id));
         } catch (Exception e) {
             return ErrorHandler.handleError(e, "Cannot get Molecule with id=%s: %s", id, e.getMessage());
         }

@@ -19,9 +19,6 @@ public class BingoService {
     private Indigo indigo;
 
     @Autowired
-    private IndigoRenderer renderer;
-
-    @Autowired
     private BingoRepository moleculeRepository;
 
     @Autowired
@@ -30,17 +27,7 @@ public class BingoService {
     /* Molecule */
 
     public String getMolecule(Integer id) {
-        IndigoObject io = moleculeRepository.getById(id);
-        // TODO auto generating coordinates to render structure (bingo nosql does not store coordinates)
-        io.layout();
-        return io.molfile();
-    }
-
-    public byte[] getMoleculePicture(Integer id, Integer width, Integer height) {
-        IndigoObject io = moleculeRepository.getById(id);
-        if (width != null && height != null)
-            indigo.setOption("render-image-size", width, height);
-        return renderer.renderToBuffer(io);
+        return moleculeRepository.getById(id).molfile();
     }
 
     public Integer insertMolecule(String molecule) {
@@ -74,17 +61,7 @@ public class BingoService {
     /* Reaction */
 
     public String getReaction(Integer id) {
-        IndigoObject io = reactionRepository.getById(id);
-        // TODO auto generating coordinates to render structure (bingo nosql does not store coordinates)
-        io.layout();
-        return io.rxnfile();
-    }
-
-    public byte[] getReactionPicture(Integer id, Integer width, Integer height) {
-        IndigoObject io = reactionRepository.getById(id);
-        if (width != null && height != null)
-            indigo.setOption("render-image-size", width, height);
-        return renderer.renderToBuffer(io);
+        return reactionRepository.getById(id).rxnfile();
     }
 
     public Integer insertReaction(String reaction) {
