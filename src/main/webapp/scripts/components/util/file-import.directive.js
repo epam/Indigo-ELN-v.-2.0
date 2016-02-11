@@ -1,14 +1,18 @@
 'use strict';
 
 angular.module('indigoeln')
-    .directive('onReadFile', function ($parse) {
+    .directive('myFileReader', function ($parse) {
         return {
             restrict: 'A',
             scope: false,
-            controller: 'ImportController',
+            controller: function ($scope) {
+                $scope.showContent = function($fileContent) {
+                    $scope.content = $fileContent;
+                };
+            },
             link: function (scope, element, attrs) {
 
-                var showFunc = $parse(attrs.onReadFile);
+                var showFunc = $parse(attrs.myFileReader);
 
                 element.on('change', function (onChangeEvent) {
                     var reader = new FileReader();
@@ -21,11 +25,4 @@ angular.module('indigoeln')
                 });
             }
         }
-    })
-    .controller("ImportController", function ($scope) {
-
-        $scope.showContent = function($fileContent) {
-            $scope.content = $fileContent;
-        };
-
     });

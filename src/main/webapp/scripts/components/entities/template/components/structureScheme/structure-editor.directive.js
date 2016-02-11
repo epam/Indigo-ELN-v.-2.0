@@ -3,11 +3,6 @@
 angular.module('indigoeln')
     .factory('editorUtils', function () {
         return {
-            initializeEditor: function (editor, structure) {
-                if (structure) {
-                    editor.setMolecule(structure);
-                }
-            },
             getEditor: function (frame) {
                 // TODO update if new editor added
                 // find ketcher and define as editor
@@ -32,11 +27,10 @@ angular.module('indigoeln')
             replace: true,
             scope: {
                 myStructure: '=',
-                myEditorname: '@'
+                myEditorName: '@'
             },
             templateUrl: 'scripts/components/entities/template/components/structureScheme/structure-editor-template.html',
-            controller: "EditorController",
-            link: function (scope, element, attrs, controller) {
+            link: function (scope, element) {
 
                 var frame = element[0];
                 var edt = null;
@@ -45,7 +39,6 @@ angular.module('indigoeln')
                     // initialize editor
                     if (scope.myStructure.molfile) {
                         edt.setMolecule(scope.myStructure.molfile);
-
                     }
                 };
 
@@ -55,18 +48,14 @@ angular.module('indigoeln')
                         scope.myStructure.molfile = edt.getMolfile();
                     }
                 });
-
-
+            },
+            controller: function ($scope) {
+                $scope.editors = {
+                    "KETCHER": {
+                        id: "ifKetcher",
+                        src: "ketcher/ketcher.html"
+                    }
+                };
             }
         }
-    })
-    .controller("EditorController", function ($scope) {
-
-        $scope.editors = {
-            "KETCHER": {
-                id: "ifKetcher",
-                src: "ketcher/ketcher.html"
-            }
-        };
-
     });

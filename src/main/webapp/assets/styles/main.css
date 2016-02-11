@@ -250,3 +250,7 @@
     resize: vertical;
 }
 
+.clear-elem {
+    clear: left;
+    display: block;
+}

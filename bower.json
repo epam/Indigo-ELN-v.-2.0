@@ -29,7 +29,9 @@
     "stomp-websocket": "2.3.4",
     "ng-idle": "1.0.0",
     "underscore": "1.8.3",
-    "angular-pretty-bytes": "1.0.1"
+    "angular-pretty-bytes": "1.0.1",
+    "angular-file-saver": "^1.0.3"
+
   },
   "overrides": {
     "bootstrap": {

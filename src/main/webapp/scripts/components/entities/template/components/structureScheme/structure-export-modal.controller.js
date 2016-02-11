@@ -1,26 +1,23 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('StructureExportModalController', function ($scope, $uibModalInstance, $window, structureToSave, structureType) {
+    .controller('StructureExportModalController', function ($scope, $uibModalInstance, $window, structureToSave, structureType, FileSaver) {
 
         $scope.structureToSave = structureToSave;
-        $scope.format = "molfile"; // molfile format by deafult
+        $scope.format = {name: 'MDL Molfile'}; // the only value at this moment
 
         $scope.download = function() {
 
-            var NUM_MAX = 999,
-                NUM_MIN = 100,
-                ORDER = 1000;
-
             var text = $scope.structureToSave.replace(/\n/g, '\r\n'),
-                blob = new Blob([text], {type: 'text/plain'}),
-                url = $window.URL || $window.webkitURL,
                 isMol = structureType === 'molecule',
                 fileExt = isMol ? 'mol' : 'rxn';
 
-            $scope.filename = fileExt + '-' + Math.floor(Math.random(NUM_MIN,NUM_MAX)*ORDER) + '.' + fileExt;
-            $scope.urlObj = url.createObjectURL(blob);
+            //to generate file name
+            var NUM_MAX = 999, NUM_MIN = 100, ORDER = 1000;
+            var filename = fileExt + '-' + Math.floor(Math.random(NUM_MIN,NUM_MAX)*ORDER) + '.' + fileExt;
+            var data = new Blob([text], { type: 'text/plain;charset=utf-8' });
 
+            FileSaver.saveAs(data, filename);
             $uibModalInstance.close();
         };
 
