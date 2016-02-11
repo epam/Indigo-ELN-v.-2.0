@@ -5,8 +5,8 @@
 
 angular.module('indigoeln')
     .constant('Components', [
-        {name: 'Concept Details', id: "concept-details", tab: 'Fake tab 1', desc: "Fake description"},
-        {name: 'Product Batch Details', id: "product-batch-details", tab: 'Fake tab 2', desc: "Fake description"}
+        {name: 'Concept Details', id: "concept-details", tab: 'Concept', desc: "Fake description"},
+        {name: 'Product Batch Details', id: "product-batch-details", tab: 'Batches', desc: "Fake description"}
     ])
     .directive('myComponent', function () {
         return {
