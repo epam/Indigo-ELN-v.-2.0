@@ -98,7 +98,7 @@ public class CustomSearchService implements SearchServiceAPI {
      */
     private Optional<Experiment> getExperimentByNumber(Collection<Experiment> experiments, String number) {
         return experiments == null ? Optional.empty() :
-                experiments.stream().filter(experiment -> nullSafeEquals(experiment.getExperimentNumber(), number)).findAny();
+                experiments.stream().filter(experiment -> nullSafeEquals(experiment.getName(), number)).findAny();
     }
 
     /**

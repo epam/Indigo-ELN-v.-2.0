@@ -225,7 +225,3 @@
 .nav, .pagination, .carousel, .panel-title a {
     cursor: pointer;
 }
-
-.nav-tabs > li > a {
-    color: gray;
-}

@@ -12,6 +12,7 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.component.number.GenerateNameService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -49,6 +50,9 @@ public class ExperimentService {
 
     @Autowired
     private SequenceIdRepository sequenceIdRepository;
+
+    @Autowired
+    private GenerateNameService generateNameService;
 
     @Autowired
     CustomDtoMapper dtoMapper;
@@ -114,6 +118,8 @@ public class ExperimentService {
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
         // reset experiment's id
         experiment.setId(null);
+        //generate name
+        experiment.setName(generateNameService.generateExperimentName(notebookSequenceId));
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
@@ -154,8 +160,6 @@ public class ExperimentService {
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
 
-        experimentFromDB.setExperimentNumber(experimentForSave.getExperimentNumber());
-        experimentFromDB.setName(experimentForSave.getName());
         experimentFromDB.setTemplateId(experimentForSave.getTemplateId());
         experimentFromDB.setAccessList(experimentForSave.getAccessList());
         experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
