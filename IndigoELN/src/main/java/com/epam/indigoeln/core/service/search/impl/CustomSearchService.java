@@ -18,10 +18,10 @@ import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
-import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.service.util.ComponentsUtil;
 
 import static org.springframework.util.ObjectUtils.nullSafeEquals;
 import static java.util.stream.Collectors.toList;
@@ -80,7 +80,7 @@ public class CustomSearchService implements SearchServiceAPI {
         if(notebook.isPresent()){ //if notebook with same number is present
             Optional<Experiment> experiment = getExperimentByNumber(notebook.get().getExperiments(), experimentNumber);
             if(experiment.isPresent()) { //if experiment with same number is present
-                result = getBatchByNumber(experiment.get().getComponents(), batchNumber); //try to find batch with number
+                result = ComponentsUtil.getBatchByNumber(experiment.get().getComponents(), batchNumber); //try to find batch with number
             }
         }
         return result;
@@ -101,16 +101,4 @@ public class CustomSearchService implements SearchServiceAPI {
                 experiments.stream().filter(experiment -> nullSafeEquals(experiment.getName(), number)).findAny();
     }
 
-    /**
-     * Find batch by batch number
-     * find component with content type 'batchDetails' and batch number equals to expected
-     */
-    private Optional<ComponentDTO> getBatchByNumber(Collection<Component> components, String number) {
-        return  components == null ? Optional.empty() :
-                components.stream().filter(c ->
-                        c.getContent() != null &&
-                        nullSafeEquals("batchDetails", c.getContent().getString("component")) &&
-                        nullSafeEquals(number, c.getContent().getString("batchNumber"))
-                ).findAny().map(ComponentDTO::new);
-    }
 }
