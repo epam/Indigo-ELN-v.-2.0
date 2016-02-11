@@ -1,0 +1,54 @@
+<div class="panel panel-primary component">
+    <div class="panel-heading">
+        Reaction Details
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-xs-8">
+                    <my-input my-label="Experiment Subject / Title" my-label-vertical="true"
+                              my-model="model.reactionDetails.title"></my-input>
+                    <my-select my-label="Therapeutic Area"
+                               my-items="[{name:'fake item'}]" my-model="model.reactionDetails.therapeuticArea"
+                               my-label-vertical="true"></my-select>
+                    <my-select my-label="Project Code & Name"
+                               my-items="[{name:'fake item'}]" my-model="model.reactionDetails.codeAndName"
+                               my-label-vertical="true"></my-select>
+                    <my-input my-label="Batch Creator" my-label-vertical="true"
+                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
+                              my-readonly="true"></my-input>
+                    <my-input my-label="Co-authors" my-label-vertical="true"></my-input>
+                    <my-input my-label="Experiment creator" my-label-vertical="true"
+                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
+                              my-readonly="true"></my-input>
+                </div>
+                <div class="col-xs-4">
+                    <my-date-picker my-label="Creation Date" my-label-vertical="true"
+                                    my-model="model.reactionDetails.creationDate"></my-date-picker>
+                    <my-input my-label="Cont. FROM Rxn" my-label-vertical="true"
+                              my-model="model.reactionDetails.contFromRxn" my-input-group="append">
+                        <button class="btn btn-default" type="button">link</button>
+                    </my-input>
+                    <my-input my-label="Cont. TO Rxn" my-label-vertical="true"
+                              my-model="model.reactionDetails.contToRxn" my-input-group="append">
+                        <button class="btn btn-default" type="button">link</button>
+                    </my-input>
+                    <my-input my-label="Linked Experiment" my-label-vertical="true"
+                              my-model="model.reactionDetails.linkedExperiment"></my-input>
+                    <my-input my-label="Project Alias Name" my-label-vertical="true"
+                              my-model="model.reactionDetails.projectAliasName"></my-input>
+                    <my-input my-label="Batch Owner" my-label-vertical="true"
+                              my-model="displayOnly.batchOwner"
+                              ng-init="displayOnly.batchOwner=experiment.batchOwner.login"
+                              my-readonly="true"></my-input>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <my-text-area my-label="Literature Ref" my-label-vertical="true"
+                                  my-model="model.reactionDetails.literature"></my-text-area>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

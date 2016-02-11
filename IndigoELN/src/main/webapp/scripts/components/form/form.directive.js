@@ -38,6 +38,7 @@ angular.module('indigoeln')
     return {
         restrict: 'E',
         replace: true,
+        transclude: true,
         scope: {
             myLabel: '@',
             myLabelVertical: '=',
@@ -47,10 +48,19 @@ angular.module('indigoeln')
             myType: '@',
             myValidationObj: '=',
             myValidationRequired: '=',
-            myValidationMaxlength: '@'
+            myValidationMaxlength: '@',
+            myInputGroup: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
+            if (tAttrs.myInputGroup) {
+                var inputGroup = tElement.find('input').wrap('<div class="input-group"/>').parent();
+                if (tAttrs.myInputGroup == 'append') {
+                    inputGroup.append('<div class="input-group-btn" ng-transclude/>')
+                } else if (tAttrs.myInputGroup == 'prepend') {
+                    inputGroup.prepend('<div class="input-group-btn" ng-transclude/>')
+                }
+            }
         },
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +

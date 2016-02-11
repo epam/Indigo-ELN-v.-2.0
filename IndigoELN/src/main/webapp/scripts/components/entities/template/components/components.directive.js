@@ -6,6 +6,7 @@
 angular.module('indigoeln')
     .constant('Components', [
         {name: 'Concept Details', id: "concept-details", tab: 'Concept', desc: "Fake description"},
+        {name: 'Reaction Details', id: "reaction-details", tab: 'Experiments', desc: "Fake description"},
         {name: 'Product Batch Details', id: "product-batch-details", tab: 'Batches', desc: "Fake description"}
     ])
     .directive('myComponent', function () {
@@ -21,6 +22,7 @@ angular.module('indigoeln')
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
+            '<div ng-switch-when="reaction-details"><reaction-details /></div>' +
             '<div ng-switch-when="product-batch-details"><product-batch-details /></div>' +
             '<div ng-switch-when="product-batch-summary"><product-batch-summary /></div>' +
             '</div>'
