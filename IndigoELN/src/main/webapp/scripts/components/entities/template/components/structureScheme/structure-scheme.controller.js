@@ -3,22 +3,26 @@
 angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $http, $uibModal) {
 
-        var BINGO_URL = 'http://localhost:12345/',
-            MONGO_URL = 'http://localhost:3000/';
+        // TODO: implement recieving that info from server
+        var BINGO_URL = 'http://ecse0010026a.epam.com:12345/',
+            MONGO_URL = 'http://ecse0010026a.epam.com:8080/indigoeln/';
+        //var BINGO_URL =   'http://localhost:12345/',
+        //    MONGO_URL = 'http://localhost:3000/';
+
 
         var PIC_WIDTH = 10,
             PIC_HEIGHT = 5;
 
         // TODO: find out where take the info from
         $scope.structureType = 'molecule'; // molecule (default value) or reaction
-        $scope.structureId = null;
+        $scope.model.structureScheme = $scope.model.structureScheme || {};
         $scope.structure = null;
 
         // watch structure's id and update structure and its image if changed
-        $scope.$watch('structureId', function() {
-            if ($scope.structureId) {
+        $scope.$watch('model.structureScheme.structureId', function() {
+            if ($scope.model.structureScheme.structureId) {
                 $http({
-                    url: getRendererUrl($scope.structureType, $scope.structureId),
+                    url: getRendererUrl($scope.structureType, $scope.model.structureScheme.structureId),
                     method: "GET",
                     params: {
                         width: PIC_WIDTH,
@@ -107,7 +111,7 @@ angular.module('indigoeln')
                 method: "POST",
                 data: structure
             }).success(function(result){
-                $scope.structureId = result.id;
+                $scope.model.structureScheme.structureId = result.id;
             }).error(function(){
                 console.info('Cannot save the structure.');
             });
