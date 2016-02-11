@@ -43,7 +43,7 @@ angular.module('indigoeln')
             return lastRoleWithRoleEditorAuthority;
         }
 
-        $scope.loadAll = function () {
+        var loadAll = function () {
             AccountRole.query({}, function (result) {
                 $scope.accountRoles = result;
             });
@@ -86,12 +86,12 @@ angular.module('indigoeln')
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
             $scope.role = null;
-            $scope.loadAll();
+            loadAll();
         };
 
         var onSaveError = function (result) {
             $scope.isSaving = false;
-            $scope.loadAll();
+            loadAll();
         };
 
         var save = function () {
@@ -115,8 +115,6 @@ angular.module('indigoeln')
                     if (result === true) {
                         save();
                     }
-                }, function () {
-
                 });
             } else {
                 save();
@@ -130,7 +128,12 @@ angular.module('indigoeln')
         };
 
         $scope.edit = function (role) {
+            loadAll();
             $scope.role = _.extend({}, role);
+        };
+
+        $scope.resetAuthorities = function () {
+            $scope.role.authorities = [];
         };
 
         $scope.search = function () {
