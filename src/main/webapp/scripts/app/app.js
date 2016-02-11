@@ -69,7 +69,9 @@ angular.module('indigoeln',
             Auth.logout();
             $state.go('login');
         });
-
+        $rootScope.$on('$stateChangeSuccess', function () {
+            $("html, body").animate({scrollTop: 0}, 200);
+        });
         $rootScope.back = function () {
             // If previous state is 'activate' or do not exist go to 'home'
             if ($rootScope.previousStateName === 'activate' || $state.get($rootScope.previousStateName) === null) {
