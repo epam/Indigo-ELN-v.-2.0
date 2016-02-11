@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service.component.number;
+package com.epam.indigoeln.core.service.component.name;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -16,11 +16,9 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 
+import com.epam.indigoeln.core.service.util.ComponentsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.util.ObjectUtils.nullSafeEquals;
-import static org.springframework.util.ObjectUtils.nullSafeToString;
 
 @Service
 public class GenerateNameService {
@@ -29,8 +27,6 @@ public class GenerateNameService {
     private static final String FORMAT_BATCH_NUMBER = "000";
 
     private static final String PATTERN_NUMERIC = "[0-9]+";
-    private static final String FIELD_BATCH_NUMBER = "batchNumber";
-    private static final String TYPE_PRODUCT_BATCH_DETAILS = "productBatchDetails";
 
     private final Object batchLock = new Object();
     private final Object experimentLock = new Object();
@@ -55,13 +51,7 @@ public class GenerateNameService {
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(experimentSequenceId.toString()));
 
             List<Component> components = Optional.ofNullable(experiment.getComponents()).orElse(Collections.emptyList());
-
-            List<String> batchNumbers = components.stream().
-                    filter(c -> nullSafeEquals(c.getName(), TYPE_PRODUCT_BATCH_DETAILS)).
-                    map(c -> nullSafeToString(c.getContent().get(FIELD_BATCH_NUMBER))).
-                    collect(Collectors.toList());
-
-            return generateNextNumber(batchNumbers, FORMAT_BATCH_NUMBER);
+            return generateNextNumber(ComponentsUtil.extractBatchNumbers(components), FORMAT_BATCH_NUMBER);
         }
     }
 
