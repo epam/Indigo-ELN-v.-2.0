@@ -11,6 +11,9 @@ angular.module('indigoeln')
             Role.delete({id: entity.id},
                 function () {
                     $uibModalInstance.close(true);
+                },
+                function () {
+                    $uibModalInstance.close(false);
                 });
         };
     });
