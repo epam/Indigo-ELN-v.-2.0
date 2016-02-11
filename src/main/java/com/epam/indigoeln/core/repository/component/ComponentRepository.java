@@ -12,7 +12,7 @@ import static com.epam.indigoeln.core.model.Component.FIELD_BINGO_ID;
 
 public interface ComponentRepository extends MongoRepository<Component, String> {
 
-    @Query(value="{ 'name' : " + TYPE_PRODUCT_BATCH_DETAILS + ", 'content." + FIELD_BINGO_ID + "' : { $in : ?0 } }")
+    @Query(value="{ 'name' :' " + TYPE_PRODUCT_BATCH_DETAILS + "', 'content." + FIELD_BINGO_ID + "' : { $in : ?0 } }")
     List<Component> findBatchesByBingoDbIds(List<String> bingoIds);
 
     @Query(value="{'id' : { $in : ?0}}", delete = true)
