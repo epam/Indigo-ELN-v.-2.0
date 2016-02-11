@@ -13,7 +13,7 @@ body {
 body,
 .navbar-fixed-top,
 .navbar-fixed-bottom {
-    min-width: 1170px;
+    min-width: 970px;
 }
 
 /* Don't let the lead text change font-size. */
@@ -38,7 +38,7 @@ body,
 
 /* Reset the container */
 .container {
-    width: 1170px;
+    width: 970px;
     max-width: none !important;
 }
 
