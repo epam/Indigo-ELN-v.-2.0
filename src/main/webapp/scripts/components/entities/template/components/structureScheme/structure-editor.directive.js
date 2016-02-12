@@ -53,7 +53,7 @@ angular.module('indigoeln')
                 $scope.editors = {
                     "KETCHER": {
                         id: "ifKetcher",
-                        src: "ketcher/ketcher.html"
+                        src: "/vendors/ketcher/ketcher.html"
                     }
                 };
             }

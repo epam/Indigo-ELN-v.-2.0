@@ -6,12 +6,12 @@ angular.module('indigoeln')
         // TODO: implement recieving that info from server
         var BINGO_URL = 'http://ecse0010026a.epam.com:12345/',
             MONGO_URL = 'http://ecse0010026a.epam.com:8080/indigoeln/';
+        // to test locally
         //var BINGO_URL =   'http://localhost:12345/',
         //    MONGO_URL = 'http://localhost:3000/';
 
-
-        var PIC_WIDTH = 10,
-            PIC_HEIGHT = 5;
+        var PIC_WIDTH = 30,
+            PIC_HEIGHT = 15;
 
         // TODO: find out where take the info from
         $scope.structureType = 'molecule'; // molecule (default value) or reaction
