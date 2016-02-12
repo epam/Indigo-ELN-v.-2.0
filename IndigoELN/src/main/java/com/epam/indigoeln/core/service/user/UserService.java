@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.user;
 
-
 import com.epam.indigoeln.core.model.Role;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +27,9 @@ import java.util.Set;
 public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
+
+    @Autowired
+    private SessionRegistry sessionRegistry;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -45,7 +48,8 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         user.setActivated(true);
-        // Checking for roles existence
+
+        // checking for roles existence
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
 
         user = userRepository.save(user);
@@ -80,6 +84,8 @@ public class UserService {
         user = userRepository.save(user);
         log.debug("Created Information for User: {}", user);
 
+        // check for significant changes and perform logout for user
+        SecurityUtils.checkAndLogoutUser(user, sessionRegistry);
         return user;
     }
 
