@@ -204,9 +204,9 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<div class="input-group">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="yyyy/MM/dd" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="MMM dd, yyyy HH:mm:ss Z" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
         '<span class="input-group-btn">' +
-        '<button type="button" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
+        '<button type="button" ng-disabled="myReadonly" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
         '<div ng-show="myValidationObj.$invalid">' +
         '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field cannot be longer than {{myValidationMaxlength}} characters.</p>' +

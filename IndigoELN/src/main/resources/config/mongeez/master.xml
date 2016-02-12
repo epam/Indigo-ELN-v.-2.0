@@ -7,4 +7,5 @@
     <file path="index_improvements.xml"/>
     <file path="sequences.xml"/>
     <file path="sequence_improvements.xml"/>
+    <file path="remove_entities_for_creation_date.xml"/>
 </changeFiles>

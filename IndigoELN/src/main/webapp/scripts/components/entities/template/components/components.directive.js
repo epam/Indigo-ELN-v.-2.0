@@ -15,11 +15,13 @@ angular.module('indigoeln')
             restrict: 'A',
             replace: true,
             scope: {
-                myModel: '='
+                myModel: '=',
+                myExperiment: '='
             },
             link: function (scope, iElement, iAttrs, controller) {
                 scope.myComponent = iAttrs.myComponent;
                 scope.model = scope.myModel; //for capability
+                scope.experiment = _.extend({}, scope.myExperiment); //for readonly
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
@@ -36,11 +38,12 @@ angular.module('indigoeln')
         scope: {
             myTemplate: '=',
             myDisabled: '=',
-            myModel: '='
+            myModel: '=',
+            myExperiment: '='
         },
         template: '<fieldset ng-disabled="myDisabled"><uib-tabset justified="true">' +
         '<uib-tab heading="{{key}}" ng-repeat="(key,value) in myTemplate | groupBy: \'tab\'">' +
-        '<div ng-repeat="component in value" my-component={{component.id}} my-model="myModel"></div>' +
+        '<div ng-repeat="component in value" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     }
