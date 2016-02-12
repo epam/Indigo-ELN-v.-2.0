@@ -2,7 +2,9 @@ package com.epam.indigoeln.config.security;
 
 import com.epam.indigoeln.core.security.*;
 import com.epam.indigoeln.web.rest.filter.CsrfCookieGeneratorFilter;
+import com.epam.indigoeln.web.rest.filter.SessionExpirationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -13,12 +15,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import static com.epam.indigoeln.core.security.Authority.*;
 
@@ -74,9 +80,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+            .sessionManagement() // add session management
+                .maximumSessions(-1) // set unlimited number of sessions per User // TODO think about this
+                    .sessionRegistry(sessionRegistry());
+
+        http
             .csrf()
-                .ignoringAntMatchers("/api/authentication") // For solving a problem with login after logout
+                .ignoringAntMatchers("/api/authentication", "/api/logout") // For solving a problem with login after logout
             .and()
+                .addFilterBefore(sessionExpirationFilter(), ConcurrentSessionFilter.class)
                 .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                     .accessDeniedHandler(new CustomAccessDeniedHandler())
@@ -106,17 +118,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .disable()
             .and()
                 .authorizeRequests()
-                    .antMatchers("/api/**").authenticated()
+                .antMatchers("/api/**").authenticated() // TODO remove after all resources will be configured
                     // account resource
+                    .antMatchers(HttpMethod.GET, "/api/accounts/*").authenticated()
                     .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
-                    // bingoDbIntegration resource
-                    //TODO set up
-                    // calculation resource
-                    //TODO set up
-                    // component number resource
-                    //TODO set up
-                    // structure renderer resource
-                    //TODO set up
                     // experiment_file resource
                     .antMatchers(HttpMethod.GET, "/api/experiment_files").hasAnyAuthority(EXPERIMENT_READERS)
                     .antMatchers(HttpMethod.GET, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_READERS)
@@ -163,6 +168,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
+
+                    // bingoDbIntegration resource
+                    //TODO set up
+                    // calculation resource
+                    //TODO set up
+                    // component number resource
+                    //TODO set up
+                    // structure renderer resource
+                    //TODO set up
+
                     // others
                     .antMatchers("/health/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?
@@ -182,5 +197,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
         return new SecurityEvaluationContextExtension();
+    }
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return new SessionRegistryImpl();
+    }
+
+    public SessionExpirationFilter sessionExpirationFilter() {
+        return new SessionExpirationFilter(sessionRegistry());
+    }
+
+    @Bean
+    public ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
+        return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
     }
 }
