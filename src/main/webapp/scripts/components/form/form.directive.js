@@ -215,4 +215,24 @@ angular.module('indigoeln')
         '</div>' +
         '</div>'
     };
+}).directive('myTagInput', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myLabelVertical: '=',
+            myModel: '=',
+            myReadonly: '='
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
+        ' <tags-input ng-model="myModel" ng-disabled="myReadonly"></tags-input>' +
+        '</div>' +
+        '</div>'
+    };
 });
