@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('errorHandlerInterceptor', function ($q, $log, $injector, AlertService) {
+    .factory('errorHandlerInterceptor', function ($q, $log, $injector, $rootScope, AlertService) {
         return {
             'responseError': function (httpResponse) {
                 var i;
@@ -38,9 +38,16 @@ angular.module('indigoeln')
                         break;
 
                     case 401:
-                        if (httpResponse.config.url !== 'login') {
-                            var $location = $injector.get('$location');
-                            $location.path('/login');
+                        if (httpResponse.config.url !== 'login' || (httpResponse.data.path !== undefined &&
+                            httpResponse.data.path.indexOf('/api/accounts/account') == -1)) {
+                            var Auth = $injector.get('Auth');
+                            var $state = $injector.get('$state');
+                            var to = $rootScope.toState;
+                            var params = $rootScope.toStateParams;
+                            Auth.logout();
+                            $rootScope.previousStateName = null; // TODO after UI refactoring, change on "to" statement;
+                            $rootScope.previousStateNameParams = params;
+                            $state.go('login');
                         }
                         break;
 
