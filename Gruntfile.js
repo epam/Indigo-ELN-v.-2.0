@@ -212,7 +212,7 @@ module.exports = function (grunt) {
                         'scripts/**/*.html',
                         'assets/images/**/*.{png,gif,webp,jpg,jpeg,svg}',
                         'assets/fonts/*',
-                        'vendors/*'
+                        'vendors/**/*'
                     ]
                 }, {
                     expand: true,
