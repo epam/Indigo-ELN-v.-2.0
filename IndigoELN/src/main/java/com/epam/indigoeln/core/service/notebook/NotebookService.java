@@ -1,10 +1,6 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
@@ -15,7 +11,6 @@ import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -42,6 +37,10 @@ public class NotebookService {
     @Autowired
     private CustomDtoMapper dtoMapper;
 
+    public List<TreeNodeDTO> getAllNotebookTreeNodes(Long projectSequenceId) {
+        return getAllNotebookTreeNodes(projectSequenceId, null);
+    }
+
     public List<TreeNodeDTO> getAllNotebookTreeNodes(Long projectSequenceId, User user) {
         Collection<Notebook> notebooks = getAllNotebooks(projectSequenceId, user);
         return notebooks.stream().
@@ -49,9 +48,17 @@ public class NotebookService {
                 collect(Collectors.toList());
     }
 
-    public Collection<Notebook> getAllNotebooks(Long  projectSequenceId, User user) {
+    /**
+     * If user is null, then retrieve notebooks without checking for UserPermissions
+     * Otherwise, use checking for UserPermissions
+     */
+    private Collection<Notebook> getAllNotebooks(Long  projectSequenceId, User user) {
         Project project = projectRepository.findOneBySequenceId(projectSequenceId).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+
+        if (user == null) {
+            return project.getNotebooks();
+        }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
         if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
@@ -61,9 +68,17 @@ public class NotebookService {
         }
 
         return getNotebooksWithAccess(project.getNotebooks(), user.getId());
+
     }
 
+    /**
+     * If user is null, then check only notebook's experiments list for empty
+     * Otherwise, use checking for UserPermissions
+     */
     private boolean hasExperiments(Notebook notebook, User user) {
+        if (user == null) {
+            return !notebook.getExperiments().isEmpty();
+        }
         // Checking userPermission for "Read Sub-Entity" possibility,
         // and that notebook has experiments with UserPermission for specified User
         return PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
@@ -75,7 +90,6 @@ public class NotebookService {
         // Because we have one at least Experiment with UserPermission for Read Entity
         return experiments.stream().anyMatch(e -> PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId) != null);
     }
-
 
     public NotebookDTO getNotebookById(Long sequenceId, User user) {
         Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).
