@@ -1,0 +1,58 @@
+<div name="permissionsForm" ng-submit="managePermissions()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="clear()">&times;</button>
+        <h2 class="modal-title">Manage Permissions</h2>
+    </div>
+    <div class="modal-body">
+        <p>Select a User to manage permissions</p>
+        <ui-select ng-model="selectedMember.value" on-select="addMember($item)">
+            <ui-select-match placeholder="">
+                <span ng-bind="$select.selectedMember.login"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="item in (users | filter: $select.search) track by item.id">
+                <span ng-bind="item.login"></span>
+            </ui-select-choices>
+        </ui-select>
+
+        <br>
+        <div class="table-responsive">
+        <table class="table table-hover">
+        <thead>
+            <tr>
+                <th width="30%">Member</th>
+                <th>Permission</th>
+                <th width="20%">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="member in accessList">
+                <td>{{ member.user.lastName + ' ' + member.user.firstName + ' (' + member.user.login + ')' }}</td>
+                <td>
+                    <div>
+                        <a ng-class="{disabled: isAuthor(member)}" e-form="perm" ng-click="show(perm, member)"
+                           editable-select="member.permissions" e-ng-options="p.id as p.name for p in permissions">
+                        {{ member.permissions }}
+                        </a>
+                    </div>
+                </td>
+                <td nowrap>
+                    <button ng-disabled="isAuthor(member)" type="button" class="btn btn-warning btn-xs" ng-click="removeMember(member)">
+                        <span class="glyphicon glyphicon-ban-circle"></span> Stop sharing
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <button type="submit" ng-disabled="permissionsForm.$invalid" class="btn btn-info" ng-click="ok()">
+            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Ok</span>
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+        </button>
+    </div>
+</div>

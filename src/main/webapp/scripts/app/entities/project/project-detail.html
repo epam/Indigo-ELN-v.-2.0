@@ -3,24 +3,36 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="editable-text">
-                <h2 editable-text="project.name" ng-class="{disabled: editDisabled}" e-form="namefield" ng-click="show(namefield)">{{ project.name }}</h2>
+                <h2 editable-text="project.name"
+                    ng-class="{disabled: editDisabled}"
+                    e-form="namefield"
+                    ng-click="show(namefield)">{{ project.name }}</h2>
             </div>
 
             <h4>Project Participants</h4>
-            <div class="editable-users">
+            <div class="participants-list">
                 <ul>
-                    <li ng-repeat="user in project.users">{{user.login}}</li>
+                    <li ng-repeat="member in project.accessList">{{member.user.login + ' (' + member.permissions + ')'}}</li>
                 </ul>
             </div>
 
-            <!--<button class="btn btn-primary" type="button" ng-click="addUser()">Manage Users</button>-->
+            <button type="submit"
+                    ui-sref="project.permissions({id:project.id})"
+                    class="btn btn-primary"
+                    ng-disabled="editDisabled">
+                <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Manage Permissions</span>
+            </button>
 
             <h4>Tags</h4>
             <tags-input ng-model="tags" ng-disabled="editDisabled"></tags-input>
             
             <h4>Keywords</h4>
             <div>
-                <a ng-class="{disabled: editDisabled}" e-form="keyfield" ng-click="show(keyfield)"  editable-textarea="keywords" e-rows="3" e-cols="60">
+                <a ng-class="{disabled: editDisabled}"
+                   e-form="keyfield"
+                   ng-click="show(keyfield)"
+                   editable-textarea="keywords"
+                   e-rows="3" e-cols="60">
                     <pre>{{ keywords || 'no keywords' }}</pre>
                 </a>
             </div>
@@ -28,7 +40,11 @@
             <h4>Literature References</h4>
 
             <div>
-                <a ng-class="{disabled: editDisabled}" e-form="refsfield" ng-click="show(refsfield)" editable-textarea="project.references" e-rows="3" e-cols="60">
+                <a ng-class="{disabled: editDisabled}"
+                   e-form="refsfield"
+                   ng-click="show(refsfield)"
+                   editable-textarea="project.references"
+                   e-rows="3" e-cols="60">
                     <pre>{{ project.references || 'no literature references' }}</pre>
                 </a>
             </div>

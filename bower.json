@@ -20,7 +20,6 @@
     "angular-xeditable": "0.1.9",
     "animate.css": "3.5.1",
     "bootstrap": "3.3.6",
-    "checklist-model": "0.9.0",
     "font-awesome-bower": "4.4.0",
     "jquery": "2.1.4",
     "ng-tags-input": "3.0.0",
@@ -30,8 +29,8 @@
     "ng-idle": "1.0.0",
     "underscore": "1.8.3",
     "angular-pretty-bytes": "1.0.1",
-    "angular-file-saver": "^1.0.3"
-
+    "angular-file-saver": "^1.0.3",
+    "ui-select": "angular-ui-select#^0.14.2"
   },
   "overrides": {
     "bootstrap": {

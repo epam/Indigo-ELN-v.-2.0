@@ -22,7 +22,6 @@
         <thead>
         <tr>
             <th>File Name</th>
-            <th>Content Type</th>
             <th>Author</th>
             <th>Length (bytes)</th>
             <th>Upload Date</th>
@@ -32,7 +31,6 @@
         <tbody>
         <tr ng-repeat="file in files track by file.id">
             <td>{{file.filename}}</td>
-            <td>{{file.contentType}}</td>
             <td>{{file.author.login  || file.author.firstName}}</td>
             <td>{{file.length | prettyBytes}}</td>
             <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>

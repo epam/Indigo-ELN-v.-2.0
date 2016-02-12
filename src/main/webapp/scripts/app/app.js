@@ -3,8 +3,8 @@
 angular.module('indigoeln',
 
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle',
-        'xeditable', 'angularFileUpload', 'checklist-model', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
-        'cgBusy', 'angular.filter', 'ngFileSaver',
+        'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
+        'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
         var countdownDialog = null,

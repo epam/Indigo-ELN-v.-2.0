@@ -24,5 +24,33 @@ angular.module('indigoeln')
                         return User.query().$promise;
                     }
                 }
+            })
+            .state('project.permissions', {
+                parent: 'project',
+                url: '/permissions',
+                data: {
+                    authorities: ['CONTENT_EDITOR']
+                },
+                onEnter: function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
+                    $uibModal.open({
+                        templateUrl: 'scripts/components/permissions/permission-management.html',
+                        controller: 'PermissionManagementController',
+                        size: 'lg',
+                        resolve: {
+                            users: function(User) {
+                                return User.query().$promise;
+                            },
+                            permissions: function() {
+                                return PermissionManagement.getProjectPermissions();
+                            }
+                        }
+                    }).result.then(function(result) {
+                        PermissionManagement.setAccessList(result);
+                        $rootScope.$broadcast('access-list-changed');
+                        $state.go('project');
+                    }, function() {
+                        $state.go('^');
+                    })
+                }
             });
     });

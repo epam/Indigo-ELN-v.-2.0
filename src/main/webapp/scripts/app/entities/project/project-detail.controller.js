@@ -1,10 +1,17 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, project, users) {
+    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, project, users, PermissionManagement) {
 
-        $scope.project = project;
         $scope.users = users;
+        $scope.project = project;
+        $scope.project.accessList = PermissionManagement.collapsePermission($scope.project.accessList);
+        PermissionManagement.setAuthor($scope.project.author);
+        PermissionManagement.setAccessList($scope.project.accessList);
+
+        $scope.$on('access-list-changed', function(event) {
+            $scope.project.accessList = PermissionManagement.getAccessList();
+        });
 
         $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');
         $scope.show = function(form) {
@@ -12,11 +19,6 @@ angular.module('indigoeln')
                 form.$show();
             }
         };
-
-        // 'PROJECT_READER'
-        // 'PROJECT_CREATOR'
-        // 'PROJECT_REMOVER'
-        // 'CONTENT_EDITOR'
 
         // prepare tags and keywords for UI
         $scope.tags = [];
@@ -53,6 +55,7 @@ angular.module('indigoeln')
                     $scope.project.keywords.push(ref.trim());
                 });
             }
+            $scope.project.accessList = PermissionManagement.expandPermission($scope.project.accessList);
             Project.update($scope.project, onSaveSuccess, onSaveError);
         };
 
