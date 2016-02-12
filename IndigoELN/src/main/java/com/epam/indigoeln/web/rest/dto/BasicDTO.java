@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -19,6 +20,8 @@ public abstract class BasicDTO implements Serializable {
 
     @JsonProperty("id")
     private Long sequenceId;
+
+    @NotEmpty
     private String name;
     private Set<UserPermission> accessList = new HashSet<>();
 
