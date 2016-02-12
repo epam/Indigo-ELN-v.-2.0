@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import com.google.common.base.Objects;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -32,6 +33,7 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @NotNull
     private Long sequenceId;
 
+    @NotEmpty
     private String name;
 
     @CreatedDate
