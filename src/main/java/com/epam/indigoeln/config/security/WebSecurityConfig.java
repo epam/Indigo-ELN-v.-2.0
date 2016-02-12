@@ -118,7 +118,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .disable()
             .and()
                 .authorizeRequests()
-                .antMatchers("/api/**").authenticated() // TODO remove after all resources will be configured
+                    .antMatchers("/api/**").authenticated() // TODO remove after all resources will be configured
                     // account resource
                     .antMatchers(HttpMethod.GET, "/api/accounts/*").authenticated()
                     .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
@@ -129,12 +129,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.DELETE, "/api/experiment_files/*").hasAnyAuthority(EXPERIMENT_CREATORS)
                     // experiment resource
                     .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments/all").hasAuthority(CONTENT_EDITOR.name())
                     .antMatchers(HttpMethod.GET, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_READERS)
                     .antMatchers(HttpMethod.POST, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
                     .antMatchers(HttpMethod.PUT, "/api/notebooks/*/experiments").hasAnyAuthority(EXPERIMENT_CREATORS)
                     .antMatchers(HttpMethod.DELETE, "/api/notebooks/*/experiments/*").hasAnyAuthority(EXPERIMENT_REMOVERS)
                     // notebook resource
                     .antMatchers(HttpMethod.GET, "/api/notebooks").hasAnyAuthority(NOTEBOOK_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/notebooks/all").hasAuthority(CONTENT_EDITOR.name())
                     .antMatchers(HttpMethod.GET, "/api/notebooks/*").hasAnyAuthority(NOTEBOOK_READERS)
                     .antMatchers(HttpMethod.POST, "/api/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
                     .antMatchers(HttpMethod.PUT, "/api/notebooks").hasAnyAuthority(NOTEBOOK_CREATORS)
@@ -146,6 +148,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.DELETE, "/api/project_files/*").hasAnyAuthority(PROJECT_CREATORS)
                     // project resource
                     .antMatchers(HttpMethod.GET, "/api/projects").hasAnyAuthority(PROJECT_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/projects/all").hasAuthority(CONTENT_EDITOR.name())
                     .antMatchers(HttpMethod.GET, "/api/projects/*").hasAnyAuthority(PROJECT_READERS)
                     .antMatchers(HttpMethod.POST, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)
                     .antMatchers(HttpMethod.PUT, "/api/projects").hasAnyAuthority(PROJECT_CREATORS)

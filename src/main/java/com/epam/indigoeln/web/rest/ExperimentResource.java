@@ -18,7 +18,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
@@ -37,32 +36,37 @@ public class ExperimentResource {
     private UserService userService;
 
     /**
-     * GET  /experiments -> Returns all experiments, which author is current User<br/>
-     * GET  /experiments?:notebookId -> Returns all experiments of specified notebook for <b>current user</b>
-     * for tree representation according to his User permissions<br/>
-     * GET  /experiments?:notebookId&:userId -> Returns all experiments of specified notebook for <b>specified user</b>
+     * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
+     * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getAllExperiments(
-            @PathVariable Long notebookSequenceId,
-            @RequestParam(required = false) String userId) {
+    public ResponseEntity<?> getAllExperimentsByPermissions(@PathVariable Long notebookSequenceId) {
         User user = userService.getUserWithAuthorities();
         if (notebookSequenceId == null) {
             log.debug("REST request to get all experiments, which author is current user");
             Collection<ExperimentDTO> experiments = experimentService.getExperimentsByAuthor(user);
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
-            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookSequenceId, userId);
-            if (userId != null && !user.getId().equals(userId)) {
-                // change executing user
-                user = userService.getUserWithAuthorities(userId);
-            }
-            Collection<ExperimentDTO> experiments = experimentService.getAllExperiments(notebookSequenceId, user);
-            List<TreeNodeDTO> result = experiments.stream().map(TreeNodeDTO::new).collect(Collectors.toList());
+            log.debug("REST request to get all experiments of notebook: {} " +
+                    "according to user permissions", notebookSequenceId);
+            List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(notebookSequenceId, user);
             return ResponseEntity.ok(result);
         }
+    }
+
+    /**
+     * GET  /notebooks/:notebookId/experiments/all -> Returns all experiments of specified notebook
+     * without checking for User permissions
+     */
+    @RequestMapping(value = "/all",method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(@PathVariable long notebookSequenceId) {
+        log.debug("REST request to get all experiments of notebook: {} " +
+                "without checking for permissions", notebookSequenceId);
+        List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(notebookSequenceId);
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -71,7 +75,6 @@ public class ExperimentResource {
     @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
-            @PathVariable Long notebookSequenceId,
             @PathVariable Long sequenceId) {
         log.debug("REST request to get experiment: {}", sequenceId);
         User user = userService.getUserWithAuthorities();
@@ -104,8 +107,7 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody  ExperimentDTO experimentDTO,
-                                                          @PathVariable Long notebookSequenceId) {
+    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody  ExperimentDTO experimentDTO) {
         log.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
         experimentDTO = experimentService.updateExperiment(experimentDTO, user);
