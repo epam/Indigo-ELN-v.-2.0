@@ -15,11 +15,11 @@
                                my-items="[{name:'fake item'}]" my-model="model.reactionDetails.codeAndName"
                                my-label-vertical="true"></my-select>
                     <my-input my-label="Batch Creator" my-label-vertical="true"
-                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
+                              my-model="experiment.author.login"
                               my-readonly="true"></my-input>
                     <my-input my-label="Co-authors" my-label-vertical="true"></my-input>
                     <my-input my-label="Experiment creator" my-label-vertical="true"
-                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
+                              my-model="experiment.lastModifiedBy.login"
                               my-readonly="true"></my-input>
                 </div>
                 <div class="col-xs-4">

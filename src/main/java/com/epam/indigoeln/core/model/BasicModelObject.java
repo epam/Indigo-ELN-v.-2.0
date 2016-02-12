@@ -1,25 +1,13 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import com.google.common.base.Objects;
-
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Persistable;
 
 import javax.validation.constraints.NotNull;
-
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,14 +25,11 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     private String name;
 
     @CreatedDate
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate creationDate;
+    private ZonedDateTime creationDate = ZonedDateTime.now();
+    ;
 
     @LastModifiedDate
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate lastEditDate;
+    private ZonedDateTime lastEditDate = ZonedDateTime.now();
 
     @CreatedBy
     private User author;
@@ -66,11 +51,11 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         return name;
     }
 
-    public LocalDate getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
-    public LocalDate getLastEditDate() {
+    public ZonedDateTime getLastEditDate() {
         return lastEditDate;
     }
 
@@ -98,11 +83,11 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         this.name = name;
     }
 
-    public void setCreationDate(LocalDate creationDate) {
+    public void setCreationDate(ZonedDateTime creationDate) {
         this.creationDate = creationDate;
     }
 
-    public void setLastEditDate(LocalDate lastEditDate) {
+    public void setLastEditDate(ZonedDateTime lastEditDate) {
         this.lastEditDate = lastEditDate;
     }
 
