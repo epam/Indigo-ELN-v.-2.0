@@ -4,7 +4,7 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
-        $scope.USER_aEDITOR = 'USER_EDITOR';
+        $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
         $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
         $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
