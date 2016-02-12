@@ -28,33 +28,24 @@
     </li>
 </ul>
 <ul has-authority="{{CONTENT_EDITOR}}">
-    <li ng-click="toggleUsers()"><span>All Projects</span>
-        <ul ng-if="users.length">
-            <li ng-repeat="user in users" ng-click="toggleProjects(user); $event.stopPropagation();">
-                <span>{{user.lastName + ' ' + user.firstName + ' [' + user.login + ']'}}</span>
-
-                <ul ng-if="user.projects.length">
-                    <li ng-repeat="project in user.projects" ng-click="toggleNotebooks(project, user.id); $event.stopPropagation();">
+    <li ng-click="toggleProjects(allProjects, true); $event.stopPropagation();"><span>All Projects</span>
+        <ul ng-if="allProjects.projects.length">
+            <li ng-repeat="project in allProjects.projects" ng-click="toggleNotebooks(project, true); $event.stopPropagation();">
+                <span>{{project.node.name}}</span>
+                <ul ng-if="project.notebooks.length">
+                    <li ng-repeat="notebook in project.notebooks"
+                        ng-click="notebook.projectId = project.node.id; toggleExperiments(notebook, true); $event.stopPropagation();">
                         <i class="fa fa-circle"></i>
-                        <span>{{project.node.name}}</span>
-
-                        <ul ng-if="project.notebooks.length">
-                            <li ng-repeat="notebook in project.notebooks"
-                                ng-click="notebook.projectId = project.node.id; toggleExperiments(notebook, user.id); $event.stopPropagation();">
+                        <span>{{notebook.node.name}}</span>
+                        <ul ng-if="notebook.experiments.length">
+                            <li ng-click="$event.stopPropagation();">
                                 <i class="fa fa-circle"></i>
-                                <span>{{notebook.node.name}}</span>
-
+                                <span>Table</span>
                                 <ul ng-if="notebook.experiments.length">
-                                    <li ng-click="$event.stopPropagation();">
+                                    <li ng-repeat="experiment in notebook.experiments"
+                                        ng-click="onExperimentClick(experiment); $event.stopPropagation();">
                                         <i class="fa fa-circle"></i>
-                                        <span>Table</span>
-                                        <ul ng-if="notebook.experiments.length">
-                                            <li ng-repeat="experiment in notebook.experiments"
-                                                ng-click="onExperimentClick(experiment); $event.stopPropagation();">
-                                                <i class="fa fa-circle"></i>
-                                                <span>{{experiment.node.name}}</span>
-                                            </li>
-                                        </ul>
+                                        <span>{{experiment.node.name}}</span>
                                     </li>
                                 </ul>
                             </li>
