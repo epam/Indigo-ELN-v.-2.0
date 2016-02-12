@@ -14,12 +14,10 @@ import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -43,19 +41,31 @@ public class ProjectService {
     @Autowired
     private SequenceIdRepository sequenceIdRepository;
 
-    public Collection<ProjectDTO> getAllProjects(User user) {
-        Collection<Project> projects = projectRepository.findByUserId(user.getId());
-        return projects != null ? projects.stream().map(ProjectDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+    public List<TreeNodeDTO> getAllProjectsAsTreeNodes() {
+        return getAllProjectsAsTreeNodes(null);
     }
 
+    /**
+     * If user is null, then retrieve projects without checking for UserPermissions
+     * Otherwise, use checking for UserPermissions
+     */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
-        Collection<Project> projects = projectRepository.findByUserId(user.getId());
+        // if user is null, then get all projects
+        Collection<Project> projects = user == null ? projectRepository.findAll() :
+                projectRepository.findByUserId(user.getId());
         return projects.stream().
                 map(project -> new TreeNodeDTO(new ProjectDTO(project), hasNotebooks(project, user))).
                 collect(Collectors.toList());
     }
 
+    /**
+     * If user is null, then check only project's notebooks list for empty
+     * Otherwise, use checking for UserPermissions
+     */
     private boolean hasNotebooks(Project project, User user) {
+        if (user == null) {
+            return !project.getNotebooks().isEmpty();
+        }
         // Checking of userPermission for "Read Sub-Entity" possibility,
         // and that project has notebooks with UserPermission for specified User
         return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
