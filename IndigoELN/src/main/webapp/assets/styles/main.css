@@ -206,12 +206,15 @@
 .editable, .editable:hover {
     cursor: pointer !important;
     text-decoration: none;
+    color: #428bca;
+    border-bottom: dashed 1px #428bca;
 }
 
 .disabled, .disabled:hover {
     color: black;
     text-decoration: none;
     cursor: default !important;
+    border-bottom: none;
 }
 
 .main-container__content-page > .content.ng-enter {
