@@ -12,7 +12,6 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
-import com.epam.indigoeln.core.service.component.name.GenerateNameService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -52,9 +51,6 @@ public class ExperimentService {
     private SequenceIdRepository sequenceIdRepository;
 
     @Autowired
-    private GenerateNameService generateNameService;
-
-    @Autowired
     CustomDtoMapper dtoMapper;
 
 
@@ -62,9 +58,9 @@ public class ExperimentService {
         return experimentRepository.findAll();
     }
 
-    public Collection<ExperimentDTO> getAllExperiments(Long notebookId, User user) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(notebookId).
-                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId.toString()));
+    public Collection<ExperimentDTO> getAllExperiments(String notebookId, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
         if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
@@ -77,16 +73,16 @@ public class ExperimentService {
                     stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
-    public ExperimentDTO getExperiment(Long sequenceId, User user) {
-        Experiment experiment = experimentRepository.findOneBySequenceId(sequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(sequenceId.toString()));
+    public ExperimentDTO getExperiment(String id, User user) {
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(id)).
+                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
         // "Read Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(experiment.getId());
             if (notebook == null) {
-                throw EntityNotFoundException.createWithNotebookChildId(experiment.getSequenceId().toString());
+                throw EntityNotFoundException.createWithNotebookChildId(experiment.getId());
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
@@ -103,9 +99,9 @@ public class ExperimentService {
         return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
-    public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, Long notebookSequenceId, User user) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(notebookSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookSequenceId.toString()));
+    public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String notebookId, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
         // or must have CONTENT_EDITOR authority)
@@ -116,10 +112,7 @@ public class ExperimentService {
         }
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
-        // reset experiment's id
-        experiment.setId(null);
-        //generate name
-        experiment.setName(generateNameService.generateExperimentName(notebookSequenceId));
+
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
@@ -127,7 +120,7 @@ public class ExperimentService {
 
         experiment.setComponents(updateComponents(null, experiment.getComponents()));
         //increment sequence Id
-        experiment.setSequenceId(sequenceIdRepository.getNextExperimentId());
+        //experiment.setId(sequenceIdRepository.getNextExperimentId(projectId, notebookId));
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
@@ -136,8 +129,8 @@ public class ExperimentService {
     }
 
     public ExperimentDTO updateExperiment(ExperimentDTO experimentDTO, User user) {
-        Experiment experimentFromDB = experimentRepository.findOneBySequenceId(experimentDTO.getSequenceId()).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getSequenceId().toString()));
+        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(experimentDTO.getId())).
+                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
         // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
@@ -151,7 +144,7 @@ public class ExperimentService {
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
-                        "The current user doesn't have permissions to update experiment with id = " + experimentDTO.getSequenceId());
+                        "The current user doesn't have permissions to update experiment with id = " + experimentDTO.getId());
             }
         }
 
@@ -202,11 +195,11 @@ public class ExperimentService {
     }
 
 
-    public void deleteExperiment(Long sequenceId, Long notebookSequenceId) {
-        Experiment experiment = experimentRepository.findOneBySequenceId(sequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(sequenceId.toString()));
+    public void deleteExperiment(String id, String notebookId) {
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(id)).
+                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
-        Notebook notebook = notebookRepository.findOneBySequenceId(notebookSequenceId).
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookChildId(experiment.getId()));
 
         notebook.getExperiments().remove(experiment);

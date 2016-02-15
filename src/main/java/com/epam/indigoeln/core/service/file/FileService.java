@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 @Service
 public class FileService {
@@ -29,15 +30,15 @@ public class FileService {
     @Autowired
     ExperimentRepository experimentRepository;
 
-    public Page<GridFSDBFile> getAllFilesByProjectId(Long projectSequenceId, Pageable pageable) {
-        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+    public Page<GridFSDBFile> getAllFilesByProjectId(String projectId, Pageable pageable) {
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         return fileRepository.findAll(project.getFileIds(), pageable);
     }
 
-    public Page<GridFSDBFile> getAllFilesByExperimentId(Long experimentSequenceId, Pageable pageable) {
-        Experiment experiment = experimentRepository.findOneBySequenceId(experimentSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentSequenceId.toString()));
+    public Page<GridFSDBFile> getAllFilesByExperimentId(String experimentId, Pageable pageable) {
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
+                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
         return fileRepository.findAll(experiment.getFileIds(), pageable);
     }
 
@@ -49,10 +50,10 @@ public class FileService {
         return gridFSDBFile;
     }
 
-    public GridFSFile saveFileForProject(Long projectSequenceId, InputStream content,
+    public GridFSFile saveFileForProject(String projectId, InputStream content,
                                          String filename, String contentType, User user) {
-        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user);
         project.getFileIds().add(gridFSFile.getId().toString());
@@ -61,10 +62,10 @@ public class FileService {
         return gridFSFile;
     }
 
-    public GridFSFile saveFileForExperiment(Long experimentSequenceId, InputStream content,
+    public GridFSFile saveFileForExperiment(String experimentId, InputStream content,
                                             String filename, String contentType, User user) {
-        Experiment experiment = experimentRepository.findOneBySequenceId(experimentSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentSequenceId.toString()));
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
+                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
         GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user);
         experiment.getFileIds().add(gridFSFile.getId().toString());

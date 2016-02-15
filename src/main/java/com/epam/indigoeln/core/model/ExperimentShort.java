@@ -6,13 +6,13 @@ public class ExperimentShort extends BasicModelObject {
 
     private static final long serialVersionUID = 279335946658061099L;
 
-    private Long templateId;
+    private String templateId;
 
-    public Long getTemplateId() {
+    public String getTemplateId() {
         return templateId;
     }
 
-    public void setTemplateId(Long templateId) {
+    public void setTemplateId(String templateId) {
         this.templateId = templateId;
     }
 

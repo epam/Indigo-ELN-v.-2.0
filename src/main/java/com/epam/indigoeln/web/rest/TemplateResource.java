@@ -39,10 +39,10 @@ public class TemplateResource {
     /**
      * GET /templates/:id -> get template by id
      */
-    @RequestMapping(value = "/{sequenceId:[\\d]+}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable Long sequenceId) {
-        return templateService.getTemplateById(sequenceId)
+    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
+        return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -80,13 +80,13 @@ public class TemplateResource {
     public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
 
-        if (templateDTO.getSequenceId() != null) {
+        if (templateDTO.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createErrorAlert(
                     "A new template can't already have an ID", "template")).build();
         }
         TemplateDTO result = templateService.createTemplate(templateDTO);
-        return ResponseEntity.created(new URI("/api/templates/" + result.getSequenceId()))
-                .headers(HeaderUtil.createEntityCreateAlert("template", result.getSequenceId().toString()))
+        return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreateAlert("template", result.getId()))
                 .body(result);
     }
 
@@ -109,11 +109,11 @@ public class TemplateResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
-        if(!templateService.getTemplateById(template.getSequenceId()).isPresent()){
+        if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getSequenceId().toString()))
+                .headers(HeaderUtil.createEntityUpdateAlert("template", template.getId()))
                 .body(templateService.updateTemplate(template));
     }
 
@@ -126,19 +126,19 @@ public class TemplateResource {
      * Template will not be deleted if any Experiments assigned on it
      * </p>
      *
-     * @param sequenceId id of template
+     * @param id id of template
      * @return operation status Response Entity
      */
-    @RequestMapping(value = "/{sequenceId:[\\d]+}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteTemplate(@PathVariable Long sequenceId) {
+    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
         //do not delete template if  experiments assigned
-        if(experimentRepository.countByTemplateId(sequenceId) > 0){
-            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, sequenceId);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createErrorAlert(message, sequenceId.toString())).
+        if(experimentRepository.countByTemplateId(id) > 0){
+            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, id);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createErrorAlert(message, id)).
                     build();
         }
-        templateService.deleteTemplate(sequenceId);
+        templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
-                HeaderUtil.createEntityDeleteAlert("template", sequenceId.toString())).build();
+                HeaderUtil.createEntityDeleteAlert("template", id)).build();
     }
 }
