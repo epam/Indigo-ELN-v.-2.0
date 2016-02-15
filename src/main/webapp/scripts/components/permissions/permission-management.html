@@ -5,48 +5,46 @@
         <h2 class="modal-title">Manage Permissions</h2>
     </div>
     <div class="modal-body">
-        <p>Select a User to manage permissions</p>
-        <ui-select ng-model="selectedMember.value" on-select="addMember($item)">
-            <ui-select-match placeholder="">
-                <span ng-bind="$select.selectedMember.login"></span>
-            </ui-select-match>
-            <ui-select-choices repeat="item in (users | filter: $select.search) track by item.id">
-                <span ng-bind="item.login"></span>
-            </ui-select-choices>
-        </ui-select>
-
-        <br>
-        <div class="table-responsive">
-        <table class="table table-hover">
+        <div class="form-horizontal">
+            <my-select my-label="Select a User to manage permissions"
+                       my-label-vertical="true"
+                       my-model="selectedMembers"
+                       my-items="users"
+                       my-item-prop="login"
+                       my-multiple="true"
+            ></my-select>
+        </div>
+    </div>
+    <table class="table table-striped table-hover">
         <thead>
-            <tr>
-                <th width="30%">Member</th>
-                <th>Permission</th>
-                <th width="20%">Action</th>
-            </tr>
+        <tr>
+            <th width="30%">Member</th>
+            <th>Permission</th>
+            <th width="20%">Action</th>
+        </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="member in accessList">
-                <td>{{ member.user.lastName + ' ' + member.user.firstName + ' (' + member.user.login + ')' }}</td>
-                <td>
-                    <div>
-                        <a ng-class="{disabled: isAuthor(member)}" e-form="perm" ng-click="show(perm, member)"
-                           editable-select="member.permissions" e-ng-options="p.id as p.name for p in permissions">
+        <tr ng-repeat="member in accessList">
+            <td>{{ member.user.lastName + ' ' + member.user.firstName + ' (' + member.user.login + ')' }}
+            </td>
+            <td>
+                <div>
+                    <a ng-class="{disabled: isAuthor(member)}" e-form="perm" ng-click="show(perm, member)"
+                       editable-select="member.permissions"
+                       e-ng-options="p.id as p.name for p in permissions">
                         {{ member.permissions }}
-                        </a>
-                    </div>
-                </td>
-                <td nowrap>
-                    <button ng-disabled="isAuthor(member)" type="button" class="btn btn-warning btn-xs" ng-click="removeMember(member)">
-                        <span class="glyphicon glyphicon-ban-circle"></span> Stop sharing
-                    </button>
-                </td>
-            </tr>
+                    </a>
+                </div>
+            </td>
+            <td nowrap>
+                <button ng-disabled="isAuthor(member)" type="button" class="btn btn-warning btn-xs"
+                        ng-click="removeMember(member)">
+                    <span class="glyphicon glyphicon-ban-circle"></span> Stop sharing
+                </button>
+            </td>
+        </tr>
         </tbody>
-        </table>
-        </div>
-
-    </div>
+    </table>
     <div class="modal-footer">
         <button type="submit" ng-disabled="permissionsForm.$invalid" class="btn btn-info" ng-click="ok()">
             <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Ok</span>

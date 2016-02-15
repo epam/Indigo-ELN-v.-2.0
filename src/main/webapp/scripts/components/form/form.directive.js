@@ -98,20 +98,37 @@ angular.module('indigoeln')
         replace: true,
         scope: {
             myLabel: '@',
-            myName: '@',
             myModel: '=',
             myItems: '=',
             myMultiple: '=',
-            myLabelVertical: '='
+            myLabelVertical: '=',
+            myPlaceHolder: '@',
+            myItemProp: '@'
+        },
+        controller: function ($scope) {
+            $scope.ctrl = {selected: $scope.myModel};
+            $scope.$watchCollection('ctrl.selected', function (newSelected) {
+                $scope.myModel = newSelected;
+            });
         },
         compile: function (tElement, tAttrs, transclude) {
-            tElement.find('select').prop("multiple", tAttrs.myMultiple);
+            tAttrs.myItemProp = tAttrs.myItemProp || 'name';
+            if (tAttrs.myMultiple) {
+                tElement.find('ui-select').attr("multiple", true);
+                tElement.find('ui-select-match').html('{{$item.' + tAttrs.myItemProp + '}}');
+            }
             formUtils.doVertical(tAttrs, tElement);
+            tElement.find('ui-select-choices').append('<span ng-bind-html="item.' + tAttrs.myItemProp +
+                ' | highlight: $select.search"></span>')
         },
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item.name for item in myItems track by item.name" ></select>' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled">' +
+        '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
+        '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
+        '</ui-select-choices>' +
+        '</ui-select>' +
         '</div>' +
         '</div>'
     };

@@ -9,7 +9,9 @@
                     <my-input my-label="Concept Subject / Title" my-label-vertical="true"
                               my-model="model.conceptDetails.title"></my-input>
                     <my-select my-label="Therapeutic Area"
-                               my-items="[{name:'fake item'}]" my-model="model.conceptDetails.therapeuticArea"
+                               my-items="[{name:'test1'},{name:'test2'}]"
+                               my-model="model.conceptDetails.therapeuticArea"
+                               my-multiple="true"
                                my-label-vertical="true"></my-select>
                     <my-select my-label="Project Code & Name"
                                my-items="[{name:'fake item'}]" my-model="model.conceptDetails.codeAndName"
@@ -18,6 +20,8 @@
                               my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
                               my-readonly="true"></my-input>
                     <my-input my-label="Co-authors" my-label-vertical="true"></my-input>
+                    <my-select my-label="Experiment creator" my-label-vertical="true"
+                    ></my-select>
                 </div>
                 <div class="col-xs-4">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
