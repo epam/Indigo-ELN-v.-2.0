@@ -7,14 +7,14 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.core.service.component.name.GenerateNameService;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -74,8 +74,7 @@ public class ExperimentService {
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
         if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
-            throw new AccessDeniedException("The current user doesn't have permissions to read " +
-                    "experiments of notebook with id = " + notebook.getId());
+            throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
         }
 
         return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
@@ -96,8 +95,7 @@ public class ExperimentService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     experiment.getAccessList(), UserPermission.READ_ENTITY)) {
-                throw new AccessDeniedException("The current user doesn't have permissions " +
-                        "to read experiment with id = " + experiment.getId());
+                throw OperationDeniedException.createExperimentReadOperation(experiment.getId());
             }
         }
         return new ExperimentDTO(experiment);
@@ -115,8 +113,7 @@ public class ExperimentService {
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.CREATE_SUB_ENTITY)) {
-            throw new AccessDeniedException(
-                    "The current user doesn't have permissions to create experiment");
+            throw OperationDeniedException.createNotebookSubEntityCreateOperation(notebook.getId());
         }
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
@@ -154,8 +151,7 @@ public class ExperimentService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                throw new AccessDeniedException(
-                        "The current user doesn't have permissions to update experiment with id = " + experimentDTO.getSequenceId());
+                throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
             }
         }
 

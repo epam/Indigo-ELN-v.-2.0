@@ -4,8 +4,8 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
-import com.epam.indigoeln.core.service.PermissionIncorrectException;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 
 import java.util.Set;
 
