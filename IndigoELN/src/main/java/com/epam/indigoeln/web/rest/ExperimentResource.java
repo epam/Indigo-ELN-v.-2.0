@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequestMapping(ExperimentResource.URL_MAPPING)
 public class ExperimentResource {
 
-    static final String URL_MAPPING = "/api/notebooks/{notebookSequenceId:[\\d]+}/experiments";
+    static final String URL_MAPPING = "/api/notebooks/{notebookId:[\\d]+}/experiments";
     private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
     private static final String ENTITY_NAME = "Experiment";
 
@@ -46,20 +46,20 @@ public class ExperimentResource {
     @RequestMapping(method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperiments(
-            @PathVariable Long notebookSequenceId,
+            @PathVariable String notebookId,
             @RequestParam(required = false) String userId) {
         User user = userService.getUserWithAuthorities();
-        if (notebookSequenceId == null) {
+        if (notebookId == null) {
             log.debug("REST request to get all experiments, which author is current user");
             Collection<ExperimentDTO> experiments = experimentService.getExperimentsByAuthor(user);
             return ResponseEntity.ok(experiments); //TODO May be use DTO only with required fields for Experiment?
         } else {
-            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookSequenceId, userId);
+            log.debug("REST request to get all experiments of notebook: {} for user: {}", notebookId, userId);
             if (userId != null && !user.getId().equals(userId)) {
                 // change executing user
                 user = userService.getUserWithAuthorities(userId);
             }
-            Collection<ExperimentDTO> experiments = experimentService.getAllExperiments(notebookSequenceId, user);
+            Collection<ExperimentDTO> experiments = experimentService.getAllExperiments(notebookId, user);
             List<TreeNodeDTO> result = experiments.stream().map(TreeNodeDTO::new).collect(Collectors.toList());
             return ResponseEntity.ok(result);
         }
@@ -71,11 +71,11 @@ public class ExperimentResource {
     @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
-            @PathVariable Long notebookSequenceId,
-            @PathVariable Long sequenceId) {
-        log.debug("REST request to get experiment: {}", sequenceId);
+            @PathVariable String notebookId,
+            @PathVariable String id) {
+        log.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
-        return ResponseEntity.ok(experimentService.getExperiment(sequenceId, user));
+        return ResponseEntity.ok(experimentService.getExperiment(id, user));
     }
 
     /**
@@ -87,13 +87,13 @@ public class ExperimentResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody  ExperimentDTO experimentDTO,
-                                                          @PathVariable Long notebookSequenceId)
+                                                          @PathVariable String notebookId)
             throws URISyntaxException {
-        log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookSequenceId);
+        log.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
-        experimentDTO = experimentService.createExperiment(experimentDTO, notebookSequenceId, user);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, experimentDTO.getSequenceId().toString());
-        return ResponseEntity.created(new URI("/api/notebooks/" + notebookSequenceId + "/experiments" + experimentDTO.getSequenceId()))
+        experimentDTO = experimentService.createExperiment(experimentDTO, notebookId, user);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, experimentDTO.getId());
+        return ResponseEntity.created(new URI("/api/notebooks/" + notebookId + "/experiments" + experimentDTO.getId()))
                 .headers(headers).body(experimentDTO);
     }
 
@@ -105,11 +105,11 @@ public class ExperimentResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody  ExperimentDTO experimentDTO,
-                                                          @PathVariable Long notebookSequenceId) {
+                                                          @PathVariable String notebookId) {
         log.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
         experimentDTO = experimentService.updateExperiment(experimentDTO, user);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, experimentDTO.getSequenceId().toString());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, experimentDTO.getId());
         return ResponseEntity.ok().headers(headers).body(experimentDTO);
     }
 
@@ -117,10 +117,10 @@ public class ExperimentResource {
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
     @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteExperiment(@PathVariable Long sequenceId, @PathVariable Long notebookSequenceId) {
-        log.debug("REST request to remove experiment: {}", sequenceId);
-        experimentService.deleteExperiment(sequenceId, notebookSequenceId);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, sequenceId.toString());
+    public ResponseEntity<?> deleteExperiment(@PathVariable String id, @PathVariable String notebookId) {
+        log.debug("REST request to remove experiment: {}", id);
+        experimentService.deleteExperiment(id, notebookId);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();
     }
 }

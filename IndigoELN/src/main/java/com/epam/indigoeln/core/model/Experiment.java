@@ -90,7 +90,6 @@ public class Experiment extends ExperimentShort {
         this.fileIds = fileIds;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

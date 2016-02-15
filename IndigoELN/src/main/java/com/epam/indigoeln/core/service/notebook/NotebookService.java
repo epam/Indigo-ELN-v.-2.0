@@ -7,10 +7,10 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,21 +38,21 @@ public class NotebookService {
     private UserRepository userRepository;
 
     @Autowired
-    private SequenceIdRepository sequenceIdRepository;
+    private SequenceIdService sequenceIdService;
 
     @Autowired
     private CustomDtoMapper dtoMapper;
 
-    public List<TreeNodeDTO> getAllNotebookTreeNodes(Long projectSequenceId, User user) {
-        Collection<Notebook> notebooks = getAllNotebooks(projectSequenceId, user);
+    public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
+        Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
         return notebooks.stream().
                 map(notebook -> new TreeNodeDTO(new NotebookDTO(notebook), hasExperiments(notebook, user))).
                 collect(Collectors.toList());
     }
 
-    public Collection<Notebook> getAllNotebooks(Long  projectSequenceId, User user) {
-        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+    public Collection<Notebook> getAllNotebooks(String  projectId, User user) {
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
         if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
@@ -77,9 +78,9 @@ public class NotebookService {
     }
 
 
-    public NotebookDTO getNotebookById(Long sequenceId, User user) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(sequenceId.toString()));
+    public NotebookDTO getNotebookById(String id, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(id)).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
         // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
@@ -100,9 +101,9 @@ public class NotebookService {
         return new NotebookDTO(notebook);
     }
 
-    public NotebookDTO createNotebook(NotebookDTO notebookDTO, Long projectSequenceId, User user) {
-        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+    public NotebookDTO createNotebook(NotebookDTO notebookDTO, String projectId, User user) {
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
         // or must have CONTENT_EDITOR authority)
@@ -115,14 +116,14 @@ public class NotebookService {
         Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
 
         // reset notebook's id
-        notebook.setId(null);
+        notebook.setId(sequenceIdService.getNextNotebookId(projectId));
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
         //set notebook sequence #
-        notebook.setSequenceId(sequenceIdRepository.getNextNotebookId());
+//        notebook.setSequenceId(sequenceIdService.getNextNotebookId());
 
         notebook = notebookRepository.save(notebook);
 
@@ -133,8 +134,8 @@ public class NotebookService {
     }
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, User user) {
-        Notebook notebookFromDB = notebookRepository.findOneBySequenceId(notebookDTO.getSequenceId()).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getSequenceId().toString()));
+        Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(notebookDTO.getId())).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
         // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
@@ -148,7 +149,7 @@ public class NotebookService {
                     project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw new AccessDeniedException(
-                        "The current user doesn't have permissions to update notebook with id = " + notebookDTO.getSequenceId());
+                        "The current user doesn't have permissions to update notebook with id = " + notebookDTO.getId());
             }
         }
 
@@ -160,9 +161,9 @@ public class NotebookService {
         return new NotebookDTO(notebookRepository.save(notebookFromDB));
     }
 
-    public void deleteNotebook(Long sequenceId) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).orElseThrow(
-                () -> EntityNotFoundException.createWithNotebookId(sequenceId.toString()));
+    public void deleteNotebook(String id) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(id)).orElseThrow(
+                () -> EntityNotFoundException.createWithNotebookId(id));
 
         if(notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
             throw new ChildReferenceException(notebook.getId());

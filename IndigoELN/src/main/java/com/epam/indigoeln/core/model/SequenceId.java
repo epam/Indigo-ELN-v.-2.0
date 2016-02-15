@@ -2,9 +2,11 @@ package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Document(collection = SequenceId.COLLECTION_NAME)
 public class SequenceId implements Serializable {
@@ -13,44 +15,57 @@ public class SequenceId implements Serializable {
     private static final long serialVersionUID = 2661973943428932165L;
 
     @Id
-    private String id;
-    private Long seq;
+    private Long id;
 
-    public String getId() {
-        return id;
+    @Version
+    private Long version;
+
+    List<SequenceId> children;
+
+
+    public SequenceId() {
     }
 
-    public Long getSeq() {
-        return seq;
-    }
-
-    public void setId(String id) {
+    public SequenceId(Long id) {
         this.id = id;
     }
 
-    public void setSeq(Long seq) {
-        this.seq = seq;
+    public Long getId() {
+        return id;
     }
+
+    public List<SequenceId> getChildren() {
+        return children;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setChildren(List<SequenceId> children) {
+        this.children = children;
+    }
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof SequenceId)) return false;
         SequenceId that = (SequenceId) o;
         return  Objects.equal(id, that.id) &&
-                Objects.equal(seq, that.seq);
+                Objects.equal(children, that.children);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, seq);
+        return Objects.hashCode(id, children);
     }
 
     @Override
     public String toString() {
         return "SequenceId{" +
                 "id='" + id + '\'' +
-                ", seq=" + seq +
+                ", children=" + children +
                 '}';
     }
 }

@@ -9,7 +9,4 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
 
     Optional<Template> findOneByName(String name);
 
-    Optional<Template> findOneBySequenceId(Long sequenceId);
-
-    void deleteBySequenceId(Long sequenceId);
 }

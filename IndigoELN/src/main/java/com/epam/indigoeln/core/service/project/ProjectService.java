@@ -6,10 +6,10 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.ChildReferenceException;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -41,7 +41,7 @@ public class ProjectService {
     private CustomDtoMapper mapper;
 
     @Autowired
-    private SequenceIdRepository sequenceIdRepository;
+    private SequenceIdService sequenceIdService;
 
     public Collection<ProjectDTO> getAllProjects(User user) {
         Collection<Project> projects = projectRepository.findByUserId(user.getId());
@@ -70,42 +70,43 @@ public class ProjectService {
 
     }
 
-    public ProjectDTO getProjectById(Long projectSequenceId, User user) {
-        Optional<Project> projectOpt = projectRepository.findOneBySequenceId(projectSequenceId);
-        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+    public ProjectDTO getProjectById(String id, User user) {
+        Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
+        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
             throw new AccessDeniedException(
-                    "The current user doesn't have permissions to read project with id = " + projectSequenceId);
+                    "The current user doesn't have permissions to read project with id = " + id);
         }
         return new ProjectDTO(project);
     }
 
-    public ProjectDTO createProject(ProjectDTO project, User user) {
+    public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
-        // add OWNER's permissions to project
-        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user);
-        // reset project's id
-        project.setSequenceId(sequenceIdRepository.getNextProjectId());
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, projectDTO.getAccessList());
+        // add OWNER's permissions to projectDTO
+        PermissionUtil.addOwnerToAccessList(projectDTO.getAccessList(), user);
+        // reset projectDTO's id
+        Project projectForSave = mapper.convertFromDTO(projectDTO);
+        projectForSave.setId(sequenceIdService.getNextProjectId());
 
-        Project saved = projectRepository.save(mapper.convertFromDTO(project));
+        Project saved = projectRepository.save(projectForSave);
         return new ProjectDTO(saved);
     }
 
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
-        Optional<Project> projectOpt =  projectRepository.findOneBySequenceId(projectDTO.getSequenceId());
-        Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getSequenceId().toString()));
+        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(projectDTO.getId()));
+        Project projectFromDb = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectDTO.getId()));
 
         // check of EntityAccess (User must have "Update Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
             throw new AccessDeniedException(
-                    "The current user doesn't have permissions to edit project with id = " + projectDTO.getSequenceId());
+                    "The current user doesn't have permissions to edit project with id = " + projectDTO.getId());
         }
 
         // check of user permissions's correctness in access control list
@@ -123,12 +124,12 @@ public class ProjectService {
         return new ProjectDTO(savedProject);
     }
 
-    public void deleteProject(Long sequenceId) {
-        Optional<Project> projectOpt =  projectRepository.findOneBySequenceId(sequenceId);
-        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(sequenceId.toString()));
+    public void deleteProject(String id) {
+        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(id));
+        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
         if (project.getNotebooks() != null && !project.getNotebooks().isEmpty()) {
-            throw new ChildReferenceException(project.getSequenceId().toString());
+            throw new ChildReferenceException(project.getId());
         }
 
         fileRepository.delete(project.getFileIds());

@@ -54,7 +54,7 @@ public class ExperimentFileResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam Long experimentId,
+    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam String experimentId,
                                                      Pageable pageable)
             throws URISyntaxException {
         log.debug("REST request to get files's metadata for experiment: {}", experimentId);
@@ -85,7 +85,7 @@ public class ExperimentFileResource {
      */
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam Long experimentId)
+    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String experimentId)
             throws URISyntaxException, IOException {
         log.debug("REST request to save file for experiment: {}", experimentId);
         User user = userService.getUserWithAuthorities();

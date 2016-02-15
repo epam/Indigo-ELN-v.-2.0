@@ -16,8 +16,6 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 
-import javax.validation.constraints.NotNull;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -29,9 +27,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Id
     private String id;
-
-    @NotNull
-    private Long sequenceId;
 
     @NotEmpty
     private String name;
@@ -56,10 +51,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     public String getId() {
         return id;
-    }
-
-    public Long getSequenceId() {
-        return sequenceId;
     }
 
     public String getName() {
@@ -89,11 +80,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     public void setId(String id) {
         this.id = id;
     }
-
-    public void setSequenceId(Long sequenceId) {
-        this.sequenceId = sequenceId;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -124,20 +110,18 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         if (!(o instanceof BasicModelObject)) return false;
         BasicModelObject that = (BasicModelObject) o;
         return  Objects.equal(id, that.id) &&
-                Objects.equal(sequenceId, that.sequenceId) &&
                 Objects.equal(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, sequenceId, name);
+        return Objects.hashCode(id, name);
     }
 
     @Override
     public String toString() {
         return "BasicModelObject{" +
                 "id='" + id + '\'' +
-                ", sequenceId=" + sequenceId +
                 ", name='" + name + '\'' +
                 '}';
     }
@@ -145,5 +129,11 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @Override
     public boolean isNew() {
         return getId() == null;
+    }
+
+    public String getShortId() {
+        if(id == null) return null;
+        String[] split = id.split("-");
+        return split[split.length - 1];
     }
 }

@@ -18,8 +18,7 @@ public abstract class BasicDTO implements Serializable {
 
     private static final long serialVersionUID = -2304109712431441621L;
 
-    @JsonProperty("id")
-    private Long sequenceId;
+    private String id;
 
     @NotEmpty
     private String name;
@@ -41,7 +40,7 @@ public abstract class BasicDTO implements Serializable {
     }
 
     protected BasicDTO(BasicModelObject modelObject) {
-        this.sequenceId = modelObject.getSequenceId();
+        this.id = modelObject.getShortId();
         this.name = modelObject.getName();
         this.accessList = modelObject.getAccessList();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
@@ -50,8 +49,8 @@ public abstract class BasicDTO implements Serializable {
         this.creationDate = modelObject.getCreationDate();
     }
 
-    public Long getSequenceId() {
-        return sequenceId;
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -78,10 +77,6 @@ public abstract class BasicDTO implements Serializable {
         return creationDate;
     }
 
-    public void setSequenceId(Long sequenceId) {
-        this.sequenceId = sequenceId;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -93,7 +88,7 @@ public abstract class BasicDTO implements Serializable {
     @Override
     public String toString() {
         return "BasicDTO{" +
-                "sequenceId=" + sequenceId +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 '}';
     }

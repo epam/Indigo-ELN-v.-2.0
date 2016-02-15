@@ -2,7 +2,6 @@ package com.epam.indigoeln.core.service.template;
 
 import java.util.Optional;
 
-import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.service.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,13 +23,10 @@ public class TemplateService {
     private TemplateRepository templateRepository;
 
     @Autowired
-    private SequenceIdRepository sequenceIdRepository;
-
-    @Autowired
     private CustomDtoMapper dtoMapper;
 
-    public Optional<TemplateDTO> getTemplateById(Long sequenceId) {
-        return templateRepository.findOneBySequenceId(sequenceId).map(TemplateDTO::new);
+    public Optional<TemplateDTO> getTemplateById(String id) {
+        return Optional.ofNullable(templateRepository.findOne(id)).map(TemplateDTO::new);
     }
 
     public Optional<TemplateDTO> getTemplateByName(String name) {
@@ -43,14 +39,13 @@ public class TemplateService {
 
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
         Template template = dtoMapper.convertFromDTO(templateDTO);
-        template.setSequenceId(sequenceIdRepository.getNextTemplateId());
         Template savedTemplate = templateRepository.save(template);
         return new TemplateDTO(savedTemplate);
     }
 
     public TemplateDTO updateTemplate(TemplateDTO templateDTO) {
-        Template template = templateRepository.findOneBySequenceId(templateDTO.getSequenceId()).
-                orElseThrow(() -> new EntityNotFoundException("Template with id does not exists", templateDTO.getSequenceId().toString()));
+        Template template = Optional.ofNullable(templateRepository.findOne(templateDTO.getId())).
+                orElseThrow(() -> new EntityNotFoundException("Template with id does not exists", templateDTO.getId()));
 
         template.setName(templateDTO.getName());
         template.setTemplateContent(templateDTO.getTemplateContent());
@@ -58,8 +53,8 @@ public class TemplateService {
         return new TemplateDTO(savedTemplate);
     }
 
-    public void deleteTemplate(Long sequenceId) {
-        templateRepository.deleteBySequenceId(sequenceId);
+    public void deleteTemplate(String templateId) {
+        templateRepository.delete(templateId);
     }
 
 }
