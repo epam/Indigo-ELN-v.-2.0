@@ -1,7 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Role;
-import com.epam.indigoeln.core.service.AlreadyInUseException;
+import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.role.RoleService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
