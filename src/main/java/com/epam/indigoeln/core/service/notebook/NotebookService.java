@@ -5,14 +5,14 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.ChildReferenceException;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.ChildReferenceException;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -63,8 +63,7 @@ public class NotebookService {
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
         if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
-            throw new AccessDeniedException("The current user doesn't have permissions to read " +
-                    "notebooks of project with id = " + project.getId());
+            throw OperationDeniedException.createProjectSubEntitiesReadOperation(project.getId());
         }
 
         return getNotebooksWithAccess(project.getNotebooks(), user.getId());
@@ -106,8 +105,7 @@ public class NotebookService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     project.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
-                throw new AccessDeniedException("The current user doesn't have permissions " +
-                        "to read notebook with id = " + notebook.getId());
+                throw OperationDeniedException.createNotebookReadOperation(notebook.getId());
             }
         }
 
@@ -122,8 +120,7 @@ public class NotebookService {
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                     UserPermission.CREATE_SUB_ENTITY)) {
-            throw new AccessDeniedException(
-                    "The current user doesn't have permissions to create notebook");
+            throw OperationDeniedException.createProjectSubEntityCreateOperation(project.getId());
         }
 
         Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
@@ -161,8 +158,7 @@ public class NotebookService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                throw new AccessDeniedException(
-                        "The current user doesn't have permissions to update notebook with id = " + notebookDTO.getSequenceId());
+                throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
             }
         }
 

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service;
+package com.epam.indigoeln.core.service.exception;
 
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
