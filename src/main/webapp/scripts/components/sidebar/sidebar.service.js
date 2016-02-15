@@ -7,15 +7,14 @@ angular.module('indigoeln')
         });
     })
     .factory('AllNotebooks', function ($resource) {
-        return $resource('api/notebooks/all:id', {}, {
+        return $resource('api/notebooks/all', {}, {
             'query': {method: 'GET', isArray: true}
         });
     })
     .factory('AllExperiments', function ($resource) {
         return $resource('api/notebooks/:notebookId/experiments/all',
             {
-                notebookId: '@notebookId',
-                experimentId: '@experimentId'
+                notebookId: '@notebookId'
             }, {
                 'query': {method: 'GET', isArray: true}
             });
