@@ -3,10 +3,17 @@
 angular.module('indigoeln')
     .controller('PermissionManagementController', function ($scope, $uibModalInstance, PermissionManagement, users, permissions) {
         $scope.users = users;
-        $scope.selectedMember = { value: {} };
         $scope.permissions = permissions;
         $scope.author = PermissionManagement.getAuthor();
         $scope.accessList = PermissionManagement.getAccessList();
+        $scope.$watchCollection('selectedMembers', function (items) {
+            _.each(items, $scope.addMember);
+            var memberIds = _.pluck(items, 'id');
+            $scope.accessList = _.filter($scope.accessList, function (member) {
+                return _.contains(memberIds, member.user.id) || $scope.isAuthor(member);
+            });
+
+        });
 
         $scope.addMember = function(member) {
             var members = _.pluck($scope.accessList, 'user');
