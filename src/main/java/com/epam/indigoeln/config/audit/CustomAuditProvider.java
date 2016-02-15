@@ -1,7 +1,7 @@
 package com.epam.indigoeln.config.audit;
 
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;

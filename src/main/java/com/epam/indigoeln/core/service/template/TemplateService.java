@@ -1,18 +1,17 @@
 package com.epam.indigoeln.core.service.template;
 
-import java.util.Optional;
-
+import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.repository.template.TemplateRepository;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.web.rest.dto.TemplateDTO;
+import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.epam.indigoeln.core.repository.template.TemplateRepository;
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
-import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import java.util.Optional;
 
 /**
  * Service class for managing Templates

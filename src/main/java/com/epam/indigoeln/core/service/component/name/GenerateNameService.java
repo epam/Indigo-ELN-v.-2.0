@@ -1,5 +1,15 @@
 package com.epam.indigoeln.core.service.component.name;
 
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.util.ComponentsUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.text.DecimalFormat;
 import java.text.Format;
 import java.util.Collections;
@@ -8,17 +18,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
-
-import com.epam.indigoeln.core.service.util.ComponentsUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Service
 public class GenerateNameService {
