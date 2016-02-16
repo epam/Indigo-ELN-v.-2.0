@@ -2,15 +2,11 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.UserPermission;
-import com.epam.indigoeln.core.util.LocalDateDeserializer;
-import com.epam.indigoeln.core.util.LocalDateSerializer;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,13 +24,9 @@ public abstract class BasicDTO implements Serializable {
     private UserDTO   author;
     private UserDTO   lastModifiedBy;
 
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate lastEditDate;
+    private ZonedDateTime lastEditDate;
 
-    @JsonSerialize(using = LocalDateSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
-    private LocalDate creationDate;
+    private ZonedDateTime creationDate;
 
     public BasicDTO() {
     }
@@ -69,11 +61,11 @@ public abstract class BasicDTO implements Serializable {
         return lastModifiedBy;
     }
 
-    public LocalDate getLastEditDate() {
+    public ZonedDateTime getLastEditDate() {
         return lastEditDate;
     }
 
-    public LocalDate getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 

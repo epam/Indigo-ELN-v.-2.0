@@ -2,7 +2,7 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AlertService) {
+    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -10,6 +10,7 @@ angular
         $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
             $scope.TEMPLATE_EDITOR].join(',');
         $scope.myBookmarks = {};
+        $scope.allProjects = {};
         $scope.$on('project-created', function(event, data) {
             if ($scope.projects) {
                 Project.query(function (result) {
@@ -55,23 +56,10 @@ angular
             }
         });
 
-        $scope.toggleUsers = function () {
-            if (!$scope.users) {
-                User.query({
-                    page: 0,
-                    size: 1000,
-                    sort: ['lastName', 'firstName']
-                }, function (result) {
-                    $scope.users = result;
-                });
-            } else {
-                $scope.users = null;
-            }
-        };
-
-        $scope.toggleProjects = function (parent) {
+        $scope.toggleProjects = function (parent, needAll) {
             if (!parent.projects) {
-                Project.query({userId: parent.id}, function (result) {
+                var agent = needAll ? AllProjects : Project;
+                agent.query({}, function (result) {
                     parent.projects = result;
                 });
             } else {
@@ -79,10 +67,11 @@ angular
             }
         };
 
-        $scope.toggleNotebooks = function (project, userId) {
+        $scope.toggleNotebooks = function (project, needAll) {
             $state.go('project', {id: project.node.id});
             if (!project.notebooks) {
-                Notebook.query({projectId: project.node.id, userId: userId}, function (result) {
+                var agent = needAll ? AllNotebooks : Notebook;
+                agent.query({projectId: project.node.id}, function (result) {
                     project.notebooks = result;
                 });
             } else {
@@ -90,10 +79,11 @@ angular
             }
         };
 
-        $scope.toggleExperiments = function (notebook, userId) {
+        $scope.toggleExperiments = function (notebook, needAll) {
             $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
             if (!notebook.experiments) {
-                Experiment.query({notebookId: notebook.node.id, userId: userId}, function (result) {
+                var agent = needAll ? AllExperiments : Experiment;
+                agent.query({notebookId: notebook.node.id}, function (result) {
                     notebook.experiments = result;
                 });
             } else {

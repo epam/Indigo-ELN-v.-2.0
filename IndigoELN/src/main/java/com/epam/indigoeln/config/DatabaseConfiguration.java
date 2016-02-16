@@ -1,5 +1,6 @@
 package com.epam.indigoeln.config;
 
+import com.epam.indigoeln.core.util.JSR310DateConverters.*;
 import com.mongodb.Mongo;
 import org.mongeez.Mongeez;
 import org.slf4j.Logger;
@@ -10,12 +11,17 @@ import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.core.convert.CustomConversions;
 import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableMongoAuditing
@@ -60,5 +66,17 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
         mongeez.setDbName(mongoProperties.getDatabase());
         mongeez.process();
         return mongeez;
+    }
+
+    @Bean
+    public CustomConversions customConversions() {
+        List<Converter<?, ?>> converters = new ArrayList<>();
+        converters.add(DateToZonedDateTimeConverter.INSTANCE);
+        converters.add(ZonedDateTimeToDateConverter.INSTANCE);
+        converters.add(DateToLocalDateConverter.INSTANCE);
+        converters.add(LocalDateToDateConverter.INSTANCE);
+        converters.add(DateToLocalDateTimeConverter.INSTANCE);
+        converters.add(LocalDateTimeToDateConverter.INSTANCE);
+        return new CustomConversions(converters);
     }
 }

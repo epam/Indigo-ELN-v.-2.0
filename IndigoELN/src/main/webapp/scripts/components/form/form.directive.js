@@ -98,20 +98,37 @@ angular.module('indigoeln')
         replace: true,
         scope: {
             myLabel: '@',
-            myName: '@',
             myModel: '=',
             myItems: '=',
             myMultiple: '=',
-            myLabelVertical: '='
+            myLabelVertical: '=',
+            myPlaceHolder: '@',
+            myItemProp: '@'
+        },
+        controller: function ($scope) {
+            $scope.ctrl = {selected: $scope.myModel};
+            $scope.$watchCollection('ctrl.selected', function (newSelected) {
+                $scope.myModel = newSelected;
+            });
         },
         compile: function (tElement, tAttrs, transclude) {
-            tElement.find('select').prop("multiple", tAttrs.myMultiple);
+            tAttrs.myItemProp = tAttrs.myItemProp || 'name';
+            if (tAttrs.myMultiple) {
+                tElement.find('ui-select').attr("multiple", true);
+                tElement.find('ui-select-match').html('{{$item.' + tAttrs.myItemProp + '}}');
+            }
             formUtils.doVertical(tAttrs, tElement);
+            tElement.find('ui-select-choices').append('<span ng-bind-html="item.' + tAttrs.myItemProp +
+                ' | highlight: $select.search"></span>')
         },
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<select class="form-control" name="{{myName}}" ng-model="myModel" ng-options="item.name for item in myItems track by item.name" ></select>' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled">' +
+        '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
+        '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
+        '</ui-select-choices>' +
+        '</ui-select>' +
         '</div>' +
         '</div>'
     };
@@ -204,14 +221,34 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<div class="input-group">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="yyyy/MM/dd" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="myTzAbbr" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
         '<span class="input-group-btn">' +
-        '<button type="button" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
+        '<button type="button" ng-disabled="myReadonly" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
         '<div ng-show="myValidationObj.$invalid">' +
         '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field cannot be longer than {{myValidationMaxlength}} characters.</p>' +
         '</div>' +
         '</div>' +
+        '</div>' +
+        '</div>'
+    };
+}).directive('myTagInput', function (formUtils) {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myLabel: '@',
+            myLabelVertical: '=',
+            myModel: '=',
+            myReadonly: '='
+        },
+        compile: function (tElement, tAttrs, transclude) {
+            formUtils.doVertical(tAttrs, tElement);
+        },
+        template: '<div class="form-group">' +
+        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+        '<div class="col-xs-10">' +
+        ' <tags-input ng-model="myModel" ng-disabled="myReadonly"></tags-input>' +
         '</div>' +
         '</div>'
     };

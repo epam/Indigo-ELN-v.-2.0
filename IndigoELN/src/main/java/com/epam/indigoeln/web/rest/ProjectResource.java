@@ -36,22 +36,25 @@ public class ProjectResource {
 
     /**
      * GET  /projects -> Returns all projects for <b>current user</b>
-     * for tree representation according to his User permissions<br/>
-     * GET  /projects?:userId -> Returns all projects for <b>specified user</b>
      * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllProjects(
-            @RequestParam(required = false) String userId) {
-        log.debug("REST request to get all projects for user: {}", userId);
+    public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
+        log.debug("REST request to get all projects according to user permissions");
         User user = userService.getUserWithAuthorities();
-        if (userId != null && !user.getId().equals(userId)) {
-            // change executing user
-            user = userService.getUserWithAuthorities(userId);
-        }
-
         List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes(user);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * GET  /projects/all -> Returns all projects without checking for User permissions
+     */
+    @RequestMapping(value = "/all",method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
+        log.debug("REST request to get all projects without checking for permissions");
+        List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
         return ResponseEntity.ok(result);
     }
 
