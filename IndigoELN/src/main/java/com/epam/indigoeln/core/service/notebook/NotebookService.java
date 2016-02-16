@@ -168,11 +168,12 @@ public class NotebookService {
             }
         }
 
+        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebookDTO.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
         notebookFromDB.setName(notebookDTO.getName());
-        notebookFromDB.setAccessList(notebookDTO.getAccessList());// Stay old notebook's experiments for updated notebook
+        notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
         return new NotebookDTO(notebookRepository.save(notebookFromDB));
     }
 

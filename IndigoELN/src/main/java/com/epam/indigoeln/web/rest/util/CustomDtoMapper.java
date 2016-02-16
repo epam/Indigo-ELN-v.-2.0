@@ -1,22 +1,7 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.Role;
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.model.User;
-
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
-import com.epam.indigoeln.web.rest.dto.NotebookDTO;
-import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import com.epam.indigoeln.web.rest.dto.RoleDTO;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
-import com.epam.indigoeln.web.rest.dto.UserDTO;
-
+import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.web.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -25,6 +10,10 @@ import org.mapstruct.Mapping;
  */
 @Mapper
 public interface CustomDtoMapper {
+
+    String ACCESS_LIST_MAPPER = "java(dto.getAccessList().stream()." +
+            "map(s -> new com.epam.indigoeln.core.model.UserPermission(s.getUser(), s.getPermissions()))." +
+            "collect(java.util.stream.Collectors.toSet()))";
 
     @Mapping(target = "authorities", ignore = true)
     User convertFromDTO(UserDTO userDTO);
@@ -36,21 +25,17 @@ public interface CustomDtoMapper {
 
     Role convertFromDTO(RoleDTO roleDTO);
 
-    Experiment convertFromDTO(ExperimentDTO dto);
-
-    ExperimentDTO convertToDTO(Experiment experiment);
-
     Component convertFromDTO(ComponentDTO componentDTO);
 
-    ComponentDTO convertToDTO(Component component);
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
+    Experiment convertFromDTO(ExperimentDTO dto);
 
-    Template convertFromDTO(TemplateDTO templateDTO);
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
+    Template convertFromDTO(TemplateDTO dto);
 
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Project convertFromDTO(ProjectDTO dto);
 
-    ProjectDTO convertToDTO(Project project);
-
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Notebook convertFromDTO(NotebookDTO dto);
-
-    NotebookDTO convertToDTO(Notebook notebook);
 }

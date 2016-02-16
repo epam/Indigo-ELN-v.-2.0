@@ -30,30 +30,14 @@ angular.module('indigoeln')
         return {
             expandPermission: function(list) {
                 _.each(list, function(item) {
-                    var permissions = item.permissions;
-                    if (permissions === 'OWNER') {
+                    if (item.permissionView === 'OWNER') {
                         item.permissions = OWNER;
-                    } else if (permissions === 'CHILD_VIEWER') {
+                    } else if (item.permissionView === 'CHILD_VIEWER') {
                         item.permissions = CHILD_VIEWER;
-                    } else if (permissions === 'USER') {
+                    } else if (item.permissionView === 'USER') {
                         item.permissions = USER;
                     } else {
                         item.permissions = VIEWER;
-                    }
-                });
-                return list;
-            },
-            collapsePermission: function(list) {
-                _.each(list, function(item) {
-                    var permissions = item.permissions;
-                    if (permissions.length === OWNER.length && _.isEqual(permissions, OWNER)) {
-                        item.permissions = 'OWNER';
-                    } else if (permissions.length === USER.length && _.isEqual(permissions, USER)) {
-                        item.permissions = 'USER';
-                    } else if (permissions.length === CHILD_VIEWER.length && _.isEqual(permissions, CHILD_VIEWER)) {
-                        item.permissions = 'CHILD_VIEWER';
-                    } else {
-                        item.permissions = 'VIEWER';
                     }
                 });
                 return list;
