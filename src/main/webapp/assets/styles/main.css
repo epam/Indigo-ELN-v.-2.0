@@ -257,3 +257,31 @@
     clear: left;
     display: block;
 }
+
+.templates .list-group {
+    margin-bottom: 0;
+}
+
+.templates .tab.ng-enter {
+    animation: fadeInDown 0.5s;
+}
+
+.templates .tab.ng-leave {
+    animation: fadeOutDown 0.5s;
+}
+
+.templates .component.ng-enter {
+    animation: fadeInLeft 0.5s;
+}
+
+.templates .component.ng-leave {
+    animation: fadeOutDown 0.5s;
+}
+
+.palette .draggable-component.ng-leave {
+    animation: fadeOut 0.5s;
+}
+
+.palette .draggable-component.ng-enter {
+    animation: fadeIn 0.5s;
+}
