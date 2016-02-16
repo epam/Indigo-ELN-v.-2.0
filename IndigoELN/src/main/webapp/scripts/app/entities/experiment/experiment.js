@@ -35,7 +35,7 @@ angular.module('indigoeln')
                         return {
                             name: null,
                             experimentNumber: null,
-                            templateId: null,
+                            template: null,
                             id: null
                         };
                     },
@@ -61,20 +61,10 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    data: function ($stateParams, Experiment, $q, Template) {
-                        var deferred = $q.defer();
-                        Experiment
+                    entity: function ($stateParams, Experiment, Template) {
+                        return Experiment
                             .get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId})
                             .$promise
-                            .then(function (experiment) {
-                                Template
-                                    .get({id: experiment.templateId})
-                                    .$promise
-                                    .then(function (template) {
-                                        deferred.resolve({entity: experiment, template: template});
-                                    })
-                            });
-                        return deferred.promise;
                     },
                     identity: function (Principal) {
                         return Principal.identity()

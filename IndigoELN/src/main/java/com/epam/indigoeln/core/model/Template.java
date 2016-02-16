@@ -1,11 +1,9 @@
 package com.epam.indigoeln.core.model;
 
 import com.epam.indigoeln.core.util.JsonUtil;
-
 import com.google.common.base.Objects;
 import com.mongodb.BasicDBList;
 import org.json.JSONArray;
-
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
