@@ -33,13 +33,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/templates")
 public class TemplateResource {
 
-    private final static String WARNING_EXPERIMENTS_ASSIGNED = "Template with identifier %s could not be deleted : any assigned experiments exists.";
-
     @Autowired
     TemplateService templateService;
-
-    @Autowired
-    ExperimentRepository experimentRepository;
 
     /**
      * GET /templates/:id -> get template by id
@@ -84,11 +79,6 @@ public class TemplateResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
-
-        if (templateDTO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createErrorAlert(
-                    "A new template can't already have an ID", "template")).build();
-        }
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreateAlert("template", result.getId()))
@@ -136,12 +126,6 @@ public class TemplateResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
-        //do not delete template if  experiments assigned
-        if(experimentRepository.countByTemplateId(id) > 0){
-            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, id);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createErrorAlert(message, id)).
-                    build();
-        }
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeleteAlert("template", id)).build();

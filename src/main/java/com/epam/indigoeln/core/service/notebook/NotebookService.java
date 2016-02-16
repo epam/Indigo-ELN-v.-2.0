@@ -11,6 +11,7 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ChildReferenceException;
+import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
@@ -20,6 +21,7 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -143,7 +145,11 @@ public class NotebookService {
         //set notebook sequence #
 //        notebook.setSequenceId(sequenceIdService.getNextNotebookId());
 
-        notebook = notebookRepository.save(notebook);
+        try {
+            notebook = notebookRepository.save(notebook);
+        } catch (DuplicateKeyException e) {
+            throw DuplicateFieldException.createWithNotebookName(notebook.getName());
+        }
 
         project.getNotebooks().add(notebook);
         projectRepository.save(project);
