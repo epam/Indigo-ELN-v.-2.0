@@ -1,22 +1,7 @@
 package com.epam.indigoeln.web.rest.util;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.Role;
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.model.User;
-
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
-import com.epam.indigoeln.web.rest.dto.NotebookDTO;
-import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import com.epam.indigoeln.web.rest.dto.RoleDTO;
-import com.epam.indigoeln.web.rest.dto.TemplateDTO;
-import com.epam.indigoeln.web.rest.dto.UserDTO;
-
+import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.web.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -36,8 +21,10 @@ public interface CustomDtoMapper {
 
     Role convertFromDTO(RoleDTO roleDTO);
 
+    @Mapping(target = "template", ignore = true)
     Experiment convertFromDTO(ExperimentDTO dto);
 
+    @Mapping(target = "template", ignore = true)
     ExperimentDTO convertToDTO(Experiment experiment);
 
     Component convertFromDTO(ComponentDTO componentDTO);

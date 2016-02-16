@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, data, Experiment, Principal) {
-        $scope.experiment = data.entity;
-        $scope.template = data.template;
+    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, entity, Experiment, Principal) {
+        $scope.experiment = entity;
+        $scope.template = entity.template;
         $scope.notebookId = $stateParams.notebookId;
         $scope.model = toModel($scope.experiment.components);
         Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
@@ -20,7 +20,7 @@ angular.module('indigoeln')
         $scope.save = function () {
             $scope.isSaving = true;
             var experimentForSave = _.extend({}, $scope.experiment, {components: toComponents($scope.model)});
-            if ($scope.template.id != null) {
+            if ($scope.template != null) {
                 $scope.loading = Experiment.update({
                     notebookId: $stateParams.notebookId,
                     projectId: $stateParams.projectId

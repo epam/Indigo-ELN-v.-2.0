@@ -6,15 +6,7 @@ public class ExperimentShort extends BasicModelObject {
 
     private static final long serialVersionUID = 279335946658061099L;
 
-    private Long templateId;
-
-    public Long getTemplateId() {
-        return templateId;
-    }
-
-    public void setTemplateId(Long templateId) {
-        this.templateId = templateId;
-    }
+    private Template template;
 
     @Override
     public boolean equals(Object o) {
@@ -22,18 +14,26 @@ public class ExperimentShort extends BasicModelObject {
         if (!(o instanceof ExperimentShort)) return false;
         if (!super.equals(o)) return false;
         ExperimentShort that = (ExperimentShort) o;
-        return  Objects.equal(templateId, that.templateId);
+        return Objects.equal(template, that.template);
+    }
+
+    public Template getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(Template template) {
+        this.template = template;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), templateId);
+        return Objects.hashCode(super.hashCode(), template);
     }
 
     @Override
     public String toString() {
         return "ExperimentShort{" +
-                ", templateId='" + templateId + '\'' +
+                ", templateId='" + template + '\'' +
                 "} " + super.toString();
     }
 }

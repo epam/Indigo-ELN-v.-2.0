@@ -12,8 +12,6 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Collection<Experiment> findByAuthor(User author);
 
-    Long countByTemplateId(Long templateId);
-
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 

@@ -131,12 +131,6 @@ public class TemplateResource {
      */
     @RequestMapping(value = "/{sequenceId:[\\d]+}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(@PathVariable Long sequenceId) {
-        //do not delete template if  experiments assigned
-        if(experimentRepository.countByTemplateId(sequenceId) > 0){
-            String message = String.format(WARNING_EXPERIMENTS_ASSIGNED, sequenceId);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers( HeaderUtil.createErrorAlert(message, sequenceId.toString())).
-                    build();
-        }
         templateService.deleteTemplate(sequenceId);
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeleteAlert("template", sequenceId.toString())).build();
