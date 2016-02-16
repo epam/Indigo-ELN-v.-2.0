@@ -25,9 +25,6 @@ public interface CustomDtoMapper {
 
     Role convertFromDTO(RoleDTO roleDTO);
 
-    @Mapping(target = "template", ignore = true)
-    ExperimentDTO convertToDTO(Experiment experiment);
-
     Component convertFromDTO(ComponentDTO componentDTO);
 
     @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)

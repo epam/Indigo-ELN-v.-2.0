@@ -4,16 +4,12 @@ import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.template.TemplateRepository;
-import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
-import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -66,10 +62,6 @@ public class TemplateService {
     }
 
     public void deleteTemplate(Long sequenceId) {
-        //do not delete template if  experiments assigned
-        if(experimentRepository.countByTemplateId(sequenceId) > 0){
-            throw AlreadyInUseException.createWithTemplateId(sequenceId);
-        }
         templateRepository.deleteBySequenceId(sequenceId);
     }
 
