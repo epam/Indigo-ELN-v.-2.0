@@ -2,13 +2,14 @@ package com.epam.indigoeln.core.service.sequenceid;
 
 import com.epam.indigoeln.core.model.SequenceId;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Optional;
