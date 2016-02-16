@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.SequenceId;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class SequenceIdService {
         }
 
         Long nextNotebookId = sequenceId.getChildren().stream().mapToLong(SequenceId::getSequence).max().orElse(0L) + 1L;
-        sequenceId.getChildren().add(new SequenceId(nextNotebookId));
+        sequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextNotebookId));
         repository.save(sequenceId);
 
         return projectId + "-" + nextNotebookId;
@@ -60,7 +61,7 @@ public class SequenceIdService {
         }
 
         Long nextExperimentId = notebookSequenceId.getChildren().stream().mapToLong(SequenceId::getSequence).max().orElse(0L) + 1L;
-        notebookSequenceId.getChildren().add(new SequenceId(nextExperimentId));
+        notebookSequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextExperimentId));
         repository.save(sequenceId);
 
         return projectId + "-" + notebookId + "-" + nextExperimentId;

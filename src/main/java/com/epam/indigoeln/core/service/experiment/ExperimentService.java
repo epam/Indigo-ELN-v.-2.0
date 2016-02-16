@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
@@ -14,6 +13,7 @@ import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -21,7 +21,6 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import javax.validation.ValidationException;
 
 import java.util.ArrayList;
@@ -71,7 +70,7 @@ public class ExperimentService {
      * Otherwise, use checking for UserPermissions
      */
     private Collection<Experiment> getAllExperiments(String projectId, String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId))).
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                 orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
 
         if (user == null) {
@@ -88,7 +87,7 @@ public class ExperimentService {
     }
 
     public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, id))).
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
@@ -113,7 +112,7 @@ public class ExperimentService {
     }
 
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId))).
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
@@ -134,6 +133,8 @@ public class ExperimentService {
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
+        experiment.setName(SequenceIdUtil.generateExperimentName(experiment));
+
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
@@ -142,7 +143,7 @@ public class ExperimentService {
     }
 
     public ExperimentDTO updateExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user) {
-        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, experimentDTO.getId()))).
+        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
@@ -208,7 +209,7 @@ public class ExperimentService {
 
 
     public void deleteExperiment(String id, String projectId, String notebookId) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, id))).
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).

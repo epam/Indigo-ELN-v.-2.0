@@ -34,6 +34,11 @@ public class SequenceId implements Serializable {
         this.sequence = sequence;
     }
 
+    public SequenceId(String id, Long sequence) {
+        this.id = id;
+        this.sequence = sequence;
+    }
+
     public String getId() {
         return id;
     }

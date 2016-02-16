@@ -10,7 +10,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
-import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -121,15 +120,5 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @Override
     public boolean isNew() {
         return getId() == null;
-    }
-
-    public String getShortId() {
-        if(id == null) return null;
-        String[] split = id.split("-");
-        return split[split.length - 1];
-    }
-
-    public static String getFullEntityId(String ... ids) {
-        return StringUtils.arrayToDelimitedString(ids, "-");
     }
 }

@@ -5,7 +5,7 @@ angular.module('indigoeln')
         $stateProvider
             .state('notebook', {
                 parent: 'entity',
-                url: 'project/{projectId}/notebook/{id}',
+                url: '/project/{projectId}/notebook/{id}',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',

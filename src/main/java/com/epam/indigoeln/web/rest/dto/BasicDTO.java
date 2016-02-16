@@ -2,7 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.UserPermission;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public abstract class BasicDTO implements Serializable {
     }
 
     protected BasicDTO(BasicModelObject modelObject) {
-        this.id = modelObject.getShortId();
+        this.id = SequenceIdUtil.extractShortId(modelObject);
         this.name = modelObject.getName();
         this.accessList = modelObject.getAccessList();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
