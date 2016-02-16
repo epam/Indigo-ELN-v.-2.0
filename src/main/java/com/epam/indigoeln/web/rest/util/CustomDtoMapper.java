@@ -11,6 +11,10 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface CustomDtoMapper {
 
+    String ACCESS_LIST_MAPPER = "java(dto.getAccessList().stream()." +
+            "map(s -> new com.epam.indigoeln.core.model.UserPermission(s.getUser(), s.getPermissions()))." +
+            "collect(java.util.stream.Collectors.toSet()))";
+
     @Mapping(target = "authorities", ignore = true)
     User convertFromDTO(UserDTO userDTO);
 
@@ -22,22 +26,20 @@ public interface CustomDtoMapper {
     Role convertFromDTO(RoleDTO roleDTO);
 
     @Mapping(target = "template", ignore = true)
-    Experiment convertFromDTO(ExperimentDTO dto);
-
-    @Mapping(target = "template", ignore = true)
     ExperimentDTO convertToDTO(Experiment experiment);
 
     Component convertFromDTO(ComponentDTO componentDTO);
 
-    ComponentDTO convertToDTO(Component component);
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
+    @Mapping(target = "template", ignore = true)
+    Experiment convertFromDTO(ExperimentDTO dto);
 
-    Template convertFromDTO(TemplateDTO templateDTO);
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
+    Template convertFromDTO(TemplateDTO dto);
 
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Project convertFromDTO(ProjectDTO dto);
 
-    ProjectDTO convertToDTO(Project project);
-
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Notebook convertFromDTO(NotebookDTO dto);
-
-    NotebookDTO convertToDTO(Notebook notebook);
 }

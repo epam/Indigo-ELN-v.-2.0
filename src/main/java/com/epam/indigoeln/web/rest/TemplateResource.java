@@ -28,13 +28,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/templates")
 public class TemplateResource {
 
-    private final static String WARNING_EXPERIMENTS_ASSIGNED = "Template with identifier %s could not be deleted : any assigned experiments exists.";
-
     @Autowired
     TemplateService templateService;
-
-    @Autowired
-    ExperimentRepository experimentRepository;
 
     /**
      * GET /templates/:id -> get template by id
@@ -79,11 +74,6 @@ public class TemplateResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
-
-        if (templateDTO.getSequenceId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createErrorAlert(
-                    "A new template can't already have an ID", "template")).build();
-        }
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getSequenceId()))
                 .headers(HeaderUtil.createEntityCreateAlert("template", result.getSequenceId().toString()))

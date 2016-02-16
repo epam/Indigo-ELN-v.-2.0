@@ -5,12 +5,14 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.role.RoleRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
+import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.session.SessionRegistry;
@@ -52,7 +54,11 @@ public class UserService {
         // checking for roles existence
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
 
-        user = userRepository.save(user);
+        try {
+            user = userRepository.save(user);
+        } catch (DuplicateKeyException e) {
+            throw DuplicateFieldException.createWithUserLogin(user.getLogin());
+        }
         log.debug("Created Information for User: {}", user);
 
         return user;

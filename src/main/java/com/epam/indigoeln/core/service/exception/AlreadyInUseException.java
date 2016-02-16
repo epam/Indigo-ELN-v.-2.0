@@ -18,4 +18,9 @@ public class AlreadyInUseException extends CustomParametrizedException {
     public static AlreadyInUseException createWithUserId(String userId) {
         return new AlreadyInUseException("The user with id = " + userId + " already in use", userId);
     }
+
+    public static AlreadyInUseException createWithTemplateId(long sequenceId) {
+        return new AlreadyInUseException("The template with id = " + sequenceId + " already in use", String.valueOf(sequenceId));
+    }
+
 }
