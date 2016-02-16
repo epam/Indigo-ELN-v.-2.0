@@ -3,21 +3,8 @@
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, entity, Template, $state, dragulaService, Components) {
         $scope.components = Components;
-        dragulaService.options($scope, 'template', {
-            revertOnSpill: true
-        });
         $scope.template = entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
-        $scope.load = function (id) {
-            Template.get({id: id}, function (result) {
-                $scope.template = result;
-            });
-        };
-        $scope.components = _.filter($scope.components, function (component) {
-            return !_.find($scope.template.templateContent, function (item) {
-                return component.id == item.id;
-            })
-        });
 
         var onSaveSuccess = function (result) {
             $state.go('template');
@@ -36,4 +23,43 @@ angular.module('indigoeln').controller('TemplateDialogController',
                 Template.save($scope.template, onSaveSuccess, onSaveError);
             }
         };
+
+        dragulaService.options($scope, 'components', {
+            //removeOnSpill: true,
+            copy: function (el, source) {
+                return source.classList.contains('palette')
+            },
+            accepts: function (el, target) {
+                return !target.classList.contains('palette')
+            },
+            moves: function (el, container, handle) {
+                return !handle.classList.contains('no-draggable');
+            }
+        });
+
+        dragulaService.options($scope, 'tabs', {
+            //removeOnSpill: true,
+            moves: function (el, container, handle) {
+                return !handle.classList.contains('draggable-component') && !handle.classList.contains('no-draggable');
+            }
+        });
+
+        $scope.addTab = function () {
+            $scope.template.templateContent.push({
+                name: 'Tab ' + ($scope.template.templateContent.length + 1),
+                components: []
+            })
+        };
+        if (!$scope.template.templateContent.length) {
+            $scope.addTab();
+        }
+
+        $scope.removeTab = function (tab) {
+            $scope.template.templateContent = _.without($scope.template.templateContent, tab);
+        };
+
+        $scope.removeComponent = function (tab, component) {
+            tab.components = _.without(tab.components, component);
+        }
+
     });

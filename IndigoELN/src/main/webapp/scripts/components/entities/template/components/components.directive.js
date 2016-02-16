@@ -42,8 +42,8 @@ angular.module('indigoeln')
             myExperiment: '='
         },
         template: '<fieldset ng-disabled="myDisabled"><uib-tabset justified="true">' +
-        '<uib-tab heading="{{key}}" ng-repeat="(key,value) in myTemplate | groupBy: \'tab\'">' +
-        '<div ng-repeat="component in value" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment"></div>' +
+        '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
+        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     }
