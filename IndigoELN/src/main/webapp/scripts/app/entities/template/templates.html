@@ -14,15 +14,21 @@
     <table class="table table-striped">
         <thead>
         <tr my-sort="predicate" ascending="reverse" callback="loadAll()">
-            <th my-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>
-            <th my-sort-by="name"><span>Name</span> <span class="glyphicon glyphicon-sort"></span></th>
-            <th></th>
+            <!--<th my-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>-->
+            <th my-sort-by="name"><span>Template name</span> <span class="glyphicon glyphicon-sort"></span></th>
+            <th><span>Created By</span></th>
+            <th><span>Creation date</span></th>
+            <th><span>Last Edit Date</span></th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="template in templates track by template.id">
-            <td><a ui-sref="template.detail({id:template.id})">{{template.id}}</a></td>
+            <!--<td><a ui-sref="template.detail({id:template.id})">{{template.id}}</a></td>-->
             <td>{{template.name}}</td>
+            <td>{{template.author.login}}</td>
+            <td>{{template.creationDate | date:'myTzAbbr'}}</td>
+            <td>{{template.lastEditDate | date:'myTzAbbr'}}</td>
             <td>
                 <button type="submit"
                         ui-sref="template.detail({id:template.id})"
