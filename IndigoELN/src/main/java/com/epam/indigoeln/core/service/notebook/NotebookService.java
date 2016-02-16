@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
@@ -15,6 +14,7 @@ import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -101,7 +101,7 @@ public class NotebookService {
     }
 
     public NotebookDTO getNotebookById(String projectId, String id, User user) {
-        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, id);
+        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, id);
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
@@ -159,7 +159,7 @@ public class NotebookService {
     }
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, String projectId, User user) {
-        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, notebookDTO.getId());
+        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookDTO.getId());
         Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
@@ -187,7 +187,7 @@ public class NotebookService {
     }
 
     public void deleteNotebook(String projectId, String id) {
-        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, id);
+        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, id);
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
