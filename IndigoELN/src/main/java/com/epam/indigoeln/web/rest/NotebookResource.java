@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -128,9 +129,4 @@ public class NotebookResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<Void> notebookAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createErrorAlert("Notebook name is already in use", ENTITY_NAME);
-        return ResponseEntity.badRequest().headers(headers).build();
-    }
 }

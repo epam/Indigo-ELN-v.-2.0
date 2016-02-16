@@ -1,7 +1,10 @@
 package com.epam.indigoeln.core.service.template;
 
 import com.epam.indigoeln.core.model.Template;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.template.TemplateRepository;
+import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -22,6 +25,12 @@ public class TemplateService {
 
     @Autowired
     private TemplateRepository templateRepository;
+
+    @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+
+    @Autowired
+    ExperimentRepository experimentRepository;
 
     @Autowired
     private CustomDtoMapper dtoMapper;
@@ -55,6 +64,11 @@ public class TemplateService {
     }
 
     public void deleteTemplate(String templateId) {
+        //do not delete template if  experiments assigned
+        if(experimentRepository.countByTemplateId(templateId) > 0){
+            throw AlreadyInUseException.createWithTemplateId(templateId);
+        }
+
         templateRepository.delete(templateId);
     }
 
