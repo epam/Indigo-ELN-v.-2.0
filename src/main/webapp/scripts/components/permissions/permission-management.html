@@ -11,7 +11,6 @@
                        my-model="selectedMembers"
                        my-items="users"
                        my-item-prop="login"
-                       my-multiple="true"
             ></my-select>
         </div>
     </div>
@@ -30,9 +29,9 @@
             <td>
                 <div>
                     <a ng-class="{disabled: isAuthor(member)}" e-form="perm" ng-click="show(perm, member)"
-                       editable-select="member.permissions"
+                       editable-select="member.permissionView"
                        e-ng-options="p.id as p.name for p in permissions">
-                        {{ member.permissions }}
+                        {{ member.permissionView }}
                     </a>
                 </div>
             </td>
