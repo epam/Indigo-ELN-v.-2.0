@@ -31,7 +31,7 @@ angular.module('indigoeln')
                                 addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName: fieldName});
                             }
                         } else if (httpResponse.data && httpResponse.data.message) {
-                            addErrorAlert(httpResponse.data.message, httpResponse.data.message, httpResponse.data);
+                            AlertService.error(httpResponse.data.message);
                         } else {
                             addErrorAlert(httpResponse.data);
                         }

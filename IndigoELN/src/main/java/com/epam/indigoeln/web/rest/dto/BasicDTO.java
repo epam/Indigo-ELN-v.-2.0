@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
-import com.epam.indigoeln.core.model.UserPermission;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -9,6 +8,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class BasicDTO implements Serializable {
 
@@ -19,7 +19,7 @@ public abstract class BasicDTO implements Serializable {
 
     @NotEmpty
     private String name;
-    private Set<UserPermission> accessList = new HashSet<>();
+    private Set<UserPermissionDTO> accessList = new HashSet<>();
 
     //Read-Only auto-generated audit parameters
     private UserDTO   author;
@@ -35,11 +35,14 @@ public abstract class BasicDTO implements Serializable {
     protected BasicDTO(BasicModelObject modelObject) {
         this.sequenceId = modelObject.getSequenceId();
         this.name = modelObject.getName();
-        this.accessList = modelObject.getAccessList();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
         this.lastModifiedBy = modelObject.getLastModifiedBy() != null ? new UserDTO(modelObject.getLastModifiedBy()) : null;
         this.lastEditDate = modelObject.getLastEditDate();
         this.creationDate = modelObject.getCreationDate();
+        if (modelObject.getAccessList() != null) {
+            this.accessList.addAll(modelObject.getAccessList().stream()
+                    .map(UserPermissionDTO::new).collect(Collectors.toList()));
+        }
     }
 
     public Long getSequenceId() {
@@ -50,7 +53,7 @@ public abstract class BasicDTO implements Serializable {
         return name;
     }
 
-    public Set<UserPermission> getAccessList() {
+    public Set<UserPermissionDTO> getAccessList() {
         return accessList;
     }
 
@@ -78,7 +81,7 @@ public abstract class BasicDTO implements Serializable {
         this.name = name;
     }
 
-    public void setAccessList(Set<UserPermission> accessList) {
+    public void setAccessList(Set<UserPermissionDTO> accessList) {
         this.accessList = accessList;
     }
 

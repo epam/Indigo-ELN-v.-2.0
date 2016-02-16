@@ -19,9 +19,6 @@ angular.module('indigoeln')
                 resolve: {
                     project: function($stateParams, Project) {
                         return Project.get({id : $stateParams.id}).$promise;
-                    },
-                    users: function(User) {
-                        return User.query().$promise;
                     }
                 }
             })
@@ -29,7 +26,7 @@ angular.module('indigoeln')
                 parent: 'project',
                 url: '/permissions',
                 data: {
-                    authorities: ['CONTENT_EDITOR']
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 onEnter: function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
                     $uibModal.open({

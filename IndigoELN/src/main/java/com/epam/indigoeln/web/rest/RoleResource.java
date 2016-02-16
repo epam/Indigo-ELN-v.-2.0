@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Role;
-import com.epam.indigoeln.core.service.exception.AlreadyInUseException;
 import com.epam.indigoeln.core.service.role.RoleService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -9,11 +8,9 @@ import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -106,21 +103,4 @@ public class RoleResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<Void> roleAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createErrorAlert("Role name is already in use", ENTITY_NAME);
-        return ResponseEntity.badRequest().headers(headers).build();
-    }
-
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Void> incorrectAuthorities() {
-        HttpHeaders headers = HeaderUtil.createFailureAlert("Set of authorities is incorrect", ENTITY_NAME);
-        return ResponseEntity.badRequest().headers(headers).build();
-    }
-
-    @ExceptionHandler(AlreadyInUseException.class)
-    public ResponseEntity<Void> roleAlreadyInUse() {
-        HttpHeaders headers = HeaderUtil.createErrorAlert("You can't delete this role", ENTITY_NAME);
-        return ResponseEntity.badRequest().headers(headers).build();
-    }
 }

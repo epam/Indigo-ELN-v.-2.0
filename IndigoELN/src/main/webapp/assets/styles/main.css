@@ -257,7 +257,34 @@
     clear: left;
     display: block;
 }
+.members ul{
+    overflow: hidden;
+    list-style-type: circle;
+}
 
+.members li{
+    line-height: 2em;
+    float: left;
+    display: inline;
+}
+
+#double-list li  {
+    width: 50%;
+}
+
+#triple-list li  {
+    width: 33.333%;
+}
+
+.members .list-group-item {
+    overflow:hidden;
+    position: relative;
+    display: block;
+    padding: 5px 5px;
+    margin-bottom: -1px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+}
 .templates .list-group {
     margin-bottom: 0;
 }

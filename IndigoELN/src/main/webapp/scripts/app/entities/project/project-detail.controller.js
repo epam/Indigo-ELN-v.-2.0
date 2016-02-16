@@ -1,11 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, project, users, PermissionManagement) {
+    .controller('ProjectDetailController', function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, project, PermissionManagement) {
 
-        $scope.users = users;
         $scope.project = project;
-        $scope.project.accessList = PermissionManagement.collapsePermission($scope.project.accessList);
         PermissionManagement.setAuthor($scope.project.author);
         PermissionManagement.setAccessList($scope.project.accessList);
 
@@ -13,7 +11,7 @@ angular.module('indigoeln')
             $scope.project.accessList = PermissionManagement.getAccessList();
         });
 
-        $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');
+        $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');// && $scope.accessList; // todo
         $scope.show = function(form) {
             if (!$scope.editDisabled) {
                 form.$show();
