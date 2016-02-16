@@ -79,11 +79,11 @@ angular
             }
         };
 
-        $scope.toggleExperiments = function (notebook, needAll) {
-            $state.go('notebook', {id: notebook.node.id, projectId: notebook.projectId});
+        $scope.toggleExperiments = function (notebook, project, needAll) {
+            $state.go('notebook', {id: notebook.node.id, projectId: project.node.id});
             if (!notebook.experiments) {
                 var agent = needAll ? AllExperiments : Experiment;
-                agent.query({notebookId: notebook.node.id}, function (result) {
+                agent.query({notebookId: notebook.node.id, projectId: project.node.id}, function (result) {
                     notebook.experiments = result;
                 });
             } else {
@@ -91,8 +91,8 @@ angular
             }
         };
 
-        $scope.onExperimentClick = function (experiment, notebook) {
-            $state.go('experiment.detail', {id: experiment.node.id, notebookId: notebook.node.id});
+        $scope.onExperimentClick = function (experiment, notebook, project) {
+            $state.go('experiment.detail', {id: experiment.node.id, notebookId: notebook.node.id, projectId: project.node.id});
         };
 
         $scope.toggleAdministration = function() {

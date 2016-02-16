@@ -5,23 +5,23 @@ angular.module('indigoeln')
         $stateProvider
             .state('notebook', {
                 parent: 'entity',
-                url: '/notebook/{id}',
+                url: 'project/{projectId}/notebook/{id}',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',
                         controller: 'NotebookDetailController'
                     }
                 },
-                params: {
-                    projectId: ''
-                },
+                //params: {
+                //    projectId: ''
+                //},
                 data: {
                     authorities: ['NOTEBOOK_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
                     data: ['$stateParams', 'Notebook', function($stateParams, Notebook) {
-                        return Notebook.get({id : $stateParams.id}).$promise;
+                        return Notebook.get({projectId: $stateParams.projectId, id : $stateParams.id}).$promise;
                     }]
                 }
             })

@@ -5,14 +5,19 @@ import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -39,7 +44,7 @@ public class TemplateResource {
     /**
      * GET /templates/:id -> get template by id
      */
-    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.GET,
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET, ///{id:[\d]+}
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
         return templateService.getTemplateById(id)
@@ -129,7 +134,7 @@ public class TemplateResource {
      * @param id id of template
      * @return operation status Response Entity
      */
-    @RequestMapping(value = "/{id:[\\d]+}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
         //do not delete template if  experiments assigned
         if(experimentRepository.countByTemplateId(id) > 0){

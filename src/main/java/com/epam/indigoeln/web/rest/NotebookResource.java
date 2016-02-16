@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -33,10 +32,10 @@ import java.util.List;
 @RequestMapping(NotebookResource.URL_MAPPING)
 public class NotebookResource {
 
-    static final String URL_MAPPING = "/api/notebooks";
+    static final String URL_MAPPING = "/api/projects/{projectId:[\\d]+}/notebooks";
     private static final String ENTITY_NAME = "Notebook";
 
-    private static final String PATH_SEQ_ID = "/{sequenceId:[\\d]+}";
+    private static final String PATH_ID = "/{id:[\\d]+}";
 
     private final Logger log = LoggerFactory.getLogger(NotebookResource.class);
 
@@ -52,7 +51,7 @@ public class NotebookResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(@RequestParam String projectId) {
+    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(@PathVariable String projectId) {
         log.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
         User user = userService.getUserWithAuthorities();
         List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId, user);
@@ -65,7 +64,7 @@ public class NotebookResource {
      */
     @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(@RequestParam String projectId) {
+    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(@PathVariable String projectId) {
         log.debug("REST request to get all notebooks of project: {} " +
                 "without checking for permissions", projectId);
         List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId);
@@ -75,12 +74,12 @@ public class NotebookResource {
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
      */
-    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.GET,
+    @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable String sequenceId) {
-        log.debug("REST request to get notebook: {}", sequenceId);
+    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable String projectId, @PathVariable String id) {
+        log.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
-        NotebookDTO notebook = notebookService.getNotebookById(sequenceId, user);
+        NotebookDTO notebook = notebookService.getNotebookById(projectId, id, user);
         return ResponseEntity.ok(notebook);
     }
 
@@ -92,13 +91,13 @@ public class NotebookResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> createNotebook(
-            @RequestBody @Valid NotebookDTO notebook,
-            @RequestParam String projectId) throws URISyntaxException {
+            @PathVariable String projectId,
+            @RequestBody @Valid NotebookDTO notebook) throws URISyntaxException {
         log.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.createNotebook(notebook, projectId, user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, notebook.getId());
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + notebook.getId()))
+        return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebook.getId()))
                 .headers(headers).body(notebook);
     }
 
@@ -108,7 +107,8 @@ public class NotebookResource {
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> updateNotebook(@RequestBody @Valid NotebookDTO notebook) {
+    public ResponseEntity<NotebookDTO> updateNotebook(@PathVariable String projectId,
+                                                      @RequestBody @Valid NotebookDTO notebook) {
         log.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         notebook = notebookService.updateNotebook(notebook, user);
@@ -119,10 +119,11 @@ public class NotebookResource {
     /**
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
-    @RequestMapping(value = PATH_SEQ_ID, method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteNotebook(@PathVariable String id) {
+    @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteNotebook(@PathVariable String projectId,
+                                               @PathVariable String id) {
         log.debug("REST request to remove notebook: {}", id);
-        notebookService.deleteNotebook(id);
+        notebookService.deleteNotebook(projectId, id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();
     }

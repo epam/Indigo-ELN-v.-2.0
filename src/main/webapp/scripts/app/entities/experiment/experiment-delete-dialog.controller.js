@@ -8,7 +8,7 @@ angular.module('indigoeln')
             $uibModalInstance.dismiss('cancel');
         };
         $scope.confirmDelete = function (id) {
-            Experiment.delete({experimentId: id, notebookId: $stateParams.notebookId},
+            Experiment.delete({experimentId: id, notebookId: $stateParams.notebookId, projectId: $stateParams.projectId},
                 function () {
                     $uibModalInstance.close(true);
                 });

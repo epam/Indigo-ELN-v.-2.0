@@ -3,7 +3,9 @@
 angular
     .module('indigoeln')
     .factory('Notebook', function ($resource) {
-        return $resource('api/notebooks/:id', {}, {
+        return $resource('api/projects/:projectId/notebooks/:id', {
+            projectId: '@projectId'
+        }, {
             'query': {method: 'GET', isArray: true},
             'get': {method: 'GET'},
             'save': {method: 'POST'},

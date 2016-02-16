@@ -3,6 +3,7 @@
 angular.module('indigoeln')
     .controller('NewNotebookController', function ($scope, $rootScope, $state, $stateParams, $uibModal, notebook, projectId) {
         $scope.notebook = notebook;
+        $scope.projectId = projectId;
         $scope.description = '';
 
         $scope.newExperiment = function () {
@@ -21,7 +22,7 @@ angular.module('indigoeln')
                         return {
                             notebookId: $scope.notebook.id,
                             notebookName: $scope.notebook.name,
-                            projectId: projectId
+                            projectId: $scope.projectId
                         };
                     }
                 }
