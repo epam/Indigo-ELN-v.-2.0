@@ -1,11 +1,14 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
@@ -13,11 +16,17 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,16 +48,13 @@ public class ExperimentService {
     private UserRepository userRepository;
 
     @Autowired
-    private SequenceIdRepository sequenceIdRepository;
-
-    @Autowired
     CustomDtoMapper dtoMapper;
 
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(Long notebookId) {
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(String notebookId) {
         return getAllExperimentTreeNodes(notebookId, null);
     }
 
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(Long notebookId, User user) {
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(notebookId, user);
         return experiments.stream().
                 map(experiment -> new TreeNodeDTO(new ExperimentDTO(experiment))).
@@ -59,9 +65,9 @@ public class ExperimentService {
      * If user is null, then retrieve experiments without checking for UserPermissions
      * Otherwise, use checking for UserPermissions
      */
-    private Collection<Experiment> getAllExperiments(Long notebookId, User user) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(notebookId).
-                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId.toString()));
+    private Collection<Experiment> getAllExperiments(String notebookId, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
 
         if (user == null) {
             return notebook.getExperiments();

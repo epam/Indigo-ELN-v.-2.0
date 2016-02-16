@@ -1,11 +1,16 @@
 package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
+
 import org.hibernate.validator.constraints.NotEmpty;
-import org.springframework.data.annotation.*;
+
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.HashSet;
@@ -23,7 +28,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @CreatedDate
     private ZonedDateTime creationDate = ZonedDateTime.now();
-    ;
 
     @LastModifiedDate
     private ZonedDateTime lastEditDate = ZonedDateTime.now();

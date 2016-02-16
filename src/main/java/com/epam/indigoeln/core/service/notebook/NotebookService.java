@@ -1,19 +1,23 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
+
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ChildReferenceException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
-import com.epam.indigoeln.core.service.ChildReferenceException;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,12 +44,10 @@ public class NotebookService {
     @Autowired
     private CustomDtoMapper dtoMapper;
 
-    public List<TreeNodeDTO> getAllNotebookTreeNodes(Long projectSequenceId) {
-        return getAllNotebookTreeNodes(projectSequenceId, null);
+    public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId) {
+        return getAllNotebookTreeNodes(projectId, null);
     }
 
-    public List<TreeNodeDTO> getAllNotebookTreeNodes(Long projectSequenceId, User user) {
-        Collection<Notebook> notebooks = getAllNotebooks(projectSequenceId, user);
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
         Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
         return notebooks.stream().
@@ -53,16 +55,13 @@ public class NotebookService {
                 collect(Collectors.toList());
     }
 
-    public Collection<Notebook> getAllNotebooks(String  projectId, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
     /**
      * If user is null, then retrieve notebooks without checking for UserPermissions
      * Otherwise, use checking for UserPermissions
      */
-    private Collection<Notebook> getAllNotebooks(Long  projectSequenceId, User user) {
-        Project project = projectRepository.findOneBySequenceId(projectSequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectSequenceId.toString()));
+    public Collection<Notebook> getAllNotebooks(String  projectId, User user) {
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
         if (user == null) {
             return project.getNotebooks();
@@ -98,13 +97,9 @@ public class NotebookService {
         return experiments.stream().anyMatch(e -> PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId) != null);
     }
 
-
     public NotebookDTO getNotebookById(String id, User user) {
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(id)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
-    public NotebookDTO getNotebookById(Long sequenceId, User user) {
-        Notebook notebook = notebookRepository.findOneBySequenceId(sequenceId).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(sequenceId.toString()));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
         // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
