@@ -1,67 +1,81 @@
-<div class="container">
-
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="editable-text">
-                <h2 editable-text="project.name"
-                    ng-class="{disabled: editDisabled}"
-                    e-form="namefield"
-                    ng-click="show(namefield)">{{ project.name }}</h2>
+<div class="panel panel-default" style="margin-top: 30px" cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+        <span editable-text="project.name"
+              ng-class="{disabled: editDisabled}"
+              e-form="namefield"
+              ng-click="show(namefield)">
+           {{ project.name }}
+        </span>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <div class="col-xs-12">
+                            <label class="control-label">Project Participants</label>
+                            <ul class="list-group">
+                                <li class="list-group-item btn-group btn-group-justified">
+                                    <div class="btn-group" role="group">
+                                        <button type="submit"
+                                                ui-sref="project.permissions({id:project.id})"
+                                                class="btn btn-primary"
+                                                ng-disabled="editDisabled">
+                                            <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Manage Permissions</span>
+                                        </button>
+                                    </div>
+                                </li>
+                                <li class="list-group-item" ng-repeat="member in project.accessList">{{member.user.login
+                                    + ' ('
+                                    + member.permissions +
+                                    ')'}}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <my-tag-input my-label="Tags" my-model="tags" my-readonly="editDisabled"
+                                  my-label-vertical="true"></my-tag-input>
+                    <div class="form-group">
+                        <div class="col-xs-12"><label class="control-label">Keywords</label>
+                            <div><a ng-class="{disabled: editDisabled}"
+                                    e-form="keyfield"
+                                    ng-click="show(keyfield)"
+                                    editable-textarea="keywords"
+                                    e-rows="3" e-cols="60">
+                                <pre>{{ keywords || 'no keywords' }}</pre>
+                            </a></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-12"><label class="control-label">Literature References</label>
+                            <div><a ng-class="{disabled: editDisabled}"
+                                    e-form="refsfield"
+                                    ng-click="show(refsfield)"
+                                    editable-textarea="project.references"
+                                    e-rows="3" e-cols="60">
+                                <pre>{{ project.references || 'no literature references' }}</pre>
+                            </a></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <h4>Project Participants</h4>
-            <div class="participants-list">
-                <ul>
-                    <li ng-repeat="member in project.accessList">{{member.user.login + ' (' + member.permissions + ')'}}</li>
-                </ul>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="form-group">
+                        <div class="col-xs-12"><label class="control-label">Description</label>
+                            <my-text-editor content="project.description"></my-text-editor>
+                        </div>
+                    </div>
+                    <!-- Attach files-->
+                    <my-file-uploader-result entityid="project.id"></my-file-uploader-result>
+                </div>
             </div>
-
-            <button type="submit"
-                    ui-sref="project.permissions({id:project.id})"
-                    class="btn btn-primary"
-                    ng-disabled="editDisabled">
-                <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Manage Permissions</span>
-            </button>
-
-            <h4>Tags</h4>
-            <tags-input ng-model="tags" ng-disabled="editDisabled"></tags-input>
-            
-            <h4>Keywords</h4>
-            <div>
-                <a ng-class="{disabled: editDisabled}"
-                   e-form="keyfield"
-                   ng-click="show(keyfield)"
-                   editable-textarea="keywords"
-                   e-rows="3" e-cols="60">
-                    <pre>{{ keywords || 'no keywords' }}</pre>
-                </a>
-            </div>
-
-            <h4>Literature References</h4>
-
-            <div>
-                <a ng-class="{disabled: editDisabled}"
-                   e-form="refsfield"
-                   ng-click="show(refsfield)"
-                   editable-textarea="project.references"
-                   e-rows="3" e-cols="60">
-                    <pre>{{ project.references || 'no literature references' }}</pre>
-                </a>
-            </div>
-
-            <!--<button ng-click="editDisabled=!editDisabled">disable all / enable all</button>-->
-
-            <h4>Description</h4>
-            <my-text-editor content="project.description"></my-text-editor>
-
-            <!-- Attach files-->
-            <my-file-uploader-result entityid="project.id"></my-file-uploader-result>
-
-
         </div>
     </div>
-    <div style="margin-top: 30px;">
-        <button class="btn btn-success" style="margin: 5px;" type="button" ng-click="save()">Save</button>
-        <button class="btn btn-info" style="margin: 5px;" type="button" ng-click="newNotebook($event)">Create Notebook</button>
+    <div class="panel-footer text-right">
+        <button class="btn btn-success" type="button" ng-click="save()">Save</button>
+        <button class="btn btn-info" type="button" ng-click="newNotebook($event)">Create Notebook</button>
     </div>
 </div>

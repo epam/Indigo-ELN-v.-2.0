@@ -7,16 +7,20 @@
             <div class="row">
                 <div class="col-xs-6">
                     <my-input my-label="Notebook Batch #"
+                              my-model="model.productBatchDetails.notebookBatch"
                     ></my-input>
                     <my-two-toggle my-label="Product"
                                    my-first="Yes"
                                    my-second="No"
+                                   my-model="model.productBatchDetails.isProduct"
                     ></my-two-toggle>
                     <my-select my-label="Status"
                     ></my-select>
                     <my-input my-label="Conversational Batch #"
+                              my-model="model.productBatchDetails.conversational"
                     ></my-input>
                     <my-input my-label="Virtual Compound Id"
+                              my-model="model.productBatchDetails.virtualCompoundId"
                     ></my-input>
                     <my-select my-label="Source"
                     ></my-select>
@@ -29,34 +33,44 @@
                     <my-select my-label="Salt Code & Name"
                     ></my-select>
                     <my-input my-label="Salt Equivalent"
+                              my-model="model.productBatchDetails.saltEquivalent"
                     ></my-input>
                     <my-two-toggle my-label=""
                                    my-first="Intermediate"
                                    my-second="Test Compound"
+                                   my-model="model.productBatchDetails.batchType"
                     ></my-two-toggle>
                     <my-select my-label="Compound State"
                     ></my-select>
                     <my-text-area my-label="Batch Comments"
+                                  my-model="model.productBatchDetails.comments"
                     ></my-text-area>
                 </div>
                 <div class="col-xs-6">
                     <my-text-area my-label="External Supplier"
+                                  my-model="model.productBatchDetails.externalSupplier"
                     ></my-text-area>
                     <my-text-area my-label="Purity"
+                                  my-model="model.productBatchDetails.purity"
                     ></my-text-area>
                     <my-text-area my-label="Melting Point"
+                                  my-model="model.productBatchDetails.meltingPoint"
                     ></my-text-area>
                     <my-input my-label="Residual Solvents"
+                              my-model="model.productBatchDetails.residualSolvents"
                     ></my-input>
                     <my-input my-label="Solubility in Solvents"
+                              my-model="model.productBatchDetails.solubilitySolvents"
                     ></my-input>
                     <my-input my-label="Precursor/Reactant IDs"
+                              my-model="model.productBatchDetails.precursorReactant"
                     ></my-input>
                     <my-select my-label="Compound Protection"
                     ></my-select>
                     <my-select my-label="Sterioisomer Code"
                     ></my-select>
                     <my-text-area my-label="Structure comments"
+                                  my-model="model.productBatchDetails.structureComments"
                     ></my-text-area>
                     <my-simple-text my-label="Theoretical Amounts"
                                     my-empty-text="none"></my-simple-text>
@@ -69,10 +83,13 @@
             <div class="row">
                 <div class="col-xs-12">
                     <my-text-area my-label="Health Hazards"
+                                  my-model="model.productBatchDetails.healthHazards"
                     ></my-text-area>
                     <my-text-area my-label="Handling Precautions"
+                                  my-model="model.productBatchDetails.handlingPrecautions"
                     ></my-text-area>
                     <my-text-area my-label="Storage Instructions"
+                                  my-model="model.productBatchDetails.storageInstructions"
                     ></my-text-area>
                     <div class="form-group">
                         <label class="control-label">Vials/Tubes Containing this Batch</label>

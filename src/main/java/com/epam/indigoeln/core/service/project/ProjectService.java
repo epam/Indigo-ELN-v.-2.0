@@ -7,19 +7,17 @@ import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.ChildReferenceException;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.ChildReferenceException;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -43,19 +41,31 @@ public class ProjectService {
     @Autowired
     private SequenceIdService sequenceIdService;
 
-    public Collection<ProjectDTO> getAllProjects(User user) {
-        Collection<Project> projects = projectRepository.findByUserId(user.getId());
-        return projects != null ? projects.stream().map(ProjectDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+    public List<TreeNodeDTO> getAllProjectsAsTreeNodes() {
+        return getAllProjectsAsTreeNodes(null);
     }
 
+    /**
+     * If user is null, then retrieve projects without checking for UserPermissions
+     * Otherwise, use checking for UserPermissions
+     */
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes(User user) {
-        Collection<Project> projects = projectRepository.findByUserId(user.getId());
+        // if user is null, then get all projects
+        Collection<Project> projects = user == null ? projectRepository.findAll() :
+                projectRepository.findByUserId(user.getId());
         return projects.stream().
                 map(project -> new TreeNodeDTO(new ProjectDTO(project), hasNotebooks(project, user))).
                 collect(Collectors.toList());
     }
 
+    /**
+     * If user is null, then check only project's notebooks list for empty
+     * Otherwise, use checking for UserPermissions
+     */
     private boolean hasNotebooks(Project project, User user) {
+        if (user == null) {
+            return !project.getNotebooks().isEmpty();
+        }
         // Checking of userPermission for "Read Sub-Entity" possibility,
         // and that project has notebooks with UserPermission for specified User
         return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
@@ -78,8 +88,7 @@ public class ProjectService {
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
-            throw new AccessDeniedException(
-                    "The current user doesn't have permissions to read project with id = " + id);
+            throw OperationDeniedException.createProjectReadOperation(project.getId());
         }
         return new ProjectDTO(project);
     }
@@ -105,8 +114,7 @@ public class ProjectService {
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, projectFromDb.getAccessList(),
                 UserPermission.UPDATE_ENTITY)) {
-            throw new AccessDeniedException(
-                    "The current user doesn't have permissions to edit project with id = " + projectDTO.getId());
+            throw OperationDeniedException.createProjectUpdateOperation(projectFromDb.getId());
         }
 
         // check of user permissions's correctness in access control list

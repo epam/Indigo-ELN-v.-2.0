@@ -15,6 +15,7 @@ angular.module('indigoeln')
 
         // TODO: find out where take the info from
         $scope.structureType = 'molecule'; // molecule (default value) or reaction
+        $scope.model = $scope.model || {};
         $scope.model.structureScheme = $scope.model.structureScheme || {};
         $scope.structure = null;
 

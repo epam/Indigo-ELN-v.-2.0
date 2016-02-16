@@ -1,32 +1,23 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,24 +44,36 @@ public class ExperimentService {
     @Autowired
     CustomDtoMapper dtoMapper;
 
-
-    public Collection<Experiment> getAllExperiments() {
-        return experimentRepository.findAll();
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(Long notebookId) {
+        return getAllExperimentTreeNodes(notebookId, null);
     }
 
-    public Collection<ExperimentDTO> getAllExperiments(String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
-                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(Long notebookId, User user) {
+        Collection<Experiment> experiments = getAllExperiments(notebookId, user);
+        return experiments.stream().
+                map(experiment -> new TreeNodeDTO(new ExperimentDTO(experiment))).
+                collect(Collectors.toList());
+    }
+
+    /**
+     * If user is null, then retrieve experiments without checking for UserPermissions
+     * Otherwise, use checking for UserPermissions
+     */
+    private Collection<Experiment> getAllExperiments(Long notebookId, User user) {
+        Notebook notebook = notebookRepository.findOneBySequenceId(notebookId).
+                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId.toString()));
+
+        if (user == null) {
+            return notebook.getExperiments();
+        }
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
         if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
                 UserPermission.READ_SUB_ENTITY)) {
-            throw new AccessDeniedException("The current user doesn't have permissions to read " +
-                    "experiments of notebook with id = " + notebook.getId());
+            throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
         }
 
-        return getExperimentsWithAccess(notebook.getExperiments(), user.getId()).
-                    stream().map(ExperimentDTO::new).collect(Collectors.toList());
+        return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
     }
 
     public ExperimentDTO getExperiment(String id, User user) {
@@ -88,8 +91,7 @@ public class ExperimentService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.READ_SUB_ENTITY,
                     experiment.getAccessList(), UserPermission.READ_ENTITY)) {
-                throw new AccessDeniedException("The current user doesn't have permissions " +
-                        "to read experiment with id = " + experiment.getId());
+                throw OperationDeniedException.createExperimentReadOperation(experiment.getId());
             }
         }
         return new ExperimentDTO(experiment);
@@ -107,8 +109,7 @@ public class ExperimentService {
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
                 UserPermission.CREATE_SUB_ENTITY)) {
-            throw new AccessDeniedException(
-                    "The current user doesn't have permissions to create experiment");
+            throw OperationDeniedException.createNotebookSubEntityCreateOperation(notebook.getId());
         }
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
@@ -143,8 +144,7 @@ public class ExperimentService {
             if (!PermissionUtil.hasPermissions(user.getId(),
                     notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                throw new AccessDeniedException(
-                        "The current user doesn't have permissions to update experiment with id = " + experimentDTO.getId());
+                throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
             }
         }
 
