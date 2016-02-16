@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.service.template.TemplateService;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;

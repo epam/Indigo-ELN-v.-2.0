@@ -10,13 +10,10 @@ import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -112,7 +109,7 @@ public class NotebookResource {
                                                       @RequestBody @Valid NotebookDTO notebook) {
         log.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
-        notebook = notebookService.updateNotebook(notebook, user);
+        notebook = notebookService.updateNotebook(notebook, projectId, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, notebook.getId());
         return ResponseEntity.ok().headers(headers).body(notebook) ;
     }

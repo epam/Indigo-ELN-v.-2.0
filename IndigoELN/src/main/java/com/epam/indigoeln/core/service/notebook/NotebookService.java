@@ -101,13 +101,14 @@ public class NotebookService {
     }
 
     public NotebookDTO getNotebookById(String projectId, String id, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, id))).
+        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, id);
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
         // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
-            Project project = projectRepository.findByNotebookId(notebook.getId());
+            Project project = projectRepository.findByNotebookId(fullNotebookId);
             if (project == null) {
                 throw EntityNotFoundException.createWithProjectChildId(notebook.getId());
             }
@@ -157,14 +158,15 @@ public class NotebookService {
         return new NotebookDTO(notebook);
     }
 
-    public NotebookDTO updateNotebook(NotebookDTO notebookDTO, User user) {
-        Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(notebookDTO.getId())).
+    public NotebookDTO updateNotebook(NotebookDTO notebookDTO, String projectId, User user) {
+        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, notebookDTO.getId());
+        Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
         // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
-            Project project = projectRepository.findByNotebookId(notebookFromDB.getId());
+            Project project = projectRepository.findByNotebookId(fullNotebookId);
             if (project == null) {
                 throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
             }
@@ -185,14 +187,15 @@ public class NotebookService {
     }
 
     public void deleteNotebook(String projectId, String id) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, id))).
+        String fullNotebookId = BasicModelObject.getFullEntityId(projectId, id);
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         if(notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
             throw new ChildReferenceException(notebook.getId());
         }
 
-        Project project = projectRepository.findByNotebookId(notebook.getId());
+        Project project = projectRepository.findByNotebookId(fullNotebookId);
         if (project == null) {
             throw EntityNotFoundException.createWithProjectChildId(notebook.getId());
         }
