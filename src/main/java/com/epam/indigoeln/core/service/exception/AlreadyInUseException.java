@@ -7,6 +7,8 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
  */
 public class AlreadyInUseException extends CustomParametrizedException {
 
+    private static final long serialVersionUID = 5641713615602592557L;
+
     public AlreadyInUseException(String message, String params) {
         super(message, params);
     }
@@ -19,8 +21,8 @@ public class AlreadyInUseException extends CustomParametrizedException {
         return new AlreadyInUseException("The user with id = " + userId + " already in use", userId);
     }
 
-    public static AlreadyInUseException createWithTemplateId(long sequenceId) {
-        return new AlreadyInUseException("The template with id = " + sequenceId + " already in use", String.valueOf(sequenceId));
+    public static AlreadyInUseException createWithTemplateId(String templateId) {
+        return new AlreadyInUseException("The template with id = " + templateId + " already in use", String.valueOf(templateId));
     }
 
 }
