@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.experiment;
 
+import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
@@ -12,6 +13,7 @@ import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
@@ -48,14 +50,17 @@ public class ExperimentService {
     private UserRepository userRepository;
 
     @Autowired
+    private SequenceIdService sequenceIdService;
+
+    @Autowired
     CustomDtoMapper dtoMapper;
 
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String notebookId) {
-        return getAllExperimentTreeNodes(notebookId, null);
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
+        return getAllExperimentTreeNodes(projectId, notebookId, null);
     }
 
-    public List<TreeNodeDTO> getAllExperimentTreeNodes(String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(notebookId, user);
+    public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
         return experiments.stream().
                 map(experiment -> new TreeNodeDTO(new ExperimentDTO(experiment))).
                 collect(Collectors.toList());
@@ -65,8 +70,8 @@ public class ExperimentService {
      * If user is null, then retrieve experiments without checking for UserPermissions
      * Otherwise, use checking for UserPermissions
      */
-    private Collection<Experiment> getAllExperiments(String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+    private Collection<Experiment> getAllExperiments(String projectId, String notebookId, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId))).
                 orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
 
         if (user == null) {
@@ -82,8 +87,8 @@ public class ExperimentService {
         return getExperimentsWithAccess(notebook.getExperiments(), user.getId());
     }
 
-    public ExperimentDTO getExperiment(String id, User user) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(id)).
+    public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
@@ -107,8 +112,8 @@ public class ExperimentService {
         return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
-    public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String notebookId, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+    public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId))).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
@@ -126,8 +131,9 @@ public class ExperimentService {
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
 
         experiment.setComponents(updateComponents(null, experiment.getComponents()));
+
         //increment sequence Id
-        //experiment.setId(sequenceIdRepository.getNextExperimentId(projectId, notebookId));
+        experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
@@ -135,8 +141,8 @@ public class ExperimentService {
         return new ExperimentDTO(experiment);
     }
 
-    public ExperimentDTO updateExperiment(ExperimentDTO experimentDTO, User user) {
-        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(experimentDTO.getId())).
+    public ExperimentDTO updateExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user) {
+        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, experimentDTO.getId()))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
@@ -201,8 +207,8 @@ public class ExperimentService {
     }
 
 
-    public void deleteExperiment(String id, String notebookId) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(id)).
+    public void deleteExperiment(String id, String projectId, String notebookId) {
+        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(BasicModelObject.getFullEntityId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).

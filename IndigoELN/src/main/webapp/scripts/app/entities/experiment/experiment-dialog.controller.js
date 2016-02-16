@@ -5,6 +5,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
 
         $scope.experiment = entity;
         $scope.notebookId = $stateParams.notebookId;
+        $scope.projectId = $stateParams.projectId;
         $scope.templates = templates;
         $scope.mode = mode;
         $scope.template = _.find($scope.templates, function (template) {
@@ -12,7 +13,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
         });
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
-            $state.go('experiment.detail', {notebookId: $stateParams.notebookId, id: result.id});
+            $state.go('experiment.detail', {notebookId: $stateParams.notebookId, projectId: $stateParams.projectId, id: result.id});
         };
 
         var onSaveError = function (result) {
@@ -24,11 +25,12 @@ angular.module('indigoeln').controller('ExperimentDialogController',
             $scope.experiment = _.extend($scope.experiment, {templateId: $scope.template.id})
             if ($scope.experiment.id != null) {
                 Experiment.update({
+                    projectId: $stateParams.projectId,
                     notebookId: $stateParams.notebookId,
                     id: $scope.experiment.id
                 }, $scope.experiment, onSaveSuccess, onSaveError);
             } else {
-                Experiment.save({notebookId: $stateParams.notebookId}, $scope.experiment, onSaveSuccess, onSaveError);
+                Experiment.save({notebookId: $stateParams.notebookId, projectId: $stateParams.projectId}, $scope.experiment, onSaveSuccess, onSaveError);
             }
         };
 

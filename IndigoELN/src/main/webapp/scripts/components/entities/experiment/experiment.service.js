@@ -2,8 +2,9 @@
 
 angular.module('indigoeln')
     .factory('Experiment', function ($resource, DateUtils) {
-        return $resource('api/notebooks/:notebookId/experiments/:experimentId',
+        return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
             {
+                projectId: '@projectId',
                 notebookId: '@notebookId',
                 experimentId: '@experimentId'
             }, {

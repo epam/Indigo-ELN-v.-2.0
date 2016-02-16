@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.notebook;
 
+import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
@@ -97,8 +98,8 @@ public class NotebookService {
         return experiments.stream().anyMatch(e -> PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId) != null);
     }
 
-    public NotebookDTO getNotebookById(String id, User user) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(id)).
+    public NotebookDTO getNotebookById(String projectId, String id, User user) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
@@ -177,9 +178,9 @@ public class NotebookService {
         return new NotebookDTO(notebookRepository.save(notebookFromDB));
     }
 
-    public void deleteNotebook(String id) {
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(id)).orElseThrow(
-                () -> EntityNotFoundException.createWithNotebookId(id));
+    public void deleteNotebook(String projectId, String id) {
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(BasicModelObject.getFullEntityId(projectId, id))).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
         if(notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
             throw new ChildReferenceException(notebook.getId());

@@ -20,7 +20,7 @@ angular.module('indigoeln')
             })
             .state('experiment.new', {
                 parent: 'experiment',
-                url: 'notebook/{notebookId}/experiment/new',
+                url: 'project/{projectId}/notebook/{notebookId}/experiment/new',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
@@ -49,7 +49,7 @@ angular.module('indigoeln')
             })
             .state('experiment.detail', {
                 parent: 'entity',
-                url: '/notebook/{notebookId}/experiment/{id}',
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/{id}',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'Experiment'
@@ -64,7 +64,7 @@ angular.module('indigoeln')
                     data: function ($stateParams, Experiment, $q, Template) {
                         var deferred = $q.defer();
                         Experiment
-                            .get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId})
+                            .get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId, projectId: $stateParams.projectId})
                             .$promise
                             .then(function (experiment) {
                                 Template
@@ -83,7 +83,7 @@ angular.module('indigoeln')
             })
             .state('experiment.edit', {
                 parent: 'experiment',
-                url: 'notebook/{notebookId}/experiment/{id}/edit',
+                url: 'project/{projectId}/notebook/{notebookId}/experiment/{id}/edit',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
@@ -97,7 +97,8 @@ angular.module('indigoeln')
                     entity: function (Experiment, $stateParams) {
                         return Experiment.get({
                             experimentId: $stateParams.id,
-                            notebookId: $stateParams.notebookId
+                            notebookId: $stateParams.notebookId,
+                            projectId: $stateParams.projectId
                         }).$promise;
                     },
                     templates: function (Template) {

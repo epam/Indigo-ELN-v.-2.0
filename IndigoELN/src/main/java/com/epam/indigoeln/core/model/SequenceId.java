@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,7 +16,10 @@ public class SequenceId implements Serializable {
     private static final long serialVersionUID = 2661973943428932165L;
 
     @Id
-    private Long id;
+    private String id;
+
+    @NotNull
+    private Long sequence;
 
     @Version
     private Long version;
@@ -26,20 +30,28 @@ public class SequenceId implements Serializable {
     public SequenceId() {
     }
 
-    public SequenceId(Long id) {
-        this.id = id;
+    public SequenceId(Long sequence) {
+        this.sequence = sequence;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
+    }
+
+    public Long getSequence() {
+        return sequence;
     }
 
     public List<SequenceId> getChildren() {
         return children;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
+    }
+
+    public void setSequence(Long sequence) {
+        this.sequence = sequence;
     }
 
     public void setChildren(List<SequenceId> children) {
@@ -53,18 +65,20 @@ public class SequenceId implements Serializable {
         if (!(o instanceof SequenceId)) return false;
         SequenceId that = (SequenceId) o;
         return  Objects.equal(id, that.id) &&
+                Objects.equal(sequence, that.sequence) &&
                 Objects.equal(children, that.children);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, children);
+        return Objects.hashCode(id, sequence, children);
     }
 
     @Override
     public String toString() {
         return "SequenceId{" +
                 "id='" + id + '\'' +
+                ", sequence='" + sequence + '\'' +
                 ", children=" + children +
                 '}';
     }

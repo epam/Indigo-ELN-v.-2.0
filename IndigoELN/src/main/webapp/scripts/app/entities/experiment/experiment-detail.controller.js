@@ -5,6 +5,7 @@ angular.module('indigoeln')
         $scope.experiment = data.entity;
         $scope.template = data.template;
         $scope.notebookId = $stateParams.notebookId;
+        $scope.projectId = $stateParams.projectId;
         $scope.model = toModel($scope.experiment.components);
         Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
             $scope.isContentEditor = result;
