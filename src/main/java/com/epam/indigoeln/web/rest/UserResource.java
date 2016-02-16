@@ -9,7 +9,6 @@ import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -141,9 +140,4 @@ public class UserResource {
         return ResponseEntity.ok().headers(headers).build();
     }
 
-    @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<Void> userAlreadyExists() {
-        HttpHeaders headers = HeaderUtil.createErrorAlert("Login is already in use", "user-management");
-        return ResponseEntity.badRequest().headers(headers).build();
-    }
 }
