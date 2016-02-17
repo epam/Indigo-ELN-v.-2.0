@@ -5,11 +5,11 @@ angular.module('indigoeln')
         $stateProvider
             .state('project', {
                 parent: 'entity',
-                url: '/projects/{id}',
+                url: '/project/{id}',
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/project/project-detail.html',
-                        controller: 'ProjectDetailController'
+                        templateUrl: 'scripts/app/entities/project/project-dialog.html',
+                        controller: 'ProjectDialogController'
                     }
                 },
                 data: {
@@ -18,7 +18,7 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     project: function($stateParams, Project) {
-                        return Project.get({id : $stateParams.id}).$promise;
+                        return $stateParams.id ?  Project.get({id : $stateParams.id}).$promise : {};
                     }
                 }
             })
@@ -44,7 +44,7 @@ angular.module('indigoeln')
                     }).result.then(function(result) {
                         PermissionManagement.setAccessList(result);
                         $rootScope.$broadcast('access-list-changed');
-                        $state.go('project');
+                        $state.go('project', {id: $stateParams.id});
                     }, function() {
                         $state.go('^');
                     })
