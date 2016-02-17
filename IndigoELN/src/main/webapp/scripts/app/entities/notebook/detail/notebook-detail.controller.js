@@ -4,6 +4,8 @@ angular.module('indigoeln')
     .controller('NotebookDetailController', function ($scope, $state, $stateParams, $uibModal, Template, data) {
         $scope.notebook = data;
         $scope.description = '';
+        $scope.projectId = $stateParams.projectId;
+
 
         $scope.newExperiment = function () {
             var modalInstance = $uibModal.open({
