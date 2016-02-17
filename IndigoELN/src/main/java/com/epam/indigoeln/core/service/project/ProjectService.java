@@ -95,16 +95,17 @@ public class ProjectService {
     }
 
     public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
-        // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, projectDTO.getAccessList());
-        // add OWNER's permissions to project
-        PermissionUtil.addOwnerToAccessList(projectDTO.getAccessList(), user);
-        // reset project's id
-        Project projectForSave = mapper.convertFromDTO(projectDTO);
-        projectForSave.setId(sequenceIdService.getNextProjectId());
+        Project project = mapper.convertFromDTO(projectDTO);
 
-        Project saved = projectRepository.save(projectForSave);
-        return new ProjectDTO(saved);
+        // check of user permissions's correctness in access control list
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
+        // add OWNER's permissions to project
+        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user);
+        // reset project's id
+        project.setId(sequenceIdService.getNextProjectId());
+
+        project = projectRepository.save(project);
+        return new ProjectDTO(project);
     }
 
     public ProjectDTO updateProject(ProjectDTO projectDTO, User user) {
@@ -118,19 +119,20 @@ public class ProjectService {
             throw OperationDeniedException.createProjectUpdateOperation(projectFromDb.getId());
         }
 
+        Project project = mapper.convertFromDTO(projectDTO);
         // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, projectDTO.getAccessList());
+        PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
 
         // do not change old project's notebooks and file ids and author
-        projectFromDb.setName(projectDTO.getName());
-        projectFromDb.setDescription(projectDTO.getDescription());
-        projectFromDb.setTags(projectDTO.getTags());
-        projectFromDb.setKeywords(projectDTO.getKeywords());
-        projectFromDb.setReferences(projectDTO.getReferences());
-        projectFromDb.setAccessList(projectDTO.getAccessList());
+        projectFromDb.setName(project.getName());
+        projectFromDb.setDescription(project.getDescription());
+        projectFromDb.setTags(project.getTags());
+        projectFromDb.setKeywords(project.getKeywords());
+        projectFromDb.setReferences(project.getReferences());
+        projectFromDb.setAccessList(project.getAccessList());
 
-        Project savedProject = projectRepository.save(projectFromDb);
-        return new ProjectDTO(savedProject);
+        project = projectRepository.save(projectFromDb);
+        return new ProjectDTO(project);
     }
 
     public void deleteProject(String id) {

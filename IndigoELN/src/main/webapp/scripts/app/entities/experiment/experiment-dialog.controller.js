@@ -8,9 +8,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
         $scope.projectId = $stateParams.projectId;
         $scope.templates = templates;
         $scope.mode = mode;
-        $scope.template = _.find($scope.templates, function (template) {
-            return template.id == $scope.experiment.templateId;
-        });
+        $scope.template = $scope.experiment.template;
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
             $state.go('experiment.detail', {notebookId: $stateParams.notebookId, projectId: $stateParams.projectId, id: result.id});
@@ -22,7 +20,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
 
         $scope.save = function () {
             $scope.isSaving = true;
-            $scope.experiment = _.extend($scope.experiment, {templateId: $scope.template.id})
+            $scope.experiment = _.extend($scope.experiment, {template: $scope.template})
             if ($scope.experiment.id != null) {
                 Experiment.update({
                     projectId: $stateParams.projectId,

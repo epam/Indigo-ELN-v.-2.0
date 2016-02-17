@@ -6,20 +6,17 @@ angular.module('indigoeln')
         $scope.permissions = permissions;
         $scope.author = PermissionManagement.getAuthor();
         $scope.accessList = PermissionManagement.getAccessList();
-        $scope.$watchCollection('selectedMembers', function (items) {
-            _.each(items, $scope.addMember);
-            var memberIds = _.pluck(items, 'id');
-            $scope.accessList = _.filter($scope.accessList, function (member) {
-                return _.contains(memberIds, member.user.id) || $scope.isAuthor(member);
-            });
-
+        $scope.$watch('selectedMembers', function (user) {
+            $scope.addMember(user);
         });
 
         $scope.addMember = function(member) {
-            var members = _.pluck($scope.accessList, 'user');
-            var memberIds = _.pluck(members, 'id');
-            if (!_.contains(memberIds, member.id)) {
-                $scope.accessList.push({user: member, permissions: $scope.permissions[0].id});
+            if (member) {
+                var members = _.pluck($scope.accessList, 'user');
+                var memberIds = _.pluck(members, 'id');
+                if (!_.contains(memberIds, member.id)) {
+                    $scope.accessList.push({user: member, permissions: [], permissionView: $scope.permissions[0].id});
+                }
             }
         };
 
