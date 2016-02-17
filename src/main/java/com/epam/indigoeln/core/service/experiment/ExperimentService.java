@@ -21,6 +21,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.validation.ValidationException;
 
 import java.util.ArrayList;
@@ -124,6 +125,11 @@ public class ExperimentService {
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
 
+        if (experimentDTO.getTemplate() != null) {
+            Template template = new Template();
+            template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+            experiment.setTemplate(template);
+        }
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
@@ -133,6 +139,8 @@ public class ExperimentService {
 
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
+
+        //generate name
         experiment.setName(SequenceIdUtil.generateExperimentName(experiment));
 
         experiment = experimentRepository.save(experiment);
@@ -162,11 +170,16 @@ public class ExperimentService {
         }
 
         Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
+        if (experimentDTO.getTemplate() != null) {
+            Template template = new Template();
+            template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+            experimentForSave.setTemplate(template);
+        }
 
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
 
-        experimentFromDB.setTemplateId(experimentForSave.getTemplateId());
+        experimentFromDB.setTemplate(experimentForSave.getTemplate());
         experimentFromDB.setAccessList(experimentForSave.getAccessList());
         experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
         experimentFromDB.setComments(experimentForSave.getComments());
@@ -184,10 +197,10 @@ public class ExperimentService {
         List<String> componentIdsForRemove = componentsFromDb.stream().map(Component::getId).collect(Collectors.toList());
 
         List<Component> componentsForSave = new ArrayList<>();
-        for(Component component : newComponents) {
-            if(component.getId() != null) {
+        for (Component component : newComponents) {
+            if (component.getId() != null) {
                 Optional<Component> existing = componentsFromDb.stream().filter(c -> c.getId().equals(component.getId())).findFirst();
-                if(existing.isPresent()) {
+                if (existing.isPresent()) {
                     Component componentForSave = existing.get();
                     componentForSave.setContent(component.getContent());
                     componentIdsForRemove.remove(componentForSave.getId());
@@ -220,7 +233,7 @@ public class ExperimentService {
 
         //delete experiment components
         Optional.ofNullable(experiment.getComponents()).ifPresent(components ->
-            componentRepository.deleteAllById(components.stream().map(Component::getId).collect(Collectors.toList()))
+                componentRepository.deleteAllById(components.stream().map(Component::getId).collect(Collectors.toList()))
         );
 
         fileRepository.delete(experiment.getFileIds());
@@ -228,8 +241,8 @@ public class ExperimentService {
     }
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        return  experiments == null ? new ArrayList<>() :
+        return experiments == null ? new ArrayList<>() :
                 experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
-                    experiment.getAccessList(), userId) != null).collect(Collectors.toList());
+                        experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 }

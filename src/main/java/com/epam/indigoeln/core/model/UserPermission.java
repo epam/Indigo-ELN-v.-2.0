@@ -23,6 +23,11 @@ public class UserPermission {
     public static final String READ_SUB_ENTITY = "READ_SUB_ENTITY";
     public static final String CREATE_SUB_ENTITY = "CREATE_SUB_ENTITY";
 
+    public static final String VIEWER = "VIEWER";
+    public static final String CHILD_VIEWER = "CHILD_VIEWER";
+    public static final String USER = "USER";
+    public static final String OWNER = "OWNER";
+
     public static final Set<String> VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY);
     public static final Set<String> CHILD_VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY);
     public static final Set<String> USER_PERMISSIONS =
@@ -78,6 +83,20 @@ public class UserPermission {
 
     public boolean hasPermission(String permission) {
         return permission != null && this.permissions.contains(permission);
+    }
+
+    public String getPermissionView() {
+        if (OWNER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(OWNER_PERMISSIONS)) {
+            return OWNER;
+        } else if (USER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(USER_PERMISSIONS)) {
+            return USER;
+        } else if (CHILD_VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(CHILD_VIEWER_PERMISSIONS)) {
+            return CHILD_VIEWER;
+        } else if (VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(VIEWER_PERMISSIONS)) {
+            return VIEWER;
+        } else {
+            return null;
+        }
     }
 
     @Override
