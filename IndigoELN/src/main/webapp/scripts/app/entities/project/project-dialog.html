@@ -55,7 +55,7 @@
             </form>
         </div>
         <div class="panel-footer text-left">
-            <button class="btn btn-info" type="button" ng-click="newNotebook($event)">Create Notebook</button>
+            <button class="btn btn-info" type="button" ng-disabled="!project.id" ng-click="newNotebook($event)">Create Notebook</button>
         </div>
         <div class="panel-footer text-right">
             <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving" class="btn btn-primary">
