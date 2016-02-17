@@ -35,6 +35,7 @@ angular.module('indigoeln')
                 $scope.isSaving = false;
                 AlertService.success('Project successfully saved');
                 $rootScope.$broadcast('project-created', {id: result.id});
+                $state.go('project', {id: result.id});
             };
 
             var onSaveError = function (result) {

@@ -4,7 +4,6 @@ import com.epam.indigoeln.core.util.JsonUtil;
 import com.google.common.base.Objects;
 import com.mongodb.BasicDBList;
 import org.json.JSONArray;
-import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -19,16 +18,9 @@ public class Template extends BasicModelObject  {
 
     private static final long serialVersionUID = 4518230352458447262L;
 
-    @Version
-    private Long version;
-
 
     @Field("content")
     private BasicDBList templateContent;
-
-    public Long getVersion() {
-        return version;
-    }
 
     public BasicDBList getTemplateContent() {
         return templateContent;

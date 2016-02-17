@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
@@ -38,6 +39,9 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @LastModifiedBy
     private User lastModifiedBy;
 
+    @Version
+    private Long version;
+
     private Set<UserPermission> accessList = new HashSet<>();
 
     public String getId() {
@@ -66,6 +70,10 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     public Set<UserPermission> getAccessList() {
         return accessList;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 
     public void setId(String id) {
@@ -119,6 +127,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Override
     public boolean isNew() {
-        return getId() == null;
+        return Long.valueOf(0L).equals(version);
     }
 }
