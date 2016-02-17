@@ -5,53 +5,52 @@ angular.module('indigoeln')
         $stateProvider
             .state('notebook', {
                 parent: 'entity',
-                url: '/project/{projectId}/notebook/{id}',
+                url: '/project/{projectId}/notebook/{notebookId}',
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/notebook/detail/notebook-detail.html',
-                        controller: 'NotebookDetailController'
+                        templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
+                        controller: 'NotebookDialogController'
                     }
                 },
-                //params: {
-                //    projectId: ''
-                //},
                 data: {
-                    authorities: ['NOTEBOOK_READER', 'CONTENT_EDITOR'],
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    data: ['$stateParams', 'Notebook', function($stateParams, Notebook) {
-                        return Notebook.get({projectId: $stateParams.projectId, id : $stateParams.id}).$promise;
-                    }]
+                    notebook: function($stateParams, Notebook) {
+                        return $stateParams.id ?  Notebook.get({projectId: $stateParams.projectId, id: $stateParams.id}).$promise : {};
+                    },
+                    identity: function (Principal) {
+                        return Principal.identity()
+                    }
                 }
             })
-            .state('newnotebook', {
-                parent: 'entity',
-                url: '/newnotebook',
+            .state('notebook.permissions', {
+                parent: 'notebook',
+                url: '/permissions',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
-                params: {
-                    projectId: '',
-                    notebookName: ''
-                },
-                views: {
-                    'content@app_page': {
-                        templateUrl: 'scripts/app/entities/notebook/new/new-notebook.html',
-                        controller: 'NewNotebookController'
-                    }
-                },
-                bindToController: true,
-                resolve: {
-                    notebook: function(Notebook, $stateParams) {
-                        return Notebook.save({projectId: $stateParams.projectId}, {
-                            name : $stateParams.notebookName,
-                            accessList: [] //TODO add access list [{userId: 'userId', permissions: 'RERSCSUE'}, {...}]
-                        }).$promise;
-                    },
-                    projectId: function($stateParams) {
-                        return $stateParams.projectId;
-                    }
+                onEnter: function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
+                    $uibModal.open({
+                        templateUrl: 'scripts/components/permissions/permission-management.html',
+                        controller: 'PermissionManagementController',
+                        size: 'lg',
+                        resolve: {
+                            users: function(User) {
+                                return User.query().$promise;
+                            },
+                            permissions: function() {
+                                return PermissionManagement.getNotebookPermissions();
+                            }
+                        }
+                    }).result.then(function(result) {
+                        PermissionManagement.setAccessList(result);
+                        $rootScope.$broadcast('access-list-changed');
+                        $state.go('notebook', {projectId: $stateParams.projectId, id: $stateParams.id});
+                    }, function() {
+                        $state.go('^');
+                    })
                 }
             });
     });
