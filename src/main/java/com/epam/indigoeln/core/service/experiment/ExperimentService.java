@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.experiment;
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;

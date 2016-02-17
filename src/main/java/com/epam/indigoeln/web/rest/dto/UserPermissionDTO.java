@@ -8,6 +8,8 @@ import java.util.Set;
 
 public class UserPermissionDTO implements Serializable {
 
+    private static final long serialVersionUID = 9077368415315367596L;
+
     private User user;
 
     private Set<String> permissions;
