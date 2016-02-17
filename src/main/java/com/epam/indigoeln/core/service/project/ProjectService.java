@@ -15,7 +15,6 @@ import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -99,8 +98,6 @@ public class ProjectService {
 
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, project.getAccessList());
-        // add OWNER's permissions to project
-        PermissionUtil.addOwnerToAccessList(project.getAccessList(), user);
         // reset project's id
         project.setId(sequenceIdService.getNextProjectId());
 

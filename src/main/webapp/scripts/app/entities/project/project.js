@@ -19,6 +19,9 @@ angular.module('indigoeln')
                 resolve: {
                     project: function($stateParams, Project) {
                         return $stateParams.id ?  Project.get({id : $stateParams.id}).$promise : {};
+                    },
+                    identity: function (Principal) {
+                        return Principal.identity()
                     }
                 }
             })

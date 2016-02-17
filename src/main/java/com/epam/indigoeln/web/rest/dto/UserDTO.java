@@ -14,6 +14,9 @@ import java.util.Set;
  */
 public class UserDTO {
 
+    @NotNull
+    private String id;
+
     @Pattern(regexp = "^[a-z0-9]*$")
     @NotNull
     @Size(min = 1, max = 50)
@@ -37,19 +40,24 @@ public class UserDTO {
     }
 
     public UserDTO(User user) {
-        this(user.getLogin(), user.getFirstName(), user.getLastName(),
+        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
                 user.getEmail(), user.getActivated(), user.getAuthorities());
     }
 
-    public UserDTO(String login, String firstName, String lastName,
+    public UserDTO(String id, String login, String firstName, String lastName,
                    String email, boolean activated, Set<Authority> authorities) {
 
+        this.id = id;
         this.login = login;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.activated = activated;
         this.authorities = authorities;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getLogin() {
@@ -79,12 +87,13 @@ public class UserDTO {
     @Override
     public String toString() {
         return "UserDTO{" +
-                "login='" + login + '\'' +
+                "id='" + id + '\'' +
+                ", login='" + login + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", activated=" + activated +
                 ", authorities=" + authorities +
-                "}";
+                '}';
     }
 }

@@ -2,11 +2,12 @@
 
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function($scope, $rootScope, $uibModal, $state, project, Project, AlertService, Principal, PermissionManagement) {
+        function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, PermissionManagement, project, identity) {
 
             $scope.project = project;
-            $scope.project.author = $scope.project.author || {};
-            $scope.project.accessList = $scope.project.accessList || [];
+            $scope.project.author = $scope.project.author || identity;
+            $scope.project.accessList = $scope.project.accessList ||
+                [{user: identity, permissions: [], permissionView: 'OWNER'}];
 
             PermissionManagement.setAuthor($scope.project.author);
             PermissionManagement.setAccessList($scope.project.accessList);
