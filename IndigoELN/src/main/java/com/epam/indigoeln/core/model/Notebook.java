@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Objects;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -14,12 +13,20 @@ public class Notebook extends BasicModelObject {
     public static final String COLLECTION_NAME = "notebook";
     private static final long serialVersionUID = 1762412679516966928L;
 
-//    @Pattern(regexp = "^\\d{8}")
-//    private String name;
+    private String description;
 
     @JsonIgnore
     @DBRef
     private List<Experiment> experiments = new ArrayList<>();
+
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public List<Experiment> getExperiments() {
         return experiments;
@@ -32,21 +39,30 @@ public class Notebook extends BasicModelObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Notebook)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
+
         Notebook notebook = (Notebook) o;
-        return Objects.equal(experiments, notebook.experiments);
+
+        if (description != null ? !description.equals(notebook.description) : notebook.description != null)
+            return false;
+        return experiments != null ? experiments.equals(notebook.experiments) : notebook.experiments == null;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), experiments);
+        int result = super.hashCode();
+        result = 31 * result + (description != null ? description.hashCode() : 0);
+        result = 31 * result + (experiments != null ? experiments.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Notebook{" +
-                "experiments=" + experiments +
-                "} " + super.toString();
+                "description='" + description + '\'' +
+                ", experiments=" + experiments +
+                '}';
     }
 }
