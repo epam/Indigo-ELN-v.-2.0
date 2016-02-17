@@ -1,14 +1,21 @@
 <div>
-    <div class="panel panel-default project" style="margin-top: 30px"
+    <div class="panel panel-default projects" style="margin-top: 30px"
          cg-busy="{promise:loading, minDuration:700}">
         <div class="panel-heading">
             <div class="panel-heading">Create or edit a Project</div>
         </div>
         <div class="panel-body">
-            <form class="form-horizontal">
+            <form id="createProjectForm" name="createProjectForm" role="form" novalidate ng-submit="save()" show-validation
+                  class="form-horizontal" autocomplete="off">
                 <div class="row">
                     <div class="col-xs-12">
-                        <my-input my-label="Project Name" my-label-vertical="true" my-model="project.name"></my-input>
+                        <my-input my-label="Project Name"
+                                  my-name="projectName"
+                                  my-type="text"
+                                  my-label-vertical="true"
+                                  my-model="project.name"
+                                  my-validation-obj="createProjectForm.projectName"
+                                  my-validation-required="!project.name.trim()"></my-input>
                     </div>
                 </div>
                 <div class="row">
@@ -42,7 +49,7 @@
                                   my-model="project.references"></my-input>
                         <label class="control-label">Description</label>
                         <my-text-editor content="project.description"></my-text-editor>
-                        <my-file-uploader-result entityid="project.id"></my-file-uploader-result>
+                        <my-file-uploader-result ng-if="project.id" entityid="project.id"></my-file-uploader-result>
                     </div>
                 </div>
             </form>
@@ -51,7 +58,9 @@
             <button class="btn btn-info" type="button" ng-click="newNotebook($event)">Create Notebook</button>
         </div>
         <div class="panel-footer text-right">
-            <button class="btn btn-success" type="button" ng-click="save()">Save</button>
+            <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving" class="btn btn-primary">
+                Save
+            </button>
             <button type="button" class="btn btn-default" onclick="window.history.back()">
                 <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
             </button>
