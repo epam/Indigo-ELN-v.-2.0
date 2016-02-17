@@ -49,7 +49,10 @@ angular.module('indigoeln')
             })
             .state('experiment.detail', {
                 parent: 'entity',
-                url: '/project/{projectId}/notebook/{notebookId}/experiment/{id}',
+                url: '/experiment/{experimentId}',
+                params: {
+                    experimentId: null
+                },
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'Experiment'
@@ -61,10 +64,8 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: function ($stateParams, Experiment, Template) {
-                        return Experiment
-                            .get({experimentId: $stateParams.id, notebookId: $stateParams.notebookId, projectId: $stateParams.projectId})
-                            .$promise
+                    experiments: function ($stateParams, Experiment, ExperimentBrowser) {
+                        return ExperimentBrowser.resolveExperiments($stateParams.experimentId);
                     },
                     identity: function (Principal) {
                         return Principal.identity()
