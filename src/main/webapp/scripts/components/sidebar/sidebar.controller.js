@@ -2,7 +2,8 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments) {
+    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments,
+                                               ExperimentBrowser) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -11,7 +12,7 @@ angular
             $scope.TEMPLATE_EDITOR].join(',');
         $scope.myBookmarks = {};
         $scope.allProjects = {};
-        $scope.$on('project-created', function(event, data) {
+        $scope.$on('project-created', function (event, data) {
             if ($scope.projects) {
                 Project.query(function (result) {
                     $scope.projects = result;
@@ -19,7 +20,7 @@ angular
             }
         });
 
-        $scope.$on('notebook-created', function(event, data) {
+        $scope.$on('notebook-created', function (event, data) {
             var project = {};
             for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
                 if ($scope.projects[itemId].node.id === data.projectId) {
@@ -34,7 +35,7 @@ angular
             }
         });
 
-        $scope.$on('experiment-created', function(event, data) {
+        $scope.$on('experiment-created', function (event, data) {
             var project = {}, notebook = {};
             for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
                 if ($scope.projects[itemId].node.id === data.projectId) {
@@ -92,26 +93,32 @@ angular
         };
 
         $scope.onExperimentClick = function (experiment, notebook, project) {
-            $state.go('experiment.detail', {id: experiment.node.id, notebookId: notebook.node.id, projectId: project.node.id});
+            $state.go('experiment.detail', {
+                experimentId: ExperimentBrowser.compactIds({
+                    experimentId: experiment.node.id,
+                    notebookId: notebook.node.id,
+                    projectId: project.node.id
+                })
+            });
         };
 
-        $scope.toggleAdministration = function() {
+        $scope.toggleAdministration = function () {
             $scope.adminToggled = !$scope.adminToggled;
         };
 
-        $scope.toggleUsersAndRoles = function() {
+        $scope.toggleUsersAndRoles = function () {
             $state.go('user-management');
         };
 
-        $scope.toggleAuthorities = function() {
+        $scope.toggleAuthorities = function () {
             $state.go('role-management');
         };
 
-        $scope.toggleTemplates = function() {
+        $scope.toggleTemplates = function () {
             $state.go('template');
         };
 
-        $scope.toggleDictionaries = function() {
+        $scope.toggleDictionaries = function () {
 
         };
     });
