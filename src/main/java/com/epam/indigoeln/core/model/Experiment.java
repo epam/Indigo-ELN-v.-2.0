@@ -3,7 +3,6 @@ package com.epam.indigoeln.core.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 
-import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,9 +15,6 @@ public class Experiment extends ExperimentShort {
     public static final String COLLECTION_NAME = "experiment";
 
     private static final long serialVersionUID = -4215770980241351691L;
-
-    @Version
-    private Long version;
 
     //TODO may be need to use @DBRef
     private List<User> coAuthors;
@@ -76,10 +72,6 @@ public class Experiment extends ExperimentShort {
 
     public void setComponents(List<Component> components) {
         this.components = components;
-    }
-
-    public Long getVersion() {
-        return version;
     }
 
     public Set<String> getFileIds() {
