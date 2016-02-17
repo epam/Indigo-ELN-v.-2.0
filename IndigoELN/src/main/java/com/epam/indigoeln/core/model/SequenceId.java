@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;

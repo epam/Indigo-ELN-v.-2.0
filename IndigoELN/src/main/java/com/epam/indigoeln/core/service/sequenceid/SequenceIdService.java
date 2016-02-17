@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.sequenceid;
 import com.epam.indigoeln.core.model.SequenceId;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -45,10 +46,11 @@ public class SequenceIdService {
         sequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextNotebookId));
         repository.save(sequenceId);
 
-        return projectId + "-" + nextNotebookId;
+        return SequenceIdUtil.buildFullId(projectId, nextNotebookId.toString());
     }
 
     public String getNextExperimentId(String projectId, String notebookId) {
+
         SequenceId sequenceId = repository.findBySequence(Long.valueOf(projectId)).
                 orElseThrow(() -> new EntityNotFoundException("Can't find sequence id for project", projectId));
 
@@ -64,6 +66,6 @@ public class SequenceIdService {
         notebookSequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextExperimentId));
         repository.save(sequenceId);
 
-        return projectId + "-" + notebookId + "-" + nextExperimentId;
+        return SequenceIdUtil.buildFullId(projectId, notebookId, nextExperimentId.toString());
     }
 }
