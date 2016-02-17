@@ -9,4 +9,5 @@
     <file path="sequence_improvements.xml"/>
     <file path="remove_entities_for_creation_date.xml"/>
     <file path="index_improvements_2.xml"/>
+    <file path="sequence_improvements_2_cleanup.xml"/>
 </changeFiles>
