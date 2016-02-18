@@ -1,17 +1,12 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
-import com.epam.indigoeln.core.service.calculation.helper.RenderedStructure;
+import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
+import com.epam.indigoeln.web.rest.dto.rendering.RendererDataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/renderer")
@@ -23,36 +18,29 @@ public class StructureRendererResource {
     @Autowired
     private CalculationService calculationService;
 
-    @Autowired
-    private BingoDbIntegrationService bingoDbIntegrationService;
-
-
     /**
-     * GET /molecule/:id/image -> get structure of molecule and its graphical repr
+     * POST /molecule/image -> get molecule's graphical representation
      */
-    @RequestMapping(value = "/molecule/{id}/image", method = RequestMethod.GET)
-    public ResponseEntity<RenderedStructure> getMoleculeImage(@PathVariable Integer id,
-                                                       @RequestParam(value = "width", required=false) Integer width,
-                                                       @RequestParam(value = "height", required=false) Integer height) {
+    @RequestMapping(value = "/molecule/image", method = RequestMethod.POST)
+    public ResponseEntity<RendererResult> getMoleculeImagePOST(@RequestBody RendererDataDTO rendererData) {
 
-        String structure = bingoDbIntegrationService.getMolecule(id).get();
-        RenderedStructure result = calculationService.getStructureWithImage(structure, MOLECULE_TYPE, width, height);
+        RendererResult result = calculationService.getStructureWithImage(rendererData.getStructure(),
+                MOLECULE_TYPE, rendererData.getWidth(), rendererData.getHeight());
 
-        return new ResponseEntity<RenderedStructure>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
-     * GET /reaction/:id/image -> get structure of molecule and its graphical repr
+     * POST /reaction/image -> get reaction's graphical representation
      */
-    @RequestMapping(value = "/reaction/{id}/image", method = RequestMethod.GET)
-    public ResponseEntity<RenderedStructure> getReactionImage(@PathVariable Integer id,
-                                                       @RequestParam(value = "width", required=false) Integer width,
-                                                       @RequestParam(value = "height", required=false) Integer height) {
+    @RequestMapping(value = "/reaction/image", method = RequestMethod.POST)
+    public ResponseEntity<RendererResult> getReactionImagePOST(@RequestBody RendererDataDTO rendererData) {
 
-        String structure = bingoDbIntegrationService.getReaction(id).get();
-        RenderedStructure result = calculationService.getStructureWithImage(structure, REACTION_TYPE, width, height);
+        RendererResult result = calculationService.getStructureWithImage(rendererData.getStructure(),
+                REACTION_TYPE, rendererData.getWidth(), rendererData.getHeight());
 
-        return new ResponseEntity<RenderedStructure>(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
+
 
 }

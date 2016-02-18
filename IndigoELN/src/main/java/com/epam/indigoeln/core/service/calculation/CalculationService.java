@@ -6,7 +6,7 @@ import java.util.Map;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;
-import com.epam.indigoeln.core.service.calculation.helper.RenderedStructure;
+import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import org.springframework.stereotype.Service;
 
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
@@ -102,9 +102,9 @@ public class CalculationService {
      * @param structureType molecule or reaction
      * @param width width of final image
      * @param height height of fnal image
-     * @return RenderedStructure
+     * @return RendererResult
      */
-    public RenderedStructure getStructureWithImage(String structure, String structureType, Integer width, Integer height) {
+    public RendererResult getStructureWithImage(String structure, String structureType, Integer width, Integer height) {
 
         Indigo indigo = new Indigo();
         indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
@@ -116,8 +116,7 @@ public class CalculationService {
         // auto-generate coordinates as Bingo DB doesn't store them
         io.layout();
 
-        String genStructure = MOLECULE_TYPE.equals(structureType) ? io.molfile() : io.rxnfile();
-        return new RenderedStructure(genStructure, renderer.renderToBuffer(io));
+        return new RendererResult(renderer.renderToBuffer(io));
     }
 
 

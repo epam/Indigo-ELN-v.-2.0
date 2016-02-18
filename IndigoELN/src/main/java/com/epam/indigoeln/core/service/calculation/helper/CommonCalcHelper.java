@@ -13,7 +13,7 @@ public final class CommonCalcHelper {
 
     private static String LABEL_MODE = "hetero";
     private static String PICTURE_FORMAT = "svg";
-    private static double BOND_LENGTH = -1d;
+    private static double BOND_LENGTH = 1;
     private static boolean COLOR = true;
 
     private CommonCalcHelper() {
