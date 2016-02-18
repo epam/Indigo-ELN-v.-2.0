@@ -1,13 +1,15 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NewNotebookDialogController', function ($scope, $uibModalInstance) {
-        $scope.notebookName = '';
+    .controller('NotebookSelectProjectController', function ($scope, $uibModalInstance, projects) {
+        $scope.projects = projects;
+        $scope.selectedProject = '';
+
         $scope.ok = okPressed;
         $scope.cancel = cancelPressed;
 
         function okPressed () {
-            $uibModalInstance.close($scope.notebookName);
+            $uibModalInstance.close($scope.selectedProject.node.id);
         }
 
         function cancelPressed () {
