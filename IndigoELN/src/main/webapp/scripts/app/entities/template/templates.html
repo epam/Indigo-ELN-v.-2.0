@@ -27,8 +27,8 @@
             <!--<td><a ui-sref="template.detail({id:template.id})">{{template.id}}</a></td>-->
             <td>{{template.name}}</td>
             <td>{{template.author.login}}</td>
-            <td>{{template.creationDate | date:'myTzAbbr'}}</td>
-            <td>{{template.lastEditDate | date:'myTzAbbr'}}</td>
+            <td>{{template.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+            <td>{{template.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
             <td>
                 <button type="submit"
                         ui-sref="template.detail({id:template.id})"

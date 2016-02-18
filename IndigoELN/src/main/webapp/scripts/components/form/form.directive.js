@@ -229,8 +229,16 @@ angular.module('indigoeln')
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
+            tElement.find('input').attr('timezone', jstz.determine().name());
             return {
                 post: function postLink(scope, iElement, iAttrs, controller) {
+                    if (scope.myModel) {
+                        scope.ctrl = {};
+                        scope.ctrl.model = moment(scope.myModel);
+                        scope.$watch('ctrl.model', function (date) {
+                            scope.myModel = date ? date.toISOString() : null;
+                        });
+                    }
                     formUtils.showValidation(iElement, scope)
                 }
             }
@@ -238,13 +246,10 @@ angular.module('indigoeln')
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<div class="input-group">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" uib-datepicker-popup="myTzAbbr" is-open="isOpen" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
-        '<span class="input-group-btn">' +
-        '<button type="button" ng-disabled="myReadonly" class="btn btn-default" ng-click="isOpen = !isOpen"><i class="glyphicon glyphicon-calendar"></i></button></span>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="ctrl.model" date-time view="date" ' +
+        'format="MMM DD, YYYY HH:mm:ss z" ng-disabled="myReadonly" ng-required="myValidationRequired"/>' +
         '<div ng-show="myValidationObj.$invalid">' +
         '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
-        '</div>' +
         '</div>' +
         '</div>' +
         '</div>'
