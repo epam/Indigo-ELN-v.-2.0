@@ -13,7 +13,7 @@
     <div class="tab-pane active">
         <div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
             <div class="panel-body">
-                <form name="experimentForm">
+                <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
                     <my-components ng-init="experiment.components = toModel(experiment.components)"
                                    my-template="experiment.template.templateContent"
                                    my-disabled="!isContentEditor"
@@ -26,9 +26,10 @@
                 <a class="btn btn-default" onclick="window.history.back()">
                     <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
                 </a>
-                <a ng-click="save(experiment)" class="btn btn-primary">
+                <button type="submit" form="experimentForm" ng-disabled="experimentForm.$invalid"
+                        class="btn btn-primary">
                     <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
-                </a>
+                </button>
             </div>
         </div>
     </div>
