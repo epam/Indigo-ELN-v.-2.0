@@ -16,11 +16,13 @@ angular.module('indigoeln')
             replace: true,
             scope: {
                 myModel: '=',
-                myExperiment: '='
+                myExperiment: '=',
+                myExperimentForm: '='
             },
             link: function (scope, iElement, iAttrs, controller) {
                 scope.myComponent = iAttrs.myComponent;
                 scope.model = scope.myModel; //for capability
+                scope.experimentForm = scope.myExperimentForm; //for capability
                 scope.experiment = _.extend({}, scope.myExperiment); //for readonly
             },
             template: '<div ng-switch="myComponent">' +
@@ -39,11 +41,12 @@ angular.module('indigoeln')
             myTemplate: '=',
             myDisabled: '=',
             myModel: '=',
-            myExperiment: '='
+            myExperiment: '=',
+            myExperimentForm: '='
         },
         template: '<fieldset ng-disabled="myDisabled"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment"></div>' +
+        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     }
