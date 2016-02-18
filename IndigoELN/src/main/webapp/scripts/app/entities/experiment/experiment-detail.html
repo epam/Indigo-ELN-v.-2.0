@@ -13,11 +13,12 @@
     <div class="tab-pane active">
         <div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
             <div class="panel-body">
-                <form>
+                <form name="experimentForm">
                     <my-components ng-init="experiment.components = toModel(experiment.components)"
                                    my-template="experiment.template.templateContent"
                                    my-disabled="!isContentEditor"
                                    my-model="experiment.components"
+                                   my-experiment-form="experimentForm"
                                    my-experiment="experiment"></my-components>
                 </form>
             </div>
