@@ -7,7 +7,13 @@ angular
             projectId: '@projectId'
         }, {
             'query': {method: 'GET', isArray: true},
-            'get': {method: 'GET'},
+            'get': {
+                method: 'GET',
+                transformResponse: function (data) {
+                    data = angular.fromJson(data);
+                    return data;
+                }
+            },
             'save': {method: 'POST'},
             'update': {method: 'PUT'},
             'delete': {method: 'DELETE'}

@@ -55,9 +55,7 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id"
-                    ui-sref="notebook({projectId:project.id})">Create Notebook
-            </button>
+            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id" ui-sref="notebook({projectId:project.id})">Create Notebook</button>
             <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving" class="btn btn-primary">
                 Save
             </button>
