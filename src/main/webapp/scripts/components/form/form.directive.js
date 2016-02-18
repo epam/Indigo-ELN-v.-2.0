@@ -68,9 +68,6 @@ angular.module('indigoeln')
             if (tAttrs.myValidationRequired) {
                 tElement.find('input').attr("ng-required", tAttrs.myValidationRequired)
             }
-            if (tAttrs.myValidationObj) {
-                tElement.attr("show-validation", true)
-            }
             return {
                 post: function postLink(scope, iElement, iAttrs, controller) {
                     formUtils.showValidation(iAttrs, iElement, scope)
