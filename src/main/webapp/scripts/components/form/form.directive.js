@@ -10,8 +10,8 @@ angular.module('indigoeln')
                     tElement.children().wrap('<div class="col-xs-12"/>');
                 }
             },
-            showValidation: function (tAttrs, $formGroup, scope) {
-                if (tAttrs.myValidationObj) {
+            showValidation: function ($formGroup, scope) {
+                if (scope.myValidationObj) {
                     var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
                     if ($inputs.length > 0) {
                         $inputs.each(function () {
@@ -70,7 +70,7 @@ angular.module('indigoeln')
             }
             return {
                 post: function postLink(scope, iElement, iAttrs, controller) {
-                    formUtils.showValidation(iAttrs, iElement, scope)
+                    formUtils.showValidation(iElement, scope)
                 }
             }
         },
@@ -230,7 +230,7 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             return {
                 post: function postLink(scope, iElement, iAttrs, controller) {
-                    formUtils.showValidation(iAttrs, iElement, scope)
+                    formUtils.showValidation(iElement, scope)
                 }
             }
         },
