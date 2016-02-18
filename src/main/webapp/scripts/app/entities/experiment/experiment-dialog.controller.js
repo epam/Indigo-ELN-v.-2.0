@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentDialogController',
-    function ($scope, $stateParams, entity, Experiment, templates, mode, $state, ExperimentBrowser) {
+    function ($scope, $rootScope, $stateParams, entity, Experiment, templates, mode, $state, ExperimentBrowser) {
 
         $scope.experiment = entity;
         $scope.notebookId = $stateParams.notebookId;
@@ -18,6 +18,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
                     experimentId: result.id
                 })
             });
+            $rootScope.$broadcast('experiment-created', {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
         };
 
         var onSaveError = function (result) {
