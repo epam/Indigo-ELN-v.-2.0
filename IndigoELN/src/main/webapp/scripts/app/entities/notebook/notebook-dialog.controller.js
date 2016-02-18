@@ -8,6 +8,7 @@ angular.module('indigoeln')
             $scope.notebook.author = $scope.notebook.author || identity;
             $scope.notebook.accessList = $scope.notebook.accessList ||
                 [{user: identity, permissions: [], permissionView: 'OWNER'}];
+            $scope.projectId = $stateParams.projectId;
 
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
@@ -40,9 +41,13 @@ angular.module('indigoeln')
                 $scope.notebook.accessList = PermissionManagement.expandPermission($scope.notebook.accessList);
 
                 if ($scope.notebook.id) {
-                    Notebook.update($scope.notebook, onSaveSuccess, onSaveError);
+                    Notebook.update({
+                        projectId: $stateParams.projectId
+                    }, $scope.notebook, onSaveSuccess, onSaveError);
                 } else {
-                    Notebook.save($scope.notebook, onSaveSuccess, onSaveError);
+                    Notebook.save({
+                        projectId: $stateParams.projectId
+                    }, $scope.notebook, onSaveSuccess, onSaveError);
                 }
             };
 
@@ -55,7 +60,7 @@ angular.module('indigoeln')
                 });
                 modalInstance.result.then(function (experimentName) {
                     $rootScope.$broadcast('created-experiment', {experimentName: experimentName});
-                    $state.go('experiment.new', {notebookId:notebook.id});
+                    $state.go('experiment.new', {projectId: $stateParams.projectId, id:notebook.id});
                 }, function () {
                 });
             };

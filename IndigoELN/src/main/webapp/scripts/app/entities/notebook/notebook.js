@@ -5,7 +5,7 @@ angular.module('indigoeln')
         $stateProvider
             .state('notebook', {
                 parent: 'entity',
-                url: '/project/{projectId}/notebook/{notebookId}',
+                url: '/project/{projectId}/notebook/{id}',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
@@ -18,7 +18,14 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     notebook: function($stateParams, Notebook) {
-                        return $stateParams.id ?  Notebook.get({projectId: $stateParams.projectId, id: $stateParams.id}).$promise : {};
+                        if ($stateParams.id) {
+                            return Notebook.get({projectId: $stateParams.projectId, id: $stateParams.id});
+                        } else {
+                            return {
+                                id: null,
+                                name: null
+                            }
+                        }
                     },
                     identity: function (Principal) {
                         return Principal.identity()
