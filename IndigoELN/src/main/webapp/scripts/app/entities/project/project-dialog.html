@@ -2,7 +2,7 @@
     <div class="panel panel-default projects" style="margin-top: 30px"
          cg-busy="{promise:loading, minDuration:700}">
         <div class="panel-heading">
-            <div class="panel-heading">Create or edit a Project</div>
+            Create or edit a Project
         </div>
         <div class="panel-body">
             <form id="createProjectForm" name="createProjectForm" role="form" novalidate ng-submit="save()"
@@ -54,8 +54,10 @@
                 </div>
             </form>
         </div>
+        <div class="panel-footer text-left">
+            <button class="btn btn-info" type="button" ng-disabled="!project.id" ui-sref="notebook({projectId:project.id})">Create Notebook</button>
+        </div>
         <div class="panel-footer text-right">
-            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id" ui-sref="notebook({projectId:project.id})">Create Notebook</button>
             <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving" class="btn btn-primary">
                 Save
             </button>
