@@ -22,38 +22,42 @@ angular
 
         $scope.$on('notebook-created', function (event, data) {
             var project = {};
-            for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
-                if ($scope.projects[itemId].node.id === data.projectId) {
-                    project = $scope.projects[itemId];
-                    break;
+            if ($scope.projects) {
+                for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
+                    if ($scope.projects[itemId].node.id === data.projectId) {
+                        project = $scope.projects[itemId];
+                        break;
+                    }
                 }
-            }
-            if (project.notebooks) {
-                Notebook.query({projectId: project.node.id}, function (result) {
-                    project.notebooks = result;
-                });
+                if (project.notebooks) {
+                    Notebook.query({projectId: project.node.id}, function (result) {
+                        project.notebooks = result;
+                    });
+                }
             }
         });
 
         $scope.$on('experiment-created', function (event, data) {
             var project = {}, notebook = {};
-            for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
-                if ($scope.projects[itemId].node.id === data.projectId) {
-                    project = $scope.projects[itemId];
-                    break;
+            if ($scope.projects) {
+                for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
+                    if ($scope.projects[itemId].node.id === data.projectId) {
+                        project = $scope.projects[itemId];
+                        break;
+                    }
                 }
-            }
-            for (itemId = 0; itemId < project.notebooks.length; itemId++) {
-                if (project.notebooks[itemId].node.id === data.notebookId) {
-                    notebook = project.notebooks[itemId];
-                    break;
+                for (itemId = 0; itemId < project.notebooks.length; itemId++) {
+                    if (project.notebooks[itemId].node.id === data.notebookId) {
+                        notebook = project.notebooks[itemId];
+                        break;
+                    }
                 }
-            }
 
-            if (notebook.experiments) {
-                Experiment.query({notebookId: notebook.node.id}, function (result) {
-                    notebook.experiments = result;
-                });
+                if (notebook.experiments) {
+                    Experiment.query({notebookId: notebook.node.id}, function (result) {
+                        notebook.experiments = result;
+                    });
+                }
             }
         });
 
