@@ -66,18 +66,4 @@ angular.module('indigoeln')
                     Project.save($scope.project, onSaveSuccess, onSaveError);
                 }
             };
-
-            $scope.newNotebook = function(event) {
-                var modalInstance = $uibModal.open({
-                    animation: true,
-                    templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
-                    controller: 'NewNotebookDialogController',
-                    size: 'lg'
-                });
-                modalInstance.result.then(function (notebookName) {
-                    $rootScope.$broadcast('created-notebook', {notebookName: notebookName});
-                    $state.go('newnotebook', {notebookName: notebookName, projectId: $scope.project.id});
-                }, function () {
-                });
-            };
         });

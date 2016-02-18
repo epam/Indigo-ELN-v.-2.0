@@ -1,37 +1,21 @@
 'use strict';
 
-angular
-    .module('indigoeln')
+angular.module('indigoeln')
     .controller('NavbarController', function ($scope, $location, $state, $uibModal, $rootScope, Principal, Auth) {
         $scope.newNotebook = function () {
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/notebook/new/dialog/new-notebook-dialog.html',
-                controller: 'NewNotebookDialogController',
+                templateUrl: 'scripts/app/entities/notebook/notebook-select-project.html',
+                controller: 'NotebookSelectProjectController',
+                resolve: {
+                    projects: function (Project) {
+                        return Project.query().$promise;
+                    }
+                },
                 size: 'lg'
             });
-            modalInstance.result.then(function (notebookName) {
-                $rootScope.$broadcast('created-notebook', {notebookName: notebookName});
-                $state.go('newnotebook', {notebookName: notebookName, projectId: 'unknown_project'});
-            }, function () {
-            });
-        };
-
-        $scope.newProject = function () {
-            var modalInstance = $uibModal.open({
-                animation: true,
-                templateUrl: 'scripts/app/entities/project/new-project-dialog.html',
-                controller: 'NewProjectDialogController',
-                resolve: {
-                    users: ['User',
-                        function (User) {
-                            return User.query();
-                        }
-                    ]
-                }
-            });
-            modalInstance.result.then(function (project) {
-                $rootScope.$broadcast('created-project', {project: project});
+            modalInstance.result.then(function (projectId) {
+                $state.go('notebook', {projectId: projectId});
             }, function () {
             });
         };
