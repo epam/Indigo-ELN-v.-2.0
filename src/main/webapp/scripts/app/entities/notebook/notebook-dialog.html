@@ -1,79 +1,66 @@
-<div>
-    <div class="panel panel-default notebooks" style="margin-top: 30px"
-         cg-busy="{promise:loading, minDuration:700}">
-        <div class="panel-heading">
-            <div class="panel-heading">Create or edit a Notebook</div>
-        </div>
-        <div class="panel-body">
-            <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()" show-validation
-                  class="form-horizontal" autocomplete="off">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <label>Notebook Name</label>
-                        <input  name="notebookName"
-                                ng-model="notebookName"
-                                class="form-control"
-                                ng-pattern="/^\d{8}$/"
-                                ng-minlength="8"
-                                maxlength="8"
-                                ng-maxlength="8"
-                                required/>
-                        <div class="" ng-show="createNotebookForm.notebookName.$invalid">
-                            <p class="help-block" ng-show="createNotebookForm.notebookName.$error.required"> This field is required. </p>
-                            <p class="help-block ng-binding ng-hide" ng-show="createNotebookForm.notebookName.$error.pattern">Only 8 digits possible in this field. Example : 01234567</p>
-                        </div>
-                        <br>
-                        <!--<my-input my-label="Notebook Name"-->
-                                  <!--my-name="notebookName"-->
-                                  <!--my-type="text"-->
-                                  <!--my-label-vertical="true"-->
-                                  <!--my-model="notebook.name"-->
-                                  <!--my-validation-obj="createNotebookForm.notebookName"-->
-                                  <!--my-validation-required="!notebook.name.trim()"></my-input>-->
-                    </div>
+<div class="panel panel-default notebooks" style="margin-top: 30px" cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+        Create or edit a Notebook
+    </div>
+    <div class="panel-body">
+        <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
+              show-validation
+              class="form-horizontal" autocomplete="off">
+            <div class="row">
+
+                <div class="col-xs-12">
+                    <my-input my-label="Notebook Name"
+                              my-name="notebookName"
+                              my-model="notebook.name"
+                              my-validation-obj="createNotebookForm.notebookName"
+                              my-validation-pattern="/^\d{8}$/"
+                              my-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
+                              my-validation-required="true"></my-input>
                 </div>
-                <div class="row">
-                    <div  class="col-xs-6">
-                        <label class="control-label">Notebook Members&nbsp;</label>
-                        <button type="submit"
-                                ui-sref="notebook.permissions({id:notebook.id})"
-                                class="btn btn-primary "
-                                ng-disabled="editDisabled">
-                            <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
-                        </button>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <label class="control-label">Notebook Members&nbsp;</label>
+                    <button type="submit"
+                            ui-sref="notebook.permissions({id:notebook.id})"
+                            class="btn btn-primary "
+                            ng-disabled="editDisabled">
+                        <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
+                    </button>
                 </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <br/>
-                        <ul id="triple-list" class="members">
-                            <li class="members" ng-repeat="member in notebook.accessList">
-                            {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                            </li>
-                        </ul>
-                        <br>
-                        <br>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <br/>
+                    <ul id="triple-list" class="members">
+                        <li class="members" ng-repeat="member in notebook.accessList">
+                            {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
+                            + ')' }}
+                        </li>
+                    </ul>
+                    <br>
+                    <br>
                 </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <label class="control-label">Description</label>
-                        <my-text-editor content="notebook.description"></my-text-editor>
-                        <my-file-uploader-result ng-if="notebook.id" entityid="notebook.id"></my-file-uploader-result>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <label class="control-label">Description</label>
+                    <my-text-editor content="notebook.description"></my-text-editor>
+                    <my-file-uploader-result ng-if="notebook.id" entityid="notebook.id"></my-file-uploader-result>
                 </div>
-            </form>
-        </div>
-        <div class="panel-footer text-left">
-            <button class="btn btn-info" type="button" ng-disabled="!notebook.id" ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment</button>
-        </div>
-        <div class="panel-footer text-right">
-            <button type="submit" form="createNotebookForm" ng-disabled="createNotebookForm.$invalid || isSaving" class="btn btn-primary">
-                Save
-            </button>
-            <button type="button" class="btn btn-default" onclick="window.history.back()">
-                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
-            </button>
-        </div>
+            </div>
+        </form>
+    </div>
+    <div class="panel-footer text-right">
+        <button class="btn btn-info pull-left" type="button" ng-disabled="!notebook.id"
+                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment
+        </button>
+        <button type="submit" form="createNotebookForm" ng-disabled="createNotebookForm.$invalid || isSaving"
+                class="btn btn-primary">
+            Save
+        </button>
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+        </button>
     </div>
 </div>
