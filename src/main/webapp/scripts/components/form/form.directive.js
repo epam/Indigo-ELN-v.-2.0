@@ -17,9 +17,9 @@ angular.module('indigoeln')
                         $inputs.each(function () {
                             var $input = $(this);
                             scope.$watch(function () {
-                                $timeout(function () {
+                                //$timeout(function () {
                                     $formGroup.toggleClass('has-error', $input.hasClass('ng-invalid') && $input.hasClass('ng-dirty'));
-                                });
+                                //});
                             });
                         });
                     }
