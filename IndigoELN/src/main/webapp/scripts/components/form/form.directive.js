@@ -12,7 +12,7 @@ angular.module('indigoeln')
             }
         }
     })
-    .directive('showValidation', function () {
+    .directive('showValidation', function ($timeout) {
         return {
             restrict: 'A',
             require: 'form',
@@ -25,15 +25,16 @@ angular.module('indigoeln')
                         $inputs.each(function () {
                             var $input = $(this);
                             scope.$watch(function () {
-                                return $input.hasClass('ng-invalid') && $input.hasClass('ng-dirty');
-                            }, function (isInvalid) {
-                                $formGroup.toggleClass('has-error', isInvalid);
+                                $timeout(function () {
+                                    $formGroup.toggleClass('has-error', $input.hasClass('ng-invalid') && $input.hasClass('ng-dirty'));
+                                });
                             });
-                        });
+                            });
                     }
-                });
+                    }
+                );
             }
-        };
+        }
     }).directive('myInput', function (formUtils) {
     return {
         restrict: 'E',
@@ -46,10 +47,13 @@ angular.module('indigoeln')
             myModel: '=',
             myReadonly: '=',
             myType: '@',
+            myInputGroup: '@',
             myValidationObj: '=',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
-            myInputGroup: '@'
+            myValidationMinlength: '@',
+            myValidationPattern: '@',
+            myValidationPatternText: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
@@ -61,14 +65,27 @@ angular.module('indigoeln')
                     inputGroup.prepend('<div class="input-group-btn" ng-transclude/>')
                 }
             }
+            if (tAttrs.myValidationMinlength) {
+                tElement.find('input').attr("ng-minlength", tAttrs.myValidationMinlength)
+            }
+            if (tAttrs.myValidationMaxlength) {
+                tElement.find('input').attr("ng-maxlength", tAttrs.myValidationMaxlength)
+            }
+            if (tAttrs.myValidationPattern) {
+                tElement.find('input').attr("ng-pattern", tAttrs.myValidationPattern)
+            }
+            if (tAttrs.myValidationRequired) {
+                tElement.find('input').attr("ng-required", tAttrs.myValidationRequired)
+            }
         },
         template: '<div class="form-group">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly" ng-required="myValidationRequired" ng-maxlength="myValidationMaxlength"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly"/>' +
         '<div ng-show="myValidationObj.$invalid">' +
-        '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
-        '<p class="help-block" ng-show="myValidationObj.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
+        '<p class="help-block" ng-if="myValidationObj.$error.required"> This field is required. </p>' +
+        '<p class="help-block" ng-if="myValidationObj.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
+        '<p class="help-block" ng-if="myValidationObj.$error.pattern" >{{myValidationPatternText}}</p>' +
         '</div>' +
         '</div>' +
         '</div>'
