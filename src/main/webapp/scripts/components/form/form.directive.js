@@ -17,9 +17,9 @@ angular.module('indigoeln')
                         $inputs.each(function () {
                             var $input = $(this);
                             scope.$watch(function () {
-                                //$timeout(function () {
-                                    $formGroup.toggleClass('has-error', $input.hasClass('ng-invalid') && $input.hasClass('ng-dirty'));
-                                //});
+                                return scope.myValidationObj.$invalid && scope.myValidationObj.$dirty
+                            }, function (isInvalid) {
+                                $formGroup.toggleClass('has-error', isInvalid);
                             });
                         });
                     }
@@ -55,7 +55,7 @@ angular.module('indigoeln')
                 } else if (tAttrs.myInputGroup == 'prepend') {
                     inputGroup.prepend('<div class="input-group-btn" ng-transclude/>')
                 }
-                }
+            }
             if (tAttrs.myValidationMinlength) {
                 tElement.find('input').attr("ng-minlength", tAttrs.myValidationMinlength)
             }
