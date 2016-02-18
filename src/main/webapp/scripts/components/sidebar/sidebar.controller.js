@@ -13,52 +13,54 @@ angular
         $scope.myBookmarks = {};
         $scope.allProjects = {};
         $scope.$on('project-created', function (event, data) {
-            if ($scope.projects) {
-                Project.query(function (result) {
-                    $scope.projects = result;
+            Project.query(function (result) {
+                $scope.projects = result;
+                $scope.myBookmarks.projects = result;
+            });
+        });
+
+        $scope.$on('notebook-created', function(event, data) {
+            var project = null;
+            Project.query(function (result) {
+                $scope.projects = result;
+                $scope.projects.some(function(projectItem, i) {
+                    return projectItem.node.id == data.projectId ? ( (project = projectItem), true) : false;
                 });
-            }
-        });
 
-        $scope.$on('notebook-created', function (event, data) {
-            var project = {};
-            if ($scope.projects) {
-                for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
-                    if ($scope.projects[itemId].node.id === data.projectId) {
-                        project = $scope.projects[itemId];
-                        break;
-                    }
-                }
-                if (project.notebooks) {
-                    Notebook.query({projectId: project.node.id}, function (result) {
-                        project.notebooks = result;
+                if(project) {
+                    Notebook.query({projectId: project.node.id}, function (notebookResult) {
+                        project.notebooks = notebookResult;
+                        $scope.myBookmarks.projects = $scope.projects;
                     });
                 }
-            }
+            });
         });
 
-        $scope.$on('experiment-created', function (event, data) {
-            var project = {}, notebook = {};
-            if ($scope.projects) {
-                for (var itemId = 0; itemId < $scope.projects.length; itemId++) {
-                    if ($scope.projects[itemId].node.id === data.projectId) {
-                        project = $scope.projects[itemId];
-                        break;
-                    }
-                }
-                for (itemId = 0; itemId < project.notebooks.length; itemId++) {
-                    if (project.notebooks[itemId].node.id === data.notebookId) {
-                        notebook = project.notebooks[itemId];
-                        break;
-                    }
-                }
+        $scope.$on('experiment-created', function(event, data) {
+            var project = null, notebook = null;
+            Project.query(function (result) {
+                $scope.projects = result;
+                $scope.projects.some(function (projectItem, i) {
+                    return projectItem.node.id == data.projectId ? ( (project = projectItem), true) : false;
+                });
 
-                if (notebook.experiments) {
-                    Experiment.query({notebookId: notebook.node.id}, function (result) {
-                        notebook.experiments = result;
+                if(project) {
+                    Notebook.query({projectId: project.node.id}, function (notebookResult) {
+                        notebookResult.some(function (notebookItem, i){
+                            return notebookItem.node.id == data.notebookId ? ( (notebook = notebookItem), true) : false;
+                        });
+
+                        project.notebooks = notebookResult;
+                        $scope.myBookmarks.projects = $scope.projects;
+
+                        if(notebook) {
+                            Experiment.query({notebookId: notebook.node.id, projectId : project.node.id}, function (expResult) {
+                                notebook.experiments = expResult;
+                            });
+                        }
                     });
                 }
-            }
+            });
         });
 
         $scope.toggleProjects = function (parent, needAll) {

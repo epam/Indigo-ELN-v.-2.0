@@ -27,7 +27,7 @@ angular.module('indigoeln')
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
                 AlertService.success('Notebook successfully saved');
-                $rootScope.$broadcast('notebook-created', {id: result.id});
+                $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
                 $state.go('notebook', {projectId: $stateParams.projectId, id: result.id});
             };
 
