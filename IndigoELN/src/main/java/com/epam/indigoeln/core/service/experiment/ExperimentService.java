@@ -63,7 +63,7 @@ public class ExperimentService {
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
         return experiments.stream().
-                map(experiment -> new TreeNodeDTO(new ExperimentDTO(experiment))).
+                map(TreeNodeDTO::new).
                 collect(Collectors.toList());
     }
 
