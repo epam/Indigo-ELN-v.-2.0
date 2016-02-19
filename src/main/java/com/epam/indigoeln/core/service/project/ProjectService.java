@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.project;
 
-import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
@@ -53,31 +52,17 @@ public class ProjectService {
         // if user is null, then get all projects
         Collection<Project> projects = user == null ? projectRepository.findAll() :
                 projectRepository.findByUserId(user.getId());
-        return projects.stream().
-                map(project -> new TreeNodeDTO(new ProjectDTO(project), hasNotebooks(project, user))).
-                collect(Collectors.toList());
+        return projects.stream().map(ProjectService::convertToTreeNode).collect(Collectors.toList());
     }
 
-    /**
-     * If user is null, then check only project's notebooks list for empty
-     * Otherwise, use checking for UserPermissions
-     */
-    private boolean hasNotebooks(Project project, User user) {
-        if (user == null) {
-            return !project.getNotebooks().isEmpty();
+    private static TreeNodeDTO convertToTreeNode(Project project) {
+        TreeNodeDTO result = new TreeNodeDTO(project);
+        if(project.getNotebooks() != null) {
+            result.setChildren(project.getNotebooks().stream().
+                    map(notebook -> new TreeNodeDTO(notebook, notebook.getExperiments())).
+                    collect(Collectors.toList()));
         }
-        // Checking of userPermission for "Read Sub-Entity" possibility,
-        // and that project has notebooks with UserPermission for specified User
-        return PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_SUB_ENTITY) &&
-                hasNotebooksWithAccess(project.getNotebooks(), user.getId());
-    }
-
-    private boolean hasNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        // Because we have one at least Notebook with UserPermission for Read Entity
-        return notebooks != null &&
-                notebooks.stream().anyMatch(notebook -> PermissionUtil.findPermissionsByUserId(notebook.getAccessList(), userId) != null);
-
+        return result;
     }
 
     public ProjectDTO getProjectById(String id, User user) {

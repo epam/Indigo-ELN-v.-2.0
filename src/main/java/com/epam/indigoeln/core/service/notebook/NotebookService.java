@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
@@ -54,7 +53,7 @@ public class NotebookService {
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
         Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
         return notebooks.stream().
-                map(notebook -> new TreeNodeDTO(new NotebookDTO(notebook), hasExperiments(notebook, user))).
+                map(notebook -> new TreeNodeDTO(notebook, notebook.getExperiments())).
                 collect(Collectors.toList());
     }
 
@@ -78,26 +77,6 @@ public class NotebookService {
 
         return getNotebooksWithAccess(project.getNotebooks(), user.getId());
 
-    }
-
-    /**
-     * If user is null, then check only notebook's experiments list for empty
-     * Otherwise, use checking for UserPermissions
-     */
-    private boolean hasExperiments(Notebook notebook, User user) {
-        if (user == null) {
-            return !notebook.getExperiments().isEmpty();
-        }
-        // Checking userPermission for "Read Sub-Entity" possibility,
-        // and that notebook has experiments with UserPermission for specified User
-        return PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
-                UserPermission.READ_SUB_ENTITY) &&
-                hasExperimentsWithAccess(notebook.getExperiments(), user.getId());
-    }
-
-    private boolean hasExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        // Because we have one at least Experiment with UserPermission for Read Entity
-        return experiments.stream().anyMatch(e -> PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId) != null);
     }
 
     public NotebookDTO getNotebookById(String projectId, String id, User user) {
