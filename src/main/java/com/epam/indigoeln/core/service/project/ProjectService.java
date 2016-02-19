@@ -52,7 +52,7 @@ public class ProjectService {
         // if user is null, then get all projects
         Collection<Project> projects = user == null ? projectRepository.findAll() :
                 projectRepository.findByUserId(user.getId());
-        return projects.stream().map(ProjectService::convertToTreeNode).collect(Collectors.toList());
+        return projects.stream().map(ProjectService::convertToTreeNode).sorted().collect(Collectors.toList());
     }
 
     private static TreeNodeDTO convertToTreeNode(Project project) {
@@ -60,7 +60,7 @@ public class ProjectService {
         if(project.getNotebooks() != null) {
             result.setChildren(project.getNotebooks().stream().
                     map(notebook -> new TreeNodeDTO(notebook, notebook.getExperiments())).
-                    collect(Collectors.toList()));
+                    sorted().collect(Collectors.toList()));
         }
         return result;
     }

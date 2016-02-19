@@ -6,16 +6,20 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
  * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties like as
  * "hasChildren" flag
  */
-public class TreeNodeDTO implements Serializable {
+public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
 
     private static final long serialVersionUID = -5561498961856213253L;
+
+    public static List<TreeNodeDTO> convertAll(Collection<? extends BasicModelObject> nodes) {
+        return nodes != null ? nodes.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList()) : null;
+    }
+
 
     private String id;
     private String fullId;
@@ -33,7 +37,7 @@ public class TreeNodeDTO implements Serializable {
 
     public TreeNodeDTO(BasicModelObject obj, Collection<? extends BasicModelObject> children) {
         this(obj);
-        this.children = children != null ? children.stream().map(TreeNodeDTO::new).collect(Collectors.toList()) : null;
+        this.children = convertAll(children);
     }
 
     public String getId() {
@@ -53,10 +57,15 @@ public class TreeNodeDTO implements Serializable {
     }
 
     public void setChildren(List<TreeNodeDTO> children) {
-        this.children = Optional.ofNullable(children).orElse(null);
+        this.children = children;
     }
 
     public void setChildren(Collection<? extends BasicModelObject> children) {
-        this.children = children != null ? children.stream().map(TreeNodeDTO::new).collect(Collectors.toList()) : null;
+        this.children = convertAll(children);
+    }
+
+    @Override
+    public int compareTo(TreeNodeDTO o) {
+        return this.name.compareTo(o.getName());
     }
 }
