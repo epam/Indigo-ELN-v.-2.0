@@ -4,6 +4,10 @@ angular.module('indigoeln')
     .controller('NotebookDialogController',
         function($scope, $rootScope, $stateParams, $uibModal, $state, Notebook, AlertService, Principal, PermissionManagement, notebook, identity) {
 
+            $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
+            $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
+            $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
+
             $scope.notebook = notebook;
             $scope.notebook.author = $scope.notebook.author || identity;
             $scope.notebook.accessList = $scope.notebook.accessList ||
