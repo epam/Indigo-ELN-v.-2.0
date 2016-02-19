@@ -50,13 +50,13 @@ public interface CustomDtoMapper {
 
     @Mappings({
         @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER),
-        @Mapping(target = "title", expression = "java(dto.getName())")
+        @Mapping(target = "title", expression = "java(\"Project \" + dto.getName())")
     })
     Project convertFromDTO(ProjectDTO dto);
 
     @Mappings({
         @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER),
-        @Mapping(target = "title", expression = "java(dto.getName())")
+        @Mapping(target = "title", expression = "java(\"Notebook \" + dto.getName())")
     })
     Notebook convertFromDTO(NotebookDTO dto);
 }
