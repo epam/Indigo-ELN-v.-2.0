@@ -17,8 +17,11 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
 
-            $scope.$on('access-list-changed', function(event) {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function(event) {
                 $scope.notebook.accessList = PermissionManagement.getAccessList();
+            });
+            $scope.$on('$destroy', function() {
+                onAccessListChangedEvent();
             });
 
             $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');// && $scope.accessList; // todo
