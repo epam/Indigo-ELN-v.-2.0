@@ -13,7 +13,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'PROJECT_READER'],
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_READER', 'PROJECT_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
