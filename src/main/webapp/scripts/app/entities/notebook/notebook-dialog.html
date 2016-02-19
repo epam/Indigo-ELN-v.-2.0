@@ -51,7 +51,8 @@
     </div>
     <div class="panel-footer text-right">
         <button class="btn btn-info pull-left" type="button" ng-disabled="!notebook.id"
-                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment
+                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})"
+                has-any-authority="{{EXPERIMENT_CREATORS}}">Create Experiment
         </button>
         <button type="submit" form="createNotebookForm" ng-disabled="createNotebookForm.$invalid || isSaving"
                 class="btn btn-primary">
