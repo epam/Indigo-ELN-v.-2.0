@@ -2,7 +2,7 @@
 
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, PermissionManagement, project, identity) {
+        function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, PermissionManagement, project, identity, editEnabled) {
 
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
@@ -16,7 +16,8 @@ angular.module('indigoeln')
                 $scope.project.accessList = PermissionManagement.getAccessList();
             });
 
-            $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');// && $scope.accessList; // todo
+            $scope.editDisabled = !editEnabled;
+
             $scope.show = function(form) {
                 if (!$scope.editDisabled) {
                     form.$show();
