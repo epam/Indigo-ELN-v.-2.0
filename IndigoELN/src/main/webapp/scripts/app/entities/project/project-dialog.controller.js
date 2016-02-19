@@ -20,7 +20,7 @@ angular.module('indigoeln')
                 $scope.project.accessList = PermissionManagement.getAccessList();
             });
 
-            $scope.editDisabled = !editEnabled;
+            $scope.editDisabled = false;
 
             $scope.show = function(form) {
                 if (!$scope.editDisabled) {
