@@ -4,6 +4,10 @@ angular.module('indigoeln')
     .controller('ProjectDialogController',
         function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, PermissionManagement, project, identity) {
 
+            $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
+            $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
+            $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
+
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList ||
