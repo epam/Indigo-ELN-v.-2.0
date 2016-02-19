@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.errors;
 
 import org.springframework.dao.ConcurrencyFailureException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
@@ -111,5 +112,18 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO processIOException(IOException exception) {
         return new ErrorDTO(ErrorConstants.ERR_IO, exception.getMessage());
+    }
+
+
+    /**
+     * Default Error handler for Database Issues
+     * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
+     * should be handed other way
+     */
+    @ExceptionHandler
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO processDataAccessException(DataAccessException exception) {
+        return new ErrorDTO(ErrorConstants.ERR_DATABASE_ACCESS, "Internal Data Access error occurred");
     }
 }

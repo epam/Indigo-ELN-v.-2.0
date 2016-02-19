@@ -8,6 +8,7 @@ public final class ErrorConstants {
     public static final String ERR_METHOD_NOT_SUPPORTED = "error.methodNotSupported";
     public static final String ERR_URI_SYNTAX = "error.uriSyntax";
     public static final String ERR_IO = "error.io";
+    public static final String ERR_DATABASE_ACCESS = "error.dataAccess";
 
     private ErrorConstants() {
     }

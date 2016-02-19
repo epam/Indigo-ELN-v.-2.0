@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ChildReferenceException;
+import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
@@ -15,6 +16,7 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -86,7 +88,7 @@ public class ProjectService {
         // reset project's id
         project.setId(sequenceIdService.getNextProjectId());
 
-        project = projectRepository.save(project);
+        project = saveProjectAndHandleError(project);
         return new ProjectDTO(project);
     }
 
@@ -113,7 +115,7 @@ public class ProjectService {
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setAccessList(project.getAccessList());
 
-        project = projectRepository.save(projectFromDb);
+        project = saveProjectAndHandleError(projectFromDb);
         return new ProjectDTO(project);
     }
 
@@ -127,5 +129,13 @@ public class ProjectService {
 
         fileRepository.delete(project.getFileIds());
         projectRepository.delete(project);
+    }
+
+    private Project saveProjectAndHandleError(Project project) {
+        try {
+            return projectRepository.save(project);
+        } catch (DuplicateKeyException e) {
+            throw DuplicateFieldException.createWithProjectName(project.getName());
+        }
     }
 }
