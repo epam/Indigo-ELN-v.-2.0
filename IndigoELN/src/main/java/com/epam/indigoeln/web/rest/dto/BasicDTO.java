@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -16,6 +15,7 @@ public abstract class BasicDTO implements Serializable {
     private static final long serialVersionUID = -2304109712431441621L;
 
     private String id;
+    private String fullId;
 
     @NotEmpty
     private String name;
@@ -33,6 +33,7 @@ public abstract class BasicDTO implements Serializable {
     }
 
     protected BasicDTO(BasicModelObject modelObject) {
+        this.fullId = modelObject.getId();
         this.id = SequenceIdUtil.extractShortId(modelObject);
         this.name = modelObject.getName();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
@@ -47,6 +48,10 @@ public abstract class BasicDTO implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public String getFullId() {
+        return fullId;
     }
 
     public String getName() {
@@ -85,6 +90,7 @@ public abstract class BasicDTO implements Serializable {
     public String toString() {
         return "BasicDTO{" +
                 "id=" + id +
+                ", fullId='" + fullId + '\'' +
                 ", name='" + name + '\'' +
                 '}';
     }

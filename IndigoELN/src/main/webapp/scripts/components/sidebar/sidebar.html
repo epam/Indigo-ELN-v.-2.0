@@ -2,21 +2,21 @@
     <li ng-click="toggleProjects(myBookmarks)"><span>My Bookmarks</span>
         <ul ng-if="myBookmarks.projects.length">
             <li ng-repeat="project in myBookmarks.projects" ng-click="toggleNotebooks(project); $event.stopPropagation();">
-                <span>{{project.node.name}}</span>
-                <ul ng-if="project.notebooks.length">
-                    <li ng-repeat="notebook in project.notebooks"
-                        ng-click="notebook.projectId = project.node.id; toggleExperiments(notebook, project); $event.stopPropagation();">
+                <span>{{project.name}}</span>
+                <ul ng-if="project.children.length && project.isOpen">
+                    <li ng-repeat="notebook in project.children"
+                        ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project); $event.stopPropagation();">
                         <i class="fa fa-circle"></i>
-                        <span>{{notebook.node.name}}</span>
-                        <ul ng-if="notebook.experiments.length">
+                        <span>{{notebook.name}}</span>
+                        <ul ng-if="notebook.children.length && notebook.isOpen">
                             <li ng-click="$event.stopPropagation();">
                                 <i class="fa fa-circle"></i>
                                 <span>Table</span>
-                                <ul ng-if="notebook.experiments.length">
-                                    <li ng-repeat="experiment in notebook.experiments"
+                                <ul ng-if="notebook.children.length && notebook.isOpen">
+                                    <li ng-repeat="experiment in notebook.children"
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="fa fa-circle"></i>
-                                        <span>{{experiment.node.name}}</span>
+                                        <span>{{experiment.name}}</span>
                                     </li>
                                 </ul>
                             </li>
@@ -31,21 +31,21 @@
     <li ng-click="toggleProjects(allProjects, true); $event.stopPropagation();"><span>All Projects</span>
         <ul ng-if="allProjects.projects.length">
             <li ng-repeat="project in allProjects.projects" ng-click="toggleNotebooks(project, true); $event.stopPropagation();">
-                <span>{{project.node.name}}</span>
-                <ul ng-if="project.notebooks.length">
-                    <li ng-repeat="notebook in project.notebooks"
-                        ng-click="notebook.projectId = project.node.id; toggleExperiments(notebook, project, true); $event.stopPropagation();">
+                <span>{{project.name}}</span>
+                <ul ng-if="project.children.length && project.isOpen">
+                    <li ng-repeat="notebook in project.children"
+                        ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project, true); $event.stopPropagation();">
                         <i class="fa fa-circle"></i>
-                        <span>{{notebook.node.name}}</span>
-                        <ul ng-if="notebook.experiments.length">
+                        <span>{{notebook.name}}</span>
+                        <ul ng-if="notebook.children.length && notebook.isOpen">
                             <li ng-click="$event.stopPropagation();">
                                 <i class="fa fa-circle"></i>
                                 <span>Table</span>
-                                <ul ng-if="notebook.experiments.length">
-                                    <li ng-repeat="experiment in notebook.experiments"
+                                <ul ng-if="notebook.children.length && notebook.isOpen">
+                                    <li ng-repeat="experiment in notebook.children"
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="fa fa-circle"></i>
-                                        <span>{{experiment.node.name}}</span>
+                                        <span>{{experiment.name}}</span>
                                     </li>
                                 </ul>
                             </li>
