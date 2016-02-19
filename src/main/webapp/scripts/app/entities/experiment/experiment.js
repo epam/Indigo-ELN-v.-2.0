@@ -20,7 +20,7 @@ angular.module('indigoeln')
             })
             .state('experiment.new', {
                 parent: 'experiment',
-                url: 'project/{projectId}/notebook/{notebookId}/experiment/new',
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/new',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },
@@ -47,25 +47,21 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('experiment.detail', {
-                parent: 'entity',
-                url: '/experiment/{experimentId}',
-                params: {
-                    experimentId: null
-                },
+            .state('entities.experiment-detail', {
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
                     pageTitle: 'Experiment'
                 },
                 views: {
-                    'content@app_page': {
+                    'tabContent': {
                         templateUrl: 'scripts/app/entities/experiment/experiment-detail.html',
                         controller: 'ExperimentDetailController'
                     }
                 },
                 resolve: {
-                    experiments: function ($stateParams, Experiment, ExperimentBrowser) {
-                        return ExperimentBrowser.resolveExperiments($stateParams.experimentId);
+                    experiment: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
                     identity: function (Principal) {
                         return Principal.identity()
@@ -74,7 +70,7 @@ angular.module('indigoeln')
             })
             .state('experiment.edit', {
                 parent: 'experiment',
-                url: 'project/{projectId}/notebook/{notebookId}/experiment/{id}/edit',
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/{id}/edit',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
                 },

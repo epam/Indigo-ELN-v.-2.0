@@ -1,36 +1,24 @@
-<ul class="nav nav-tabs nav-justified" style="margin-top: 30px">
-    <li role="presentation" ng-class="{'active' : getIdByVal(experiment)===experimentId}"
-        ng-repeat="experiment in experiments track by getIdByVal(experiment)">
-        <a ui-sref="experiment.detail({experimentId:getIdByVal(experiment)})">
-            Experiment {{experiment.name}} <i class="glyphicon glyphicon-remove text-muted pull-right"
-                                              style="cursor: pointer"
-                                              ng-if="experiments.length>1"
-                                              ng-click="$event.preventDefault(); closeTab(getIdByVal(experiment))"></i>
+<div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+        <span>Experiment {{experiment.name}}</span>
+    </div>
+    <div class="panel-body">
+        <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
+            <my-components ng-init="experiment.components = toModel(experiment.components)"
+                           my-template="experiment.template.templateContent"
+                           my-disabled="!isContentEditor"
+                           my-model="experiment.components"
+                           my-experiment-form="experimentForm"
+                           my-experiment="experiment"></my-components>
+        </form>
+    </div>
+    <div class="panel-footer text-right">
+        <a class="btn btn-default" onclick="window.history.back()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
         </a>
-    </li>
-</ul>
-<div class="tab-content">
-    <div class="tab-pane active">
-        <div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
-            <div class="panel-body">
-                <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
-                    <my-components ng-init="experiment.components = toModel(experiment.components)"
-                                   my-template="experiment.template.templateContent"
-                                   my-disabled="!isContentEditor"
-                                   my-model="experiment.components"
-                                   my-experiment-form="experimentForm"
-                                   my-experiment="experiment"></my-components>
-                </form>
-            </div>
-            <div class="panel-footer text-right">
-                <a class="btn btn-default" onclick="window.history.back()">
-                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
-                </a>
-                <button type="submit" form="experimentForm" ng-disabled="experimentForm.$invalid"
-                        class="btn btn-primary">
-                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
-                </button>
-            </div>
-        </div>
+        <button type="submit" form="experimentForm" ng-disabled="experimentForm.$invalid"
+                class="btn btn-primary">
+            <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
+        </button>
     </div>
 </div>

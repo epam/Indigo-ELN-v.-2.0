@@ -1,5 +1,5 @@
 <div>
-    <div class="panel panel-default projects" style="margin-top: 30px"
+    <div class="panel panel-default projects" ng-class="{'project-create': project.id==null}"
          cg-busy="{promise:loading, minDuration:700}">
         <div class="panel-heading">
             Create or edit a Project
@@ -56,7 +56,8 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id" ui-sref="notebook({projectId:project.id})"
+            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id"
+                    ui-sref="notebook.new({projectId:project.id})"
                     has-any-authority="{{NOTEBOOK_CREATORS}}">Create Notebook</button>
             <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving" class="btn btn-primary">
                 Save

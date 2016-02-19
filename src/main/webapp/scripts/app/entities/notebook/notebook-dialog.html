@@ -1,4 +1,5 @@
-<div class="panel panel-default notebooks" style="margin-top: 30px" cg-busy="{promise:loading, minDuration:700}">
+<div class="panel panel-default notebooks" ng-class="{'notebook-create': !notebook.id}"
+     cg-busy="{promise:loading, minDuration:700}">
     <div class="panel-heading">
         Create or edit a Notebook
     </div>

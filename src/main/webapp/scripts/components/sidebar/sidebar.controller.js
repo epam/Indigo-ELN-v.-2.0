@@ -2,8 +2,7 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments,
-                                               ExperimentBrowser) {
+    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -90,7 +89,7 @@ angular
         };
 
         $scope.toggleNotebooks = function (project, needAll) {
-            $state.go('project', {id: project.id});
+            $state.go('entities.project-detail', {projectId: project.id});
             if (!project.children) {
                 var agent = needAll ? AllNotebooks : Notebook;
                 agent.query({projectId: project.id}, function (result) {
@@ -105,7 +104,7 @@ angular
         };
 
         $scope.toggleExperiments = function (notebook, project, needAll) {
-            $state.go('notebook', {id: notebook.id, projectId: project.id});
+            $state.go('entities.notebook-detail', {notebookId: notebook.id, projectId: project.id});
             if (!notebook.children) {
                 var agent = needAll ? AllExperiments : Experiment;
                 agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {
@@ -120,12 +119,10 @@ angular
         };
 
         $scope.onExperimentClick = function (experiment, notebook, project) {
-            $state.go('experiment.detail', {
-                experimentId: ExperimentBrowser.compactIds({
-                    experimentId: experiment.id,
-                    notebookId: notebook.id,
-                    projectId: project.id
-                })
+            $state.go('entities.experiment-detail', {
+                experimentId: experiment.id,
+                notebookId: notebook.id,
+                projectId: project.id
             });
         };
 

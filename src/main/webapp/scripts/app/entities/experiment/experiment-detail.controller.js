@@ -1,14 +1,10 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, experiments, Experiment, Principal, ExperimentBrowser, $state) {
-        $scope.experiments = experiments;
-        $scope.experiment = _.find(experiments, function (item) {
-            return ExperimentBrowser.getIdByVal(item) == $stateParams.experimentId;
-        });
+    .controller('ExperimentDetailController', function ($scope, $rootScope, $stateParams, Experiment, Principal, experiment) {
+        $scope.experiment = experiment;
 
         $scope.experimentId = $stateParams.experimentId;
-        $scope.getIdByVal = ExperimentBrowser.getIdByVal;
         $scope.toModel = function toModel(components) {
             if (_.isArray(components)) {
                 return _.object(_.map(components, function (component) {
@@ -33,18 +29,13 @@ angular.module('indigoeln')
             $scope.isSaving = true;
             var experimentForSave = _.extend({}, experiment, {components: toComponents(experiment.components)});
             if (experiment.template != null) {
-                var params = ExperimentBrowser.expandIds($stateParams.experimentId);
                 $scope.loading = Experiment.update({
-                    notebookId: params.notebookId,
-                    projectId: params.projectId
+                    notebookId: $stateParams.notebookId,
+                    projectId: $stateParams.projectId
                 }, experimentForSave, onSaveSuccess, onSaveError).$promise;
             } else {
                 $scope.loading = Experiment.save(experimentForSave, onSaveSuccess, onSaveError).$promise;
             }
-        };
-
-        $scope.closeTab = function (compactId) {
-            ExperimentBrowser.close($state, compactId, $scope.experimentId);
         };
 
         function toComponents(model) {
