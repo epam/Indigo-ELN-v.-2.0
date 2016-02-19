@@ -18,12 +18,8 @@ public class NotebookDTO extends BasicDTO {
     }
 
     public NotebookDTO(Notebook notebook) {
-
         super(notebook);
-
         this.description = notebook.getDescription();
-//        this.experiments = notebook.getExperiments() != null ?
-//                notebook.getExperiments().stream().map(NotebookDTO::new).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     public String getDescription() {

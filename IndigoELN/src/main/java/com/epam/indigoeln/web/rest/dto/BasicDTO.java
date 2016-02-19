@@ -19,6 +19,9 @@ public abstract class BasicDTO implements Serializable {
 
     @NotEmpty
     private String name;
+
+    private String title; // full displayed name for entity
+
     private Set<UserPermissionDTO> accessList = new HashSet<>();
 
     //Read-Only auto-generated audit parameters
@@ -40,6 +43,7 @@ public abstract class BasicDTO implements Serializable {
         this.lastModifiedBy = modelObject.getLastModifiedBy() != null ? new UserDTO(modelObject.getLastModifiedBy()) : null;
         this.lastEditDate = modelObject.getLastEditDate();
         this.creationDate = modelObject.getCreationDate();
+        this.title = modelObject.getTitle();
         if (modelObject.getAccessList() != null) {
             this.accessList.addAll(modelObject.getAccessList().stream()
                     .map(UserPermissionDTO::new).collect(Collectors.toList()));
@@ -56,6 +60,10 @@ public abstract class BasicDTO implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     public Set<UserPermissionDTO> getAccessList() {
@@ -92,6 +100,7 @@ public abstract class BasicDTO implements Serializable {
                 "id=" + id +
                 ", fullId='" + fullId + '\'' +
                 ", name='" + name + '\'' +
+                ", title='" + title + '\'' +
                 '}';
     }
 }

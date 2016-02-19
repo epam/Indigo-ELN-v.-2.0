@@ -115,6 +115,7 @@ public class NotebookService {
 
         // reset notebook's id
         notebook.setId(sequenceIdService.getNextNotebookId(projectId));
+
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
