@@ -39,7 +39,7 @@ angular.module('indigoeln')
             // open editor with pre-defined structure (prestructure)
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/util/structureScheme/structure-editor-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-editor-modal.html',
                 controller: 'StructureEditorModalController',
                 windowClass: 'structure-editor-modal',
                 resolve: {
@@ -65,7 +65,7 @@ angular.module('indigoeln')
 
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/util/structureScheme/structure-import-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-import-modal.html',
                 controller: 'StructureImportModalController',
                 windowClass: 'structure-import-modal'
             });
@@ -80,7 +80,7 @@ angular.module('indigoeln')
 
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/util/structureScheme/structure-export-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-export-modal.html',
                 controller: 'StructureExportModalController',
                 windowClass: 'structure-export-modal',
                 resolve: {

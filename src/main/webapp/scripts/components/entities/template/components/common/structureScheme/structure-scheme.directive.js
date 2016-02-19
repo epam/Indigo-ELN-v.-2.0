@@ -4,7 +4,7 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
-            templateUrl: 'scripts/components/util/structureScheme/structure-scheme.html',
+            templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-scheme.html',
             controller: 'StructureSchemeController',
             scope: {
                 myStructureType: '@',
