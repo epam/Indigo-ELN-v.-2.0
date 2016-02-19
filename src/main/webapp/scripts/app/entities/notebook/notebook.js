@@ -13,7 +13,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    authorities: ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -59,5 +59,30 @@ angular.module('indigoeln')
                         $state.go('^');
                     })
                 }
-            });
+            })
+            .state('select-project', {
+                parent: 'entity',
+                url: '/select-project',
+                data: {
+                    authorities: ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    pageTitle: 'indigoeln'
+                },
+                onEnter: function($state, $uibModal, $window) {
+                    $uibModal.open({
+                        animation: true,
+                        templateUrl: 'scripts/app/entities/notebook/notebook-select-project.html',
+                        controller: 'NotebookSelectProjectController',
+                        size: 'lg',
+                        resolve: {
+                            projects: function (Project) {
+                                return Project.query().$promise;
+                            }
+                        }
+                    }).result.then(function (projectId) {
+                        $state.go('notebook', {projectId: projectId});
+                    }, function() {
+                        $window.history.back();
+                    })
+                }
+            })
     });
