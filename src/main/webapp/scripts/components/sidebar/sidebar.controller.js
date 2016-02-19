@@ -12,14 +12,14 @@ angular
         $scope.myBookmarks = {};
         $scope.allProjects = {};
 
-        $scope.$on('project-created', function () {
+        var onProjectCreatedEvent = $scope.$on('project-created', function () {
             Project.query(function (result) {
                 $scope.projects = result;
                 $scope.myBookmarks.projects = result;
             });
         });
 
-        $scope.$on('notebook-created', function(event, data) {
+        var onNotebookCreatedEvent = $scope.$on('notebook-created', function(event, data) {
             var project;
             if($scope.myBookmarks.projects &&
                     (project = $scope.getTreeItemById($scope.myBookmarks.projects, data.projectId))) { //find  existing project and update children
@@ -37,10 +37,9 @@ angular
                     if(project) project.isOpen = true;
                 });
             }
-
         });
 
-        $scope.$on('experiment-created', function(event, data) {
+        var onExperimentCreatedEvent = $scope.$on('experiment-created', function(event, data) {
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
 
@@ -65,6 +64,12 @@ angular
                     }
                 });
             }
+        });
+
+        $scope.$on('$destroy', function() {
+            onExperimentCreatedEvent();
+            onNotebookCreatedEvent();
+            onProjectCreatedEvent();
         });
 
         $scope.getTreeItemById = function(items, itemId) {
