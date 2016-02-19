@@ -31,7 +31,7 @@
     <li class="head-controls-list__item" toggle-class-child="open-menu">
         <i class="fa fa-file-o"></i>
         <ul class="head-controls-list-submenu">
-            <li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>
+            <li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}"><a ui-sref="project">New Project</a></li>
             <li class="head-controls-list-submenu__item"><a ng-click="newNotebook()" href="#">New Notebook</a></li>
             <li class="head-controls-list-submenu__item"><a ui-sref="experiment.new">New Experiment</a></li>
         </ul>
