@@ -4,8 +4,12 @@ angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
             .state('notebook', {
-                parent: 'entity',
-                url: '/project/{projectId}/notebook/{id}',
+                abstract: true,
+                parent: 'entity'
+            })
+            .state('notebook.new', {
+                parent: 'notebook',
+                url: '/project/{projectId}/notebook/new',
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
@@ -17,15 +21,32 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    notebook: function($stateParams, Notebook) {
-                        if ($stateParams.id) {
-                            return Notebook.get({projectId: $stateParams.projectId, id: $stateParams.id});
-                        } else {
-                            return {
-                                id: null,
-                                name: null
-                            }
+                    notebook: function () {
+                        return {
+                            id: null,
+                            name: null
                         }
+
+                    },
+                    identity: function (Principal) {
+                        return Principal.identity()
+                    }
+                }
+            }).state('entities.notebook-detail', {
+                url: '/project/{projectId}/notebook/{notebookId}',
+                views: {
+                    'tabContent': {
+                        templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
+                        controller: 'NotebookDialogController'
+                    }
+                },
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    pageTitle: 'indigoeln'
+                },
+                resolve: {
+                    notebook: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
                     identity: function (Principal) {
                         return Principal.identity()
@@ -38,24 +59,24 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
-                onEnter: function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
+                onEnter: function ($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
                     $uibModal.open({
                         templateUrl: 'scripts/components/permissions/permission-management.html',
                         controller: 'PermissionManagementController',
                         size: 'lg',
                         resolve: {
-                            users: function(User) {
+                            users: function (User) {
                                 return User.query().$promise;
                             },
-                            permissions: function() {
+                            permissions: function () {
                                 return PermissionManagement.getNotebookPermissions();
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         PermissionManagement.setAccessList(result);
                         $rootScope.$broadcast('access-list-changed');
                         $state.go('notebook', {projectId: $stateParams.projectId, id: $stateParams.id});
-                    }, function() {
+                    }, function () {
                         $state.go('^');
                     })
                 }

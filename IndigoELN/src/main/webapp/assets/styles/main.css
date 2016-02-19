@@ -312,3 +312,7 @@
 .palette .draggable-component.ng-enter {
     animation: fadeIn 0.5s;
 }
+
+.notebook-create, .project-create {
+    margin-top: 30px;
+}

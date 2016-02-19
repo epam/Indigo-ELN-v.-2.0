@@ -1,0 +1,16 @@
+<ul class="nav nav-tabs nav-justified" style="margin-top: 30px">
+    <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
+        ng-repeat="entity in entities track by entity.fullId">
+        <a ng-click="goToTab(entity.fullId)">
+            {{entity.title || entity.fullId}} <i class="glyphicon glyphicon-remove text-muted pull-right"
+                                                 style="cursor: pointer"
+                                                 ng-if="entities.length>1"
+                                                 ng-click="$event.preventDefault(); closeTab(entity.fullId, entityId)"></i>
+        </a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active">
+        <div ui-view="tabContent"></div>
+    </div>
+</div>

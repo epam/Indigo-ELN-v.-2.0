@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentDialogController',
-    function ($scope, $rootScope, $stateParams, entity, Experiment, templates, mode, $state, ExperimentBrowser) {
+    function ($scope, $rootScope, $stateParams, entity, Experiment, templates, mode, $state) {
 
         $scope.experiment = entity;
         $scope.notebookId = $stateParams.notebookId;
@@ -11,12 +11,10 @@ angular.module('indigoeln').controller('ExperimentDialogController',
         $scope.template = $scope.experiment.template;
         var onSaveSuccess = function (result) {
             $scope.isSaving = false;
-            $state.go('experiment.detail', {
-                experimentId: ExperimentBrowser.compactIds({
-                    notebookId: $stateParams.notebookId,
-                    projectId: $stateParams.projectId,
-                    experimentId: result.id
-                })
+            $state.go('entities.experiment-detail', {
+                notebookId: $stateParams.notebookId,
+                projectId: $stateParams.projectId,
+                experimentId: result.id
             });
             $rootScope.$broadcast('experiment-created', {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
         };
