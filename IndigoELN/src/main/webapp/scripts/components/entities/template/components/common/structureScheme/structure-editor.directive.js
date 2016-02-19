@@ -29,7 +29,7 @@ angular.module('indigoeln')
                 myStructure: '=',
                 myEditorName: '@'
             },
-            templateUrl: 'scripts/components/util/structureScheme/structure-editor-template.html',
+            templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-editor-template.html',
             link: function (scope, element) {
 
                 var frame = element[0];
