@@ -11,4 +11,5 @@
     <file path="index_improvements_2.xml"/>
     <file path="sequence_improvements_2_cleanup.xml"/>
     <file path="project_name_unique_index.xml"/>
+    <file path="entities_title_cleanup_database.xml"/>
 </changeFiles>

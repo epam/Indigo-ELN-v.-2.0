@@ -32,7 +32,7 @@ public final class SequenceIdUtil {
     }
 
     public static String generateExperimentTitle(Experiment experiment, Notebook notebook) {
-        return notebook.getName() +  DELIMITER + generateExperimentName(experiment);
+        return "Experiment " + notebook.getName() +  DELIMITER + generateExperimentName(experiment);
     }
 
     public static String formatBatchNumber(Long batchNumberLong) {
