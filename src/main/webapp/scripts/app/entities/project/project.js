@@ -22,6 +22,9 @@ angular.module('indigoeln')
                     },
                     identity: function (Principal) {
                         return Principal.identity()
+                    },
+                    editEnabled: function(PermissionManagement) {
+                        return PermissionManagement.hasPermission('UPDATE_ENTITY');
                     }
                 }
             })

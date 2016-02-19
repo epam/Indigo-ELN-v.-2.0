@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('PermissionManagement', function () {
-        var accessList = [];
-        var author = {};
+    .factory('PermissionManagement', function ($q, Principal) {
+        var _accessList = [];
+        var _author = {};
 
         var VIEWER = ['READ_ENTITY'];
         var CHILD_VIEWER = ['READ_ENTITY', 'READ_SUB_ENTITY'];
@@ -42,17 +42,37 @@ angular.module('indigoeln')
                 });
                 return list;
             },
+            hasPermission: function(permission, accessList) {
+                var deferred = $q.defer();
+                var list = accessList ? accessList : _accessList;
+                Principal.hasAuthority('CONTENT_EDITOR').then(function (isContentEditor) {
+                    if (isContentEditor) {
+                        deferred.resolve(true);
+                    } else {
+                        Principal.identity().then(function (identity) {
+                            var hasPermission = false;
+                            _.each(list, function(item) {
+                                if (item.user.id === identity.id && _.contains(item.permissions, permission)) {
+                                    hasPermission = true;
+                                }
+                            });
+                            deferred.resolve(hasPermission);
+                        });
+                    }
+                });
+                return deferred.promise;
+            },
             getAccessList: function() {
-                return accessList;
+                return _accessList;
             },
             setAccessList: function(list) {
-                accessList = list;
+                _accessList = list;
             },
             getAuthor: function() {
-                return author;
+                return _author;
             },
             setAuthor: function(user) {
-                author = user;
+                _author = user;
             },
             getProjectPermissions: function() {
                 return projectPermissions;
