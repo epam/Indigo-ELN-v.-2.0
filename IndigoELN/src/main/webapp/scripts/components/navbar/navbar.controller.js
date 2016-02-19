@@ -5,8 +5,10 @@ angular.module('indigoeln')
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.PROJECT_CREATOR = 'PROJECT_CREATOR';
         $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
+        $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
         $scope.PROJECT_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR].join(',');
         $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
+        $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
         $scope.newNotebook = function () {
             var modalInstance = $uibModal.open({
                 animation: true,
