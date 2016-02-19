@@ -121,14 +121,7 @@ public class NotebookService {
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
-        //set notebook sequence #
-//        notebook.setSequenceId(sequenceIdService.getNextNotebookId());
-
-        try {
-            notebook = notebookRepository.save(notebook);
-        } catch (DuplicateKeyException e) {
-            throw DuplicateFieldException.createWithNotebookName(notebook.getName());
-        }
+        saveNotebookAndHandleError(notebook);
 
         project.getNotebooks().add(notebook);
         projectRepository.save(project);
@@ -162,7 +155,7 @@ public class NotebookService {
 
         notebookFromDB.setName(notebookDTO.getName());
         notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
-        return new NotebookDTO(notebookRepository.save(notebookFromDB));
+        return new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
     }
 
     public void deleteNotebook(String projectId, String id) {
@@ -188,5 +181,13 @@ public class NotebookService {
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
         return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
                 notebook.getAccessList(), userId) != null).collect(Collectors.toList());
+    }
+
+    private Notebook saveNotebookAndHandleError(Notebook notebook) {
+        try {
+            return notebookRepository.save(notebook);
+        } catch (DuplicateKeyException e) {
+            throw DuplicateFieldException.createWithNotebookName(notebook.getName());
+        }
     }
 }
