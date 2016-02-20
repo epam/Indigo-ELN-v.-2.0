@@ -4,6 +4,9 @@ import com.epam.indigoeln.core.model.User;
 
 import java.io.Serializable;
 
+/**
+ * Short transfer object for User
+ */
 public class ShortUserDTO implements Serializable {
 
     private static final long serialVersionUID = 1522754620900492959L;

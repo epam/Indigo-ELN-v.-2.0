@@ -79,7 +79,13 @@ public class NotebookService {
 
     }
 
-
+    /**
+     * Fetch all notebooks for current user available when create sub entity
+     * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
+     * or has authority CONTENT_EDITOR (but not in accessLIst)
+     * @param user user
+     * @return list of notebooks available for experiment creation
+     */
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
         List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
             notebookRepository.findAllIgnoreChildren() :
