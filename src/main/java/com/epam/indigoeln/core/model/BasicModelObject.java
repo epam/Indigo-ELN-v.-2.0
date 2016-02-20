@@ -27,8 +27,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @NotEmpty
     private String name;
 
-    private String title;
-
     @CreatedDate
     private ZonedDateTime creationDate = ZonedDateTime.now();
 
@@ -52,10 +50,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     public String getName() {
         return name;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public ZonedDateTime getCreationDate() {
@@ -110,9 +104,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         this.accessList = accessList;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -133,7 +124,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         return "BasicModelObject{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
                 '}';
     }
 

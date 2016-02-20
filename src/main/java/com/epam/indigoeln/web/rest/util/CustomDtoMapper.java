@@ -17,7 +17,6 @@ import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 
 /**
  * Custom MapStruct mapper for converting DTO/Model objects
@@ -48,15 +47,9 @@ public interface CustomDtoMapper {
     @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Template convertFromDTO(TemplateDTO dto);
 
-    @Mappings({
-        @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER),
-        @Mapping(target = "title", expression = "java(\"Project \" + dto.getName())")
-    })
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Project convertFromDTO(ProjectDTO dto);
 
-    @Mappings({
-        @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER),
-        @Mapping(target = "title", expression = "java(\"Notebook \" + dto.getName())")
-    })
+    @Mapping(target = "accessList", expression = ACCESS_LIST_MAPPER)
     Notebook convertFromDTO(NotebookDTO dto);
 }
