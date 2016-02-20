@@ -15,6 +15,7 @@ import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -24,6 +25,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,6 +77,14 @@ public class NotebookService {
 
         return getNotebooksWithAccess(project.getNotebooks(), user.getId());
 
+    }
+
+
+    public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
+        List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
+            notebookRepository.findAllIgnoreChildren() :
+            notebookRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+        return notebooks.stream().map(ShortEntityDTO::new).collect(Collectors.toList());
     }
 
     public NotebookDTO getNotebookById(String projectId, String id, User user) {

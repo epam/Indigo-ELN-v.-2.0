@@ -12,6 +12,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -20,6 +21,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,6 +80,14 @@ public class ProjectService {
             throw OperationDeniedException.createProjectReadOperation(project.getId());
         }
         return new ProjectDTO(project);
+    }
+
+    public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
+        List<Project> projects = PermissionUtil.isContentEditor(user) ?
+                projectRepository.findAllIgnoreChildren() :
+                projectRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+
+        return projects.stream().map(ShortEntityDTO::new).collect(Collectors.toList());
     }
 
     public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
