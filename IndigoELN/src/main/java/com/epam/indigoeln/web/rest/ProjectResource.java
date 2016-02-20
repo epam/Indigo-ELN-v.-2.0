@@ -64,11 +64,13 @@ public class ProjectResource {
         return ResponseEntity.ok(result);
     }
 
-
-    @RequestMapping(value = "/for/sub-creation",method = RequestMethod.GET,
+    /**
+     * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
+     */
+    @RequestMapping(value = "/sub-creations",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getProjectsForNotebookCreation() {
-        log.debug("REST request to get all projects according to user SUB_ENTITY permissions");
+        log.debug("REST request to get all projects available for notebook creation");
         List<ShortEntityDTO> result = projectService.getProjectsForNotebookCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
