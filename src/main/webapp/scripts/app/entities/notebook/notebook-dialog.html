@@ -23,7 +23,7 @@
                     <label class="control-label">Notebook Members&nbsp;</label>
                     <button type="submit"
                             ui-sref="notebook.permissions({id:notebook.id})"
-                            class="btn btn-primary "
+                            class="btn btn-info "
                             ng-disabled="editDisabled">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
@@ -56,7 +56,7 @@
                 has-any-authority="{{EXPERIMENT_CREATORS}}">Create Experiment
         </button>
         <button type="submit" form="createNotebookForm" ng-disabled="createNotebookForm.$invalid || isSaving"
-                class="btn btn-primary">
+                class="btn btn-info">
             Save
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">

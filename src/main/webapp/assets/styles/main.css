@@ -135,6 +135,7 @@
 .table.authoritiesTable thead tr th {
     line-height: 14px;
 }
+
 .authoritiesTable th {
     height: 90px;
     -webkit-transform: rotate(90deg);
@@ -142,6 +143,7 @@
     /* IE */
     writing-mode: tb-rl;
 }
+
 .authoritiesTable th:first-child, .authoritiesTable th:last-child {
     -webkit-transform: inherit;
     -o-transform: inherit;
@@ -152,10 +154,12 @@
 .authoritiesTable td {
     text-align: center;
 }
+
 .authoritiesTable td:first-child {
     text-align: inherit;
 }
-.authoritiesTable td:last-child, .authoritiesTable th:last-child{
+
+.authoritiesTable td:last-child, .authoritiesTable th:last-child {
     width: 90px;
 }
 
@@ -243,8 +247,8 @@
 }
 
 .select-structure {
-    border:0px;
-    outline:0px;
+    border: 0px;
+    outline: 0px;
     background-color: transparent;
     font-weight: bold;
 }
@@ -257,27 +261,28 @@
     clear: left;
     display: block;
 }
-.members ul{
+
+.members ul {
     overflow: hidden;
     list-style-type: circle;
 }
 
-.members li{
+.members li {
     line-height: 2em;
     float: left;
     display: inline;
 }
 
-#double-list li  {
+#double-list li {
     width: 50%;
 }
 
-#triple-list li  {
+#triple-list li {
     width: 33.333%;
 }
 
 .members .list-group-item {
-    overflow:hidden;
+    overflow: hidden;
     position: relative;
     display: block;
     padding: 5px 5px;
@@ -285,6 +290,7 @@
     background-color: #fff;
     border: 1px solid #ddd;
 }
+
 .templates .list-group {
     margin-bottom: 0;
 }
@@ -317,6 +323,21 @@
     margin-top: 30px;
 }
 
-.tab-name:first-letter {
+.experiment-tab-name:first-letter {
     text-transform: capitalize;
+}
+
+.experiment-tab-close {
+    margin-left: 10px;
+    color: #337ab7
+}
+
+.active .experiment-tab-close {
+    color: #37474f;
+    margin-left: 10px;
+}
+
+.nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+    color: #37474f;
+    background-color: #b2ebf2;
 }
