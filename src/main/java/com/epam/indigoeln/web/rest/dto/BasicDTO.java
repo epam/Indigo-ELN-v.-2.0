@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -11,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property = "type")
+//@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property = "type")
 public abstract class BasicDTO implements Serializable {
 
     private static final long serialVersionUID = -2304109712431441621L;
