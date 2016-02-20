@@ -2,11 +2,11 @@
     <div class="panel-heading">Users</div>
     <div class="panel-body">
         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-        <button class="btn btn-primary" ng-click="create()">
+        <button class="btn btn-info" ng-click="create()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create a new User</span>
         </button>
 
-        <div ng-show="user" class="panel panel-primary edit-form">
+        <div ng-show="user" class="panel panel-info edit-form">
             <div class="panel-heading">
                 Create/Update User
             </div>
@@ -95,7 +95,7 @@
                         >Cancel</span>
                 </button>
                 <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving"
-                        class="btn btn-primary">
+                        class="btn btn-info">
                     <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
                 </button>
             </div>
@@ -141,7 +141,7 @@
             <td class="text-right">
                 <button type="submit"
                         ng-click="edit(user)"
-                        class="btn btn-primary btn-sm">
+                        class="btn btn-info btn-sm">
                     <span class="glyphicon glyphicon-pencil"></span>
                 </button>
                 <button type="submit"

@@ -1,12 +1,12 @@
-<ul class="nav nav-tabs nav-justified" style="margin-top: 30px">
+<ul class="nav nav-pills experiment-tabs" style="margin-top: 30px">
     <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
-        ng-repeat="entity in entities track by entity.fullId">
-        <a class="tab-name" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
-            {{getKind(entity.fullId)}} {{entity.title}} <span
-                ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"><i
-                class="glyphicon glyphicon-remove text-muted pull-right"
+        ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
+        <a class="experiment-tab-name" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
+            {{getKind(entity.fullId)}} {{entity.title}} <i
+                class="glyphicon glyphicon-remove text-muted pull-right experiment-tab-close"
+                ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"
                 style="cursor: pointer"
-                ng-if="entities.length>1"></i></span>
+                ng-if="entities.length>1"></i>
         </a>
     </li>
 </ul>
