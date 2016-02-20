@@ -3,11 +3,13 @@ package com.epam.indigoeln.web.rest.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.json.JSONArray;
 
 import com.epam.indigoeln.core.model.Template;
 import com.epam.indigoeln.core.util.JsonUtil;
 
+@JsonTypeName("Template")
 public class TemplateDTO extends BasicDTO {
 
     private static final long serialVersionUID = 7951973267736585187L;

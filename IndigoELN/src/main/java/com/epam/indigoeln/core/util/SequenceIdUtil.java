@@ -22,6 +22,12 @@ public final class SequenceIdUtil {
         return split[split.length - 1];
     }
 
+    public static String extractParentId(BasicModelObject entity) {
+        if(entity.getId() == null) return null;
+        String[] split = entity.getId().split(DELIMITER);
+        return split.length > 1 ? split[split.length - 2] : null;
+    }
+
     public static String buildFullId(String ... ids) {
         return StringUtils.arrayToDelimitedString(ids, DELIMITER);
     }
@@ -29,10 +35,6 @@ public final class SequenceIdUtil {
     public static String generateExperimentName(Experiment experiment) {
         String shortId = extractShortId(experiment);
         return shortId != null ? new DecimalFormat(EXPERIMENT_NAME_FORMAT).format(Long.valueOf(shortId)) : null;
-    }
-
-    public static String generateExperimentTitle(Experiment experiment, Notebook notebook) {
-        return "Experiment " + notebook.getName() +  DELIMITER + generateExperimentName(experiment);
     }
 
     public static String formatBatchNumber(Long batchNumberLong) {
