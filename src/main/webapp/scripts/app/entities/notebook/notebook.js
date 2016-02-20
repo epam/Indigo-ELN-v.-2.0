@@ -17,7 +17,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -55,7 +55,7 @@ angular.module('indigoeln')
             })
             .state('notebook.permissions', {
                 parent: 'notebook',
-                url: '/permissions',
+                url: '/notebook/permissions',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
@@ -81,11 +81,11 @@ angular.module('indigoeln')
                     })
                 }
             })
-            .state('select-project', {
-                parent: 'entity',
+            .state('notebook.select-project', {
+                parent: 'notebook',
                 url: '/select-project',
                 data: {
-                    authorities: ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 onEnter: function($state, $uibModal, $window) {

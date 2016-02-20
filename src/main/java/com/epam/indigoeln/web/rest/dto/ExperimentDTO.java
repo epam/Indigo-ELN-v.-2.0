@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 /**
  * DTO for Experiment
  */
+@JsonTypeName("Experiment")
 public class ExperimentDTO extends BasicDTO {
 
     private static final long serialVersionUID = -305591958439648518L;

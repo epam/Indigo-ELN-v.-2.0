@@ -1,12 +1,14 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Notebook;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
 
 /**
  * DTO for Notebook
  */
+@JsonTypeName("Notebook")
 public class NotebookDTO extends BasicDTO {
 
     private static final long serialVersionUID = -1261267009811486561L;

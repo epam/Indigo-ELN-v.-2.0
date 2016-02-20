@@ -8,7 +8,7 @@ angular.module('indigoeln')
                 parent: 'entity'
             })
             .state('project.new', {
-                parent: 'entity',
+                parent: 'project',
                 url: '/project/new',
                 views: {
                     'content@app_page': {
@@ -58,7 +58,7 @@ angular.module('indigoeln')
             })
             .state('project.permissions', {
                 parent: 'project',
-                url: '/permissions',
+                url: '/project/permissions',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
