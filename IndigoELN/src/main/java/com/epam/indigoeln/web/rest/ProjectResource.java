@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -60,6 +61,15 @@ public class ProjectResource {
     public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
         log.debug("REST request to get all projects without checking for permissions");
         List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
+        return ResponseEntity.ok(result);
+    }
+
+
+    @RequestMapping(value = "/for/sub-creation",method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ShortEntityDTO>> getProjectsForNotebookCreation() {
+        log.debug("REST request to get all projects according to user SUB_ENTITY permissions");
+        List<ShortEntityDTO> result = projectService.getProjectsForNotebookCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
 

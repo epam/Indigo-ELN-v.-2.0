@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 
@@ -30,10 +31,11 @@ import java.util.List;
 @RequestMapping(NotebookResource.URL_MAPPING)
 public class NotebookResource {
 
-    static final String URL_MAPPING = "/api/projects/{projectId:[\\d]+}/notebooks";
+    static final String URL_MAPPING = "/api/";
     private static final String ENTITY_NAME = "Notebook";
 
-    private static final String PATH_ID = "/{id:[\\d]+}";
+    private static final String PARENT_PATH_ID = "projects/{projectId:[\\d]+}/notebooks";
+    private static final String PATH_ID = PARENT_PATH_ID + "/{id:[\\d]+}";
 
     private final Logger log = LoggerFactory.getLogger(NotebookResource.class);
 
@@ -47,7 +49,9 @@ public class NotebookResource {
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @RequestMapping(method = RequestMethod.GET,
+    @RequestMapping(
+            value = PARENT_PATH_ID,
+            method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(@PathVariable String projectId) {
         log.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
@@ -60,12 +64,20 @@ public class NotebookResource {
      * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project
      * without checking for User permissions
      */
-    @RequestMapping(value = "/all", method = RequestMethod.GET,
+    @RequestMapping(value = PARENT_PATH_ID + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(@PathVariable String projectId) {
         log.debug("REST request to get all notebooks of project: {} " +
                 "without checking for permissions", projectId);
         List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId);
+        return ResponseEntity.ok(result);
+    }
+
+    @RequestMapping(value = "notebooks/for/sub-creation",method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ShortEntityDTO>> getNotebooksForExperimentCreation() {
+        log.debug("REST request to get all projects according to user SUB_ENTITY permissions");
+        List<ShortEntityDTO> result = notebookService.getNotebooksForExperimentCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
 
@@ -81,11 +93,13 @@ public class NotebookResource {
         return ResponseEntity.ok(notebook);
     }
 
+
+
     /**
      * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User
      * as child for specified Project
      */
-    @RequestMapping(method = RequestMethod.POST,
+    @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> createNotebook(
@@ -102,7 +116,7 @@ public class NotebookResource {
     /**
      * PUT  /notebooks/:id -> Updates notebook according to User permissions
      */
-    @RequestMapping(method = RequestMethod.PUT,
+    @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> updateNotebook(@PathVariable String projectId,
