@@ -82,6 +82,13 @@ public class ProjectService {
         return new ProjectDTO(project);
     }
 
+    /**
+     * Fetch all projects for current user available when create sub entity
+     * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
+     * or has authority CONTENT_EDITOR (but not in accessLIst)
+     * @param user user
+     * @return list of projects available for notebook creation
+     */
     public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
         List<Project> projects = PermissionUtil.isContentEditor(user) ?
                 projectRepository.findAllIgnoreChildren() :

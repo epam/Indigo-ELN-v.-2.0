@@ -1,5 +1,8 @@
 package com.epam.indigoeln.core.repository;
 
+/**
+ * Constants for Repository classes
+ */
 public final class RepositoryConstants {
     private RepositoryConstants() {
     }
