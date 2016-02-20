@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function ($stateProvider, PermissionManagementConfig) {
         $stateProvider
             .state('project', {
                 abstract: true,
@@ -17,7 +17,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'PROJECT_READER', 'PROJECT_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -27,8 +27,8 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity()
                     },
-                    editEnabled: function (PermissionManagement) {
-                        return PermissionManagement.hasPermission('UPDATE_ENTITY');
+                    hasEditAuthority: function () {
+                        return true;
                     }
                 }
             })
@@ -51,37 +51,35 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity()
                     },
-                    editEnabled: function(PermissionManagement) {
-                        return PermissionManagement.hasPermission('UPDATE_ENTITY');
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'PROJECT_CREATOR']);
                     }
                 }
             })
-            .state('project.permissions', {
-                parent: 'project',
-                url: '/project/permissions',
+            .state('project.new.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'project.new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                onEnter: function($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
-                    $uibModal.open({
-                        templateUrl: 'scripts/components/permissions/permission-management.html',
-                        controller: 'PermissionManagementController',
-                        size: 'lg',
-                        resolve: {
-                            users: function(User) {
-                                return User.query().$promise;
-                            },
-                            permissions: function() {
-                                return PermissionManagement.getProjectPermissions();
-                            }
-                        }
-                    }).result.then(function(result) {
-                        PermissionManagement.setAccessList(result);
-                        $rootScope.$broadcast('access-list-changed');
-                        $state.go('project.new', {id: $stateParams.id});
-                    }, function() {
-                        $state.go('^');
-                    })
-                }
-            });
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read project)'},
+                    {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read project and notebooks)'},
+                    {id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
+                ]
+
+            }))
+            .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.project-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                },
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read project)'},
+                    {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read project and notebooks)'},
+                    {id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
+                ]
+            }))
+        ;
     });

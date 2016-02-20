@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'experiment',
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/new',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
+                    authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
                 views: {
                     'content@app_page': {
