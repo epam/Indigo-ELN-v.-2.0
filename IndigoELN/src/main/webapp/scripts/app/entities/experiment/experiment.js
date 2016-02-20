@@ -22,7 +22,7 @@ angular.module('indigoeln')
                 parent: 'experiment',
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/new',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
+                    authorities: ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -50,7 +50,7 @@ angular.module('indigoeln')
             .state('entities.experiment-detail', {
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR'],
+                    authorities: ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR'],
                     pageTitle: 'Experiment'
                 },
                 views: {
@@ -72,7 +72,7 @@ angular.module('indigoeln')
                 parent: 'experiment',
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{id}/edit',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
+                    authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
                 views: {
                     'content@app_page': {
@@ -100,7 +100,7 @@ angular.module('indigoeln')
                 parent: 'experiment.edit',
                 url: '/delete',
                 data: {
-                    authorities: ['EXPERIMENT_READER', 'CONTENT_EDITOR']
+                    authorities: ['EXPERIMENT_REMOVER', 'CONTENT_EDITOR']
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
