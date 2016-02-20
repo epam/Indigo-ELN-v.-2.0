@@ -2,7 +2,8 @@
 
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal, PermissionManagement, project, identity, editEnabled) {
+        function($scope, $rootScope, $uibModal, $state, Project, AlertService, Principal,
+                 PermissionManagement, project, identity, hasEditAuthority) {
 
             $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
             $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
@@ -23,7 +24,14 @@ angular.module('indigoeln')
                 onAccessListChangedEvent();
             });
 
-            $scope.editDisabled = false;
+            // isEditEnabled
+            if (hasEditAuthority) {
+                $scope.isEditEnabled = hasEditAuthority;
+            } else {
+                PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (result) {
+                    $scope.isEditEnabled = result;
+                });
+            }
 
             $scope.show = function(form) {
                 if (!$scope.editDisabled) {

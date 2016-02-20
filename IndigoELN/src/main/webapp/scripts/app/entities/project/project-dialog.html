@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <my-input my-label="Project Name"
-                                  my-readonly="editDisabled"
+                                  my-readonly="!isEditEnabled"
                                   my-name="projectName"
                                   my-type="text"
                                   my-label-vertical="true"
@@ -33,7 +33,7 @@
                                 ui-sref="entities.project-detail.permissions()"
                                 ng-if="project.id"
                                 class="btn btn-info "
-                                ng-disabled="editDisabled">
+                                ng-disabled="!isEditEnabled">
                             <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                         </button>
                     </div>
@@ -50,11 +50,11 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <my-tag-input my-label="Tags" my-model="tags" my-readonly="editDisabled"
+                        <my-tag-input my-label="Tags" my-model="tags" my-readonly="!isEditEnabled"
                                       my-label-vertical="true"></my-tag-input>
-                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="editDisabled"
+                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditEnabled"
                                       my-model="project.keywords"></my-input>
-                        <my-input my-label="Literature References" my-label-vertical="true" my-readonly="editDisabled"
+                        <my-input my-label="Literature References" my-label-vertical="true" my-readonly="!isEditEnabled"
                                   my-model="project.references"></my-input>
                         <label class="control-label">Description</label>
                         <my-text-editor content="project.description"></my-text-editor>

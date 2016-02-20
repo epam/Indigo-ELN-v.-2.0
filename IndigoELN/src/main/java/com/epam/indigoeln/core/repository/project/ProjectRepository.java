@@ -7,7 +7,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
+import static com.epam.indigoeln.core.repository.RepositoryConstants.*;
 
 public interface ProjectRepository extends MongoRepository<Project, String> {
 
@@ -19,4 +20,12 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
 
     @Query("{'fileIds': ?0}")
     Project findByFileId(String fileId);
+
+
+    @Query(value = "{'accessList' : { $elemMatch : {'user'  : {$ref : '" + User.COLLECTION_NAME + "', $id : ?0}, 'permissions' : { $in : ?1}}}}",
+           fields = ENTITY_SHORT_FIELDS_SET)
+    List<Project> findByUserIdAndPermissions(String userId, List<String> permissions);
+
+    @Query(value = "{}",  fields = ENTITY_SHORT_FIELDS_SET)
+    List<Project> findAllIgnoreChildren();
 }

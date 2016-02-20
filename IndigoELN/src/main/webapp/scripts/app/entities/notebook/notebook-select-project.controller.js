@@ -9,7 +9,7 @@ angular.module('indigoeln')
         $scope.cancel = cancelPressed;
 
         function okPressed () {
-            $uibModalInstance.close($scope.selectedProject.node.id);
+            $uibModalInstance.close($scope.selectedProject.id);
         }
 
         function cancelPressed () {
