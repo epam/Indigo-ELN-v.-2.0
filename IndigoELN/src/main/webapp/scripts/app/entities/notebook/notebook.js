@@ -22,10 +22,10 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     notebook: function () {
-                        return {}
+                        return {};
                     },
                     identity: function (Principal) {
-                        return Principal.identity()
+                        return Principal.identity();
                     },
                     hasEditAuthority: function () {
                         return true;
@@ -48,7 +48,7 @@ angular.module('indigoeln')
                         return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
                     identity: function (Principal) {
-                        return Principal.identity()
+                        return Principal.identity();
                     },
                     hasEditAuthority: function (Principal) {
                         return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']);
@@ -80,7 +80,7 @@ angular.module('indigoeln')
                         $state.go('notebook', {projectId: $stateParams.projectId, id: $stateParams.id});
                     }, function () {
                         $state.go('^');
-                    })
+                    });
                 }
             })
             .state('notebook.select-project', {
@@ -93,19 +93,19 @@ angular.module('indigoeln')
                 onEnter: function($state, $uibModal, $window) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'scripts/app/entities/notebook/notebook-select-project.html',
-                        controller: 'NotebookSelectProjectController',
+                        templateUrl: 'scripts/app/entities/notebook/notebook-select-parent.html',
+                        controller: 'NotebookSelectParentController',
                         size: 'lg',
                         resolve: {
-                            projects: function (Project) {
-                                return Project.query().$promise;
+                            parents: function (ProjectsForSubCreation) {
+                                return ProjectsForSubCreation.query().$promise;
                             }
                         }
                     }).result.then(function (projectId) {
                         $state.go('notebook.new', {projectId: projectId});
                     }, function() {
                         $window.history.back();
-                    })
+                    });
                 }
-            })
+            });
     });

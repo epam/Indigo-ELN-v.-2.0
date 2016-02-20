@@ -1,0 +1,45 @@
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
+    <div>
+		<div class="modal-header">
+            <h3 class="modal-title">Select a Notebook</h3>
+		</div>
+		<div class="modal-body">
+            <div>
+                <my-select my-label="Please select a Notebook for new experiment"
+                           my-label-vertical="true"
+                           my-model="selectedParent"
+                           my-items="parents"
+                           my-item-prop="name"
+                ></my-select>
+            </div>
+            <div style="margin: 100px 10px 0 20px; height: 100px;">
+                <table class="table table-striped" ng-show="selectedParent">
+                    <thead>
+                    <tr>
+                        <th><span>Notebook name</span></th>
+                        <th><span>Created By</span></th>
+                        <th><span>Creation date</span></th>
+                        <th><span>Last Edit Date</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>{{selectedParent.name}}</td>
+                        <td>{{selectedParent.author.firstName + ' ' + selectedParent.author.lastName}}</td>
+                        <td>{{selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                        <td>{{selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+		</div>
+		<div class="modal-footer">
+            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-primary">
+				Ok
+			</button>
+			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+				Cancel
+			</button>
+		</div>
+	</div>
+</form>

@@ -20,7 +20,7 @@ angular.module('indigoeln')
             })
             .state('experiment.new', {
                 parent: 'experiment',
-                url: '/project/{projectId}/notebook/{notebookId}/experiment/new',
+                url: 'project/{projectId}/notebook/{notebookId}/experiment/new',
                 data: {
                     authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
@@ -64,7 +64,7 @@ angular.module('indigoeln')
                         return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
                     identity: function (Principal) {
-                        return Principal.identity()
+                        return Principal.identity();
                     }
                 }
             })
@@ -92,7 +92,7 @@ angular.module('indigoeln')
                         return Template.query().$promise;
                     },
                     mode: function () {
-                        return 'edit'
+                        return 'edit';
                     }
                 }
             })
@@ -119,7 +119,32 @@ angular.module('indigoeln')
                         $state.go('experiment', null, {reload: true});
                     }, function () {
                         $state.go('^');
-                    })
+                    });
                 }]
+            })
+            .state('experiment.select-notebook', {
+                parent: 'experiment',
+                url: 'experiment/select-notebook',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
+                    pageTitle: 'indigoeln'
+                },
+                onEnter: function ($state, $uibModal) {
+                    $uibModal.open({
+                        animation: true,
+                        templateUrl: 'scripts/app/entities/experiment/experiment-select-parent.html',
+                        controller: 'ExperimentSelectParentController',
+                        size: 'lg',
+                        resolve: {
+                            parents: function (NotebooksForSubCreation) {
+                                return NotebooksForSubCreation.query().$promise;
+                            }
+                        }
+                    }).result.then(function (result) {
+                        $state.go('experiment.new', {projectId: result.projectId, notebookId: result.notebookId});
+                    }, function () {
+                        $state.go('^');
+                    });
+                }
             });
     });
