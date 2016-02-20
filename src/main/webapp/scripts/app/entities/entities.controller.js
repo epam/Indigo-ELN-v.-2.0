@@ -1,13 +1,34 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('EntitiesController', function ($scope, entities, $stateParams, EntitiesBrowser, $state) {
+    .controller('EntitiesController', function ($scope, data, $stateParams, EntitiesBrowser, $state) {
         $scope.entityId = EntitiesBrowser.compactIds($stateParams);
-        $scope.entities = entities;
-        $scope.closeTab = function (fullId, entityId) {
+        $scope.entities = data.entities;
+        $scope.onCloseTabClick = function (fullId, entityId) {
             EntitiesBrowser.close(fullId, entityId)
         };
-        $scope.goToTab = function (fullId) {
+        $scope.onTabClick = function (fullId) {
             EntitiesBrowser.goToTab(fullId)
         };
+        $scope.getKind = function (fullId) {
+            return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
+        };
+        $scope.$watch(function () {
+            return _.map($scope.entities, _.iteratee('name')).join('-');
+        }, function () {
+            _.each($scope.entities, function (item) {
+                var params = EntitiesBrowser.expandIds(item.fullId);
+                var kind = EntitiesBrowser.getKind(params);
+                if (kind == 'experiment') {
+                    EntitiesBrowser.resolveFromCache({
+                        projectId: params.projectId,
+                        notebookId: params.notebookId
+                    }).then(function (notebook) {
+                        item.title = notebook.name ? notebook.name + '-' + item.name : item.name;
+                    })
+                } else {
+                    item.title = item.name;
+                }
+            })
+        });
     });

@@ -5,7 +5,8 @@
  */
 angular.module('indigoeln')
     .factory('EntitiesBrowser', function (Experiment, Notebook, Project, $q, $state) {
-        var entities = {};
+        var tabs = {};
+        var cache = {};
         var kindConf = {
             experiment: {
                 service: Experiment,
@@ -53,19 +54,16 @@ angular.module('indigoeln')
                     return 'project';
                 }
             },
-            resolve: function (params) {
-                var entitiyId = this.compactIds(params);
-                if (!entities[entitiyId]) {
-                    entities[entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
-                }
-                return $q.all(_.values(entities));
+            resolveTabs: function (params) {
+                tabs[this.compactIds(params)] = this.resolveFromCache(params)
+                return $q.all(_.values(tabs));
             },
             getCurrentEntity: function (params) {
-                return entities[this.compactIds(params)];
+                return tabs[this.compactIds(params)];
             },
             getIdByVal: function (entitiy) {
-                return Object.keys(entities).filter(function (key) {
-                    return entities[key] === entitiy.$promise
+                return Object.keys(tabs).filter(function (key) {
+                    return tabs[key] === entitiy.$promise
                 })[0];
             },
             goToTab: function (fullId) {
@@ -73,7 +71,7 @@ angular.module('indigoeln')
                 kindConf[this.getKind(params)].go(params);
             },
             close: function (fullId, current) {
-                var keys = _.keys(entities);
+                var keys = _.keys(tabs);
                 if (keys.length > 1) {
                     var positionForClose = _.indexOf(keys, fullId);
                     var curPosition = _.indexOf(keys, current);
@@ -83,9 +81,17 @@ angular.module('indigoeln')
                     } else {
                         nextKey = keys[curPosition];
                     }
-                    delete entities[fullId];
+                    delete tabs[fullId];
+                    delete cache[fullId];
                     this.goToTab(nextKey);
                 }
+            },
+            resolveFromCache: function (params) {
+                var entitiyId = this.compactIds(params);
+                if (!cache[entitiyId]) {
+                    cache[entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
+                }
+                return cache[entitiyId];
             }
         };
     });
