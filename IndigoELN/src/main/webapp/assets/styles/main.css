@@ -316,3 +316,7 @@
 .notebook-create, .project-create {
     margin-top: 30px;
 }
+
+.tab-name:first-letter {
+    text-transform: capitalize;
+}
