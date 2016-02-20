@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.io.Serializable;
@@ -10,17 +11,17 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property = "type")
 public abstract class BasicDTO implements Serializable {
 
     private static final long serialVersionUID = -2304109712431441621L;
 
     private String id;
+    private String parentId;
     private String fullId;
 
     @NotEmpty
     private String name;
-
-    private String title; // full displayed name for entity
 
     private Set<UserPermissionDTO> accessList = new HashSet<>();
 
@@ -38,15 +39,14 @@ public abstract class BasicDTO implements Serializable {
     protected BasicDTO(BasicModelObject modelObject) {
         this.fullId = modelObject.getId();
         this.id = SequenceIdUtil.extractShortId(modelObject);
+        this.parentId = SequenceIdUtil.extractParentId(modelObject);
         this.name = modelObject.getName();
         this.author = modelObject.getAuthor() != null ? new UserDTO(modelObject.getAuthor()) : null;
         this.lastModifiedBy = modelObject.getLastModifiedBy() != null ? new UserDTO(modelObject.getLastModifiedBy()) : null;
         this.lastEditDate = modelObject.getLastEditDate();
         this.creationDate = modelObject.getCreationDate();
-        this.title = modelObject.getTitle();
         if (modelObject.getAccessList() != null) {
-            this.accessList.addAll(modelObject.getAccessList().stream()
-                    .map(UserPermissionDTO::new).collect(Collectors.toList()));
+            this.accessList.addAll(modelObject.getAccessList().stream().map(UserPermissionDTO::new).collect(Collectors.toList()));
         }
     }
 
@@ -58,12 +58,12 @@ public abstract class BasicDTO implements Serializable {
         return fullId;
     }
 
-    public String getName() {
-        return name;
+    public String getParentId() {
+        return parentId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
     public Set<UserPermissionDTO> getAccessList() {
@@ -100,7 +100,6 @@ public abstract class BasicDTO implements Serializable {
                 "id=" + id +
                 ", fullId='" + fullId + '\'' +
                 ", name='" + name + '\'' +
-                ", title='" + title + '\'' +
                 '}';
     }
 }
