@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public class ProjectService {
                 projectRepository.findAllIgnoreChildren() :
                 projectRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
 
-        return projects.stream().map(ShortEntityDTO::new).collect(Collectors.toList());
+        return projects.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
     public ProjectDTO createProject(ProjectDTO projectDTO, User user) {

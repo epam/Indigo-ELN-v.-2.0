@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -90,7 +91,7 @@ public class NotebookService {
         List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
             notebookRepository.findAllIgnoreChildren() :
             notebookRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
-        return notebooks.stream().map(ShortEntityDTO::new).collect(Collectors.toList());
+        return notebooks.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
     public NotebookDTO getNotebookById(String projectId, String id, User user) {
