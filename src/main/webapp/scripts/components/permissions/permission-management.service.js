@@ -2,8 +2,8 @@
 
 angular.module('indigoeln')
     .factory('PermissionManagement', function ($q, Principal) {
-        var _accessList = [];
-        var _author = {};
+        var _accessList;
+        var _author;
 
         var VIEWER = ['READ_ENTITY'];
         var CHILD_VIEWER = ['READ_ENTITY', 'READ_SUB_ENTITY'];
@@ -43,24 +43,21 @@ angular.module('indigoeln')
                 return list;
             },
             hasPermission: function(permission, accessList) {
-                var deferred = $q.defer();
+                if (!accessList && !_accessList) {
+                    return false;
+                }
                 var list = accessList ? accessList : _accessList;
-                Principal.hasAuthority('CONTENT_EDITOR').then(function (isContentEditor) {
-                    if (isContentEditor) {
-                        deferred.resolve(true);
-                    } else {
-                        Principal.identity().then(function (identity) {
-                            var hasPermission = false;
-                            _.each(list, function(item) {
-                                if (item.user.id === identity.id && _.contains(item.permissions, permission)) {
-                                    hasPermission = true;
-                                }
-                            });
-                            deferred.resolve(hasPermission);
-                        });
-                    }
+                return Principal.identity().then(function (identity) {
+                    var hasPermission = false;
+                    _.each(list, function(item) {
+                        if (item.user.id === identity.id && _.contains(item.permissions, permission)) {
+                            hasPermission = true;
+                        }
+                    });
+                    return hasPermission;
+                }, function (err) {
+                    return false;
                 });
-                return deferred.promise;
             },
             getAccessList: function() {
                 return _accessList;
