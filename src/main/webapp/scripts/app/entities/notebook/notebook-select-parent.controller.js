@@ -1,15 +1,15 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('NotebookSelectProjectController', function ($scope, $uibModalInstance, projects) {
-        $scope.projects = projects;
-        $scope.selectedProject = '';
+    .controller('NotebookSelectParentController', function ($scope, $uibModalInstance, parents) {
+        $scope.parents = parents;
+        $scope.selectedParent = '';
 
         $scope.ok = okPressed;
         $scope.cancel = cancelPressed;
 
         function okPressed () {
-            $uibModalInstance.close($scope.selectedProject.id);
+            $uibModalInstance.close($scope.selectedParent.id);
         }
 
         function cancelPressed () {
