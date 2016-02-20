@@ -17,7 +17,7 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'PROJECT_READER', 'PROJECT_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
@@ -27,8 +27,8 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity()
                     },
-                    editEnabled: function (PermissionManagement) {
-                        return PermissionManagement.hasPermission('UPDATE_ENTITY');
+                    hasEditAuthority: function () {
+                        return true;
                     }
                 }
             })
@@ -51,8 +51,8 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity()
                     },
-                    editEnabled: function (PermissionManagement) {
-                        return PermissionManagement.hasPermission('UPDATE_ENTITY');
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'PROJECT_CREATOR']);
                     }
                 }
             })

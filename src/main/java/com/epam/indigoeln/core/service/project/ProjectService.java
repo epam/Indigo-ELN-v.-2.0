@@ -12,6 +12,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
@@ -20,6 +21,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,6 +80,21 @@ public class ProjectService {
             throw OperationDeniedException.createProjectReadOperation(project.getId());
         }
         return new ProjectDTO(project);
+    }
+
+    /**
+     * Fetch all projects for current user available when create sub entity
+     * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
+     * or has authority CONTENT_EDITOR (but not in accessLIst)
+     * @param user user
+     * @return list of projects available for notebook creation
+     */
+    public List<ShortEntityDTO> getProjectsForNotebookCreation(User user) {
+        List<Project> projects = PermissionUtil.isContentEditor(user) ?
+                projectRepository.findAllIgnoreChildren() :
+                projectRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+
+        return projects.stream().map(ShortEntityDTO::new).collect(Collectors.toList());
     }
 
     public ProjectDTO createProject(ProjectDTO projectDTO, User user) {

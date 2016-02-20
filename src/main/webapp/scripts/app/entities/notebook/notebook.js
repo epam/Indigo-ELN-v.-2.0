@@ -17,19 +17,18 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
                     notebook: function () {
-                        return {
-                            id: null,
-                            name: null
-                        }
-
+                        return {}
                     },
                     identity: function (Principal) {
                         return Principal.identity()
+                    },
+                    hasEditAuthority: function () {
+                        return true;
                     }
                 }
             }).state('entities.notebook-detail', {
@@ -50,6 +49,9 @@ angular.module('indigoeln')
                     },
                     identity: function (Principal) {
                         return Principal.identity()
+                    },
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']);
                     }
                 }
             })
@@ -83,9 +85,9 @@ angular.module('indigoeln')
             })
             .state('notebook.select-project', {
                 parent: 'notebook',
-                url: '/select-project',
+                url: 'notebook/select-project',
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
                 onEnter: function($state, $uibModal, $window) {
@@ -100,7 +102,7 @@ angular.module('indigoeln')
                             }
                         }
                     }).result.then(function (projectId) {
-                        $state.go('notebook', {projectId: projectId});
+                        $state.go('notebook.new', {projectId: projectId});
                     }, function() {
                         $window.history.back();
                     })
