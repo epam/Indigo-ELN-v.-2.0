@@ -9,11 +9,11 @@
                            my-label-vertical="true"
                            my-model="selectedProject"
                            my-items="projects"
-                           my-item-prop="node.name"
+                           my-item-prop="name"
                 ></my-select>
             </div>
             <div style="margin: 100px 10px 0 20px; height: 100px;">
-                <table class="table table-striped" ng-show="selectedProject.node">
+                <table class="table table-striped" ng-show="selectedProject">
                     <thead>
                     <tr>
                         <th><span>Project name</span></th>
@@ -24,17 +24,17 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{selectedProject.node.name}}</td>
-                        <td>{{selectedProject.node.author.login}}</td>
-                        <td>{{selectedProject.node.creationDate | date:'myTzAbbr'}}</td>
-                        <td>{{selectedProject.node.lastEditDate | date:'myTzAbbr'}}</td>
+                        <td>{{selectedProject.name}}</td>
+                        <td>{{selectedProject.author.login}}</td>
+                        <td>{{selectedProject.creationDate | date:'myTzAbbr'}}</td>
+                        <td>{{selectedProject.lastEditDate | date:'myTzAbbr'}}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
 		</div>
 		<div class="modal-footer">
-            <button type="submit" form="selectProjectDialog" ng-disabled="!selectedProject.node" class="btn btn-info">
+			<button type="submit" form="selectProjectDialog" ng-disabled="!selectedProject.id" class="btn btn-primary">
 				Ok
 			</button>
 			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">

@@ -24,7 +24,7 @@
                     <button type="submit"
                             ui-sref="notebook.permissions({id:notebook.id})"
                             class="btn btn-info "
-                            ng-disabled="editDisabled">
+                            ng-disabled="!isEditEnabled">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
                 </div>

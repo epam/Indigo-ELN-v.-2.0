@@ -2,7 +2,8 @@
 
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function($scope, $rootScope, $stateParams, $uibModal, $state, Notebook, AlertService, Principal, PermissionManagement, notebook, identity) {
+        function($scope, $rootScope, $stateParams, $uibModal, $state, Notebook, AlertService, Principal,
+                 PermissionManagement, notebook, identity, hasEditAuthority) {
 
             $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
             $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
@@ -24,7 +25,15 @@ angular.module('indigoeln')
                 onAccessListChangedEvent();
             });
 
-            $scope.editDisabled = !Principal.hasAuthority('CONTENT_EDITOR');// && $scope.accessList; // todo
+            // isEditEnabled
+            if (hasEditAuthority) {
+                $scope.isEditEnabled = hasEditAuthority;
+            } else {
+                PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (result) {
+                    $scope.isEditEnabled = result;
+                });
+            }
+
             $scope.show = function(form) {
                 if (!$scope.editDisabled) {
                     form.$show();
