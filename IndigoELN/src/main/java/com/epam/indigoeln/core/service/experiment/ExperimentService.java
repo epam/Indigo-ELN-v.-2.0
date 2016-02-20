@@ -142,9 +142,6 @@ public class ExperimentService {
         //generate name
         experiment.setName(SequenceIdUtil.generateExperimentName(experiment));
 
-        //generate title
-        experiment.setTitle(SequenceIdUtil.generateExperimentTitle(experiment, notebook));
-
         experiment = experimentRepository.save(experiment);
 
         notebook.getExperiments().add(experiment);
