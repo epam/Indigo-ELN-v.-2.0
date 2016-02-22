@@ -25,7 +25,7 @@ angular.module('indigoeln')
                         return {};
                     },
                     identity: function (Principal) {
-                        return Principal.identity()
+                        return Principal.identity();
                     },
                     hasEditAuthority: function () {
                         return true;
@@ -49,7 +49,7 @@ angular.module('indigoeln')
                         return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
                     identity: function (Principal) {
-                        return Principal.identity()
+                        return Principal.identity();
                     },
                     hasEditAuthority: function (Principal) {
                         return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'PROJECT_CREATOR']);
@@ -67,7 +67,6 @@ angular.module('indigoeln')
                     {id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
                     {id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
                 ]
-
             }))
             .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.project-detail',

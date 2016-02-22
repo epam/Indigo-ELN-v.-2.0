@@ -34,7 +34,7 @@ angular.module('indigoeln')
             }
 
             $scope.show = function(form) {
-                if (!$scope.editDisabled) {
+                if ($scope.isEditEnabled) {
                     form.$show();
                 }
             };

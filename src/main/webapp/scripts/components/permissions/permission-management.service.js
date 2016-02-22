@@ -10,18 +10,6 @@ angular.module('indigoeln')
         var USER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY'];
         var OWNER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
 
-        var projectPermissions = [
-            { id: 'VIEWER', name: 'VIEWER (read project)'},
-            { id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read project and notebooks)'},
-            { id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
-            { id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
-        ];
-        var notebookPermissions = [
-            { id: 'VIEWER', name: 'VIEWER (read notebook)'},
-            { id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read notebook and experiments)'},
-            { id: 'USER', name: 'USER (read notebook and experiments, create experiments)'},
-            { id: 'OWNER', name: 'OWNER (read and update notebook, read and create experiments)'}
-        ];
         var experimentPermissions = [
             { id: 'VIEWER', name: 'VIEWER (read experiment)'},
             { id: 'OWNER', name: 'OWNER (read and update experiment)'}
@@ -70,12 +58,6 @@ angular.module('indigoeln')
             },
             setAuthor: function(user) {
                 _author = user;
-            },
-            getProjectPermissions: function() {
-                return projectPermissions;
-            },
-            getNotebookPermissions: function() {
-                return notebookPermissions;
             },
             getExperimentPermissions: function() {
                 return experimentPermissions;

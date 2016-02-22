@@ -22,7 +22,15 @@
                 <div class="col-xs-6">
                     <label class="control-label">Notebook Members&nbsp;</label>
                     <button type="submit"
-                            ui-sref="notebook.permissions({id:notebook.id})"
+                            ui-sref="notebook.new.permissions({projectId:projectId})"
+                            ng-if="!notebook.id"
+                            class="btn btn-info "
+                            ng-disabled="!isEditEnabled">
+                        <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="entities.notebook-detail.permissions({projectId:projectId, notebookId:notebook.id})"
+                            ng-if="notebook.id"
                             class="btn btn-info "
                             ng-disabled="!isEditEnabled">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
