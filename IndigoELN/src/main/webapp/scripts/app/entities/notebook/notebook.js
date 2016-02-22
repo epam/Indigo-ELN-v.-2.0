@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function ($stateProvider, PermissionManagementConfig) {
         $stateProvider
             .state('notebook', {
                 abstract: true,
@@ -55,34 +55,30 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('notebook.permissions', {
-                parent: 'notebook',
-                url: '/notebook/permissions',
+            .state('notebook.new.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'notebook.new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
-                onEnter: function ($rootScope, $stateParams, $state, $uibModal, PermissionManagement) {
-                    $uibModal.open({
-                        templateUrl: 'scripts/components/permissions/permission-management.html',
-                        controller: 'PermissionManagementController',
-                        size: 'lg',
-                        resolve: {
-                            users: function (User) {
-                                return User.query().$promise;
-                            },
-                            permissions: function () {
-                                return PermissionManagement.getNotebookPermissions();
-                            }
-                        }
-                    }).result.then(function (result) {
-                        PermissionManagement.setAccessList(result);
-                        $rootScope.$broadcast('access-list-changed');
-                        $state.go('notebook', {projectId: $stateParams.projectId, id: $stateParams.id});
-                    }, function () {
-                        $state.go('^');
-                    });
-                }
-            })
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
+                    {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read notebook and experiments)'},
+                    {id: 'USER', name: 'USER (read notebook and experiments, create experiments)'},
+                    {id: 'OWNER', name: 'OWNER (read and update notebook, read and create experiments)'}
+                ]
+            }))
+            .state('entities.notebook-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.notebook-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
+                },
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
+                    {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read notebook and experiments)'},
+                    {id: 'USER', name: 'USER (read notebook and experiments, create experiments)'},
+                    {id: 'OWNER', name: 'OWNER (read and update notebook, read and create experiments)'}
+                ]
+            }))
             .state('notebook.select-project', {
                 parent: 'notebook',
                 url: 'notebook/select-project',

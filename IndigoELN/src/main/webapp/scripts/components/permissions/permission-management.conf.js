@@ -23,7 +23,7 @@ angular.module('indigoeln')
                 $state.go('^');
             }, function () {
                 $state.go('^');
-            })
+            });
         }
     });
 
