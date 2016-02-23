@@ -2,17 +2,16 @@
 
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function($scope, $rootScope, $stateParams, $uibModal, $state, Notebook, AlertService, Principal,
-                 PermissionManagement, notebook, identity, hasEditAuthority) {
-
-            $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
-            $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
-            $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
+        function ($scope, $rootScope, $stateParams, $state, Notebook, AlertService, PermissionManagement, notebook,
+                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority) {
 
             $scope.notebook = notebook;
             $scope.notebook.author = $scope.notebook.author || identity;
-            $scope.notebook.accessList = $scope.notebook.accessList ||
-                [{user: identity, permissions: [], permissionView: 'OWNER'}];
+            $scope.notebook.accessList = $scope.notebook.accessList || [{
+                    user: identity,
+                    permissions: [],
+                    permissionView: 'OWNER'
+                }];
             $scope.projectId = $stateParams.projectId;
 
             PermissionManagement.setAuthor($scope.notebook.author);
@@ -25,17 +24,17 @@ angular.module('indigoeln')
                 onAccessListChangedEvent();
             });
 
-            // isEditEnabled
-            if (hasEditAuthority) {
-                $scope.isEditEnabled = hasEditAuthority;
-            } else {
-                PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (result) {
-                    $scope.isEditEnabled = result;
-                });
-            }
+            // isEditAllowed
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
+                $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+            });
+            // isCreateChildAllowed
+            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function (hasCreateChildPermission) {
+                $scope.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
+            });
 
             $scope.show = function(form) {
-                if ($scope.isEditEnabled) {
+                if ($scope.isEditAllowed) {
                     form.$show();
                 }
             };

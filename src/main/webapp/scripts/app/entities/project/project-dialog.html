@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <my-input my-label="Project Name"
-                                  my-readonly="!isEditEnabled"
+                                  my-readonly="!isEditAllowed"
                                   my-name="projectName"
                                   my-type="text"
                                   my-label-vertical="true"
@@ -26,14 +26,14 @@
                                 ui-sref="project.new.permissions()"
                                 ng-if="!project.id"
                                 class="btn btn-info "
-                                ng-disabled="!isEditEnabled">
+                                ng-disabled="!isEditAllowed">
                             <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                         </button>
                         <button type="submit"
                                 ui-sref="entities.project-detail.permissions()"
                                 ng-if="project.id"
                                 class="btn btn-info "
-                                ng-disabled="!isEditEnabled">
+                                ng-disabled="!isEditAllowed">
                             <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                         </button>
                     </div>
@@ -50,26 +50,28 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <my-tag-input my-label="Tags" my-model="tags" my-readonly="!isEditEnabled"
+                        <my-tag-input my-label="Tags" my-model="tags" my-readonly="!isEditAllowed"
                                       my-label-vertical="true"></my-tag-input>
-                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditEnabled"
-                                      my-model="project.keywords"></my-input>
-                        <my-input my-label="Literature References" my-label-vertical="true" my-readonly="!isEditEnabled"
+                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditAllowed"
+                                  my-model="project.keywords"></my-input>
+                        <my-input my-label="Literature References" my-label-vertical="true" my-readonly="!isEditAllowed"
                                   my-model="project.references"></my-input>
                         <label class="control-label">Description</label>
-                        <my-text-editor content="project.description" my-readonly="!isEditEnabled"></my-text-editor>
-                        <my-file-uploader-result ng-if="project.id" entityid="project.id"></my-file-uploader-result>
+                        <my-text-editor content="project.description" my-readonly="!isEditAllowed"></my-text-editor>
+                        <my-file-uploader-result ng-if="project.id" entityid="project.id"
+                                                 my-readonly="!isEditAllowed"></my-file-uploader-result>
                     </div>
                 </div>
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button class="btn btn-info pull-left" type="button" ng-disabled="!project.id"
-                    ui-sref="notebook.new({projectId:project.id})"
-                    has-any-authority="{{NOTEBOOK_CREATORS}}">Create Notebook</button>
-            <button type="submit" form="createProjectForm" ng-disabled="createProjectForm.$invalid || isSaving"
-                    class="btn btn-info">
-                Save
+            <button class="btn btn-info pull-left" type="button"
+                    ng-disabled="!isCreateChildAllowed || !project.id"
+                    ui-sref="notebook.new({projectId:project.id})">Create Notebook
+            </button>
+            <button type="submit" form="createProjectForm"
+                    ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving"
+                    class="btn btn-info">Save
             </button>
             <button type="button" class="btn btn-default" onclick="window.history.back()">
                 <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
