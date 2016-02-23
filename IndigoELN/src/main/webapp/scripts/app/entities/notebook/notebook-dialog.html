@@ -25,14 +25,14 @@
                             ui-sref="notebook.new.permissions({projectId:projectId})"
                             ng-if="!notebook.id"
                             class="btn btn-info "
-                            ng-disabled="!isEditEnabled">
+                            ng-disabled="!isEditAllowed">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.notebook-detail.permissions({projectId:projectId, notebookId:notebook.id})"
                             ng-if="notebook.id"
                             class="btn btn-info "
-                            ng-disabled="!isEditEnabled">
+                            ng-disabled="!isEditAllowed">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
                 </div>
@@ -53,17 +53,18 @@
             <div class="row">
                 <div class="col-xs-12">
                     <label class="control-label">Description</label>
-                    <my-text-editor content="notebook.description" my-readonly="!isEditEnabled"></my-text-editor>
+                    <my-text-editor content="notebook.description" my-readonly="!isEditAllowed"></my-text-editor>
                 </div>
             </div>
         </form>
     </div>
     <div class="panel-footer text-right">
-        <button class="btn btn-info pull-left" type="button" ng-disabled="!notebook.id"
-                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})"
-                has-any-authority="{{EXPERIMENT_CREATORS}}">Create Experiment
+        <button class="btn btn-info pull-left" type="button"
+                ng-disabled="!isCreateChildAllowed || !notebook.id"
+                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment
         </button>
-        <button type="submit" form="createNotebookForm" ng-disabled="createNotebookForm.$invalid || isSaving"
+        <button type="submit" form="createNotebookForm"
+                ng-disabled="!isEditAllowed || createNotebookForm.$invalid || isSaving"
                 class="btn btn-info">
             Save
         </button>

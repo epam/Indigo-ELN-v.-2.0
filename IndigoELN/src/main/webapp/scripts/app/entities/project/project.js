@@ -27,8 +27,14 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity();
                     },
-                    hasEditAuthority: function () {
-                        return true;
+                    isContentEditor: function (Principal) {
+                        return Principal.hasAuthority('CONTENT_EDITOR');
+                    },
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAuthority('PROJECT_CREATOR');
+                    },
+                    hasCreateChildAuthority: function (Principal) {
+                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
                     }
                 }
             })
@@ -51,8 +57,14 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity();
                     },
+                    isContentEditor: function (Principal) {
+                        return Principal.hasAuthority('CONTENT_EDITOR');
+                    },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'PROJECT_CREATOR']);
+                        return Principal.hasAuthority('PROJECT_CREATOR');
+                    },
+                    hasCreateChildAuthority: function (Principal) {
+                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
                     }
                 }
             })

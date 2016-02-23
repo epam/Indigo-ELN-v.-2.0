@@ -1,7 +1,7 @@
 <div class="panel panel-default user-management">
     <div class="panel-heading">Attachments</div>
     <div class="panel-body">
-        <button class="btn btn-info" ng-click="attach()">
+        <button class="btn btn-info" ng-disabled="myReadonly" ng-click="attach()">
             <span class="glyphicon glyphicon-flash"></span> <span>Attach File</span>
         </button>
 
@@ -39,6 +39,7 @@
                     <span class="glyphicon glyphicon-download"></span>
                 </a>
                 <button type="submit"
+                        ng-disabled="myReadonly"
                         ng-click="delete(file.id)"
                         class="btn btn-danger btn-sm">
                     <span class="glyphicon glyphicon-remove-circle"></span>

@@ -27,8 +27,14 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity();
                     },
-                    hasEditAuthority: function () {
-                        return true;
+                    isContentEditor: function (Principal) {
+                        return Principal.hasAuthority('CONTENT_EDITOR');
+                    },
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                    },
+                    hasCreateChildAuthority: function (Principal) {
+                        return Principal.hasAuthority('EXPERIMENT_CREATOR');
                     }
                 }
             }).state('entities.notebook-detail', {
@@ -50,8 +56,14 @@ angular.module('indigoeln')
                     identity: function (Principal) {
                         return Principal.identity();
                     },
+                    isContentEditor: function (Principal) {
+                        return Principal.hasAuthority('CONTENT_EDITOR');
+                    },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']);
+                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                    },
+                    hasCreateChildAuthority: function (Principal) {
+                        return Principal.hasAuthority('EXPERIMENT_CREATOR');
                     }
                 }
             })
