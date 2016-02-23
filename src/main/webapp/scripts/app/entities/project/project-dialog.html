@@ -57,7 +57,7 @@
                         <my-input my-label="Literature References" my-label-vertical="true" my-readonly="!isEditEnabled"
                                   my-model="project.references"></my-input>
                         <label class="control-label">Description</label>
-                        <my-text-editor content="project.description"></my-text-editor>
+                        <my-text-editor content="project.description" my-readonly="!isEditEnabled"></my-text-editor>
                         <my-file-uploader-result ng-if="project.id" entityid="project.id"></my-file-uploader-result>
                     </div>
                 </div>
