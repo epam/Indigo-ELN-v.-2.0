@@ -11,7 +11,8 @@ angular.module('indigoeln')
     .directive('myTextEditor', function ($timeout, textEditorConfig) {
         return {
             scope: {
-                content: '='
+                content: '=',
+                myReadonly: '='
             },
             restrict: 'E',
             template: '<textarea data-autosave="editor-content" autofocus></textarea>',
@@ -37,6 +38,9 @@ angular.module('indigoeln')
                         });
                     }
                 });
+                if (scope.myReadonly === true) {
+                    editor.body.attr('contenteditable', false);
+                }
             }
         };
     });
