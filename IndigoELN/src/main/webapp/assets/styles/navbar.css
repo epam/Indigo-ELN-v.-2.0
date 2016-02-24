@@ -70,7 +70,7 @@
     color: #6b8693;
     display: block;
     line-height: 15px;
-    font: 14px/30px segoeui;
+    font: 14px/30px roboto;
     padding: 5px;
     text-align: left;
     text-decoration: none;
@@ -92,4 +92,8 @@
     min-width: 850px;
     width: 100%;
     z-index: 1;
+}
+
+.open-menu {
+    display: block !important;
 }
