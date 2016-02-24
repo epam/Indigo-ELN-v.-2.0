@@ -1,6 +1,11 @@
 'use strict';
 
 angular.module('indigoeln')
+    .factory('UserWithAuthority', function ($resource) {
+        return $resource('api/users/permission-management', {}, {
+            'query': {method: 'GET', isArray: true}
+        });
+    })
     .factory('PermissionManagement', function ($q, Principal) {
         var _accessList;
         var _author;
@@ -68,14 +73,71 @@ angular.module('indigoeln')
             },
             getExperimentPermissions: function() {
                 return experimentPermissions;
+            },
+            hasAuthorityForProjectPermission: function(member, permission) {
+                var projectOwnerAuthoritySet = ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'CONTENT_EDITOR'];
+                var projectUserAuthoritySet = ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
+                var projectChildViewerAuthoritySet = ['PROJECT_READER', 'NOTEBOOK_READER'];
+                var projectViewerAuthoritySet = ['PROJECT_READER'];
+
+                if (permission === 'OWNER') {
+                    return _.every(projectOwnerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'USER') {
+                    return _.every(projectUserAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'CHILD_VIEWER') {
+                    return _.every(projectChildViewerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'VIEWER') {
+                    return _.every(projectViewerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                }
+            },
+            hasAuthorityForNotebookPermission: function(member, permission) {
+                var notebookOwnerAuthoritySet = ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR'];
+                var notebookUserAuthoritySet = ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
+                var notebookChildViewerAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER'];
+                var notebookViewerAuthoritySet = ['NOTEBOOK_READER'];
+
+                if (permission === 'OWNER') {
+                    return _.every(notebookOwnerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'USER') {
+                    return _.every(notebookUserAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'CHILD_VIEWER') {
+                    return _.every(notebookChildViewerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'VIEWER') {
+                    return _.every(notebookViewerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                }
+            },
+            hasAuthorityForExperimentPermission: function(member, permission) {
+                var experimentOwnerAuthoritySet = ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR'];
+                var experimentViewerAuthoritySet = ['EXPERIMENT_READER'];
+
+                if (permission === 'OWNER') {
+                    return _.every(experimentOwnerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                } else if (permission === 'VIEWER') {
+                    return _.every(experimentViewerAuthoritySet, function(authority) {
+                        _.contains(member.user.authorities, authority);
+                    });
+                }
             }
         };
     });
-
-
-
-
-
 
 
 

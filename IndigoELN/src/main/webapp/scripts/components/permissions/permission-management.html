@@ -29,7 +29,10 @@
                 </td>
                 <td>
                     <div>
-                        <a ng-class="{disabled: isAuthor(member)}" e-form="perm" ng-click="show(perm, member)"
+                        <a ng-class="{disabled: isAuthor(member)}" e-form="perm"
+                           ng-click="show(perm, member)"
+                           onbeforesave="saveOldPermission(member.permissionView)"
+                           onaftersave="checkAuthority(member, member.permissionView)"
                            editable-select="member.permissionView"
                            e-ng-options="p.id as p.name for p in permissions">
                             {{ member.permissionView }}
@@ -39,7 +42,7 @@
                 <td nowrap>
                     <button ng-disabled="isAuthor(member)" type="button" class="btn btn-warning btn-xs"
                             ng-click="removeMember(member)">
-                        <span class="glyphicon glyphicon-ban-circle"></span> Stop sharing
+                        <span class="glyphicon glyphicon-ban-circle"></span> Remove
                     </button>
                 </td>
             </tr>
@@ -48,7 +51,7 @@
     </div>
     <div class="modal-footer">
         <button type="submit" ng-disabled="permissionsForm.$invalid" class="btn btn-info" ng-click="ok()">
-            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Ok</span>
+            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Save</span>
         </button>
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>

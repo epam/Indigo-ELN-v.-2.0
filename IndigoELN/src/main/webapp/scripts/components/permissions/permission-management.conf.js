@@ -10,8 +10,8 @@ angular.module('indigoeln')
                 controller: 'PermissionManagementController',
                 size: 'lg',
                 resolve: {
-                    users: function (User) {
-                        return User.query().$promise;
+                    users: function (UserWithAuthority) {
+                        return UserWithAuthority.query().$promise;
                     },
                     permissions: function () {
                         return that.permissions;
