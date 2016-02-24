@@ -9,7 +9,7 @@ angular.module('indigoeln')
                 y: 10
             },
             spacing: 10,
-            z_index: 1031,
+            z_index: 1131,
             delay: 5000,
             timer: 1000,
             placement: {
