@@ -78,33 +78,35 @@
 
     </div>
 
-    <table class="table table-striped authoritiesTable">
-        <thead>
-        <tr>
-            <th>Role name</th>
-            <th ng-repeat="authority in authorities">{{authority.description}}</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="role in roles track by role.id">
-            <td>{{role.name}}</td>
-            <td ng-repeat="authority in authorities">
-                <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"></span>
-            </td>
-            <td class="text-right">
-                <button type="submit"
-                        ng-click="edit(role)"
-                        class="btn btn-info btn-sm">
-                    <span class="glyphicon glyphicon-pencil"></span>
-                </button>
-                <button type="submit"
-                        ui-sref="role-management.delete({id:role.id})"
-                        class="btn btn-danger btn-sm">
-                    <span class="glyphicon glyphicon-remove-circle"></span>
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-striped authoritiesTable">
+            <thead>
+            <tr>
+                <th>Role name</th>
+                <th ng-repeat="authority in authorities">{{authority.description}}</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="role in roles track by role.id">
+                <td>{{role.name}}</td>
+                <td ng-repeat="authority in authorities">
+                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"></span>
+                </td>
+                <td class="text-right">
+                    <button type="submit"
+                            ng-click="edit(role)"
+                            class="btn btn-info btn-sm">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="role-management.delete({id:role.id})"
+                            class="btn btn-danger btn-sm">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
