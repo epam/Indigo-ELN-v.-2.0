@@ -85,3 +85,11 @@
 .head-controls-list-submenu__item a:active {
     color: #263035;
 }
+
+.main-container__head {
+    background: #607d8b;
+    height: 70px;
+    min-width: 850px;
+    width: 100%;
+    z-index: 1;
+}
