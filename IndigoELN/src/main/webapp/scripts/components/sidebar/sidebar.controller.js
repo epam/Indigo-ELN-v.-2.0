@@ -2,7 +2,9 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment, AllProjects, AllNotebooks, AllExperiments) {
+    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
+                                               AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
+                                               Principal) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -95,16 +97,22 @@ angular
 
         $scope.toggleNotebooks = function (project, needAll) {
             $state.go('entities.project-detail', {projectId: project.id});
-            if (!project.children) {
-                var agent = needAll ? AllNotebooks : Notebook;
-                agent.query({projectId: project.id}, function (result) {
-                    project.children = result;
-                    project.isOpen = true;
-                });
-            } else if(!project.isOpen) {
-                project.isOpen = true;
-            } else {
+            if (project.isOpen) {
                 project.children = null;
+                project.isOpen = false;
+            } else {
+                PermissionManagement.hasPermission('READ_SUB_ENTITY', project.accessList).then(function (hasPermission) {
+                    if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER']) && hasPermission) {
+                        var agent = needAll ? AllNotebooks : Notebook;
+                        agent.query({projectId: project.id}, function (result) {
+                            project.children = result;
+                            project.isOpen = true;
+                        });
+                    } else {
+                        project.children = null;
+                        project.isOpen = true;
+                    }
+                });
             }
         };
 
