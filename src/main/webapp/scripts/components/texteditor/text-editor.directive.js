@@ -38,9 +38,13 @@ angular.module('indigoeln')
                         });
                     }
                 });
+
                 if (scope.myReadonly === true) {
                     editor.body.attr('contenteditable', false);
                 }
+                scope.$watch('myReadonly', function(newValue) {
+                    editor.body.attr('contenteditable', !newValue);
+                });
             }
         };
     });

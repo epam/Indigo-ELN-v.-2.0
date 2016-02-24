@@ -28,13 +28,13 @@ angular.module('indigoeln')
                         return Principal.identity();
                     },
                     isContentEditor: function (Principal) {
-                        return Principal.hasAuthority('CONTENT_EDITOR');
+                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
                     },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthority('PROJECT_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR');
                     },
                     hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
                     }
                 }
             })
@@ -58,13 +58,13 @@ angular.module('indigoeln')
                         return Principal.identity();
                     },
                     isContentEditor: function (Principal) {
-                        return Principal.hasAuthority('CONTENT_EDITOR');
+                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
                     },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthority('PROJECT_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR');
                     },
                     hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
                     }
                 }
             })
