@@ -9,22 +9,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties like as
- * "hasChildren" flag
+ * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties
  */
 public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
 
     private static final long serialVersionUID = -5561498961856213253L;
 
-    public static List<TreeNodeDTO> convertAll(Collection<? extends BasicModelObject> nodes) {
-        return nodes != null ? nodes.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList()) : null;
-    }
-
-
     private String id;
     private String fullId;
     private String name;
-    private List<TreeNodeDTO> children;
 
     public TreeNodeDTO() {
     }
@@ -35,11 +28,6 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
         this.name = obj.getName();
     }
 
-    public TreeNodeDTO(BasicModelObject obj, Collection<? extends BasicModelObject> children) {
-        this(obj);
-        this.children = convertAll(children);
-    }
-
     public String getId() {
         return id;
     }
@@ -48,20 +36,8 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
         return fullId;
     }
 
-    public List<TreeNodeDTO> getChildren() {
-        return children;
-    }
-
     public String getName() {
         return name;
-    }
-
-    public void setChildren(List<TreeNodeDTO> children) {
-        this.children = children;
-    }
-
-    public void setChildren(Collection<? extends BasicModelObject> children) {
-        this.children = convertAll(children);
     }
 
     @Override
