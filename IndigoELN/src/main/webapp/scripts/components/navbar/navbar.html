@@ -1,70 +1,37 @@
-<ul class="head-controls-list head-controls-list_main">
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="fa fa-arrow-circle-o-up"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-        <!--<li class="head-controls-list-submenu__item"><a ng-click="newProject($event)" href="#">Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="fa fa-cog"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="fa fa-th-large"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="fa fa-question-circle"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-            <!--<li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-</ul>
-<ul class="head-controls-list">
-    <li class="head-controls-list__item" ui-sref="experiment">
-        <i class="fa fa-home"></i>
-    </li>
-    <li class="head-controls-list__item" toggle-class-child="open-menu">
-        <i class="fa fa-file-o"></i>
-        <ul class="head-controls-list-submenu">
-            <li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}"><a
-                    ui-sref="project.new">New Project</a></li>
-            <li class="head-controls-list-submenu__item" has-any-authority="{{NOTEBOOK_CREATORS}}"><a ui-sref="notebook.select-project">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item" has-any-authority="{{EXPERIMENT_CREATORS}}"><a
-                    ui-sref="experiment.select-notebook">New Experiment</a></li>
+<div class="container-fluid">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" ng-click="isCollapsed = !isCollapsed">
+            <!--<span class="sr-only">Toggle navigation</span>-->
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" ui-sref="experiment">IndigoELN</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div style="overflow: hidden" class="collapse navbar-collapse" ng-init="isCollapsed = true"
+         uib-collapse="isCollapsed">
+        <ul class="nav navbar-nav">
+            <li><a ui-sref="experiment"><i class="fa fa-home"></i> Home</a></li>
+            <li class="dropdown" uib-dropdown>
+                <a uib-dropdown-toggle href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"><i
+                        class="fa fa-file-o"></i> Create <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li has-any-authority="{{PROJECT_CREATORS}}"><a
+                            ui-sref="project.new">Project</a></li>
+                    <li has-any-authority="{{NOTEBOOK_CREATORS}}"><a ui-sref="notebook.select-project">Notebook</a></li>
+                    <li has-any-authority="{{EXPERIMENT_CREATORS}}"><a
+                            ui-sref="experiment.select-notebook">Experiment</a></li>
+                </ul>
+            </li>
         </ul>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-files-o"></i>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-inbox"></i>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-folder-open"></i>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-floppy-o"></i>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-print"></i>
-    </li>
-    <li class="head-controls-list__item">
-        <i class="fa fa-search"></i>
-    </li>
-</ul>
-<ul class="head-controls-list_right">
-    <li class="head-controls-list__item_user">
-        <i class="fa fa-user"> {{Principal.getIdentity().login}}</i>
-    </li>
-    <a ng-click="logout()">
-        <li class="head-controls-list__item" title="Log out">
-            <i class="fa fa-sign-out"></i>
-        </li>
-    </a>
-</ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a href=""><i class="fa fa-user"></i> {{Principal.getIdentity().login}}</a></li>
+            <li>
+                <a href="" ng-click="logout()" title="Log out"><i class="fa fa-sign-out"></i></a>
+            </li>
+        </ul>
+    </div>
+</div>
 

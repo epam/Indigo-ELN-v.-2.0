@@ -14,7 +14,7 @@
                 <div class="col-xs-5">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Components</div>
+                            Components
                         </div>
                         <div class="panel-body">
                             <div class="input-group">
@@ -28,7 +28,7 @@
                                  dragula-model='components'>
                                 <a class="list-group-item draggable-component"
                                    ng-repeat="component in components | filter:search">
-                                    <h4 class="list-group-item-heading draggable-component">{{component.name}}</h4>
+                                    <h5 class="list-group-item-heading draggable-component">{{component.name}}</h5>
                                     <p class="list-group-item-text draggable-component">{{component.desc}} </p>
                                 </a>
                             </div>
@@ -38,10 +38,9 @@
                 <div class="col-xs-7">
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <div class="panel-title">Template Builder <span class="btn-group pull-right">
+                            Template Builder <span class="btn-group pull-right">
                                 <i class="fa fa-plus" title="Add tab" ng-click="addTab()"
                                    style="cursor: pointer"></i></span>
-                            </div>
                         </div>
                         <div class="panel-body" dragula='"tabs"' dragula-model='template.templateContent'
                              style="padding-bottom: 0">
@@ -51,16 +50,14 @@
                             </div>
                             <div class="panel panel-info tab" ng-repeat="tab in template.templateContent">
                                 <div class="panel-heading">
-                                    <div class="panel-title">
                                         <span editable-text="tab.name"
                                               e-form="tabName"
                                               ng-click="tabName.$show()">
                                                 {{ tab.name }}
                                         </span>
-                                        <i class="fa fa-remove pull-right text-muted" style="cursor: pointer"
-                                           title="Remove"
-                                           ng-click="removeTab(tab)"></i>
-                                    </div>
+                                    <i class="fa fa-remove pull-right text-muted" style="cursor: pointer"
+                                       title="Remove"
+                                       ng-click="removeTab(tab)"></i>
                                 </div>
                                 <div class="panel-body">
                                     <div class="list-group" dragula='"components"' dragula-model='tab.components'>
@@ -72,11 +69,11 @@
                                         </div>
                                         <a class="list-group-item draggable-component component"
                                            ng-repeat="component in tab.components">
-                                            <h4 class="list-group-item-heading draggable-component">
+                                            <h5 class="list-group-item-heading draggable-component">
                                                 {{component.name}} <i class="fa fa-remove pull-right text-muted"
                                                                       style="cursor: pointer" title="Remove"
                                                                       ng-click="removeComponent(tab, component)"></i>
-                                            </h4>
+                                            </h5>
                                             <p class="list-group-item-text draggable-component">{{component.desc}} </p>
                                         </a>
                                     </div>
@@ -102,7 +99,7 @@
         <div class="panel panel-default">
             <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false"
                  ng-click="showPreview = !showPreview">
-                <h3 class="panel-title">Show Preview</h3>
+                Show Preview
             </div>
             <div class="panel-body" ng-if="showPreview && template.templateContent.length">
                 <my-components my-template="template.templateContent"

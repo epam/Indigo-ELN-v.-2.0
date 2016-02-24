@@ -1,11 +1,14 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('EntitiesController', function ($scope, data, $stateParams, EntitiesBrowser, $state) {
+    .controller('EntitiesController', function ($scope, data, $stateParams, EntitiesBrowser) {
         $scope.entityId = EntitiesBrowser.compactIds($stateParams);
         $scope.entities = data.entities;
         $scope.onCloseTabClick = function (fullId, entityId) {
-            EntitiesBrowser.close(fullId, entityId)
+            EntitiesBrowser.close(fullId, entityId);
+            EntitiesBrowser.getTabs().then(function (tabs) {
+                $scope.entities = tabs;
+            })
         };
         $scope.onTabClick = function (fullId) {
             EntitiesBrowser.goToTab(fullId)

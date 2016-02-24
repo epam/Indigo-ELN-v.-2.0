@@ -4,7 +4,7 @@ angular.module('indigoeln',
 
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle',
         'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
-        'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker',
+        'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
         var countdownDialog = null,
@@ -96,7 +96,8 @@ angular.module('indigoeln',
             abstract: true,
             views: {
                 'app_page@': {
-                    templateUrl: 'scripts/components/app_page/app_page.html'
+                    templateUrl: 'scripts/components/app_page/app_page.html',
+                    controller: 'AppPageController'
                 }
             },
             resolve: {

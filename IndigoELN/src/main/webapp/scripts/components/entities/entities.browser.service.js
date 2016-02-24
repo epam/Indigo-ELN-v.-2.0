@@ -11,19 +11,19 @@ angular.module('indigoeln')
             experiment: {
                 service: Experiment,
                 go: function (params) {
-                    $state.go('entities.experiment-detail', params, {reload: true})
+                    $state.go('entities.experiment-detail', params)
                 }
             },
             notebook: {
                 service: Notebook,
                 go: function (params) {
-                    $state.go('entities.notebook-detail', params, {reload: true})
+                    $state.go('entities.notebook-detail', params)
                 }
             },
             project: {
                 service: Project,
                 go: function (params) {
-                    $state.go('entities.project-detail', params, {reload: true})
+                    $state.go('entities.project-detail', params)
                 }
             }
         };
@@ -92,6 +92,9 @@ angular.module('indigoeln')
                     cache[entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
                 }
                 return cache[entitiyId];
+            },
+            getTabs: function () {
+                return $q.all(_.values(tabs));
             }
         };
     });
