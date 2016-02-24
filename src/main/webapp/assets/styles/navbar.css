@@ -1,0 +1,87 @@
+/****header page****/
+.head-controls-list, .head-controls-list_right {
+    float: left;
+    margin: 25px 20px 0 20px;
+    padding: 0;
+}
+
+.head-controls-list__item, .head-controls-list__item_user {
+    background: #546e7a;
+    border-radius: 26px;
+    border: 1px solid #546e7a;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    height: 36px;
+    list-style-type: none;
+    margin-right: 8px;
+    position: relative;
+    text-align: center;
+    width: 36px;
+}
+
+.head-controls-list__item:hover {
+    border: 1px solid #4dd0e1;
+}
+
+.head-controls-list__item .fa, .head-controls-list__item_user .fa {
+    font-size: 20px;
+    margin-top: 7px;
+}
+
+.head-controls-list_right {
+    float: right;
+}
+
+.head-controls-list__item_user {
+    cursor: default;
+    width: auto;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.head-controls-list__item_dark-color {
+    background: #37474f;
+}
+
+.head-controls-list-submenu {
+    background: #fff;
+    border: 1px solid #607d8b;
+    display: none;
+    list-style-type: none;
+    left: -14px;
+    max-width: 300px;
+    min-width: 150px;
+    position: absolute;
+    padding: 0;
+    top: 44px;
+    z-index: 5;
+}
+
+.head-controls-list-submenu:before {
+    content: "\f0d8";
+    font: 42px fontawesome;
+    left: 19px;
+    position: absolute;
+    top: -24px;
+}
+
+.head-controls-list-submenu__item a {
+    color: #6b8693;
+    display: block;
+    line-height: 15px;
+    font: 14px/30px segoeui;
+    padding: 5px;
+    text-align: left;
+    text-decoration: none;
+}
+
+.head-controls-list-submenu__item a:focus,
+.head-controls-list-submenu__item a:hover {
+    color: #495b64;
+    text-decoration: none;
+}
+
+.head-controls-list-submenu__item a:active {
+    color: #263035;
+}
