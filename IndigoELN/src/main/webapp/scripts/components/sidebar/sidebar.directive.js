@@ -23,7 +23,9 @@ angular.module('indigoeln')
         restrict: 'C',
         link: function (scope, element, attrs) {
             element.on('click', function () {
-                $('.main-container').toggleClass('hide-menu');
+                var $main = $('.main-container');
+                $main.toggleClass('hide-menu');
+                $main.toggleClass('open');
             });
         }
     };
