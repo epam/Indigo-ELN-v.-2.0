@@ -3,6 +3,7 @@ package com.epam.indigoeln.web.rest;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ManagedUserDTO;
+import com.epam.indigoeln.web.rest.dto.UserDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -14,11 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -82,6 +79,22 @@ public class UserResource {
                 .map(ManagedUserDTO::new).collect(Collectors.toList());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return ResponseEntity.ok().headers(headers).body(managedUserDTOs);
+    }
+
+    /**
+     * GET  api/users/permission-management -> Returns users for Entity Permission Management
+     * Don't use it for Authority-management operations!
+     */
+    @RequestMapping(value= "/permission-management", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserDTO>> getAllUsersWithAuthorities(Pageable pageable) throws URISyntaxException {
+        log.debug("REST request to get all users for permission management");
+        Page<User> page = userService.getAllUsers(pageable);
+
+        List<UserDTO> userDTOs = page.getContent().stream()
+                .map(UserDTO::new).collect(Collectors.toList());
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
+        return ResponseEntity.ok().headers(headers).body(userDTOs);
     }
 
     /**
