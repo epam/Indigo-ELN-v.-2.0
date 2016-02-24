@@ -102,7 +102,7 @@ angular
                 project.isOpen = false;
             } else {
                 PermissionManagement.hasPermission('READ_SUB_ENTITY', project.accessList).then(function (hasPermission) {
-                    if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER']) && hasPermission) {
+                    if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER'])) {
                         var agent = needAll ? AllNotebooks : Notebook;
                         agent.query({projectId: project.id}, function (result) {
                             project.children = result;
@@ -118,16 +118,22 @@ angular
 
         $scope.toggleExperiments = function (notebook, project, needAll) {
             $state.go('entities.notebook-detail', {notebookId: notebook.id, projectId: project.id});
-            if (!notebook.children) {
-                var agent = needAll ? AllExperiments : Experiment;
-                agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {
-                    notebook.children = result;
-                    notebook.isOpen = true;
-                });
-            } else if(!notebook.isOpen) {
-                notebook.isOpen = true;
-            } else {
+            if (notebook.isOpen) {
                 notebook.children = null;
+                notebook.isOpen = false;
+            } else {
+                PermissionManagement.hasPermission('READ_SUB_ENTITY', notebook.accessList).then(function (hasPermission) {
+                    if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
+                        var agent = needAll ? AllExperiments : Experiment;
+                        agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {
+                            notebook.children = result;
+                            notebook.isOpen = true;
+                        });
+                    } else {
+                        notebook.children = null;
+                        notebook.isOpen = true;
+                    }
+                });
             }
         };
 
