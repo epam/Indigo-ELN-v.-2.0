@@ -55,7 +55,7 @@ public class NotebookService {
 
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
         Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
-        return notebooks.stream().map(notebook -> new TreeNodeDTO(notebook, notebook.getExperiments())).sorted().collect(Collectors.toList());
+        return notebooks.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList());
     }
 
     /**

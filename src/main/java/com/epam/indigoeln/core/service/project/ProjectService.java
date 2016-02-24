@@ -57,17 +57,7 @@ public class ProjectService {
         // if user is null, then get all projects
         Collection<Project> projects = user == null ? projectRepository.findAll() :
                 projectRepository.findByUserId(user.getId());
-        return projects.stream().map(ProjectService::convertToTreeNode).sorted().collect(Collectors.toList());
-    }
-
-    private static TreeNodeDTO convertToTreeNode(Project project) {
-        TreeNodeDTO result = new TreeNodeDTO(project);
-        if(project.getNotebooks() != null) {
-            result.setChildren(project.getNotebooks().stream().
-                    map(notebook -> new TreeNodeDTO(notebook, notebook.getExperiments())).
-                    sorted().collect(Collectors.toList()));
-        }
-        return result;
+        return projects.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList());
     }
 
     public ProjectDTO getProjectById(String id, User user) {
