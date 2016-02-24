@@ -1,9 +1,12 @@
-<div class="inner-menu-toggle-button">
-    <i class="fa fa-chevron-left"></i>
-</div>
-<div ui-view="navbar" ng-cloak="" class="main-container__head"></div>
-<div ui-view="sidebar" ng-cloak="" class="main-container__sidebar unit-navigation-page"></div>
-<div ng-cloak="" class="main-container__content-page">
-    <div class="container pull-left content" ui-view="content">
+<div ui-view="navbar" class="navbar navbar-default navbar-fixed-top" ng-cloak></div>
+<div id="page-wrapper" style="margin-top: 50px" ng-class="{'open': toggle, 'hide-menu':!toggle}">
+    <div class="inner-menu-toggle-button" ng-click="toggle=!toggle">
+        <i class="fa fa-chevron-left"></i>
+    </div>
+    <div ui-view="sidebar" id="sidebar-wrapper" ng-cloak
+         msd-wheel="onMouseWheel($event, $delta, $deltaX, $deltaY)"></div>
+    <div id="content-wrapper">
+        <div class="page-content" ui-view="content" ng-cloak>
+        </div>
     </div>
 </div>

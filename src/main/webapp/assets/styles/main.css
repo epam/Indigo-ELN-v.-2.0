@@ -1,3 +1,6 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
 .countdown-dialog {
     position: relative;
 }
@@ -78,12 +81,6 @@
     width: 90px;
 }
 
-.user-management, .user-management .edit-form,
-.role-management, .role-management .edit-form,
-.templates {
-    margin-top: 20px;
-}
-
 .login-form {
     margin-top: 50px;
 }
@@ -93,7 +90,7 @@
     animation: shake 0.7s;
 }
 
-.main-container__sidebar ul .ng-enter {
+#sidebar-wrapper ul .ng-enter {
     animation: fadeInLeft 0.5s;
 }
 
@@ -128,7 +125,7 @@
     border-bottom: none;
 }
 
-.main-container__content-page > .content.ng-enter {
+.page-content.ng-enter {
     animation: fadeIn 0.7s;
 }
 
@@ -222,10 +219,6 @@
     animation: fadeIn 0.5s;
 }
 
-.notebook-create, .project-create {
-    margin-top: 30px;
-}
-
 .experiment-tab-name:first-letter {
     text-transform: capitalize;
 }
@@ -243,4 +236,12 @@
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
     color: #37474f;
     background-color: #b2ebf2;
+}
+
+#page-wrapper {
+    padding-left: 40px;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+    display: none !important;
 }

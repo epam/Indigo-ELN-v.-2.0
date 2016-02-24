@@ -4,10 +4,8 @@ import com.epam.indigoeln.config.Constants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.SimpleCommandLinePropertySource;
-import org.springframework.jms.annotation.EnableJms;
 
 @SpringBootApplication
-@EnableJms
 public class Application {
     /**
      * Main method, used to run the application.

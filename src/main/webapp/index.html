@@ -4,6 +4,8 @@
     <meta charset="UTF-8"/>
     <title>Indigo ELN</title>
 
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700&subset=latin,cyrillic-ext' rel='stylesheet'
+          type='text/css'>
     <!-- build:css assets/styles/vendor.css -->
     <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
     <!-- bower:css -->
@@ -19,19 +21,20 @@
     <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
     <link rel="stylesheet" href="bower_components/simditor/styles/simditor.css" />
     <link rel="stylesheet" href="bower_components/ui-select/dist/select.css" />
+    <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css"/>
     <!-- endbower -->
     <!-- endbuild -->
 
     <!-- build:css assets/styles/main.css -->
-    <link rel="stylesheet" href="assets/styles/styles.css">
+    <link rel="stylesheet" href="assets/styles/sidebar.css"/>
     <link rel="stylesheet" href="assets/styles/main.css"/>
-    <link rel="stylesheet" href="assets/styles/non-responsive.css"/>
+    <!--<link rel="stylesheet" href="assets/styles/non-responsive.css"/>-->
     <!-- endbuild -->
 
 </head>
 <body>
 
-<div ui-view="app_page" ng-cloak="" class="main-container"></div>
+<div ui-view="app_page" ng-cloak></div>
 
 <!-- build:js scripts/vendor.js -->
 <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
@@ -70,9 +73,10 @@
 <script src="bower_components/simple-hotkeys/lib/hotkeys.js"></script>
 <script src="bower_components/simple-uploader/lib/uploader.js"></script>
 <script src="bower_components/simditor/lib/simditor.js"></script>
-<script src="bower_components/stomp-websocket/lib/stomp.js"></script>
 <script src="bower_components/ui-select/dist/select.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/hamsterjs/hamster.js"></script>
+<script src="bower_components/angular-mousewheel/mousewheel.js"></script>
 <!-- endbower -->
 <script src="vendors/jstz/jstz.js"></script>
 <!-- endbuild -->
@@ -85,7 +89,6 @@
 <script src="scripts/components/entities/project/project.service.js"></script>
 <script src="scripts/app/entities/entity.js"></script>
 <script src="scripts/components/util/dateutil.service.js"></script>
-<script src="scripts/components/websocket/websocket.service.js"></script>
 <script src="scripts/components/navbar/navbar.controller.js"></script>
 <script src="scripts/components/navbar/navbar.directive.js"></script>
 <script src="scripts/components/navbar/navbar.service.js"></script>
@@ -166,6 +169,7 @@
 <script src="scripts/app/entities/entities.js"></script>
 <script src="scripts/app/entities/entities.controller.js"></script>
 <script src="scripts/components/permissions/permission-management.conf.js"></script>
+<script src="scripts/components/app_page/app-page.controller.js"></script>
 <!-- endbuild -->
 </body>
 </html>

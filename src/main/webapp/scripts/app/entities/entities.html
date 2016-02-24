@@ -1,4 +1,4 @@
-<ul class="nav nav-pills experiment-tabs" style="margin-top: 30px">
+<ul class="nav nav-pills experiment-tabs">
     <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
         ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
         <a class="experiment-tab-name" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
