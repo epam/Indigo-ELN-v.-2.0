@@ -23,7 +23,7 @@
 }
 
 #sidebar-wrapper > ul {
-    margin-top: 2px;
+    margin-top: 10px;
 }
 
 #sidebar-wrapper > ul > li {
@@ -160,7 +160,7 @@
     box-sizing: content-box;
     cursor: pointer;
     position: fixed;
-    top: 58px;
+    top: 86px;
     transition: all .4s ease 0s;
     text-align: center;
     left: 198px;
