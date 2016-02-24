@@ -6,6 +6,7 @@ angular.module('indigoeln')
 
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
+            $scope.entity = PermissionManagement.getEntity();
             $scope.author = PermissionManagement.getAuthor();
             $scope.users = _.filter(users, function(user) {
                 return user.id !== $scope.author.id;

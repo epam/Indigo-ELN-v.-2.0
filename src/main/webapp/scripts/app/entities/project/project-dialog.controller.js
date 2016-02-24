@@ -9,6 +9,7 @@ angular.module('indigoeln')
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);
 
+            PermissionManagement.setEntity('Project');
             PermissionManagement.setAuthor($scope.project.author);
             PermissionManagement.setAccessList($scope.project.accessList);
 

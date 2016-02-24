@@ -10,6 +10,7 @@ angular.module('indigoeln')
             $scope.notebook.accessList = $scope.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
             $scope.projectId = $stateParams.projectId;
 
+            PermissionManagement.setEntity('Notebook');
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
 

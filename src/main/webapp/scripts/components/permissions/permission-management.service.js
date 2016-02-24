@@ -7,8 +7,7 @@ angular.module('indigoeln')
         });
     })
     .factory('PermissionManagement', function ($q, Principal) {
-        var _accessList;
-        var _author;
+        var _accessList, _author, _entity;
 
         var VIEWER = ['READ_ENTITY'];
         var CHILD_VIEWER = ['READ_ENTITY', 'READ_SUB_ENTITY'];
@@ -70,6 +69,12 @@ angular.module('indigoeln')
             },
             setAuthor: function(user) {
                 _author = user;
+            },
+            getEntity: function() {
+                return _entity;
+            },
+            setEntity: function(entity) {
+                _entity = entity;
             },
             getExperimentPermissions: function() {
                 return experimentPermissions;
