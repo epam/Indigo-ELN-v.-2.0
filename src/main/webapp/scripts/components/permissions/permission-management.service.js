@@ -32,7 +32,7 @@ angular.module('indigoeln')
             },
             hasPermission: function(permission, accessList) {
                 if (!accessList && !_accessList) {
-                    return false;
+                    return $q.when(false);
                 }
                 var list = accessList ? accessList : _accessList;
                 return Principal.identity().then(function (identity) {
@@ -46,6 +46,13 @@ angular.module('indigoeln')
                 }, function (err) {
                     return false;
                 });
+            },
+            getAuthorAccessList: function(author) {
+                return [{
+                    user: author,
+                    permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
+                    permissionView: 'OWNER'
+                }];
             },
             getAccessList: function() {
                 return _accessList;
