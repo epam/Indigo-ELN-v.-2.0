@@ -190,3 +190,7 @@
 .hide-menu #sidebar-wrapper ul {
     display: none;
 }
+
+#sidebar-wrapper {
+    top: 70px;
+}
