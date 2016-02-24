@@ -7,11 +7,7 @@ angular.module('indigoeln')
 
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
-            $scope.project.accessList = $scope.project.accessList || [{
-                    user: identity,
-                    permissions: [],
-                    permissionView: 'OWNER'
-                }];
+            $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);
 
             PermissionManagement.setAuthor($scope.project.author);
             PermissionManagement.setAccessList($scope.project.accessList);

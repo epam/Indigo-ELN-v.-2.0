@@ -28,13 +28,13 @@ angular.module('indigoeln')
                         return Principal.identity();
                     },
                     isContentEditor: function (Principal) {
-                        return Principal.hasAuthority('CONTENT_EDITOR');
+                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
                     },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
                     },
                     hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthority('EXPERIMENT_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
                     }
                 }
             }).state('entities.notebook-detail', {
@@ -57,13 +57,13 @@ angular.module('indigoeln')
                         return Principal.identity();
                     },
                     isContentEditor: function (Principal) {
-                        return Principal.hasAuthority('CONTENT_EDITOR');
+                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
                     },
                     hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthority('NOTEBOOK_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
                     },
                     hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthority('EXPERIMENT_CREATOR');
+                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
                     }
                 }
             })
