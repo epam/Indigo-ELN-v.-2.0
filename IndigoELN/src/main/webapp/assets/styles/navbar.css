@@ -19,6 +19,7 @@
     height: 36px;
     list-style-type: none;
     margin-right: 8px;
+    position: relative;
 }
 
 .icon-header-control-list {
@@ -30,10 +31,10 @@
     display: inline-block;
     font: 20px/32px FontAwesome;
     height: 36px;
-    position: relative;
     vertical-align: middle;
     text-align: center;
     width: 36px;
+    position: inherit;
 }
 
 .icon-header-control-list .fa:before {
