@@ -8,6 +8,7 @@ angular.module('indigoeln')
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);
+            $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Project');
             PermissionManagement.setAuthor($scope.project.author);
