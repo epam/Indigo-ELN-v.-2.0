@@ -2,7 +2,7 @@
 
 angular.module('indigoeln')
     .controller('PermissionManagementController',
-        function ($scope, $uibModalInstance, $uibModal, PermissionManagement, users, permissions, AlertModal) {
+        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert) {
 
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
@@ -45,7 +45,7 @@ angular.module('indigoeln')
 
             $scope.checkAuthority = function(member, permission) {
                 if (!PermissionManagement.hasAuthorityForProjectPermission(member, permission)) {
-                    AlertModal.warning('This user cannot be set as ' + permission + ' as he does not have ' +
+                    Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
                         'sufficient privileges in the system, please select another permissions level');
                     member.permissionView = $scope.oldPermission;
                 }

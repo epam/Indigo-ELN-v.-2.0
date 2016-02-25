@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function ($stateProvider, PermissionManagementConfig) {
         $stateProvider
             .state('experiment', {
                 parent: 'entity',
@@ -65,6 +65,12 @@ angular.module('indigoeln')
                     },
                     identity: function (Principal) {
                         return Principal.identity();
+                    },
+                    isContentEditor: function (Principal) {
+                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
+                    },
+                    hasEditAuthority: function (Principal) {
+                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
                     }
                 }
             })
@@ -146,5 +152,35 @@ angular.module('indigoeln')
                         $state.go('^');
                     });
                 }
-            });
+            })
+            .state('experiment.new.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'notebook.new',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                },
+                permissions: [
+                    { id: 'VIEWER', name: 'VIEWER (read experiment)'},
+                    { id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                ]
+            }))
+            .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.experiment-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                },
+                permissions: [
+                    { id: 'VIEWER', name: 'VIEWER (read experiment)'},
+                    { id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                ]
+            }))
+            .state('experiment.edit.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'experiment.edit',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                },
+                permissions: [
+                    { id: 'VIEWER', name: 'VIEWER (read experiment)'},
+                    { id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                ]
+            }));
     });
