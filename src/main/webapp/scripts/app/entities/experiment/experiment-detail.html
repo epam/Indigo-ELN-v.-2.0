@@ -3,10 +3,40 @@
         <span>Experiment {{experiment.title}}</span>
     </div>
     <div class="panel-body">
+        <div class="row">
+            <div  class="col-xs-6">
+                <label class="control-label">Experiment Members&nbsp;</label>
+                <button type="submit"
+                        ui-sref="experiment.new.permissions()"
+                        ng-if="!experiment.id"
+                        class="btn btn-info "
+                        data-toggle="collapse" data-target="#members-list"
+                        ng-disabled="!isEditAllowed">
+                    <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
+                </button>
+                <button type="submit"
+                        ui-sref="entities.experiment-detail.permissions()"
+                        ng-if="experiment.id"
+                        class="btn btn-info "
+                        ng-disabled="!isEditAllowed">
+                    <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
+                </button>
+                <!--<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#members-list"> Show</button>-->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12" id="members-list" class="collapse">
+                <ul id="triple-list" class="members">
+                    <li class="members" ng-repeat="member in experiment.accessList">
+                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
+                    </li>
+                </ul>
+            </div>
+        </div>
         <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
             <my-components ng-init="experiment.components = toModel(experiment.components)"
                            my-template="experiment.template.templateContent"
-                           my-disabled="!isContentEditor"
+                           my-disabled="!isEditAllowed"
                            my-model="experiment.components"
                            my-experiment-form="experimentForm"
                            my-experiment="experiment"></my-components>
