@@ -50,6 +50,7 @@ public class SignatureResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadDocument(@RequestParam("templateId") String templateId,
                                                  @RequestParam("file") MultipartFile file) throws IOException {
+        //TODO: change state of the experiment
         return ResponseEntity.ok(signatureService.uploadDocument(templateId, file.getOriginalFilename(), file.getBytes()));
     }
 
