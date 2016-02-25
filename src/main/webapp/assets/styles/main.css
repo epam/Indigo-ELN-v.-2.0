@@ -246,3 +246,25 @@ body {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
     display: none !important;
 }
+
+.main-container .table {
+    border-collapse: separate;
+    border-spacing: 3px;
+    border: none;
+}
+
+.main-container .table thead {
+    background: #e0f7fa;
+}
+
+.main-container .table thead tr th {
+    border: none;
+    font: 14px/34px segoeui;
+    padding: 0;
+    vertical-align: inherit;
+    text-align: center;
+}
+
+.main-container .table tbody tr td {
+    vertical-align: middle;
+}
