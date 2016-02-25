@@ -22,6 +22,8 @@
         "angular",
         "$",
         "_",
+        "moment",
+        "jstz",
         "Simditor"
     ]
 }

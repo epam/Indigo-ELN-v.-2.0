@@ -17,16 +17,16 @@ angular.module('indigoeln')
                         if ($inputs.length > 0) {
                             $inputs.each(function () {
                                 scope.$watch(function () {
-                                    return scope.myValidationObj.$invalid && scope.myValidationObj.$dirty
+                                    return scope.myValidationObj.$invalid && scope.myValidationObj.$dirty;
                                 }, function (isInvalid) {
                                     $formGroup.toggleClass('has-error', isInvalid);
                                 });
                             });
                         }
                     }
-                })
+                });
             }
-        }
+        };
     }).directive('myInput', function (formUtils) {
     return {
         restrict: 'E',
@@ -45,37 +45,38 @@ angular.module('indigoeln')
             myValidationMaxlength: '@',
             myValidationMinlength: '@',
             myValidationPattern: '@',
-            myValidationPatternText: '@'
+            myValidationPatternText: '@',
+            myClasses: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myInputGroup) {
                 var inputGroup = tElement.find('input').wrap('<div class="input-group"/>').parent();
-                if (tAttrs.myInputGroup == 'append') {
-                    inputGroup.append('<div class="input-group-btn" ng-transclude/>')
-                } else if (tAttrs.myInputGroup == 'prepend') {
-                    inputGroup.prepend('<div class="input-group-btn" ng-transclude/>')
+                if (tAttrs.myInputGroup === 'append') {
+                    inputGroup.append('<div class="input-group-btn" ng-transclude/>');
+                } else if (tAttrs.myInputGroup === 'prepend') {
+                    inputGroup.prepend('<div class="input-group-btn" ng-transclude/>');
                 }
             }
             if (tAttrs.myValidationMinlength) {
-                tElement.find('input').attr("ng-minlength", tAttrs.myValidationMinlength)
+                tElement.find('input').attr('ng-minlength', tAttrs.myValidationMinlength);
             }
             if (tAttrs.myValidationMaxlength) {
-                tElement.find('input').attr("ng-maxlength", tAttrs.myValidationMaxlength)
+                tElement.find('input').attr('ng-maxlength', tAttrs.myValidationMaxlength);
             }
             if (tAttrs.myValidationPattern) {
-                tElement.find('input').attr("ng-pattern", tAttrs.myValidationPattern)
+                tElement.find('input').attr('ng-pattern', tAttrs.myValidationPattern);
             }
             if (tAttrs.myValidationRequired) {
-                tElement.find('input').attr("ng-required", tAttrs.myValidationRequired)
+                tElement.find('input').attr('ng-required', tAttrs.myValidationRequired);
             }
             return {
                 post: function postLink(scope, iElement, iAttrs, controller) {
-                    formUtils.showValidation(iElement, scope)
+                    formUtils.showValidation(iElement, scope);
                 }
-            }
+            };
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly"/>' +
@@ -94,9 +95,10 @@ angular.module('indigoeln')
         scope: {
             myLabel: '@',
             myModel: '=',
-            myName: '@'
+            myName: '@',
+            myClasses: '@'
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
         '<label>' +
@@ -117,7 +119,8 @@ angular.module('indigoeln')
             myMultiple: '=',
             myLabelVertical: '=',
             myPlaceHolder: '@',
-            myItemProp: '@'
+            myItemProp: '@',
+            myClasses: '@'
         },
         controller: function ($scope) {
             $scope.ctrl = {selected: $scope.myModel};
@@ -128,14 +131,14 @@ angular.module('indigoeln')
         compile: function (tElement, tAttrs, transclude) {
             tAttrs.myItemProp = tAttrs.myItemProp || 'name';
             if (tAttrs.myMultiple) {
-                tElement.find('ui-select').attr("multiple", true);
+                tElement.find('ui-select').attr('multiple', true);
                 tElement.find('ui-select-match').html('{{$item.' + tAttrs.myItemProp + '}}');
             }
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('ui-select-choices').append('<span ng-bind-html="item.' + tAttrs.myItemProp +
-                ' | highlight: $select.search"></span>')
+                ' | highlight: $select.search"></span>');
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled">' +
@@ -155,15 +158,16 @@ angular.module('indigoeln')
             myModel: '=',
             myFirst: '@',
             mySecond: '@',
-            myLabelVertical: '='
+            myLabelVertical: '=',
+            myClasses: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myLabelVertical) {
-                $("<br/>").insertAfter(tElement.find('label').first());
+                $('<br/>').insertAfter(tElement.find('label').first());
             }
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<div class="btn-group">' +
@@ -177,18 +181,32 @@ angular.module('indigoeln')
     return {
         restrict: 'E',
         replace: true,
+        transclude: true,
         scope: {
             myLabel: '@',
             myModel: '=',
-            myLabelVertical: '='
+            myLabelVertical: '=',
+            myClasses: '@',
+            myInputGroup: '@',
+            myReadonly: '='
         },
         compile: function (tElement, tAttrs, transclude) {
+            if (tAttrs.myInputGroup) {
+                var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
+                var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
+                if (tAttrs.myInputGroup === 'append') {
+                    inputGroup.append(element);
+                } else if (tAttrs.myInputGroup === 'prepend') {
+                    inputGroup.prepend(element);
+                }
+            }
+
             formUtils.doVertical(tAttrs, tElement);
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
         '<div class="col-xs-10">' +
-        '<textarea class="form-control" rows="3" ng-model="myModel"></textarea>' +
+        '<textarea class="form-control" rows="1" ng-model="myModel" ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
         '</div> ' +
         '</div> '
     };
@@ -199,17 +217,15 @@ angular.module('indigoeln')
         scope: {
             myLabel: '@',
             myModel: '=',
-            myEmptyText: '@'
+            myEmptyText: '@',
+            myClasses: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             //formUtils.doVertical(tAttrs, tElement);
         },
-        template: '<div class="form-group">' +
-        '<label class="col-xs-2 control-label">' +
-        '{{myLabel}} ' +
-        '</label>' +
-        '<div class="col-xs-10" style="padding-top: 7px;">' +
-        '{{myModel||myEmptyText}}' +
+        template: '<div class="form-group {{myClasses}}">' +
+        '<div class="col-xs-12 text-left" style="padding-top: 7px">' +
+        '<div style="float: left; width: 150px"><b>{{myLabel}}</b></div> <span>{{myModel||myEmptyText}}</span>' +
         '</div>' +
         '</div>'
     };
@@ -225,7 +241,8 @@ angular.module('indigoeln')
             myReadonly: '=',
             myType: '@',
             myValidationObj: '=',
-            myValidationRequired: '='
+            myValidationRequired: '=',
+            myClasses: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
@@ -239,11 +256,11 @@ angular.module('indigoeln')
                             scope.myModel = date ? date.toISOString() : null;
                         });
                     }
-                    formUtils.showValidation(iElement, scope)
+                    formUtils.showValidation(iElement, scope);
                 }
-            }
+            };
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="ctrl.model" date-time view="date" ' +
@@ -262,12 +279,13 @@ angular.module('indigoeln')
             myLabel: '@',
             myLabelVertical: '=',
             myModel: '=',
-            myReadonly: '='
+            myReadonly: '=',
+            myClasses: '@'
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
         },
-        template: '<div class="form-group">' +
+        template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         ' <tags-input ng-model="myModel" ng-disabled="myReadonly"></tags-input>' +
