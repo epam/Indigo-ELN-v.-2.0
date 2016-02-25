@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('FileUploaderResultController', function ($scope, FileUploaderService, ParseLinks, AlertService, $uibModal, $filter) {
+    .controller('FileUploaderResultController', function ($scope, FileUploaderService, ParseLinks, Alert, $uibModal, $filter) {
         $scope.files = [];
         $scope.authorities = ['PROJECT_CREATOR', 'PROJECT_READER', 'CONTENT_EDITOR']; // TODO separate for READ actions and CREATE actions
         var entityid = $scope.entityid;
@@ -51,12 +51,12 @@ angular.module('indigoeln')
                         FileUploaderService.delete({id: id})
                             .$promise.then(
                             function (result) {
-                                AlertService.success('File was successfully deleted');
+                                Alert.success('File was successfully deleted');
                                 thatScope.loadAll();
                                 $uibModalInstance.close(true);
                             },
                             function (error) {
-                                AlertService.error('Error deleting the file: ' + error);
+                                Alert.error('Error deleting the file: ' + error);
                                 $uibModalInstance.close(true);
                             }
                         );

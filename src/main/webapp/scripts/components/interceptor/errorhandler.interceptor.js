@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('errorHandlerInterceptor', function ($q, $log, $injector, $rootScope, AlertService) {
+    .factory('errorHandlerInterceptor', function ($q, $log, $injector, $rootScope, Alert) {
         return {
             'responseError': function (httpResponse) {
                 var i;
                 var addErrorAlert = function () {
-                    AlertService.error(JSON.stringify(arguments));
+                    Alert.error(JSON.stringify(arguments));
                 };
                 switch (httpResponse.status) {
                     // connection refused, server not reachable
@@ -19,7 +19,7 @@ angular.module('indigoeln')
                         var errorHeader = httpResponse.headers('X-indigoeln-error');
                         var entityKey = httpResponse.headers('X-indigoeln-params');
                         if (angular.isString(errorAlertHeader)) {
-                            AlertService.error(errorAlertHeader);
+                            Alert.error(errorAlertHeader);
                         } else if (errorHeader) {
                             addErrorAlert(errorHeader, {entityName: entityKey});
                         } else if (httpResponse.data && httpResponse.data.fieldErrors) {
@@ -31,7 +31,7 @@ angular.module('indigoeln')
                                 addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName: fieldName});
                             }
                         } else if (httpResponse.data && httpResponse.data.message) {
-                            AlertService.error(httpResponse.data.message);
+                            Alert.error(httpResponse.data.message);
                         } else {
                             addErrorAlert(httpResponse.data);
                         }

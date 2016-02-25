@@ -2,7 +2,7 @@
 
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function ($scope, $rootScope, $stateParams, $state, Notebook, AlertService, PermissionManagement, notebook,
+        function ($scope, $rootScope, $stateParams, $state, Notebook, Alert, PermissionManagement, notebook,
                   identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority) {
 
             $scope.notebook = notebook;
@@ -38,14 +38,14 @@ angular.module('indigoeln')
 
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
-                AlertService.success('Notebook successfully saved');
+                Alert.success('Notebook successfully saved');
                 $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
                 $state.go('entities.notebook-detail', {projectId: $stateParams.projectId, notebookId: result.id});
             };
 
             var onSaveError = function (result) {
                 $scope.isSaving = false;
-                AlertService.error('Error saving notebook: ' + result);
+                Alert.error('Error saving notebook: ' + result);
             };
 
             $scope.save = function () {

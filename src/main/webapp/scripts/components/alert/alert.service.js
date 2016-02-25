@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('AlertService', function () {
+    .factory('Alert', function () {
         var common = {
             allow_dismiss: true,
             offset: {
