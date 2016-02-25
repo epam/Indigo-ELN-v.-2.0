@@ -8,6 +8,8 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
+            controller: function($scope){
+            },
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html'
         };
     });

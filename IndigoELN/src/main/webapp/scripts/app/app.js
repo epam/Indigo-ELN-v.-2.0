@@ -5,7 +5,7 @@ angular.module('indigoeln',
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle',
         'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
-        'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.edit', 'ui.grid.cellNav'])
+        'monospaced.elastic'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
         var countdownDialog = null,
             idleTime = 30,  // 30 minutes
