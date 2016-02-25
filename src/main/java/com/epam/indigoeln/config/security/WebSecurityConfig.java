@@ -172,15 +172,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
 
-                    // bingoDbIntegration resource
-                    //TODO set up
-                    // calculation resource
-                    //TODO set up
-                    // component number resource
-                    //TODO set up
-                    // structure renderer resource
-                    //TODO set up
-
                     // spring boot endpoints
                     // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html
                     .antMatchers("/health/**").authenticated()
@@ -196,6 +187,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/mappings/**").authenticated()
 
                     // others
+                    .antMatchers("/api/bingodb/**").authenticated()
+                    .antMatchers("/api/calculations/**").authenticated()
+                    .antMatchers("/api/renderer/**").authenticated()
                     .antMatchers(HttpMethod.POST, "/api/signature/document").hasAnyAuthority(EXPERIMENT_CREATORS)
                     .antMatchers("/api/signature/**").authenticated()
                     .antMatchers("/protected/**").authenticated();
