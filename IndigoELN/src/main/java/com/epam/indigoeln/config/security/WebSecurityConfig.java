@@ -202,7 +202,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                     //restrictions for swagger
                     .antMatchers("/swagger-ui.html").authenticated()
-                    .antMatchers("/indigoeln/v2/api-docs").authenticated();
+                    .antMatchers("/indigoeln/v2/api-docs").authenticated();;
     }
 
     @Bean
