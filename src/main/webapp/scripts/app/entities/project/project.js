@@ -76,8 +76,8 @@ angular.module('indigoeln')
                 permissions: [
                     {id: 'VIEWER', name: 'VIEWER (read project)'},
                     {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read project and notebooks)'},
-                    {id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
+                    {id: 'USER', name: 'USER (read project/notebooks, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read/update project, read/create notebooks)'}
                 ]
             }))
             .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
@@ -88,8 +88,8 @@ angular.module('indigoeln')
                 permissions: [
                     {id: 'VIEWER', name: 'VIEWER (read project)'},
                     {id: 'CHILD_VIEWER', name: 'CHILD_VIEWER (read project and notebooks)'},
-                    {id: 'USER', name: 'USER (read project and notebooks, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read and update project, read and create notebooks)'}
+                    {id: 'USER', name: 'USER (read project/notebooks, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read/update project, read/create notebooks)'}
                 ]
             }))
         ;

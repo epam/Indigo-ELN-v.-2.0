@@ -22,8 +22,8 @@
                 <th>Last Name</th>
                 <th>First Name</th>
                 <th>Login</th>
-                <th>{{entity}} Role</th>
-                <th>Action</th>
+                <th>Permission</th>
+                <th width="15%">Action</th>
             </tr>
             </thead>
             <tbody>
@@ -44,7 +44,7 @@
                     </div>
                 </td>
                 <td nowrap>
-                    <button ng-disabled="isAuthor(member)" type="button" class="btn btn-warning btn-xs"
+                    <button ng-disabled="isAuthor(member)" type="button" class="btn btn-danger btn-xs"
                             ng-click="removeMember(member)">
                         <span class="glyphicon glyphicon-ban-circle"></span> Remove
                     </button>
