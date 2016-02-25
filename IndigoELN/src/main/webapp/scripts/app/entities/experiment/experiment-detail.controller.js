@@ -9,6 +9,7 @@ angular.module('indigoeln')
             $scope.experimentId = $stateParams.experimentId;
             $scope.experiment.author = $scope.experiment.author || identity;
             $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(identity);
+            $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
