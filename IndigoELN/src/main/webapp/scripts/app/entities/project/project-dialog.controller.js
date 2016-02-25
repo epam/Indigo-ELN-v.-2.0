@@ -2,7 +2,7 @@
 
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function ($scope, $rootScope, $state, Project, AlertService, PermissionManagement, project,
+        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, project,
                   identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority) {
 
             $scope.project = project;
@@ -46,14 +46,14 @@ angular.module('indigoeln')
 
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
-                AlertService.success('Project successfully saved');
+                Alert.success('Project successfully saved');
                 $rootScope.$broadcast('project-created', {id: result.id});
                 $state.go('entities.project-detail', {projectId: result.id});
             };
 
             var onSaveError = function (result) {
                 $scope.isSaving = false;
-                AlertService.error('Error saving project: ' + result);
+                Alert.error('Error saving project: ' + result);
             };
 
             $scope.save = function () {
