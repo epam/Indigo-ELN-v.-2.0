@@ -172,7 +172,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
 
-                    // bingoDbIntegration resource
+                // bingoDbIntegration resource
                     //TODO set up
                     // calculation resource
                     //TODO set up
@@ -194,7 +194,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/mappings/**").authenticated() // TODO Which Authority do need to use?
                     .antMatchers("/api/signature/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/protected/**").authenticated();
+                    .antMatchers("/protected/**").authenticated()
+
+                    //restrictions for swagger
+                    .antMatchers("/swagger-ui.html").authenticated()
+                    .antMatchers("/indigoeln/v2/api-docs").authenticated();
     }
 
     @Bean
