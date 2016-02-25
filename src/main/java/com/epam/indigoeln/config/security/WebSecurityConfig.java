@@ -181,19 +181,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     // structure renderer resource
                     //TODO set up
 
+                    // spring boot endpoints
+                    // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html
+                    .antMatchers("/health/**").authenticated()
+                    .antMatchers("/trace/**").authenticated()
+                    .antMatchers("/dump/**").authenticated()
+                    .antMatchers("/shutdown/**").authenticated()
+                    .antMatchers("/beans/**").authenticated()
+                    .antMatchers("/configprops/**").authenticated()
+                    .antMatchers("/info/**").authenticated()
+                    .antMatchers("/autoconfig/**").authenticated()
+                    .antMatchers("/env/**").authenticated()
+                    .antMatchers("/trace/**").authenticated()
+                    .antMatchers("/mappings/**").authenticated()
+
                     // others
-                    .antMatchers("/health/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/dump/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/shutdown/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/beans/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/configprops/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/info/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/autoconfig/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/env/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/trace/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/mappings/**").authenticated() // TODO Which Authority do need to use?
-                    .antMatchers("/api/signature/**").authenticated() // TODO Which Authority do need to use?
+                    .antMatchers(HttpMethod.POST, "/api/signature/document").hasAnyAuthority(EXPERIMENT_CREATORS)
+                    .antMatchers("/api/signature/**").authenticated()
                     .antMatchers("/protected/**").authenticated();
     }
 
