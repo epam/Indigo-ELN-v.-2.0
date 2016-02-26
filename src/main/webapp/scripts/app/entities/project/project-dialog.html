@@ -5,7 +5,7 @@
             Create or edit a Project
         </div>
         <div class="panel-body">
-            <form id="createProjectForm" name="createProjectForm" role="form" novalidate ng-submit="save()"
+            <form id="createProjectForm" name="createProjectForm" role="form" novalidate
                   class="form-horizontal" autocomplete="off">
                 <div class="row">
                     <div class="col-xs-12">
@@ -73,7 +73,7 @@
                     ng-disabled="!isCreateChildAllowed || !project.id"
                     ui-sref="notebook.new({projectId:project.id})">Create Notebook
             </button>
-            <button type="submit" form="createProjectForm"
+            <button type="submit" ng-click="save()" form="createProjectForm"
                     ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving"
                     class="btn btn-info">Save
             </button>
