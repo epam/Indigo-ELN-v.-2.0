@@ -37,8 +37,8 @@
                                 <div class="col-xs-3" ng-repeat="authority in authorities">
                                     <div class="checkbox">
                                         <label uib-tooltip="{{authority.tooltip}}" tooltip-placement="right">
-                                            <input type="checkbox" name="authorities"
-                                                   ng-checked="isAuthoritySelected(authority)"
+                                            <input ng-disabled="authority.readonly" type="checkbox" name="authorities"
+                                                   ng-checked="authority.checked || isAuthoritySelected(authority)"
                                                    ng-click="updateAuthoritySelection($event, authority)">
                                             {{authority.description}}
                                         </label>
