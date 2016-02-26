@@ -10,7 +10,7 @@
     "angular-cookies": "1.4.8",
     "angular-datepicker": "2.0.3",
     "angular-dragula": "1.2.4",
-    "angular-elastic": "~2.5.1",
+    "angular-elastic": "2.5.1",
     "angular-file-saver": "1.0.3",
     "angular-file-upload": "2.2.0",
     "angular-filter": "0.5.8",

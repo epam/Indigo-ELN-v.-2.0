@@ -4,33 +4,28 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div  class="col-xs-6">
+            <div  class="col-xs-12">
                 <label class="control-label">Experiment Members&nbsp;</label>
                 <button type="submit"
-                        ui-sref="experiment.new.permissions()"
-                        ng-if="!experiment.id"
-                        class="btn btn-info "
-                        data-toggle="collapse" data-target="#members-list"
-                        ng-disabled="!isEditAllowed">
-                    <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
-                </button>
-                <button type="submit"
                         ui-sref="entities.experiment-detail.permissions()"
-                        ng-if="experiment.id"
                         class="btn btn-info "
                         ng-disabled="!isEditAllowed">
                     <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                 </button>
-                <!--<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#members-list"> Show</button>-->
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12" id="members-list" class="collapse">
-                <ul id="triple-list" class="members">
-                    <li class="members" ng-repeat="member in experiment.accessList">
-                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                    </li>
-                </ul>
+                <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">
+                    <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
+                </button>
+                <div uib-collapse="isCollapsed">
+                    <hr>
+                    <div class="col-xs-12">
+                        <ul id="triple-list" class="members">
+                            <li class="members" ng-repeat="member in experiment.accessList">
+                                {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
+                            </li>
+                        </ul>
+                        <br>
+                    </div>
+                </div>
             </div>
         </div>
         <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
@@ -43,12 +38,12 @@
         </form>
     </div>
     <div class="panel-footer text-right">
-        <a class="btn btn-default" onclick="window.history.back()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
-        </a>
-        <button type="submit" form="experimentForm" ng-disabled="experimentForm.$invalid"
+        <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid"
                 class="btn btn-info">
             <span class="glyphicon glyphicon-save"></span>&nbsp;<span> Save</span>
         </button>
+        <a class="btn btn-default" onclick="window.history.back()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
+        </a>
     </div>
 </div>
