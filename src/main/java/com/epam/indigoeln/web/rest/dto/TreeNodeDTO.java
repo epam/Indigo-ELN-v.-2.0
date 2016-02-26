@@ -1,11 +1,13 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.BasicModelObject;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -18,6 +20,7 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
     private String id;
     private String fullId;
     private String name;
+    private Set<UserPermission> accessList;
 
     public TreeNodeDTO() {
     }
@@ -26,6 +29,7 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
         this.id = SequenceIdUtil.extractShortId(obj);
         this.fullId = obj.getId();
         this.name = obj.getName();
+        this.accessList = obj.getAccessList();
     }
 
     public String getId() {
@@ -38,6 +42,10 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
 
     public String getName() {
         return name;
+    }
+
+    public Set<UserPermission> getAccessList() {
+        return accessList;
     }
 
     @Override
