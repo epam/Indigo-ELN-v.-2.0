@@ -28,9 +28,9 @@
     <li class="head-controls-list__item" ui-sref="experiment">
         <i class="icon-header-control-list fa fa-home"></i>
     </li>
-    <li class="head-controls-list__item" toggle-class-child="open-menu">
+    <li class="head-controls-list__item" uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
         <i class="icon-header-control-list fa fa-file-o"></i>
-        <ul class="head-controls-list-submenu">
+        <ul class="head-controls-list-submenu" uib-dropdown-menu aria-labelledby="new-entity-dropdown">
             <li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}"><a
                     ui-sref="project.new">New Project</a></li>
             <li class="head-controls-list-submenu__item" has-any-authority="{{NOTEBOOK_CREATORS}}"><a
