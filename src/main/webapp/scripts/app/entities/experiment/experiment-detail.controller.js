@@ -38,6 +38,7 @@ angular.module('indigoeln')
             Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
                 $scope.isContentEditor = result;
             });
+
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
             };
@@ -65,4 +66,25 @@ angular.module('indigoeln')
                     return {name: key, content: val};
                 });
             }
+
+            $scope.statuses = ['Open', 'Complete', 'Submit_Fail', 'Submitted', 'Archieved', 'Signed'];
+
+            $scope.statusOpen = function() {
+                return experiment.status === 'Open';
+            };
+            $scope.statusComplete = function() {
+                return experiment.status === 'Complete';
+            };
+            $scope.statusSubmitFail = function() {
+                return experiment.status === 'Submit_Fail';
+            };
+            $scope.statusSubmitted = function() {
+                return experiment.status === 'Submitted';
+            };
+            $scope.statusArchieved = function() {
+                return experiment.status === 'Archieved';
+            };
+            $scope.statusSigned = function() {
+                return experiment.status === 'Signed';
+            };
     });

@@ -1,11 +1,6 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Template;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
@@ -19,17 +14,11 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -123,6 +112,7 @@ public class ExperimentService {
         }
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
+        experiment.setStatus("Open");
 
         if (experimentDTO.getTemplate() != null) {
             Template template = new Template();

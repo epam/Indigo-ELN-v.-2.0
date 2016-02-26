@@ -17,6 +17,7 @@ public class ExperimentDTO extends BasicDTO {
 
     private TemplateDTO template;
     private List<ComponentDTO> components = new ArrayList<>();
+    private String status;
 
     public ExperimentDTO() {
     }
@@ -28,6 +29,7 @@ public class ExperimentDTO extends BasicDTO {
         }
         this.components = experiment.getComponents() != null ?
                 experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
+        this.status = experiment.getStatus();
     }
 
     public List<ComponentDTO> getComponents() {
@@ -44,5 +46,13 @@ public class ExperimentDTO extends BasicDTO {
 
     public void setComponents(List<ComponentDTO> components) {
         this.components = components != null ? components : new ArrayList<>();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
