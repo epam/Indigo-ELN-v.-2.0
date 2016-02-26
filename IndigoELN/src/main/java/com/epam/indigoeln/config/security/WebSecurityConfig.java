@@ -118,7 +118,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .disable()
             .and()
                 .authorizeRequests()
-                    .antMatchers("/api/**").authenticated() // TODO remove after all resources will be configured
                     // account resource
                     .antMatchers(HttpMethod.GET, "/api/accounts/*").authenticated()
                     .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
