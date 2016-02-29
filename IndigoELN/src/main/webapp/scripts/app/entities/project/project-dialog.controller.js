@@ -3,7 +3,7 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
         function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, project,
-                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority) {
+                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority, FileUploaderCash) {
 
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
@@ -60,6 +60,7 @@ angular.module('indigoeln')
             $scope.save = function () {
                 $scope.isSaving = true;
                 $scope.project.tags = [];
+                $scope.project.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
                 if ($scope.tags) {
                     angular.forEach($scope.tags, function(tag, key) {
                         $scope.project.tags.push(tag.text);

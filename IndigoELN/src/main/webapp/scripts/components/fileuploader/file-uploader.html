@@ -1,81 +1,56 @@
-<div>
-    <div nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
-            <div ng-show="uploader.isHTML5" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
+<div class="panel panel-default user-management">
+    <div class="panel-heading">Attachments</div>
+    <div class="panel-body">
+        <button class="btn btn-info" ng-disabled="myReadonly" ng-click="upload()">
+            <span class="glyphicon glyphicon-flash"></span> <span>Attach File</span>
+        </button>
 
-                <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
-
-                    <input type="file" style="position: relative; right: 50%; left: 40%;" nv-file-select="" uploader="uploader" multiple/>
-                    <br/><br/><b>Drop files here</b>
-                </div>
+        <form class="form-inline text-right">
+            <div class="form-group">
+                <label for="searchFile">Search File</label>
+                <input type="text" class="form-control" id="searchFile" placeholder="File name, author or type"
+                       ng-model="searchText">
             </div>
+            <button type="submit" class="btn btn-default" ng-click="search()">
+                <span class="glyphicon glyphicon-search"></span>
+                Search
+            </button>
+        </form>
 
-            <div style="margin-bottom: 10px">
-                <h3>Upload queue</h3>
-                <p>Queue length: {{ uploader.queue.length }}</p>
-
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <th width="50%">Name</th>
-                        <th ng-show="uploader.isHTML5">Size</th>
-                        <th ng-show="uploader.isHTML5">Progress</th>
-                        <!--<th>Status</th>-->
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr ng-repeat="item in uploader.queue">
-                        <td><strong>{{ item.file.name }}</strong></td>
-                        <td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>
-                        <td ng-show="uploader.isHTML5">
-                            <div class="progress" style="margin-bottom: 0;">
-                                <div class="progress-bar" role="progressbar"
-                                     ng-style="{ 'width': item.progress + '%' }"></div>
-                            </div>
-                        </td>
-                        <!--<td class="text-center">-->
-                            <!--<span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>-->
-                            <!--<span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>-->
-                            <!--<span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span>-->
-                        <!--</td>-->
-                        <td nowrap>
-                            <button type="button" class="btn btn-success btn-xs" ng-click="item.upload()"
-                                    ng-disabled="item.isReady || item.isUploading || item.isSuccess">
-                                <span class="glyphicon glyphicon-upload"></span> Upload
-                            </button>
-                            <button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()"
-                                    ng-disabled="!item.isUploading">
-                                <span class="glyphicon glyphicon-ban-circle"></span> Cancel
-                            </button>
-                            <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
-                                <span class="glyphicon glyphicon-trash"></span> Remove
-                            </button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <div>
-                    <div>
-                        Queue progress:
-                        <div class="progress" style="">
-                            <div class="progress-bar" role="progressbar"
-                                 ng-style="{ 'width': uploader.progress + '%' }"></div>
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-success btn-s" ng-click="uploader.uploadAll()"
-                            ng-disabled="!uploader.getNotUploadedItems().length">
-                        <span class="glyphicon glyphicon-upload"></span> Upload all
-                    </button>
-                    <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()"
-                            ng-disabled="!uploader.isUploading">
-                        <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
-                    </button>
-                    <button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()"
-                            ng-disabled="!uploader.queue.length">
-                        <span class="glyphicon glyphicon-trash"></span> Remove all
-                    </button>
-                </div>
-            </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Author</th>
+            <th>Length (bytes)</th>
+            <th>Upload Date</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="file in files track by file.id">
+            <td>{{file.filename}}</td>
+            <td>{{file.author.login  || file.author.firstName}}</td>
+            <td>{{file.length | prettyBytes}}</td>
+            <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
+            <td class="text-right">
+                <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_blank">
+                    <span class="glyphicon glyphicon-download"></span>
+                </a>
+                <button type="submit"
+                        ng-disabled="myReadonly"
+                        ng-click="delete(file.id)"
+                        class="btn btn-danger btn-sm">
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="panel-footer text-center">
+        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
+                        ng-change="loadAll()"></uib-pagination>
     </div>
 </div>
+

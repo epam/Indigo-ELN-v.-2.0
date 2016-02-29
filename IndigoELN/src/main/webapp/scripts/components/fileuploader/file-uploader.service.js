@@ -15,4 +15,17 @@ angular.module('indigoeln')
             'update': {method: 'PUT'},
             'delete': {method: 'DELETE'}
         });
+    })
+    .factory('FileUploaderCash', function () {
+        var _files;
+
+        return {
+            getFiles: function() {
+                return _files;
+            },
+            setFiles: function(files) {
+                _files = files;
+            }
+        };
+
     });

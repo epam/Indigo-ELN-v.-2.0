@@ -9,7 +9,8 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/fileuploader/file-uploader.html',
             scope: {
                 entityid: '=',
-                myReadonly: '='
+                myReadonly: '=',
+                files: '='
             }
         };
     });
