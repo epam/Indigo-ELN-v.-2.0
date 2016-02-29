@@ -81,12 +81,10 @@ public class FileService {
 
     public void deleteProjectFile(String id) {
         Project project = projectRepository.findByFileId(id);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectFileId(id);
+        if (project != null) {
+            project.getFileIds().remove(id);
+            projectRepository.save(project);
         }
-
-        project.getFileIds().remove(id);
-        projectRepository.save(project);
         fileRepository.delete(id);
     }
 
