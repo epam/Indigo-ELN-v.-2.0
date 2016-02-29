@@ -4,6 +4,10 @@ angular.module('indigoeln')
     .controller('FileUploaderController', function($scope, FileUploader, FileUploaderService, $cookies, $log) {
 
         var entityid = $scope.entityid;
+        var formData = [];
+        if (entityid) {
+            formData.push({projectId: entityid});
+        }
 
         var uploader = $scope.uploader = new FileUploader({
             url: 'api/project_files',
@@ -11,7 +15,7 @@ angular.module('indigoeln')
             headers: {
                 'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
             },
-            formData: [{projectId: entityid}]
+            formData: formData
         });
 
         // TODO: maximum permitted size 1048576 bytes
