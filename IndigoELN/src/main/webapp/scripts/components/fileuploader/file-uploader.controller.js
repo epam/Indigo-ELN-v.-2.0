@@ -69,7 +69,7 @@ angular.module('indigoeln')
                     };
 
                     $scope.cancel = function () {
-                        FileUploaderCash.setFiles($scope.files);
+                        FileUploaderCash.addFiles($scope.files);
                         $uibModalInstance.close($scope.files);
                     };
                 }
@@ -78,29 +78,35 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.delete = function (id) {
+        $scope.delete = function (file) {
             $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/components/fileuploader/file-delete-dialog.html',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.delete = function () {
-                        FileUploaderService.delete({id: id})
-                            .$promise.then(
-                            function (result) {
-                                Alert.success('File was successfully deleted');
-                                thatScope.loadAll();
-                                $uibModalInstance.close(true);
-                            },
-                            function (error) {
-                                Alert.error('Error deleting the file: ' + error);
-                                $uibModalInstance.close();
-                            }
-                        );
+                        if (entityid) {
+                            FileUploaderService.delete({id: file.id})
+                                .$promise.then(
+                                function (result) {
+                                    $uibModalInstance.close(file);
+                                },
+                                function (error) {
+                                    Alert.error('Error deleting the file: ' + error);
+                                    $uibModalInstance.close();
+                                }
+                            );
+                        } else {
+                            $uibModalInstance.close(file);
+                        }
                     };
                     $scope.clear = function () {
                         $uibModalInstance.dismiss('cancel');
                     };
                 }
+            }).result.then(function (file) {
+                $scope.files = _.without($scope.files, file);
+                FileUploaderCash.removeFile(file);
+                Alert.success('File was successfully deleted');
             });
         };
         $scope.search = function () {
