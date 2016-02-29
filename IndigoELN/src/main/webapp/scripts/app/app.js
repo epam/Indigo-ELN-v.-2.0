@@ -68,6 +68,7 @@ angular.module('indigoeln',
                 countdownDialog = null;
             }
             Auth.logout();
+            $window.location.reload();
             $state.go('login');
         });
         $rootScope.$on('$stateChangeSuccess', function () {

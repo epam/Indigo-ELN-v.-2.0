@@ -55,6 +55,7 @@
                 <li role="menuitem"><a><i>Status: </i><b>{{ experiment.status}}</b></a></li>
                 <li class="divider"></li>
                 <li role="menuitem" ng-if="statusOpen() || statusComplete() || statusSubmitted() || statusArchieved() || statusSigned"><a href="#">Repeat Experiment</a></li>
+                <li role="menuitem" ><a href="#">Print Experiment</a></li>
                 <li role="menuitem" ng-if="statusOpen()"><a href="#">Complete Experiment</a></li>
                 <li role="menuitem"ng-if="statusOpen()"><a href="#">Complete & Sign </a></li>
                 <li role="menuitem"ng-if="statusComplete() || statusSubmitFail() || statusSubmitted() || statusArchieved() || statusSigned()"><a href="#">Version Experiment</a></li>
