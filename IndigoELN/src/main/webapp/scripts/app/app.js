@@ -86,8 +86,8 @@ angular.module('indigoeln',
         // Theme for angular-xeditable. Can also be 'bs2', 'default'
         editableOptions.theme = 'bs3';
     })
-    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider) {
 
+    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider) {
         //enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
@@ -133,5 +133,5 @@ angular.module('indigoeln',
         IdleProvider.idle(30 * 60); // 30 min of idleness
         IdleProvider.timeout(30); // 30 sec to do something
 
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(|blob|):/); // to allow file's export
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/); // to allow file's export
     });
