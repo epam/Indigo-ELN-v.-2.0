@@ -1,0 +1,193 @@
+<div class="panel panel-info" style="min-height: 501px;height: 100%">
+    <div class="panel-heading">Dictionaries</div>
+    <div class="panel-body">
+
+        <button class="btn btn-info" ng-click="createDictionary()">
+            <span class="glyphicon glyphicon-flash"></span> <span>Create new Dictionary</span>
+        </button>
+
+        <div ng-show="dictionary" class="panel panel-info edit-form">
+            <div class="panel-heading">
+                Create/Edit Dictionary
+            </div>
+            <div class="panel-body ">
+                <form id="editForm" name="editForm" role="form" novalidate ng-submit="saveDictionary()"
+                      class="form-horizontal" autocomplete="off">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <my-input
+                                    my-label="Name"
+                                    my-name="name"
+                                    my-type="text"
+                                    my-model="dictionary.name"
+                                    my-validation-obj="editForm.name"
+                                    my-validation-required="true"
+                                    my-validation-maxlength="200">
+                            </my-input>
+                            <my-text-area
+                                    my-label="Description"
+                                    my-model="dictionary.description">
+                            </my-text-area>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearDictionary()">
+                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+                </button>
+                <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving"
+                        class="btn btn-info">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+                </button>
+            </div>
+        </div>
+
+        <form class="form-inline text-right">
+            <my-input id="searchDictionary" my-label="Search Dictionary" my-model="searchText" my-input-group="append">
+                <button class="btn btn-default" type="submit" ng-click="searchDictionary()">
+                    <span class="glyphicon glyphicon-search"></span>
+                    Search
+                </button>
+            </my-input>
+        </form>
+    </div>
+
+
+    <div class="table-responsive" style="min-height: 273px">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created By</th>
+                <th>Creation Date</th>
+                <th>Last Edit Date</th>
+                <th class="text-right">Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="dictionary in dictionaries track by $index" title="{{dictionary.description}}"
+                ng-click="setSelected(dictionary.id)"
+                ng-class="{'dictionary-selected': dictionary.id === selectedDictionaryId}">
+                <td class="dictionary-col-width dictionary-col-elipsis">{{dictionary.name}}</td>
+                <td class="dictionary-col-width dictionary-col-elipsis">{{dictionary.description}}</td>
+                <td>{{dictionary.author.login}}</td>
+                <td>{{dictionary.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                <td>{{dictionary.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                <td class="text-right">
+                    <button type="submit"
+                            ng-click="editDictionary(dictionary)"
+                            class="btn btn-info btn-sm">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="dictionary-management.delete({id:dictionary.id})"
+                            class="btn btn-danger btn-sm">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="panel-footer text-center">
+        <uib-pagination class="pagination-sm" total-items="totalItems" items-per-page="itemsPerPage" ng-model="page"
+                        ng-change="loadAllDictionaries()">
+        </uib-pagination>
+    </div>
+</div>
+<div class="panel panel-info" style="bottom: 0; margin:0; padding:0;">
+    <div class="panel-heading">Words
+        <i class="pull-right glyphicon"
+           ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
+           ng-click="isCollapsed = !isCollapsed"></i>
+    </div>
+
+    <div class="panel-body" uib-collapse="isCollapsed">
+        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null">
+            <span class="glyphicon glyphicon-plus"></span> <span>Add new Word</span>
+        </button>
+
+        <div ng-show="word" class="panel panel-info edit-form">
+            <div class="panel-heading">
+                Create/Edit Word for dictionary {{selectedDictionary.name}}
+            </div>
+            <div class="panel-body ">
+                <form id="editWordForm" name="editWordForm" role="form" novalidate ng-submit="saveWord()"
+                      class="form-horizontal" autocomplete="off">
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <my-input
+                                    my-label="Name"
+                                    my-name="name"
+                                    my-type="text"
+                                    my-model="word.name"
+                                    my-validation-obj="editWordForm.name"
+                                    my-validation-required="true"
+                                    my-validation-maxlength="200">
+                            </my-input>
+                            <my-checkbox
+                                    my-label="Active"
+                                    my-model="word.enable">
+                            </my-checkbox>
+                            <my-text-area
+                                    my-label="Description"
+                                    my-model="word.description">
+                            </my-text-area>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="panel-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearWord()">
+                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+                </button>
+                <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || isWordSaving"
+                        class="btn btn-info">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Rank</th>
+                    <th>Creation Date</th>
+                    <th class="text-right">Action</th>
+                </tr>
+                </thead>
+                <tbody dragula='"dragableWords"' dragula-model="selectedDictionary.words">
+                <tr ng-repeat="word in selectedDictionary.words track by $index" style="cursor: move;"
+                    title="{{word.description}}">
+                    <td class="dictionary-col-width dictionary-col-elipsis">{{word.name}}</td>
+                    <td class="dictionary-col-width dictionary-col-elipsis">{{word.description}}</td>
+                    <td>
+                        <i ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></i>
+                    </td>
+                    <td>{{word.rank}}</td>
+                    <td>{{word.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                    <td class="text-right">
+                        <button type="submit"
+                                ng-click="editWord(word)"
+                                class="btn btn-info btn-sm">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        <button type="submit"
+                                ng-click="deleteWord(word)"
+                                class="btn btn-danger btn-sm">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

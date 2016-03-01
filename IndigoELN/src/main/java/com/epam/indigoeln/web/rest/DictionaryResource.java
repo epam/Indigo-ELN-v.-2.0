@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
@@ -53,9 +55,11 @@ public class DictionaryResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(Pageable pageable) throws URISyntaxException {
+    public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(@RequestParam(value = "page") Integer pageno,
+                                                                  @RequestParam(value = "size") Integer size,
+                                                                  @RequestParam(value = "search") String search) throws URISyntaxException {
         log.debug("REST request to get all dictionaries");
-        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(pageable);
+        Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(new PageRequest(pageno, size), search);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return new ResponseEntity<>(page.getContent().stream()
             .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
