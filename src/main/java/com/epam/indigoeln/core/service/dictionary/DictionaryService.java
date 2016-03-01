@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.dictionary;
 
 import com.epam.indigoeln.core.model.Dictionary;
+import com.epam.indigoeln.core.model.Word;
 import com.epam.indigoeln.core.repository.dictionary.DictionaryRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
@@ -48,8 +49,8 @@ public class DictionaryService {
         dictionaryRepository.delete(dictionaryId);
     }
 
-    public Page<DictionaryDTO> getAllDictionaries(Pageable pageable) {
-        return dictionaryRepository.findAll(pageable).map(DictionaryDTO::new);
+    public Page<DictionaryDTO> getAllDictionaries(Pageable pageable, String search) {
+        return dictionaryRepository.findByNameContaining(search, pageable).map(DictionaryDTO::new);
     }
 
 

@@ -228,6 +228,23 @@ body {
     color: #337ab7
 }
 
+.dictionary-selected {
+    font-size: large;
+}
+
+.dictionary-col-width {
+    max-width: 200px;
+}
+
+.dictionary-col-elipsis {
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: inherit;
+}
+
 .active .experiment-tab-close {
     color: #37474f;
     margin-left: 10px;
