@@ -12,6 +12,7 @@ public enum Authority implements GrantedAuthority {
     ROLE_EDITOR,
     CONTENT_EDITOR,
     TEMPLATE_EDITOR,
+    DICTIONARY_EDITOR,
 
     PROJECT_READER,
     PROJECT_CREATOR,
@@ -37,6 +38,10 @@ public enum Authority implements GrantedAuthority {
     public final static String[] USER_READERS = new String[] {
             USER_EDITOR.name(), CONTENT_EDITOR.name(), EXPERIMENT_CREATOR.name(),
             NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+
+    public final static String[] DICTIONARY_READERS = new String[] {
+            DICTIONARY_EDITOR.name(), CONTENT_EDITOR.name(),
+            EXPERIMENT_CREATOR.name(), NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
 
     public final static String[] ROLE_READERS = new String[] {
             USER_EDITOR.name(), ROLE_EDITOR.name()};
