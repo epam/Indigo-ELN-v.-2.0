@@ -10,6 +10,7 @@ import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.FileNotFoundException;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,13 +53,17 @@ public class FileService {
 
     public GridFSFile saveFileForProject(String projectId, InputStream content,
                                          String filename, String contentType, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        Project project = null;
+        if (!StringUtils.isEmpty(projectId)) {
+            project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        }
 
         GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user);
-        project.getFileIds().add(gridFSFile.getId().toString());
-        projectRepository.save(project);
-
+        if (project != null) {
+            project.getFileIds().add(gridFSFile.getId().toString());
+            projectRepository.save(project);
+        }
         return gridFSFile;
     }
 
@@ -76,12 +81,10 @@ public class FileService {
 
     public void deleteProjectFile(String id) {
         Project project = projectRepository.findByFileId(id);
-        if (project == null) {
-            throw EntityNotFoundException.createWithProjectFileId(id);
+        if (project != null) {
+            project.getFileIds().remove(id);
+            projectRepository.save(project);
         }
-
-        project.getFileIds().remove(id);
-        projectRepository.save(project);
         fileRepository.delete(id);
     }
 

@@ -8,11 +8,13 @@ import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,11 +57,16 @@ public class ProjectFileResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam String projectId,
+    public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam(required = false) String projectId,
                                                      Pageable pageable)
             throws URISyntaxException {
         log.debug("REST request to get files's metadata for project: {}", projectId);
-        Page<GridFSDBFile> page = fileService.getAllFilesByProjectId(projectId, pageable);
+        Page<GridFSDBFile> page;
+        if (StringUtils.isEmpty(projectId)) {
+            page = new PageImpl<>(new ArrayList<>() );
+        } else {
+            page = fileService.getAllFilesByProjectId(projectId, pageable);
+        }
         String urlParameter = "projectId=" + projectId;
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
@@ -84,7 +92,8 @@ public class ProjectFileResource {
      */
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String projectId)
+    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file,
+                                            @RequestParam(required = false) String projectId)
             throws URISyntaxException, IOException {
         log.debug("REST request to save file for project: {}", projectId);
         User user = userService.getUserWithAuthorities();

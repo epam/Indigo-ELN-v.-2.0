@@ -3,12 +3,15 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
         function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, project,
-                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority) {
+                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority, FileUploaderCash) {
 
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);
             $scope.isCollapsed = true;
+            if (!$scope.project.id) {
+                FileUploaderCash.setFiles([]);
+            }
 
             PermissionManagement.setEntity('Project');
             PermissionManagement.setAuthor($scope.project.author);
@@ -60,6 +63,7 @@ angular.module('indigoeln')
             $scope.save = function () {
                 $scope.isSaving = true;
                 $scope.project.tags = [];
+                $scope.project.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
                 if ($scope.tags) {
                     angular.forEach($scope.tags, function(tag, key) {
                         $scope.project.tags.push(tag.text);
