@@ -65,9 +65,10 @@ angular.module('indigoeln')
                     uploader.onCompleteAll = function() {};
                     uploader.onSuccessItem = function(fileItem, response, status, headers) {
                         $scope.files.push(response);
-                        $log.info('onSuccessItem', fileItem, response, status, headers);
                     };
-
+                    $scope.remove = function (index) {
+                        $scope.files.splice(index, 1);
+                    };
                     $scope.cancel = function () {
                         FileUploaderCash.addFiles($scope.files);
                         $uibModalInstance.close($scope.files);

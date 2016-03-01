@@ -51,7 +51,7 @@
                                     ng-disabled="!item.isUploading">
                                 <span class="glyphicon glyphicon-ban-circle"></span> Cancel
                             </button>
-                            <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">
+                            <button type="button" class="btn btn-danger btn-xs" ng-click="item.remove();remove($index)">
                                 <span class="glyphicon glyphicon-trash"></span> Remove
                             </button>
                         </td>
