@@ -170,6 +170,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers(HttpMethod.POST, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())
                     .antMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority(USER_EDITOR.name())
+                    // dictionary resource
+                    .antMatchers(HttpMethod.GET, "/api/dictionaries").hasAnyAuthority(DICTIONARY_READERS)
+                    .antMatchers(HttpMethod.GET, "/api/dictionaries/*").hasAuthority(DICTIONARY_EDITOR.name())
+                    .antMatchers(HttpMethod.POST, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
+                    .antMatchers(HttpMethod.PUT, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
+                    .antMatchers(HttpMethod.DELETE, "/api/dictionaries/*").hasAuthority(DICTIONARY_EDITOR.name())
 
                     // spring boot endpoints
                     // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html

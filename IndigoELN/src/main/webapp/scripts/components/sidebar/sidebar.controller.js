@@ -9,8 +9,9 @@ angular
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
         $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
+        $scope.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
         $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
-            $scope.TEMPLATE_EDITOR].join(',');
+            $scope.TEMPLATE_EDITOR, $scope.DICTIONARY_EDITOR].join(',');
         $scope.myBookmarks = {};
         $scope.allProjects = {};
 
@@ -162,6 +163,6 @@ angular
         };
 
         $scope.toggleDictionaries = function () {
-
+            $state.go('dictionary-management');
         };
     });

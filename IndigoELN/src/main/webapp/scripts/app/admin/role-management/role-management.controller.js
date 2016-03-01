@@ -12,6 +12,7 @@ angular.module('indigoeln')
             {name: 'ROLE_EDITOR', description: 'Role editor', tooltip: 'Write some tooltip'},
             {name: 'CONTENT_EDITOR', description: 'Content editor', tooltip: 'Write some tooltip'},
             {name: 'TEMPLATE_EDITOR', description: 'Template editor', tooltip: 'Write some tooltip'},
+			{name: 'DICTIONARY_EDITOR', description: 'Dictionary editor', tooltip: 'Write some tooltip'},
             {name: 'PROJECT_READER', description: 'Project reader', tooltip: 'This is required minimal authority for each Role, which cannot be removed', readonly: true, checked: true},
             {name: 'PROJECT_CREATOR', description: 'Project creator', tooltip: 'Write some tooltip'},
             {name: 'PROJECT_REMOVER', description: 'Project remover', tooltip: 'Write some tooltip'},
