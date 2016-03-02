@@ -72,7 +72,7 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.enterPassword = function () {
+        $scope.changePassword = function () {
             $uibModal.open({
                 animation: true,
                 size: 'sm',
@@ -80,11 +80,13 @@ angular.module('indigoeln')
                 '<input style="display:none" type="text" name="fakeusernameremembered"/>' +
                 '<input style="display:none" type="password" name="fakepasswordremembered"/>' +
                 '<div class="container" ><div class="row"><div class="col-xs-3">' +
-                '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" my-name="password" my-type="password" my-model="password" ' +
+                '<form id="editPassword" name="editPassword" role="form" novalidate class="form-horizontal" autocomplete="off">' +
+                '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" ' +
+                'my-name="password" my-type="password" my-model="password" ' +
                 'my-validation-obj="editForm.password" my-validation-required="password == null" my-validation-maxlength="50">' +
                 '</my-input></div></div></div></div>' +
                 '<div class="modal-footer text-right">' +
-                '<button class="btn btn-primary" type="button" ng-click="ok()">Ok</button>' +
+                '<button class="btn btn-primary" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
                 '<button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>' +
                 '</div>',
                 controller: function ($scope, $uibModalInstance) {
