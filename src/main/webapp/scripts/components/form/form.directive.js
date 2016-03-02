@@ -188,7 +188,8 @@ angular.module('indigoeln')
             myLabelVertical: '=',
             myClasses: '@',
             myInputGroup: '@',
-            myReadonly: '='
+            myReadonly: '=',
+            myRowsNum: '='
         },
         compile: function (tElement, tAttrs, transclude) {
             if (tAttrs.myInputGroup) {
@@ -200,7 +201,9 @@ angular.module('indigoeln')
                     inputGroup.prepend(element);
                 }
             }
-
+            if (tAttrs.myRowsNum) {
+                tElement.find('textarea').attr('rows', tAttrs.myRowsNum);
+            }
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +

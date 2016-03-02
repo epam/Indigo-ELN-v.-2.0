@@ -1,39 +1,23 @@
 <div class="panel panel-info user-management">
     <div class="panel-heading">Users</div>
     <div class="panel-body">
-        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
         <button class="btn btn-info" ng-click="create()">
-            <span class="glyphicon glyphicon-flash"></span> <span>Create a new User</span>
+            <span class="glyphicon glyphicon-flash"></span> <span>Create New User</span>
         </button>
 
-        <div ng-show="user" class="panel panel-info edit-form">
+        <div ng-if="user" class="panel panel-info edit-form">
             <div class="panel-heading">
-                Create/Update User
+                Create/Edit User
             </div>
             <div class="panel-body ">
-                <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
+                <form id="editForm" name="editForm" role="form" novalidate
                       class="form-horizontal" autocomplete="off">
 
                     <div class="row">
                         <div class="col-xs-6">
                             <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-                            <input style="display:none" type="text" name="fakeusernameremembered"/>
+                            <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off" style="display: none;">
                             <input style="display:none" type="password" name="fakepasswordremembered"/>
-                            <my-input
-                                    my-label="ID"
-                                    my-name="id"
-                                    my-type="text"
-                                    my-model="user.id"
-                                    my-readonly="true"></my-input>
-                            <my-input
-                                    my-label="First name"
-                                    my-name="firstName"
-                                    my-type="text"
-                                    my-model="user.firstName"
-                                    my-validation-obj="editForm.firstName"
-                                    my-validation-maxlength="50"
-                                    ></my-input>
-
                             <my-input
                                     my-label="Login"
                                     my-name="login"
@@ -44,6 +28,34 @@
                                     my-validation-maxlength="50"
                                     ></my-input>
                             <my-input
+                                    my-label="First Name"
+                                    my-name="firstName"
+                                    my-type="text"
+                                    my-model="user.firstName"
+                                    my-validation-obj="editForm.firstName"
+                                    my-validation-required="user.firstName == null"
+                                    my-validation-maxlength="50"
+                                    ></my-input>
+                            <my-input
+                                    my-label="Last Name"
+                                    my-name="lastName"
+                                    my-type="text"
+                                    my-model="user.lastName"
+                                    my-validation-obj="editForm.lastName"
+                                    my-validation-required="user.lastName == null"
+                                    my-validation-maxlength="50"
+                            ></my-input>
+                            <my-select
+                                    my-label="System Roles"
+                                    my-name="role"
+                                    my-model="user.roles"
+                                    my-items="roles"
+                                    my-multiple="true"
+                            ></my-select>
+                            <p class="help-block col-xs-offset-2" ng-if="!user.roles.length"> This field is required. </p>
+                        </div>
+                        <div class="col-xs-6">
+                            <my-input
                                     my-label="Email"
                                     my-name="email"
                                     my-type="text"
@@ -51,18 +63,8 @@
                                     my-validation-obj="editForm.email"
                                     my-validation-required="user.email == null"
                                     my-validation-maxlength="100"
-                                    ></my-input>
-                        </div>
-                        <div class="col-xs-6">
-                            <my-input
-                                    my-label="Last name"
-                                    my-name="lastName"
-                                    my-type="text"
-                                    my-model="user.lastName"
-                                    my-validation-obj="editForm.lastName"
-                                    my-validation-maxlength="50"
-                                    ></my-input>
-                            <my-input
+                            ></my-input>
+                            <my-input ng-if="!user.id"
                                     my-label="Password"
                                     my-name="password"
                                     my-type="password"
@@ -71,32 +73,34 @@
                                     my-validation-required="user.id == null"
                                     my-validation-maxlength="50"
                                     ></my-input>
-                            <my-select
-                                    my-label="Profiles"
-                                    my-name="role"
-                                    my-model="user.roles"
-                                    my-items="roles"
-                                    my-multiple="true"
-                                    ></my-select>
+                            <my-select my-label="Groups"
+                                       my-items="[{name:'Group 1'}, {name:'Group 2'}]" my-model="user.group"
+                            ></my-select>
+                            &nbsp;<button class="btn btn-default col-xs-offset-2"
+                                    ng-if="user.id"
+                                    ng-click="enterPassword()">Change Password
+                            </button>&nbsp;&nbsp;
+                            <normal style="color:green;" ng-if="user.password && user.id">
+                                <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
+                            </normal>
                             <my-checkbox
                                     my-label="Activated"
                                     my-model="user.activated"
                                     my-name="activated"
                                     my-multiple="true"
-                                    ></my-checkbox>
+                            ></my-checkbox>
                         </div>
                     </div>
-
                 </form>
             </div>
             <div class="panel-footer text-right">
+                <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length"
+                        class="btn btn-info">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
+                </button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
                     <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span
                         >Cancel</span>
-                </button>
-                <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving"
-                        class="btn btn-info">
-                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
                 </button>
             </div>
         </div>
@@ -120,6 +124,7 @@
             <th>Username</th>
             <th>First Name</th>
             <th>Last Name</th>
+            <th>System Roles</th>
             <th>Email</th>
             <th>Active</th>
             <th>Action</th>
@@ -131,10 +136,15 @@
             <td>{{user.login}}</td>
             <td>{{user.firstName}}</td>
             <td>{{user.lastName}}</td>
+            <td>
+                <span ng-repeat="role in user.roles track by role.id">
+                    {{role.name}}<span ng-if="!$last">, </span>
+                </span>
+            </td>
             <td>{{user.email}}</td>
             <td>
                     <span class="label label-danger" ng-click="setActive(user, true)" ng-show="!user.activated"
-                          style="cursor: pointer;">Desactivated</span>
+                          style="cursor: pointer;">Deactivated</span>
                     <span class="label label-success" ng-click="setActive(user, false)" ng-show="user.activated"
                           style="cursor: pointer;">Activated</span>
             </td>

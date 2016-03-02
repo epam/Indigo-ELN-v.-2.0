@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, User, ParseLinks, $filter, roles) {
+    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, roles) {
         $scope.users = [];
         $scope.roles = roles;
 
@@ -30,8 +30,6 @@ angular.module('indigoeln')
 
         $scope.clear = function () {
             $scope.user = null;
-            $scope.editForm.$setPristine();
-            $scope.editForm.$setUntouched();
         };
 
         var onSaveSuccess = function (result) {
@@ -57,7 +55,7 @@ angular.module('indigoeln')
         $scope.create = function () {
             $scope.user = {
                 id: null, login: null, firstName: null, lastName: null, email: null,
-                activated: true, roles: null
+                activated: true, roles: null, group: null
             };
         };
 
@@ -71,6 +69,34 @@ angular.module('indigoeln')
                 $scope.links = ParseLinks.parse(headers('link'));
                 $scope.totalItems = headers('X-Total-Count');
                 $scope.users = $filter('filter')(result, $scope.searchText);
+            });
+        };
+
+        $scope.enterPassword = function () {
+            $uibModal.open({
+                animation: true,
+                size: 'sm',
+                template: '<div class="modal-body">' +
+                '<input style="display:none" type="text" name="fakeusernameremembered"/>' +
+                '<input style="display:none" type="password" name="fakepasswordremembered"/>' +
+                '<div class="container" ><div class="row"><div class="col-xs-3">' +
+                '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" my-name="password" my-type="password" my-model="password" ' +
+                'my-validation-obj="editForm.password" my-validation-required="password == null" my-validation-maxlength="50">' +
+                '</my-input></div></div></div></div>' +
+                '<div class="modal-footer text-right">' +
+                '<button class="btn btn-primary" type="button" ng-click="ok()">Ok</button>' +
+                '<button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>' +
+                '</div>',
+                controller: function ($scope, $uibModalInstance) {
+                    $scope.cancel = function () {
+                        $uibModalInstance.dismiss('cancel');
+                    };
+                    $scope.ok = function () {
+                        $uibModalInstance.close($scope.password);
+                    };
+                }
+            }).result.then(function (password) {
+                $scope.user.password = password;
             });
         };
     });
