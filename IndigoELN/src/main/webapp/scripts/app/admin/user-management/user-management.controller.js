@@ -45,6 +45,9 @@ angular.module('indigoeln')
 
         $scope.save = function () {
             $scope.isSaving = true;
+            if ($scope.user.group.name) {
+                $scope.user.group = $scope.user.group.name;
+            }
             if ($scope.user.id != null) {
                 User.update($scope.user, onSaveSuccess, onSaveError);
             } else {
@@ -60,6 +63,9 @@ angular.module('indigoeln')
         };
 
         $scope.edit = function (user) {
+            if (user.group) {
+                user.group = { name: user.group} ;
+            }
             $scope.loadAll();
             $scope.user = _.extend({}, user);
         };
@@ -77,10 +83,10 @@ angular.module('indigoeln')
                 animation: true,
                 size: 'sm',
                 template: '<div class="modal-body">' +
-                '<input style="display:none" type="text" name="fakeusernameremembered"/>' +
+                '<form id="editPassword" name="editPassword" role="form" novalidate class="form-horizontal" autocomplete="off">' +
+                '<input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">' +
                 '<input style="display:none" type="password" name="fakepasswordremembered"/>' +
                 '<div class="container" ><div class="row"><div class="col-xs-3">' +
-                '<form id="editPassword" name="editPassword" role="form" novalidate class="form-horizontal" autocomplete="off">' +
                 '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" ' +
                 'my-name="password" my-type="password" my-model="password" ' +
                 'my-validation-obj="editForm.password" my-validation-required="password == null" my-validation-maxlength="50">' +

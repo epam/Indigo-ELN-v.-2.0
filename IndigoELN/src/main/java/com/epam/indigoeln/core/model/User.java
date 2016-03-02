@@ -49,6 +49,8 @@ public class User implements Serializable {
     @Size(max = 100)
     private String email;
 
+    private String group;
+
     private boolean activated = false;
 
     @JsonIgnore
@@ -117,6 +119,14 @@ public class User implements Serializable {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public Set<Authority> getAuthorities() {

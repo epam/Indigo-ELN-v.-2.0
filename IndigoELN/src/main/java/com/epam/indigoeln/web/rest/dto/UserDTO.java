@@ -32,6 +32,8 @@ public class UserDTO {
     @Size(min = 5, max = 100)
     private String email;
 
+    private String group;
+
     private boolean activated = false;
 
     protected Set<Authority> authorities;
@@ -41,11 +43,11 @@ public class UserDTO {
 
     public UserDTO(User user) {
         this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-                user.getEmail(), user.getActivated(), user.getAuthorities());
+                user.getEmail(), user.getActivated(), user.getAuthorities(), user.getGroup());
     }
 
     public UserDTO(String id, String login, String firstName, String lastName,
-                   String email, boolean activated, Set<Authority> authorities) {
+                   String email, boolean activated, Set<Authority> authorities, String group) {
 
         this.id = id;
         this.login = login;
@@ -54,6 +56,7 @@ public class UserDTO {
         this.email = email;
         this.activated = activated;
         this.authorities = authorities;
+        this.group = group;
     }
 
     public String getId() {
@@ -82,6 +85,10 @@ public class UserDTO {
 
     public Set<Authority> getAuthorities() {
         return authorities;
+    }
+
+    public String getGroup() {
+        return group;
     }
 
     @Override
