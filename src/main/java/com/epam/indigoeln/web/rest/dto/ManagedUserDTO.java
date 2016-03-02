@@ -26,6 +26,8 @@ public class ManagedUserDTO extends UserDTO {
 
     private String lastModifiedBy;
 
+    private String group;
+
     private Set<Role> roles;
 
     public ManagedUserDTO() {
@@ -36,6 +38,7 @@ public class ManagedUserDTO extends UserDTO {
         this.id = user.getId();
         this.authorities = null;
         this.roles = user.getRoles();
+        this.group = user.getGroup();
     }
 
     public String getId() {
@@ -76,6 +79,14 @@ public class ManagedUserDTO extends UserDTO {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     @Override
