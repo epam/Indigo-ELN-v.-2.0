@@ -30,11 +30,11 @@ body {
     height: 5px;
 }
 
-.user-management .edit-form.ng-hide-add {
+.user-management .edit-form.ng-leave {
     animation: fadeOutUp 0.3s;
 }
 
-.user-management .edit-form.ng-hide-remove {
+.user-management .edit-form.ng-enter {
     animation: fadeInDown 0.3s;
 }
 
@@ -267,4 +267,18 @@ body {
 
 .main-container .table tbody tr td {
     vertical-align: middle;
+}
+
+ul.dropdown-menu li {
+    cursor: pointer;
+}
+
+ul.dropdown-menu li span.red {
+    color: red;
+    background-color: inherit !important;
+}
+
+ul.dropdown-menu li span.green {
+    color: green;
+    background-color: inherit !important;
 }
