@@ -364,7 +364,10 @@ angular.module('indigoeln')
             });
 
             $scope.$watch('structureSize', function (newVal) {
-                $scope.columns[0].width = 300 * newVal + 'px';
+                var column = _.find($scope.columns, function (item) {
+                    return item.id === 'structure';
+                });
+                column.width = 300 * newVal + 'px';
             });
         }
     );
