@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.security;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -12,6 +13,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Spring Security.
@@ -94,20 +97,22 @@ public final class SecurityUtils {
     /**
      * Check for significant changes of authorities and perform logout for each user, if these exist
      */
-    public static void checkAndLogoutUsers(Collection<com.epam.indigoeln.core.model.User> users,
+    public static void checkAndLogoutUsers(Collection<com.epam.indigoeln.core.model.User> modifiedUsers,
                                     SessionRegistry sessionRegistry) {
         final List<Object> allPrincipals = sessionRegistry.getAllPrincipals();
-        for (com.epam.indigoeln.core.model.User user: users) {
+        for (com.epam.indigoeln.core.model.User modifiedUser: modifiedUsers) {
             for (Object principal : allPrincipals) {
                 UserDetails userDetails = (UserDetails) principal;
-                if (user.getLogin().equals(userDetails.getUsername()) && (
-                        // size of authorities from session bigger than new
-                        user.getAuthorities().size() < userDetails.getAuthorities().size() ||
-                                // new authorities don't contain all session authorities
-                                !user.getAuthorities().containsAll(userDetails.getAuthorities()))
-                        ) {
-                    List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
-                    sessions.forEach(SessionInformation::expireNow);
+                if (modifiedUser.getLogin().equals(userDetails.getUsername())) {
+                    Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
+                            collect(Collectors.toSet());
+                    Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).
+                            collect(Collectors.toSet());
+                    // Invalidate session if user's authorities set has been changed
+                    if (!CollectionUtils.isEqualCollection(newAuthorities, existingAuthorities)) {
+                        List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
+                        sessions.forEach(SessionInformation::expireNow);
+                    }
                 }
             }
         }
