@@ -124,7 +124,7 @@ angular.module('indigoeln')
 
         $scope.create = function () {
             $scope.role = {
-                id: null, name: null, authorities: []
+                id: null, name: null, authorities: ['PROJECT_READER']
             };
         };
 
@@ -134,7 +134,7 @@ angular.module('indigoeln')
         };
 
         $scope.resetAuthorities = function () {
-            $scope.role.authorities = [];
+            $scope.role.authorities = ['PROJECT_READER'];
         };
 
         $scope.search = function () {
