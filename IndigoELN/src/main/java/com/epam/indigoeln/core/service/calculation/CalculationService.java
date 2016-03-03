@@ -1,18 +1,17 @@
 package com.epam.indigoeln.core.service.calculation;
 
-import java.util.List;
-import java.util.Map;
-
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;
-import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
-import org.springframework.stereotype.Service;
-
-import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import com.epam.indigoeln.core.service.calculation.helper.CommonCalcHelper;
 import com.epam.indigoeln.core.service.calculation.helper.MoleculeCalcHelper;
 import com.epam.indigoeln.core.service.calculation.helper.ReactionCalcHelper;
-import com.epam.indigoeln.core.service.calculation.helper.CommonCalcHelper;
+import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
+import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service for calculations under reaction or molecular structures defined in special text format
@@ -100,16 +99,14 @@ public class CalculationService {
      * Render molecule/reaction by its string representation
      * @param structure string structure representation (Mol, Smiles etc.)
      * @param structureType molecule or reaction
-     * @param width width of final image
-     * @param height height of fnal image
      * @return RendererResult
      */
-    public RendererResult getStructureWithImage(String structure, String structureType, Integer width, Integer height) {
+    public RendererResult getStructureWithImage(String structure, String structureType) {
 
         Indigo indigo = new Indigo();
         indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
 
-        IndigoRenderer renderer = CommonCalcHelper.getRenderer(indigo, width, height);
+        IndigoRenderer renderer = CommonCalcHelper.getRenderer(indigo);
         IndigoObject io =  MOLECULE_TYPE.equals(structureType) ? indigo.loadMolecule(structure) :
                 indigo.loadReaction(structure);
 

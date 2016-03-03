@@ -1,39 +1,49 @@
 'use strict';
 
 angular.module('indigoeln')
-    .constant("StructureSchemeConsts", {
+    .constant('StructureSchemeConsts', {
         // TODO: implement recieving that info from server
-        //BINGO_URL: "http://localhost:12345/",
-        //MONGO_URL: "http://localhost:3000/",
-        BINGO_URL: "http://ecse0010026a.epam.com:12345/",
-        MONGO_URL: "http://ecse0010026a.epam.com:8080/indigoeln/",
-        PIC_WIDTH: 30,
-        PIC_HEIGHT: 15
+        BINGO_URL: 'http://localhost:12345/'
     })
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, StructureSchemeConsts) {
+        $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
+        $scope.myModel = $scope.model[$attrs.myStructureType];
 
-        $scope.myModel = $scope.myModel || {};
         $scope.structureType = $attrs.myStructureType;
+        $scope.myTitle = $attrs.myTitle;
 
         // watch structure's id and update structure and its image if changed
         $scope.$watch('myModel.structureId', function () {
             if ($scope.myModel.structureId) {
                 $http({
                     url: getRendererUrl($scope.structureType),
-                    method: "POST",
-                    data: {
-                        width: StructureSchemeConsts.PIC_WIDTH,
-                        height: StructureSchemeConsts.PIC_HEIGHT,
-                        structure: $scope.myModel.structureMolfile
-                    }
+                    method: 'POST',
+                    data: $scope.myModel.structureMolfile
                 }).success(function (result) {
                     $scope.image = result.image;
+                    if ($scope.share.selectedRow) {
+                        $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
+                        $scope.share.selectedRow.structure.image = result.image;
+                        $scope.share.selectedRow.structure.structureType = $scope.structureType;
+                        $scope.share.selectedRow.structure.molfile = $scope.myModel.structureMolfile;
+                        $scope.share.selectedRow.structure.structureId = $scope.myModel.structureId;
+                    }
                 }).error(function () {
                     $scope.image = null;
                     console.info('Cannot render the structure.');
                 });
             }
         }, true);
+
+        $scope.$watch('share.selectedRow', function (row) {
+            if (row && row.structure && row.structure.structureType === $scope.structureType) {
+                $scope.image = $scope.share.selectedRow.structure.image;
+                $scope.myModel.structureMolfile = $scope.share.selectedRow.structure.molfile;
+                $scope.myModel.structureId = $scope.share.selectedRow.structure.structureId;
+            } else {
+                $scope.image = $scope.myModel.structureMolfile = $scope.myModel.structureId = null;
+            }
+        });
 
         $scope.openEditor = function () {
             // open editor with pre-defined structure (prestructure)
@@ -48,7 +58,7 @@ angular.module('indigoeln')
                     },
                     editor: function () {
                         // TODO: get editor name from user's settings; ketcher by default
-                        return "KETCHER";
+                        return 'KETCHER';
                     }
                 }
             });
@@ -96,14 +106,14 @@ angular.module('indigoeln')
 
         // URL to get image
         var getRendererUrl = function (type) {
-            return StructureSchemeConsts.MONGO_URL + 'api/renderer/' + type + '/image';
-        }
+            return 'api/renderer/' + type + '/image';
+        };
 
         // HTTP POST to save new structure into Bingo DB and get its id
         var saveNewStructure = function (structure, type) {
             $http({
                 url: StructureSchemeConsts.BINGO_URL + type + '/',
-                method: "POST",
+                method: 'POST',
                 data: structure
             }).success(function (result) {
                 $scope.myModel.structureId = result.id;
@@ -112,5 +122,5 @@ angular.module('indigoeln')
             }).error(function () {
                 console.info('Cannot save the structure.');
             });
-        }
+        };
     });

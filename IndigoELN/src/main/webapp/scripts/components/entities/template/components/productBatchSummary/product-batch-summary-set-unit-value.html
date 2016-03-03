@@ -1,0 +1,38 @@
+<form id="productBatchSummarySetUnitValueForm" name="productBatchSummarySetUnitValueForm" ng-submit="save()">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
+        <h4 class="modal-title">Set value for {{name}}</h4>
+    </div>
+    <div class="modal-body">
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-xs-12" style="margin-bottom: 0">
+                    <my-input my-label="Value" my-model="value" my-input-group="append"
+                              my-validation-obj="productBatchSummarySetValueForm" my-validation-required="true">
+                        <div class="btn-group" uib-dropdown ng-init="initUnit()">
+                            <button type="button" class="btn btn-default"
+                                    aria-haspopup="true"
+                                    aria-expanded="false"
+                                    uib-dropdown-toggle>{{unit}} <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" uib-dropdown-menu>
+                                <li ng-repeat="unitName in unitNames track by unitName"><a href=""
+                                                                                           ng-click="setUnit(unitName)">{{unitName}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </my-input>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" ng-disabled="productBatchSummarySetUnitValueForm.$invalid" class="btn btn-info"
+                form="productBatchSummarySetUnitValueForm">
+            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Save</span>
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+        </button>
+    </div>
+</form>
