@@ -3,7 +3,7 @@
 angular.module('indigoeln')
     .constant('StructureSchemeConsts', {
         // TODO: implement recieving that info from server
-        BINGO_URL: 'http://localhost:12345/'
+        BINGO_URL: 'http://' + window.location.hostname + ':12345/'
     })
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, StructureSchemeConsts) {
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
