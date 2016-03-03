@@ -7,7 +7,9 @@
                 <i class="fa fa-save btn" title="Export Structure"  ng-click="exportStructure()"></i>
             </span>
     </div>
-    <div class="panel-body">
-            <img class="img-fill" ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
+    <div class="panel-body text-center">
+        <img ng-if="image" class="img-responsive center-block" style="max-height: 500px"
+             ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
+        <h3 ng-if="!image" class="text-muted">empty</h3>
     </div>
 </div>

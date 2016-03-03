@@ -1,10 +1,10 @@
 package com.epam.indigoeln.core.service.calculation.helper;
 
-import java.util.List;
-
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;
+
+import java.util.List;
 
 /**
  * Common helper class for chemistry structure calculations
@@ -32,19 +32,13 @@ public final class CommonCalcHelper {
         return true;
     }
 
-    public static IndigoRenderer getRenderer(Indigo indigo, Integer width, Integer height) {
-
+    public static IndigoRenderer getRenderer(Indigo indigo) {
         IndigoRenderer renderer = new IndigoRenderer(indigo);
-
         //set renderer options
-        indigo.setOption("render-bond-length", BOND_LENGTH);
         indigo.setOption("render-label-mode", LABEL_MODE);
         indigo.setOption("render-output-format", PICTURE_FORMAT);
         indigo.setOption("render-coloring", COLOR);
-        if (width != null && height != null) {
-            indigo.setOption("render-image-size", width, height);
-        }
-
+        indigo.setOption("render-margins", 0, 0);
         return renderer;
     }
 }

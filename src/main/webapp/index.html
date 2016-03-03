@@ -9,13 +9,14 @@
     <!-- build:css assets/styles/vendor.css -->
     <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
     <!-- bower:css -->
+    <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css"/>
+    <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css"/>
     <link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.css" />
     <link rel="stylesheet" href="bower_components/angular-datepicker/dist/angular-datepicker.css" />
     <link rel="stylesheet" href="bower_components/angular-dragula/dist/dragula.css" />
     <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css" />
     <link rel="stylesheet" href="bower_components/angular-xeditable/dist/css/xeditable.css" />
     <link rel="stylesheet" href="bower_components/animate.css/animate.css" />
-    <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css" />
     <link rel="stylesheet" href="bower_components/font-awesome-bower/css/font-awesome.css" />
     <link rel="stylesheet" href="bower_components/ng-tags-input/ng-tags-input.min.css" />
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
@@ -42,7 +43,11 @@
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/angular-animate/angular-animate.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/angular-bootstrap-checkbox/angular-bootstrap-checkbox.js"></script>
+<script src="bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.js"></script>
+<script src="bower_components/angular-bootstrap-slider/slider.js"></script>
 <script src="bower_components/angular-busy/dist/angular-busy.js"></script>
+<script src="bower_components/angular-click-outside/clickoutside.directive.js"></script>
 <script src="bower_components/angular-cookies/angular-cookies.js"></script>
 <script src="bower_components/moment/moment.js"></script>
 <script src="bower_components/moment-timezone/builds/moment-timezone-with-data-2010-2020.js"></script>
@@ -54,6 +59,7 @@
 <script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
 <script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
 <script src="bower_components/angular-filter/dist/angular-filter.min.js"></script>
+<script src="bower_components/angular-local-storage/dist/angular-local-storage.js"></script>
 <script src="bower_components/hamsterjs/hamster.js"></script>
 <script src="bower_components/angular-mousewheel/mousewheel.js"></script>
 <script src="bower_components/pretty-bytes/pretty-bytes.js"></script>
@@ -151,7 +157,7 @@
 <script src="scripts/components/entities/template/components/conceptDetails/conceptDetails.directive.js"></script>
 <script src="scripts/components/entities/template/components/productBatchDetails/productBatchDetails.directive.js"></script>
 <script src="scripts/components/entities/template/components/components.directive.js"></script>
-<script src="scripts/components/entities/template/components/productBatchSummary/productBatchSummary.directive.js"></script>
+<script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary.directive.js"></script>
 <script src="scripts/app/countdowndialog/countdown-dialog.controller.js"></script>
 <script src="scripts/components/entities/template/components/reactionDetails/reactionDetails.directive.js"></script>
 <script src="scripts/components/entities/template/components/common/structureScheme/structure-scheme.directive.js"></script>
@@ -172,6 +178,12 @@
 <script src="scripts/components/permissions/permission-management.conf.js"></script>
 <script src="scripts/components/app_page/app-page.controller.js"></script>
 <script src="scripts/components/alert/alert-modal.service.js"></script>
+<script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-unit-value.controller.js"></script>
+<script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-select-value.controller.js"></script>
+<script src="scripts/components/util/units-converter.js"></script>
+<script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.controller.js"></script>
+<script src="scripts/components/entities/template/components/common/table/my-table.directive.js"></script>
+<script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary.controller.js"></script>
 <!-- endbuild -->
 </body>
 </html>

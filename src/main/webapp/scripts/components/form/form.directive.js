@@ -4,10 +4,16 @@ angular.module('indigoeln')
     .factory('formUtils', function ($timeout) {
         return {
             doVertical: function (tAttrs, tElement) {
-                if (tAttrs.myLabelVertical) {
+                if (tAttrs.myLabelVertical && tAttrs.myLabel) {
                     tElement.find('.col-xs-2').removeClass('col-xs-2');
                     tElement.find('.col-xs-10').children().unwrap();
                     tElement.children().wrap('<div class="col-xs-12"/>');
+                }
+            },
+            clearLabel: function (tAttrs, tElement) {
+                if (!tAttrs.myLabel) {
+                    tElement.find('label').remove();
+                    tElement.find('.col-xs-10').removeClass('col-xs-10').addClass('col-xs-12');
                 }
             },
             showValidation: function ($formGroup, scope) {
@@ -40,6 +46,7 @@ angular.module('indigoeln')
             myReadonly: '=',
             myType: '@',
             myInputGroup: '@',
+            myInputSize: '@',
             myValidationObj: '=',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
@@ -51,13 +58,18 @@ angular.module('indigoeln')
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myInputGroup) {
-                var inputGroup = tElement.find('input').wrap('<div class="input-group"/>').parent();
+                var elementIg = $('<div class="input-group"/>');
+                if (tAttrs.myInputSize) {
+                    elementIg.addClass('input-group-' + tAttrs.myInputSize);
+                }
+                var inputGroup = tElement.find('input').wrap(elementIg).parent();
                 if (tAttrs.myInputGroup === 'append') {
                     inputGroup.append('<div class="input-group-btn" ng-transclude/>');
                 } else if (tAttrs.myInputGroup === 'prepend') {
                     inputGroup.prepend('<div class="input-group-btn" ng-transclude/>');
                 }
             }
+            formUtils.clearLabel(tAttrs, tElement);
             if (tAttrs.myValidationMinlength) {
                 tElement.find('input').attr('ng-minlength', tAttrs.myValidationMinlength);
             }
@@ -120,12 +132,16 @@ angular.module('indigoeln')
             myLabelVertical: '=',
             myPlaceHolder: '@',
             myItemProp: '@',
-            myClasses: '@'
+            myClasses: '@',
+            myOnSelect: '&'
         },
         controller: function ($scope) {
             $scope.ctrl = {selected: $scope.myModel};
             $scope.$watchCollection('ctrl.selected', function (newSelected) {
                 $scope.myModel = newSelected;
+            });
+            $scope.$watchCollection('myModel', function (myModel) {
+                $scope.ctrl.selected = myModel;
             });
         },
         compile: function (tElement, tAttrs, transclude) {
@@ -137,11 +153,12 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('ui-select-choices').append('<span ng-bind-html="item.' + tAttrs.myItemProp +
                 ' | highlight: $select.search"></span>');
+            formUtils.clearLabel(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled">' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled" on-select="myOnSelect()">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +

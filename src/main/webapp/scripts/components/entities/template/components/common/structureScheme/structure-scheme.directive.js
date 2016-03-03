@@ -5,11 +5,6 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-scheme.html',
-            controller: 'StructureSchemeController',
-            scope: {
-                myStructureType: '@',
-                myTitle: '@',
-                myModel: '='
-            }
+            controller: 'StructureSchemeController'
         };
     });

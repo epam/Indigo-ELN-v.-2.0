@@ -5,11 +5,12 @@
 
 angular.module('indigoeln')
     .constant('Components', [
-        {name: 'Concept Details', id: "concept-details", tab: 'Concept', desc: "Fake description"},
-        {name: 'Reaction Details', id: "reaction-details", tab: 'Experiments', desc: "Fake description"},
-        {name: 'Product Batch Details', id: "product-batch-details", tab: 'Batches', desc: "Fake description"},
-        {name: 'Reaction Scheme', id: "reaction-scheme", tab: 'Experiments', desc: "Fake description"},
-        {name: 'Batch Structure', id: "batch-structure", tab: 'Batches', desc: "Fake description"}
+        {name: 'Concept Details', id: 'concept-details', desc: 'Fake description'},
+        {name: 'Reaction Details', id: 'reaction-details', desc: 'Fake description'},
+        {name: 'Product Batch Summary', id: 'product-batch-summary', desc: 'Fake description'},
+        {name: 'Product Batch Details', id: 'product-batch-details', desc: 'Fake description'},
+        {name: 'Reaction Scheme', id: 'reaction-scheme', desc: 'Fake description'},
+        {name: 'Batch Structure', id: 'batch-structure', desc: 'Fake description'}
     ])
     .directive('myComponent', function () {
         return {
@@ -18,13 +19,15 @@ angular.module('indigoeln')
             scope: {
                 myModel: '=',
                 myExperiment: '=',
-                myExperimentForm: '='
+                myExperimentForm: '=',
+                myShare: '='
             },
             link: function (scope, iElement, iAttrs, controller) {
                 scope.myComponent = iAttrs.myComponent;
                 scope.model = scope.myModel; //for capability
                 scope.experimentForm = scope.myExperimentForm; //for capability
                 scope.experiment = _.extend({}, scope.myExperiment); //for readonly
+                scope.share = scope.myShare; //for communication between components
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
@@ -46,9 +49,12 @@ angular.module('indigoeln')
             myExperiment: '=',
             myExperimentForm: '='
         },
+        link: function (scope, iElement, iAttrs, controller) {
+            scope.share = {}; //for communication between components
+        },
         template: '<fieldset ng-disabled="myDisabled"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm"></div>' +
+        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     }
