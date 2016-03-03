@@ -25,6 +25,13 @@
         <version>1.3.1.RELEASE</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>crs-client</id>
+            <url>file://${project.basedir}/lib</url>
+        </repository>
+    </repositories>
+
     <dependencies>
 
         <!-- Database -->
@@ -108,6 +115,13 @@
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo-renderer</artifactId>
             <version>1.2.2beta-r37</version>
+        </dependency>
+
+        <!-- CRS -->
+        <dependency>
+            <groupId>com.epam.indigo.crs</groupId>
+            <artifactId>crs-client</artifactId>
+            <version>1.0</version>
         </dependency>
 
         <!-- Apache -->
