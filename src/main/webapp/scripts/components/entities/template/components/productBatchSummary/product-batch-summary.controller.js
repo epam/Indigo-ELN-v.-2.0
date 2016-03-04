@@ -377,5 +377,32 @@ angular.module('indigoeln')
                         $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber});
                     });
             };
+
+
+            var structureWatchers = [];
+            $scope.$watch('model.productBatchSummary.batches', function (newRows) {
+                _.each(structureWatchers, function (unsubscribe) {
+                    unsubscribe();
+                });
+                _.each(newRows, function (row) {
+                    structureWatchers.push($scope.$watch(function () {
+                        return row.structure ? row.structure.molfile : null;
+                    }, function (newMolFile) {
+                        var resetMolInfo = function () {
+                            row.molFormula = null;
+                            row.molWgt = null;
+                        };
+                        if (newMolFile) {
+                            $http.put('api/calculations/molecule/info', row.structure.molfile)
+                                .then(function (molInfo) {
+                                    row.molFormula = molInfo.data.molecularFormula;
+                                    row.molWgt = molInfo.data.molecularWeight;
+                                }, resetMolInfo);
+                        } else {
+                            resetMolInfo();
+                        }
+                    }));
+                });
+            }, true);
         }
     );
