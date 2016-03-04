@@ -2,6 +2,7 @@ package com.epam.indigoeln.config.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,18 +10,10 @@ import org.springframework.context.annotation.Configuration;
 import java.io.File;
 
 @Configuration
-@ConfigurationProperties(prefix = "bingo")
 public class BingoConfiguration {
 
+    @Value("${bingo.index-folder}")
     private String indexFolder;
-
-    public String getIndexFolder() {
-        return indexFolder;
-    }
-
-    public void setIndexFolder(String indexFolder) {
-        this.indexFolder = indexFolder;
-    }
 
     public BingoConfiguration() {
         System.setProperty("jna.nosys", "true");

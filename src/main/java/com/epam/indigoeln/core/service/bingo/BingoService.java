@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BingoService {
@@ -25,11 +26,14 @@ public class BingoService {
 
     /* Molecule */
 
-    public String getMolecule(Integer id) {
-        return moleculeRepository.getById(id).molfile();
+    public Optional<String> getMolecule(Integer id) {
+        return moleculeRepository
+                .getById(id)
+                .map(indigoObject -> Optional.ofNullable(indigoObject.molfile()))
+                .orElse(Optional.empty());
     }
 
-    public Integer insertMolecule(String molecule) {
+    public Optional<Integer> insertMolecule(String molecule) {
         return moleculeRepository.insert(indigo.loadMolecule(molecule));
     }
 
@@ -59,11 +63,14 @@ public class BingoService {
 
     /* Reaction */
 
-    public String getReaction(Integer id) {
-        return reactionRepository.getById(id).rxnfile();
+    public Optional<String> getReaction(Integer id) {
+        return reactionRepository
+                .getById(id)
+                .map(indigoObject -> Optional.ofNullable(indigoObject.rxnfile()))
+                .orElse(Optional.empty());
     }
 
-    public Integer insertReaction(String reaction) {
+    public Optional<Integer> insertReaction(String reaction) {
         return reactionRepository.insert(indigo.loadReaction(reaction));
     }
 
