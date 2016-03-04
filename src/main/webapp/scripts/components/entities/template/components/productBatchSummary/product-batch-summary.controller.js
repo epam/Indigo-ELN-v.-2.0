@@ -371,8 +371,11 @@ angular.module('indigoeln')
             });
 
             $scope.addNewBatch = function () {
+                var batches = $scope.model.productBatchSummary.batches;
+                var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
+
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number')
+                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
                         $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber});
                     });
