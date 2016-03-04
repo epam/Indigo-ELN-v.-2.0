@@ -6,6 +6,9 @@ angular.module('indigoeln')
         BINGO_URL: 'http://' + window.location.hostname + ':12345/'
     })
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, StructureSchemeConsts) {
+        if (!$scope.model) {
+            return;
+        }
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
         $scope.myModel = $scope.model[$attrs.myStructureType];
 
