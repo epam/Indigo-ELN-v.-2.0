@@ -8,12 +8,12 @@
             </span>
     </div>
     <div s-resizable max-height="300" min-height="50"
-         class="panel-body text-center" style="height: 130px; box-sizing: content-box;">
-        <div style="height: 100%;">
-            <img ng-if="image" class="img-responsive center-block" style="height: 100%;"
+         class="panel-body text-center" ng-class="{'sizable-panel-body': image}">
+        <div ng-if="image" style="height: 100%;">
+            <img  class="img-responsive center-block" style="height: 100%;"
             ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
-            <h3 ng-if="!image" class="text-muted">empty</h3>
-            <span ng-if="image" class="glyphicon glyphicon-option-horizontal" style="color: #B2EBF2"></span>
+            <span class="glyphicon glyphicon-option-horizontal" style="color: #B2EBF2"></span>
         </div>
+        <h3 ng-if="!image" class="text-muted">empty</h3>
     </div>
 </div>
