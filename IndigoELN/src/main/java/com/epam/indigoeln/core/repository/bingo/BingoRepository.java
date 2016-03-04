@@ -4,21 +4,23 @@ import com.epam.indigo.Bingo;
 import com.epam.indigo.BingoObject;
 import com.epam.indigo.IndigoObject;
 
+import java.util.Optional;
+
 public abstract class BingoRepository {
 
     private final Object lock = new Object();
 
     protected Bingo database;
 
-    public IndigoObject getById(Integer id) {
+    public Optional<IndigoObject> getById(Integer id) {
         synchronized (lock) {
-            return database.getRecordById(id);
+            return Optional.ofNullable(database.getRecordById(id));
         }
     }
 
-    public Integer insert(IndigoObject record) {
+    public Optional<Integer> insert(IndigoObject record) {
         synchronized (lock) {
-            return database.insert(record);
+            return Optional.ofNullable(database.insert(record));
         }
     }
 
