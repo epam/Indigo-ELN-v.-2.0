@@ -151,6 +151,11 @@ body {
     width: 100%;
 }
 
+.sizable-panel-body {
+    height: 130px;
+    box-sizing: content-box;
+}
+
 .select-structure {
     border: 0px;
     outline: 0px;
