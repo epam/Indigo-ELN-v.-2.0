@@ -40,7 +40,7 @@ public class BingoResource {
     /**
      * POST /molecule/ -> create new molecule
      */
-    @RequestMapping(value = "/molecule/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/molecule/", method = RequestMethod.POST)
     @SuppressWarnings("unchecked")
     public ResponseEntity<String> addMolecule(@RequestBody String molecule) throws URISyntaxException {
         Optional<Integer> result = bingoService.insertMolecule(molecule);
@@ -58,8 +58,9 @@ public class BingoResource {
     /**
      * PUT /molecule/:id -> update molecule
      */
-    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateMolecule(@PathVariable Integer id, @RequestBody String molecule) {
+    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<String> updateMolecule(@PathVariable Integer id,
+                                                 @RequestBody String molecule) {
         if (!bingoService.getMolecule(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -75,7 +76,7 @@ public class BingoResource {
     /**
      * DELETE /molecule/:id -> delete molecule
      */
-    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(@PathVariable Integer id) {
         bingoService.deleteMolecule(id);
         return ResponseEntity
@@ -98,7 +99,7 @@ public class BingoResource {
     /**
      * POST /reaction/ -> create new reaction
      */
-    @RequestMapping(value = "/reaction/", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/reaction/", method = RequestMethod.POST)
     public ResponseEntity<String> addReaction(@RequestBody String reaction) throws URISyntaxException {
         Optional<Integer> result = bingoService.insertReaction(reaction);
 
@@ -115,8 +116,9 @@ public class BingoResource {
     /**
      * PUT /reaction/:id -> update existing reaction
      */
-    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateReaction(@PathVariable Integer id, @RequestBody String reaction) {
+    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT)
+    public ResponseEntity<String> updateReaction(@PathVariable Integer id,
+                                                 @RequestBody String reaction) {
         if (!bingoService.getReaction(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -132,7 +134,7 @@ public class BingoResource {
     /**
      * DELETE /reaction/:id -> delete reaction
      */
-    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteReaction(@PathVariable Integer id) {
         bingoService.deleteReaction(id);
         return ResponseEntity
@@ -144,8 +146,9 @@ public class BingoResource {
     /**
      * POST /molecule/search/exact?options=:options -> exact search molecule
      */
-    @RequestMapping(value = "/molecule/search/exact", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchMoleculeExact(@RequestBody String structure, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/molecule/search/exact", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchMoleculeExact(@RequestBody String structure,
+                                                             @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeExact(structure, options));
     }
 
@@ -153,15 +156,16 @@ public class BingoResource {
     /**
      * POST /molecule/search/substructure?options=:options -> substructure search molecule
      */
-    @RequestMapping(value = "/molecule/search/substructure", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchMoleculeSubstructure(@RequestBody String structure, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/molecule/search/substructure", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchMoleculeSubstructure(@RequestBody String structure,
+                                                                    @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeSub(structure, options));
     }
 
     /**
      * POST /molecule/search/similarity?min=:min&max=:max&options=:options -> similarity search molecule
      */
-    @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<Integer>> searchMoleculeSimilarity(@RequestBody String structure,
                                                                   @RequestParam Float min,
                                                                   @RequestParam Float max,
@@ -172,16 +176,18 @@ public class BingoResource {
     /**
      * POST /molecule/search/molformula?options=:options ->  search molecule by formula
      */
-    @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchMoleculeByMolFormula(@RequestBody String molFormula, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchMoleculeByMolFormula(@RequestBody String molFormula,
+                                                                    @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeMolFormula(molFormula, options));
     }
 
     /**
      * POST /reaction/search/exact?options=:options -> exact search reaction
      */
-    @RequestMapping(value = "/reaction/search/exact", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchReactionExact(@RequestBody String structure, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/reaction/search/exact", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchReactionExact(@RequestBody String structure,
+                                                             @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionExact(structure, options));
     }
 
@@ -189,15 +195,16 @@ public class BingoResource {
     /**
      * POST /reaction/search/substructure?options=:options -> substructure search reaction
      */
-    @RequestMapping(value = "/reaction/search/substructure", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchReactionSubstructure(@RequestBody String structure, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/reaction/search/substructure", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchReactionSubstructure(@RequestBody String structure,
+                                                                    @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionSub(structure, options));
     }
 
     /**
      * POST /reaction/search/similarity?min=:min&max=:max&options=:options -> similarity search reaction
      */
-    @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST)
     public ResponseEntity<List<Integer>> searchReactionSimilarity(@RequestBody String structure,
                                                                   @RequestParam Float min,
                                                                   @RequestParam Float max,
@@ -208,8 +215,9 @@ public class BingoResource {
     /**
      * POST /reaction/search/molformula?options=:options ->  search reaction by formula
      */
-    @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Integer>> searchReactionByMolFormula(@RequestBody String molFormula, @RequestParam(required = false) String options) {
+    @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST)
+    public ResponseEntity<List<Integer>> searchReactionByMolFormula(@RequestBody String molFormula,
+                                                                    @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionMolFormula(molFormula, options));
     }
 }
