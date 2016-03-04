@@ -5,7 +5,7 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, localStorageService) {
+        function ($scope, $uibModal, localStorageService, $http, $stateParams) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -369,5 +369,13 @@ angular.module('indigoeln')
                 });
                 column.width = 300 * newVal + 'px';
             });
+
+            $scope.addNewBatch = function () {
+                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+                        '/experiments/' + $stateParams.experimentId + '/batch_number')
+                    .then(function (result) {
+                        $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber});
+                    });
+            };
         }
     );
