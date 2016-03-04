@@ -2,28 +2,25 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
@@ -41,13 +38,16 @@ public class ExperimentResource {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SequenceIdService sequenceIdService;
+
     /**
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
     @RequestMapping(method = RequestMethod.GET,
-                    produces = MediaType.APPLICATION_JSON_VALUE)
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllExperimentsByPermissions(@PathVariable String projectId,
                                                             @PathVariable String notebookId) {
         User user = userService.getUserWithAuthorities();
@@ -67,7 +67,7 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments/all -> Returns all experiments of specified notebook
      * without checking for User permissions
      */
-    @RequestMapping(value = "/all",method = RequestMethod.GET,
+    @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(@PathVariable String projectId,
                                                                @PathVariable String notebookId) {
@@ -89,6 +89,20 @@ public class ExperimentResource {
         log.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         return ResponseEntity.ok(experimentService.getExperiment(projectId, notebookId, id, user));
+    }
+
+    /**
+     * GET  /experiments/:id/batch_number -> Returns batch_number
+     */
+    @RequestMapping(value = PATH_ID + "/batch_number", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map> getNotebookBatchNumber(
+            @PathVariable String projectId,
+            @PathVariable String notebookId,
+            @PathVariable String id) {
+        String batchNumber = sequenceIdService.getNotebookBatchNumber(projectId, notebookId, id);
+        log.debug("REST request to get batch number: {}", batchNumber);
+        return ResponseEntity.ok(ImmutableMap.of("batchNumber", batchNumber));
     }
 
     /**
@@ -118,7 +132,7 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody  ExperimentDTO experimentDTO,
+    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody ExperimentDTO experimentDTO,
                                                           @PathVariable String projectId,
                                                           @PathVariable String notebookId) {
         log.debug("REST request to update experiment: {}", experimentDTO);
