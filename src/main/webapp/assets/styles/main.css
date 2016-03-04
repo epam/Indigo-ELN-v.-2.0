@@ -228,10 +228,6 @@ body {
     color: #337ab7
 }
 
-.dictionary-selected {
-    font-size: large;
-}
-
 .dictionary-col-width {
     max-width: 200px;
 }
