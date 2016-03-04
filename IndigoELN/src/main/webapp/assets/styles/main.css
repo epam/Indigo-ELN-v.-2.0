@@ -50,8 +50,9 @@ body {
     animation: fadeInDown 0.3s;
 }
 
-.table.authoritiesTable thead tr th {
-    line-height: 14px;
+.table.authoritiesTable thead tr th p {
+    line-height: 17px;
+    word-spacing: 90px;
 }
 
 .authoritiesTable th {

@@ -5,13 +5,6 @@ angular.module('indigoeln').controller('ExperimentPrintController',
 
         $scope.experiment = experiment;
 
-        //var onPrintSuccess = function (result) {
-        //    $scope.isPrinting = false;
-        //};
-        //var onPrintError = function (result) {
-        //    $scope.isPrinting = false;
-        //};
-
         $scope.toModel = function toModel(components) {
             if (_.isArray(components)) {
                 return _.object(_.map(components, function (component) {
@@ -46,10 +39,11 @@ angular.module('indigoeln').controller('ExperimentPrintController',
                 $('body').append( hiddenDownloader);
             }
             hiddenDownloader.attr('src', 'api/print?fileName=' + response.fileName);
+            $scope.isPrinting = false;
         };
 
         $scope.print = function () {
-            //$scope.isPrinting = true;
+            $scope.isPrinting = true;
             var $iframe = $('<iframe />', {
                 name: 'reportHolder',
                 id: 'reportHolder'
@@ -72,16 +66,6 @@ angular.module('indigoeln').controller('ExperimentPrintController',
                 prepareIframe($iframe, callback);
             });
             $iframe.appendTo('body');
-
-
-            //$window.open('/pdf', '_blank');
-            //$window.location.href = ('/pdf');
-            //var htmlToPrint = $compile($('#printForm'));
-            //var head = $('<head>').append($('head')).html();
-            //var body = $('<body>').append($('#printForm')).html();
-            //var html = '<!DOCTYPE html><html>' + $iframeContents.find('html').html() + '</html>';
-            //Printer.print({html: html});
         };
-
 
     });
