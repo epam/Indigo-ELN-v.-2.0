@@ -55,7 +55,7 @@
 
 
     <div class="table-responsive" style="min-height: 273px">
-        <table class="table table-striped">
+        <table class="table table-striped table-hover">
             <thead>
             <tr>
                 <th>Name</th>
@@ -69,7 +69,7 @@
             <tbody>
             <tr ng-repeat="dictionary in dictionaries track by $index" title="{{dictionary.description}}"
                 ng-click="setSelected(dictionary.id)"
-                ng-class="{'dictionary-selected': dictionary.id === selectedDictionaryId}">
+                ng-class="{'success': dictionary.id === selectedDictionaryId}">
                 <td class="dictionary-col-width dictionary-col-elipsis">{{dictionary.name}}</td>
                 <td class="dictionary-col-width dictionary-col-elipsis">{{dictionary.description}}</td>
                 <td>{{dictionary.author.login}}</td>
