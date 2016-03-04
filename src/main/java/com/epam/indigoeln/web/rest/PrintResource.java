@@ -42,14 +42,13 @@ public class PrintResource {
 
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> createPdf(@RequestBody String html) throws FileNotFoundException {
-        log.debug("Request to print: {}", html);
+    public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
         File file = null;
         String fileName = String.format("%s%s.pdf", TEMP_FILE_PREFIX, UUID.randomUUID().toString());
         try {
             file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            byte[] screenshot = phantomJsService.takesScreenshot(html, OutputType.BYTES);
+            byte[] screenshot = phantomJsService.takesScreenshot(wrapper.html, OutputType.BYTES);
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
             Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
@@ -76,5 +75,9 @@ public class PrintResource {
         } finally {
             FileUtils.deleteQuietly(file);
         }
+    }
+
+    public static class HtmlWrapper {
+        public String html;
     }
 }
