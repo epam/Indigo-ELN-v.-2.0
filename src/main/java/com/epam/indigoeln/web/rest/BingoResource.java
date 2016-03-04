@@ -163,9 +163,9 @@ public class BingoResource {
      */
     @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchMoleculeSimilarity(@RequestBody String structure,
-                                                      @RequestParam Float min,
-                                                      @RequestParam Float max,
-                                                      @RequestParam(required = false) String options) {
+                                                                  @RequestParam Float min,
+                                                                  @RequestParam Float max,
+                                                                  @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeSim(structure, min, max, options));
     }
 
@@ -199,9 +199,9 @@ public class BingoResource {
      */
     @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchReactionSimilarity(@RequestBody String structure,
-                                                      @RequestParam Float min,
-                                                      @RequestParam Float max,
-                                                      @RequestParam(required = false) String options) {
+                                                                  @RequestParam Float min,
+                                                                  @RequestParam Float max,
+                                                                  @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionSim(structure, min, max, options));
     }
 
