@@ -2,6 +2,7 @@
 <html ng-app="indigoeln">
 <head>
     <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Indigo ELN</title>
 
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700&subset=latin,cyrillic-ext' rel='stylesheet'
@@ -9,8 +10,8 @@
     <!-- build:css assets/styles/vendor.css -->
     <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
     <!-- bower:css -->
-    <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css"/>
-    <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css"/>
+    <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css" />
     <link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.css" />
     <link rel="stylesheet" href="bower_components/angular-datepicker/dist/angular-datepicker.css" />
     <link rel="stylesheet" href="bower_components/angular-dragula/dist/dragula.css" />
@@ -22,6 +23,7 @@
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
     <link rel="stylesheet" href="bower_components/simditor/styles/simditor.css" />
     <link rel="stylesheet" href="bower_components/ui-select/dist/select.css" />
+    <link rel="stylesheet" href="bower_components/jquery-ui/themes/base/jquery-ui.css" />
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -82,6 +84,7 @@
 <script src="bower_components/simditor/lib/simditor.js"></script>
 <script src="bower_components/ui-select/dist/select.js"></script>
 <script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/jquery-ui/jquery-ui.js"></script>
 <!-- endbower -->
 <script src="vendors/jstz/jstz.js"></script>
 <!-- endbuild -->
@@ -153,6 +156,7 @@
 <script src="scripts/app/entities/experiment/experiment-delete-dialog.controller.js"></script>
 <script src="scripts/app/entities/experiment/experiment-detail.controller.js"></script>
 <script src="scripts/app/entities/experiment/experiment-select-parent.controller.js"></script>
+<script src="scripts/app/entities/experiment/experiment-print.controller.js"></script>
 <script src="scripts/components/entities/experiment/experiment.service.js"></script>
 <script src="scripts/components/entities/template/components/conceptDetails/conceptDetails.directive.js"></script>
 <script src="scripts/components/entities/template/components/productBatchDetails/productBatchDetails.directive.js"></script>
@@ -184,6 +188,8 @@
 <script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.controller.js"></script>
 <script src="scripts/components/entities/template/components/common/table/my-table.directive.js"></script>
 <script src="scripts/components/entities/template/components/productBatchSummary/product-batch-summary.controller.js"></script>
+<script src="scripts/components/print/print.service.js"></script>
+<script src="scripts/components/util/resizable.directive.js"></script>
 <!-- endbuild -->
 </body>
 </html>

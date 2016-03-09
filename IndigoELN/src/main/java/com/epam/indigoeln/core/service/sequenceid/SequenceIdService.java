@@ -3,7 +3,11 @@ package com.epam.indigoeln.core.service.sequenceid;
 import com.epam.indigoeln.core.model.SequenceId;
 import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
@@ -16,14 +20,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class SequenceIdService {
 
     private static final String FIELD_SEQ_ID = "sequence";
 
+    private final Lock batchNumberLock = new ReentrantLock();
+
     @Autowired
     private SequenceIdRepository repository;
+
+    @Autowired
+    private ExperimentService experimentService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Generates next project id and persists it into sequence collection as new document
@@ -82,23 +97,33 @@ public class SequenceIdService {
         return SequenceIdUtil.buildFullId(projectId, notebookId, nextExperimentId.toString());
     }
 
-    public String getNotebookBatchNumber(String projectId, String notebookId, String experimentId) {
+    /**
+     * Get next notebook batch number
+     * @param projectId project id
+     * @param notebookId notebook id
+     * @param experimentId experiment id
+     * @param clientLatestBatchNumberStr latest batch number received from client
+     * @return next batch number value
+     */
+    public String getNotebookBatchNumber(String projectId, String notebookId, String experimentId, String clientLatestBatchNumberStr) {
+        batchNumberLock.lock();
+        try {
+            ExperimentDTO experiment = Optional.ofNullable(
+                    experimentService.getExperiment(projectId, notebookId, experimentId, userService.getUserWithAuthorities())).
+                    orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
-        SequenceId projectSequenceId = getProjectSequenceId(projectId);
-        SequenceId experimentSequenceId = getExperimentSequenceId(projectSequenceId, notebookId, experimentId);
-        Long nextSequenceNumber;
-        if(experimentSequenceId.getChildren() == null) {
-            experimentSequenceId.setChildren(new ArrayList<>());
-            nextSequenceNumber = 1L;
-            experimentSequenceId.getChildren().add(new SequenceId(ObjectId.get().toHexString(), nextSequenceNumber));
-        } else {
-            SequenceId sequenceId = experimentSequenceId.getChildren().get(0);
-            nextSequenceNumber = sequenceId.getSequence() + 1L;
-            sequenceId.setSequence(nextSequenceNumber);
+            int dbLatestBatchNumber = BatchComponentUtil.getLatestBatchNumber(experiment).orElse(0);
+            int clientLatestBatchNumber = BatchComponentUtil.isValidBatchNumber(clientLatestBatchNumberStr) ?
+                    Integer.parseInt(clientLatestBatchNumberStr) : 0;
+
+            //compare latest values from Client and Database, increment biggest
+            int nextBatchNumber = Math.max(dbLatestBatchNumber, clientLatestBatchNumber) + 1;
+            return BatchComponentUtil.formatBatchNumber(nextBatchNumber);
+
+        } finally {
+            batchNumberLock.unlock();
         }
 
-        repository.save(projectSequenceId);
-        return SequenceIdUtil.formatBatchNumber(nextSequenceNumber);
     }
 
     private SequenceId getProjectSequenceId(String projectId) {
@@ -111,15 +136,6 @@ public class SequenceIdService {
 
         return  children.stream().filter(s -> notebookId.equals(s.getSequence().toString())).findAny().
                      orElseThrow(() -> new EntityNotFoundException("Can't find sequence id for notebook", notebookId));
-
-    }
-
-    private SequenceId getExperimentSequenceId(SequenceId projectSequenceId, String notebookId, String experimentId) {
-        SequenceId notebookSequenceId = getNotebookSequenceId(projectSequenceId, notebookId);
-        List<SequenceId> children = notebookSequenceId.getChildren() != null ? notebookSequenceId.getChildren() : Collections.emptyList();
-
-        return children.stream().filter(s -> experimentId.equals(s.getSequence().toString())).findAny().
-                    orElseThrow(() -> new EntityNotFoundException("Can't find sequence id for notebook", notebookId));
 
     }
 }
