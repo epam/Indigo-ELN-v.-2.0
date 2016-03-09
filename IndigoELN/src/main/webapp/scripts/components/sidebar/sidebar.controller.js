@@ -4,7 +4,7 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
                                                AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
-                                               Principal) {
+                                               Principal, Alert) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -103,6 +103,9 @@ angular
                 project.isOpen = false;
             } else {
                 PermissionManagement.hasPermission('READ_SUB_ENTITY', project.accessList).then(function (hasPermission) {
+                    if (!hasPermission) {
+                        Alert.warning('You should have at least "CHILD_VIEWER" permission for this project to view notebook content');
+                    }
                     if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER'])) {
                         var agent = needAll ? AllNotebooks : Notebook;
                         agent.query({projectId: project.id}, function (result) {
@@ -124,6 +127,9 @@ angular
                 notebook.isOpen = false;
             } else {
                 PermissionManagement.hasPermission('READ_SUB_ENTITY', notebook.accessList).then(function (hasPermission) {
+                    if (!hasPermission) {
+                        Alert.warning('You should have at least "CHILD_VIEWER" permission for this notebook to view experiment content');
+                    }
                     if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
                         var agent = needAll ? AllExperiments : Experiment;
                         agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {

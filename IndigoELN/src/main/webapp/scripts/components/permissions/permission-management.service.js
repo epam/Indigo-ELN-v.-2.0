@@ -132,6 +132,16 @@ angular.module('indigoeln')
                         return _.contains(member.user.authorities, authority);
                     });
                 }
+            },
+            hasAuthorityForPermission: function(member, permission, entity) {
+                var ent = entity ? entity : _entity;
+                if (ent === 'Project') {
+                    return this.hasAuthorityForProjectPermission(member, permission);
+                } else if (ent === 'Notebook') {
+                    return this.hasAuthorityForNotebookPermission(member, permission);
+                } else if (ent === 'Experiment') {
+                    return this.hasAuthorityForExperimentPermission(member, permission);
+                }
             }
         };
     });
