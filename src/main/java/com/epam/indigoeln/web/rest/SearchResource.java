@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.epam.indigoeln.core.service.search.SearchServiceConstants;
+import com.epam.indigoeln.web.rest.dto.ComponentDTO;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 
 /**
  * REST Controller for Custom Search Implementation
@@ -49,7 +50,7 @@ public class SearchResource {
             value = "/batches/{fullBatchNumber}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ComponentDTO> getComponentInfoByBatchNumber(@PathVariable String fullBatchNumber)  {
+    public ResponseEntity<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(@PathVariable String fullBatchNumber)  {
         return searchService.getComponentInfoByBatchNumber(fullBatchNumber)
                  .map(component -> new ResponseEntity<>(component, HttpStatus.OK))
                  .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));

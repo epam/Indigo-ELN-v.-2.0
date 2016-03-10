@@ -4,6 +4,7 @@ import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import org.bson.BasicBSONObject;
 import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -11,6 +12,7 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
@@ -43,6 +45,13 @@ public final class BatchComponentUtil {
                flatMap(Collection::stream).
                map(o -> (BasicDBObject) o).
                collect(Collectors.toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Optional<Map> retrieveBatchByNumber(Collection<ComponentDTO> components, String batchNumber) {
+         return retrieveBatches(components).stream().
+                filter(batch -> batchNumber.equals(batch.get(COMPONENT_FIELD_NBK_BATCH).toString())).findAny().
+                map(BasicBSONObject::toMap);
     }
 
     public static List<String> retrieveBatchNumbers(Collection<ComponentDTO> components) {

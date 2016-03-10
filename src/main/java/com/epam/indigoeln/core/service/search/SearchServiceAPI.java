@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.search;
 
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 
 import java.util.Collection;
 import java.util.Map;
@@ -23,5 +24,5 @@ public interface SearchServiceAPI {
      * @param fullBatchNumber full batch number
      * @return result of search
      */
-    Optional<ComponentDTO> getComponentInfoByBatchNumber(String fullBatchNumber);
+    Optional<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(String fullBatchNumber);
 }
