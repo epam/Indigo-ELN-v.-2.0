@@ -328,16 +328,44 @@ body {
 a {
     cursor: pointer;
 }
-ul.dropdown-menu li {
-    cursor: pointer;
+
+.print-header {
+    color: grey;
+    margin-top: 20px;
+    border-color: grey !important;
 }
 
-ul.dropdown-menu li span.red {
-    color: red;
-    background-color: inherit !important;
+.print-header, .print-table, .print-table-simple, .print-box {
+    width: 100%;
+    margin-bottom: 50px;
+    border: 1px black solid;
 }
 
-ul.dropdown-menu li span.green {
-    color: green;
-    background-color: inherit !important;
+.print-header td, .print-header th, .print-table-simple td, .print-table-simple th {
+    padding: 5px;
+    border: none;
+}
+
+.print-table th {
+    text-align: center;
+}
+
+.print-table th, .print-table td {
+    border: 1px black solid;
+    border-collapse: collapse;
+    margin-bottom: 50px;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.print-table-inner td {
+    border: none;
+}
+
+table {
+    page-break-inside:auto
+}
+
+tr {
+    page-break-inside:avoid; page-break-after:auto
 }
