@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.google.common.base.Splitter;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +24,6 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.service.util.ComponentsUtil;
 
 import static org.springframework.util.ObjectUtils.nullSafeEquals;
 import static java.util.stream.Collectors.toList;
@@ -64,7 +66,7 @@ public class CustomSearchService implements SearchServiceAPI {
      * @return result of search
      */
     @Override
-    public Optional<ComponentDTO> getComponentInfoByBatchNumber(String fullBatchNumber) {
+    public Optional<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(String fullBatchNumber) {
         Pattern pattern = Pattern.compile(FULL_BATCH_NUMBER_FORMAT);
         if(!pattern.matcher(fullBatchNumber).matches()){ //check, that full batch number received in proper format
             return Optional.empty();
@@ -75,12 +77,13 @@ public class CustomSearchService implements SearchServiceAPI {
         String experimentNumber = parsedNumber.get(1);
         String batchNumber = parsedNumber.get(2);
 
-        Optional<ComponentDTO> result = Optional.empty();
+        Optional<ProductBatchDetailsDTO> result = Optional.empty();
         Optional<Notebook> notebook = notebookRepository.findByName(notebookNumber);
         if(notebook.isPresent()){ //if notebook with same number is present
             Optional<Experiment> experiment = getExperimentByNumber(notebook.get().getExperiments(), experimentNumber);
             if(experiment.isPresent()) { //if experiment with same number is present
-                result = ComponentsUtil.getBatchByNumber(experiment.get().getComponents(), batchNumber); //try to find batch with number
+                Collection<ComponentDTO> components = experiment.get().getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList());
+                result = BatchComponentUtil.retrieveBatchByNumber(components, batchNumber).map(m -> new ProductBatchDetailsDTO(fullBatchNumber, m)); //try to find batch with number
             }
         }
         return result;
