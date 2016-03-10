@@ -373,3 +373,9 @@ table {
 tr {
     page-break-inside:avoid; page-break-after:auto
 }
+
+.ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

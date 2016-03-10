@@ -19,28 +19,26 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-12">
-                    <div class="btn-group btn-group-justified" role="group">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info" disabled>Sync with Intended Products</button>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info" disabled>VnV</button>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info"
-                                    ng-click="addNewBatch()">Add New Batch
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info" ng-disabled="!isHasCheckedRows()"
-                                    ng-click="deleteBatches()">Delete Batch(es)
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info" disabled>Import SD File</button>
-                        </div>
-                    </div>
+                <div class="col-md-2"></div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-block ellipsis" disabled>Sync with Intended Products
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-block ellipsis" disabled>VnV</button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-block ellipsis"
+                            ng-click="addNewBatch()">Add New Batch
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-block ellipsis" ng-disabled="!isHasCheckedRows()"
+                            ng-click="deleteBatches()">Delete Batch(es)
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-block ellipsis" disabled>Import SD File</button>
                 </div>
             </div>
         </div>
