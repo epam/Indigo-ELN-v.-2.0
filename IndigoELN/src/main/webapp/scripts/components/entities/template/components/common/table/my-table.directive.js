@@ -36,11 +36,23 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             scope: {
+                myId: '@',
                 myColumns: '=',
                 myRows: '=',
                 myOnRowSelected: '='
             },
-            controller: function ($scope, dragulaService) {
+            controller: function ($scope, dragulaService, localStorageService) {
+                var columnsIds = JSON.parse(localStorageService.get($scope.myId + '.columns'));
+
+                $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
+                    return _.indexOf(columnsIds, column.id);
+                });
+                $scope.$watch(function () {
+                    return _.map($scope.myColumns, _.iteratee('id')).join('-');
+                }, function () {
+                    localStorageService.set($scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
+                });
+
                 var editableCell = null;
                 this.toggleEditable = function (columnId, rowIndex) {
                     editableCell = columnId + '-' + rowIndex;
