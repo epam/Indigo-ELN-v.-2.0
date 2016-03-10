@@ -329,8 +329,12 @@ a {
     cursor: pointer;
 }
 
-#printForm {
-    font-family:"Times New Roman",Georgia,Serif;
+table {
+    page-break-inside:auto
+}
+
+tr {
+    page-break-inside:avoid; page-break-after:auto
 }
 
 .print-header {
@@ -366,16 +370,16 @@ a {
     border: none;
 }
 
-table {
-    page-break-inside:auto
+#print-form {
+    font-family:"Times New Roman",Georgia,Serif;
 }
 
-tr {
-    page-break-inside:avoid; page-break-after:auto
+.need-to-print .checkbox label:before {
+    content: initial;
 }
 
-.need-to-print {
-    font-family: 'Roboto', sans-serif;
+.need-to-print .checkbox label {
+    font-size: 14px;
 }
 
 .ellipsis {
