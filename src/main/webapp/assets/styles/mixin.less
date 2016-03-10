@@ -1,0 +1,47 @@
+@import 'variables.less';
+
+@font-face {
+  font-family: FontAwesome;
+  src: url(../fonts/segoeui.ttf);
+}
+
+.set-list-item-border(@bg:@bg1) {
+  background: @bg;
+  border: none;
+  content: "";
+  position: absolute;
+  z-index: 100;
+}
+
+.set-item-menu (@bg:@bg9, @color:@link-color4, @ta: left) {
+  background: @bg;
+  color: @color;
+  font: 14px/34px segoeui;
+  position: relative;
+  text-align: @ta;
+  z-index: 100;
+}
+
+.set-icon-bg(@bg: @bg-blue, @br: 1px solid @bg1, @br-s: 0, @color: @bg1, @fs: 14px, @lh: 19px, @ht: 19px, @wt: 19px) {
+  background: @bg;
+  border: @br;
+  border-radius: @br-s;
+  color: @color;
+  cursor: pointer;
+  display: inline-block;
+  font: @fs/@lh FontAwesome;
+  height: @ht;
+  position: relative;
+  vertical-align: middle;
+  text-align: center;
+  width: @wt;
+  .fa {
+    &:before {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      color: #fff;
+    }
+  }
+}
