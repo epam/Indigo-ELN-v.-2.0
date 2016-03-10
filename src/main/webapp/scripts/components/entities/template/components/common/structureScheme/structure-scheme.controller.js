@@ -6,11 +6,14 @@ angular.module('indigoeln')
         BINGO_URL: 'http://' + window.location.hostname + ':12345/'
     })
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, StructureSchemeConsts) {
-        $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
-        $scope.myModel = $scope.model[$attrs.myStructureType];
-
         $scope.structureType = $attrs.myStructureType;
         $scope.myTitle = $attrs.myTitle;
+
+        if (!$scope.model) {
+            return;
+        }
+        $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
+        $scope.myModel = $scope.model[$attrs.myStructureType];
 
         // watch structure's id and update structure and its image if changed
         $scope.$watch('myModel.structureId', function () {

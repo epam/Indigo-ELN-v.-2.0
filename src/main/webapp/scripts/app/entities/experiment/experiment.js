@@ -153,16 +153,6 @@ angular.module('indigoeln')
                     });
                 }
             })
-            .state('experiment.new.permissions', _.extend({}, PermissionManagementConfig, {
-                parent: 'notebook.new',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
-                },
-                permissions: [
-                    { id: 'VIEWER', name: 'VIEWER (read experiment)'},
-                    { id: 'OWNER', name: 'OWNER (read and update experiment)'}
-                ]
-            }))
             .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.experiment-detail',
                 data: {
@@ -182,5 +172,24 @@ angular.module('indigoeln')
                     { id: 'VIEWER', name: 'VIEWER (read experiment)'},
                     { id: 'OWNER', name: 'OWNER (read and update experiment)'}
                 ]
-            }));
+            }))
+            .state('entities.experiment-detail.print', {
+                parent: 'entities.experiment-detail',
+                url: '/print',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
+                    pageTitle: 'indigoeln'
+                },
+                views: {
+                    'content@app_page': {
+                        templateUrl: 'scripts/app/entities/experiment/experiment-print.html',
+                        controller: 'ExperimentPrintController'
+                    }
+                },
+                resolve: {
+                    experiment: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getCurrentEntity($stateParams);
+                    }
+                }
+            });
     });
