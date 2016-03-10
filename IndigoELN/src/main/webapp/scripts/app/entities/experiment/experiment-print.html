@@ -8,7 +8,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">Preview</div>
                         <div class="panel-body">
-                            <form name="printForm" id="printForm" role="form" novalidate>
+                            <form name="print-form" id="print-form" role="form" novalidate>
 
                                 <!--HEADER-->
                                 <div class="row print-component">
@@ -61,7 +61,7 @@
 
                                 <!--EXPERIMENT DETAILS-->
                                 <!-- reactionDetails-->
-                                <div class="row print-component" ng-if="reactionDetails">
+                                <div class="row print-component" ng-if="true"> <!--ng-if="reactionDetails"-->
                                     <div class="col-xs-2 need-to-print" ng-init="reactionDetails.needToPrint = true">
                                         <my-checkbox
                                                 my-label="Need To Print"
@@ -124,7 +124,7 @@
 
                                 <!--SUMMARY REACTION-->
                                 <!--reaction ?-->
-                                <div class="row print-component" ng-if="reaction">
+                                <div class="row print-component" ng-if="true">  <!--ng-if="reaction"-->
                                     <div class="col-xs-2 need-to-print" ng-init="reaction.needToPrint = true">
                                         <my-checkbox
                                                 my-label="Need To Print"
@@ -212,7 +212,7 @@
 
                                 <!--BATCH INFORMATION-->
                                 <!--batchSummary.batches; product-batch-summary.controller -->
-                                <div class="row print-component" ng-if="batchSummary">
+                                <div class="row print-component" ng-if="true">   <!--ng-if="batchSummary"-->
                                     <div class="col-xs-2 need-to-print" ng-init="batchSummary.needToPrint = true">
                                         <my-checkbox
                                                 my-label="Need To Print"
@@ -319,7 +319,7 @@
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10" ng-if="batchDetails">
+                                    <div class="col-xs-10" ng-if="true">   <!--ng-if="batchDetails"-->
                                         <div class="row"><b class="pull-right">BATCH DETAILS</b></div>
                                         <table class="print-table">
                                             <tr>
@@ -417,7 +417,7 @@
 
                                 <!--CONCEPT DETAIL-->
                                 <!--conceptDetails-->
-                                <div class="row print-component" ng-if="conceptDetails">
+                                <div class="row print-component" ng-if="true"> <!--ng-if="conceptDetails"-->
                                     <div class="col-xs-2 need-to-print" ng-init="conceptDetails.needToPrint = true">
                                         <my-checkbox
                                                 my-label="Need To Print"
@@ -489,7 +489,7 @@
                 </div>
             </div>
         <div class="panel-footer text-right">
-        <button ng-click="print(experiment)" ng-disabled="printForm.$invalid || isPrinting" class="btn btn-info">
+        <button ng-click="print(experiment)" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
             <span class="glyphicon glyphicon-print"></span>&nbsp;<span>Print</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
