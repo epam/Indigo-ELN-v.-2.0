@@ -66,7 +66,7 @@ public class CustomSearchService implements SearchServiceAPI {
      * @return result of search
      */
     @Override
-    public Optional<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(String fullBatchNumber) {
+    public Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber) {
         Pattern pattern = Pattern.compile(FULL_BATCH_NUMBER_FORMAT);
         if(!pattern.matcher(fullBatchNumber).matches()){ //check, that full batch number received in proper format
             return Optional.empty();
