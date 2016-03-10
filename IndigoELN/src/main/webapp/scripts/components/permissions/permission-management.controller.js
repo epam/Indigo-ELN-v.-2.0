@@ -44,7 +44,7 @@ angular.module('indigoeln')
             };
 
             $scope.checkAuthority = function(member, permission) {
-                if (!PermissionManagement.hasAuthorityForProjectPermission(member, permission)) {
+                if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
                     Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
                         'sufficient privileges in the system, please select another permissions level');
                     member.permissionView = $scope.oldPermission;
