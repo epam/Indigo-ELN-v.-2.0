@@ -329,6 +329,14 @@ a {
     cursor: pointer;
 }
 
+table {
+    page-break-inside:auto
+}
+
+tr {
+    page-break-inside:avoid; page-break-after:auto
+}
+
 .print-header {
     color: grey;
     margin-top: 20px;
@@ -362,15 +370,7 @@ a {
     border: none;
 }
 
-table {
-    page-break-inside:auto
-}
-
-tr {
-    page-break-inside:avoid; page-break-after:auto
-}
-
-#printForm {
+#print-form {
     font-family:"Times New Roman",Georgia,Serif;
 }
 

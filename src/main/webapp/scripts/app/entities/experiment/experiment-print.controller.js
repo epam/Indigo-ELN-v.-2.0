@@ -20,7 +20,7 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.currentDate = Date.now();
 
         var preparedPrintForm = function () {
-            var $printFormClone = $('#printForm').clone();
+            var $printFormClone = $('#print-form').clone();
             $printFormClone.find('div.col-xs-offset-2').removeClass('col-xs-offset-2');
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);

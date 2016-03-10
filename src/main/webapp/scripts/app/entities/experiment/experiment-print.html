@@ -8,7 +8,7 @@
                     <div class="panel panel-default">
                         <div class="panel-heading">Preview</div>
                         <div class="panel-body">
-                            <form name="printForm" id="printForm" role="form" novalidate>
+                            <form name="print-form" id="print-form" role="form" novalidate>
 
                                 <!--HEADER-->
                                 <div class="row print-component">
@@ -489,7 +489,7 @@
                 </div>
             </div>
         <div class="panel-footer text-right">
-        <button ng-click="print(experiment)" ng-disabled="printForm.$invalid || isPrinting" class="btn btn-info">
+        <button ng-click="print(experiment)" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
             <span class="glyphicon glyphicon-print"></span>&nbsp;<span>Print</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
