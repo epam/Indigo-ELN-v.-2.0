@@ -24,5 +24,5 @@ public interface SearchServiceAPI {
      * @param fullBatchNumber full batch number
      * @return result of search
      */
-    Optional<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(String fullBatchNumber);
+    Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber);
 }

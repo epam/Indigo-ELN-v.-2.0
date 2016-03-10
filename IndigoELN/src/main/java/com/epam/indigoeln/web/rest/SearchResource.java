@@ -50,8 +50,8 @@ public class SearchResource {
             value = "/batches/{fullBatchNumber}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProductBatchDetailsDTO> getComponentInfoByBatchNumber(@PathVariable String fullBatchNumber)  {
-        return searchService.getComponentInfoByBatchNumber(fullBatchNumber)
+    public ResponseEntity<ProductBatchDetailsDTO> searchByNotebookBatchNumber(@PathVariable String fullBatchNumber)  {
+        return searchService.searchByNotebookBatchNumber(fullBatchNumber)
                  .map(component -> new ResponseEntity<>(component, HttpStatus.OK))
                  .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
