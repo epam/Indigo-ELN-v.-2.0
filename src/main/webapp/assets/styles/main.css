@@ -329,6 +329,10 @@ a {
     cursor: pointer;
 }
 
+#printForm {
+    font-family:"Times New Roman",Georgia,Serif;
+}
+
 .print-header {
     color: grey;
     margin-top: 20px;
