@@ -374,6 +374,10 @@ tr {
     page-break-inside:avoid; page-break-after:auto
 }
 
+.need-to-print {
+    font-family: 'Roboto', sans-serif;
+}
+
 .ellipsis {
     text-overflow: ellipsis;
     white-space: nowrap;
