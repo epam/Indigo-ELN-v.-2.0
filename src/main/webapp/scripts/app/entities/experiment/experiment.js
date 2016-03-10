@@ -189,6 +189,12 @@ angular.module('indigoeln')
                 resolve: {
                     experiment: function ($stateParams, EntitiesBrowser) {
                         return EntitiesBrowser.getCurrentEntity($stateParams);
+                    },
+                    notebook: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getNotebookFromCache($stateParams);
+                    },
+                    project: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getProjectFromCache($stateParams);
                     }
                 }
             });
