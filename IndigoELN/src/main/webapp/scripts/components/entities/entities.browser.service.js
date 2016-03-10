@@ -11,19 +11,19 @@ angular.module('indigoeln')
             experiment: {
                 service: Experiment,
                 go: function (params) {
-                    $state.go('entities.experiment-detail', params)
+                    $state.go('entities.experiment-detail', params);
                 }
             },
             notebook: {
                 service: Notebook,
                 go: function (params) {
-                    $state.go('entities.notebook-detail', params)
+                    $state.go('entities.notebook-detail', params);
                 }
             },
             project: {
                 service: Project,
                 go: function (params) {
-                    $state.go('entities.project-detail', params)
+                    $state.go('entities.project-detail', params);
                 }
             }
         };
@@ -43,7 +43,7 @@ angular.module('indigoeln')
             },
             expandIds: function (ids) {
                 var idsArr = ids.split('-');
-                return {projectId: idsArr[0], notebookId: idsArr[1], experimentId: idsArr[2]}
+                return {projectId: idsArr[0], notebookId: idsArr[1], experimentId: idsArr[2]};
             },
             getKind: function (params) {
                 if (params.experimentId) {
@@ -55,7 +55,7 @@ angular.module('indigoeln')
                 }
             },
             resolveTabs: function (params) {
-                tabs[this.compactIds(params)] = this.resolveFromCache(params)
+                tabs[this.compactIds(params)] = this.resolveFromCache(params);
                 return $q.all(_.values(tabs));
             },
             getCurrentEntity: function (params) {
@@ -63,7 +63,7 @@ angular.module('indigoeln')
             },
             getIdByVal: function (entitiy) {
                 return Object.keys(tabs).filter(function (key) {
-                    return tabs[key] === entitiy.$promise
+                    return tabs[key] === entitiy.$promise;
                 })[0];
             },
             goToTab: function (fullId) {
@@ -76,7 +76,7 @@ angular.module('indigoeln')
                     var positionForClose = _.indexOf(keys, fullId);
                     var curPosition = _.indexOf(keys, current);
                     var nextKey;
-                    if (curPosition == positionForClose) {
+                    if (curPosition === positionForClose) {
                         nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
                     } else {
                         nextKey = keys[curPosition];
@@ -95,6 +95,14 @@ angular.module('indigoeln')
             },
             getTabs: function () {
                 return $q.all(_.values(tabs));
+            },
+            getNotebookFromCache: function (params) {
+                var notebookParams = {projectId: params.projectId, notebookId: params.notebookId};
+                return this.resolveFromCache(notebookParams);
+            },
+            getProjectFromCache: function (params) {
+                var projectParams = {projectId: params.projectId};
+                return this.resolveFromCache(projectParams);
             }
         };
     });
