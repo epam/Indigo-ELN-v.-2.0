@@ -329,10 +329,6 @@ a {
     cursor: pointer;
 }
 
-#printForm {
-    font-family:"Times New Roman",Georgia,Serif;
-}
-
 .print-header {
     color: grey;
     margin-top: 20px;
@@ -374,8 +370,16 @@ tr {
     page-break-inside:avoid; page-break-after:auto
 }
 
-.need-to-print {
-    font-family: 'Roboto', sans-serif;
+#printForm {
+    font-family:"Times New Roman",Georgia,Serif;
+}
+
+.need-to-print .checkbox label:before {
+    content: initial;
+}
+
+.need-to-print .checkbox label {
+    font-size: 14px;
 }
 
 .ellipsis {
