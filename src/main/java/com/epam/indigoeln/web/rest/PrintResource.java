@@ -3,10 +3,12 @@ package com.epam.indigoeln.web.rest;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.ColumnText;
+import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.ElementList;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.slf4j.Logger;
@@ -22,10 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.websocket.server.PathParam;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.UUID;
 
@@ -52,7 +51,8 @@ public class PrintResource {
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
             Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
-            PdfWriter.getInstance(document, fileOutputStream);
+            PdfWriter writer = PdfWriter.getInstance(document, fileOutputStream);
+//            writer.setPageEvent(new HeaderFooter());
             document.open();
             document.add(image);
             document.close();
@@ -79,5 +79,31 @@ public class PrintResource {
 
     public static class HtmlWrapper {
         public String html;
+        public String header;
+    }
+
+    public static final String HEADER =
+            "<table width=\"100%\" border=\"0\"><tr><td>Header</td><td align=\"right\">Some title</td></tr></table>";
+
+    public static class HeaderFooter extends PdfPageEventHelper {
+        protected ElementList header;
+
+        public HeaderFooter() throws IOException {
+            header = XMLWorkerHelper.parseToElementList(HEADER, null);
+        }
+
+        @Override
+        public void onEndPage(PdfWriter writer, Document document) {
+            try {
+                ColumnText ct = new ColumnText(writer.getDirectContent());
+                ct.setSimpleColumn(new Rectangle(36, 832, 559, 810));
+                for (Element e : header) {
+                    ct.addElement(e);
+                }
+                ct.go();
+            } catch (DocumentException de) {
+                throw new ExceptionConverter(de);
+            }
+        }
     }
 }
