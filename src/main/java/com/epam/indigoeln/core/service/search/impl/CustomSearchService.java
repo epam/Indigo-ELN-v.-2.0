@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,17 +50,18 @@ public class CustomSearchService implements SearchServiceAPI {
             return Collections.emptyList();
         }
 
+        //fetch components by bingo db ids
         List<ComponentDTO> components =  componentRepository.findBatchSummariesByBingoDbIds(bingoIds).
                 stream().map(ComponentDTO::new).collect(toList());
 
         //retrieve batches from components
-        return BatchComponentUtil.retrieveBatches(components).stream().map(CustomSearchService::convertFromDBObject).
-                collect(Collectors.toList());
+        return BatchComponentUtil.retrieveBatchesByBingoDbId(components, bingoIds).stream().
+                map(CustomSearchService::convertFromDBObject).collect(toList());
     }
 
     /**
-     * Find component by full batch number
-     * Full batch number expected in format NOTEBOOK_NUMBER(8 digits)-EXPERIMENT_NUMBER(4 digits)-BATCH_NUMBER(3 digits)
+     * Find product batch details by full batch number
+     *
      * @param fullBatchNumber full batch number
      * @return result of search
      */
