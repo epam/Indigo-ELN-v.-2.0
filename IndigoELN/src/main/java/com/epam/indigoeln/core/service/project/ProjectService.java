@@ -64,7 +64,7 @@ public class ProjectService {
         Optional<Project> projectOpt = Optional.ofNullable(projectRepository.findOne(id));
         Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(id));
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project's access list,
+        // Check of EntityAccess (User must have "Read Entity" permission in project's access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
                 UserPermission.READ_ENTITY)) {
