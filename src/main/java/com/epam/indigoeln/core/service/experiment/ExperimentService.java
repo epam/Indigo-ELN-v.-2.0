@@ -66,9 +66,9 @@ public class ExperimentService {
             return notebook.getExperiments();
         }
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list)
+        // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list)
         if (!PermissionUtil.hasPermissions(user.getId(), notebook.getAccessList(),
-                UserPermission.READ_SUB_ENTITY)) {
+                UserPermission.READ_ENTITY)) {
             throw OperationDeniedException.createNotebookSubEntitiesReadOperation(notebook.getId());
         }
 
@@ -79,7 +79,7 @@ public class ExperimentService {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in notebook's access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
         // "Read Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(experiment.getId());
@@ -88,7 +88,7 @@ public class ExperimentService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    notebook.getAccessList(), UserPermission.READ_SUB_ENTITY,
+                    notebook.getAccessList(), UserPermission.READ_ENTITY,
                     experiment.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw OperationDeniedException.createExperimentReadOperation(experiment.getId());
             }
@@ -143,7 +143,7 @@ public class ExperimentService {
         Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
-        // Check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
         // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Notebook notebook = notebookRepository.findByExperimentId(experimentFromDB.getId());
@@ -152,7 +152,7 @@ public class ExperimentService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    notebook.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
+                    notebook.getAccessList(), UserPermission.READ_ENTITY,
                     experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
             }

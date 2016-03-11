@@ -70,9 +70,9 @@ public class NotebookService {
             return project.getNotebooks();
         }
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list)
         if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_SUB_ENTITY)) {
+                UserPermission.READ_ENTITY)) {
             throw OperationDeniedException.createProjectSubEntitiesReadOperation(project.getId());
         }
 
@@ -99,7 +99,7 @@ public class NotebookService {
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list and
         // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(fullNotebookId);
@@ -108,7 +108,7 @@ public class NotebookService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    project.getAccessList(), UserPermission.READ_SUB_ENTITY,
+                    project.getAccessList(), UserPermission.READ_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw OperationDeniedException.createNotebookReadOperation(notebook.getId());
             }
@@ -151,7 +151,7 @@ public class NotebookService {
         Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
-        // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list and
         // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(fullNotebookId);
@@ -160,7 +160,7 @@ public class NotebookService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
+                    project.getAccessList(), UserPermission.READ_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
             }
