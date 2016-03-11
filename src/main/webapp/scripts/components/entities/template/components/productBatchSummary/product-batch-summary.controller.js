@@ -5,7 +5,7 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, $http, $stateParams) {
+        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -366,7 +366,15 @@ angular.module('indigoeln')
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                         '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
-                        $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber, fullNbkBatch: result.data.batchNumber});
+                        var batchNumber = result.data.batchNumber
+                        EntitiesBrowser.resolveFromCache({
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        }).then(function (notebook) {
+                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber
+                            $scope.model.productBatchSummary.batches.push({nbkBatch: batchNumber, fullNbkBatch: fullNbkBatch});
+                        })
+
                     });
             };
 
