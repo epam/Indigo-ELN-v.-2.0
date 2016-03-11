@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.epam.indigoeln.core.repository.RepositoryConstants.*;
 
@@ -16,9 +15,6 @@ public interface NotebookRepository extends MongoRepository<Notebook, String> {
 
     @Query("{'experiments': {'$ref': '" + Experiment.COLLECTION_NAME + "', '$id': ?0}}")
     Notebook findByExperimentId(String experimentId);
-
-    Optional<Notebook> findByName(String name);
-
 
     @Query(value = "{'accessList' : { $elemMatch : {'user'  : {$ref : '" + User.COLLECTION_NAME + "', $id : ?0}, 'permissions' : { $in : ?1}}}}",
             fields = ENTITY_SHORT_FIELDS_SET)

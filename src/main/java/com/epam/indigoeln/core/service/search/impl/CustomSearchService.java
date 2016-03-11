@@ -5,29 +5,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.epam.indigoeln.core.util.BatchComponentUtil;
-import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.google.common.base.Splitter;
-
+import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.core.integration.BingoResult;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 
-import static org.springframework.util.ObjectUtils.nullSafeEquals;
 import static java.util.stream.Collectors.toList;
-import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 @Service("customSearchService")
 public class CustomSearchService implements SearchServiceAPI {
@@ -38,9 +32,6 @@ public class CustomSearchService implements SearchServiceAPI {
     @Autowired
     private ComponentRepository componentRepository;
 
-    @Autowired
-    private NotebookRepository notebookRepository;
-
     /**
      * Find components (batches) by chemical molecular structure
      * @param structure structure of component
@@ -49,14 +40,23 @@ public class CustomSearchService implements SearchServiceAPI {
      * @return list of batches with received structure
      */
     @Override
-    public Collection<ComponentDTO> searchByMolecularStructure(String structure,
-                                                               String searchOperator,
-                                                               Map options) {
-        List<String> bingoIds =
+    public Collection<ProductBatchDetailsDTO> searchByMolecularStructure(String structure,
+                                                                         String searchOperator,
+                                                                         Map options) {
+        //search by structure in Bingo DB
+        List<Integer> bingoIds =
                 handleBingoException(bingoDbService.searchMolecule(structure, searchOperator, options)).getSearchResult();
 
-        return bingoIds.isEmpty() ? Collections.emptyList() :
-                componentRepository.findBatchesByBingoDbIds(bingoIds).stream().map(ComponentDTO::new).collect(toList());
+        if(bingoIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ComponentDTO> components =  componentRepository.findBatchSummariesByBingoDbIds(bingoIds).
+                stream().map(ComponentDTO::new).collect(toList());
+
+        //retrieve batches from components
+        return BatchComponentUtil.retrieveBatches(components).stream().map(CustomSearchService::convertFromDBObject).
+                collect(Collectors.toList());
     }
 
     /**
@@ -67,26 +67,14 @@ public class CustomSearchService implements SearchServiceAPI {
      */
     @Override
     public Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber) {
-        Pattern pattern = Pattern.compile(FULL_BATCH_NUMBER_FORMAT);
-        if(!pattern.matcher(fullBatchNumber).matches()){ //check, that full batch number received in proper format
+        Optional<Component> batchSummaryComponent = componentRepository.findBatchSummaryByFullBatchNumber(fullBatchNumber);
+        if(!batchSummaryComponent.isPresent()) {
             return Optional.empty();
         }
 
-        List<String> parsedNumber = Splitter.on("-").splitToList(fullBatchNumber); //parse full batch number as notebook-experiment-batch number
-        String notebookNumber = parsedNumber.get(0);
-        String experimentNumber = parsedNumber.get(1);
-        String batchNumber = parsedNumber.get(2);
-
-        Optional<ProductBatchDetailsDTO> result = Optional.empty();
-        Optional<Notebook> notebook = notebookRepository.findByName(notebookNumber);
-        if(notebook.isPresent()){ //if notebook with same number is present
-            Optional<Experiment> experiment = getExperimentByNumber(notebook.get().getExperiments(), experimentNumber);
-            if(experiment.isPresent()) { //if experiment with same number is present
-                Collection<ComponentDTO> components = experiment.get().getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList());
-                result = BatchComponentUtil.retrieveBatchByNumber(components, batchNumber).map(m -> new ProductBatchDetailsDTO(fullBatchNumber, m)); //try to find batch with number
-            }
-        }
-        return result;
+        ComponentDTO batchSummaryComponentDTO = new ComponentDTO(batchSummaryComponent.get());
+        return BatchComponentUtil.retrieveBatchByNumber(Collections.singletonList(batchSummaryComponentDTO), fullBatchNumber).
+                map(params -> new ProductBatchDetailsDTO(fullBatchNumber, params));
     }
 
     private BingoResult handleBingoException(BingoResult result) {
@@ -96,12 +84,10 @@ public class CustomSearchService implements SearchServiceAPI {
         return result;
     }
 
-    /**
-     * find experiment by number
-     */
-    private Optional<Experiment> getExperimentByNumber(Collection<Experiment> experiments, String number) {
-        return experiments == null ? Optional.empty() :
-                experiments.stream().filter(experiment -> nullSafeEquals(experiment.getName(), number)).findAny();
+    private static ProductBatchDetailsDTO convertFromDBObject(BasicDBObject obj) {
+        Map map = obj.toMap();
+        String fullBatchNumber = Optional.ofNullable(map.get(BatchComponentUtil.COMPONENT_FIELD_FULL_NBK_BATCH)).
+                map(Object::toString).orElse(null);
+        return new ProductBatchDetailsDTO(fullBatchNumber, map);
     }
-
 }

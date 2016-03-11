@@ -366,7 +366,7 @@ angular.module('indigoeln')
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                         '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
-                        $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber});
+                        $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber, fullNbkBatch: result.data.batchNumber});
                     });
             };
 
