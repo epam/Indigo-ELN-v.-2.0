@@ -1,11 +1,5 @@
 package com.epam.indigoeln.core.util;
 
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import org.bson.BasicBSONObject;
-import org.springframework.util.StringUtils;
 
 import java.text.DecimalFormat;
 import java.text.Format;
@@ -19,6 +13,14 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.mongodb.BasicDBList;
+import com.mongodb.BasicDBObject;
+import org.bson.BasicBSONObject;
+import org.springframework.util.StringUtils;
+
+import com.epam.indigoeln.web.rest.dto.ComponentDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+
 /**
  * Utility class for Batches
  */
@@ -27,6 +29,7 @@ public final class BatchComponentUtil {
     public static final String COMPONENT_NAME_BATCH_SUMMARY = "productBatchSummary";
     public static final String COMPONENT_FIELD_BATCHES = "batches";
     public static final String COMPONENT_FIELD_NBK_BATCH = "nbkBatch";
+    public static final String COMPONENT_FIELD_FULL_NBK_BATCH = "fullNbkBatch";
 
     private static final String FORMAT_BATCH_NUMBER  = "000";
     private static final String PATTERN_BATCH_NUMBER = "\\d{3}";
@@ -48,9 +51,9 @@ public final class BatchComponentUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static Optional<Map> retrieveBatchByNumber(Collection<ComponentDTO> components, String batchNumber) {
+    public static Optional<Map> retrieveBatchByNumber(Collection<ComponentDTO> components, String fullBatchNumber) {
          return retrieveBatches(components).stream().
-                filter(batch -> batchNumber.equals(batch.get(COMPONENT_FIELD_NBK_BATCH).toString())).findAny().
+                filter(batch -> fullBatchNumber.equals(batch.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString())).findAny().
                 map(BasicBSONObject::toMap);
     }
 
