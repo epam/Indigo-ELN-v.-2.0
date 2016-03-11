@@ -1,10 +1,10 @@
 package com.epam.indigoeln.core.service.search;
 
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 
 public interface SearchServiceAPI {
 
@@ -15,7 +15,7 @@ public interface SearchServiceAPI {
      * @param options search advanced options
      * @return list of batches with received structure
      */
-    Collection<ComponentDTO> searchByMolecularStructure(String structure, String searchOperator, Map options);
+    Collection<ProductBatchDetailsDTO> searchByMolecularStructure(String structure, String searchOperator, Map options);
 
     /**
      * Find component by full batch number
@@ -23,5 +23,5 @@ public interface SearchServiceAPI {
      * @param fullBatchNumber full batch number
      * @return result of search
      */
-    Optional<ComponentDTO> getComponentInfoByBatchNumber(String fullBatchNumber);
+    Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber);
 }

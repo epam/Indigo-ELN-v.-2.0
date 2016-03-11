@@ -14,7 +14,7 @@ public class BingoResult implements Serializable {
     private String  errorMessage;
     private Integer id;
     private String structure;
-    private List<String> searchResult;
+    private List<Integer> searchResult;
 
     public BingoResult() {
     }
@@ -51,11 +51,11 @@ public class BingoResult implements Serializable {
         this.structure = structure;
     }
 
-    public List<String> getSearchResult() {
+    public List<Integer> getSearchResult() {
         return searchResult;
     }
 
-    public void setSearchResult(List<String> searchResult) {
+    public void setSearchResult(List<Integer> searchResult) {
         this.searchResult = searchResult;
     }
 }
