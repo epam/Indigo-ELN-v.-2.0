@@ -24,13 +24,12 @@
                                                     experiment.author.lastName}}
                                                 </td>
                                                 <td width="20%">Notebook&nbsp;Experiment:</td>
-                                                <td width="30%">{{}}</td>
-                                                <!--Notebook experiment?-->
+                                                <td width="30%">{{notebook.name + '-' + experiment.name}}</td>
                                             </tr>
                                             <tr>
                                                 <td>Co-authors:</td>
                                                 <td>
-                                                    <!--add to DTO-->
+                                                    <!--to be added in details-->
                                                     <span ng-repeat="user in experiment.coAuthors track by user.id">
                                                         {{user.firstName + ' ' + user.lastName}}<span
                                                             ng-if="!$last">, </span>
@@ -42,7 +41,7 @@
                                             <tr>
                                                 <!--from reaction details: project code and name?-->
                                                 <td>Project</td>
-                                                <td>{{reactionDetails.codeAndName.name}}</td>
+                                                <td>{{project.name}}</td>
                                                 <!--think about-->
                                                 <td>Printed Page:</td>
                                                 <td>x{{}} of y{{}}</td>
@@ -51,7 +50,7 @@
                                                 <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
                                                 <!--what if no such component?-->
                                                 <td>Subject/Title</td>
-                                                <td>{{reactionDetails.title}}</td>
+                                                <td>{{reactionDetails.title || conceptDetails.title}}</td>
                                                 <td>Printed Date:</td>
                                                 <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
                                             </tr>

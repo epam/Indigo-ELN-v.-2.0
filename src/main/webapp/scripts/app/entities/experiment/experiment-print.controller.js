@@ -1,9 +1,11 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentPrintController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, experiment) {
+    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, experiment, notebook, project) {
 
         $scope.experiment = experiment;
+        $scope.notebook = notebook;
+        $scope.project = project;
 
         function getComponentContent(componentName) {
             var component = _.findWhere(experiment.components, {name: componentName});

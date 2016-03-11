@@ -10,6 +10,7 @@ angular.module('indigoeln')
         {name: 'Product Batch Summary', id: 'product-batch-summary', desc: 'Fake description'},
         {name: 'Product Batch Details', id: 'product-batch-details', desc: 'Fake description'},
         {name: 'Reaction Scheme', id: 'reaction-scheme', desc: 'Fake description'},
+        {name: 'Stoich Table', id: 'stoich-table', desc: 'Fake description'},
         {name: 'Batch Structure', id: 'batch-structure', desc: 'Fake description'}
     ])
     .directive('myComponent', function () {
@@ -36,8 +37,9 @@ angular.module('indigoeln')
             '<div ng-switch-when="product-batch-summary"><product-batch-summary /></div>' +
             '<div ng-switch-when="reaction-scheme"><reaction-scheme /></div>' +
             '<div ng-switch-when="batch-structure"><batch-structure /></div>' +
+            '<div ng-switch-when="stoich-table"><stoich-table /></div>' +
             '</div>'
-        }
+        };
     }).directive('myComponents', function () {
     return {
         restrict: 'E',
@@ -57,5 +59,5 @@ angular.module('indigoeln')
         '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
-    }
+    };
 });
