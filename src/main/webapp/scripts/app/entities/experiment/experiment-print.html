@@ -6,31 +6,495 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Preview
-                        </div>
+                        <div class="panel-heading">Preview</div>
                         <div class="panel-body">
-                            <form name="printForm" id="printForm" role="form" novalidate>
+                            <form name="print-form" id="print-form" role="form" novalidate>
 
-                                <my-components ng-init="experiment.components = toModel(experiment.components)"
-                                               my-template="experiment.template.templateContent"
-                                               my-disabled="!isEditAllowed"
-                                               my-model="experiment.components"
-                                               my-experiment-form="experimentForm"
-                                               my-experiment="experiment"></my-components>
+                                <!--HEADER-->
+                                <div class="row print-component">
+                                    <div class="col-xs-10 col-xs-offset-2">
+                                        <table class="print-header">
+                                            <tr>
+                                                <th colspan="2"><h3>CONFIDENTIAL</h3></th>
+                                                <th colspan="2" style="color: deepskyblue"><h3>#logo</h3></th>
+                                            </tr>
+                                            <tr>
+                                                <td width="20%">Author:</td>
+                                                <td width="30%">{{experiment.author.firstName + ' ' +
+                                                    experiment.author.lastName}}
+                                                </td>
+                                                <td width="20%">Notebook&nbsp;Experiment:</td>
+                                                <td width="30%">{{notebook.name + '-' + experiment.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Co-authors:</td>
+                                                <td>
+                                                    <!--to be added in details-->
+                                                    <span ng-repeat="user in experiment.coAuthors track by user.id">
+                                                        {{user.firstName + ' ' + user.lastName}}<span
+                                                            ng-if="!$last">, </span>
+                                                    </span>
+                                                </td>
+                                                <td>Status:</td>
+                                                <td>{{experiment.status | uppercase }}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--from reaction details: project code and name?-->
+                                                <td>Project</td>
+                                                <td>{{project.name}}</td>
+                                                <!--think about-->
+                                                <td>Printed Page:</td>
+                                                <td>x{{}} of y{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
+                                                <!--what if no such component?-->
+                                                <td>Subject/Title</td>
+                                                <td>{{reactionDetails.title || conceptDetails.title}}</td>
+                                                <td>Printed Date:</td>
+                                                <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--EXPERIMENT DETAILS-->
+                                <!-- reactionDetails-->
+                                <div class="row print-component" ng-if="true"> <!--ng-if="reactionDetails"-->
+                                    <div class="col-xs-2 need-to-print" ng-init="reactionDetails.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="reactionDetails.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">EXPERIMENT DETAILS</b></div>
+                                        <table style="border: 1px black solid"
+                                               class="print-table-simple">
+                                            <tr>
+                                                <th width="20%">Creation Date:</th>
+                                                <td width="30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss
+                                                    z'}}
+                                                </td>
+                                                <th width="20%">Therapeutic&nbsp;Area:</th>
+                                                <td width="30%">{{reactionDetails.therapeuticArea.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Continued From:</th>
+                                                <td>{{reactionDetails.contFromRxn}}</td>
+                                                <th>Project Code:</th>
+                                                <td>{{reactionDetails.codeAndName.name}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Continued To:</th>
+                                                <td>{{reactionDetails.contToRxn}}</td>
+                                                <th>Project Alias</th>
+                                                <td>{{reactionDetails.projectAliasName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Linked&nbsp;Experiment:</th>
+                                                <td>{{reactionDetails.linkedExperiment}}</td>
+                                                <th>Literature&nbsp;Reference:</th>
+                                                <td>{{reactionDetails.literature}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--EXPERIMENT DESCRIPTION-->
+                                <!--no such component yet-->
+                                <div class="row print-component" ng-if="true">
+                                    <div class="col-xs-2 need-to-print"
+                                         ng-init="experimentDescription.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="experimentDescription.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">EXPERIMENT DESCRIPTION</b>
+                                        </div>
+                                        <div class="print-box" style="height: 100px;">#text-editor component
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!--SUMMARY REACTION-->
+                                <!--reaction ?-->
+                                <div class="row print-component" ng-if="true">  <!--ng-if="reaction"-->
+                                    <div class="col-xs-2 need-to-print" ng-init="reaction.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="reaction.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">REACTION SCHEME</b></div>
+                                        <div class="print-box" style="height: 100px;">reaction.structureScheme
+                                        </div>
+                                        <!--???-->
+                                    </div>
+                                </div>
+
+                                <!--STOICHIOMETRY-->
+                                <!--no such component yet-->
+                                <div class="row print-component" ng-if="true">
+                                    <div class="col-xs-2 need-to-print" ng-init="stoichiometry.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="stoichiometry.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">STOICHIOMETRY</b></div>
+                                        <table class="print-table">
+                                            <tr>
+                                                <th width="30">Reagent</th>
+                                                <th width="8">Mol Wgh</th>
+                                                <th width="8">Weight</th>
+                                                <th width="8">Moles</th>
+                                                <th width="8">Volume</th>
+                                                <th width="8">EQ</th>
+                                                <th width="30">Other Information</th>
+                                            </tr>
+                                            <tr>  <!--ng-repeat=""-->
+                                                <td>#image<br>STR-00000069-00<br>11111111-0013-084</td>
+                                                <td>325</td>
+                                                <td>12 mg</td>
+                                                <td>0.0223 mmol</td>
+                                                <td>5 mL</td>
+                                                <td>1.00</td>
+                                                <td>
+                                                    <table class="print-table-inner">
+                                                        <tr>
+                                                            <td width="40%">Name:</td>
+                                                            <td>toluene</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Rxn Role:</td>
+                                                            <td>SOLVENT</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Purity:</td>
+                                                            <td>100%</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Molarity:</td>
+                                                            <td>0.008 M</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Hazard:</td>
+                                                            <td>hazard info</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Comments:</td>
+                                                            <td>STR-00000069-004564564</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Salt Code:</td>
+                                                            <td>{{}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Salt EQ:</td>
+                                                            <td>{{}}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--BATCH INFORMATION-->
+                                <!--batchSummary.batches; product-batch-summary.controller -->
+                                <div class="row print-component" ng-if="true">   <!--ng-if="batchSummary"-->
+                                    <div class="col-xs-2 need-to-print" ng-init="batchSummary.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="batchSummary.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">BATCH INFORMATION</b></div>
+                                        <table class="print-table">
+                                            <tr>
+                                                <th width="10%">Nbk Batch</th>
+                                                <th width="25%">Structure</th>
+                                                <th width="10%">Amount Made</th>
+                                                <th width="10%">Theoretical Yield</th>
+                                                <th width="10%">Purity (%) Determined By</th>
+                                                <th>Batch Information</th>
+                                            </tr>
+                                            <tr ng-repeat="batch in batchSummary.batches">
+                                                <td>{{batch.nbkBatch}}</td>
+                                                <td>{{batch.structure}}</td>
+                                                <!--amount made ?-->
+                                                <td>12 mg ? {{}}</td>
+                                                <!--yield: not finished ?-->
+                                                <td>5.60 mg<br>450%</td>
+                                                <!--purity: not finished ?-->
+                                                <td></td>
+                                                <td>
+                                                    <table class="print-table-inner">
+                                                        <tr>
+                                                            <td width="40%">Mol Wgt:</td>
+                                                            <td>{{batch.molWgt}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!--?-->
+                                                            <td>Exact Mass:</td>
+                                                            <td>78.047</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!--from batchDetails ?-->
+                                                            <td>Salt Code:</td>
+                                                            <td>01 - Salt1(MW=10)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!--from batchDetails ?-->
+                                                            <td>Salt EQ:</td>
+                                                            <td>0.008 M</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!--add field?-->
+                                                            <td>Batch Owner:</td>
+                                                            <td>{{}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <!--from batchDetails.structureComments ?-->
+                                                            <td>Comments:</td>
+                                                            <td>{{}}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--REGISTRATION SUMMARY-->
+                                <!--no such component-->
+                                <div class="row print-component" ng-if="true">
+                                    <div class="col-xs-2 need-to-print"
+                                         ng-init="registrationSummary.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="registrationSummary.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">REGISTRATION SUMMARY</b></div>
+                                        <table class="print-table">
+                                            <tr>
+                                                <th width="40%">Nbk Batch</th>
+                                                <th>Total Amount Made</th>
+                                                <th>Registration Status</th>
+                                                <th>Conversational Batch</th>
+                                            </tr>
+                                            <tr>  <!--ng-repeat=""-->
+                                                <td>11111111-0011-001</td>
+                                                <td>25 mg</td>
+                                                <td>PASS</td>
+                                                <td>STR-00000091-01-001</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+
+                                <!--BATCH DETAILS-->
+                                <!--batchDetails-->
+                                <div class="row print-component">
+                                    <div class="col-xs-2 need-to-print" ng-init="batchDetails.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="batchDetails.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10" ng-if="true">   <!--ng-if="batchDetails"-->
+                                        <div class="row"><b class="pull-right">BATCH DETAILS</b></div>
+                                        <table class="print-table">
+                                            <tr>
+                                                <th width="20%">For Notebook Batch:</th>
+                                                <th>
+                                                    <span class="pull-left">&nbsp; {{batchDetails.notebookBatch}}</span>
+                                                    <span class="pull-right">#barcode &nbsp;</span>
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Registered Date</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Structure Comments</td>
+                                                <td>{{batchDetails.structureComments}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no model-->
+                                                <td>Compound Source</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no model-->
+                                                <td>Source Detail</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Batch Owner</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Synthesized By</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Lab Site</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no model-->
+                                                <td>Calculated Batch MW</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Calculated Parent MW</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Residual Solvents</td>
+                                                <td>{{batchDetails.residualSolvents}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Solubility in Solvents</td>
+                                                <td>{{batchDetails.solubilitySolvents}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no model-->
+                                                <td>Calculated Batch MF</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <!--no such field!-->
+                                                <td>Calculated Parent MF</td>
+                                                <td>{{}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Precursor/Reactant IDs</td>
+                                                <td>{{batchDetails.precursorReactant}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>External Supplier</td>
+                                                <td>{{batchDetails.externalSupplier}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Hazards</td>
+                                                <td>{{batchDetails.healthHazards}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Handling</td>
+                                                <td>{{batchDetails.handlingPrecautions}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Storage</td>
+                                                <td>{{batchDetails.storageInstructions}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--CONCEPT DETAIL-->
+                                <!--conceptDetails-->
+                                <div class="row print-component" ng-if="true"> <!--ng-if="conceptDetails"-->
+                                    <div class="col-xs-2 need-to-print" ng-init="conceptDetails.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="conceptDetails.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <b class="pull-right">CONCEPT DETAILS</b>
+                                        <table style="border: 1px black solid"
+                                               class="print-table-simple">
+                                            <tr>
+                                                <th width="20%">Therapeutic&nbsp;Area:</th>
+                                                <td width="30%">{{conceptDetails.therapeuticArea.name}}</td>
+                                                <th width="20%">Creation Date:</th>
+                                                <td width="30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss
+                                                    z'}}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th>Project Code:</th>
+                                                <td>{{conceptDetails.codeAndName.name}}</td>
+                                                <th>Inventors:</th>   <!--Inventors: author + coauthors ?-->
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Concept Keywords:</th>
+                                                <td>{{conceptDetails.keywords}}</td>
+                                                <th>Designers</th>
+                                                <td>{{conceptDetails.designers}}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!--PREFERRED COMPOUNDS-->
+                                <!--no such component yet ? concept(no fields), product-batch-summary?-->
+                                <div class="row print-component" ng-if="true">
+                                    <div class="col-xs-2 need-to-print" ng-init="preferredCompounds.needToPrint = true">
+                                        <my-checkbox
+                                                my-label="Need To Print"
+                                                my-model="preferredCompounds.needToPrint"
+                                                my-name="needToPrint"
+                                        ></my-checkbox>
+                                    </div>
+                                    <div class="col-xs-10">
+                                        <div class="row"><b class="pull-right">PREFERRED COMPOUNDS</b></div>
+                                        <table class="print-table">
+                                            <tr>
+                                                <th>Structure</th>
+                                                <th>Notebook Batch #</th>
+                                                <th>Mol Weight</th>
+                                                <th>Mol Formula</th>
+                                                <th>Structure Comments</th>
+                                            </tr>
+                                            <tr>  <!--ng-repeat=""-->
+                                                <td>#image<br>#stereoisomer_code<br>#virtual_compound_id</td>
+                                                <td>11111111-0007-001</td>
+                                                <td>283.4 mg</td>
+                                                <td>C17 H21 N3 O</td>
+                                                <td>comments</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
-
-    <div class="panel-footer text-right">
-        <button ng-click="print(experiment)" ng-disabled="printForm.$invalid || isPrinting" class="btn btn-info">
+        <div class="panel-footer text-right">
+        <button ng-click="print(experiment)" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
             <span class="glyphicon glyphicon-print"></span>&nbsp;<span>Print</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </button>
+        </div>
     </div>
 </div>
 

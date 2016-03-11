@@ -5,7 +5,7 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, localStorageService, $http, $stateParams) {
+        function ($scope, $uibModal, $http, $stateParams) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -330,17 +330,6 @@ angular.module('indigoeln')
                 }
             ];
 
-            var columnsIds = JSON.parse(localStorageService.get('product-batch-summary.columns'));
-
-            $scope.columns = _.sortBy($scope.columns, function (column) {
-                return _.indexOf(columnsIds, column.id);
-            });
-
-            $scope.$watch(function () {
-                return _.map($scope.columns, _.iteratee('id')).join('-');
-            }, function () {
-                localStorageService.set('product-batch-summary.columns', JSON.stringify(_.pluck($scope.columns, 'id')));
-            });
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row;
             };
