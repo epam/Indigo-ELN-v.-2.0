@@ -10,17 +10,14 @@ angular.module('indigoeln')
         var _accessList, _author, _entity;
 
         var VIEWER = ['READ_ENTITY'];
-        var CHILD_VIEWER = ['READ_ENTITY', 'READ_SUB_ENTITY'];
-        var USER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY'];
-        var OWNER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
+        var USER = ['READ_ENTITY', 'CREATE_SUB_ENTITY'];
+        var OWNER = ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
 
         return {
             expandPermission: function(list) {
                 _.each(list, function(item) {
                     if (item.permissionView === 'OWNER') {
                         item.permissions = OWNER;
-                    } else if (item.permissionView === 'CHILD_VIEWER') {
-                        item.permissions = CHILD_VIEWER;
                     } else if (item.permissionView === 'USER') {
                         item.permissions = USER;
                     } else {
@@ -49,7 +46,7 @@ angular.module('indigoeln')
             getAuthorAccessList: function(author) {
                 return [{
                     user: author,
-                    permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
+                    permissions: ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
                     permissionView: 'OWNER'
                 }];
             },
@@ -85,10 +82,6 @@ angular.module('indigoeln')
                     return _.every(projectUserAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
                     });
-                } else if (permission === 'CHILD_VIEWER') {
-                    return _.every(projectChildViewerAuthoritySet, function(authority) {
-                        return _.contains(member.user.authorities, authority);
-                    });
                 } else if (permission === 'VIEWER') {
                     return _.every(projectViewerAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
@@ -98,7 +91,6 @@ angular.module('indigoeln')
             hasAuthorityForNotebookPermission: function(member, permission) {
                 var notebookOwnerAuthoritySet = ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
                 var notebookUserAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
-                var notebookChildViewerAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER'];
                 var notebookViewerAuthoritySet = ['NOTEBOOK_READER'];
 
                 if (permission === 'OWNER') {
@@ -107,10 +99,6 @@ angular.module('indigoeln')
                     });
                 } else if (permission === 'USER') {
                     return _.every(notebookUserAuthoritySet, function(authority) {
-                        return _.contains(member.user.authorities, authority);
-                    });
-                } else if (permission === 'CHILD_VIEWER') {
-                    return _.every(notebookChildViewerAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
                     });
                 } else if (permission === 'VIEWER') {
