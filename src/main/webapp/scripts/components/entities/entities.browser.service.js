@@ -35,6 +35,10 @@ angular.module('indigoeln')
             return id;
         }
 
+        var resolvePrincipal = function (func) {
+            return Principal.identity().then(function (){return func()});
+        };
+
         return {
             compactIds: function (params) {
                 var paramsArr = [];
@@ -63,19 +67,27 @@ angular.module('indigoeln')
                 }
             },
             resolveTabs: function (params) {
-                var userId = getUserId();
-                tabs[userId][this.compactIds(params)] = this.resolveFromCache(params);
-                return $q.all(_.values(tabs[userId]));
+                var that = this;
+                return resolvePrincipal(function () {
+                    var userId = getUserId();
+                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    return $q.all(_.values(tabs[userId]));
+                });
             },
             getCurrentEntity: function (params) {
-                var userId = getUserId();
-                return tabs[userId][this.compactIds(params)];
+                var that = this;
+                return resolvePrincipal(function () {
+                    var userId = getUserId();
+                    return tabs[userId][that.compactIds(params)];
+                });
             },
             getIdByVal: function (entity) {
-                var userId = getUserId();
-                return Object.keys(tabs).filter(function (key) {
-                    return tabs[userId][key] === entity.$promise;
-                })[0];
+                return resolvePrincipal(this, function () {
+                    var userId = getUserId();
+                    return Object.keys(tabs).filter(function (key) {
+                        return tabs[userId][key] === entity.$promise;
+                    })[0];
+                });
             },
             goToTab: function (fullId) {
                 var params = this.expandIds(fullId);
@@ -99,16 +111,21 @@ angular.module('indigoeln')
                 }
             },
             resolveFromCache: function (params) {
-                var userId = getUserId();
-                var entitiyId = this.compactIds(params);
-                if (!cache[userId][entitiyId]) {
-                    cache[userId][entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
-                }
-                return cache[userId][entitiyId];
+                var that = this;
+                return resolvePrincipal( function () {
+                    var userId = getUserId();
+                    var entitiyId = that.compactIds(params);
+                    if (!cache[userId][entitiyId]) {
+                        cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
+                    }
+                    return cache[userId][entitiyId];
+                });
             },
             getTabs: function () {
-                var userId = getUserId();
-                return $q.all(_.values(tabs[userId]));
+                return resolvePrincipal(function() {
+                    var userId = getUserId();
+                    return $q.all(_.values(tabs[userId]));
+                });
             },
             getNotebookFromCache: function (params) {
                 var notebookParams = {projectId: params.projectId, notebookId: params.notebookId};
