@@ -135,6 +135,22 @@ angular.module('indigoeln')
                         type: 'input'
                     }
                 ];
+                $scope.onRowSelected = function (row) {
+                    $scope.selectedRow = row;
+                };
+                $scope.rows = [{}, {}];
+                $scope.clear = function () {
+                    for (var key in $scope.selectedRow) {
+                        if ($scope.selectedRow.hasOwnProperty(key)) {
+                            if (!_.contains(['$$hashKey', 'selected'], key)) {
+                                delete $scope.selectedRow[key];
+                            }
+                        }
+                    }
+                };
+                $scope.removeRow = function () {
+                    $scope.rows = _.without($scope.rows, $scope.selectedRow);
+                };
             }
         };
     });
