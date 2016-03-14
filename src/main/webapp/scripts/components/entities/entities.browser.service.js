@@ -4,7 +4,7 @@
  * Created by Stepan_Litvinov on 2/17/2016.
  */
 angular.module('indigoeln')
-    .factory('EntitiesBrowser', function (Experiment, Notebook, Project, $q, $state) {
+    .factory('EntitiesBrowser', function (Experiment, Notebook, Project, $q, $state, Principal) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -27,6 +27,14 @@ angular.module('indigoeln')
                 }
             }
         };
+
+        var getUserId = function() {
+            var id = Principal.getIdentity().id;
+            tabs[id] = tabs[id] || {};
+            cache[id] = cache[id] || {};
+            return id;
+        }
+
         return {
             compactIds: function (params) {
                 var paramsArr = [];
@@ -55,15 +63,18 @@ angular.module('indigoeln')
                 }
             },
             resolveTabs: function (params) {
-                tabs[this.compactIds(params)] = this.resolveFromCache(params);
-                return $q.all(_.values(tabs));
+                var userId = getUserId();
+                tabs[userId][this.compactIds(params)] = this.resolveFromCache(params);
+                return $q.all(_.values(tabs[userId]));
             },
             getCurrentEntity: function (params) {
-                return tabs[this.compactIds(params)];
+                var userId = getUserId();
+                return tabs[userId][this.compactIds(params)];
             },
-            getIdByVal: function (entitiy) {
+            getIdByVal: function (entity) {
+                var userId = getUserId();
                 return Object.keys(tabs).filter(function (key) {
-                    return tabs[key] === entitiy.$promise;
+                    return tabs[userId][key] === entity.$promise;
                 })[0];
             },
             goToTab: function (fullId) {
@@ -71,7 +82,8 @@ angular.module('indigoeln')
                 kindConf[this.getKind(params)].go(params);
             },
             close: function (fullId, current) {
-                var keys = _.keys(tabs);
+                var userId = getUserId();
+                var keys = _.keys(tabs[userId]);
                 if (keys.length > 1) {
                     var positionForClose = _.indexOf(keys, fullId);
                     var curPosition = _.indexOf(keys, current);
@@ -81,20 +93,22 @@ angular.module('indigoeln')
                     } else {
                         nextKey = keys[curPosition];
                     }
-                    delete tabs[fullId];
-                    delete cache[fullId];
+                    delete tabs[userId][fullId];
+                    delete cache[userId][fullId];
                     this.goToTab(nextKey);
                 }
             },
             resolveFromCache: function (params) {
+                var userId = getUserId();
                 var entitiyId = this.compactIds(params);
-                if (!cache[entitiyId]) {
-                    cache[entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
+                if (!cache[userId][entitiyId]) {
+                    cache[userId][entitiyId] = kindConf[this.getKind(params)].service.get(params).$promise;
                 }
-                return cache[entitiyId];
+                return cache[userId][entitiyId];
             },
             getTabs: function () {
-                return $q.all(_.values(tabs));
+                var userId = getUserId();
+                return $q.all(_.values(tabs[userId]));
             },
             getNotebookFromCache: function (params) {
                 var notebookParams = {projectId: params.projectId, notebookId: params.notebookId};
