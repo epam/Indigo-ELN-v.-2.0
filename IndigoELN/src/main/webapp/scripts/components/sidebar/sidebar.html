@@ -68,15 +68,15 @@
         <ul class="level-two" ng-if="adminToggled">
             <li has-authority="{{USER_EDITOR}}"
                 ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
-                <span class="type-of-experiment">Users and Roles</span>
+                <span class="type-of-experiment">Users</span>
             </li>
             <li has-authority="{{ROLE_EDITOR}}"
                 ng-click="toggleAuthorities(); $event.stopPropagation();">
-                <span class="type-of-experiment">Manage Authorities</span>
+                <span class="type-of-experiment">Roles</span>
             </li>
             <li has-authority="{{TEMPLATE_EDITOR}}"
                 ng-click="toggleTemplates(); $event.stopPropagation();">
-                <span class="type-of-experiment">Manage Templates</span>
+                <span class="type-of-experiment">Templates</span>
             </li>
             <li has-authority="{{DICTIONARY_EDITOR}}"
                 ng-click="toggleDictionaries(); $event.stopPropagation();">
