@@ -29,8 +29,12 @@
                         <button type="button" class="btn btn-default ellipsis" disabled>Create Rxn</button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-default ellipsis" disabled>Clear</button>
-                        <button type="button" class="btn btn-default ellipsis" disabled>Delete</button>
+                        <button type="button" class="btn btn-default ellipsis" ng-disabled="!selectedRow"
+                                ng-click="clear()">Clear
+                        </button>
+                        <button type="button" class="btn btn-default ellipsis" ng-disabled="!selectedRow"
+                                ng-click="removeRow()">Delete
+                        </button>
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
                         <!--<button type="button" class="btn btn-default ellipsis">Search DBs</button>-->
@@ -40,8 +44,8 @@
             </div>
         </div>
     </div>
-    <my-table my-id="reactants" my-columns="reactantsColumns" my-rows="[{},{},{}]" my-draggable-columns="true"
-              my-draggable-rows="true"></my-table>
+    <my-table my-id="reactants" my-columns="reactantsColumns" my-rows="rows" my-draggable-columns="true"
+              my-draggable-rows="true" my-on-row-selected="onRowSelected"></my-table>
     <div class="panel-body">
         <div class="row">
             <div class="col-md-12">
