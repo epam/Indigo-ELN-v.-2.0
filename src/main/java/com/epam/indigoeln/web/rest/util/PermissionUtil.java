@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class PermissionUtil {
@@ -51,11 +52,30 @@ public class PermissionUtil {
      * Adding of OWNER's permissions to Entity Access List for specified User, if it is absent
      */
     public static void addOwnerToAccessList(Set<UserPermission> accessList, User user) {
+        setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
+    }
+
+    public static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
         UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
-            userPermission.setPermissions(UserPermission.OWNER_PERMISSIONS);
+            userPermission.setPermissions(permissions);
         } else {
-            userPermission = new UserPermission(user, UserPermission.OWNER_PERMISSIONS);
+            userPermission = new UserPermission(user, permissions);
+            accessList.add(userPermission);
+        }
+    }
+
+    public static void addUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
+        UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
+        if (userPermission != null) {
+            Set<String> existingPermissions = userPermission.getPermissions();
+            if (existingPermissions == null) {
+                existingPermissions = new HashSet<>();
+                userPermission.setPermissions(existingPermissions);
+            }
+            existingPermissions.addAll(permissions);
+        } else {
+            userPermission = new UserPermission(user, permissions);
             accessList.add(userPermission);
         }
     }

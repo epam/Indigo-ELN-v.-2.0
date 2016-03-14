@@ -133,12 +133,17 @@ public class NotebookService {
         // reset notebook's id
         notebook.setId(sequenceIdService.getNextNotebookId(projectId));
 
-        // check of user permissions's correctness in access control list
+        // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
         saveNotebookAndHandleError(notebook);
+
+        // add all users as VIEWER to project
+        notebook.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
 
         project.getNotebooks().add(notebook);
         projectRepository.save(project);
@@ -172,7 +177,17 @@ public class NotebookService {
 
         notebookFromDB.setName(notebookDTO.getName());
         notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
-        return new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+        NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        // add all users as VIEWER to project
+        notebook.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
+        projectRepository.save(project);
+
+        return result;
     }
 
     public void deleteNotebook(String projectId, String id) {
