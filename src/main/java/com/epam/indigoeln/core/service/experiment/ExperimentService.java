@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ExperimentService {
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @Autowired
     private NotebookRepository notebookRepository;
@@ -101,6 +105,8 @@ public class ExperimentService {
     }
 
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
@@ -134,8 +140,15 @@ public class ExperimentService {
 
         experiment = experimentRepository.save(experiment);
 
+        // add all users as VIEWER to notebook & project
+        experiment.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
         notebook.getExperiments().add(experiment);
         notebookRepository.save(notebook);
+        projectRepository.save(project);
+
         return new ExperimentDTO(experiment);
     }
 
@@ -177,7 +190,21 @@ public class ExperimentService {
 
         experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
 
-        return new ExperimentDTO(experimentRepository.save(experimentFromDB));
+        ExperimentDTO result = new ExperimentDTO(experimentRepository.save(experimentFromDB));
+
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+        // add all users as VIEWER to project
+        experimentDTO.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
+        notebookRepository.save(notebook);
+        projectRepository.save(project);
+
+        return result;
     }
 
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
