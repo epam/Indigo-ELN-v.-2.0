@@ -106,53 +106,43 @@ angular.module('indigoeln')
                 $scope.productsColumns = [
                     {
                         id: 'chemicalName',
-                        name: 'Chemical Name',
-                        type: 'input'
+                        name: 'Chemical Name'
                     },
                     {
                         id: 'formula',
-                        name: 'Foumula',
-                        type: 'input'
+                        name: 'Foumula'
                     },
                     {
                         id: 'molWt',
-                        name: 'Mol.Wt.',
-                        type: 'input'
+                        name: 'Mol.Wt.'
                     },
                     {
                         id: 'exactMass',
-                        name: 'Exact Mass',
-                        type: 'input'
+                        name: 'Exact Mass'
                     },
                     {
                         id: 'theoWgt',
-                        name: 'Theo. Wgt.',
-                        type: 'input'
+                        name: 'Theo. Wgt.'
                     },
                     {
                         id: 'theoMoles',
-                        name: 'Theo. Moles',
-                        type: 'input'
+                        name: 'Theo. Moles'
                     },
                     {
                         id: 'saltCode',
-                        name: 'Salt Code',
-                        type: 'input'
+                        name: 'Salt Code'
                     },
                     {
                         id: 'saltEq',
-                        name: 'Salt EQ',
-                        type: 'input'
+                        name: 'Salt EQ'
                     },
                     {
                         id: 'hazardComments',
-                        name: 'Hazard Comments',
-                        type: 'input'
+                        name: 'Hazard Comments'
                     },
                     {
                         id: 'eq',
-                        name: 'EQ',
-                        type: 'input'
+                        name: 'EQ'
                     }
                 ];
 
