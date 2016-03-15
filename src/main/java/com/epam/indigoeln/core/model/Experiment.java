@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.model;
 
+import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 @Document(collection = Experiment.COLLECTION_NAME)
-public class Experiment extends ExperimentShort {
+public class   Experiment extends ExperimentShort {
     public static final String COLLECTION_NAME = "experiment";
 
     private static final long serialVersionUID = -4215770980241351691L;
@@ -24,8 +25,7 @@ public class Experiment extends ExperimentShort {
 
     private String comments;
 
-    // TODO enum: open, completed, submitted, submit_fail, signing, archived
-    private String status;
+    private ExperimentStatus status;
 
     @JsonIgnore
     @DBRef
@@ -50,11 +50,11 @@ public class Experiment extends ExperimentShort {
         this.comments = comments;
     }
 
-    public String getStatus() {
+    public ExperimentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ExperimentStatus status) {
         this.status = status;
     }
 
@@ -80,6 +80,12 @@ public class Experiment extends ExperimentShort {
 
     public void setFileIds(Set<String> fileIds) {
         this.fileIds = fileIds;
+    }
+
+    public TreeNodeDTO  retrieveTreeNodeDTO() {
+        TreeNodeDTO result = new TreeNodeDTO(this);
+        result.setStatus(this.getStatus().toString());
+        return result;
     }
 
     @Override

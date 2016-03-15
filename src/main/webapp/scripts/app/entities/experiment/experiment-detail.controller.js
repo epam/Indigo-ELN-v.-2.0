@@ -3,7 +3,9 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $stateParams, Experiment, Principal, PermissionManagement,
-                  experiment, identity, isContentEditor, hasEditAuthority) {
+                  experiment, notebook, identity, isContentEditor, hasEditAuthority, $uibModal) {
+
+            // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
             $scope.experiment = experiment;
             $scope.experimentId = $stateParams.experimentId;
@@ -15,10 +17,10 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function(event) {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function (event) {
                 $scope.experiment.accessList = PermissionManagement.getAccessList();
             });
-            $scope.$on('$destroy', function() {
+            $scope.$on('$destroy', function () {
                 onAccessListChangedEvent();
             });
 
@@ -38,6 +40,10 @@ angular.module('indigoeln')
                 $scope.isSaving = false;
             };
 
+            var setStatus = function (status) {
+                experiment.status = status;
+            }
+
             $scope.save = function (experiment) {
                 $scope.isSaving = true;
                 experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
@@ -52,24 +58,67 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.statuses = ['Open', 'Complete', 'Submit_Fail', 'Submitted', 'Archieved', 'Signed'];
+            $scope.statuses = ['Opened', 'Completed', 'SubmitFailed', 'Submitted', 'Archived', 'Signed'];
 
-            $scope.statusOpen = function() {
-                return experiment.status === 'Open';
+            $scope.statusOpen = function () {
+                return experiment.status === 'Opened';
             };
-            $scope.statusComplete = function() {
-                return experiment.status === 'Complete';
+            $scope.statusComplete = function () {
+                return experiment.status === 'Completed';
             };
-            $scope.statusSubmitFail = function() {
-                return experiment.status === 'Submit_Fail';
+            $scope.statusSubmitFail = function () {
+                return experiment.status === 'SubmitFailed';
             };
-            $scope.statusSubmitted = function() {
+            $scope.statusSubmitted = function () {
                 return experiment.status === 'Submitted';
             };
-            $scope.statusArchieved = function() {
-                return experiment.status === 'Archieved';
+            $scope.statusArchieved = function () {
+                return experiment.status === 'Archived';
             };
-            $scope.statusSigned = function() {
+            $scope.statusSigned = function () {
                 return experiment.status === 'Signed';
             };
-    });
+
+            $scope.$watch('experiment.status', function (newValue) {
+                $scope.isEditAllowed = $scope.statusOpen();
+            });
+
+            var onCompleteSuccess = function (result) {
+                onSaveSuccess(result);
+            };
+
+            var onCompleteError = function (result) {
+                onSaveError(result);
+                setStatus(rememberStatus);
+            };
+
+            var rememberStatus = experiment.status;
+
+            $scope.completeExperiment = function () {
+                $uibModal.open({
+                    animation: true,
+                    templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
+                    controller: function ($scope, $uibModalInstance) {
+                        $scope.fullExperimentName = function () {
+                            return notebook.name + '-' + experiment.name;
+                        };
+                        $scope.dismiss = function () {
+                            $uibModalInstance.dismiss('cancel');
+                        };
+                        $scope.confirmCompletion = function () {
+                            $uibModalInstance.close(true);
+                        };
+                    }
+                }).result.then(function () {
+                    $scope.isSaving = true;
+                    rememberStatus = experiment.status;
+                    setStatus("Completed");
+                    experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
+                    var experimentForSave = _.extend({}, experiment, {components: toComponents(experiment.components)});
+                    Experiment.update({
+                        projectId: $stateParams.projectId,
+                        notebookId: $stateParams.notebookId
+                    }, experimentForSave, onCompleteSuccess, onCompleteError);
+                });
+            }
+        });

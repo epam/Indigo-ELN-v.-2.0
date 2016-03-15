@@ -63,6 +63,9 @@ angular.module('indigoeln')
                     experiment: function ($stateParams, EntitiesBrowser) {
                         return EntitiesBrowser.getCurrentEntity($stateParams);
                     },
+                    notebook: function ($stateParams, EntitiesBrowser) {
+                        return EntitiesBrowser.getNotebookFromCache($stateParams);
+                    },
                     identity: function (Principal) {
                         return Principal.identity();
                     },

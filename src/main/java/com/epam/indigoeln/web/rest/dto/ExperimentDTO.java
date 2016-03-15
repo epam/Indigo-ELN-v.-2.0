@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class ExperimentDTO extends BasicDTO {
 
     private TemplateDTO template;
     private List<ComponentDTO> components = new ArrayList<>();
-    private String status;
+    private ExperimentStatus status;
 
     public ExperimentDTO() {
     }
@@ -48,11 +49,11 @@ public class ExperimentDTO extends BasicDTO {
         this.components = components != null ? components : new ArrayList<>();
     }
 
-    public String getStatus() {
+    public ExperimentStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ExperimentStatus status) {
         this.status = status;
     }
 }
