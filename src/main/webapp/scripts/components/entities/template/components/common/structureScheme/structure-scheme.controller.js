@@ -18,6 +18,7 @@ angular.module('indigoeln')
         // watch structure's id and update structure and its image if changed
         $scope.$watch('myModel.structureId', function () {
             if ($scope.myModel.structureId) {
+                $scope.share[$attrs.myStructureType] = $scope.myModel.structureMolfile;
                 $http({
                     url: getRendererUrl($scope.structureType),
                     method: 'POST',

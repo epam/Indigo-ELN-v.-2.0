@@ -8,12 +8,10 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope) {
+            controller: function ($scope, $http, $q) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
-                $scope.products = {};
-                $scope.model.stoichTable.products = $scope.model.stoichTable.products || [$scope.products];
 
                 var grams = ['mg', 'g', 'kg'];
                 var liters = ['ul', 'ml', 'l'];
@@ -142,7 +140,8 @@ angular.module('indigoeln')
                     },
                     {
                         id: 'eq',
-                        name: 'EQ'
+                        name: 'EQ',
+                        type: 'input'
                     }
                 ];
 
@@ -162,6 +161,38 @@ angular.module('indigoeln')
                 $scope.removeRow = function () {
                     $scope.rows = _.without($scope.rows, $scope.selectedRow);
                 };
+                $scope.$watch('share.reaction', function (newMolFile) {
+                    var resetMolInfo = function () {
+                        $scope.model.stoichTable.products = null;
+                    };
+                    if (newMolFile) {
+
+                        $http.put('api/calculations/reaction/extract', newMolFile).then(function (reactionProperties) {
+                                if (reactionProperties.data.products && reactionProperties.data.products.length) {
+                                    var promises = [];
+                                    _.each(reactionProperties.data.products, function (product) {
+                                        promises.push($http.put('api/calculations/molecule/info', product));
+                                    });
+                                    $q.all(promises).then(function (results) {
+                                        $scope.model.stoichTable.products = _.map(results, function (result) {
+                                            return {
+                                                chemicalName: result.data.name,
+                                                formula: result.data.molecularFormula,
+                                                molWt: result.data.molecularWeight,
+                                                exactMass: result.data.exactMolecularWeight
+                                            };
+                                        });
+
+                                    });
+                                }
+                            }
+                        );
+                    } else {
+                        resetMolInfo();
+                    }
+                });
             }
-        };
-    });
+        }
+            ;
+    })
+;
