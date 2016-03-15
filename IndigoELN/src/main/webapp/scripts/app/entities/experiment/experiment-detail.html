@@ -54,7 +54,7 @@
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
                 <li role="menuitem"><a><i>Status: </i><b>{{ experiment.status}}</b></a></li>
                 <li class="divider"></li>
-                <li role="menuitem" ng-if="statusOpen()"><a href="#">Complete Experiment</a></li>
+                <li role="menuitem" ng-if="statusOpen()" ng-click="completeExperiment()"><a>Complete Experiment</a></li>
                 <li role="menuitem" ng-if="statusOpen()"><a href="#">Complete & Sign </a></li>
                 <li role="menuitem" ng-if="statusSubmitFail()"><a href="#">Open Experiment for Review</a></li>
                 <li role="menuitem" ng-if="statusSubmitFail()"><a href="#">Reopen Experiment for Edit</a></li>
