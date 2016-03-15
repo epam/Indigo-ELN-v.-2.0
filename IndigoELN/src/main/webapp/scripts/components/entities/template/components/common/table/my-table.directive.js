@@ -44,7 +44,7 @@ angular.module('indigoeln')
                 myDraggableColumns: '='
 
             },
-            controller: function ($scope, dragulaService, localStorageService, $attrs) {
+            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService) {
                 var columnsIds = JSON.parse(localStorageService.get($scope.myId + '.columns'));
 
                 $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
@@ -94,6 +94,9 @@ angular.module('indigoeln')
                         return !handle.classList.contains('no-draggable');
                     }
                 });
+
+                unitService.processColumns($scope.myColumns, $scope.myRows);
+                selectService.processColumns($scope.myColumns, $scope.myRows);
 
             },
             compile: function (tElement, tAttrs, transclude) {
