@@ -44,7 +44,8 @@
             </div>
         </div>
     </div>
-    <my-table my-id="reactants" my-columns="reactantsColumns" my-rows="rows" my-draggable-columns="true"
+    <my-table my-id="reactants" my-columns="reactantsColumns" my-rows="model.stoichTable.reactants"
+              my-draggable-columns="true"
               my-draggable-rows="true" my-on-row-selected="onRowSelected"></my-table>
     <div class="panel-body">
         <div class="row">
@@ -53,5 +54,5 @@
             </div>
         </div>
     </div>
-    <my-table my-id="intended" my-columns="intendedColumns" my-rows="intendedRows"></my-table>
+    <my-table my-id="intended" my-columns="productsColumns" my-rows="model.stoichTable.products"></my-table>
 </div>

@@ -9,6 +9,12 @@ angular.module('indigoeln')
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
             controller: function ($scope) {
+                $scope.model = $scope.model || {};
+                $scope.model.stoichTable = $scope.model.stoichTable || {};
+                $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
+                $scope.products = {};
+                $scope.model.stoichTable.products = $scope.model.stoichTable.products || [$scope.products];
+
                 var grams = ['mg', 'g', 'kg'];
                 var liters = ['ul', 'ml', 'l'];
                 var moles = ['umol', 'mmol', 'mol'];
@@ -97,7 +103,7 @@ angular.module('indigoeln')
                         name: 'Comments',
                         type: 'input'
                     }];
-                $scope.intendedColumns = [
+                $scope.productsColumns = [
                     {
                         id: 'chemicalName',
                         name: 'Chemical Name',
@@ -149,12 +155,11 @@ angular.module('indigoeln')
                         type: 'input'
                     }
                 ];
-                $scope.intended = {};
-                $scope.intendedRows = [$scope.intended];
+
+
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row;
                 };
-                $scope.rows = [{}, {}];
                 $scope.clear = function () {
                     for (var key in $scope.selectedRow) {
                         if ($scope.selectedRow.hasOwnProperty(key)) {
