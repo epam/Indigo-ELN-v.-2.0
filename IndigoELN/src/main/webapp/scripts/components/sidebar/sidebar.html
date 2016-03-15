@@ -23,7 +23,9 @@
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="icon-bg-round"></i>
                                         <span>{{experiment.name}}</span>
-                                        <i class="experiment-status fa fa-key"></i>
+                                        <i class="experiment-status"
+                                           ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
                                     </li>
                                 </ul>
                             </li>
@@ -53,6 +55,9 @@
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="icon-bg-round"></i>
                                         <span>{{experiment.name}}</span>
+                                        <i class="experiment-status"
+                                           ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
                                     </li>
                                 </ul>
                             </li>

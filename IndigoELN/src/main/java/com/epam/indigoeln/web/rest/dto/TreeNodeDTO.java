@@ -20,6 +20,7 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
     private String id;
     private String fullId;
     private String name;
+    private String status;
     private Set<UserPermission> accessList;
 
     public TreeNodeDTO() {
@@ -46,6 +47,14 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
 
     public Set<UserPermission> getAccessList() {
         return accessList;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override
