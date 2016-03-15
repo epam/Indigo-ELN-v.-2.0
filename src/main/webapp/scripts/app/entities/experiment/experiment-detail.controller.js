@@ -85,6 +85,8 @@ angular.module('indigoeln')
 
             var onCompleteSuccess = function (result) {
                 onSaveSuccess(result);
+                $rootScope.$broadcast('experiment-status-changed',
+                    {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
             };
 
             var onCompleteError = function (result) {
@@ -114,7 +116,7 @@ angular.module('indigoeln')
                     rememberStatus = experiment.status;
                     setStatus("Completed");
                     experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
-                    var experimentForSave = _.extend({}, experiment, {components: toComponents(experiment.components)});
+                    var experimentForSave = _.extend({}, experiment);
                     Experiment.update({
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId

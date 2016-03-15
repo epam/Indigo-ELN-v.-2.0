@@ -55,7 +55,7 @@ public class ExperimentService {
 
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
-        return experiments.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList());
+        return experiments.stream().map(s -> s.retrieveTreeNodeDTO()).sorted().collect(Collectors.toList());
     }
 
     /**
@@ -118,7 +118,7 @@ public class ExperimentService {
         }
 
         Experiment experiment = dtoMapper.convertFromDTO(experimentDTO);
-        experiment.setStatus("Open");
+        experiment.setStatus(ExperimentStatus.OPEN);
 
         if (experimentDTO.getTemplate() != null) {
             Template template = new Template();

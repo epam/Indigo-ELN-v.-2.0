@@ -43,13 +43,20 @@ angular
         });
 
         var onExperimentCreatedEvent = $scope.$on('experiment-created', function(event, data) {
+            updateTreeForExperiments(event, data);
+        });
+
+        var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
+            updateTreeForExperiments(event, data);
+        });
+
+        var updateTreeForExperiments = function (event, data) {
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
 
-            if($scope.projects &&
-                (project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                (notebook = $scope.getTreeItemById(project.children, data.notebookId))
-            ) { //find existing notebook and update children only
+            if ($scope.projects && (project = $scope.getTreeItemById($scope.projects, data.projectId))
+                && (notebook = $scope.getTreeItemById(project.children, data.notebookId)))
+            { //find existing notebook and update children only
                 Experiment.query({notebookId: notebook.id, projectId : project.id}, function (expResult) {
                     notebook.children = expResult;
                     project.isOpen = true;
@@ -61,18 +68,19 @@ angular
                     $scope.myBookmarks.projects = result;
 
                     if((project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                            (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
+                        (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
                         project.isOpen = true;
                         notebook.isOpen = true;
                     }
                 });
             }
-        });
+        };
 
         $scope.$on('$destroy', function() {
             onExperimentCreatedEvent();
             onNotebookCreatedEvent();
             onProjectCreatedEvent();
+            onExperimentStatusChangedEvent();
         });
 
         $scope.getTreeItemById = function(items, itemId) {
