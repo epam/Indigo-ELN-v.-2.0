@@ -9,6 +9,13 @@ angular.module('indigoeln')
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
             controller: function ($scope) {
+                var grams = ['mg', 'g', 'kg'];
+                var liters = ['ul', 'ml', 'l'];
+                var moles = ['umol', 'mmol', 'mol'];
+                var molarity = ['mM', 'M'];
+                var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
+                var saltCodeValues = [{name: '00 - Parent'}, {name: '01 - Salt1(MW-10)'}, {name: '02 - Salt2(MW-20)'}];
+                var loadFactorUnits = ['mmol/g'];
                 $scope.reactantsColumns = [
                     {
                         id: 'compoundId',
@@ -16,8 +23,7 @@ angular.module('indigoeln')
                         type: 'input'
                     }, {
                         id: 'casNumber',
-                        name: 'CAS Number',
-                        type: 'input'
+                        name: 'CAS Number'
                     }, {
                         id: 'nbkBatch',
                         name: 'Nbk Batch #',
@@ -28,32 +34,37 @@ angular.module('indigoeln')
                         type: 'input'
                     }, {
                         id: 'molWeight',
-                        name: 'Mol Weight',
-                        type: 'input'
+                        name: 'Mol Weight'
                     }, {
                         id: 'weight',
                         name: 'Weight',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: grams
                     }, {
                         id: 'volume',
                         name: 'Volume',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: liters
                     }, {
                         id: 'mol',
                         name: 'Mol',
-                        type: 'input'
+                        unitItems: moles
                     }, {
                         id: 'limiting',
                         name: 'Limiting',
-                        type: 'input'
+                        type: 'boolean'
                     }, {
                         id: 'rxnRole',
                         name: 'Rxn Role',
-                        type: 'input'
+                        type: 'select',
+                        values: function () {
+                            return rxnValues;
+                        }
                     }, {
                         id: 'molarity',
                         name: 'Molarity',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: molarity
                     }, {
                         id: 'purity',
                         name: 'Purity',
@@ -65,15 +76,18 @@ angular.module('indigoeln')
                     }, {
                         id: 'saltCode',
                         name: 'Salt Code',
-                        type: 'input'
+                        type: 'select',
+                        values: function () {
+                            return saltCodeValues;
+                        }
                     }, {
                         id: 'saltEq',
-                        name: 'Salt EQ',
-                        type: 'input'
+                        name: 'Salt EQ'
                     }, {
                         id: 'loadFactor',
                         name: 'Load Factor',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: loadFactorUnits
                     }, {
                         id: 'hazardComments',
                         name: 'Hazard Comments',
@@ -135,6 +149,8 @@ angular.module('indigoeln')
                         type: 'input'
                     }
                 ];
+                $scope.intended = {};
+                $scope.intendedRows = [$scope.intended];
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row;
                 };
