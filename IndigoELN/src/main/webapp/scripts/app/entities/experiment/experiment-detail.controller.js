@@ -7,10 +7,13 @@ angular.module('indigoeln')
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
+            $scope.statuses = ['Opened', 'Completed', 'SubmitFailed', 'Submitted', 'Archived', 'Signed'];
+
             $scope.experiment = experiment;
             $scope.experimentId = $stateParams.experimentId;
             $scope.experiment.author = $scope.experiment.author || identity;
             $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(identity);
+
             $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Experiment');
@@ -58,29 +61,9 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.statuses = ['Opened', 'Completed', 'SubmitFailed', 'Submitted', 'Archived', 'Signed'];
-
-            $scope.statusOpen = function () {
-                return experiment.status === 'Opened';
-            };
-            $scope.statusComplete = function () {
-                return experiment.status === 'Completed';
-            };
-            $scope.statusSubmitFail = function () {
-                return experiment.status === 'SubmitFailed';
-            };
-            $scope.statusSubmitted = function () {
-                return experiment.status === 'Submitted';
-            };
-            $scope.statusArchieved = function () {
-                return experiment.status === 'Archived';
-            };
-            $scope.statusSigned = function () {
-                return experiment.status === 'Signed';
-            };
 
             $scope.$watch('experiment.status', function (newValue) {
-                $scope.isEditAllowed = $scope.statusOpen();
+                $scope.isEditAllowed = $scope.isStatusOpen();
             });
 
             var onCompleteSuccess = function (result) {
@@ -117,10 +100,30 @@ angular.module('indigoeln')
                     setStatus("Completed");
                     experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
                     var experimentForSave = _.extend({}, experiment);
-                    Experiment.update({
+                    $scope.loading = Experiment.update({
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId
-                    }, experimentForSave, onCompleteSuccess, onCompleteError);
+                    }, experimentForSave, onCompleteSuccess, onCompleteError).$promise;
                 });
             }
+
+            $scope.isStatusOpen = function () {
+                return experiment.status === 'Opened';
+            };
+            $scope.isStatusComplete = function () {
+                return experiment.status === 'Completed';
+            };
+            $scope.isStatusSubmitFail = function () {
+                return experiment.status === 'SubmitFailed';
+            };
+            $scope.isStatusSubmitted = function () {
+                return experiment.status === 'Submitted';
+            };
+            $scope.isStatusArchieved = function () {
+                return experiment.status === 'Archived';
+            };
+            $scope.isStatusSigned = function () {
+                return experiment.status === 'Signed';
+            };
+
         });
