@@ -12,7 +12,7 @@
 
                                 <!--HEADER-->
                                 <div class="row print-component">
-                                    <div class="col-xs-10 col-xs-offset-2">
+                                    <div class="col-xs-12">
                                         <table class="print-header">
                                             <tr>
                                                 <th colspan="2"><h3>CONFIDENTIAL</h3></th>
@@ -61,14 +61,14 @@
                                 <!--EXPERIMENT DETAILS-->
                                 <!-- reactionDetails-->
                                 <div class="row print-component" ng-if="true"> <!--ng-if="reactionDetails"-->
-                                    <div class="col-xs-2 need-to-print" ng-init="reactionDetails.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="reactionDetails.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="reactionDetails.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">EXPERIMENT DETAILS</b></div>
                                         <table style="border: 1px black solid"
                                                class="print-table-simple">
@@ -105,15 +105,15 @@
                                 <!--EXPERIMENT DESCRIPTION-->
                                 <!--no such component yet-->
                                 <div class="row print-component" ng-if="true">
-                                    <div class="col-xs-2 need-to-print"
+                                    <div class="col-xs-1 need-to-print"
                                          ng-init="experimentDescription.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="experimentDescription.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">EXPERIMENT DESCRIPTION</b>
                                         </div>
                                         <div class="print-box" style="height: 100px;">#text-editor component
@@ -122,34 +122,36 @@
                                 </div>
 
                                 <!--SUMMARY REACTION-->
-                                <!--reaction ?-->
+                                <!--reaction-->
                                 <div class="row print-component" ng-if="true">  <!--ng-if="reaction"-->
-                                    <div class="col-xs-2 need-to-print" ng-init="reaction.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="reaction.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="reaction.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">REACTION SCHEME</b></div>
-                                        <div class="print-box" style="height: 100px;">reaction.structureScheme
+                                        <div class="print-box">
+                                            <img style="padding: 10px; background-color: white; "
+                                                 class="img-responsive center-block"
+                                                 ng-src="data:image/svg+xml;base64,{{reaction.image}}" alt="Image is unavailable.">
                                         </div>
-                                        <!--???-->
                                     </div>
                                 </div>
 
                                 <!--STOICHIOMETRY-->
                                 <!--no such component yet-->
                                 <div class="row print-component" ng-if="true">
-                                    <div class="col-xs-2 need-to-print" ng-init="stoichiometry.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="stoichiometry.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="stoichiometry.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">STOICHIOMETRY</b></div>
                                         <table class="print-table">
                                             <tr>
@@ -212,14 +214,14 @@
                                 <!--BATCH INFORMATION-->
                                 <!--batchSummary.batches; product-batch-summary.controller -->
                                 <div class="row print-component" ng-if="true">   <!--ng-if="batchSummary"-->
-                                    <div class="col-xs-2 need-to-print" ng-init="batchSummary.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="batchSummary.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="batchSummary.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">BATCH INFORMATION</b></div>
                                         <table class="print-table">
                                             <tr>
@@ -280,15 +282,15 @@
                                 <!--REGISTRATION SUMMARY-->
                                 <!--no such component-->
                                 <div class="row print-component" ng-if="true">
-                                    <div class="col-xs-2 need-to-print"
+                                    <div class="col-xs-1 need-to-print"
                                          ng-init="registrationSummary.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="registrationSummary.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">REGISTRATION SUMMARY</b></div>
                                         <table class="print-table">
                                             <tr>
@@ -311,14 +313,14 @@
                                 <!--BATCH DETAILS-->
                                 <!--batchDetails-->
                                 <div class="row print-component">
-                                    <div class="col-xs-2 need-to-print" ng-init="batchDetails.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="batchDetails.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="batchDetails.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10" ng-if="true">   <!--ng-if="batchDetails"-->
+                                    <div class="col-xs-11" ng-if="true">   <!--ng-if="batchDetails"-->
                                         <div class="row"><b class="pull-right">BATCH DETAILS</b></div>
                                         <table class="print-table">
                                             <tr>
@@ -417,14 +419,14 @@
                                 <!--CONCEPT DETAIL-->
                                 <!--conceptDetails-->
                                 <div class="row print-component" ng-if="true"> <!--ng-if="conceptDetails"-->
-                                    <div class="col-xs-2 need-to-print" ng-init="conceptDetails.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="conceptDetails.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="conceptDetails.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <b class="pull-right">CONCEPT DETAILS</b>
                                         <table style="border: 1px black solid"
                                                class="print-table-simple">
@@ -455,14 +457,14 @@
                                 <!--PREFERRED COMPOUNDS-->
                                 <!--no such component yet ? concept(no fields), product-batch-summary?-->
                                 <div class="row print-component" ng-if="true">
-                                    <div class="col-xs-2 need-to-print" ng-init="preferredCompounds.needToPrint = true">
+                                    <div class="col-xs-1 need-to-print" ng-init="preferredCompounds.needToPrint = true">
                                         <my-checkbox
-                                                my-label="Need To Print"
+                                                my-label="Print"
                                                 my-model="preferredCompounds.needToPrint"
                                                 my-name="needToPrint"
                                         ></my-checkbox>
                                     </div>
-                                    <div class="col-xs-10">
+                                    <div class="col-xs-11">
                                         <div class="row"><b class="pull-right">PREFERRED COMPOUNDS</b></div>
                                         <table class="print-table">
                                             <tr>

@@ -31,6 +31,8 @@ angular.module('indigoeln')
                         $scope.share.selectedRow.structure.structureType = $scope.structureType;
                         $scope.share.selectedRow.structure.molfile = $scope.myModel.structureMolfile;
                         $scope.share.selectedRow.structure.structureId = $scope.myModel.structureId;
+                    } else {
+                        $scope.myModel.image = result.image;
                     }
                 }).error(function () {
                     $scope.image = null;

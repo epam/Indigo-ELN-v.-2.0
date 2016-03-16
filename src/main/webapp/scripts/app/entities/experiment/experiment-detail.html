@@ -38,8 +38,7 @@
         </div>
         <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
 
-            <my-components ng-init="experiment.components = toModel(experiment.components)"
-                           my-template="experiment.template.templateContent"
+            <my-components my-template="experiment.template.templateContent"
                            my-disabled="!isEditAllowed"
                            my-model="experiment.components"
                            my-experiment-form="experimentForm"
