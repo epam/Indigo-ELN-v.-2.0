@@ -164,6 +164,12 @@
             <version>5.5.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.itextpdf.tool</groupId>
+            <artifactId>xmlworker</artifactId>
+            <version>5.5.7</version>
+        </dependency>
+
         <!-- Apache Commons -->
         <dependency>
             <groupId>commons-io</groupId>
@@ -264,7 +270,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.27</version>
+                <version>0.0.29</version>
                 <executions>
                     <execution>
                         <id>install node and npm</id>
@@ -272,10 +278,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v4.2.4</nodeVersion>
-                            <npmVersion>3.5.3</npmVersion>
-                            <nodeDownloadRoot>http://nodejs.org/dist/</nodeDownloadRoot>
-                            <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+                            <nodeVersion>v0.12.10</nodeVersion>
+                            <npmVersion>2.14.9</npmVersion>
                         </configuration>
                     </execution>
                     <execution>

@@ -1,18 +1,34 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentPrintController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, experiment) {
+    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, experiment, notebook, project) {
 
         $scope.experiment = experiment;
+        $scope.notebook = notebook;
+        $scope.project = project;
 
-        $scope.toModel = function toModel(components) {
-            if (_.isArray(components)) {
-                return _.object(_.map(components, function (component) {
-                    return [component.name, component.content];
-                }));
-            } else {
-                return components;
-            }
+        $scope.batchDetails = experiment.components.productBatchDetails;
+        $scope.batchSummary = experiment.components.productBatchSummary;
+        $scope.conceptDetails = experiment.components.conceptDetails;
+        $scope.reactionDetails = experiment.components.reactionDetails;
+        $scope.reaction = experiment.components.reaction;
+        $scope.molecule = experiment.components.molecule;
+
+        $scope.currentDate = Date.now();
+
+        var preparedPrintForm = function () {
+            var $printFormClone = $('#print-form').clone();
+            $printFormClone.find('div.print-component').each(function () {
+                var $this = $(this);
+                var $input = $this.find('input');
+                $this.find('div.col-xs-11').removeClass('col-xs-11').addClass('col-xs-12');
+                if ($input.length && $input.get(0).checked !== true) {
+                    $this.remove();
+                } else if ($input.length) {
+                    $this.find('div.need-to-print').remove();
+                }
+            });
+            return $printFormClone;
         };
 
         var prepareIframe = function ($iframe, callback) {
@@ -27,8 +43,14 @@ angular.module('indigoeln').controller('ExperimentPrintController',
                 });
             $.when.apply($, promises).then(callback.bind(null, $iframeContents));
             var iframeBody = $iframeContents.find('body');
-            iframeBody.append($('#printForm').clone());
+            iframeBody.addClass('main-container');
+            iframeBody.css({
+                'min-width': '960px',
+                'background-color': '#fff'
+            });
             iframeBody.css('overflow', 'auto');
+            var $preparedPrintForm = preparedPrintForm();
+            iframeBody.append($preparedPrintForm);
         };
 
         var downloadReport = function (response) {
@@ -36,7 +58,7 @@ angular.module('indigoeln').controller('ExperimentPrintController',
             var hiddenDownloader = $('#' + hiddenFrameId);
             if (!hiddenDownloader.length) {
                 hiddenDownloader = $('<iframe id="' + hiddenFrameId + '" style="display:none"/>');
-                $('body').append( hiddenDownloader);
+                $('body').append(hiddenDownloader);
             }
             hiddenDownloader.attr('src', 'api/print?fileName=' + response.fileName);
             $scope.isPrinting = false;
@@ -57,9 +79,11 @@ angular.module('indigoeln').controller('ExperimentPrintController',
             iframeEl.style.border = '0';
             $iframe.load(function () {
                 var callback = function ($iframeContents) {
-                    PdfService.create({html: '<!DOCTYPE html><html>' + $iframeContents.find('html').html() + '</html>'})
-                        .$promise.then(function(response) {
-                            downloadReport(response);
+                    PdfService.create({
+                        html: '<!DOCTYPE html>' + $iframeContents.find('html').html() + '</html>',
+                        header: $iframeContents.find('.print-header').html()
+                    }).$promise.then(function (response) {
+                        downloadReport(response);
                     });
                     $iframe.remove();
                 };

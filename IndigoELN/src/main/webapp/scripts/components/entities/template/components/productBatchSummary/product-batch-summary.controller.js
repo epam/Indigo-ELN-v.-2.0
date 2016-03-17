@@ -5,99 +5,13 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, localStorageService, $http, $stateParams) {
+        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
-
-            var convertUnit = function (name, item) {
-                if (!item) {
-                    return;
-                }
-                item.value = $u(item.value, item.unit).as(name).val();
-                item.unit = name;
-            };
             var grams = ['mg', 'g', 'kg'];
             var liters = ['ul', 'ml', 'l'];
             var moles = ['umol', 'mmol', 'mol'];
-            var toUnitNameAction = function (unit) {
-                return {
-                    name: unit,
-                    onClick: convertUnit.bind(null, unit)
-                };
-            };
-            var toUnitAction = function (unit) {
-                return {
-                    name: 'Set Unit ' + unit,
-                    action: function (id) {
-                        _.each($scope.model.productBatchSummary.batches, function (row) {
-                            convertUnit(unit, row[id]);
-                        });
-                    }
-                };
-            };
-
-            var gramsUnits = _.map(grams, toUnitNameAction);
-            var gramsActions = _.map(grams, toUnitAction);
-            var litersUnits = _.map(liters, toUnitNameAction);
-            var litersActions = _.map(liters, toUnitAction);
-            var molesUnits = _.map(moles, toUnitNameAction);
-            var molesActions = _.map(moles, toUnitAction);
-
-            var setUnitValueAction = {
-                action: function (id) {
-                    var that = this;
-                    $uibModal.open({
-                        templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-unit-value.html',
-                        controller: 'ProductBatchSummarySetUnitValueController',
-                        size: 'sm',
-                        resolve: {
-                            name: function () {
-                                return that.title;
-                            },
-                            unitNames: function () {
-                                return that.units;
-                            }
-                        }
-                    }).result.then(function (result) {
-                        _.each($scope.model.productBatchSummary.batches, function (item) {
-                            item[id] = item[id] || {};
-                            item[id].value = result.value;
-                            item[id].unit = result.unit;
-                        });
-                    }, function () {
-
-                    });
-                }
-
-            };
-            var setSelectValueAction = {
-                action: function (id) {
-                    var that = this;
-                    $uibModal.open({
-                        templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-select-value.html',
-                        controller: 'ProductBatchSummarySetSelectValueController',
-                        size: 'sm',
-                        resolve: {
-                            name: function () {
-                                return that.title;
-                            },
-                            values: function () {
-                                return that.values;
-                            }
-                        }
-                    }).result.then(function (result) {
-                        _.each($scope.model.productBatchSummary.batches, function (item) {
-                            item[id] = item[id] || {};
-                            item[id].name = result.name;
-                        });
-                    }, function () {
-
-                    });
-                }
-
-            };
-
             var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
             var stereoisomerValues = [
                 {name: 'NOSTC - Achiral - No Stereo Centers'},
@@ -190,8 +104,8 @@ angular.module('indigoeln')
                     name: 'Theo. Wgt.',
                     type: 'unit',
                     width: '150px',
-                    units: gramsUnits,
-                    actions: gramsActions,
+                    unitItems: grams,
+                    hideSetValue: true,
                     readonly: true
                 },
                 {
@@ -199,45 +113,25 @@ angular.module('indigoeln')
                     name: 'Total Weight',
                     type: 'unit',
                     width: '150px',
-                    units: gramsUnits,
-                    actions: [_.extend({}, setUnitValueAction, {
-                        name: 'Set value for Total Weight',
-                        title: 'Total Weight',
-                        units: grams
-                    })].concat(gramsActions)
+                    unitItems: grams
                 },
                 {
                     id: 'totalVolume', name: 'Total Volume',
                     type: 'unit',
                     width: '150px',
-                    units: litersUnits,
-                    actions: [_.extend({}, setUnitValueAction, {
-                        name: 'Set value for Total Volume',
-                        title: 'Total Volume',
-                        units: liters
-                    })].concat(litersActions)
+                    unitItems: liters
                 },
                 {
                     id: 'totalMoles', name: 'Total Moles',
                     type: 'unit',
                     width: '150px',
-                    units: molesUnits,
-                    actions: [_.extend({}, setUnitValueAction, {
-                        name: 'Set value for Total Moles',
-                        title: 'Total Moles',
-                        units: moles
-                    })].concat(molesActions)
+                    unitItems: moles
                 },
                 {
                     id: 'theoMoles', name: 'Theo. Moles',
                     type: 'unit',
                     width: '150px',
-                    units: gramsUnits,
-                    actions: [_.extend({}, setUnitValueAction, {
-                        name: 'Set value for Theo. Moles',
-                        title: 'Theo. Moles',
-                        units: grams
-                    })].concat(gramsActions)
+                    unitItems: grams
                 },
                 {id: 'yield', name: '%Yield'},
                 {
@@ -246,12 +140,7 @@ angular.module('indigoeln')
                     type: 'select',
                     values: function () {
                         return compoundValues;
-                    },
-                    actions: [_.extend({}, setSelectValueAction, {
-                        name: 'Set value for Compound State',
-                        title: 'Compound State',
-                        values: compoundValues
-                    })]
+                    }
 
                 },
                 {id: 'purity', name: 'Purity'},
@@ -266,12 +155,7 @@ angular.module('indigoeln')
                     values: function () {
                         return stereoisomerValues;
                     },
-                    width: '350px',
-                    actions: [_.extend({}, setSelectValueAction, {
-                        name: 'Set value for Stereoisomer',
-                        title: 'Stereoisomer',
-                        values: stereoisomerValues
-                    })]
+                    width: '350px'
                 },
                 {
                     id: 'source', name: 'Source',
@@ -282,6 +166,7 @@ angular.module('indigoeln')
                     onSelect: function (row) {
                         row.sourceDetail = {};
                     },
+                    hideSelectValue: true,
                     actions: [_.extend({}, setSelectSourceValueAction, {
                         name: 'Set value for Source',
                         title: 'Source'
@@ -301,6 +186,7 @@ angular.module('indigoeln')
                         }
                         return null;
                     },
+                    hideSelectValue: true,
                     actions: [_.extend({}, setSelectSourceValueAction, {
                         name: 'Set value for Source Detail',
                         title: 'Source Detail'
@@ -317,12 +203,7 @@ angular.module('indigoeln')
                     type: 'select',
                     values: function () {
                         return compoundProtectionValues;
-                    },
-                    actions: [_.extend({}, setSelectValueAction, {
-                        name: 'Set value for Compound Protection',
-                        title: 'Compound Protection',
-                        values: compoundProtectionValues
-                    })]
+                    }
                 },
                 {
                     id: 'structureComments', name: 'Structure Comments',
@@ -330,17 +211,6 @@ angular.module('indigoeln')
                 }
             ];
 
-            var columnsIds = JSON.parse(localStorageService.get('product-batch-summary.columns'));
-
-            $scope.columns = _.sortBy($scope.columns, function (column) {
-                return _.indexOf(columnsIds, column.id);
-            });
-
-            $scope.$watch(function () {
-                return _.map($scope.columns, _.iteratee('id')).join('-');
-            }, function () {
-                localStorageService.set('product-batch-summary.columns', JSON.stringify(_.pluck($scope.columns, 'id')));
-            });
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row;
             };
@@ -377,7 +247,18 @@ angular.module('indigoeln')
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                         '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
-                        $scope.model.productBatchSummary.batches.push({nbkBatch: result.data.batchNumber});
+                        var batchNumber = result.data.batchNumber;
+                        EntitiesBrowser.resolveFromCache({
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        }).then(function (notebook) {
+                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
+                            $scope.model.productBatchSummary.batches.push({
+                                nbkBatch: batchNumber,
+                                fullNbkBatch: fullNbkBatch
+                            });
+                        });
+
                     });
             };
 
