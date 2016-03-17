@@ -28,31 +28,20 @@ angular.module('indigoeln')
             };
 
             $scope.removeMember = function(member) {
-                var agent, params, message;
+                var message;
                 var callback = function() {
                     $scope.accessList = _.without($scope.accessList, member);
                 };
-
-                if ($scope.entity.toLowerCase() === 'experiment' || !$scope.entityId) {
-                    callback();
-                    return;
-                }
-
-                if ($scope.entity.toLowerCase() === 'project') {
-                    agent = UserRemovableFromProject;
-                    params = {projectId: $scope.entityId, userId: member.user.id };
+                if ($scope.entity === 'Project') {
                     message = 'You are trying to remove USER who has access to notebooks or ' +
                         'experiments within this project. By removing this USER you block his (her) ' +
                         'access to notebook or experiments withing this project';
-                } else if ($scope.entity.toLowerCase() === 'notebook') {
-                    agent = UserRemovableFromNotebook;
-                    params = {projectId: $scope.parentId, notebookId: $scope.entityId, userId: member.user.id };
+                } else if ($scope.entity === 'Notebook') {
                     message = 'You are trying to remove USER who has access to experiments within this notebook. ' +
                         'By removing this USER you block his (her) access to experiments withing this notebook';
                 }
-
-                agent.get(params).$promise.then(function(result) {
-                    if (result.isUserRemovable === true) {
+                PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
+                    if (isRemovable) {
                         callback();
                     } else {
                         AlertModal.confirm(message, callback);

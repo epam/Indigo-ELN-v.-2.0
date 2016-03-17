@@ -16,7 +16,7 @@ angular.module('indigoeln')
             'get': {method: 'GET'}
         });
     })
-    .factory('PermissionManagement', function ($q, Principal) {
+    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
         var _accessList, _author, _entity, _entityId, _parentId;
 
         var VIEWER = ['READ_ENTITY'];
@@ -143,15 +143,32 @@ angular.module('indigoeln')
                     });
                 }
             },
-            hasAuthorityForPermission: function(member, permission, entity) {
-                var ent = entity ? entity : _entity;
-                if (ent === 'Project') {
+            hasAuthorityForPermission: function(member, permission) {
+                if (_entity === 'Project') {
                     return this.hasAuthorityForProjectPermission(member, permission);
-                } else if (ent === 'Notebook') {
+                } else if (_entity === 'Notebook') {
                     return this.hasAuthorityForNotebookPermission(member, permission);
-                } else if (ent === 'Experiment') {
+                } else if (_entity === 'Experiment') {
                     return this.hasAuthorityForExperimentPermission(member, permission);
                 }
+            },
+            isUserRemovableFromAccessList: function(member) {
+                var agent, params;
+                var deferred = $q.defer();
+                if (_entity === 'Experiment' || !_entityId) {
+                    $q.when(true);
+                }
+                if (_entity === 'Project') {
+                    agent = UserRemovableFromProject;
+                    params = {projectId: _entityId, userId: member.user.id };
+                } else if (_entity === 'Notebook') {
+                    agent = UserRemovableFromNotebook;
+                    params = {projectId: _parentId, notebookId: _entityId, userId: member.user.id };
+                }
+                agent.get(params).$promise.then(function(result) {
+                    deferred.resolve(result.isUserRemovable);
+                });
+                return deferred.promise;
             }
         };
     });
