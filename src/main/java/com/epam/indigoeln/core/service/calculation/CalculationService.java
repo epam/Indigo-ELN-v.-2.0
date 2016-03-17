@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service for calculations under reaction or molecular structures defined in special text format
@@ -19,9 +20,7 @@ import java.util.Map;
 @Service
 public class CalculationService {
 
-    private static boolean STEREOCHEM_ERRORS = true;
-    private static String MOLECULE_TYPE = "molecule";
-    private static String REACTION_TYPE = "reaction";
+    private static final String MOLECULE_TYPE = "molecule";
 
     /**
      * Check, that chemistry structures of reactions or molecules are equals
@@ -41,8 +40,8 @@ public class CalculationService {
      * @param molecule structure of molecule
      * @return map of calculated attributes
      */
-    public Map<String, String> getMolecularInformation(String molecule) {
-        return MoleculeCalcHelper.getMolecularInformation(molecule);
+    public Map<String, String> getMolecularInformation(String molecule, String saltCode, Float saltEq) {
+        return MoleculeCalcHelper.getMolecularInformation(molecule, saltCode, Optional.ofNullable(saltEq).orElse(1.0f));
     }
 
     /**
@@ -104,7 +103,7 @@ public class CalculationService {
     public RendererResult getStructureWithImage(String structure, String structureType) {
 
         Indigo indigo = new Indigo();
-        indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
+        indigo.setOption("ignore-stereochemistry-errors", true);
 
         IndigoRenderer renderer = CommonCalcHelper.getRenderer(indigo);
         IndigoObject io =  MOLECULE_TYPE.equals(structureType) ? indigo.loadMolecule(structure) :

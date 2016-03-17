@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
@@ -28,8 +29,10 @@ public class CalculationResource {
     @RequestMapping(value = "/molecule/info",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> getMolecularInformation(@RequestBody String molecule) {
-        return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolfile(molecule)));
+    public ResponseEntity<Map> getMolecularInformation(@RequestBody String molecule,
+                                                       @RequestParam(required = false) String saltCode,
+                                                       @RequestParam(required = false) Float saltEq) {
+        return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolFile(molecule), saltCode, saltEq));
     }
 
     /**
@@ -39,7 +42,7 @@ public class CalculationResource {
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isMoleculeChiral(@RequestBody String molecule) {
-        return ResponseEntity.ok(calculationService.isMoleculeChiral(normalizeMolfile(molecule)));
+        return ResponseEntity.ok(calculationService.isMoleculeChiral(normalizeMolFile(molecule)));
     }
 
     /**
@@ -50,7 +53,7 @@ public class CalculationResource {
             produces = MediaType.APPLICATION_JSON_VALUE,
             consumes = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<Boolean> isEmptyMolecule(@RequestBody String molecule) {
-        return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolfile(molecule)));
+        return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolFile(molecule)));
     }
 
     /**
@@ -70,7 +73,7 @@ public class CalculationResource {
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReactionPropertiesDTO> extractReactionComponents(@RequestBody String reaction) {
-        return ResponseEntity.ok(calculationService.extractReactionComponents(normalizeMolfile(reaction)));
+        return ResponseEntity.ok(calculationService.extractReactionComponents(normalizeMolFile(reaction)));
     }
 
     /**
@@ -100,10 +103,10 @@ public class CalculationResource {
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> isValidReaction(@RequestBody String reaction) {
-        return ResponseEntity.ok(calculationService.isValidReaction(normalizeMolfile(reaction)));
+        return ResponseEntity.ok(calculationService.isValidReaction(normalizeMolFile(reaction)));
     }
 
-    private String normalizeMolfile(String structure){
+    private String normalizeMolFile(String structure){
         return StringUtils.replace(structure, "\\n", System.getProperty("line.separator"));
     }
 }
