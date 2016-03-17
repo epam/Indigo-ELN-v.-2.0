@@ -1,11 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .constant('StructureSchemeConsts', {
-        // TODO: implement recieving that info from server
-        BINGO_URL: 'http://' + window.location.hostname + ':12345/'
-    })
-    .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, StructureSchemeConsts) {
+    .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal) {
         $scope.structureType = $attrs.myStructureType;
         $scope.myTitle = $attrs.myTitle;
 
@@ -20,7 +16,7 @@ angular.module('indigoeln')
             if ($scope.myModel.structureId) {
                 $scope.share[$attrs.myStructureType] = $scope.myModel.structureMolfile;
                 $http({
-                    url: getRendererUrl($scope.structureType),
+                    url: 'api/renderer/' + $scope.structureType + '/image',
                     method: 'POST',
                     data: $scope.myModel.structureMolfile
                 }).success(function (result) {
@@ -110,19 +106,14 @@ angular.module('indigoeln')
             });
         };
 
-        // URL to get image
-        var getRendererUrl = function (type) {
-            return 'api/renderer/' + type + '/image';
-        };
-
         // HTTP POST to save new structure into Bingo DB and get its id
         var saveNewStructure = function (structure, type) {
             $http({
-                url: StructureSchemeConsts.BINGO_URL + type + '/',
+                url: 'api/bingodb/' + type + '/',
                 method: 'POST',
                 data: structure
             }).success(function (result) {
-                $scope.myModel.structureId = result.id;
+                $scope.myModel.structureId = result;
                 // set the renewed value if it's fine with bingo
                 $scope.myModel.structureMolfile = structure;
             }).error(function () {

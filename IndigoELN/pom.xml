@@ -13,6 +13,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <bingo.version>1.2.2beta-r37</bingo.version>
         <org.mapstruct.version>1.0.0.CR1</org.mapstruct.version>
         <org.bsc.maven.version>2.2.4</org.bsc.maven.version>
         <commons-lang.version>2.6</commons-lang.version>
@@ -95,11 +96,12 @@
             <version>18.0</version>
         </dependency>
 
-        <!-- Indigo -->
+        <!-- Bingo -->
+
         <dependency>
             <groupId>com.epam.indigo</groupId>
-            <artifactId>indigo</artifactId>
-            <version>1.2.2beta-r37</version>
+            <artifactId>bingo-nosql</artifactId>
+            <version>${bingo.version}</version>
         </dependency>
 
         <!-- Indigo-renderer -->
@@ -107,7 +109,7 @@
         <dependency>
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo-renderer</artifactId>
-            <version>1.2.2beta-r37</version>
+            <version>${bingo.version}</version>
         </dependency>
 
         <!-- Apache -->
