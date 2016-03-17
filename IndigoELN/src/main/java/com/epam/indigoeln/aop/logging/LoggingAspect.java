@@ -25,8 +25,16 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(com.epam.indigoeln.core.repository..*) || within(com.epam.indigoeln.core.service..*) || within(com.epam.indigoeln.web.rest..*)")
+    @Pointcut("(within(com.epam.indigoeln.core.repository..*) " +
+            "|| within(com.epam.indigoeln.core.service..*) " +
+            "|| within(com.epam.indigoeln.web.rest..*)) " +
+            "&& " +
+            "!(within(com.epam.indigoeln.core.service.bingo..*) " +
+            "|| within(com.epam.indigoeln.core.repository.bingo..*) " +
+            "|| within(com.epam.indigoeln.web.rest.BingoResource))")
     public void loggingPointcut() {
+        // all the Bingo related classes are excluded as IndigoObject.toString() method
+        // throws IndigoExcetion not allowing to save new structures
     }
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
