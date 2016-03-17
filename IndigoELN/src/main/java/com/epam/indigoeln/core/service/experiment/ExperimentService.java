@@ -194,8 +194,8 @@ public class ExperimentService {
 
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(notebookId)).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+                orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
         // add all users as VIEWER to project
         experimentDTO.getAccessList().forEach((up) -> {
             PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
