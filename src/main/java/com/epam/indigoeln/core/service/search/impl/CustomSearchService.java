@@ -1,57 +1,30 @@
 package com.epam.indigoeln.core.service.search.impl;
 
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.repository.component.ComponentRepository;
+import com.epam.indigoeln.core.service.bingo.BingoService;
+import com.epam.indigoeln.core.service.search.SearchServiceAPI;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.web.rest.dto.ComponentDTO;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
+
+import com.mongodb.BasicDBObject;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.epam.indigoeln.core.service.bingo.BingoService;
-import com.mongodb.BasicDBObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.util.BatchComponentUtil;
-import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.epam.indigoeln.core.repository.component.ComponentRepository;
-import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.component.ComponentRepository;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.service.bingo.BingoService;
-import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.core.service.util.ComponentsUtil;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.google.common.base.Splitter;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_EXACT;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_MOLFORMULA;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_SIMILARITY;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_SUBSTRUCTURE;
 import static java.util.stream.Collectors.toList;
-
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.component.ComponentRepository;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.service.bingo.BingoService;
-import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.core.service.util.ComponentsUtil;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.google.common.base.Splitter;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
-import static java.util.stream.Collectors.toList;
-import static org.springframework.util.ObjectUtils.nullSafeEquals;
 
 @Service("customSearchService")
 public class CustomSearchService implements SearchServiceAPI {
@@ -76,42 +49,24 @@ public class CustomSearchService implements SearchServiceAPI {
                                                                          Map options) {
 
         // TODO Need to replace StringUtils.EMPTY with correct options for Bingo
-
-        List<String> bingoIds;
+        List<Integer> bingoIds;
 
         switch (searchOperator) {
             case CHEMISTRY_SEARCH_SUBSTRUCTURE:
-                bingoIds = bingoService.searchMoleculeSub(structure, StringUtils.EMPTY)
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toList());
+                bingoIds = bingoService.searchMoleculeSub(structure, StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_EXACT:
-                bingoIds = bingoService.searchMoleculeExact(structure, StringUtils.EMPTY)
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toList());
+                bingoIds = bingoService.searchMoleculeExact(structure, StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_SIMILARITY:
-                bingoIds = bingoService.searchMoleculeSim(structure, Float.valueOf(options.get("min").toString()), Float.valueOf(options.get("max").toString()), StringUtils.EMPTY)
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toList());
+                bingoIds = bingoService.searchMoleculeSim(structure, Float.valueOf(options.get("min").toString()), Float.valueOf(options.get("max").toString()), StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_MOLFORMULA:
-                bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY)
-                        .stream()
-                        .map(String::valueOf)
-                        .collect(Collectors.toList());
+                bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY);
                 break;
             default:
                 bingoIds = new ArrayList<>();
                 break;
-        }
-
-        return bingoIds.isEmpty() ? Collections.emptyList() : componentRepository.findBatchesByBingoDbIds(bingoIds).stream().map(ComponentDTO::new).collect(toList());
-        if(bingoIds.isEmpty()) {
-            return Collections.emptyList();
         }
 
         //fetch components by bingo db ids
@@ -124,9 +79,6 @@ public class CustomSearchService implements SearchServiceAPI {
     }
 
     /**
-     * Find component by full batch number
-     * Full batch number expected in format NOTEBOOK_NUMBER(8 digits)-EXPERIMENT_NUMBER(4 digits)-BATCH_NUMBER(3 digits)
-     *
      * Find product batch details by full batch number
      *
      * @param fullBatchNumber full batch number
@@ -136,6 +88,8 @@ public class CustomSearchService implements SearchServiceAPI {
     public Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber) {
         Optional<Component> batchSummaryComponent = componentRepository.findBatchSummaryByFullBatchNumber(fullBatchNumber);
         if(!batchSummaryComponent.isPresent()) {
+            return Optional.empty();
+        }
 
         ComponentDTO batchSummaryComponentDTO = new ComponentDTO(batchSummaryComponent.get());
         return BatchComponentUtil.retrieveBatchByNumber(Collections.singletonList(batchSummaryComponentDTO), fullBatchNumber).
