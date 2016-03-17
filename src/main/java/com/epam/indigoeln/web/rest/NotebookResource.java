@@ -7,25 +7,20 @@ import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(NotebookResource.URL_MAPPING)
@@ -76,12 +71,12 @@ public class NotebookResource {
     /**
      * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed from notebook without problems
      */
-    @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
+    @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> isUserRemovable(String notebookId, String userId) {
+    public ResponseEntity<Map> isUserRemovable(String projectId, String notebookId, String userId) {
         log.debug("REST request to check if user can be deleted from notebook's access list without problems");
         boolean result = notebookService.isUserRemovable(notebookId, userId);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
     }
 
     /**
