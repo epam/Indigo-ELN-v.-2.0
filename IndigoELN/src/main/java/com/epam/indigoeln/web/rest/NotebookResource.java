@@ -75,7 +75,7 @@ public class NotebookResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> isUserRemovable(String projectId, String notebookId, String userId) {
         log.debug("REST request to check if user can be deleted from notebook's access list without problems");
-        boolean result = notebookService.isUserRemovable(notebookId, userId);
+        boolean result = notebookService.isUserRemovable(projectId, notebookId, userId);
         return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
     }
 

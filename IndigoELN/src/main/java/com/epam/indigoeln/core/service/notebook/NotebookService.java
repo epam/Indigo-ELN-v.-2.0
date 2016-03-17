@@ -210,12 +210,14 @@ public class NotebookService {
     /**
      * Checks if user can be deleted from notebook's access list with all the permissions without any problems.
      * It checks all the experiments and if any has this user added, then it will return false.
+     * @param projectId project id
      * @param notebookId notebook id
      * @param userId user id
      * @return true if none of experiments has user added to it, true otherwise
      */
-    public boolean isUserRemovable(String notebookId, String userId) {
-        Optional<Notebook> notebookOpt =  Optional.ofNullable(notebookRepository.findOne(notebookId));
+    public boolean isUserRemovable(String projectId, String notebookId, String userId) {
+        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
+        Optional<Notebook> notebookOpt =  Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         return notebook.getExperiments().stream().filter(e -> {
