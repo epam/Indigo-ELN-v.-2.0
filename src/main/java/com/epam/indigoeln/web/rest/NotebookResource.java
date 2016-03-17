@@ -74,6 +74,17 @@ public class NotebookResource {
     }
 
     /**
+     * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed from notebook without problems
+     */
+    @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> isUserRemovable(String notebookId, String userId) {
+        log.debug("REST request to check if user can be deleted from notebook's access list without problems");
+        boolean result = notebookService.isUserRemovable(notebookId, userId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
     @RequestMapping(value = "notebooks/sub-creations",method = RequestMethod.GET,

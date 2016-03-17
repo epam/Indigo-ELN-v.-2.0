@@ -65,6 +65,17 @@ public class ProjectResource {
     }
 
     /**
+     * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems
+     */
+    @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Boolean> isUserRemovable(String projectId, String userId) {
+        log.debug("REST request to check if user can be deleted from project's access list without problems");
+        boolean result = projectService.isUserRemovable(projectId, userId);
+        return ResponseEntity.ok(result);
+    }
+
+    /**
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
     @RequestMapping(value = "/sub-creations",method = RequestMethod.GET,

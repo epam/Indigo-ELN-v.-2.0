@@ -1,9 +1,8 @@
 package com.epam.indigoeln.core.service.project;
 
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.file.FileRepository;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.ChildReferenceException;
@@ -18,6 +17,7 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,6 +32,9 @@ public class ProjectService {
 
     @Autowired
     private ProjectRepository projectRepository;
+
+    @Autowired
+    private NotebookRepository notebookRepository;
 
     @Autowired
     private FileRepository fileRepository;
@@ -137,6 +140,35 @@ public class ProjectService {
 
         fileRepository.delete(project.getFileIds());
         projectRepository.delete(project);
+    }
+
+    /**
+     * Checks if user can be deleted from project's access list with all the permissions without any problems.
+     * It checks all the notebooks and experiments and if any has this user added, then it will return false.
+     * @param projectId project id
+     * @param userId user id
+     * @return true if none of notebooks or experiments has user added to it, true otherwise
+     */
+    public boolean isUserRemovable(String projectId, String userId) {
+        Optional<Project> projectOpt =  Optional.ofNullable(projectRepository.findOne(projectId));
+        Project project = projectOpt.orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+
+        List<Notebook> notebooks = project.getNotebooks();
+        boolean addedToNotebooks = notebooks.stream().filter(n -> {
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(n.getAccessList(), userId);
+            return permission != null;
+        }).count() > 0;
+        if (addedToNotebooks) {
+            return false;
+        }
+
+        List<Experiment> experiments = notebooks.stream().flatMap(n -> n.getExperiments().stream())
+                .collect(Collectors.toList());
+        return experiments.stream().filter(e -> {
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
+            return permission != null;
+        }).count() == 0;
+
     }
 
     private Project saveProjectAndHandleError(Project project) {
