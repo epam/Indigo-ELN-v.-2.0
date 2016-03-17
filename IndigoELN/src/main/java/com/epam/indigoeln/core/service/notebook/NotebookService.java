@@ -1,9 +1,6 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
@@ -209,6 +206,24 @@ public class NotebookService {
 
         notebookRepository.delete(notebook);
     }
+
+    /**
+     * Checks if user can be deleted from notebook's access list with all the permissions without any problems.
+     * It checks all the experiments and if any has this user added, then it will return false.
+     * @param notebookId notebook id
+     * @param userId user id
+     * @return true if none of experiments has user added to it, true otherwise
+     */
+    public boolean isUserRemovable(String notebookId, String userId) {
+        Optional<Notebook> notebookOpt =  Optional.ofNullable(notebookRepository.findOne(notebookId));
+        Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+
+        return notebook.getExperiments().stream().filter(e -> {
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
+            return permission != null;
+        }).count() == 0;
+    }
+
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
         return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
