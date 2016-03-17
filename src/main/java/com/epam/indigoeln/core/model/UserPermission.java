@@ -11,7 +11,6 @@ import java.util.Set;
  * By roles:
  * <ul>
  *  <li><b>VIEWER</b> can only <b>read Entity</b></li>
- *  <li><b>CHILD_VIEWER</b> can <b>read Sub-Entity</b> and all above</li>
  *  <li><b>USER</b> can <b>create Sub-Entity</b> and all above</li>
  *  <li><b>OWNER</b> can <b>update Entity</b> and all above</li>
  * </ul>
@@ -20,20 +19,17 @@ public class UserPermission {
 
     public static final String READ_ENTITY = "READ_ENTITY";
     public static final String UPDATE_ENTITY = "UPDATE_ENTITY";
-    public static final String READ_SUB_ENTITY = "READ_SUB_ENTITY";
     public static final String CREATE_SUB_ENTITY = "CREATE_SUB_ENTITY";
 
     public static final String VIEWER = "VIEWER";
-    public static final String CHILD_VIEWER = "CHILD_VIEWER";
     public static final String USER = "USER";
     public static final String OWNER = "OWNER";
 
     public static final Set<String> VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY);
-    public static final Set<String> CHILD_VIEWER_PERMISSIONS = ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY);
     public static final Set<String> USER_PERMISSIONS =
-            ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY);
+            ImmutableSet.of(READ_ENTITY, CREATE_SUB_ENTITY);
     public static final Set<String> OWNER_PERMISSIONS =
-            ImmutableSet.of(READ_ENTITY, READ_SUB_ENTITY, CREATE_SUB_ENTITY, UPDATE_ENTITY);
+            ImmutableSet.of(READ_ENTITY, CREATE_SUB_ENTITY, UPDATE_ENTITY);
     public static final Set<String> ALL_PERMISSIONS = OWNER_PERMISSIONS;
 
     @DBRef
@@ -73,10 +69,6 @@ public class UserPermission {
         return permissions.contains(UPDATE_ENTITY);
     }
 
-    public boolean canReadSubEntity() {
-        return permissions.contains(READ_SUB_ENTITY);
-    }
-
     public boolean canCreateSubEntity() {
         return permissions.contains(CREATE_SUB_ENTITY);
     }
@@ -90,8 +82,6 @@ public class UserPermission {
             return OWNER;
         } else if (USER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(USER_PERMISSIONS)) {
             return USER;
-        } else if (CHILD_VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(CHILD_VIEWER_PERMISSIONS)) {
-            return CHILD_VIEWER;
         } else if (VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(VIEWER_PERMISSIONS)) {
             return VIEWER;
         } else {

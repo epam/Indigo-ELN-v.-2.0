@@ -6,21 +6,28 @@ angular.module('indigoeln')
             'query': {method: 'GET', isArray: true}
         });
     })
-    .factory('PermissionManagement', function ($q, Principal) {
-        var _accessList, _author, _entity;
+    .factory('UserRemovableFromProject', function ($resource) {
+        return $resource('api/projects/permissions/user-removable', {}, {
+            'get': {method: 'GET'}
+        });
+    })
+    .factory('UserRemovableFromNotebook', function ($resource) {
+        return $resource('api/notebooks/permissions/user-removable', {}, {
+            'get': {method: 'GET'}
+        });
+    })
+    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
+        var _accessList, _author, _entity, _entityId, _parentId;
 
         var VIEWER = ['READ_ENTITY'];
-        var CHILD_VIEWER = ['READ_ENTITY', 'READ_SUB_ENTITY'];
-        var USER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY'];
-        var OWNER = ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
+        var USER = ['READ_ENTITY', 'CREATE_SUB_ENTITY'];
+        var OWNER = ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'];
 
         return {
             expandPermission: function(list) {
                 _.each(list, function(item) {
                     if (item.permissionView === 'OWNER') {
                         item.permissions = OWNER;
-                    } else if (item.permissionView === 'CHILD_VIEWER') {
-                        item.permissions = CHILD_VIEWER;
                     } else if (item.permissionView === 'USER') {
                         item.permissions = USER;
                     } else {
@@ -49,7 +56,7 @@ angular.module('indigoeln')
             getAuthorAccessList: function(author) {
                 return [{
                     user: author,
-                    permissions: ['READ_ENTITY', 'READ_SUB_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
+                    permissions: ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
                     permissionView: 'OWNER'
                 }];
             },
@@ -71,6 +78,18 @@ angular.module('indigoeln')
             setEntity: function(entity) {
                 _entity = entity;
             },
+            getEntityId: function() {
+                return _entityId;
+            },
+            setEntityId: function(entityId) {
+                _entityId = entityId;
+            },
+            getParentId: function() {
+                return _parentId;
+            },
+            setParentId: function(parentId) {
+                _parentId = parentId;
+            },
             hasAuthorityForProjectPermission: function(member, permission) {
                 var projectOwnerAuthoritySet = ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
                 var projectUserAuthoritySet = ['PROJECT_READER', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
@@ -85,10 +104,6 @@ angular.module('indigoeln')
                     return _.every(projectUserAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
                     });
-                } else if (permission === 'CHILD_VIEWER') {
-                    return _.every(projectChildViewerAuthoritySet, function(authority) {
-                        return _.contains(member.user.authorities, authority);
-                    });
                 } else if (permission === 'VIEWER') {
                     return _.every(projectViewerAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
@@ -98,7 +113,6 @@ angular.module('indigoeln')
             hasAuthorityForNotebookPermission: function(member, permission) {
                 var notebookOwnerAuthoritySet = ['NOTEBOOK_READER', 'NOTEBOOK_CREATOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
                 var notebookUserAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'];
-                var notebookChildViewerAuthoritySet = ['NOTEBOOK_READER', 'EXPERIMENT_READER'];
                 var notebookViewerAuthoritySet = ['NOTEBOOK_READER'];
 
                 if (permission === 'OWNER') {
@@ -107,10 +121,6 @@ angular.module('indigoeln')
                     });
                 } else if (permission === 'USER') {
                     return _.every(notebookUserAuthoritySet, function(authority) {
-                        return _.contains(member.user.authorities, authority);
-                    });
-                } else if (permission === 'CHILD_VIEWER') {
-                    return _.every(notebookChildViewerAuthoritySet, function(authority) {
                         return _.contains(member.user.authorities, authority);
                     });
                 } else if (permission === 'VIEWER') {
@@ -132,6 +142,33 @@ angular.module('indigoeln')
                         return _.contains(member.user.authorities, authority);
                     });
                 }
+            },
+            hasAuthorityForPermission: function(member, permission) {
+                if (_entity === 'Project') {
+                    return this.hasAuthorityForProjectPermission(member, permission);
+                } else if (_entity === 'Notebook') {
+                    return this.hasAuthorityForNotebookPermission(member, permission);
+                } else if (_entity === 'Experiment') {
+                    return this.hasAuthorityForExperimentPermission(member, permission);
+                }
+            },
+            isUserRemovableFromAccessList: function(member) {
+                var agent, params;
+                var deferred = $q.defer();
+                if (_entity === 'Experiment' || !_entityId) {
+                    $q.when(true);
+                }
+                if (_entity === 'Project') {
+                    agent = UserRemovableFromProject;
+                    params = {projectId: _entityId, userId: member.user.id };
+                } else if (_entity === 'Notebook') {
+                    agent = UserRemovableFromNotebook;
+                    params = {projectId: _parentId, notebookId: _entityId, userId: member.user.id };
+                }
+                agent.get(params).$promise.then(function(result) {
+                    deferred.resolve(result.isUserRemovable);
+                });
+                return deferred.promise;
             }
         };
     });

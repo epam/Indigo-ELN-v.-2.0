@@ -2,11 +2,13 @@
 
 angular.module('indigoeln')
     .controller('PermissionManagementController',
-        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert) {
+        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal, UserRemovableFromProject, UserRemovableFromNotebook) {
 
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
             $scope.entity = PermissionManagement.getEntity();
+            $scope.entityId = PermissionManagement.getEntityId();
+            $scope.parentId = PermissionManagement.getParentId();
             $scope.author = PermissionManagement.getAuthor();
             $scope.users = _.filter(users, function(user) {
                 return user.id !== $scope.author.id;
@@ -26,7 +28,25 @@ angular.module('indigoeln')
             };
 
             $scope.removeMember = function(member) {
-                $scope.accessList = _.without($scope.accessList, member);
+                var message;
+                var callback = function() {
+                    $scope.accessList = _.without($scope.accessList, member);
+                };
+                if ($scope.entity === 'Project') {
+                    message = 'You are trying to remove USER who has access to notebooks or ' +
+                        'experiments within this project. By removing this USER you block his (her) ' +
+                        'access to notebook or experiments withing this project';
+                } else if ($scope.entity === 'Notebook') {
+                    message = 'You are trying to remove USER who has access to experiments within this notebook. ' +
+                        'By removing this USER you block his (her) access to experiments withing this notebook';
+                }
+                PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
+                    if (isRemovable) {
+                        callback();
+                    } else {
+                        AlertModal.confirm(message, callback);
+                    }
+                });
             };
 
             $scope.isAuthor = function(member) {
@@ -44,7 +64,7 @@ angular.module('indigoeln')
             };
 
             $scope.checkAuthority = function(member, permission) {
-                if (!PermissionManagement.hasAuthorityForProjectPermission(member, permission)) {
+                if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
                     Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
                         'sufficient privileges in the system, please select another permissions level');
                     member.permissionView = $scope.oldPermission;

@@ -1,0 +1,111 @@
+@import 'variables.less';
+@import 'mixin.less';
+
+@font-face {
+  font-family: segoeui;
+  src: url(../fonts/segoeui.ttf);
+}
+
+/****header page****/
+
+.main-container {
+  &__head {
+    background: @bg8;
+    height: 70px;
+    position: fixed;
+    min-width: 850px;
+    width: 100%;
+    z-index: 1000;
+  }
+}
+
+.head-controls-list {
+  float: left;
+  margin: 25px 20px 0;
+  padding: 0;
+  &_right {
+    float: right;
+  }
+  &__item {
+    cursor: pointer;
+    display: inline-block;
+    height: 36px;
+    list-style-type: none;
+    margin-right: 8px;
+    position: relative;
+  }
+}
+
+.icon-header-control-list {
+  .set-icon-bg(@bg:@bg9, @br: 1px solid @bg9, @br-s:50%, @color:@bg1, @fs:20px, @lh:32px, @ht:36px, @wt:36px);
+  position: inherit;
+  &:hover {
+    border: 1px solid @bg11;
+  }
+  &_user {
+    border-radius: 20px;
+    padding: 0 15px;
+    width: inherit;
+    span {
+      margin-left: 8px;
+    }
+  }
+}
+
+.icon-bg-round {
+  .set-icon-bg(@bg:@bg11, @br:none, @br-s:50%,  @color:@bg1);
+}
+
+.experiment-status {
+  .set-icon-bg(@bg:inherit, @br:none, @br-s:0, @color:@link-color6, @fs:14px, @lh:34px, @ht:34px, @wt:34px);
+  float: right;
+  padding-left: 0 !important;
+}
+
+///header drop-down
+
+.head-controls-list-submenu {
+  background: @bg1;
+  border: 1px solid @br3;
+  display: none;
+  list-style-type: none;
+  left: -14px;
+  max-width: 300px;
+  min-width: 150px;
+  position: absolute;
+  padding: 0;
+  top: 47px;
+  z-index: 5;
+  &:before {
+    content: "\f0d8";
+    color: @bg1;
+    font: 42px fontawesome;
+    left: 19px;
+    position: absolute;
+    top: -34px;
+  }
+  &__item {
+    a {
+      color: @link-color5;
+      display: block;
+      font: 14px/30px segoeui;
+      padding: 5px;
+      text-align: left;
+      text-decoration: none;
+      &:focus, &:hover {
+        color: darken(@link-color5, 16%);
+        text-decoration: none;
+      }
+      &:active {
+        color: darken(@link-color5, 32%);
+      }
+    }
+  }
+}
+
+.open-menu {
+  display: block !important;
+}
+
+
+

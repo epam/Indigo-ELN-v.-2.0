@@ -23,7 +23,9 @@
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="icon-bg-round"></i>
                                         <span>{{experiment.name}}</span>
-                                        <i class="experiment-status fa fa-key"></i>
+                                        <i class="experiment-status"
+                                           ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
                                     </li>
                                 </ul>
                             </li>
@@ -53,6 +55,9 @@
                                         ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                         <i class="icon-bg-round"></i>
                                         <span>{{experiment.name}}</span>
+                                        <i class="experiment-status"
+                                           ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
                                     </li>
                                 </ul>
                             </li>
@@ -68,15 +73,15 @@
         <ul class="level-two" ng-if="adminToggled">
             <li has-authority="{{USER_EDITOR}}"
                 ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
-                <span class="type-of-experiment">Users and Roles</span>
+                <span class="type-of-experiment">Users</span>
             </li>
             <li has-authority="{{ROLE_EDITOR}}"
                 ng-click="toggleAuthorities(); $event.stopPropagation();">
-                <span class="type-of-experiment">Manage Authorities</span>
+                <span class="type-of-experiment">Roles</span>
             </li>
             <li has-authority="{{TEMPLATE_EDITOR}}"
                 ng-click="toggleTemplates(); $event.stopPropagation();">
-                <span class="type-of-experiment">Manage Templates</span>
+                <span class="type-of-experiment">Templates</span>
             </li>
             <li has-authority="{{DICTIONARY_EDITOR}}"
                 ng-click="toggleDictionaries(); $event.stopPropagation();">

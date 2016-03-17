@@ -3,7 +3,6 @@ package com.epam.indigoeln.core.service.print;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
@@ -56,7 +55,6 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, true);
             driver = new PhantomJSDriver(phantomJSDriverService, capabilities);
             driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-            driver.manage().window().setSize(new Dimension(1920, 1080));
         } catch (Exception e) {
             log.error("PhantomJs init error", e);
         }

@@ -1,17 +1,18 @@
-<div class="table-responsive">
+<div class="my-table table-responsive">
     <table class="table table-striped table-hover product">
         <thead>
-        <tr dragula='my-table-columns' dragula-model='myColumns'>
-            <th ng-repeat="column in myColumns" ng-show="!column.isHidden">
-                <div class="btn-group" ng-if="!column.actions.length">
-                    <button type="button" class="btn btn-info" ng-style="{width: column.width}">
+        <tr>
+            <th ng-repeat="column in myColumns" ng-show="!column.isHidden" ng-style="{width: column.width}"
+                style="min-width: 150px;">
+                <div class="btn-group btn-group-sm btn-group-justified" ng-if="!column.actions.length">
+                    <a href class="btn btn-info">
                         {{column.name}}
-                    </button>
+                    </a>
                 </div>
-                <div class="btn-group" uib-dropdown ng-if="column.actions.length">
-                    <button type="button" class="btn btn-info" uib-dropdown-toggle ng-style="{width: column.width}">
+                <div class="btn-group btn-group-sm btn-group-justified" uib-dropdown ng-if="column.actions.length">
+                    <a href class="btn btn-info" uib-dropdown-toggle>
                         {{column.name}} <span class="caret"></span>
-                    </button>
+                    </a>
                     <ul uib-dropdown-menu class="no-draggable">
                         <li ng-repeat="action in column.actions" class="no-draggable">
                             <a href="" ng-click="action.action(column.id)" class="no-draggable">{{action.name}}</a>
@@ -22,10 +23,15 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="row in myRows" ng-class="{'success':row.selected}">
+        <tr ng-if="myRows.length" ng-repeat="row in myRows" ng-class="{'success':row.selected}">
             <td ng-repeat="column in myColumns" class="text-center" ng-click="onRowSelect($event, row)"
-                ng-show="!column.isHidden">
+                ng-show="!column.isHidden" style="min-width: 150px;">
                 <my-table-val my-column="column" my-row="row" my-row-index="$parent.$index"></my-table-val>
+            </td>
+        </tr>
+        <tr ng-if="!myRows.length">
+            <td colspan={{myColumns.length}} class="text-muted text-center">
+                <h3 style="margin: 50px">empty</h3>
             </td>
         </tr>
         </tbody>

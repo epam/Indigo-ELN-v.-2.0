@@ -35,7 +35,7 @@
             <td>{{file.length | prettyBytes}}</td>
             <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
             <td class="text-right">
-                <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_blank">
+                <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_self">
                     <span class="glyphicon glyphicon-download"></span>
                 </a>
                 <button type="submit"

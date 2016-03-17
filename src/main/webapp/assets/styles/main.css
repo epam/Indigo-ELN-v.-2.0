@@ -299,45 +299,95 @@ body {
 .slider.slider-horizontal .slider-tick, .slider.slider-horizontal .slider-handle {
     margin-top: -8px;
 }
-
-.product-batch-summary .table-responsive {
-    min-height: 300px;
-}
-
-.product-batch-summary .table-responsive th button {
-    background-color: transparent;
-    border-color: transparent;
-}
-
-.product-batch-summary .table-responsive .form-group {
-    margin-bottom: 0;
-}
-
-.product-batch-summary .table-responsive td {
-    padding: 0;
-}
-
-.product-batch-summary .table-responsive .input-group {
-    border-spacing: 0;
-}
-
-.product-batch-summary .table-responsive .form-group .col-xs-12 {
-    padding: 0;
-}
-
 a {
     cursor: pointer;
 }
-ul.dropdown-menu li {
-    cursor: pointer;
+
+table {
+    page-break-inside:auto
 }
 
-ul.dropdown-menu li span.red {
-    color: red;
-    background-color: inherit !important;
+tr {
+    page-break-inside:avoid; page-break-after:auto
 }
 
-ul.dropdown-menu li span.green {
-    color: green;
-    background-color: inherit !important;
+.print-header {
+    color: grey;
+    margin-top: 20px;
+    border-color: grey !important;
+}
+
+.print-header, .print-table, .print-table-simple, .print-box {
+    width: 100%;
+    margin-bottom: 50px;
+    border: 1px black solid;
+}
+
+.print-header td, .print-header th, .print-table-simple td, .print-table-simple th {
+    padding: 5px;
+    border: none;
+}
+
+.print-table th {
+    text-align: center;
+}
+
+.print-table th, .print-table td {
+    border: 1px black solid;
+    border-collapse: collapse;
+    margin-bottom: 50px;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.print-table-inner td {
+    border: none;
+}
+
+#print-form {
+    font-family:"Times New Roman",Georgia,Serif;
+}
+
+.need-to-print .checkbox label:before {
+    content: initial;
+}
+
+.need-to-print .checkbox label {
+    font-size: 14px;
+}
+
+.ellipsis {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.my-table.table-responsive th {
+    background-color: #b2ebf2;
+}
+
+.my-table.table-responsive th .btn {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+.my-table.table-responsive th .btn-group.open .dropdown-toggle {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+.my-table.table-responsive .form-group {
+    margin-bottom: 0;
+}
+
+.my-table.table-responsive td {
+    padding: 0;
+}
+
+.my-table.table-responsive .input-group {
+    border-spacing: 0;
+}
+
+.my-table.table-responsive .form-group .col-xs-12 {
+    padding: 0;
 }
