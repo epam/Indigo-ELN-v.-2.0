@@ -21,20 +21,23 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    notebook: function () {
-                        return {};
-                    },
-                    identity: function (Principal) {
-                        return Principal.identity();
-                    },
-                    isContentEditor: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
-                    },
-                    hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
-                    },
-                    hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
+                    pageInfo: function($q, Principal) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            Principal.identity(),
+                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                        ]).then(function(results){
+                            deferred.resolve({
+                                notebook: {},
+                                identity: results[0],
+                                isContentEditor: results[1],
+                                hasEditAuthority: results[2],
+                                hasCreateChildAuthority: results[3]
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             }).state('entities.notebook-detail', {
@@ -50,20 +53,24 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    notebook: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getCurrentEntity($stateParams);
-                    },
-                    identity: function (Principal) {
-                        return Principal.identity();
-                    },
-                    isContentEditor: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
-                    },
-                    hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR');
-                    },
-                    hasCreateChildAuthority: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
+                    pageInfo: function($q, $stateParams, EntitiesBrowser, Principal) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            EntitiesBrowser.getCurrentEntity($stateParams),
+                            Principal.identity(),
+                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                        ]).then(function(results){
+                            deferred.resolve({
+                                notebook: results[0],
+                                identity: results[1],
+                                isContentEditor: results[2],
+                                hasEditAuthority: results[3],
+                                hasCreateChildAuthority: results[4]
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             })

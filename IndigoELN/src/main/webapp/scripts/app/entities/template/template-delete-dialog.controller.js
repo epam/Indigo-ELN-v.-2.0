@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('TemplateDeleteController', function ($scope, $uibModalInstance, entity, Template) {
+    .controller('TemplateDeleteController', function ($scope, $uibModalInstance, pageInfo, Template) {
 
-        $scope.template = entity;
+        $scope.template = pageInfo.entity;
         $scope.clear = function () {
             $uibModalInstance.dismiss('cancel');
         };
