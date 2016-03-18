@@ -43,8 +43,8 @@ angular.module('indigoeln')
             };
 
             var setStatus = function (status) {
-                experiment.status = status;
-            }
+                $scope.experiment.status = status;
+            };
 
             $scope.save = function (experiment) {
                 $scope.isSaving = true;
@@ -76,7 +76,7 @@ angular.module('indigoeln')
                 setStatus(rememberStatus);
             };
 
-            var rememberStatus = experiment.status;
+            var rememberStatus = $scope.experiment.status;
 
             $scope.completeExperiment = function () {
                 $uibModal.open({
@@ -84,7 +84,7 @@ angular.module('indigoeln')
                     templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
                     controller: function ($scope, $uibModalInstance) {
                         $scope.fullExperimentName = function () {
-                            return notebook.name + '-' + experiment.name;
+                            return $scope.notebook.name + '-' + $scope.experiment.name;
                         };
                         $scope.dismiss = function () {
                             $uibModalInstance.dismiss('cancel');
@@ -95,34 +95,34 @@ angular.module('indigoeln')
                     }
                 }).result.then(function () {
                     $scope.isSaving = true;
-                    rememberStatus = experiment.status;
-                    setStatus("Completed");
-                    experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
-                    var experimentForSave = _.extend({}, experiment);
+                    rememberStatus = $scope.experiment.status;
+                    setStatus('Completed');
+                    $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
+                    var experimentForSave = _.extend({}, $scope.experiment);
                     $scope.loading = Experiment.update({
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId
                     }, experimentForSave, onCompleteSuccess, onCompleteError).$promise;
                 });
-            }
+            };
 
             $scope.isStatusOpen = function () {
-                return experiment.status === 'Opened';
+                return $scope.experiment.status === 'Opened';
             };
             $scope.isStatusComplete = function () {
-                return experiment.status === 'Completed';
+                return $scope.experiment.status === 'Completed';
             };
             $scope.isStatusSubmitFail = function () {
-                return experiment.status === 'SubmitFailed';
+                return $scope.experiment.status === 'SubmitFailed';
             };
             $scope.isStatusSubmitted = function () {
-                return experiment.status === 'Submitted';
+                return $scope.experiment.status === 'Submitted';
             };
             $scope.isStatusArchieved = function () {
-                return experiment.status === 'Archived';
+                return $scope.experiment.status === 'Archived';
             };
             $scope.isStatusSigned = function () {
-                return experiment.status === 'Signed';
+                return $scope.experiment.status === 'Signed';
             };
 
         });
