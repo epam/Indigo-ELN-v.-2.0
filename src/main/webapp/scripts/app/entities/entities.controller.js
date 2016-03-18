@@ -8,10 +8,10 @@ angular.module('indigoeln')
             EntitiesBrowser.close(fullId, entityId);
             EntitiesBrowser.getTabs().then(function (tabs) {
                 $scope.entities = tabs;
-            })
+            });
         };
         $scope.onTabClick = function (fullId) {
-            EntitiesBrowser.goToTab(fullId)
+            EntitiesBrowser.goToTab(fullId);
         };
         $scope.getKind = function (fullId) {
             return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
@@ -22,16 +22,16 @@ angular.module('indigoeln')
             _.each($scope.entities, function (item) {
                 var params = EntitiesBrowser.expandIds(item.fullId);
                 var kind = EntitiesBrowser.getKind(params);
-                if (kind == 'experiment') {
+                if (kind === 'experiment') {
                     EntitiesBrowser.resolveFromCache({
                         projectId: params.projectId,
                         notebookId: params.notebookId
                     }).then(function (notebook) {
                         item.title = notebook.name ? notebook.name + '-' + item.name : item.name;
-                    })
+                    });
                 } else {
                     item.title = item.name;
                 }
-            })
+            });
         });
     });
