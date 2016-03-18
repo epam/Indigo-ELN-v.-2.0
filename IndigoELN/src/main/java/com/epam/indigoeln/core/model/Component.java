@@ -14,9 +14,6 @@ import java.io.Serializable;
 public class Component implements Serializable {
 
     public static final String COLLECTION_NAME = "component";
-    public static final String FIELD_BATCH_NUMBER = "batchNumber";
-    public static final String FIELD_BINGO_ID = "bingoDbId";
-    public static final String TYPE_PRODUCT_BATCH_DETAILS = "productBatchDetails";
 
     private static final long serialVersionUID = -3522699714105273016L;
 

@@ -1,9 +1,6 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
@@ -70,9 +67,9 @@ public class NotebookService {
             return project.getNotebooks();
         }
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list)
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list)
         if (!PermissionUtil.hasPermissions(user.getId(), project.getAccessList(),
-                UserPermission.READ_SUB_ENTITY)) {
+                UserPermission.READ_ENTITY)) {
             throw OperationDeniedException.createProjectSubEntitiesReadOperation(project.getId());
         }
 
@@ -99,7 +96,7 @@ public class NotebookService {
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
-        // Check of EntityAccess (User must have "Read Sub-Entity" permission in project access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list and
         // "Read Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(fullNotebookId);
@@ -108,7 +105,7 @@ public class NotebookService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    project.getAccessList(), UserPermission.READ_SUB_ENTITY,
+                    project.getAccessList(), UserPermission.READ_ENTITY,
                     notebook.getAccessList(), UserPermission.READ_ENTITY)) {
                 throw OperationDeniedException.createNotebookReadOperation(notebook.getId());
             }
@@ -133,12 +130,17 @@ public class NotebookService {
         // reset notebook's id
         notebook.setId(sequenceIdService.getNextNotebookId(projectId));
 
-        // check of user permissions's correctness in access control list
+        // check of user permissions correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
 
         saveNotebookAndHandleError(notebook);
+
+        // add all users as VIEWER to project
+        notebook.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
 
         project.getNotebooks().add(notebook);
         projectRepository.save(project);
@@ -151,7 +153,7 @@ public class NotebookService {
         Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
-        // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list and
+        // Check of EntityAccess (User must have "Read Entity" permission in project access list and
         // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.isContentEditor(user)) {
             Project project = projectRepository.findByNotebookId(fullNotebookId);
@@ -160,7 +162,7 @@ public class NotebookService {
             }
 
             if (!PermissionUtil.hasPermissions(user.getId(),
-                    project.getAccessList(), UserPermission.CREATE_SUB_ENTITY,
+                    project.getAccessList(), UserPermission.READ_ENTITY,
                     notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
                 throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
             }
@@ -172,7 +174,17 @@ public class NotebookService {
 
         notebookFromDB.setName(notebookDTO.getName());
         notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
-        return new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+        NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+
+        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        // add all users as VIEWER to project
+        notebook.getAccessList().forEach((up) -> {
+            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+        });
+        projectRepository.save(project);
+
+        return result;
     }
 
     public void deleteNotebook(String projectId, String id) {
@@ -194,6 +206,26 @@ public class NotebookService {
 
         notebookRepository.delete(notebook);
     }
+
+    /**
+     * Checks if user can be deleted from notebook's access list with all the permissions without any problems.
+     * It checks all the experiments and if any has this user added, then it will return false.
+     * @param projectId project id
+     * @param notebookId notebook id
+     * @param userId user id
+     * @return true if none of experiments has user added to it, true otherwise
+     */
+    public boolean isUserRemovable(String projectId, String notebookId, String userId) {
+        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
+        Optional<Notebook> notebookOpt =  Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
+        Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+
+        return notebook.getExperiments().stream().filter(e -> {
+            UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
+            return permission != null;
+        }).count() == 0;
+    }
+
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
         return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(

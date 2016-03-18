@@ -14,6 +14,7 @@ angular.module('indigoeln')
             }
 
             PermissionManagement.setEntity('Project');
+            PermissionManagement.setEntityId($scope.project.id);
             PermissionManagement.setAuthor($scope.project.author);
             PermissionManagement.setAccessList($scope.project.accessList);
 

@@ -7,6 +7,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface DictionaryRepository extends MongoRepository<Dictionary, String> {
 
-    Page<Dictionary> findByNameContaining(String name, Pageable pageable);
+    Page<Dictionary> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
 }

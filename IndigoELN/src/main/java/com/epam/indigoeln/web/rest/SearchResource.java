@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.epam.indigoeln.core.service.search.SearchServiceConstants;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 
 /**
  * REST Controller for Custom Search Implementation
@@ -36,22 +36,22 @@ public class SearchResource {
             value = "/batches/structure",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ComponentDTO>> searchByMolecularStructure(@RequestBody String structure) {
-        Collection<ComponentDTO> componentInfoByBatchNumber =
+    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(@RequestBody String structure) {
+        Collection<ProductBatchDetailsDTO> batchDetails =
                 searchService.searchByMolecularStructure(structure, SearchServiceConstants.CHEMISTRY_SEARCH_EXACT, Collections.emptyMap());
-        return ResponseEntity.ok(componentInfoByBatchNumber);
+        return ResponseEntity.ok(batchDetails);
     }
 
     /**
      * GET /batches/{number} -> find batch Component details by full batch number
      */
     @RequestMapping(
-            value = "/batches/{fullBatchNumber}",
+            value = "/batches/number/{fullBatchNumber}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ComponentDTO> getComponentInfoByBatchNumber(@PathVariable String fullBatchNumber)  {
-        return searchService.getComponentInfoByBatchNumber(fullBatchNumber)
-                 .map(component -> new ResponseEntity<>(component, HttpStatus.OK))
+    public ResponseEntity<ProductBatchDetailsDTO> searchByNotebookBatchNumber(@PathVariable String fullBatchNumber)  {
+        return searchService.searchByNotebookBatchNumber(fullBatchNumber)
+                 .map(batchDetails -> new ResponseEntity<>(batchDetails, HttpStatus.OK))
                  .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 

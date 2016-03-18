@@ -1,104 +1,106 @@
 package com.epam.indigoeln.core.service.search.impl;
 
+import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.repository.component.ComponentRepository;
+import com.epam.indigoeln.core.service.bingo.BingoService;
+import com.epam.indigoeln.core.service.search.SearchServiceAPI;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.web.rest.dto.ComponentDTO;
+import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
+
+import com.mongodb.BasicDBObject;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Splitter;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.epam.indigoeln.core.integration.BingoResult;
-import com.epam.indigoeln.core.repository.component.ComponentRepository;
-import com.epam.indigoeln.core.service.bingodb.BingoDbIntegrationService;
-import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.web.rest.dto.ComponentDTO;
-import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
-import com.epam.indigoeln.core.service.util.ComponentsUtil;
-
-import static org.springframework.util.ObjectUtils.nullSafeEquals;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_EXACT;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_MOLFORMULA;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_SIMILARITY;
+import static com.epam.indigoeln.core.service.search.SearchServiceConstants.CHEMISTRY_SEARCH_SUBSTRUCTURE;
 import static java.util.stream.Collectors.toList;
-import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 @Service("customSearchService")
 public class CustomSearchService implements SearchServiceAPI {
 
     @Autowired
-    private BingoDbIntegrationService bingoDbService;
-
-    @Autowired
     private ComponentRepository componentRepository;
 
     @Autowired
-    private NotebookRepository notebookRepository;
+    private BingoService bingoService;
 
     /**
      * Find components (batches) by chemical molecular structure
-     * @param structure structure of component
+     *
+     * @param structure      structure of component
      * @param searchOperator search operator (now, Bingo DB supports 'exact', 'similarity', 'substructure' types)
-     * @param options search advanced options
+     * @param options        search advanced options
      * @return list of batches with received structure
      */
     @Override
-    public Collection<ComponentDTO> searchByMolecularStructure(String structure,
-                                                               String searchOperator,
-                                                               Map options) {
-        List<String> bingoIds =
-                handleBingoException(bingoDbService.searchMolecule(structure, searchOperator, options)).getSearchResult();
+    public Collection<ProductBatchDetailsDTO> searchByMolecularStructure(String structure,
+                                                                         String searchOperator,
+                                                                         Map options) {
 
-        return bingoIds.isEmpty() ? Collections.emptyList() :
-                componentRepository.findBatchesByBingoDbIds(bingoIds).stream().map(ComponentDTO::new).collect(toList());
+        // TODO Need to replace StringUtils.EMPTY with correct options for Bingo
+        List<Integer> bingoIds;
+
+        switch (searchOperator) {
+            case CHEMISTRY_SEARCH_SUBSTRUCTURE:
+                bingoIds = bingoService.searchMoleculeSub(structure, StringUtils.EMPTY);
+                break;
+            case CHEMISTRY_SEARCH_EXACT:
+                bingoIds = bingoService.searchMoleculeExact(structure, StringUtils.EMPTY);
+                break;
+            case CHEMISTRY_SEARCH_SIMILARITY:
+                bingoIds = bingoService.searchMoleculeSim(structure, Float.valueOf(options.get("min").toString()), Float.valueOf(options.get("max").toString()), StringUtils.EMPTY);
+                break;
+            case CHEMISTRY_SEARCH_MOLFORMULA:
+                bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY);
+                break;
+            default:
+                bingoIds = new ArrayList<>();
+                break;
+        }
+
+        //fetch components by bingo db ids
+        List<ComponentDTO> components =  componentRepository.findBatchSummariesByBingoDbIds(bingoIds).
+                stream().map(ComponentDTO::new).collect(toList());
+
+        //retrieve batches from components
+        return BatchComponentUtil.retrieveBatchesByBingoDbId(components, bingoIds).stream().
+                map(CustomSearchService::convertFromDBObject).collect(toList());
     }
 
     /**
-     * Find component by full batch number
-     * Full batch number expected in format NOTEBOOK_NUMBER(8 digits)-EXPERIMENT_NUMBER(4 digits)-BATCH_NUMBER(3 digits)
+     * Find product batch details by full batch number
+     *
      * @param fullBatchNumber full batch number
      * @return result of search
      */
     @Override
-    public Optional<ComponentDTO> getComponentInfoByBatchNumber(String fullBatchNumber) {
-        Pattern pattern = Pattern.compile(FULL_BATCH_NUMBER_FORMAT);
-        if(!pattern.matcher(fullBatchNumber).matches()){ //check, that full batch number received in proper format
+    public Optional<ProductBatchDetailsDTO> searchByNotebookBatchNumber(String fullBatchNumber) {
+        Optional<Component> batchSummaryComponent = componentRepository.findBatchSummaryByFullBatchNumber(fullBatchNumber);
+        if(!batchSummaryComponent.isPresent()) {
             return Optional.empty();
         }
 
-        List<String> parsedNumber = Splitter.on("-").splitToList(fullBatchNumber); //parse full batch number as notebook-experiment-batch number
-        String notebookNumber = parsedNumber.get(0);
-        String experimentNumber = parsedNumber.get(1);
-        String batchNumber = parsedNumber.get(2);
-
-        Optional<ComponentDTO> result = Optional.empty();
-        Optional<Notebook> notebook = notebookRepository.findByName(notebookNumber);
-        if(notebook.isPresent()){ //if notebook with same number is present
-            Optional<Experiment> experiment = getExperimentByNumber(notebook.get().getExperiments(), experimentNumber);
-            if(experiment.isPresent()) { //if experiment with same number is present
-                result = ComponentsUtil.getBatchByNumber(experiment.get().getComponents(), batchNumber); //try to find batch with number
-            }
-        }
-        return result;
+        ComponentDTO batchSummaryComponentDTO = new ComponentDTO(batchSummaryComponent.get());
+        return BatchComponentUtil.retrieveBatchByNumber(Collections.singletonList(batchSummaryComponentDTO), fullBatchNumber).
+                map(params -> new ProductBatchDetailsDTO(fullBatchNumber, params));
     }
 
-    private BingoResult handleBingoException(BingoResult result) {
-        if(!result.isSuccess()) {
-            throw new CustomParametrizedException(result.getErrorMessage());
-        }
-        return result;
-    }
-
-    /**
-     * find experiment by number
-     */
-    private Optional<Experiment> getExperimentByNumber(Collection<Experiment> experiments, String number) {
-        return experiments == null ? Optional.empty() :
-                experiments.stream().filter(experiment -> nullSafeEquals(experiment.getName(), number)).findAny();
+    private static ProductBatchDetailsDTO convertFromDBObject(BasicDBObject obj) {
+        Map map = obj.toMap();
+        String fullBatchNumber = Optional.ofNullable(map.get(BatchComponentUtil.COMPONENT_FIELD_FULL_NBK_BATCH)).
+                map(Object::toString).orElse(null);
+        return new ProductBatchDetailsDTO(fullBatchNumber, map);
     }
 
 }

@@ -39,19 +39,24 @@ angular.module('indigoeln')
                 myId: '@',
                 myColumns: '=',
                 myRows: '=',
-                myOnRowSelected: '='
+                myOnRowSelected: '=',
+                myDraggableRows: '=',
+                myDraggableColumns: '='
+
             },
-            controller: function ($scope, dragulaService, localStorageService) {
+            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService) {
                 var columnsIds = JSON.parse(localStorageService.get($scope.myId + '.columns'));
 
                 $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
                     return _.indexOf(columnsIds, column.id);
                 });
-                $scope.$watch(function () {
-                    return _.map($scope.myColumns, _.iteratee('id')).join('-');
-                }, function () {
-                    localStorageService.set($scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
-                });
+                if ($attrs.myDraggableColumns) {
+                    $scope.$watch(function () {
+                        return _.map($scope.myColumns, _.iteratee('id')).join('-');
+                    }, function () {
+                        localStorageService.set($scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
+                    });
+                }
 
                 var editableCell = null;
                 this.toggleEditable = function (columnId, rowIndex) {
@@ -90,6 +95,21 @@ angular.module('indigoeln')
                     }
                 });
 
+                unitService.processColumns($scope.myColumns, $scope.myRows);
+                selectService.processColumns($scope.myColumns, $scope.myRows);
+
+            },
+            compile: function (tElement, tAttrs, transclude) {
+                if (tAttrs.myDraggableRows) {
+                    var $tBody = $(tElement.find('tbody'));
+                    $tBody.attr('dragula', '\'my-table-rows\'');
+                    $tBody.attr('dragula-model', 'myRows');
+                }
+                if (tAttrs.myDraggableColumns) {
+                    var $tr = $(tElement.find('thead tr'));
+                    $tr.attr('dragula', '\'my-table-columns\'');
+                    $tr.attr('dragula-model', 'myColumns');
+                }
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table.html'
         };
