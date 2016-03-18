@@ -1,6 +1,16 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.service.exception.DocumentUploadException;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
+import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -8,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,6 +29,16 @@ public class SignatureResource {
 
     @Autowired
     private SignatureService signatureService;
+
+    @Autowired
+    private ExperimentService experimentService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
 
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,10 +66,31 @@ public class SignatureResource {
 
     @RequestMapping(value = "/document", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> uploadDocument(@RequestParam("templateId") String templateId,
-                                                 @RequestParam("file") MultipartFile file) throws IOException {
-        //TODO: change state of the experiment
-        return ResponseEntity.ok(signatureService.uploadDocument(templateId, file.getOriginalFilename(), file.getBytes()));
+    public ResponseEntity<String> uploadDocument(@RequestParam("fileName") String fileName,
+                                                 @RequestParam("templateId") String templateId,
+                                                 @RequestParam("experimentId") String experimentId,
+                                                 @RequestParam("notebookId") String notebookId,
+                                                 @RequestParam("projectId") String projectId) throws IOException {
+
+        // upload file to indigo signature service
+        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
+        String result = signatureService.uploadDocument(templateId, fileName, FileUtils.readFileToByteArray(file));
+
+        // extract uploaded document id
+        String documentId = objectMapper.readValue(result, JsonNode.class).get("id").asText();
+
+        if (documentId == null) {
+            throw new DocumentUploadException(experimentId);
+        }
+
+        // set document id to experiment and update status
+        User user = userService.getUserWithAuthorities();
+        ExperimentDTO experimentDto  = experimentService.getExperiment(projectId, notebookId, experimentId, user);
+        experimentDto.setDocumentId(documentId);
+        experimentDto.setStatus(ExperimentStatus.fromValue("Submitted"));
+        experimentDto = experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
+
+        return ResponseEntity.ok(result);
     }
 
     @RequestMapping(value = "/document/info", method = RequestMethod.GET,

@@ -66,6 +66,7 @@
                                                 my-label="Print"
                                                 my-model="reactionDetails.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -111,6 +112,7 @@
                                                 my-label="Print"
                                                 my-model="experimentDescription.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -129,6 +131,7 @@
                                                 my-label="Print"
                                                 my-model="reaction.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -149,6 +152,7 @@
                                                 my-label="Print"
                                                 my-model="stoichiometry.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -219,6 +223,7 @@
                                                 my-label="Print"
                                                 my-model="batchSummary.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -288,6 +293,7 @@
                                                 my-label="Print"
                                                 my-model="registrationSummary.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -318,6 +324,7 @@
                                                 my-label="Print"
                                                 my-model="batchDetails.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11" ng-if="true">   <!--ng-if="batchDetails"-->
@@ -424,6 +431,7 @@
                                                 my-label="Print"
                                                 my-model="conceptDetails.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -462,6 +470,7 @@
                                                 my-label="Print"
                                                 my-model="preferredCompounds.needToPrint"
                                                 my-name="needToPrint"
+                                                my-disabled="{{fullPrint}}"
                                         ></my-checkbox>
                                     </div>
                                     <div class="col-xs-11">
@@ -489,9 +498,12 @@
                     </div>
                 </div>
             </div>
-        <div class="panel-footer text-right">
-        <button ng-click="print(experiment)" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
+        <div class="panel-footer text-right" >
+        <button ng-click="print(experiment)" ng-if="!fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
             <span class="glyphicon glyphicon-print"></span>&nbsp;<span>Print</span>
+        </button>
+        <button ng-click="submit()" ng-if="fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
+            <span class="glyphicon glyphicon-save-file"></span>&nbsp;<span>Submit</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>

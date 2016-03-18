@@ -33,10 +33,10 @@ angular.module('indigoeln')
             tabs[id] = tabs[id] || {};
             cache[id] = cache[id] || {};
             return id;
-        }
+        };
 
         var resolvePrincipal = function (func) {
-            return Principal.identity().then(function (){return func()});
+            return Principal.identity().then(function (){return func();});
         };
 
         return {
@@ -119,6 +119,16 @@ angular.module('indigoeln')
                         cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
                     }
                     return cache[userId][entitiyId];
+                });
+            },
+            updateCacheAndTab: function (params) {
+                var that = this;
+                return resolvePrincipal( function () {
+                    var userId = getUserId();
+                    var entitiyId = that.compactIds(params);
+                    cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
+                    tabs[userId][entitiyId] = cache[userId][entitiyId];
+                    return tabs[userId][entitiyId];
                 });
             },
             getTabs: function () {

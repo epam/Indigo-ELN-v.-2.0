@@ -25,7 +25,11 @@
                                         <span>{{experiment.name}}</span>
                                         <i class="experiment-status"
                                            ng-class="{'fa fa-key': experiment.status == 'Completed',
-                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
+                                                      'fa fa-check': experiment.status == 'Singing',
+                                                      'fa fa-pencil': experiment.status == 'Submitted',
+                                                      'fa fa-archive': experiment.status == 'Archived',
+                                                      'fa fa-times': experiment.status == 'Submit_Fail',
+                                                      'fa fa-circle-o': experiment.status == 'Open'}"></i>
                                     </li>
                                 </ul>
                             </li>
@@ -57,7 +61,11 @@
                                         <span>{{experiment.name}}</span>
                                         <i class="experiment-status"
                                            ng-class="{'fa fa-key': experiment.status == 'Completed',
-                                                      'fa fa-circle-o': experiment.status == 'Opened'}"></i>
+                                                      'fa fa-pencil': experiment.status == 'Submitted',
+                                                      'fa fa-check': experiment.status == 'Singing',
+                                                      'fa fa-archive': experiment.status == 'Archived',
+                                                      'fa fa-times': experiment.status == 'Submit_Fail',
+                                                      'fa fa-circle-o': experiment.status == 'Open'}"></i>
                                     </li>
                                 </ul>
                             </li>
