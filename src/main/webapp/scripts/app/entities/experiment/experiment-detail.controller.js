@@ -2,11 +2,12 @@
 
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $stateParams, Experiment, Principal, PermissionManagement, pageInfo, $uibModal) {
+        function ($scope, $rootScope, $stateParams, $state, Experiment, Principal, PermissionManagement, pageInfo,
+                  SignatureTemplates, $uibModal) {
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
-            $scope.statuses = ['Opened', 'Completed', 'SubmitFailed', 'Submitted', 'Archived', 'Signed'];
+            $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing'];
 
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
@@ -22,6 +23,7 @@ angular.module('indigoeln')
             var onAccessListChangedEvent = $scope.$on('access-list-changed', function (event) {
                 $scope.experiment.accessList = PermissionManagement.getAccessList();
             });
+
             $scope.$on('$destroy', function () {
                 onAccessListChangedEvent();
             });
@@ -60,7 +62,6 @@ angular.module('indigoeln')
                 }
             };
 
-
             $scope.$watch('experiment.status', function (newValue) {
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
@@ -78,8 +79,8 @@ angular.module('indigoeln')
 
             var rememberStatus = $scope.experiment.status;
 
-            $scope.completeExperiment = function () {
-                $uibModal.open({
+            var openCompleteConfirmationModal = function () {
+                return $uibModal.open({
                     animation: true,
                     templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
                     resolve: {
@@ -96,7 +97,11 @@ angular.module('indigoeln')
                             $uibModalInstance.close(true);
                         };
                     }
-                }).result.then(function () {
+                });
+            };
+
+            $scope.completeExperiment = function () {
+                openCompleteConfirmationModal().result.then(function () {
                     $scope.isSaving = true;
                     rememberStatus = $scope.experiment.status;
                     setStatus('Completed');
@@ -109,14 +114,26 @@ angular.module('indigoeln')
                 });
             };
 
+            $scope.completeExperimentAndSign = function () {
+                openCompleteConfirmationModal().result.then(function () {
+                    // show PDF preview
+                    $state.go('experiment-preview-submit', {
+                            experimentId: $scope.experiment.id,
+                            notebookId: $scope.notebook.id,
+                            projectId: $scope.notebook.parentId
+                        });
+                    //$state.go('entities.experiment-detail.preview-submit');
+                });
+            };
+
             $scope.isStatusOpen = function () {
-                return $scope.experiment.status === 'Opened';
+                return $scope.experiment.status === 'Open';
             };
             $scope.isStatusComplete = function () {
                 return $scope.experiment.status === 'Completed';
             };
             $scope.isStatusSubmitFail = function () {
-                return $scope.experiment.status === 'SubmitFailed';
+                return $scope.experiment.status === 'Submit_Fail';
             };
             $scope.isStatusSubmitted = function () {
                 return $scope.experiment.status === 'Submitted';
@@ -125,7 +142,7 @@ angular.module('indigoeln')
                 return $scope.experiment.status === 'Archived';
             };
             $scope.isStatusSigned = function () {
-                return $scope.experiment.status === 'Signed';
+                return $scope.experiment.status === 'Signing';
             };
 
         });

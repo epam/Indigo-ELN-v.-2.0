@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum ExperimentStatus {
 
-    OPEN("Opened"),
+    OPEN("Open"),
     COMPLETED("Completed"),
     SUBMITTED("Submitted"),
-    SUBMIT_FAIL("SubmitFailed"),
-    SINGING("Signed"),
+    SUBMIT_FAIL("Submit_Fail"),
+    SINGING("Signing"),
     ARCHIVED("Archived");
 
     private final String value;

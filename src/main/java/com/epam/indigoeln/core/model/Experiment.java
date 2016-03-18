@@ -26,6 +26,8 @@ public class Experiment extends ExperimentShort {
 
     private ExperimentStatus status;
 
+    private String documentId;
+
     @JsonIgnore
     @DBRef
     private List<Component> components;
@@ -81,7 +83,15 @@ public class Experiment extends ExperimentShort {
         this.fileIds = fileIds;
     }
 
-    public TreeNodeDTO retrieveTreeNodeDTO() {
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public TreeNodeDTO  retrieveTreeNodeDTO() {
         TreeNodeDTO result = new TreeNodeDTO(this);
         result.setStatus(this.getStatus().toString());
         return result;
@@ -120,6 +130,4 @@ public class Experiment extends ExperimentShort {
                 ", comments='" + comments + '\'' +
                 "} " + super.toString();
     }
-
-
 }

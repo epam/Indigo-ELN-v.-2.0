@@ -19,6 +19,7 @@ public class ExperimentDTO extends BasicDTO {
     private TemplateDTO template;
     private List<ComponentDTO> components = new ArrayList<>();
     private ExperimentStatus status;
+    private String documentId;
 
     public ExperimentDTO() {
         super();
@@ -56,5 +57,13 @@ public class ExperimentDTO extends BasicDTO {
 
     public void setStatus(ExperimentStatus status) {
         this.status = status;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 }
