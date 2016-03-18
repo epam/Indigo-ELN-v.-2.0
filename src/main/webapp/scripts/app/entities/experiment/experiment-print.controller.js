@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentPrintController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, experiment, notebook, project) {
+    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, pageInfo) {
 
-        $scope.experiment = experiment;
-        $scope.notebook = notebook;
-        $scope.project = project;
+        $scope.experiment = pageInfo.experiment;
+        $scope.notebook = pageInfo.notebook;
+        $scope.project = pageInfo.project;
 
         $scope.batchDetails = experiment.components.productBatchDetails;
         $scope.batchSummary = experiment.components.productBatchSummary;

@@ -6,7 +6,7 @@ angular.module('indigoeln',
         'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside'])
-    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle) {
+    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, TabManager) {
         var countdownDialog = null,
             idleTime = 30,  // 30 minutes
             countdown = 30; // 30 seconds
@@ -17,6 +17,14 @@ angular.module('indigoeln',
 
             if (Principal.isIdentityResolved()) {
                 Auth.authorize();
+            }
+            var tab = toState.data.tab;
+            if (tab) {
+                tab.params = toStateParams;
+                if (tab.kind === 'entity') {
+                    tab.id = TabManager.compactIds(toStateParams);
+                }
+                TabManager.addTab(tab);
             }
         });
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {

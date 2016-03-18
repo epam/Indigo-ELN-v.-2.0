@@ -2,18 +2,17 @@
 
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $stateParams, Experiment, Principal, PermissionManagement,
-                  experiment, notebook, identity, isContentEditor, hasEditAuthority, $uibModal) {
+        function ($scope, $rootScope, $stateParams, Experiment, Principal, PermissionManagement, pageInfo, $uibModal) {
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
             $scope.statuses = ['Opened', 'Completed', 'SubmitFailed', 'Submitted', 'Archived', 'Signed'];
 
-            $scope.experiment = experiment;
+            $scope.experiment = pageInfo.experiment;
+            $scope.notebook = pageInfo.notebook;
             $scope.experimentId = $stateParams.experimentId;
-            $scope.experiment.author = $scope.experiment.author || identity;
-            $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(identity);
-
+            $scope.experiment.author = $scope.experiment.author || pageInfo.identity;
+            $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(pageInfo.identity);
             $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Experiment');
@@ -28,7 +27,7 @@ angular.module('indigoeln')
             });
 
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
-                $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+                $scope.isEditAllowed = pageInfo.isContentEditor || pageInfo.hasEditAuthority && hasEditPermission;
             });
 
             Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
