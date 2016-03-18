@@ -1,12 +1,11 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal,
-                                                      roles, accountRoles) {
+    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
 
-        $scope.roles = roles;
-        $scope.accountRoles = accountRoles;
+        $scope.roles = pageInfo.roles;
+        $scope.accountRoles = pageInfo.accountRoles;
         $scope.authorities = [
             {name: 'USER_EDITOR', description: 'User editor', tooltip: 'Write some tooltip'},
             {name: 'ROLE_EDITOR', description: 'Role editor', tooltip: 'Write some tooltip'},

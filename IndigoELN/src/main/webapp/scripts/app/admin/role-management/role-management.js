@@ -4,25 +4,37 @@ angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
             .state('role-management', {
-                parent: 'admin',
+                parent: 'tab',
                 url: '/role-management',
                 data: {
                     authorities: ['ROLE_EDITOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'Roles',
+                        kind: 'management',
+                        state: 'role-management'
+                    }
                 },
                 views: {
-                    'content@app_page': {
+                    'tabContent': {
                         templateUrl: 'scripts/app/admin/role-management/role-management.html',
                         controller: 'RoleManagementController'
                     }
                 },
                 resolve: {
-                    roles: ['Role', function (Role) {
-                        return Role.query().$promise;
-                    }],
-                    accountRoles: ['AccountRole', function (AccountRole) {
-                        return AccountRole.query().$promise;
-                    }]
+                    pageInfo: function($q, Role, AccountRole) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            Role.query().$promise,
+                            AccountRole.query().$promise
+                        ]).then(function(results){
+                            deferred.resolve({
+                                roles: results[0],
+                                accountRoles: results[1]
+                            });
+                        });
+                        return deferred.promise;
+                    }
                 }
             })
             .state('role-management.delete', {

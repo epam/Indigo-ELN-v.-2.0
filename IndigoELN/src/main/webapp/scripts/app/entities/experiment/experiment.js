@@ -31,19 +31,18 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: function () {
-                        return {
-                            name: null,
-                            experimentNumber: null,
-                            template: null,
-                            id: null
-                        };
-                    },
-                    templates: function (Template) {
-                        return Template.query().$promise;
-                    },
-                    mode: function () {
-                        return 'new';
+                    pageInfo: function($q, $stateParams, Template) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            Template.query().$promise
+                        ]).then(function(results){
+                            deferred.resolve({
+                                entity: {name: null, experimentNumber: null, template: null, id: null},
+                                templates: results[0],
+                                mode: 'new'
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             })
@@ -60,20 +59,24 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    experiment: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getCurrentEntity($stateParams);
-                    },
-                    notebook: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getNotebookFromCache($stateParams);
-                    },
-                    identity: function (Principal) {
-                        return Principal.identity();
-                    },
-                    isContentEditor: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR');
-                    },
-                    hasEditAuthority: function (Principal) {
-                        return Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR');
+                    pageInfo: function($q, $stateParams, Principal, EntitiesBrowser) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            EntitiesBrowser.getCurrentEntity($stateParams),
+                            EntitiesBrowser.getNotebookFromCache($stateParams),
+                            Principal.identity(),
+                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                        ]).then(function(results){
+                            deferred.resolve({
+                                experiment: results[0],
+                                notebook: results[1],
+                                identity: results[2],
+                                isContentEditor: results[3],
+                                hasEditAuthority: results[4]
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             })
@@ -90,18 +93,23 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    entity: function (Experiment, $stateParams) {
-                        return Experiment.get({
-                            experimentId: $stateParams.id,
-                            notebookId: $stateParams.notebookId,
-                            projectId: $stateParams.projectId
-                        }).$promise;
-                    },
-                    templates: function (Template) {
-                        return Template.query().$promise;
-                    },
-                    mode: function () {
-                        return 'edit';
+                    pageInfo: function($q, $stateParams, Experiment, Template) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            Experiment.get({
+                                experimentId: $stateParams.id,
+                                notebookId: $stateParams.notebookId,
+                                projectId: $stateParams.projectId
+                            }).$promise,
+                            Template.query().$promise
+                        ]).then(function(results){
+                            deferred.resolve({
+                                entity: results[0],
+                                templates: results[1],
+                                mode: 'edit'
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             })
@@ -190,14 +198,20 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    experiment: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getCurrentEntity($stateParams);
-                    },
-                    notebook: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getNotebookFromCache($stateParams);
-                    },
-                    project: function ($stateParams, EntitiesBrowser) {
-                        return EntitiesBrowser.getProjectFromCache($stateParams);
+                    pageInfo: function($q, $stateParams, EntitiesBrowser) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            EntitiesBrowser.getCurrentEntity($stateParams),
+                            EntitiesBrowser.getNotebookFromCache($stateParams),
+                            EntitiesBrowser.getProjectFromCache($stateParams)
+                        ]).then(function(results){
+                            deferred.resolve({
+                                experiment: results[0],
+                                notebook: results[1],
+                                project: results[2]
+                            });
+                        });
+                        return deferred.promise;
                     }
                 }
             });
