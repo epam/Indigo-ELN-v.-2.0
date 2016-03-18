@@ -51,7 +51,10 @@
       "main": "dist/css/rdash.css"
     },
     "jquery-ui": {
-      "main": ["jquery-ui.js", "themes/base/jquery-ui.css"]
+      "main": [
+        "jquery-ui.js",
+        "themes/base/jquery-ui.css"
+      ]
     }
   },
   "resolutions": {
