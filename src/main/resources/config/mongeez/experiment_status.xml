@@ -1,0 +1,9 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-12" author="bolbin_sergey">
+        <script>
+
+            db.experiment.update({}, {$set: {status: 'OPEN'}}, {multi: true})
+
+        </script>
+    </changeSet>
+</mongoChangeLog>
