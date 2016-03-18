@@ -29,8 +29,7 @@ public class BingoConfiguration {
 
     @Bean
     public IndigoRenderer indigoRenderer() {
-        Indigo indigo = new Indigo();
-        indigo.setOption("ignore-stereochemistry-errors", "true");
+        Indigo indigo = indigo();
 
         IndigoRenderer renderer = new IndigoRenderer(indigo);
 
