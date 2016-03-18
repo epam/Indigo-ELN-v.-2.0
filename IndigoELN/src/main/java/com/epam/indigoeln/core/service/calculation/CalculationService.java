@@ -3,13 +3,14 @@ package com.epam.indigoeln.core.service.calculation;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;
-import com.epam.indigoeln.core.service.calculation.helper.CommonCalcHelper;
-import com.epam.indigoeln.core.service.calculation.helper.MoleculeCalcHelper;
-import com.epam.indigoeln.core.service.calculation.helper.ReactionCalcHelper;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,11 @@ import java.util.Map;
 @Service
 public class CalculationService {
 
-    private static boolean STEREOCHEM_ERRORS = true;
-    private static String MOLECULE_TYPE = "molecule";
-    private static String REACTION_TYPE = "reaction";
+    @Autowired
+    private Indigo indigo;
+
+    @Autowired
+    private IndigoRenderer indigoRenderer;
 
     /**
      * Check, that chemistry structures of reactions or molecules are equals
@@ -31,7 +34,15 @@ public class CalculationService {
      * @return true if all chemistry items equals
      */
     public boolean chemistryEquals(List<String> chemistryItems, boolean isReaction) {
-        return CommonCalcHelper.chemistryEquals(chemistryItems, isReaction);
+        IndigoObject prevHandle = null;
+        for(String chemistry : chemistryItems) {
+            IndigoObject handle = isReaction ? indigo.loadReaction(chemistry) : indigo.loadMolecule(chemistry);
+            if(prevHandle != null && indigo.exactMatch(handle, prevHandle) == null) {
+                return false;
+            }
+            prevHandle = handle;
+        }
+        return true;
     }
 
     /**
@@ -42,7 +53,17 @@ public class CalculationService {
      * @return map of calculated attributes
      */
     public Map<String, String> getMolecularInformation(String molecule) {
-        return MoleculeCalcHelper.getMolecularInformation(molecule);
+        Map<String, String> result = new HashMap<>();
+
+        IndigoObject handle = indigo.loadMolecule(molecule);
+
+        result.put("name", handle.name());
+        result.put("molecularFormula", handle.grossFormula());
+        result.put("molecularWeight", String.valueOf(handle.molecularWeight()));
+        result.put("exactMolecularWeight", String.valueOf(handle.monoisotopicMass()));
+        result.put("isChiral", String.valueOf(handle.isChiral()));
+
+        return result;
     }
 
     /**
@@ -52,7 +73,7 @@ public class CalculationService {
      * @return true if molecule empty
      */
     public boolean isMoleculeEmpty(String molecule) {
-        return MoleculeCalcHelper.isMoleculeEmpty(molecule);
+        return indigo.loadMolecule(molecule).countAtoms() == 0;
     }
 
     /**
@@ -62,7 +83,7 @@ public class CalculationService {
      * @return true if molecule is chiral
      */
     public boolean isMoleculeChiral(String molecule) {
-        return MoleculeCalcHelper.isMoleculeChiral(molecule);
+        return indigo.loadMolecule(molecule).isChiral();
     }
 
     /**
@@ -71,7 +92,21 @@ public class CalculationService {
      * @return reaction components
      */
     public ReactionPropertiesDTO extractReactionComponents(String reaction) {
-        return ReactionCalcHelper.extractReactionComponents(reaction);
+        IndigoObject handle = indigo.loadReaction(reaction);
+
+        //fetch reactants
+        List<String> reactants = new ArrayList<>();
+        for(IndigoObject reactant : handle.iterateReactants()) {
+            reactants.add(reactant.molfile());
+        }
+
+        //fetch components
+        List<String> products = new ArrayList<>();
+        for(IndigoObject product : handle.iterateProducts()) {
+            products.add(product.molfile());
+        }
+
+        return new ReactionPropertiesDTO(reaction, reactants, products);
     }
 
     /**
@@ -82,7 +117,20 @@ public class CalculationService {
      * @return reaction DTO enriched by reactants and products
      */
     public ReactionPropertiesDTO combineReactionComponents(ReactionPropertiesDTO reactionDTO) {
-        return ReactionCalcHelper.combineReactionComponents(reactionDTO);
+        IndigoObject handle = indigo.createReaction();
+
+        //add reactants to the structure
+        for (String reactant : reactionDTO.getReactants()) {
+            handle.addReactant(indigo.loadMolecule(reactant));
+        }
+
+        //add products to the structure
+        for (String product : reactionDTO.getReactants()) {
+            handle.addProduct(indigo.loadMolecule(product));
+        }
+
+        reactionDTO.setStructure(handle.rxnfile());
+        return reactionDTO;
     }
 
     /**
@@ -92,7 +140,8 @@ public class CalculationService {
      * @return is reaction valid
      */
     public boolean isValidReaction(String reaction) {
-        return ReactionCalcHelper.isValidReaction(reaction);
+        IndigoObject handle = indigo.loadQueryReaction(reaction);
+        return (handle.countReactants() > 0) && (handle.countProducts() > 0);
     }
 
     /**
@@ -102,18 +151,13 @@ public class CalculationService {
      * @return RendererResult
      */
     public RendererResult getStructureWithImage(String structure, String structureType) {
-
-        Indigo indigo = new Indigo();
-        indigo.setOption("ignore-stereochemistry-errors", STEREOCHEM_ERRORS);
-
-        IndigoRenderer renderer = CommonCalcHelper.getRenderer(indigo);
-        IndigoObject io =  MOLECULE_TYPE.equals(structureType) ? indigo.loadMolecule(structure) :
+        IndigoObject io = StringUtils.equals(structureType, "molecule") ? indigo.loadMolecule(structure) :
                 indigo.loadReaction(structure);
 
         // auto-generate coordinates as Bingo DB doesn't store them
         io.layout();
 
-        return new RendererResult(renderer.renderToBuffer(io));
+        return new RendererResult(indigoRenderer.renderToBuffer(io));
     }
 
 
