@@ -7,12 +7,12 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.notebook = pageInfo.notebook;
         $scope.project = pageInfo.project;
 
-        $scope.batchDetails = experiment.components.productBatchDetails;
-        $scope.batchSummary = experiment.components.productBatchSummary;
-        $scope.conceptDetails = experiment.components.conceptDetails;
-        $scope.reactionDetails = experiment.components.reactionDetails;
-        $scope.reaction = experiment.components.reaction;
-        $scope.molecule = experiment.components.molecule;
+        $scope.batchDetails = $scope.experiment.components.productBatchDetails;
+        $scope.batchSummary = $scope.experiment.components.productBatchSummary;
+        $scope.conceptDetails = $scope.experiment.components.conceptDetails;
+        $scope.reactionDetails = $scope.experiment.components.reactionDetails;
+        $scope.reaction = $scope.experiment.components.reaction;
+        $scope.molecule = $scope.experiment.components.molecule;
 
         $scope.currentDate = Date.now();
 
