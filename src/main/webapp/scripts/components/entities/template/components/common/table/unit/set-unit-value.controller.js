@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ProductBatchSummarySetUnitValueController', function ($scope, name, unitNames, $uibModalInstance) {
+    .controller('SetUnitValueController', function ($scope, name, unitNames, $uibModalInstance) {
         $scope.name = name;
         $scope.initUnit = function () {
             $scope.unit = unitNames[0];

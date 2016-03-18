@@ -7,27 +7,21 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.notebook = notebook;
         $scope.project = project;
 
-        function getComponentContent(componentName) {
-            var component = _.findWhere(experiment.components, {name: componentName});
-            return component ? component.content : experiment.components[componentName];
-        }
-
-        $scope.batchDetails = getComponentContent('productBatchDetails');
-        $scope.batchSummary = getComponentContent('productBatchSummary');
-        $scope.conceptDetails = getComponentContent('conceptDetails');
-        $scope.reactionDetails = getComponentContent('reactionDetails');
-        $scope.reaction = getComponentContent('reaction');
-        $scope.molecule = getComponentContent('molecule');
+        $scope.batchDetails = experiment.components.productBatchDetails;
+        $scope.batchSummary = experiment.components.productBatchSummary;
+        $scope.conceptDetails = experiment.components.conceptDetails;
+        $scope.reactionDetails = experiment.components.reactionDetails;
+        $scope.reaction = experiment.components.reaction;
+        $scope.molecule = experiment.components.molecule;
 
         $scope.currentDate = Date.now();
 
         var preparedPrintForm = function () {
             var $printFormClone = $('#print-form').clone();
-            $printFormClone.find('div.col-xs-offset-2').removeClass('col-xs-offset-2');
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);
                 var $input = $this.find('input');
-                $this.find('div.col-xs-10').removeClass('col-xs-10').addClass('col-xs-12');
+                $this.find('div.col-xs-11').removeClass('col-xs-11').addClass('col-xs-12');
                 if ($input.length && $input.get(0).checked !== true) {
                     $this.remove();
                 } else if ($input.length) {

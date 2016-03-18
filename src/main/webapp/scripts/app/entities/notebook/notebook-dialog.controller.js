@@ -12,6 +12,8 @@ angular.module('indigoeln')
             $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Notebook');
+            PermissionManagement.setEntityId($scope.notebook.id);
+            PermissionManagement.setParentId($scope.projectId);
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
 

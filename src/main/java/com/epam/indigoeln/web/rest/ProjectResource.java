@@ -7,22 +7,19 @@ import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(ProjectResource.URL_MAPPING)
@@ -62,6 +59,17 @@ public class ProjectResource {
         log.debug("REST request to get all projects without checking for permissions");
         List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * GET  /projects/permissions/user-removable -> Returns true if user can be removed from project without problems
+     */
+    @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map> isUserRemovable(String projectId, String userId) {
+        log.debug("REST request to check if user can be deleted from project's access list without problems");
+        boolean result = projectService.isUserRemovable(projectId, userId);
+        return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
     }
 
     /**

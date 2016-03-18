@@ -1,6 +1,6 @@
 package com.epam.indigoeln.aop.logging;
 
-import com.epam.indigoeln.config.Constants;
+import com.epam.indigoeln.Application;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -25,13 +25,21 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(com.epam.indigoeln.core.repository..*) || within(com.epam.indigoeln.core.service..*) || within(com.epam.indigoeln.web.rest..*)")
+    @Pointcut("(within(com.epam.indigoeln.core.repository..*) " +
+            "|| within(com.epam.indigoeln.core.service..*) " +
+            "|| within(com.epam.indigoeln.web.rest..*)) " +
+            "&& " +
+            "!(within(com.epam.indigoeln.core.service.bingo..*) " +
+            "|| within(com.epam.indigoeln.core.repository.bingo..*) " +
+            "|| within(com.epam.indigoeln.web.rest.BingoResource))")
     public void loggingPointcut() {
+        // all the Bingo related classes are excluded as IndigoObject.toString() method
+        // throws IndigoExcetion not allowing to save new structures
     }
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
-        if (env.acceptsProfiles(Constants.SPRING_PROFILE_DEVELOPMENT)) {
+        if (env.acceptsProfiles(Application.Profile.DEV)) {
             log.error("Exception in {}.{}() with cause = {} and exception {}", joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), e.getCause(), e);
         } else {

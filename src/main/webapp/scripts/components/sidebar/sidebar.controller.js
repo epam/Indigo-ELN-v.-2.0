@@ -43,13 +43,20 @@ angular
         });
 
         var onExperimentCreatedEvent = $scope.$on('experiment-created', function(event, data) {
+            updateTreeForExperiments(event, data);
+        });
+
+        var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
+            updateTreeForExperiments(event, data);
+        });
+
+        var updateTreeForExperiments = function (event, data) {
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
 
-            if($scope.projects &&
-                (project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                (notebook = $scope.getTreeItemById(project.children, data.notebookId))
-            ) { //find existing notebook and update children only
+            if ($scope.projects && (project = $scope.getTreeItemById($scope.projects, data.projectId))
+                && (notebook = $scope.getTreeItemById(project.children, data.notebookId)))
+            { //find existing notebook and update children only
                 Experiment.query({notebookId: notebook.id, projectId : project.id}, function (expResult) {
                     notebook.children = expResult;
                     project.isOpen = true;
@@ -61,25 +68,26 @@ angular
                     $scope.myBookmarks.projects = result;
 
                     if((project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                            (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
+                        (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
                         project.isOpen = true;
                         notebook.isOpen = true;
                     }
                 });
             }
-        });
+        };
 
         $scope.$on('$destroy', function() {
             onExperimentCreatedEvent();
             onNotebookCreatedEvent();
             onProjectCreatedEvent();
+            onExperimentStatusChangedEvent();
         });
 
         $scope.getTreeItemById = function(items, itemId) {
             var result = null;
             if(items) {
                 items.some(function (projectItem) {
-                    return projectItem.id == itemId ? ( (result = projectItem), true) : false;
+                    return projectItem.id === itemId ? ( (result = projectItem), true) : false;
                 });
             }
             return result;
@@ -102,21 +110,16 @@ angular
                 project.children = null;
                 project.isOpen = false;
             } else {
-                PermissionManagement.hasPermission('READ_SUB_ENTITY', project.accessList).then(function (hasPermission) {
-                    if (!hasPermission) {
-                        Alert.warning('You should have at least "CHILD_VIEWER" permission for this project to view notebook content');
-                    }
-                    if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER'])) {
-                        var agent = needAll ? AllNotebooks : Notebook;
-                        agent.query({projectId: project.id}, function (result) {
-                            project.children = result;
-                            project.isOpen = true;
-                        });
-                    } else {
-                        project.children = null;
+                if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER'])) {
+                    var agent = needAll ? AllNotebooks : Notebook;
+                    agent.query({projectId: project.id}, function (result) {
+                        project.children = result;
                         project.isOpen = true;
-                    }
-                });
+                    });
+                } else {
+                    project.children = null;
+                    project.isOpen = true;
+                }
             }
         };
 
@@ -126,21 +129,16 @@ angular
                 notebook.children = null;
                 notebook.isOpen = false;
             } else {
-                PermissionManagement.hasPermission('READ_SUB_ENTITY', notebook.accessList).then(function (hasPermission) {
-                    if (!hasPermission) {
-                        Alert.warning('You should have at least "CHILD_VIEWER" permission for this notebook to view experiment content');
-                    }
-                    if (hasPermission && Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
-                        var agent = needAll ? AllExperiments : Experiment;
-                        agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {
-                            notebook.children = result;
-                            notebook.isOpen = true;
-                        });
-                    } else {
-                        notebook.children = null;
+                if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
+                    var agent = needAll ? AllExperiments : Experiment;
+                    agent.query({notebookId: notebook.id, projectId: project.id}, function (result) {
+                        notebook.children = result;
                         notebook.isOpen = true;
-                    }
-                });
+                    });
+                } else {
+                    notebook.children = null;
+                    notebook.isOpen = true;
+                }
             }
         };
 

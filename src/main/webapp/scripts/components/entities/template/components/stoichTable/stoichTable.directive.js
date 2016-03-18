@@ -8,7 +8,18 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope) {
+            controller: function ($scope, $http, $q) {
+                $scope.model = $scope.model || {};
+                $scope.model.stoichTable = $scope.model.stoichTable || {};
+                $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
+
+                var grams = ['mg', 'g', 'kg'];
+                var liters = ['ul', 'ml', 'l'];
+                var moles = ['umol', 'mmol', 'mol'];
+                var molarity = ['mM', 'M'];
+                var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
+                var saltCodeValues = [{name: '00 - Parent'}, {name: '01 - Salt1(MW-10)'}, {name: '02 - Salt2(MW-20)'}];
+                var loadFactorUnits = ['mmol/g'];
                 $scope.reactantsColumns = [
                     {
                         id: 'compoundId',
@@ -16,8 +27,7 @@ angular.module('indigoeln')
                         type: 'input'
                     }, {
                         id: 'casNumber',
-                        name: 'CAS Number',
-                        type: 'input'
+                        name: 'CAS Number'
                     }, {
                         id: 'nbkBatch',
                         name: 'Nbk Batch #',
@@ -28,32 +38,37 @@ angular.module('indigoeln')
                         type: 'input'
                     }, {
                         id: 'molWeight',
-                        name: 'Mol Weight',
-                        type: 'input'
+                        name: 'Mol Weight'
                     }, {
                         id: 'weight',
                         name: 'Weight',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: grams
                     }, {
                         id: 'volume',
                         name: 'Volume',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: liters
                     }, {
                         id: 'mol',
                         name: 'Mol',
-                        type: 'input'
+                        unitItems: moles
                     }, {
                         id: 'limiting',
                         name: 'Limiting',
-                        type: 'input'
+                        type: 'boolean'
                     }, {
                         id: 'rxnRole',
                         name: 'Rxn Role',
-                        type: 'input'
+                        type: 'select',
+                        values: function () {
+                            return rxnValues;
+                        }
                     }, {
                         id: 'molarity',
                         name: 'Molarity',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: molarity
                     }, {
                         id: 'purity',
                         name: 'Purity',
@@ -65,15 +80,18 @@ angular.module('indigoeln')
                     }, {
                         id: 'saltCode',
                         name: 'Salt Code',
-                        type: 'input'
+                        type: 'select',
+                        values: function () {
+                            return saltCodeValues;
+                        }
                     }, {
                         id: 'saltEq',
-                        name: 'Salt EQ',
-                        type: 'input'
+                        name: 'Salt EQ'
                     }, {
                         id: 'loadFactor',
                         name: 'Load Factor',
-                        type: 'input'
+                        type: 'unit',
+                        unitItems: loadFactorUnits
                     }, {
                         id: 'hazardComments',
                         name: 'Hazard Comments',
@@ -83,51 +101,42 @@ angular.module('indigoeln')
                         name: 'Comments',
                         type: 'input'
                     }];
-                $scope.intendedColumns = [
+                $scope.productsColumns = [
                     {
                         id: 'chemicalName',
-                        name: 'Chemical Name',
-                        type: 'input'
+                        name: 'Chemical Name'
                     },
                     {
                         id: 'formula',
-                        name: 'Foumula',
-                        type: 'input'
+                        name: 'Foumula'
                     },
                     {
                         id: 'molWt',
-                        name: 'Mol.Wt.',
-                        type: 'input'
+                        name: 'Mol.Wt.'
                     },
                     {
                         id: 'exactMass',
-                        name: 'Exact Mass',
-                        type: 'input'
+                        name: 'Exact Mass'
                     },
                     {
                         id: 'theoWgt',
-                        name: 'Theo. Wgt.',
-                        type: 'input'
+                        name: 'Theo. Wgt.'
                     },
                     {
                         id: 'theoMoles',
-                        name: 'Theo. Moles',
-                        type: 'input'
+                        name: 'Theo. Moles'
                     },
                     {
                         id: 'saltCode',
-                        name: 'Salt Code',
-                        type: 'input'
+                        name: 'Salt Code'
                     },
                     {
                         id: 'saltEq',
-                        name: 'Salt EQ',
-                        type: 'input'
+                        name: 'Salt EQ'
                     },
                     {
                         id: 'hazardComments',
-                        name: 'Hazard Comments',
-                        type: 'input'
+                        name: 'Hazard Comments'
                     },
                     {
                         id: 'eq',
@@ -135,6 +144,55 @@ angular.module('indigoeln')
                         type: 'input'
                     }
                 ];
+
+
+                $scope.onRowSelected = function (row) {
+                    $scope.selectedRow = row;
+                };
+                $scope.clear = function () {
+                    for (var key in $scope.selectedRow) {
+                        if ($scope.selectedRow.hasOwnProperty(key)) {
+                            if (!_.contains(['$$hashKey', 'selected'], key)) {
+                                delete $scope.selectedRow[key];
+                            }
+                        }
+                    }
+                };
+                $scope.removeRow = function () {
+                    $scope.rows = _.without($scope.rows, $scope.selectedRow);
+                };
+                $scope.$watch('share.reaction', function (newMolFile) {
+                    var resetMolInfo = function () {
+                        $scope.model.stoichTable.products = null;
+                    };
+                    if (newMolFile) {
+
+                        $http.put('api/calculations/reaction/extract', newMolFile).then(function (reactionProperties) {
+                                if (reactionProperties.data.products && reactionProperties.data.products.length) {
+                                    var promises = [];
+                                    _.each(reactionProperties.data.products, function (product) {
+                                        promises.push($http.put('api/calculations/molecule/info', product));
+                                    });
+                                    $q.all(promises).then(function (results) {
+                                        $scope.model.stoichTable.products = _.map(results, function (result) {
+                                            return {
+                                                chemicalName: result.data.name,
+                                                formula: result.data.molecularFormula,
+                                                molWt: result.data.molecularWeight,
+                                                exactMass: result.data.exactMolecularWeight
+                                            };
+                                        });
+
+                                    });
+                                }
+                            }
+                        );
+                    } else {
+                        resetMolInfo();
+                    }
+                });
             }
-        };
-    });
+        }
+            ;
+    })
+;

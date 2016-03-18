@@ -28,7 +28,7 @@ public final class ReactionCalcHelper {
         //fetch components
         List<String> products = new ArrayList<>();
         for(IndigoObject product : handle.iterateProducts()) {
-            reactants.add(product.molfile());
+            products.add(product.molfile());
         }
 
         return new ReactionPropertiesDTO(reaction, reactants, products);
