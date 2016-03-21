@@ -2,9 +2,12 @@
 
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, project,
-                  identity, isContentEditor, hasEditAuthority, hasCreateChildAuthority, FileUploaderCash) {
-
+        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash, pageInfo) {
+            var identity = pageInfo.identity;
+            var project = pageInfo.project;
+            var isContentEditor = pageInfo.isContentEditor;
+            var hasEditAuthority = pageInfo.hasEditAuthority;
+            var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.project = project;
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);

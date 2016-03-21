@@ -2,8 +2,8 @@ package com.epam.indigoeln.config.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
+import com.epam.indigo.IndigoRenderer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +23,22 @@ public class BingoConfiguration {
     public Indigo indigo() {
         Indigo indigo = new Indigo();
         indigo.setOption("ignore-stereochemistry-errors", "true");
+
         return indigo;
+    }
+
+    @Bean
+    public IndigoRenderer indigoRenderer() {
+        Indigo indigo = indigo();
+
+        IndigoRenderer renderer = new IndigoRenderer(indigo);
+
+        indigo.setOption("render-label-mode", "hetero");
+        indigo.setOption("render-output-format", "svg");
+        indigo.setOption("render-coloring", true);
+        indigo.setOption("render-margins", 0, 0);
+
+        return renderer;
     }
 
     @Bean

@@ -4,14 +4,19 @@ angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
             .state('dictionary-management', {
-                parent: 'admin',
+                parent: 'tab',
                 url: '/dictionary-management',
                 data: {
                     authorities: ['DICTIONARY_EDITOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'Dictionaries',
+                        kind: 'management',
+                        state: 'dictionary-management'
+                    }
                 },
                 views: {
-                    'content@app_page': {
+                    'tabContent': {
                         templateUrl: 'scripts/app/admin/dictionary-management/dictionary-management.html',
                         controller: 'DictionaryManagementController'
                     }

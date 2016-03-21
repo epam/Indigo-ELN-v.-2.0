@@ -38,50 +38,34 @@ public abstract class BingoRepository {
     }
 
     public BingoObject searchExact(IndigoObject query) {
-        synchronized (lock) {
-            return database.searchExact(query);
-        }
+        return database.searchExact(query);
     }
 
     public BingoObject searchExact(IndigoObject query, String options) {
-        synchronized (lock) {
-            return database.searchExact(query, options);
-        }
+        return database.searchExact(query, options);
     }
 
     public BingoObject searchSub(IndigoObject query) {
-        synchronized (lock) {
-            return database.searchSub(query);
-        }
+        return database.searchSub(query);
     }
 
     public BingoObject searchSub(IndigoObject query, String options) {
-        synchronized (lock) {
-            return database.searchSub(query, options);
-        }
+        return database.searchSub(query, options);
     }
 
     public BingoObject searchSim(IndigoObject query, Float min, Float max) {
-        synchronized (lock) {
-            return database.searchSim(query, min, max);
-        }
+        return database.searchSim(query, min, max);
     }
 
     public BingoObject searchSim(IndigoObject query, Float min, Float max, String metric) {
-        synchronized (lock) {
-            return database.searchSim(query, min, max, metric);
-        }
+        return database.searchSim(query, min, max, metric);
     }
 
     public BingoObject searchMolFormula(String query) {
-        synchronized (lock) {
-            return database.searchMolFormula(query);
-        }
+        return database.searchMolFormula(query);
     }
 
     public BingoObject searchMolFormula(String query, String options) {
-        synchronized (lock) {
-            return database.searchMolFormula(query, options);
-        }
+        return database.searchMolFormula(query, options);
     }
 }
