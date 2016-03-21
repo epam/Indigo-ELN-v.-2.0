@@ -155,8 +155,6 @@ public class BingoService {
             result.add(searchResult.getCurrentId());
         }
 
-        searchResult.close();
-
         return result;
     }
 }

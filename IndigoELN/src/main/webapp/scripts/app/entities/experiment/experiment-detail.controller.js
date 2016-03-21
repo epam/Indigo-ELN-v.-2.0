@@ -82,10 +82,13 @@ angular.module('indigoeln')
                 $uibModal.open({
                     animation: true,
                     templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
-                    controller: function ($scope, $uibModalInstance) {
-                        $scope.fullExperimentName = function () {
+                    resolve: {
+                        fullExperimentName: function () {
                             return $scope.notebook.name + '-' + $scope.experiment.name;
-                        };
+                        }
+                    },
+                    controller: function ($scope, $uibModalInstance, fullExperimentName) {
+                        $scope.fullExperimentName = fullExperimentName;
                         $scope.dismiss = function () {
                             $uibModalInstance.dismiss('cancel');
                         };
