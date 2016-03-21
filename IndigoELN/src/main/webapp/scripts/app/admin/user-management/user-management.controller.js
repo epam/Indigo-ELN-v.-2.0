@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, roles) {
+    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo) {
         $scope.users = [];
-        $scope.roles = roles;
+        $scope.roles = pageInfo.roles;
 
         $scope.page = 1;
         $scope.loadAll = function () {

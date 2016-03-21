@@ -1,9 +1,9 @@
 'use strict';
 
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, entity, Template, $state, dragulaService, Components) {
+    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo) {
         $scope.components = Components;
-        $scope.template = entity || {};
+        $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
 
         var onSaveSuccess = function (result) {

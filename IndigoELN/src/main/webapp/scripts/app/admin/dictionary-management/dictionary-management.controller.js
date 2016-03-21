@@ -8,7 +8,7 @@ angular.module('indigoeln')
 
         $scope.page = 1;
         $scope.itemsPerPage = 5;
-        $scope.searchText = "";
+        $scope.searchText = '';
 
         $scope.isCollapsed = true;
 
@@ -27,7 +27,7 @@ angular.module('indigoeln')
             if ($scope.selectedDictionaryId) {
                 $scope.isCollapsed = false;
                 $scope.selectedDictionary = _.find($scope.dictionaries, function (dict) {
-                    return dict.id == $scope.selectedDictionaryId
+                    return dict.id === $scope.selectedDictionaryId;
                 });
                 // set sorting way by mean of rank value
                 $scope.selectedDictionary.words.sort(function(a,b){ return a.rank > b.rank;});
@@ -65,7 +65,7 @@ angular.module('indigoeln')
         $scope.createDictionary = function () {
             $scope.dictionary = {
                 id: null, name: null, description: null, words: []
-            }
+            };
         };
 
         $scope.editDictionary = function (dictionary) {
@@ -89,19 +89,19 @@ angular.module('indigoeln')
 
         $scope.setSelected = function (id) {
             $scope.selectedDictionaryId = id;
-        }
+        };
 
         $scope.clearSelection = function () {
             $scope.word = null;
             $scope.selectedDictionaryId = null;
             $scope.selectedDictionary = null;
-        }
+        };
 
         $scope.addWord = function () {
             $scope.word = {
                 id: null, name: null, description: null, enable: true, rank: $scope.selectedDictionary.words.length
-            }
-        }
+            };
+        };
 
         $scope.clearWord = function () {
             $scope.word = null;
@@ -111,24 +111,24 @@ angular.module('indigoeln')
 
         $scope.saveWord = function () {
             $scope.isWordSaving = true;
-            if ($scope.word.rank == $scope.selectedDictionary.words.length) {
+            if ($scope.word.rank === $scope.selectedDictionary.words.length) {
                 // add if this is a new one
                 $scope.selectedDictionary.words.push($scope.word);
             } else {
                 // update if this is an edited one
                 _.each($scope.selectedDictionary.words, function (wrd) {
-                    if (wrd.rank == $scope.word.rank) {
+                    if (wrd.rank === $scope.word.rank) {
                         _.extend(wrd, $scope.word);
                         return false;
                     }
-                })
+                });
             }
             Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
-        }
+        };
 
         $scope.editWord = function (word) {
             $scope.word = _.extend({}, word);
-        }
+        };
 
         $scope.deleteWord = function (word) {
 
@@ -143,22 +143,22 @@ angular.module('indigoeln')
                 // remove the word
                 var len = $scope.selectedDictionary.words.length;
                 for(var i = 0; i < len; i++) {
-                    if($scope.selectedDictionary.words[i].rank == word.rank) {
+                    if($scope.selectedDictionary.words[i].rank === word.rank) {
                         $scope.selectedDictionary.words.splice(i, 1);
                         break;
                     }
                 }
                 updateRanks(len);
-            })
+            });
         };
 
         var updateRanks = function(len) {
             // check if an element removed
-            var modified = $scope.selectedDictionary.words.length != len;
+            var modified = $scope.selectedDictionary.words.length !== len;
             // update ranks
             if ($scope.selectedDictionary) {
                 for(var i = 0; i < $scope.selectedDictionary.words.length; i++) {
-                    if ($scope.selectedDictionary.words[i].rank != i) {
+                    if ($scope.selectedDictionary.words[i].rank !== i) {
                         $scope.selectedDictionary.words[i].rank = i;
                         modified = true;
                     }
@@ -167,6 +167,6 @@ angular.module('indigoeln')
                     Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
                 }
             }
-        }
+        };
 
     });
