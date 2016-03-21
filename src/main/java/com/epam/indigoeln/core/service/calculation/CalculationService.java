@@ -6,6 +6,7 @@ import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,16 +28,11 @@ public class CalculationService {
     private static final String SALT_WEIGHT  = "SALT_WEIGHT";
     private static final String SALT_FORMULA = "SALT_FORMULA";
 
-    private static final Map<String, String> SALT_METADATA_DEFAULT = new HashMap<String, String>(){
-        private static final long serialVersionUID = 2631589712956462293L;
-        {
-            put(SALT_CODE, "0");
-            put(SALT_DESC, "Parent Structure");
-            put(SALT_WEIGHT, "0");
-            put(SALT_FORMULA, null);
-        }
-    };
-
+    private static final Map<String, String> SALT_METADATA_DEFAULT = ImmutableMap.of(
+            SALT_CODE, "0",
+            SALT_DESC, "Parent Structure",
+            SALT_WEIGHT, "0",
+            SALT_FORMULA, "");
 
     @Autowired
     private Indigo indigo;
