@@ -74,12 +74,13 @@ public class CalculationService {
      * @return map of calculated attributes
      */
     @SuppressWarnings("unchecked")
-    public Map<String, String> getMolecularInformation(String molecule, String saltCode, Float saltEq) {
+    public Map<String, String> getMolecularInformation(String molecule, Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
         Map<String, String> result = new HashMap<>();
 
         IndigoObject handle = indigo.loadMolecule(molecule);
 
-        Map<String, String> saltMetadata = getSaltMetadata(saltCode).orElse(SALT_METADATA_DEFAULT);
+        Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
+        float saltEq = saltEqOpt.orElse(1.0f);
         float molecularWeightOriginal = handle.molecularWeight();
         float saltWeight =  Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
@@ -193,8 +194,12 @@ public class CalculationService {
         return new RendererResult(indigoRenderer.renderToBuffer(io));
     }
 
-    private Optional<Map> getSaltMetadata(String saltCode) {
+    private Optional<Map> getSaltMetadata(Optional<String> saltCode) {
+        if(!saltCode.isPresent()) {
+            return Optional.empty();
+        }
+
         List<Map> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
-        return codeTable.stream().filter(tableRow -> saltCode.equals(tableRow.get(SALT_CODE))).findAny();
+        return codeTable.stream().filter(tableRow -> saltCode.get().equals(tableRow.get(SALT_CODE))).findAny();
     }
 }

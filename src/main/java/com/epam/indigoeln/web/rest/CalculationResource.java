@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.util.StringUtils;
 import org.springframework.http.MediaType;
@@ -32,7 +33,8 @@ public class CalculationResource {
     public ResponseEntity<Map> getMolecularInformation(@RequestBody String molecule,
                                                        @RequestParam(required = false) String saltCode,
                                                        @RequestParam(required = false) Float saltEq) {
-        return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolFile(molecule), saltCode, saltEq));
+        return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolFile(molecule),
+                Optional.ofNullable(saltCode), Optional.ofNullable(saltEq)));
     }
 
     /**
