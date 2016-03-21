@@ -179,7 +179,9 @@ angular.module('indigoeln')
                                                 chemicalName: result.data.name,
                                                 formula: result.data.molecularFormula,
                                                 molWt: result.data.molecularWeight,
-                                                exactMass: result.data.exactMolecularWeight
+                                                exactMass: result.data.exactMolecularWeight,
+                                                saltEq:  result.data.saltEq,
+                                                saltCode: result.data.saltCode
                                             };
                                         });
 
