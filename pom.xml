@@ -173,6 +173,13 @@
             <version>2.6</version>
         </dependency>
 
+        <!-- Apache Commons CSV-->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>1.2</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
