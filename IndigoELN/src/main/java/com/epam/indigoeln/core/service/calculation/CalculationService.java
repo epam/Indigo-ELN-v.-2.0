@@ -4,6 +4,7 @@ import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
+import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Service for calculations under reaction or molecular structures defined in special text format
@@ -20,7 +22,21 @@ import java.util.Map;
 @Service
 public class CalculationService {
 
-    private static final SaltMetadata SALT_METADATA_DEFAULT = new SaltMetadata("0", "Parent Structure", 0.0f, null);
+    private static final String SALT_CODE    = "SALT_CODE";
+    private static final String SALT_DESC    = "SALT_DESC";
+    private static final String SALT_WEIGHT  = "SALT_WEIGHT";
+    private static final String SALT_FORMULA = "SALT_FORMULA";
+
+    private static final Map<String, String> SALT_METADATA_DEFAULT = new HashMap<String, String>(){
+        private static final long serialVersionUID = 2631589712956462293L;
+        {
+            put(SALT_CODE, "0");
+            put(SALT_DESC, "Parent Structure");
+            put(SALT_WEIGHT, "0");
+            put(SALT_FORMULA, null);
+        }
+    };
+
 
     @Autowired
     private Indigo indigo;
@@ -28,31 +44,8 @@ public class CalculationService {
     @Autowired
     private IndigoRenderer indigoRenderer;
 
-    private static final Map<String, SaltMetadata> SALT_METADATA_MAP =  new HashMap<String, SaltMetadata>() {
-        private static final long serialVersionUID = -2938945838635105351L;
-        {
-            put("0", SALT_METADATA_DEFAULT);
-            put("1", new SaltMetadata("1", "HYDROCHLORIDE",    36.461f,   "HCl"));
-            put("2", new SaltMetadata("2", "SODIUM",           22.9898f,  "Na"));
-            put("3", new SaltMetadata("3", "HYDRATE",          18.02f,    "H2O"));
-            put("4", new SaltMetadata("4", "HYDROBROMIDE",     80.912f,   "HBr"));
-            put("5", new SaltMetadata("5", "HYDROIODIDE",      127.9124f, "Hl"));
-        }
-    };
-
-    public static class SaltMetadata {
-        public final String saltCode;
-        public final String saltDesc;
-        public final float  saltWeight;
-        public final String saltFormula;
-
-        public SaltMetadata(String saltCode, String saltDesc, float saltWeight, String saltFormula) {
-            this.saltCode = saltCode;
-            this.saltDesc = saltDesc;
-            this.saltWeight = saltWeight;
-            this.saltFormula = saltFormula;
-        }
-    }
+    @Autowired
+    private CodeTableService codeTableService;
 
     /**
      * Check, that chemistry structures of reactions or molecules are equals
@@ -80,23 +73,27 @@ public class CalculationService {
      * @param molecule structure of molecule
      * @return map of calculated attributes
      */
+    @SuppressWarnings("unchecked")
     public Map<String, String> getMolecularInformation(String molecule, String saltCode, Float saltEq) {
         Map<String, String> result = new HashMap<>();
 
         IndigoObject handle = indigo.loadMolecule(molecule);
 
+        Map<String, String> saltMetadata = getSaltMetadata(saltCode).orElse(SALT_METADATA_DEFAULT);
         float molecularWeightOriginal = handle.molecularWeight();
-        SaltMetadata saltMetadata = getSaltMetadata(saltCode);
+        float saltWeight =  Optional.ofNullable(saltMetadata.get(SALT_WEIGHT)).map(Float::valueOf).orElse(0.0f);
+        float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
         result.put("name", handle.name());
         result.put("molecularFormula", handle.grossFormula());
         result.put("molecularWeightOriginal", String.valueOf(molecularWeightOriginal));
         result.put("exactMolecularWeight", String.valueOf(handle.monoisotopicMass()));
         result.put("isChiral", String.valueOf(handle.isChiral()));
-        result.put("molecularWeight", String.valueOf(getMolecularWeight(molecularWeightOriginal, saltCode, saltEq)));
-        result.put("saltDesc", saltMetadata.saltDesc);
-        result.put("saltFormula", saltMetadata.saltFormula);
-        result.put("saltWeight", String.valueOf(saltMetadata.saltWeight));
+        result.put("molecularWeight", String.valueOf(molecularWeightCalculated));
+        result.put("saltCode", saltMetadata.get(SALT_CODE));
+        result.put("saltDesc", saltMetadata.get(SALT_DESC));
+        result.put("saltFormula", saltMetadata.get(SALT_FORMULA));
+        result.put("saltWeight", String.valueOf(saltWeight));
         result.put("saltEQ", String.valueOf(saltEq));
 
         return result;
@@ -196,11 +193,8 @@ public class CalculationService {
         return new RendererResult(indigoRenderer.renderToBuffer(io));
     }
 
-    private static SaltMetadata getSaltMetadata(String saltCode) {
-        return SALT_METADATA_MAP.getOrDefault(saltCode, SALT_METADATA_DEFAULT);
-    }
-
-    private static float getMolecularWeight(float molWeightExisting, String saltCode, float saltEq) {
-        return molWeightExisting + saltEq * getSaltMetadata(saltCode).saltWeight;
+    private Optional<Map> getSaltMetadata(String saltCode) {
+        List<Map> codeTable = codeTableService.getCodeTable(CodeTableService.TABLE_SALT_CODE);
+        return codeTable.stream().filter(tableRow -> saltCode.equals(tableRow.get(SALT_CODE))).findAny();
     }
 }
