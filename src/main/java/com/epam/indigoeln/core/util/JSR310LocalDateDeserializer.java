@@ -39,18 +39,7 @@ public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
                 if (parser.nextToken() == JsonToken.END_ARRAY) {
                     return null;
                 }
-                int year = parser.getIntValue();
-
-                parser.nextToken();
-                int month = parser.getIntValue();
-
-                parser.nextToken();
-                int day = parser.getIntValue();
-
-                if (parser.nextToken() != JsonToken.END_ARRAY) {
-                    throw context.wrongTokenException(parser, JsonToken.END_ARRAY, "Expected array to end.");
-                }
-                return LocalDate.of(year, month, day);
+                return processStartArray(parser, context);
 
             case VALUE_STRING:
                 String string = parser.getText().trim();
@@ -58,7 +47,23 @@ public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
                     return null;
                 }
                 return LocalDate.parse(string, ISO_DATE_OPTIONAL_TIME);
+            default:
+                throw context.wrongTokenException(parser, JsonToken.START_ARRAY, "Expected array or string.");
         }
-        throw context.wrongTokenException(parser, JsonToken.START_ARRAY, "Expected array or string.");
+    }
+
+    private LocalDate processStartArray(JsonParser parser, DeserializationContext context) throws IOException {
+        int year = parser.getIntValue();
+
+        parser.nextToken();
+        int month = parser.getIntValue();
+
+        parser.nextToken();
+        int day = parser.getIntValue();
+
+        if (parser.nextToken() != JsonToken.END_ARRAY) {
+            throw context.wrongTokenException(parser, JsonToken.END_ARRAY, "Expected array to end.");
+        }
+        return LocalDate.of(year, month, day);
     }
 }

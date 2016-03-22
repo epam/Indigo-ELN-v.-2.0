@@ -36,7 +36,7 @@ public class ExperimentFileResource {
 
     static final String URL_MAPPING = "/api/experiment_files";
 
-    private final Logger log = LoggerFactory.getLogger(ExperimentFileResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentFileResource.class);
 
     @Autowired
     private FileService fileService;
@@ -57,7 +57,7 @@ public class ExperimentFileResource {
     public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam String experimentId,
                                                      Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get files's metadata for experiment: {}", experimentId);
+        LOGGER.debug("REST request to get files's metadata for experiment: {}", experimentId);
         Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId, pageable);
         String urlParameter = "experimentId=" + experimentId;
 
@@ -73,7 +73,7 @@ public class ExperimentFileResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(@PathVariable("id") String id) {
-        log.debug("REST request to get experiment file: {}", id);
+        LOGGER.debug("REST request to get experiment file: {}", id);
         GridFSDBFile file = fileService.getFileById(id);
 
         HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
@@ -87,7 +87,7 @@ public class ExperimentFileResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String experimentId)
             throws URISyntaxException, IOException {
-        log.debug("REST request to save file for experiment: {}", experimentId);
+        LOGGER.debug("REST request to save file for experiment: {}", experimentId);
         User user = userService.getUserWithAuthorities();
         GridFSFile gridFSFile = fileService.saveFileForExperiment(experimentId, file.getInputStream(),
                 file.getOriginalFilename(), file.getContentType(), user);
@@ -100,7 +100,7 @@ public class ExperimentFileResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(@PathVariable("id") String id) {
-        log.debug("REST request to remove experiment file: {}", id);
+        LOGGER.debug("REST request to remove experiment file: {}", id);
         fileService.deleteExperimentFile(id);
         return ResponseEntity.ok().build();
     }

@@ -20,7 +20,7 @@ public class ClientConfigurationResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getClientConfiguration() {
+    public ResponseEntity getClientConfiguration() {
         return ResponseEntity.ok(clientConfiguration.getProperties());
     }
 

@@ -38,7 +38,7 @@ public class PrintResource {
     @Autowired
     private PhantomJsService phantomJsService;
 
-    private final Logger log = LoggerFactory.getLogger(PrintResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrintResource.class);
 
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +53,7 @@ public class PrintResource {
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
             Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
-            PdfWriter writer = PdfWriter.getInstance(document, fileOutputStream);
+//            PdfWriter writer = PdfWriter.getInstance(document, fileOutputStream);
 //            writer.setPageEvent(new HeaderFooter());
             document.open();
             document.add(image);

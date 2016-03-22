@@ -15,13 +15,17 @@ public final class SequenceIdUtil {
     }
 
     public static String extractShortId(BasicModelObject entity) {
-        if(entity.getId() == null) return null;
+        if (entity.getId() == null) {
+            return null;
+        }
         String[] split = entity.getId().split(DELIMITER);
         return split[split.length - 1];
     }
 
     public static String extractParentId(BasicModelObject entity) {
-        if(entity.getId() == null) return null;
+        if (entity.getId() == null) {
+            return null;
+        }
         String[] split = entity.getId().split(DELIMITER);
         return split.length > 1 ? split[split.length - 2] : null;
     }

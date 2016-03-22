@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/accounts")
 public class AccountResource {
 
-    private final Logger log = LoggerFactory.getLogger(AccountResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccountResource.class);
 
     @Autowired
     private UserService userService;
@@ -36,7 +36,7 @@ public class AccountResource {
      */
     @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
     public String isAuthenticated(HttpServletRequest request) {
-        log.debug("REST request to check if the current user is authenticated");
+        LOGGER.debug("REST request to check if the current user is authenticated");
         return request.getRemoteUser();
     }
 

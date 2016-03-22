@@ -3,6 +3,7 @@ package com.epam.indigoeln.config.bingo;
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
+import com.epam.indigoeln.IndigoRuntimeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +61,7 @@ public class BingoConfiguration {
             if (dir.mkdirs()) {
                 bingo = Bingo.createDatabaseFile(indigo(), folder, type);
             } else {
-                throw new RuntimeException("Cannot create directory structure for Bingo: " + folder);
+                throw new IndigoRuntimeException("Cannot create directory structure for Bingo: " + folder);
             }
         } else {
             bingo = Bingo.loadDatabaseFile(indigo(), folder);

@@ -17,14 +17,14 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class TempDirectoryCleaningJob {
 
-    private static final Logger log = LoggerFactory.getLogger(TempDirectoryCleaningJob.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TempDirectoryCleaningJob.class);
 
-    private static final long DELAY = 1000 * 60 * 60; // 60 minutes
+    private static final long DELAY = 1000 * 60 * 60L; // 60 minutes
 
 
     @Scheduled(fixedDelay = DELAY)
     public void execute() {
-        log.debug("Temp directory cleaning job started");
+        LOGGER.debug("Temp directory cleaning job started");
         try {
             File tempDirectory = FileUtils.getTempDirectory();
             File[] directoryListing = tempDirectory.listFiles();
@@ -40,10 +40,10 @@ public class TempDirectoryCleaningJob {
                     }
                 }
             } else {
-                log.debug("Failed to access the temp folder");
+                LOGGER.debug("Failed to access the temp folder");
             }
         } catch (Exception e) {
-            log.error("Error executing temp directory cleaning job!", e);
+            LOGGER.error("Error executing temp directory cleaning job!", e);
         }
     }
 }
