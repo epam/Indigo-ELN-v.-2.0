@@ -36,6 +36,42 @@ import static com.epam.indigoeln.core.security.Authority.*;
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final static String[] TEMPLATE_READERS = new String[] {
+            TEMPLATE_EDITOR.name(), EXPERIMENT_CREATOR.name(),
+            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+
+    private final static String[] USER_READERS = new String[] {
+            USER_EDITOR.name(), CONTENT_EDITOR.name(), EXPERIMENT_CREATOR.name(),
+            NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+
+    private final static String[] DICTIONARY_READERS = new String[] {
+            DICTIONARY_EDITOR.name(), CONTENT_EDITOR.name(),
+            EXPERIMENT_CREATOR.name(), NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+
+    private final static String[] ROLE_READERS = new String[] {
+            USER_EDITOR.name(), ROLE_EDITOR.name()};
+
+    private final static String[] PROJECT_READERS = new String[] {
+            PROJECT_READER.name(), CONTENT_EDITOR.name()};
+    private final static String[] PROJECT_CREATORS = new String[] {
+            PROJECT_CREATOR.name(), CONTENT_EDITOR.name()};
+    private final static String[] PROJECT_REMOVERS = new String[] {
+            PROJECT_REMOVER.name(), CONTENT_EDITOR.name()};
+
+    private final static String[] NOTEBOOK_READERS = new String[] {
+            NOTEBOOK_READER.name(), CONTENT_EDITOR.name()};
+    private final static String[] NOTEBOOK_CREATORS = new String[] {
+            NOTEBOOK_CREATOR.name(), CONTENT_EDITOR.name()};
+    private final static String[] NOTEBOOK_REMOVERS = new String[] {
+            NOTEBOOK_REMOVER.name(), CONTENT_EDITOR.name()};
+
+    private final static String[] EXPERIMENT_READERS = new String[] {
+            EXPERIMENT_READER.name(), CONTENT_EDITOR.name()};
+    private final static String[] EXPERIMENT_CREATORS = new String[] {
+            EXPERIMENT_CREATOR.name(), CONTENT_EDITOR.name()};
+    private final static String[] EXPERIMENT_REMOVERS = new String[] {
+            EXPERIMENT_REMOVER.name(), CONTENT_EDITOR.name()};
+
     @Autowired
     private Environment env;
 
