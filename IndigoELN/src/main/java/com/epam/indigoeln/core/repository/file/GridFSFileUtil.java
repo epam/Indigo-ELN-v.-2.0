@@ -52,16 +52,16 @@ public final class GridFSFileUtil {
         return Optional.ofNullable(comparator);
     }
 
-    private static final Comparator<GridFSFile> FILENAME_COMPARATOR =
+    public static final Comparator<GridFSFile> FILENAME_COMPARATOR =
             (o1, o2) -> compare(o1.getFilename(), o2.getFilename());
 
-    private static final Comparator<GridFSFile> CONTENT_TYPE_COMPARATOR =
+    public static final Comparator<GridFSFile> CONTENT_TYPE_COMPARATOR =
             (o1, o2) -> compare(o1.getContentType(), o2.getContentType());
 
-    private static final Comparator<GridFSFile> LENGTH_COMPARATOR =
+    public static final Comparator<GridFSFile> LENGTH_COMPARATOR =
             (o1, o2) -> compare(o1.getLength(), o2.getLength());
 
-    private static final Comparator<GridFSFile> UPLOAD_DATE_COMPARATOR =
+    public static final Comparator<GridFSFile> UPLOAD_DATE_COMPARATOR =
             (o1, o2) -> compare(o1.getUploadDate(), o2.getUploadDate());
 
     private static <T> int compare(Comparable<T> o1, T o2) {
