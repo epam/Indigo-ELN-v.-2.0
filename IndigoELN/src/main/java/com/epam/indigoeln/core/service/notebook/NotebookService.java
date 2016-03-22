@@ -138,9 +138,8 @@ public class NotebookService {
         saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
-        notebook.getAccessList().forEach((up) -> {
-            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-        });
+        notebook.getAccessList().forEach(up ->
+                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
 
         project.getNotebooks().add(notebook);
         projectRepository.save(project);
@@ -179,9 +178,8 @@ public class NotebookService {
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         // add all users as VIEWER to project
-        notebook.getAccessList().forEach((up) -> {
-            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-        });
+        notebook.getAccessList().forEach(up ->
+                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
         projectRepository.save(project);
 
         return result;
