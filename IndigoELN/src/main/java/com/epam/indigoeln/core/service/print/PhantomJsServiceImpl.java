@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.print;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -84,7 +85,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             return takesScreenshot(tmpFile.toURI(), type);
         } catch (Exception e) {
             LOGGER.error("Take screenshot error", e);
-            throw new RuntimeException("Error creating snapshot from HTML");
+            throw new IndigoRuntimeException("Error creating snapshot from HTML");
         } finally {
             FileUtils.deleteQuietly(tmpFile);
         }
@@ -108,7 +109,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
                 init();
                 return getScreenshotAs(uri, type, count + 1, limit);
             } else {
-                throw new RuntimeException("Error creating snapshot from HTML");
+                throw new IndigoRuntimeException("Error creating snapshot from HTML");
             }
         }
     }
@@ -121,16 +122,9 @@ public class PhantomJsServiceImpl implements PhantomJsService {
 
         sb.append("phantomjs").append(separator).append(os).append(separator);
 
-        if (StringUtils.equals(os, OS_LINUX)) {
-            String arch = System.getProperty("os.arch");
-
-            if (StringUtils.equals(arch, "x86") || StringUtils.equals(arch, "i386")) {
-                sb.append("i686").append(separator);
-            }
-
-            if (StringUtils.equals(arch, "x86_64") || StringUtils.equals(arch, "amd64")) {
-                sb.append("x86_64").append(separator);
-            }
+        String arch = getArch(os);
+        if (arch != null) {
+            sb.append(arch).append(separator);
         }
 
         sb.append("phantomjs");
@@ -139,14 +133,29 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             sb.append(".exe");
         }
 
-        URL url = PhantomJsServiceImpl.class.getClassLoader().getResource(sb.toString());
+        URL url = Thread.currentThread().getContextClassLoader().getResource(sb.toString());
 
         try {
             return url != null ? url.toURI() : null;
         } catch (URISyntaxException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new RuntimeException("Phantom executable path is incorrect");
+            throw new IndigoRuntimeException("Phantom executable path is incorrect");
         }
+    }
+
+    private static String getArch(String os) {
+        if (StringUtils.equals(os, OS_LINUX)) {
+            String arch = System.getProperty("os.arch");
+
+            if (StringUtils.equals(arch, "x86") || StringUtils.equals(arch, "i386")) {
+                return "i686";
+            }
+
+            if (StringUtils.equals(arch, "x86_64") || StringUtils.equals(arch, "amd64")) {
+                return "x86_64";
+            }
+        }
+        return null;
     }
 
     private static String getOs() {
@@ -158,7 +167,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         } else if (os.matches("^Linux.*")) {
             return OS_LINUX;
         } else {
-            throw new RuntimeException("Operating system not recognized");
+            throw new IndigoRuntimeException("Operating system not recognized");
         }
     }
 }
