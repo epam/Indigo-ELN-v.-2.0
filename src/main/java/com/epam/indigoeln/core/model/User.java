@@ -51,11 +51,11 @@ public class User implements Serializable {
 
     private String group;
 
-    private boolean activated = false;
+    private boolean activated;
 
     @JsonIgnore
     @DBRef(lazy = true)
-    private Set<Role> roles = new HashSet<>();
+    private HashSet<Role> roles = new HashSet<>();
 
     public String getId() {
         return id;
@@ -118,7 +118,7 @@ public class User implements Serializable {
     }
 
     public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+        this.roles = new HashSet<>(roles);
     }
 
     public String getGroup() {

@@ -28,7 +28,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     private static final String OS_MACOS = "Mac";
     private static final String OS_LINUX = "Linux";
 
-    private static final Logger log = LoggerFactory.getLogger(PhantomJsServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhantomJsServiceImpl.class);
     private static final String[] commandLineArguments = new String[]{
             "--web-security=no",
             "--ssl-protocol=any",
@@ -56,7 +56,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             driver = new PhantomJSDriver(phantomJSDriverService, capabilities);
             driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
         } catch (Exception e) {
-            log.error("PhantomJs init error", e);
+            LOGGER.error("PhantomJs init error", e);
         }
 
     }
@@ -71,7 +71,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
                 phantomJSDriverService.stop();
             }
         } catch (Exception e) {
-            log.error("PhantomJs destroy error", e);
+            LOGGER.error("PhantomJs destroy error", e);
         }
     }
 
@@ -83,7 +83,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             FileUtils.writeStringToFile(tmpFile, html);
             return takesScreenshot(tmpFile.toURI(), type);
         } catch (Exception e) {
-            log.error("Take screenshot error", e);
+            LOGGER.error("Take screenshot error", e);
             throw new RuntimeException("Error creating snapshot from HTML");
         } finally {
             FileUtils.deleteQuietly(tmpFile);
@@ -102,7 +102,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
                 return driver.getScreenshotAs(type);
             }
         } catch (Exception e) {
-            log.error("Get screenshot error", e);
+            LOGGER.error("Get screenshot error", e);
             if (count < limit) {
                 destroy();
                 init();
@@ -144,7 +144,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         try {
             return url != null ? url.toURI() : null;
         } catch (URISyntaxException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new RuntimeException("Phantom executable path is incorrect");
         }
     }

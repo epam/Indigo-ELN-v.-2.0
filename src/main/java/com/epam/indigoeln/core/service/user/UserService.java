@@ -28,7 +28,7 @@ import java.util.Set;
 @Service
 public class UserService {
 
-    private final Logger log = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private SessionRegistry sessionRegistry;
@@ -54,14 +54,16 @@ public class UserService {
         // checking for roles existence
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
 
+        User savedUser;
         try {
-            user = userRepository.save(user);
+            savedUser = userRepository.save(user);
         } catch (DuplicateKeyException e) {
+            LOGGER.error("Duplicate key detected", e);
             throw DuplicateFieldException.createWithUserLogin(user.getLogin());
         }
-        log.debug("Created Information for User: {}", user);
+        LOGGER.debug("Created Information for User: {}", savedUser);
 
-        return user;
+        return savedUser;
     }
 
     public User updateUser(User user, User executingUser) {
@@ -87,11 +89,11 @@ public class UserService {
             throw OperationDeniedException.createUserDeleteOperation(executingUser.getId());
         }
 
-        user = userRepository.save(user);
-        log.debug("Created Information for User: {}", user);
+        User savedUser = userRepository.save(user);
+        LOGGER.debug("Created Information for User: {}", savedUser);
 
         // check for significant changes and perform logout for user
-        SecurityUtils.checkAndLogoutUser(user, sessionRegistry);
+        SecurityUtils.checkAndLogoutUser(savedUser, sessionRegistry);
         return user;
     }
 
@@ -109,7 +111,7 @@ public class UserService {
         //TODO check for projects, notebooks, experiments with him and use AlreadyInUseException
 
         userRepository.delete(userByLogin);
-        log.debug("Deleted User: {}", userByLogin);
+        LOGGER.debug("Deleted User: {}", userByLogin);
     }
 
     public User getUserWithAuthorities() {
