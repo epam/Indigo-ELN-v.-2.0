@@ -17,6 +17,7 @@ public class RoleDTO {
     private Set<Authority> authorities;
 
     public RoleDTO() {
+        super();
     }
 
     public String getId() {

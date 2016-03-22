@@ -25,6 +25,7 @@ public class ProjectDTO extends BasicDTO {
     private Set<String> fileIds;
 
     public ProjectDTO() {
+        super();
     }
 
     public ProjectDTO(Project project) {

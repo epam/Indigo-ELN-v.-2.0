@@ -16,6 +16,7 @@ public class ReactionPropertiesDTO implements Serializable {
     private List<String> products = new ArrayList<>(); // list of products (structures of molecules)
 
     public ReactionPropertiesDTO() {
+        super();
     }
 
     public ReactionPropertiesDTO(String structure, List<String> reactants, List<String> products) {

@@ -17,6 +17,7 @@ public class UserPermissionDTO implements Serializable {
     private String permissionView;
 
     public UserPermissionDTO() {
+        super();
     }
 
     public UserPermissionDTO(UserPermission userPermission) {

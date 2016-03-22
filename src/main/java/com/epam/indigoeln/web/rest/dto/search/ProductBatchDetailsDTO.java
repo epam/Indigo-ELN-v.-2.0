@@ -11,6 +11,7 @@ public class ProductBatchDetailsDTO implements Serializable {
     private Map details;
 
     public ProductBatchDetailsDTO() {
+        super();
     }
 
     public ProductBatchDetailsDTO(String notebookBatchNumber, Map details) {

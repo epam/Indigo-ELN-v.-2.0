@@ -12,6 +12,9 @@ import java.util.Set;
 
 public class PermissionUtil {
 
+    private PermissionUtil() {
+    }
+
     public static boolean isContentEditor(User user) {
         return user.getAuthorities().contains(Authority.CONTENT_EDITOR);
     }

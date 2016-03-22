@@ -17,6 +17,7 @@ public class ShortUserDTO implements Serializable {
     private String email;
 
     public ShortUserDTO() {
+        super();
     }
 
     public ShortUserDTO(User user) {

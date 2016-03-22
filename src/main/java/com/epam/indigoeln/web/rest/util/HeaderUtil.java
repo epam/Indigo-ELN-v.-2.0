@@ -14,6 +14,9 @@ public class HeaderUtil {
     private static final String FAILURE_ALERT = "X-indigoeln-error";
     private static final String ALERT_PARAMS = "X-indigoeln-params";
 
+    private HeaderUtil() {
+    }
+
     public static HttpHeaders createSuccessAlert(String message, String param) {
         return createAlert(SUCCESS_ALERT, message, param);
     }
