@@ -10,6 +10,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.ElementList;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.openqa.selenium.OutputType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +45,10 @@ public class PrintResource {
     public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
         File file = null;
         String fileName = String.format("%s%s.pdf", TEMP_FILE_PREFIX, UUID.randomUUID().toString());
+        FileOutputStream fileOutputStream = null;
         try {
             file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream = new FileOutputStream(file);
             byte[] screenshot = phantomJsService.takesScreenshot(wrapper.html, OutputType.BYTES);
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
@@ -58,6 +60,10 @@ public class PrintResource {
             document.close();
         } catch (Exception e) {
             FileUtils.deleteQuietly(file);
+        } finally {
+            if (fileOutputStream != null) {
+                IOUtils.closeQuietly(fileOutputStream);
+            }
         }
         return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
     }

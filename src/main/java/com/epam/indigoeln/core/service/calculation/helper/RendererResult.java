@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.calculation.helper;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RendererResult implements Serializable {
@@ -16,10 +17,10 @@ public class RendererResult implements Serializable {
     }
 
     public byte[] getImage() {
-        return image;
+        return Arrays.copyOf(image, image.length);
     }
 
     public void setImage(byte[] image) {
-        this.image = image;
+        this.image = Arrays.copyOf(image, image.length);
     }
 }

@@ -81,7 +81,7 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
     @Override
     @Transactional
-    protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
+    public UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
                                                  HttpServletResponse response) {
 
         PersistentToken token = getPersistentToken(cookieTokens);
