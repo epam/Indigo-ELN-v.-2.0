@@ -13,7 +13,7 @@ public class RendererResult implements Serializable {
     private byte[] image;
 
     public RendererResult(byte[] image) {
-        this.image = image;
+        this.image = Arrays.copyOf(image, image.length);
     }
 
     public byte[] getImage() {
