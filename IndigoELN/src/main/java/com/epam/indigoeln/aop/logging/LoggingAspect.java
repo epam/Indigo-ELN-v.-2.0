@@ -1,6 +1,7 @@
 package com.epam.indigoeln.aop.logging;
 
 import com.epam.indigoeln.Application;
+import com.epam.indigoeln.IndigoRuntimeException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -49,7 +50,7 @@ public class LoggingAspect {
     }
 
     @Around("loggingPointcut()")
-    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object logAround(ProceedingJoinPoint joinPoint) throws IndigoRuntimeException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
@@ -66,6 +67,8 @@ public class LoggingAspect {
                     joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
 
             throw e;
+        } catch (Throwable t) {
+            throw new IndigoRuntimeException(t);
         }
     }
 }

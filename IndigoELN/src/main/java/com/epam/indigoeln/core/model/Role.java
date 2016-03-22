@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @Document(collection=Role.COLLECTION_NAME)
-public class Role {
+public class Role implements Serializable {
     public static final String COLLECTION_NAME = "role";
 
     @Id
@@ -18,7 +19,7 @@ public class Role {
     private String name;
 
     @JsonIgnore
-    private Set<Authority> authorities = new HashSet<>();
+    private HashSet<Authority> authorities = new HashSet<>();
 
     public String getId() {
         return id;
@@ -41,7 +42,7 @@ public class Role {
     }
 
     public void setAuthorities(Set<Authority> authorities) {
-        this.authorities = authorities;
+        this.authorities = new HashSet<>(authorities);
     }
 
     @Override

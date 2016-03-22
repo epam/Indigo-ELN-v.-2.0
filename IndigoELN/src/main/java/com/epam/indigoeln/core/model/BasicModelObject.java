@@ -42,7 +42,7 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @Version
     private Long version;
 
-    private Set<UserPermission> accessList = new HashSet<>();
+    private HashSet<UserPermission> accessList = new HashSet<>();
 
     @Override
     public String getId() {
@@ -102,7 +102,7 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     }
 
     public void setAccessList(Set<UserPermission> accessList) {
-        this.accessList = accessList;
+        this.accessList = new HashSet<>(accessList);
     }
 
 

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +29,7 @@ public class DictionaryResource {
     static final String URL_MAPPING = "api/dictionaries";
     private static final String ENTITY_NAME = "Dictionary";
 
-    private final Logger log = LoggerFactory.getLogger(DictionaryResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryResource.class);
 
     @Autowired
     CustomDtoMapper dtoMapper;
@@ -44,7 +42,7 @@ public class DictionaryResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> getTemplate(@PathVariable String id) {
-        log.debug("REST request to get dictionary with id: {}", id);
+        LOGGER.debug("REST request to get dictionary with id: {}", id);
         return dictionaryService.getDictionaryById(id)
                 .map(dict -> new ResponseEntity<>(dict, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -58,7 +56,7 @@ public class DictionaryResource {
     public ResponseEntity<List<DictionaryDTO>> getAllDictionaries(@RequestParam(value = "page") Integer pageno,
                                                                   @RequestParam(value = "size") Integer size,
                                                                   @RequestParam(value = "search") String search) throws URISyntaxException {
-        log.debug("REST request to get all dictionaries");
+        LOGGER.debug("REST request to get all dictionaries");
         Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(new PageRequest(pageno, size), search);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return new ResponseEntity<>(page.getContent().stream()
@@ -71,9 +69,9 @@ public class DictionaryResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createDictionary(@RequestBody @Valid DictionaryDTO dictionaryDTO)
+    public ResponseEntity createDictionary(@RequestBody @Valid DictionaryDTO dictionaryDTO)
             throws URISyntaxException {
-        log.debug("REST request to create new dictionary: {}", dictionaryDTO);
+        LOGGER.debug("REST request to create new dictionary: {}", dictionaryDTO);
         DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO);
         return ResponseEntity.ok(result);
     }
@@ -85,7 +83,7 @@ public class DictionaryResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> updateRole(@RequestBody @Valid DictionaryDTO dictionaryDTO) {
-        log.debug("REST request to update dictionary: {}", dictionaryDTO);
+        LOGGER.debug("REST request to update dictionary: {}", dictionaryDTO);
         DictionaryDTO updatedDictDTO = dictionaryService.updateDictionary(dictionaryDTO);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedDictDTO.getId());
         return ResponseEntity.ok().headers(headers).body(updatedDictDTO);
@@ -95,7 +93,7 @@ public class DictionaryResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteDictionary(@PathVariable String id) {
-        log.debug("REST request to delete dictionary: {}", id);
+        LOGGER.debug("REST request to delete dictionary: {}", id);
         dictionaryService.deleteDictionary(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();

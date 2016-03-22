@@ -23,10 +23,11 @@ public class CustomAuditProvider implements AuditorAware<User>  {
     @Override
     public User getCurrentAuditor() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = null;
+        User user;
         try {
             user = userService.getUserWithAuthoritiesByLogin(auth.getName());
         } catch (EntityNotFoundException ignored) {
+            user = null;
         }
         return user;
     }
