@@ -80,19 +80,24 @@ public class UserPermission {
     public String getPermissionView() {
         if (OWNER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(OWNER_PERMISSIONS)) {
             return OWNER;
-        } else if (USER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(USER_PERMISSIONS)) {
-            return USER;
-        } else if (VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(VIEWER_PERMISSIONS)) {
-            return VIEWER;
-        } else {
-            return null;
         }
+        if (USER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(USER_PERMISSIONS)) {
+            return USER;
+        }
+        if (VIEWER_PERMISSIONS.size() == permissions.size() && permissions.containsAll(VIEWER_PERMISSIONS)) {
+            return VIEWER;
+        }
+        return null;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         UserPermission userPermission = (UserPermission) o;
 

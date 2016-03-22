@@ -73,7 +73,9 @@ public class FileRepository {
                 }
             }
         }
-        if (ordering == null) ordering = Ordering.from(GridFSFileUtil.UPLOAD_DATE_COMPARATOR.reversed());
+        if (ordering == null) {
+            ordering = Ordering.from(GridFSFileUtil.UPLOAD_DATE_COMPARATOR.reversed());
+        }
         Collections.sort(files, ordering);
 
         return files.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())

@@ -50,9 +50,15 @@ public class Word extends BasicModelObject{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Word)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Word)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Word w = (Word) o;
         return  Objects.equal(description, w.description) &&
                 Objects.equal(rank, w.rank) &&

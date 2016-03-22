@@ -17,7 +17,7 @@ import java.util.Set;
 @Component
 public class ClientConfiguration implements InitializingBean {
 
-    private final static String PREFIX = "client.";
+    private static final String PREFIX = "client.";
 
     @Autowired
     private Environment environment;

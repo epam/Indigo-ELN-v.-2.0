@@ -36,9 +36,15 @@ public class Template extends BasicModelObject  {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Template)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Template)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Template template = (Template) o;
         return Objects.equal(templateContent, template.templateContent);
     }
