@@ -18,6 +18,7 @@ public class TemplateDTO extends BasicDTO {
     private Object[] templateContent;
 
     public TemplateDTO() {
+        super();
     }
 
     public TemplateDTO(Template template) {

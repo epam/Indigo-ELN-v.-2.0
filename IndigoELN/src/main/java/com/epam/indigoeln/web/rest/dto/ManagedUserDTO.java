@@ -31,6 +31,7 @@ public class ManagedUserDTO extends UserDTO {
     private Set<Role> roles;
 
     public ManagedUserDTO() {
+        super();
     }
 
     public ManagedUserDTO(User user) {
@@ -41,6 +42,7 @@ public class ManagedUserDTO extends UserDTO {
         this.group = user.getGroup();
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -81,6 +83,7 @@ public class ManagedUserDTO extends UserDTO {
         this.roles = roles;
     }
 
+    @Override
     public String getGroup() {
         return group;
     }

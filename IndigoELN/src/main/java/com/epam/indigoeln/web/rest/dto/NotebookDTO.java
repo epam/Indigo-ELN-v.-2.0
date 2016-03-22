@@ -17,6 +17,7 @@ public class NotebookDTO extends BasicDTO {
     private List<ExperimentDTO> experiments;
 
     public NotebookDTO() {
+        super();
     }
 
     public NotebookDTO(Notebook notebook) {
@@ -30,6 +31,14 @@ public class NotebookDTO extends BasicDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<ExperimentDTO> getExperiments() {
+        return experiments;
+    }
+
+    public void setExperiments(List<ExperimentDTO> experiments) {
+        this.experiments = experiments;
     }
 
     @Override

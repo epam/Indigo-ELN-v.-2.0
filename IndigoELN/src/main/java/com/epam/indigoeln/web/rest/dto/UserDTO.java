@@ -34,29 +34,23 @@ public class UserDTO {
 
     private String group;
 
-    private boolean activated = false;
+    private boolean activated;
 
     protected Set<Authority> authorities;
 
     public UserDTO() {
+        super();
     }
 
     public UserDTO(User user) {
-        this(user.getId(), user.getLogin(), user.getFirstName(), user.getLastName(),
-                user.getEmail(), user.getActivated(), user.getAuthorities(), user.getGroup());
-    }
-
-    public UserDTO(String id, String login, String firstName, String lastName,
-                   String email, boolean activated, Set<Authority> authorities, String group) {
-
-        this.id = id;
-        this.login = login;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.activated = activated;
-        this.authorities = authorities;
-        this.group = group;
+        this.id = user.getId();
+        this.login = user.getLogin();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.activated = user.getActivated();
+        this.authorities = user.getAuthorities();
+        this.group = user.getGroup();
     }
 
     public String getId() {
