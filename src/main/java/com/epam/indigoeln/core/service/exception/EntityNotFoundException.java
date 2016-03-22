@@ -39,6 +39,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
         return new EntityNotFoundException("The experiment for file with id = " + fileId + " isn't found", fileId);
     }
 
+    public static EntityNotFoundException createWithBatchFullNbkNumber(String fullNbkNumber) {
+        return new EntityNotFoundException("The batch with full nbk number = " + fullNbkNumber + " isn't found", fullNbkNumber);
+    }
+
     public static EntityNotFoundException createWithUserLogin(String login) {
         return new EntityNotFoundException("The user with login = " + login + " isn't found", login);
     }

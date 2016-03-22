@@ -10,7 +10,7 @@ public interface RegistrationRepository {
 
     Long register(List<Compound> compounds) throws RegistrationException;
 
-    String getRegisterJobStatus(long jobId) throws RegistrationException;
+    RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException;
 
     List<Compound> getRegisteredCompounds(long jobId) throws RegistrationException;
 

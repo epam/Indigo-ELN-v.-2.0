@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
+import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.service.registration.RegistrationService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -30,14 +32,20 @@ public class RegistrationResource {
 
     @RequestMapping(value = "/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long register(String id, List<Compound> compounds) throws Exception {
-        return registrationService.register(id, compounds);
+    public Long register(String id, List<String> fullBatchNumbers) throws Exception {
+        return registrationService.register(id, fullBatchNumbers);
     }
 
     @RequestMapping(value = "/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public String status(String id, Long jobId) throws Exception {
+    public RegistrationStatus status(String id, Long jobId) throws Exception {
         return registrationService.getStatus(id, jobId);
+    }
+
+    @RequestMapping(value = "/compounds", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Compound> compounds(String id, Long jobId) throws Exception {
+        return registrationService.getRegisteredCompounds(id, jobId);
     }
 
     @RequestMapping(value = "/search/substructure", method = RequestMethod.GET,
