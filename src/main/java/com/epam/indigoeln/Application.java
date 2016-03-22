@@ -11,6 +11,8 @@ public class Application extends SpringBootServletInitializer {
 
     public static class Profile {
         public static final String DEV = "dev";
+        private Profile() {
+        }
     }
 
     /**

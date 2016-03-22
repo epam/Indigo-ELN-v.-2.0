@@ -10,9 +10,15 @@ public class ExperimentShort extends BasicModelObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ExperimentShort)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ExperimentShort)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         ExperimentShort that = (ExperimentShort) o;
         return Objects.equal(template, that.template);
     }

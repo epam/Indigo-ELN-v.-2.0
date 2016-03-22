@@ -67,8 +67,12 @@ public class SequenceId implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SequenceId)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SequenceId)) {
+            return false;
+        }
         SequenceId that = (SequenceId) o;
         return  Objects.equal(id, that.id) &&
                 Objects.equal(sequence, that.sequence) &&

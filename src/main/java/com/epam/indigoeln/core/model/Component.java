@@ -49,8 +49,12 @@ public class Component implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Component component = (Component) o;
         return Objects.equal(id, component.id) &&
                Objects.equal(content, component.content);
