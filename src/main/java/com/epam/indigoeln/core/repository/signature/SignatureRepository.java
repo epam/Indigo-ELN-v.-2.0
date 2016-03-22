@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.repository.signature;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -82,7 +83,7 @@ public class SignatureRepository {
     }
 
     public String getDocumentsInfo(List<String> documentIds) {
-        if (documentIds == null || documentIds.size() < 1) {
+        if (CollectionUtils.isEmpty(documentIds)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }
 

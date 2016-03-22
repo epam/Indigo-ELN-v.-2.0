@@ -69,10 +69,8 @@ public final class SecurityUtils {
     public static User getCurrentUser() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
-        if (authentication != null) {
-            if (authentication.getPrincipal() instanceof User) {
-                return (User) authentication.getPrincipal();
-            }
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
         }
         throw new IllegalStateException("User not found!");
     }
@@ -85,11 +83,9 @@ public final class SecurityUtils {
     public static boolean isCurrentUserHasAuthority(Authority authority) {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
-        if (authentication != null) {
-            if (authentication.getPrincipal() instanceof UserDetails) {
-                UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
-                return springSecurityUser.getAuthorities().contains(authority);
-            }
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails springSecurityUser = (UserDetails) authentication.getPrincipal();
+            return springSecurityUser.getAuthorities().contains(authority);
         }
         return false;
     }

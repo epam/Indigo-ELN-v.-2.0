@@ -90,9 +90,15 @@ public class   Experiment extends ExperimentShort {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Experiment)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Experiment)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Experiment that = (Experiment) o;
         return  Objects.equal(coAuthors, that.coAuthors) &&
                 Objects.equal(witness, that.witness) &&

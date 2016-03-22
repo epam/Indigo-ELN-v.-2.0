@@ -34,9 +34,6 @@ public class Compound implements Serializable {
 
     private String registrationStatus;
 
-    public Compound() {
-    }
-
     public String getChemicalName() {
         return chemicalName;
     }
@@ -151,13 +148,10 @@ public class Compound implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append(super.toString()).append(", ");
-        sb.append("Compound Number: ").append(getCompoundNo()).append(", ");
-        sb.append("Conv. Batch Number: ").append(getConversationalBatchNo()).append(", ");
-        sb.append("Batch Number: ").append(getBatchNo());
-
-        return sb.toString();
+        return "Compound{" +
+                "compoundNo='" + compoundNo + '\'' +
+                ", conversationalBatchNo='" + conversationalBatchNo + '\'' +
+                ", batchNo='" + batchNo + '\'' +
+                '}';
     }
 }

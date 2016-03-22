@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.repository.registration;
 public class RegistrationException extends Exception {
 
     public RegistrationException() {
+        super();
     }
 
     public RegistrationException(String message) {

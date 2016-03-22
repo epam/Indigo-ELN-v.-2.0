@@ -7,6 +7,7 @@ public class RegistrationRepositoryInfo {
     private String name;
 
     public RegistrationRepositoryInfo() {
+        super();
     }
 
     public RegistrationRepositoryInfo(String id, String name) {
