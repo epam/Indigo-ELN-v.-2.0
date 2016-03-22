@@ -35,6 +35,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             cookie.setMaxAge(0);
             cookie.setHttpOnly(false);
             cookie.setPath("/");
+            cookie.setSecure(true);
             response.addCookie(cookie);
         }
 
