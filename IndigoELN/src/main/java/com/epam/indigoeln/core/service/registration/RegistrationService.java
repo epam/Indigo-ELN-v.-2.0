@@ -98,9 +98,9 @@ public class RegistrationService {
                         return registrationJobId != null && registrationJobId == jobId;
                     });
 
-            batches.keySet().stream().forEach(b -> {
-                b.setRegistrationStatus(registrationStatus.getStatus().toString());
-            });
+            batches.keySet().stream().forEach(
+                    b -> b.setRegistrationStatus(registrationStatus.getStatus().toString())
+            );
 
             componentRepository.save(new HashSet<>(batches.values()));
 
@@ -151,7 +151,7 @@ public class RegistrationService {
         return result;
     }
 
-    private class BatchSummary {
+    private static class BatchSummary {
 
         private BasicDBObject delegate;
 

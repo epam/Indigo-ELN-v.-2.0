@@ -49,11 +49,11 @@ public class RoleService {
         if (roleFromDB == null) {
             throw EntityNotFoundException.createWithRoleId(role.getId());
         }
-        role = roleRepository.save(role);
+        Role savedRole = roleRepository.save(role);
 
         // check for significant changes and perform logout for users
-        SecurityUtils.checkAndLogoutUsers(userRepository.findByRoleId(role.getId()), sessionRegistry);
-        return role;
+        SecurityUtils.checkAndLogoutUsers(userRepository.findByRoleId(savedRole.getId()), sessionRegistry);
+        return savedRole;
     }
 
     public void deleteRole(String id) {

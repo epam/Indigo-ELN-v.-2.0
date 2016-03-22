@@ -11,10 +11,12 @@ import java.io.IOException;
 
 public class TempFileUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(TempFileUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TempFileUtil.class);
 
     public static final String TEMP_FILE_PREFIX = "eln-";
 
+    private TempFileUtil() {
+    }
 
     private static String getFileNameWithPrefix(String fileName) {
         if (StringUtils.startsWith(fileName, TEMP_FILE_PREFIX)) {
@@ -31,7 +33,7 @@ public class TempFileUtil {
         try {
             FileUtils.copyInputStreamToFile(new ByteArrayInputStream(fileData), newFile);
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return newFile;
     }

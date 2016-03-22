@@ -38,6 +38,7 @@ public class UserPermission {
     private Set<String> permissions;
 
     public UserPermission() {
+        super();
     }
 
     public UserPermission(User user, Set<String> permissions) {

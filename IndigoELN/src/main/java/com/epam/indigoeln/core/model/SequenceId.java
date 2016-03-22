@@ -29,6 +29,7 @@ public class SequenceId implements Serializable {
 
 
     public SequenceId() {
+        super();
     }
 
     public SequenceId(Long sequence) {

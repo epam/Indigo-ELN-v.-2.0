@@ -91,7 +91,7 @@ public class ProjectService {
         return projects.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
-    public ProjectDTO createProject(ProjectDTO projectDTO, User user) {
+    public ProjectDTO createProject(ProjectDTO projectDTO) {
         Project project = mapper.convertFromDTO(projectDTO);
 
         // check of user permissions's correctness in access control list
