@@ -29,7 +29,7 @@ public class ProjectResource {
     private static final String PATH_ID = "/{id:[\\d]+}";
     private static final String ENTITY_NAME = "Project";
 
-    private final Logger log = LoggerFactory.getLogger(ProjectResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectResource.class);
 
     @Autowired
     private ProjectService projectService;
@@ -44,7 +44,7 @@ public class ProjectResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjectsByPermissions() {
-        log.debug("REST request to get all projects according to user permissions");
+        LOGGER.debug("REST request to get all projects according to user permissions");
         User user = userService.getUserWithAuthorities();
         List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes(user);
         return ResponseEntity.ok(result);
@@ -56,7 +56,7 @@ public class ProjectResource {
     @RequestMapping(value = "/all",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllProjects() {
-        log.debug("REST request to get all projects without checking for permissions");
+        LOGGER.debug("REST request to get all projects without checking for permissions");
         List<TreeNodeDTO> result = projectService.getAllProjectsAsTreeNodes();
         return ResponseEntity.ok(result);
     }
@@ -67,7 +67,7 @@ public class ProjectResource {
     @RequestMapping(value = "/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> isUserRemovable(String projectId, String userId) {
-        log.debug("REST request to check if user can be deleted from project's access list without problems");
+        LOGGER.debug("REST request to check if user can be deleted from project's access list without problems");
         boolean result = projectService.isUserRemovable(projectId, userId);
         return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
     }
@@ -78,7 +78,7 @@ public class ProjectResource {
     @RequestMapping(value = "/sub-creations",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getProjectsForNotebookCreation() {
-        log.debug("REST request to get all projects available for notebook creation");
+        LOGGER.debug("REST request to get all projects available for notebook creation");
         List<ShortEntityDTO> result = projectService.getProjectsForNotebookCreation(userService.getUserWithAuthorities());
         return ResponseEntity.ok(result);
     }
@@ -89,7 +89,7 @@ public class ProjectResource {
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> getProject(@PathVariable String id) {
-        log.debug("REST request to get project: {}", id);
+        LOGGER.debug("REST request to get project: {}", id);
         User user = userService.getUserWithAuthorities();
         ProjectDTO project = projectService.getProjectById(id, user);
         return ResponseEntity.ok(project);
@@ -102,11 +102,11 @@ public class ProjectResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO project) throws URISyntaxException {
-        log.debug("REST request to create project: {}", project);
-        project = projectService.createProject(project);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, project.getId());
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId()))
-                .headers(headers).body(project);
+        LOGGER.debug("REST request to create project: {}", project);
+        ProjectDTO createdProject = projectService.createProject(project);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdProject.getId());
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + createdProject.getId()))
+                .headers(headers).body(createdProject);
     }
 
     /**
@@ -116,11 +116,11 @@ public class ProjectResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> updateProject(@RequestBody ProjectDTO project) {
-        log.debug("REST request to update project: {}", project);
+        LOGGER.debug("REST request to update project: {}", project);
         User user = userService.getUserWithAuthorities();
-        project = projectService.updateProject(project, user);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, project.getId());
-        return ResponseEntity.ok().headers(headers).body(project);
+        ProjectDTO updatedProject = projectService.updateProject(project, user);
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedProject.getId());
+        return ResponseEntity.ok().headers(headers).body(updatedProject);
     }
 
     /**
@@ -128,7 +128,7 @@ public class ProjectResource {
      */
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteProject(@PathVariable String id) {
-        log.debug("REST request to remove project: {}", id);
+        LOGGER.debug("REST request to remove project: {}", id);
         projectService.deleteProject(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();

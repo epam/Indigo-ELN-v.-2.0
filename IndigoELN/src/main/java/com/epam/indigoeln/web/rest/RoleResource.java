@@ -32,7 +32,7 @@ public class RoleResource {
     static final String URL_MAPPING = "/api/roles";
     private static final String ENTITY_NAME = "Role";
 
-    private final Logger log = LoggerFactory.getLogger(RoleResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RoleResource.class);
 
     @Autowired
     private RoleService roleService;
@@ -46,7 +46,7 @@ public class RoleResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<RoleDTO>> getAllRoles() throws URISyntaxException {
-        log.debug("REST request to get all roles");
+        LOGGER.debug("REST request to get all roles");
         Collection<Role> roles = roleService.getAllRoles();
         List<RoleDTO> result = new ArrayList<>(roles.size());
         result.addAll(roles.stream().map(
@@ -61,7 +61,7 @@ public class RoleResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> getRole(@PathVariable("id") String id) {
-        log.debug("REST request to get role : {}", id);
+        LOGGER.debug("REST request to get role : {}", id);
         Role role = roleService.getRole(id);
         return ResponseEntity.ok(dtoMapper.convertToDTO(role));
     }
@@ -74,7 +74,7 @@ public class RoleResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> createRole(@RequestBody @Valid RoleDTO roleDTO)
             throws URISyntaxException {
-        log.debug("REST request to create role: {}", roleDTO);
+        LOGGER.debug("REST request to create role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.createRole(role);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, role.getId());
@@ -89,7 +89,7 @@ public class RoleResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RoleDTO> updateRole(@RequestBody @Valid RoleDTO roleDTO) {
-        log.debug("REST request to update role: {}", roleDTO);
+        LOGGER.debug("REST request to update role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.updateRole(role);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, role.getId());
@@ -101,7 +101,7 @@ public class RoleResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteRole(@PathVariable String id) {
-        log.debug("REST request to delete role: {}", id);
+        LOGGER.debug("REST request to delete role: {}", id);
         roleService.deleteRole(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();

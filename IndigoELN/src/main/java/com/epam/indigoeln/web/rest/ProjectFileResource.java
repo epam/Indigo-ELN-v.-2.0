@@ -39,7 +39,7 @@ public class ProjectFileResource {
 
     static final String URL_MAPPING = "/api/project_files";
 
-    private final Logger log = LoggerFactory.getLogger(ProjectFileResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectFileResource.class);
 
     @Autowired
     private FileService fileService;
@@ -60,7 +60,7 @@ public class ProjectFileResource {
     public ResponseEntity<List<FileDTO>> getAllFiles(@RequestParam(required = false) String projectId,
                                                      Pageable pageable)
             throws URISyntaxException {
-        log.debug("REST request to get files's metadata for project: {}", projectId);
+        LOGGER.debug("REST request to get files's metadata for project: {}", projectId);
         Page<GridFSDBFile> page;
         if (StringUtils.isEmpty(projectId)) {
             page = new PageImpl<>(new ArrayList<>() );
@@ -80,7 +80,7 @@ public class ProjectFileResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(@PathVariable("id") String id) {
-        log.debug("REST request to get project file: {}", id);
+        LOGGER.debug("REST request to get project file: {}", id);
         GridFSDBFile file = fileService.getFileById(id);
 
         HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
@@ -95,7 +95,7 @@ public class ProjectFileResource {
     public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file,
                                             @RequestParam(required = false) String projectId)
             throws URISyntaxException, IOException {
-        log.debug("REST request to save file for project: {}", projectId);
+        LOGGER.debug("REST request to save file for project: {}", projectId);
         User user = userService.getUserWithAuthorities();
         GridFSFile gridFSFile = fileService.saveFileForProject(projectId, file.getInputStream(),
                 file.getOriginalFilename(), file.getContentType(), user);
@@ -108,7 +108,7 @@ public class ProjectFileResource {
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(@PathVariable("id") String id) {
-        log.debug("REST request to remove project file: {}", id);
+        LOGGER.debug("REST request to remove project file: {}", id);
         fileService.deleteProjectFile(id);
         return ResponseEntity.ok().build();
     }

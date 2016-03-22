@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
@@ -38,8 +39,6 @@ public class PrintResource {
     @Autowired
     private PhantomJsService phantomJsService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrintResource.class);
-
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
@@ -49,7 +48,7 @@ public class PrintResource {
         try {
             file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
             fileOutputStream = new FileOutputStream(file);
-            byte[] screenshot = phantomJsService.takesScreenshot(wrapper.html, OutputType.BYTES);
+            byte[] screenshot = phantomJsService.takesScreenshot(wrapper.getHtml(), OutputType.BYTES);
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
             Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
@@ -71,21 +70,36 @@ public class PrintResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> download(@PathParam("fileName") String fileName) {
-        File file = null;
-        try {
-            file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
+        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
+        try (InputStream is = new FileInputStream(file)) {
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(fileName);
-            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(new FileInputStream(file)));
+            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(is));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);
         }
     }
 
     public static class HtmlWrapper {
-        public String html;
-        public String header;
+        private String html;
+        private String header;
+
+        public String getHtml() {
+            return html;
+        }
+
+        public void setHtml(String html) {
+            this.html = html;
+        }
+
+        public String getHeader() {
+            return header;
+        }
+
+        public void setHeader(String header) {
+            this.header = header;
+        }
     }
 
     public static final String HEADER =

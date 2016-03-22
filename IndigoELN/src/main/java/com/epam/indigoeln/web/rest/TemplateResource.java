@@ -38,7 +38,7 @@ public class TemplateResource {
     /**
      * GET /templates/:id -> get template by id
      */
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET, ///{id:[\d]+}
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
         return templateService.getTemplateById(id)
@@ -76,7 +76,7 @@ public class TemplateResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
+    public ResponseEntity createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
             throws URISyntaxException {
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))

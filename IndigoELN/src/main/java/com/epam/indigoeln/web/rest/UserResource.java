@@ -52,7 +52,7 @@ public class UserResource {
 
     static final String URL_MAPPING = "/api/users";
 
-    private final Logger log = LoggerFactory.getLogger(UserResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserResource.class);
 
     @Autowired
     private UserService userService;
@@ -72,7 +72,7 @@ public class UserResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ManagedUserDTO>> getAllUsers(Pageable pageable) throws URISyntaxException {
-        log.debug("REST request to get all users");
+        LOGGER.debug("REST request to get all users");
         Page<User> page = userService.getAllUsers(pageable);
 
         List<ManagedUserDTO> managedUserDTOs = page.getContent().stream()
@@ -88,7 +88,7 @@ public class UserResource {
     @RequestMapping(value= "/permission-management", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getAllUsersWithAuthorities(Pageable pageable) throws URISyntaxException {
-        log.debug("REST request to get all users for permission management");
+        LOGGER.debug("REST request to get all users for permission management");
         Page<User> page = userService.getAllUsers(pageable);
 
         List<UserDTO> userDTOs = page.getContent().stream()
@@ -104,7 +104,7 @@ public class UserResource {
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> getUser(@PathVariable String login) {
-        log.debug("REST request to get user : {}", login);
+        LOGGER.debug("REST request to get user : {}", login);
         User user = userService.getUserWithAuthoritiesByLogin(login);
         return ResponseEntity.ok(new ManagedUserDTO(user));
     }
@@ -122,7 +122,7 @@ public class UserResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> createUser(@RequestBody ManagedUserDTO managedUserDTO)
             throws URISyntaxException {
-        log.debug("REST request to create user: {}", managedUserDTO);
+        LOGGER.debug("REST request to create user: {}", managedUserDTO);
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.createUser(user);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert("User", user.getLogin());
@@ -137,7 +137,7 @@ public class UserResource {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> updateUser(@RequestBody ManagedUserDTO managedUserDTO) {
-        log.debug("REST request to update user: {}", managedUserDTO);
+        LOGGER.debug("REST request to update user: {}", managedUserDTO);
         User currentUser = userService.getUserWithAuthorities();
         User user = dtoMapper.convertFromDTO(managedUserDTO);
         user = userService.updateUser(user, currentUser);
@@ -150,7 +150,7 @@ public class UserResource {
      */
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(@PathVariable String login) {
-        log.debug("REST request to delete user: {}", login);
+        LOGGER.debug("REST request to delete user: {}", login);
         User currentUser = userService.getUserWithAuthorities();
         userService.deleteUserByLogin(login, currentUser);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert("User", login);
