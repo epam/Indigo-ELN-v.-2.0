@@ -103,8 +103,7 @@ public class ProjectResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO project) throws URISyntaxException {
         log.debug("REST request to create project: {}", project);
-        User user = userService.getUserWithAuthorities();
-        project = projectService.createProject(project, user);
+        project = projectService.createProject(project);
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, project.getId());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + project.getId()))
                 .headers(headers).body(project);
