@@ -29,7 +29,7 @@ import java.util.List;
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration extends AbstractMongoConfiguration {
 
-    private final Logger log = LoggerFactory.getLogger(DatabaseConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConfiguration.class);
 
     @Autowired
     private Mongo mongo;
@@ -59,7 +59,7 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
 
     @Bean
     public Mongeez mongeez() {
-        log.debug("Configuring Mongeez");
+        LOGGER.debug("Configuring Mongeez");
         Mongeez mongeez = new Mongeez();
         mongeez.setFile(new ClassPathResource("/config/mongeez/master.xml"));
         mongeez.setMongo(mongo);
@@ -69,6 +69,7 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
     }
 
     @Bean
+    @Override
     public CustomConversions customConversions() {
         List<Converter<?, ?>> converters = new ArrayList<>();
         converters.add(DateToZonedDateTimeConverter.INSTANCE);

@@ -80,9 +80,15 @@ public class Project extends BasicModelObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Project)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Project)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Project project = (Project) o;
         return  Objects.equal(description, project.description);
     }

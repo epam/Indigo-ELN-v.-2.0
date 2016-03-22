@@ -64,9 +64,15 @@ public class Dictionary extends BasicModelObject {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Dictionary)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Dictionary)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Dictionary dict = (Dictionary) o;
         return  Objects.equal(description, dict.description) &&
                 Objects.equal(words, dict.words);

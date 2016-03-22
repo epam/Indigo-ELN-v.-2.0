@@ -44,6 +44,7 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     private Set<UserPermission> accessList = new HashSet<>();
 
+    @Override
     public String getId() {
         return id;
     }
@@ -107,8 +108,12 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BasicModelObject)) return false;
+        if (this == o)  {
+            return true;
+        }
+        if (!(o instanceof BasicModelObject)) {
+            return false;
+        }
         BasicModelObject that = (BasicModelObject) o;
         return  Objects.equal(id, that.id) &&
                 Objects.equal(name, that.name);
