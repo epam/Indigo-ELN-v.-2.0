@@ -10,13 +10,12 @@ import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
-import org.apache.commons.lang3.tuple.Pair;
+import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
@@ -24,11 +23,9 @@ public class CrsRegistrationRepository implements RegistrationRepository {
 
     private static final String ID = "CRS";
     private static final String NAME = "CRS Service";
-    private static RegistrationRepositoryInfo INFO = new RegistrationRepositoryInfo(ID, NAME);
-
     private static final String STATUS_PASSED = "PASSED";
     private static final String STATUS_FAILED = "FAILED";
-
+    private static RegistrationRepositoryInfo INFO = new RegistrationRepositoryInfo(ID, NAME);
     @Value("${crs.service.username}")
     private String username;
 
@@ -60,7 +57,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public String getRegisterJobStatus(long jobId) throws RegistrationException {
+    public RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException {
         try {
             CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), jobId);
             return convert(status);
@@ -167,15 +164,17 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         return INFO;
     }
 
-    private String convert(CompoundRegistrationStatus status) {
+    private RegistrationStatus convert(CompoundRegistrationStatus status) {
         switch (status) {
             case SUCCESSFUL:
-                return STATUS_PASSED;
+                return RegistrationStatus.passed();
             case WRONG_TOKEN_DURING_REGISTRATION:
             case WRONG_TOKEN_DURING_CHECK:
-                return STATUS_FAILED;
+                return RegistrationStatus.failed("Wrong token");
+            case FAILED:
+                return RegistrationStatus.failed();
             default:
-                return status.toString();
+                return RegistrationStatus.inProgress();
         }
     }
 
@@ -221,41 +220,6 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         }
 
         return compound;
-    }
-
-    private class RegistrationStatusTask implements Runnable {
-
-        private final Map<Long, CompletableFuture<Pair<Long, String>>> jobsMap;
-
-        public RegistrationStatusTask() {
-            this.jobsMap = Collections.synchronizedMap(new HashMap<>());
-        }
-
-        @Override
-        public void run() {
-            synchronized (jobsMap) {
-                Set<Long> finishedJobsIds = new HashSet<>();
-                for (Long jobId : jobsMap.keySet()) {
-                    CompletableFuture<Pair<Long, String>> future = jobsMap.get(jobId);
-                    try {
-                        CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), jobId);
-                        if (status != CompoundRegistrationStatus.NOT_REGISTERED_YET) {
-                            // Status was updated, we need to unschedule task
-                            future.complete(Pair.of(jobId, convert(status)));
-                            finishedJobsIds.add(jobId);
-                        }
-                    } catch (RegistrationException | CRSException e) {
-                        future.completeExceptionally(e);
-                        finishedJobsIds.add(jobId);
-                    }
-                }
-                finishedJobsIds.stream().forEach(jobsMap::remove);
-            }
-        }
-
-        public void addJob(Long jobId, CompletableFuture<Pair<Long, String>> future) {
-            jobsMap.put(jobId, future);
-        }
     }
 
 }
