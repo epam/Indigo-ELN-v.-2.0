@@ -7,12 +7,14 @@ import org.hibernate.validator.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
  * A DTO representing a user, with his authorities.
  */
-public class UserDTO {
+public class UserDTO implements Serializable {
 
     @NotNull
     private String id;
@@ -36,7 +38,7 @@ public class UserDTO {
 
     private boolean activated;
 
-    protected Set<Authority> authorities;
+    protected HashSet<Authority> authorities;
 
     public UserDTO() {
         super();
@@ -49,7 +51,7 @@ public class UserDTO {
         this.lastName = user.getLastName();
         this.email = user.getEmail();
         this.activated = user.getActivated();
-        this.authorities = user.getAuthorities();
+        this.authorities = new HashSet<>(user.getAuthorities());
         this.group = user.getGroup();
     }
 

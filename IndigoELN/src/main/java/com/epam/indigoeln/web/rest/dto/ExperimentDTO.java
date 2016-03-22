@@ -21,6 +21,7 @@ public class ExperimentDTO extends BasicDTO {
     private ExperimentStatus status;
 
     public ExperimentDTO() {
+        super();
     }
 
     public ExperimentDTO(Experiment experiment) {

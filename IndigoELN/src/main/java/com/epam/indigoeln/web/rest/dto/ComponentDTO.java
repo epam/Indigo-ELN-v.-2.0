@@ -16,6 +16,7 @@ public class ComponentDTO implements Serializable {
     private BasicDBObject content;
 
     public ComponentDTO() {
+        super();
     }
 
     public ComponentDTO(Component component) {

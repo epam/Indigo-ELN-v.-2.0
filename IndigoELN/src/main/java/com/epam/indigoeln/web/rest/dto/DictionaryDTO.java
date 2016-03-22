@@ -14,12 +14,13 @@ public class DictionaryDTO extends BasicDTO {
     private String description;
 
     DictionaryDTO() {
+        super();
     }
 
     public DictionaryDTO(Dictionary dictionary) {
         super(dictionary);
-        this.setWords(dictionary.getWords());
-        this.setDescription(dictionary.getDescription());
+        this.words = dictionary.getWords();
+        this.description = dictionary.getDescription();
     }
 
     public String getDescription() {

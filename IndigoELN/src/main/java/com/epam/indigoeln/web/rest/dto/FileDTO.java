@@ -17,6 +17,7 @@ public class FileDTO {
 
 
     public FileDTO(){
+        super();
     }
 
     public FileDTO(GridFSFile file) {
