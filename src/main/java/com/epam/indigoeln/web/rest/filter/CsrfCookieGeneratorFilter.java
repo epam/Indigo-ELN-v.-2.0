@@ -30,6 +30,7 @@ public class CsrfCookieGeneratorFilter extends OncePerRequestFilter {
             cookie.setMaxAge(-1);
             cookie.setHttpOnly(false);
             cookie.setPath("/");
+            cookie.setSecure(true);
             response.addCookie(cookie);
         }
         filterChain.doFilter(request, response);

@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.errors;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * DTO for sending a parametrized error message.
@@ -21,7 +22,7 @@ public class ParametrizedErrorDTO implements Serializable {
     }
 
     public String[] getParams() {
-        return params;
+        return Arrays.copyOf(params, params.length);
     }
 
 }

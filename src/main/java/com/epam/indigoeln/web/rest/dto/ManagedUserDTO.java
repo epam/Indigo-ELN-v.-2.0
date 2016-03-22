@@ -93,7 +93,6 @@ public class ManagedUserDTO extends UserDTO {
     public String toString() {
         return "ManagedUserDTO{" +
                 "id=" + id +
-                ", password='" + password + '\'' +
                 ", createdDate=" + createdDate +
                 ", lastModifiedBy='" + lastModifiedBy + '\'' +
                 "} " + super.toString();
