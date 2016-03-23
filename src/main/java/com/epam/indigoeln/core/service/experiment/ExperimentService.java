@@ -105,8 +105,10 @@ public class ExperimentService {
     }
 
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+        Project project = projectRepository.findOne(projectId);
+        if (project == null) {
+            throw EntityNotFoundException.createWithProjectId(projectId);
+        }
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 

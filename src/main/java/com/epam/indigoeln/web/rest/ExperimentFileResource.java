@@ -90,13 +90,13 @@ public class ExperimentFileResource {
     public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file, @RequestParam String experimentId)
             throws URISyntaxException {
         LOGGER.debug("REST request to save file for experiment: {}", experimentId);
-        User user = userService.getUserWithAuthorities();
         InputStream inputStream;
         try {
             inputStream = file.getInputStream();
         } catch (IOException e) {
             throw new IndigoRuntimeException("Unable to get file content.", e);
         }
+        User user = userService.getUserWithAuthorities();
         GridFSFile gridFSFile = fileService.saveFileForExperiment(experimentId, inputStream,
                 file.getOriginalFilename(), file.getContentType(), user);
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))

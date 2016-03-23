@@ -165,13 +165,13 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
                     " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
         }
         String presentedSeries = cookieTokens[0];
-        String presentedToken = cookieTokens[1];
         PersistentToken token = persistentTokenRepository.findOne(presentedSeries);
-
         if (token == null) {
             // No series match, so we can't authenticate using this cookie
             throw new RememberMeAuthenticationException("No persistent token found for series id: " + presentedSeries);
         }
+
+        String presentedToken = cookieTokens[1];
 
         // We have a match for this user/series combination
         LOGGER.info("presentedToken={} / tokenValue={}", presentedToken, token.getTokenValue());
