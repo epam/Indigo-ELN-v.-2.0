@@ -50,7 +50,7 @@ public class LoggingAspect {
     }
 
     @Around("loggingPointcut()")
-    public Object logAround(ProceedingJoinPoint joinPoint) throws IndigoRuntimeException {
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
@@ -68,7 +68,7 @@ public class LoggingAspect {
 
             throw e;
         } catch (Throwable t) {
-            throw new IndigoRuntimeException(t);
+            throw t;
         }
     }
 }

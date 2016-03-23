@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.MessageFormat;
 
 /**
  * Utility class for handling pagination.
@@ -16,6 +17,9 @@ import java.net.URISyntaxException;
  */
 public class PaginationUtil {
 
+    private static final String URI_PATTERN = "{0}?page={1,number,#}&size={2,number,#}";
+    private static final String LINK_PATTERN = "<{0}>; rel=\"{1}\"";
+
     private PaginationUtil() {
     }
 
@@ -24,22 +28,30 @@ public class PaginationUtil {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
-        String link = "";
+        StringBuilder link = new StringBuilder();
         if ((page.getNumber() + 1) < page.getTotalPages()) {
-            link = "<" + (new URI(baseUrl + "?page=" + (page.getNumber() + 1) + "&size=" + page.getSize())).toString() + ">; rel=\"next\",";
+            link.append(getLink(getURI(baseUrl, page.getNumber() + 1, page.getSize()), "next")).append(",");
         }
         // prev link
         if ((page.getNumber()) > 0) {
-            link += "<" + (new URI(baseUrl + "?page=" + (page.getNumber() - 1) + "&size=" + page.getSize())).toString() + ">; rel=\"prev\",";
+            link.append(getLink(getURI(baseUrl, page.getNumber() - 1, page.getSize()), "prev")).append(",");
         }
         // last and first link
         int lastPage = 0;
         if (page.getTotalPages() > 0) {
             lastPage = page.getTotalPages() - 1;
         }
-        link += "<" + (new URI(baseUrl + "?page=" + lastPage + "&size=" + page.getSize())).toString() + ">; rel=\"last\",";
-        link += "<" + (new URI(baseUrl + "?page=" + 0 + "&size=" + page.getSize())).toString() + ">; rel=\"first\"";
-        headers.add(HttpHeaders.LINK, link);
+        link.append(getLink(getURI(baseUrl, lastPage, page.getSize()), "last")).append(",");
+        link.append(getLink(getURI(baseUrl, 0, page.getSize()), "first"));
+        headers.add(HttpHeaders.LINK, link.toString());
         return headers;
+    }
+
+    private static String getLink(String url, String rel) throws URISyntaxException {
+        return MessageFormat.format(LINK_PATTERN, url, rel);
+    }
+
+    private static String getURI(String baseUrl, int page, int size) throws URISyntaxException {
+        return new URI(MessageFormat.format(URI_PATTERN, baseUrl, page, size)).toString();
     }
 }
