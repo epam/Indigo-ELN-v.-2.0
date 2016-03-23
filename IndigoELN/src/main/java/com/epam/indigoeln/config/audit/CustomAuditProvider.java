@@ -31,7 +31,9 @@ public class CustomAuditProvider implements AuditorAware<User>  {
         try {
             user = userService.getUserWithAuthoritiesByLogin(auth.getName());
         } catch (EntityNotFoundException e) {
-            LOGGER.error("User with name " + auth.getName() + " cannot be found.", e);
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error("User with name " + auth.getName() + " cannot be found.", e);
+            }
             user = null;
         }
         return user;

@@ -18,9 +18,6 @@ public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
 
     public static final JSR310LocalDateDeserializer INSTANCE = new JSR310LocalDateDeserializer();
 
-    private JSR310LocalDateDeserializer() {
-    }
-
     private static final DateTimeFormatter ISO_DATE_OPTIONAL_TIME;
 
     static {
@@ -30,6 +27,9 @@ public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
                 .appendLiteral('T')
                 .append(DateTimeFormatter.ISO_OFFSET_TIME)
                 .toFormatter();
+    }
+
+    private JSR310LocalDateDeserializer() {
     }
 
     @Override

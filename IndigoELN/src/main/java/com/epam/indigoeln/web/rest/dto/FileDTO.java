@@ -54,11 +54,11 @@ public class FileDTO {
     }
 
     public Date getUploadDate() {
-        return uploadDate;
+        return uploadDate == null ? null : new Date(uploadDate.getTime());
     }
 
     public void setUploadDate(Date uploadDate) {
-        this.uploadDate = uploadDate;
+        this.uploadDate = uploadDate == null ? null : new Date(uploadDate.getTime());
     }
 
     public long getLength() {

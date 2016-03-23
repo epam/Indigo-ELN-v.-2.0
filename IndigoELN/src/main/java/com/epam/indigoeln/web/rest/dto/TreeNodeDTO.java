@@ -13,6 +13,9 @@ import java.util.Set;
  */
 public class TreeNodeDTO {
 
+    public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
+            (o1, o2) -> o1.getName().compareTo(o2.getName());
+
     private String id;
     private String fullId;
     private String name;
@@ -53,8 +56,5 @@ public class TreeNodeDTO {
     public void setStatus(String status) {
         this.status = status;
     }
-
-    public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
-            (o1, o2) -> o1.getName().compareTo(o2.getName());
 
 }
