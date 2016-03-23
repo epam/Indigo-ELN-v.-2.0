@@ -41,8 +41,8 @@ public class PaginationUtil {
         if (page.getTotalPages() > 0) {
             lastPage = page.getTotalPages() - 1;
         }
-        link.append(getLink(getURI(baseUrl, lastPage, page.getSize()), "last")).append(",");
-        link.append(getLink(getURI(baseUrl, 0, page.getSize()), "first"));
+        link.append(getLink(getURI(baseUrl, lastPage, page.getSize()), "last")).append(",")
+                .append(getLink(getURI(baseUrl, 0, page.getSize()), "first"));
         headers.add(HttpHeaders.LINK, link.toString());
         return headers;
     }
