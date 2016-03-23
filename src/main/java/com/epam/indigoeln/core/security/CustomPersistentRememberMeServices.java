@@ -57,6 +57,8 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomPersistentRememberMeServices.class);
 
+    private static final int COOKIE_TOKENS_LENGTH = 2;
+
     // Token is valid for one month
     private static final int TOKEN_VALIDITY_DAYS = 31;
 
@@ -160,7 +162,7 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
      * Validate the token and return it.
      */
     private PersistentToken getPersistentToken(String[] cookieTokens) {
-        if (cookieTokens.length != 2) {
+        if (cookieTokens.length != COOKIE_TOKENS_LENGTH) {
             throw new InvalidCookieException("Cookie token did not contain " + 2 +
                     " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
         }

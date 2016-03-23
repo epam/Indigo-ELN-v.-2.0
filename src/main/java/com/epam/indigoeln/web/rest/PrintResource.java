@@ -37,6 +37,9 @@ public class PrintResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintResource.class);
 
+    public static final String HEADER =
+            "<table width=\"100%\" border=\"0\"><tr><td>Header</td><td align=\"right\">Some title</td></tr></table>";
+
     @Autowired
     private PhantomJsService phantomJsService;
 
@@ -95,9 +98,6 @@ public class PrintResource {
             this.header = header;
         }
     }
-
-    public static final String HEADER =
-            "<table width=\"100%\" border=\"0\"><tr><td>Header</td><td align=\"right\">Some title</td></tr></table>";
 
     public static class HeaderFooter extends PdfPageEventHelper {
         protected ElementList header;

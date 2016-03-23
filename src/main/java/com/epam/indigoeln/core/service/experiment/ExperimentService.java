@@ -143,7 +143,7 @@ public class ExperimentService {
         experiment = experimentRepository.save(experiment);
 
         // add all users as VIEWER to notebook & project
-        experiment.getAccessList().forEach((up) -> {
+        experiment.getAccessList().forEach(up -> {
             PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
             PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
         });
@@ -199,7 +199,7 @@ public class ExperimentService {
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                 orElseThrow(() ->  EntityNotFoundException.createWithNotebookId(notebookId));
         // add all users as VIEWER to project
-        experimentDTO.getAccessList().forEach((up) -> {
+        experimentDTO.getAccessList().forEach(up -> {
             PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
             PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
         });
