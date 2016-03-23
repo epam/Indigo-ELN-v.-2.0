@@ -128,10 +128,10 @@ public class ExceptionTranslator {
      * Database constraint violations and business logic issues, such as duplicate key exception, unique index etc.,
      * should be handed other way
      */
-    @ExceptionHandler
+    @ExceptionHandler(DataAccessException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorDTO processDataAccessException(DataAccessException exception) {
+    public ErrorDTO processDataAccessException() {
         return new ErrorDTO(ErrorConstants.ERR_DATABASE_ACCESS, "Internal Data Access error occurred");
     }
 }
