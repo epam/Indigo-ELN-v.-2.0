@@ -40,7 +40,7 @@ public class RoleService {
         try {
             return roleRepository.save(role);
         } catch (DuplicateKeyException e) {
-            throw DuplicateFieldException.createWithRoleName(role.getName());
+            throw DuplicateFieldException.createWithRoleName(role.getName(), e);
         }
     }
 

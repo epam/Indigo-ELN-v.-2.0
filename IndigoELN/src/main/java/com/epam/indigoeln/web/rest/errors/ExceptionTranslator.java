@@ -33,7 +33,7 @@ public class ExceptionTranslator {
     @ExceptionHandler(ConcurrencyFailureException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     @ResponseBody
-    public ErrorDTO processConcurrencyError(ConcurrencyFailureException ex) {
+    public ErrorDTO processConcurrencyError() {
         return new ErrorDTO(ErrorConstants.ERR_CONCURRENCY_FAILURE);
     }
 

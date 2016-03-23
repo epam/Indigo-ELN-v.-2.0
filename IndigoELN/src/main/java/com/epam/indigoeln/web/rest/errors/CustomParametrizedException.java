@@ -21,6 +21,10 @@ public class CustomParametrizedException extends RuntimeException {
     private final String message;
     private final String[] params;
 
+    public CustomParametrizedException(Exception cause) {
+        this(cause.getMessage(), cause);
+    }
+
     public CustomParametrizedException(String message, String... params) {
         this(message, null, params);
     }

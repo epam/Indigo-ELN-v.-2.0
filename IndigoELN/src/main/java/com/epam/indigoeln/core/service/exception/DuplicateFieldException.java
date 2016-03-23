@@ -15,7 +15,7 @@ public class DuplicateFieldException extends CustomParametrizedException {
     }
 
     public static DuplicateFieldException createWithNotebookName(String name, Exception e) {
-        return new DuplicateFieldException("Notebook name " + name + " is already in use", name);
+        return new DuplicateFieldException("Notebook name " + name + " is already in use", e, name);
     }
 
     public static DuplicateFieldException createWithProjectName(String name, Exception e) {
@@ -26,8 +26,8 @@ public class DuplicateFieldException extends CustomParametrizedException {
         return new DuplicateFieldException("Login " + login + " is already in use", login);
     }
 
-    public static DuplicateFieldException createWithRoleName(String name) {
-        return new DuplicateFieldException("Role name " + name + " is already in use", name);
+    public static DuplicateFieldException createWithRoleName(String name, Exception e) {
+        return new DuplicateFieldException("Role name " + name + " is already in use", e, name);
     }
 
 }
