@@ -5,16 +5,14 @@ import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties
  */
-public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
+public class TreeNodeDTO implements Serializable {
 
     private static final long serialVersionUID = -5561498961856213253L;
 
@@ -59,8 +57,7 @@ public class TreeNodeDTO implements Serializable, Comparable<TreeNodeDTO> {
         this.status = status;
     }
 
-    @Override
-    public int compareTo(TreeNodeDTO o) {
-        return this.name.compareTo(o.getName());
-    }
+    public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
+            (o1, o2) -> o1.getName().compareTo(o2.getName());
+
 }

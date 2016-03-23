@@ -52,7 +52,8 @@ public class NotebookService {
 
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId, User user) {
         Collection<Notebook> notebooks = getAllNotebooks(projectId, user);
-        return notebooks.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList());
+        return notebooks.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
+                .collect(Collectors.toList());
     }
 
     /**

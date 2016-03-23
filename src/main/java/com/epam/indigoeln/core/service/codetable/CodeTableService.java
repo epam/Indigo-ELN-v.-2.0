@@ -1,12 +1,10 @@
 package com.epam.indigoeln.core.service.codetable;
 
 import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
-import javax.annotation.PostConstruct;
 
 import java.io.IOException;
 import java.net.URL;
@@ -17,20 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class CodeTableService {
+public class CodeTableService implements InitializingBean {
 
-    public static final  String TABLE_SALT_CODE = "GCM_SALT_CDT";
+    public static final String TABLE_SALT_CODE = "GCM_SALT_CDT";
 
     private Map<String, List<Map>> codeTablesMap;
 
-    @PostConstruct
-    private void init() throws IOException {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         codeTablesMap = new HashMap<>();
         codeTablesMap.put(TABLE_SALT_CODE, parseTableValues(TABLE_SALT_CODE));
     }
 
     public List<Map> getCodeTable(String tableName) {
-        if(!codeTablesMap.containsKey(tableName)) {
+        if (!codeTablesMap.containsKey(tableName)) {
             throw new CustomParametrizedException("Table with name='" + tableName + "' does not exist");
         }
         return codeTablesMap.get(tableName);
