@@ -29,16 +29,8 @@ public class ComponentDTO implements Serializable {
         return id;
     }
 
-    public BasicDBObject getContent() {
-        return content;
-    }
-
     public void setId(String id) {
         this.id = id;
-    }
-
-    public void setContent(BasicDBObject content) {
-        this.content = content;
     }
 
     public String getName() {
@@ -47,6 +39,14 @@ public class ComponentDTO implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public BasicDBObject getContent() {
+        return content;
+    }
+
+    public void setContent(BasicDBObject content) {
+        this.content = content;
     }
 
     @Override
