@@ -7,15 +7,19 @@ public class DuplicateFieldException extends CustomParametrizedException {
     private static final long serialVersionUID = -2792167348160969142L;
 
     public DuplicateFieldException(String message, String params) {
-        super(message, params);
+        this(message, null, params);
     }
 
-    public static DuplicateFieldException createWithNotebookName(String name) {
+    public DuplicateFieldException(String message, Exception e, String params) {
+        super(message, e, params);
+    }
+
+    public static DuplicateFieldException createWithNotebookName(String name, Exception e) {
         return new DuplicateFieldException("Notebook name " + name + " is already in use", name);
     }
 
-    public static DuplicateFieldException createWithProjectName(String name) {
-        return new DuplicateFieldException("Project name " + name + " is already in use", name);
+    public static DuplicateFieldException createWithProjectName(String name, Exception e) {
+        return new DuplicateFieldException("Project name " + name + " is already in use", e, name);
     }
 
     public static DuplicateFieldException createWithUserLogin(String login) {

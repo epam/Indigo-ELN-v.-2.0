@@ -235,7 +235,7 @@ public class NotebookService {
         try {
             return notebookRepository.save(notebook);
         } catch (DuplicateKeyException e) {
-            throw DuplicateFieldException.createWithNotebookName(notebook.getName());
+            throw DuplicateFieldException.createWithNotebookName(notebook.getName(), e);
         }
     }
 }

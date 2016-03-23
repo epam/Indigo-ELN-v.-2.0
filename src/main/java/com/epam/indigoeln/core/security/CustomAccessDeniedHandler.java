@@ -32,7 +32,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         if (accessDeniedException instanceof CsrfException && !response.isCommitted()) {
             // Remove the session cookie so that client knows it's time to obtain a new CSRF token
             String pCookieName = CookieConstants.CSRF_TOKEN;
-            Cookie cookie = new Cookie(pCookieName, "");
+            Cookie cookie = new Cookie(pCookieName, ""); //NOSONAR: it is highly possible that application will be used over http protocol only
             cookie.setMaxAge(0);
             cookie.setHttpOnly(false);
             cookie.setPath("/");

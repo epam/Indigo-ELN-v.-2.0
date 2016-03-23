@@ -22,7 +22,11 @@ public class CustomParametrizedException extends RuntimeException {
     private final String[] params;
 
     public CustomParametrizedException(String message, String... params) {
-        super(message);
+        this(message, null, params);
+    }
+
+    public CustomParametrizedException(String message, Exception cause, String... params) {
+        super(message, cause);
         this.message = message;
         this.params = params;
     }

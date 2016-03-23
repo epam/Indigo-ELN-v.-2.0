@@ -178,7 +178,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         }
     }
 
-    private CompoundInfo convert(Compound compound) {
+    public CompoundInfo convert(Compound compound) {
         CompoundInfo info = new CompoundInfo();
 
         info.setBatchNumber(compound.getBatchNo());
@@ -195,7 +195,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
 
     }
 
-    private Compound convert(FullCompoundInfo compoundInfo) {
+    public Compound convert(FullCompoundInfo compoundInfo) {
         if (compoundInfo == null)
             return null;
 
