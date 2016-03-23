@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.file.FileService;
 import com.epam.indigoeln.core.service.user.UserService;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -75,6 +77,28 @@ public class ProjectFileResource {
     }
 
     /**
+     * POST  /project_files?projectId -> Saves file for specified project
+     */
+    @RequestMapping(method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file,
+                                            @RequestParam(required = false) String projectId)
+            throws URISyntaxException {
+        LOGGER.debug("REST request to save file for project: {}", projectId);
+        User user = userService.getUserWithAuthorities();
+        InputStream inputStream;
+        try {
+            inputStream = file.getInputStream();
+        } catch (IOException e) {
+            throw new IndigoRuntimeException("Unable to get file content.", e);
+        }
+        GridFSFile gridFSFile = fileService.saveFileForProject(projectId, inputStream,
+                file.getOriginalFilename(), file.getContentType(), user);
+        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
+                .body(new FileDTO(gridFSFile));
+    }
+
+    /**
      * GET  /project_files/:id -> Returns file with specified id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
@@ -85,22 +109,6 @@ public class ProjectFileResource {
 
         HttpHeaders headers = HeaderUtil.createAttachmentDescription(file.getFilename());
         return ResponseEntity.ok().headers(headers).body(new InputStreamResource(file.getInputStream()));
-    }
-
-    /**
-     * POST  /project_files?projectId -> Saves file for specified project
-     */
-    @RequestMapping(method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FileDTO> saveFile(@RequestParam MultipartFile file,
-                                            @RequestParam(required = false) String projectId)
-            throws URISyntaxException, IOException {
-        LOGGER.debug("REST request to save file for project: {}", projectId);
-        User user = userService.getUserWithAuthorities();
-        GridFSFile gridFSFile = fileService.saveFileForProject(projectId, file.getInputStream(),
-                file.getOriginalFilename(), file.getContentType(), user);
-        return ResponseEntity.created(new URI(URL_MAPPING + "/" + gridFSFile.getId()))
-                .body(new FileDTO(gridFSFile));
     }
 
     /**

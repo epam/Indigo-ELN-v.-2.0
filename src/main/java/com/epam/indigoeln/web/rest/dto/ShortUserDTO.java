@@ -7,7 +7,7 @@ import java.io.Serializable;
 /**
  * Short transfer object for User
  */
-public class ShortUserDTO implements Serializable {
+public class ShortUserDTO {
 
     private static final long serialVersionUID = 1522754620900492959L;
 

@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 //@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.PROPERTY, property = "type")
-public abstract class BasicDTO implements Serializable {
+public abstract class BasicDTO {
 
     private static final long serialVersionUID = -2304109712431441621L;
 
