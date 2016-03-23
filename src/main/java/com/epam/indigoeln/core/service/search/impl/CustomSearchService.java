@@ -75,7 +75,7 @@ public class CustomSearchService implements SearchServiceAPI {
 
         //retrieve batches from components
         return BatchComponentUtil.retrieveBatchesByBingoDbId(components, bingoIds).stream().
-                map(CustomSearchService::convertFromDBObject).collect(toList());
+                map(this::convertFromDBObject).collect(toList());
     }
 
     /**
@@ -96,7 +96,7 @@ public class CustomSearchService implements SearchServiceAPI {
                 map(params -> new ProductBatchDetailsDTO(fullBatchNumber, params));
     }
 
-    private static ProductBatchDetailsDTO convertFromDBObject(BasicDBObject obj) {
+    public ProductBatchDetailsDTO convertFromDBObject(BasicDBObject obj) {
         Map map = obj.toMap();
         String fullBatchNumber = Optional.ofNullable(map.get(BatchComponentUtil.COMPONENT_FIELD_FULL_NBK_BATCH)).
                 map(Object::toString).orElse(null);

@@ -28,7 +28,7 @@ public final class JsonUtil {
         try {
             return new ObjectMapper().readValue(array.toString(), List.class).toArray();
         } catch (IOException e) {
-            throw new CustomParametrizedException(e.getMessage());
+            throw new CustomParametrizedException(e);
         }
     }
 }
