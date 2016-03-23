@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Simple transfer object for Reaction parameters
  */
-public class ReactionPropertiesDTO implements Serializable {
+public class ReactionPropertiesDTO {
 
     private static final long serialVersionUID = 7723901161577149296L;
 

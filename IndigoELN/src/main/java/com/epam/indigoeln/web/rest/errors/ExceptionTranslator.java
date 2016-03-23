@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest.errors;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
@@ -98,6 +99,13 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorDTO processMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
         return new ErrorDTO(ErrorConstants.ERR_METHOD_NOT_SUPPORTED, exception.getMessage());
+    }
+
+    @ExceptionHandler(IndigoRuntimeException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO processIndigoRuntimeException(IndigoRuntimeException exception) {
+        return new ErrorDTO(ErrorConstants.ERR_URI_SYNTAX, exception.getMessage());
     }
 
     @ExceptionHandler(URISyntaxException.class)

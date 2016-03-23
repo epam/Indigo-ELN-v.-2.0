@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -191,13 +192,13 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
     private String generateSeriesData() {
         byte[] newSeries = new byte[DEFAULT_SERIES_LENGTH];
         random.nextBytes(newSeries);
-        return new String(Base64.encode(newSeries));
+        return new String(Base64.encode(newSeries), Charset.forName("UTF-8"));
     }
 
     private String generateTokenData() {
         byte[] newToken = new byte[DEFAULT_TOKEN_LENGTH];
         random.nextBytes(newToken);
-        return new String(Base64.encode(newToken));
+        return new String(Base64.encode(newToken), Charset.forName("UTF-8"));
     }
 
     private void addCookie(PersistentToken token, HttpServletRequest request, HttpServletResponse response) {

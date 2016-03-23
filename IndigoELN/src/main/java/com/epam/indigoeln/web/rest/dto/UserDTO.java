@@ -14,7 +14,7 @@ import java.util.Set;
 /**
  * A DTO representing a user, with his authorities.
  */
-public class UserDTO implements Serializable {
+public class UserDTO {
 
     @NotNull
     private String id;

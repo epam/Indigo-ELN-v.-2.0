@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
  * Short data for Model Entities : Experiments, Notebooks and Projects
  * Could be used in case, when all items should be fetched from database
  */
-public class ShortEntityDTO implements Serializable {
+public class ShortEntityDTO {
 
     private static final long serialVersionUID = 6066467687623776425L;
 

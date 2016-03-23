@@ -7,7 +7,7 @@ import com.mongodb.BasicDBObject;
 import java.io.Serializable;
 
 @JsonTypeName("Component")
-public class ComponentDTO implements Serializable {
+public class ComponentDTO {
 
     private static final long serialVersionUID = 13994253258215137L;
 

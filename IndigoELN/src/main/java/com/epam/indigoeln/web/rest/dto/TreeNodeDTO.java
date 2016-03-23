@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * A DTO for representing a Project, Notebook or an Experiment like a Tree Node with its properties
  */
-public class TreeNodeDTO implements Serializable {
+public class TreeNodeDTO {
 
     private static final long serialVersionUID = -5561498961856213253L;
 
