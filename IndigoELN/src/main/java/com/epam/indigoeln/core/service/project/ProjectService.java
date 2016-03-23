@@ -171,7 +171,7 @@ public class ProjectService {
         try {
             return projectRepository.save(project);
         } catch (DuplicateKeyException e) {
-            throw DuplicateFieldException.createWithProjectName(project.getName());
+            throw DuplicateFieldException.createWithProjectName(project.getName(), e);
         }
     }
 }
