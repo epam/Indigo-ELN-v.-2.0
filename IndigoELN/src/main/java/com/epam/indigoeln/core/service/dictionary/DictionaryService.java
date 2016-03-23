@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.service.dictionary;
 
 import com.epam.indigoeln.core.model.Dictionary;
-import com.epam.indigoeln.core.model.Word;
 import com.epam.indigoeln.core.repository.dictionary.DictionaryRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
@@ -52,7 +51,6 @@ public class DictionaryService {
     public Page<DictionaryDTO> getAllDictionaries(Pageable pageable, String search) {
         return dictionaryRepository.findByNameContainingIgnoreCase(search, pageable).map(DictionaryDTO::new);
     }
-
 
 
 }

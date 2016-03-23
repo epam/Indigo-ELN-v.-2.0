@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Project;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.ArrayList;
@@ -14,8 +13,6 @@ import java.util.stream.Collectors;
  */
 @JsonTypeName("Project")
 public class ProjectDTO extends BasicDTO {
-
-    private static final long serialVersionUID = -4754176248352140289L;
 
     private List<String> tags;
     private List<String> keywords;

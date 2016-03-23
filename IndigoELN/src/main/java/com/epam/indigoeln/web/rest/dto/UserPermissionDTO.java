@@ -3,12 +3,9 @@ package com.epam.indigoeln.web.rest.dto;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserPermission;
 
-import java.io.Serializable;
 import java.util.Set;
 
 public class UserPermissionDTO {
-
-    private static final long serialVersionUID = 9077368415315367596L;
 
     private User user;
 
