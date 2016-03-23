@@ -36,33 +36,28 @@ import static com.epam.indigoeln.core.service.util.TempFileUtil.TEMP_FILE_PREFIX
 @RequestMapping("/api/print")
 public class PrintResource {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PrintResource.class);
+
     @Autowired
     private PhantomJsService phantomJsService;
 
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
-        File file = null;
         String fileName = String.format("%s%s.pdf", TEMP_FILE_PREFIX, UUID.randomUUID().toString());
-        FileOutputStream fileOutputStream = null;
-        try {
-            file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-            fileOutputStream = new FileOutputStream(file);
+        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
+        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             byte[] screenshot = phantomJsService.takesScreenshot(wrapper.getHtml(), OutputType.BYTES);
             Image image = Image.getInstance(screenshot);
             image.scalePercent(75);
             Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
-//            PdfWriter writer = PdfWriter.getInstance(document, fileOutputStream);
-//            writer.setPageEvent(new HeaderFooter());
+            PdfWriter.getInstance(document, fileOutputStream);
+            /** writer.setPageEvent(new HeaderFooter()); **/
             document.open();
             document.add(image);
             document.close();
         } catch (Exception e) {
-            FileUtils.deleteQuietly(file);
-        } finally {
-            if (fileOutputStream != null) {
-                IOUtils.closeQuietly(fileOutputStream);
-            }
+            LOGGER.error("Error occurred while creating pdf file.", e);
         }
         return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
     }
