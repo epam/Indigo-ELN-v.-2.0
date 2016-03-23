@@ -55,7 +55,8 @@ public class ProjectService {
         // if user is null, then get all projects
         Collection<Project> projects = user == null ? projectRepository.findAll() :
                 projectRepository.findByUserId(user.getId());
-        return projects.stream().map(TreeNodeDTO::new).sorted().collect(Collectors.toList());
+        return projects.stream().map(TreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR)
+                .collect(Collectors.toList());
     }
 
     public ProjectDTO getProjectById(String id, User user) {
