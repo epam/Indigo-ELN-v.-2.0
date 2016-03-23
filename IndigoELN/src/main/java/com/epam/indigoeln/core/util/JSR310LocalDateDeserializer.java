@@ -53,17 +53,15 @@ public class JSR310LocalDateDeserializer extends JsonDeserializer<LocalDate> {
     }
 
     private LocalDate processStartArray(JsonParser parser, DeserializationContext context) throws IOException {
-        int year = parser.getIntValue();
-
-        parser.nextToken();
-        int month = parser.getIntValue();
-
-        parser.nextToken();
-        int day = parser.getIntValue();
-
-        if (parser.nextToken() != JsonToken.END_ARRAY) {
+        int[] values = new int[3];
+        JsonToken token = null;
+        for (int i = 0; i < 3; i++) {
+            values[i] = parser.getIntValue();
+            token = parser.nextToken();
+        }
+        if (token != JsonToken.END_ARRAY) {
             throw context.wrongTokenException(parser, JsonToken.END_ARRAY, "Expected array to end.");
         }
-        return LocalDate.of(year, month, day);
+        return LocalDate.of(values[0], values[1], values[2]);
     }
 }
