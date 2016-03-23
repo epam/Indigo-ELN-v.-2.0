@@ -4,12 +4,8 @@ import com.epam.indigoeln.core.model.Component;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.mongodb.BasicDBObject;
 
-import java.io.Serializable;
-
 @JsonTypeName("Component")
 public class ComponentDTO {
-
-    private static final long serialVersionUID = 13994253258215137L;
 
     private String id;
     private String name;

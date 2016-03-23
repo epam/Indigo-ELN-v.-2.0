@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest.dto.calculation;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,8 +7,6 @@ import java.util.List;
  * Simple transfer object for Reaction parameters
  */
 public class ReactionPropertiesDTO {
-
-    private static final long serialVersionUID = 7723901161577149296L;
 
     private String structure; //reaction structure (molfile)
     private List<String> reactants = new ArrayList<>(); // list of reactants (structures of molecules)
@@ -22,7 +19,7 @@ public class ReactionPropertiesDTO {
     public ReactionPropertiesDTO(String structure, List<String> reactants, List<String> products) {
         this.structure = structure;
         this.reactants = reactants != null ? reactants : this.reactants;
-        this.products  = products  != null ? products  : this.products;
+        this.products = products != null ? products : this.products;
     }
 
     public String getStructure() {

@@ -3,6 +3,8 @@ package com.epam.indigoeln.config.audit;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.user.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -17,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Configuration
 public class CustomAuditProvider implements AuditorAware<User>  {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomAuditProvider.class);
+
     @Autowired
     UserService userService;
 
@@ -26,7 +30,8 @@ public class CustomAuditProvider implements AuditorAware<User>  {
         User user;
         try {
             user = userService.getUserWithAuthoritiesByLogin(auth.getName());
-        } catch (EntityNotFoundException ignored) {
+        } catch (EntityNotFoundException e) {
+            LOGGER.error("User with name " + auth.getName() + " cannot be found.", e);
             user = null;
         }
         return user;

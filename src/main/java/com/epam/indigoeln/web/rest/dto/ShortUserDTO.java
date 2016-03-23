@@ -2,14 +2,10 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.User;
 
-import java.io.Serializable;
-
 /**
  * Short transfer object for User
  */
 public class ShortUserDTO {
-
-    private static final long serialVersionUID = 1522754620900492959L;
 
     private String id;
     private String firstName;

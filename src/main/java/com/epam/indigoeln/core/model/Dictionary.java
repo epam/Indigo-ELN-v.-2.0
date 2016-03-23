@@ -1,18 +1,10 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.core.util.JsonUtil;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Objects;
-import com.mongodb.BasicDBList;
-import org.json.JSONArray;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -74,7 +66,7 @@ public class Dictionary extends BasicModelObject {
             return false;
         }
         Dictionary dict = (Dictionary) o;
-        return  Objects.equal(description, dict.description) &&
+        return Objects.equal(description, dict.description) &&
                 Objects.equal(words, dict.words);
     }
 }

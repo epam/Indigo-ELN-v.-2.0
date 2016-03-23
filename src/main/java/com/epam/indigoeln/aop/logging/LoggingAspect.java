@@ -1,7 +1,6 @@
 package com.epam.indigoeln.aop.logging;
 
 import com.epam.indigoeln.Application;
-import com.epam.indigoeln.IndigoRuntimeException;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;

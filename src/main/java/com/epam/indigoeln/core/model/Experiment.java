@@ -3,7 +3,6 @@ package com.epam.indigoeln.core.model;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
-
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 @Document(collection = Experiment.COLLECTION_NAME)
-public class   Experiment extends ExperimentShort {
+public class Experiment extends ExperimentShort {
     public static final String COLLECTION_NAME = "experiment";
 
     private static final long serialVersionUID = -4215770980241351691L;
@@ -82,7 +81,7 @@ public class   Experiment extends ExperimentShort {
         this.fileIds = fileIds;
     }
 
-    public TreeNodeDTO  retrieveTreeNodeDTO() {
+    public TreeNodeDTO retrieveTreeNodeDTO() {
         TreeNodeDTO result = new TreeNodeDTO(this);
         result.setStatus(this.getStatus().toString());
         return result;
@@ -100,8 +99,10 @@ public class   Experiment extends ExperimentShort {
             return false;
         }
         Experiment that = (Experiment) o;
-        return  Objects.equal(coAuthors, that.coAuthors) &&
-                Objects.equal(witness, that.witness) &&
+        boolean equalCoAuthorsAndWitnesses =
+                Objects.equal(coAuthors, that.coAuthors) &&
+                        Objects.equal(witness, that.witness);
+        return equalCoAuthorsAndWitnesses &&
                 Objects.equal(comments, that.comments) &&
                 Objects.equal(status, that.status) &&
                 Objects.equal(components, that.components);

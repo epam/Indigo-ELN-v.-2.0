@@ -148,9 +148,9 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
                 PersistentToken token = getPersistentToken(cookieTokens);
                 persistentTokenRepository.delete(token);
             } catch (InvalidCookieException ice) {
-                LOGGER.info("Invalid cookie, no persistent token could be deleted");
+                LOGGER.info("Invalid cookie, no persistent token could be deleted", ice);
             } catch (RememberMeAuthenticationException rmae) {
-                LOGGER.debug("No persistent token found, so no token could be deleted");
+                LOGGER.debug("No persistent token found, so no token could be deleted", rmae);
             }
         }
         super.logout(request, response, authentication);

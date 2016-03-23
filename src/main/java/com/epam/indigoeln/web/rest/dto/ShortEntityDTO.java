@@ -3,7 +3,6 @@ package com.epam.indigoeln.web.rest.dto;
 import com.epam.indigoeln.core.model.BasicModelObject;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 /**
@@ -11,8 +10,6 @@ import java.time.ZonedDateTime;
  * Could be used in case, when all items should be fetched from database
  */
 public class ShortEntityDTO {
-
-    private static final long serialVersionUID = 6066467687623776425L;
 
     private String id;
     private String parentId;

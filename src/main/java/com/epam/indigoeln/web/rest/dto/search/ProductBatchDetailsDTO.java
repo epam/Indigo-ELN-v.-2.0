@@ -1,11 +1,8 @@
 package com.epam.indigoeln.web.rest.dto.search;
 
-import java.io.Serializable;
 import java.util.Map;
 
 public class ProductBatchDetailsDTO {
-
-    private static final long serialVersionUID = -2543321398934427475L;
 
     private String notebookBatchNumber;
     private Map details;
