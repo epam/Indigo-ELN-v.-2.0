@@ -1,12 +1,18 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.model.Experiment;
+import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -45,6 +52,12 @@ public class ExperimentResource {
 
     @Autowired
     private SequenceIdService sequenceIdService;
+
+    @Autowired
+    private SignatureService signatureService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     /**
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
@@ -94,9 +107,11 @@ public class ExperimentResource {
     public ResponseEntity<ExperimentDTO> getExperiment(
             @PathVariable String projectId,
             @PathVariable String notebookId,
-            @PathVariable String id) {
+            @PathVariable String id) throws IOException {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
+        ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
+        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
         return ResponseEntity.ok(experimentService.getExperiment(projectId, notebookId, id, user));
     }
 
@@ -164,4 +179,46 @@ public class ExperimentResource {
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();
     }
+
+    /**
+     *  Check experiment's status on Signature Service and update in DB if changed
+     */
+    private ExperimentDTO checkExperimentStatus(String projectId, String notebookId, ExperimentDTO experimentDTO, User user)
+            throws IOException {
+        // check experiment in status Submitted or Signing
+        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
+                ExperimentStatus.SINGING.equals(experimentDTO.getStatus())) {
+
+            if (experimentDTO.getDocumentId() == null) {
+                throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
+            }
+
+            // get document's status
+            String info = signatureService.getDocumentInfo(experimentDTO.getDocumentId());
+            int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
+
+            // match statuses
+            // Indigo Signature Service statuses: SUBMITTED(1), SIGNING(2), SIGNED(3), REJECTED(4), WAITING(5),
+            // CANCELLED(6), ARCHIVING(7), ARCHIVED(8)
+            ExperimentStatus expectedStatus;
+            if (docStatus == 1) {
+                expectedStatus = ExperimentStatus.SUBMITTED;
+            } else if (docStatus == 2) {
+                expectedStatus = ExperimentStatus.SINGING;
+            } else if (docStatus == 3 || docStatus == 7 || docStatus == 8) {
+                expectedStatus = ExperimentStatus.ARCHIVED;
+            } else {
+                expectedStatus = ExperimentStatus.SUBMIT_FAIL;
+            }
+
+            // update experiment if differ
+            if (!expectedStatus.equals(experimentDTO.getStatus())) {
+                experimentDTO.setStatus(expectedStatus);
+                experimentDTO = experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
+            }
+        }
+        return experimentDTO;
+    }
+
+
 }
