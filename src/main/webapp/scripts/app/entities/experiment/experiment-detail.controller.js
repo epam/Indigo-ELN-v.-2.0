@@ -7,7 +7,7 @@ angular.module('indigoeln')
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
-            $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing'];
+            $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
 
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
@@ -142,6 +142,9 @@ angular.module('indigoeln')
                 return $scope.experiment.status === 'Archived';
             };
             $scope.isStatusSigned = function () {
+                return $scope.experiment.status === 'Signed';
+            };
+            $scope.isStatusSigning = function () {
                 return $scope.experiment.status === 'Signing';
             };
 
