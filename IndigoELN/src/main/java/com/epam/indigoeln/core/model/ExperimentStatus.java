@@ -10,6 +10,7 @@ public enum ExperimentStatus {
     SUBMITTED("Submitted"),
     SUBMIT_FAIL("Submit_Fail"),
     SINGING("Signing"),
+    SINGED("Signed"),
     ARCHIVED("Archived");
 
     private final String value;

@@ -111,7 +111,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
-        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
+//        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
         return ResponseEntity.ok(experimentService.getExperiment(projectId, notebookId, id, user));
     }
 
@@ -200,12 +200,26 @@ public class ExperimentResource {
             // match statuses
             // Indigo Signature Service statuses: SUBMITTED(1), SIGNING(2), SIGNED(3), REJECTED(4), WAITING(5),
             // CANCELLED(6), ARCHIVING(7), ARCHIVED(8)
+            //            ------------------------------
+//             Signature    |  IndigoELN
+//            ------------------------------
+//            SUBMITTED -> SUBMITTED
+//            SIGNING   -> SIGNING
+//            SIGNED    -> SIGNED
+//            REJECTED  -> SUBMIT_FAILED
+//            WAITING   -> SUBMIT_FAILED
+//            CANCELLED -> SUBMIT_FAILED
+//            ARCHIVING -> SIGNED
+//            ARCHIVED  -> ARCHIVE
+//            ------------------------------
             ExperimentStatus expectedStatus;
             if (docStatus == 1) {
                 expectedStatus = ExperimentStatus.SUBMITTED;
             } else if (docStatus == 2) {
                 expectedStatus = ExperimentStatus.SINGING;
-            } else if (docStatus == 3 || docStatus == 7 || docStatus == 8) {
+            } else if (docStatus == 3 || docStatus == 7) {
+                expectedStatus = ExperimentStatus.SINGED;
+            } else if (docStatus == 8) {
                 expectedStatus = ExperimentStatus.ARCHIVED;
             } else {
                 expectedStatus = ExperimentStatus.SUBMIT_FAIL;
