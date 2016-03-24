@@ -189,6 +189,7 @@ public class ExperimentService {
         experimentFromDB.setComments(experimentForSave.getComments());
         experimentFromDB.setStatus(experimentForSave.getStatus());
         experimentFromDB.setWitness(experimentForSave.getWitness());
+        experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
 
         experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
 

@@ -80,7 +80,7 @@ public class SignatureResource {
         String documentId = objectMapper.readValue(result, JsonNode.class).get("id").asText();
 
         if (documentId == null) {
-            throw new DocumentUploadException(experimentId);
+            throw DocumentUploadException.createFailedUploading(experimentId);
         }
 
         // set document id to experiment and update status

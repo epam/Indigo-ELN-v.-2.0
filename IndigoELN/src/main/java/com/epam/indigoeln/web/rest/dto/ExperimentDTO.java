@@ -33,6 +33,7 @@ public class ExperimentDTO extends BasicDTO {
         this.components = experiment.getComponents() != null ?
                 experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
         this.status = experiment.getStatus();
+        this.documentId = experiment.getDocumentId();
     }
 
     public List<ComponentDTO> getComponents() {
