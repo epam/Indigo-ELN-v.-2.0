@@ -64,7 +64,8 @@ angular.module('indigoeln').controller('ExperimentSubmitController',
         };
 
         $scope.submit = function () {
-            experimentPdfCreator.createPDF(selectTemplate);
+            var fileName = $scope.notebook.name + '-' + $scope.experiment.name;
+            experimentPdfCreator.createPDF(fileName, selectTemplate);
         };
 
     });
