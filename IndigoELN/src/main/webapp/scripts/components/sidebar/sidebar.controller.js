@@ -37,7 +37,9 @@ angular
                     $scope.myBookmarks.projects = result;
 
                     project = $scope.getTreeItemById($scope.projects, data.projectId);
-                    if(project) project.isOpen = true;
+                    if(project) {
+                        project.isOpen = true;
+                    }
                 });
             }
         });
@@ -54,8 +56,8 @@ angular
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
 
-            if ($scope.projects && (project = $scope.getTreeItemById($scope.projects, data.projectId))
-                && (notebook = $scope.getTreeItemById(project.children, data.notebookId)))
+            if ($scope.projects && (project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
+                (notebook = $scope.getTreeItemById(project.children, data.notebookId)))
             { //find existing notebook and update children only
                 Experiment.query({notebookId: notebook.id, projectId : project.id}, function (expResult) {
                     notebook.children = expResult;

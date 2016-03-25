@@ -187,7 +187,8 @@ public class ExperimentResource {
             throws IOException {
         // check experiment in status Submitted or Signing
         if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGING.equals(experimentDTO.getStatus())) {
+                ExperimentStatus.SINGING.equals(experimentDTO.getStatus()) ||
+                ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
 
             if (experimentDTO.getDocumentId() == null) {
                 throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
@@ -198,24 +199,23 @@ public class ExperimentResource {
             int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
 
             // match statuses
-            // Indigo Signature Service statuses: SUBMITTED(1), SIGNING(2), SIGNED(3), REJECTED(4), WAITING(5),
-            // CANCELLED(6), ARCHIVING(7), ARCHIVED(8)
-            //            ------------------------------
-//             Signature    |  IndigoELN
+            // Indigo Signature Service statuses:
 //            ------------------------------
-//            SUBMITTED -> SUBMITTED
-//            SIGNING   -> SIGNING
-//            SIGNED    -> SIGNED
-//            REJECTED  -> SUBMIT_FAILED
-//            WAITING   -> SUBMIT_FAILED
-//            CANCELLED -> SUBMIT_FAILED
-//            ARCHIVING -> SIGNED
-//            ARCHIVED  -> ARCHIVE
+//             Signature(Id)    |  IndigoELN
+//            ------------------------------
+//            SUBMITTED(1) -> SUBMITTED
+//            SIGNING(2)   -> SIGNING
+//            SIGNED(3)    -> SIGNED
+//            REJECTED(4)  -> SUBMIT_FAILED
+//            WAITING(5)   -> SIGNING
+//            CANCELLED(6) -> SUBMIT_FAILED
+//            ARCHIVING(7) -> SIGNED
+//            ARCHIVED(8)  -> ARCHIVE
 //            ------------------------------
             ExperimentStatus expectedStatus;
             if (docStatus == 1) {
                 expectedStatus = ExperimentStatus.SUBMITTED;
-            } else if (docStatus == 2) {
+            } else if (docStatus == 2 || docStatus == 5) {
                 expectedStatus = ExperimentStatus.SINGING;
             } else if (docStatus == 3 || docStatus == 7) {
                 expectedStatus = ExperimentStatus.SINGED;
