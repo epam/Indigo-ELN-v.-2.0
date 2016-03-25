@@ -32,7 +32,8 @@ angular.module('indigoeln').controller('ExperimentPrintController',
 
         $scope.print = function () {
             $scope.isPrinting = true;
-            experimentPdfCreator.createPDF(downloadReport);
+            var fileName = $scope.notebook.name + '-' + $scope.experiment.name;
+            experimentPdfCreator.createPDF(fileName, downloadReport);
         };
 
     });
