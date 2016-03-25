@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
@@ -111,7 +110,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
-//        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
+        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
         return ResponseEntity.ok(experimentService.getExperiment(projectId, notebookId, id, user));
     }
 
@@ -197,6 +196,7 @@ public class ExperimentResource {
             // get document's status
             String info = signatureService.getDocumentInfo(experimentDTO.getDocumentId());
             int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
+            ISSStatus status = ISSStatus.fromValue(docStatus);
 
             // match statuses
             // Indigo Signature Service statuses:
@@ -213,13 +213,13 @@ public class ExperimentResource {
 //            ARCHIVED(8)  -> ARCHIVE
 //            ------------------------------
             ExperimentStatus expectedStatus;
-            if (docStatus == 1) {
+            if (ISSStatus.SUBMITTED.equals(status)) {
                 expectedStatus = ExperimentStatus.SUBMITTED;
-            } else if (docStatus == 2 || docStatus == 5) {
+            } else if (ISSStatus.SIGNING.equals(status) || ISSStatus.WAITING.equals(status)) {
                 expectedStatus = ExperimentStatus.SINGING;
-            } else if (docStatus == 3 || docStatus == 7) {
+            } else if (ISSStatus.SIGNED.equals(status) || ISSStatus.ARCHIVING.equals(status)) {
                 expectedStatus = ExperimentStatus.SINGED;
-            } else if (docStatus == 8) {
+            } else if (ISSStatus.ARCHIVED.equals(status)) {
                 expectedStatus = ExperimentStatus.ARCHIVED;
             } else {
                 expectedStatus = ExperimentStatus.SUBMIT_FAIL;
@@ -228,11 +228,43 @@ public class ExperimentResource {
             // update experiment if differ
             if (!expectedStatus.equals(experimentDTO.getStatus())) {
                 experimentDTO.setStatus(expectedStatus);
-                experimentDTO = experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
+                return experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
             }
         }
         return experimentDTO;
     }
 
+    /**
+     * Indigo Signature Service statuses
+     */
+    private enum ISSStatus {
+            SUBMITTED(1),
+            SIGNING(2),
+            SIGNED(3),
+            REJECTED(4),
+            WAITING(5),
+            CANCELLED(6),
+            ARCHIVING(7),
+            ARCHIVED(8);
+
+        private Integer value;
+
+        ISSStatus(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public static ISSStatus fromValue(Integer value){
+            for(ISSStatus status : ISSStatus.values()){
+                if(status.getValue().equals(value)){
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException();
+        }
+    }
 
 }
