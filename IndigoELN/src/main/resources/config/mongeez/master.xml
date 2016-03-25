@@ -13,4 +13,5 @@
     <file path="project_name_unique_index.xml"/>
     <file path="entities_title_cleanup_database.xml"/>
     <file path="experiment_status.xml"/>
+    <file path="dictionaries.xml"/>
 </changeFiles>

@@ -1,0 +1,71 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-13" author="evgeny_romanov">
+        <script>
+            db.dictionary.insert({
+                "_id" : "therapeuticArea",
+                "description" : "Therapeutic Area",
+                "words" : [
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 2,
+                    "name" : "Pulmonology",
+                    "accessList" : []
+                    },
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 1,
+                    "name" : "Diabet",
+                    "accessList" : []
+                    },
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 3,
+                    "name" : "Cancer",
+                    "accessList" : []
+                    },
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 0,
+                    "name" : "Obesity",
+                    "accessList" : []
+                    }
+                ],
+                "name" : "Therapeutic Area",
+                "accessList" : []
+            });
+            db.dictionary.insert({
+                "_id" : "projectCode",
+                "description" : "Project Code for experiment details",
+                "words" : [
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 2,
+                    "name" : "Code 3",
+                    "accessList" : []
+                    },
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 0,
+                    "name" : "Code 1",
+                    "accessList" : []
+                    },
+                    {
+                    "_id" : null,
+                    "enable" : true,
+                    "rank" : 1,
+                    "name" : "Code 2",
+                    "accessList" : []
+                    }
+                ],
+                "name" : "Project Code & Name",
+                "accessList" : []
+            });
+        </script>
+    </changeSet>
+</mongoChangeLog>
