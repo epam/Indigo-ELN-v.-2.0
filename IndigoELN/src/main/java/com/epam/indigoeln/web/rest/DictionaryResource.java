@@ -41,7 +41,7 @@ public class DictionaryResource {
      * GET /dictionaries/:id -> get dictionary by id
      */
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DictionaryDTO> getTemplate(@PathVariable String id) {
+    public ResponseEntity<DictionaryDTO> getDictionary(@PathVariable String id) {
         LOGGER.debug("REST request to get dictionary with id: {}", id);
         return dictionaryService.getDictionaryById(id)
                 .map(dict -> new ResponseEntity<>(dict, HttpStatus.OK))
