@@ -204,7 +204,7 @@ angular.module('indigoeln')
                 },
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/experiment-print.html',
+                        templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
                         controller: 'ExperimentPrintController'
                     }
                 },
@@ -227,8 +227,6 @@ angular.module('indigoeln')
                 }
             })
             .state('experiment-preview-submit', {
-            //.state('entities.experiment-detail.preview-submit', {
-                //parent: 'entities.experiment-detail',
                 parent: 'entity',
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/preview-submit',
                 data: {
@@ -241,8 +239,6 @@ angular.module('indigoeln')
                         controller: 'ExperimentSubmitController'
                     }
                 },
-                //templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
-                //controller: 'ExperimentSubmitController',
                 resolve: {
                     pageInfo: function ($q, $stateParams, EntitiesBrowser) {
                         var deferred = $q.defer();
