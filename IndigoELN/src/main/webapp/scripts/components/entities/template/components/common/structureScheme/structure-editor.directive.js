@@ -1,3 +1,4 @@
+/* jshint browser: true */
 'use strict';
 
 angular.module('indigoeln')
@@ -11,15 +12,15 @@ angular.module('indigoeln')
                     editor = frame.contentWindow.ketcher;
                 } else {
                     // IE7
-                    editor = document.frames['ifKetcher'].window.ketcher;
+                    editor = document.frames.ifKetcher.window.ketcher;
                 }
                 return editor;
             },
             getMolfile: function (editor) {
                 // TODO update if new editor added
                 return editor.getMolfile();
-            },
-        }
+            }
+        };
     })
     .directive('myEditor', function (editorUtils) {
         return {
@@ -51,11 +52,11 @@ angular.module('indigoeln')
             },
             controller: function ($scope) {
                 $scope.editors = {
-                    "KETCHER": {
-                        id: "ifKetcher",
-                        src: "vendors/ketcher/ketcher.html"
+                    'KETCHER': {
+                        id: 'ifKetcher',
+                        src: 'vendors/ketcher/ketcher.html'
                     }
                 };
             }
-        }
+        };
     });
