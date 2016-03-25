@@ -41,7 +41,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
         };
 
         return {
-            createPDF: function (actionToApply) {
+            createPDF: function (fileName, actionToApply) {
                 var $iframe = $('<iframe />', {
                     name: 'reportHolder',
                     id: 'reportHolder'
@@ -57,7 +57,8 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     var callback = function ($iframeContents) {
                         PdfService.create({
                             html: '<!DOCTYPE html>' + $iframeContents.find('html').html() + '</html>',
-                            header: $iframeContents.find('.print-header').html()
+                            header: $iframeContents.find('.print-header').html(),
+                            fileName: fileName
                         }).$promise.then(function (response) {
                             actionToApply(response);
                         });

@@ -46,7 +46,7 @@ public class PrintResource {
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
-        String fileName = String.format("%s%s.pdf", TEMP_FILE_PREFIX, UUID.randomUUID().toString());
+        String fileName = String.format("%s.pdf", wrapper.getFileName());
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
             byte[] screenshot = phantomJsService.takesScreenshot(wrapper.getHtml(), OutputType.BYTES);
@@ -82,6 +82,7 @@ public class PrintResource {
     public static class HtmlWrapper {
         private String html;
         private String header;
+        private String fileName;
 
         public String getHtml() {
             return html;
@@ -97,6 +98,14 @@ public class PrintResource {
 
         public void setHeader(String header) {
             this.header = header;
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
         }
     }
 
