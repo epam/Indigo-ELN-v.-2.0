@@ -68,7 +68,8 @@ public class PrintResource {
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> download(@PathParam("fileName") String fileName) {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        try (InputStream is = new FileInputStream(file)) {
+        try {  //NOSONAR: spring will close stream, after it will send bytes to client
+            InputStream is = new FileInputStream(file);
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(fileName);
             return ResponseEntity.ok().headers(headers).body(new InputStreamResource(is));
         } catch (Exception e) {
