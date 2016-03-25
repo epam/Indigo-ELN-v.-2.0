@@ -9,7 +9,6 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -88,7 +87,7 @@ public class SignatureResource {
         ExperimentDTO experimentDto  = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         experimentDto.setDocumentId(documentId);
         experimentDto.setStatus(ExperimentStatus.fromValue("Submitted"));
-        experimentDto = experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
+        experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
 
         return ResponseEntity.ok(result);
     }
