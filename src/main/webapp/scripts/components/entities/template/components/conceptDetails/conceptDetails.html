@@ -12,12 +12,14 @@
                               my-validation-required="true"
                               my-model="model.conceptDetails.title"></my-input>
                     <my-select my-label="Therapeutic Area"
-                               my-items="[{name:'test1'},{name:'test2'}]"
+                               my-dictionary="therapeuticArea"
                                my-model="model.conceptDetails.therapeuticArea"
                                my-multiple="true"
                                my-label-vertical="true"></my-select>
                     <my-select my-label="Project Code & Name"
-                               my-items="[{name:'fake item'}]" my-model="model.conceptDetails.codeAndName"
+                               my-items="[{name:'fake item'}]"
+                               my-dictionary="projectCode"
+                               my-model="model.conceptDetails.codeAndName"
                                my-label-vertical="true"></my-select>
                     <my-input my-label="Experiment creator" my-label-vertical="true"
                               my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"

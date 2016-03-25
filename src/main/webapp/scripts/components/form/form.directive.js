@@ -121,7 +121,7 @@ angular.module('indigoeln')
         '</div> ' +
         '</div> '
     };
-}).directive('mySelect', function (formUtils) {
+}).directive('mySelect', function (formUtils, Dictionary) {
     return {
         restrict: 'E',
         replace: true,
@@ -129,10 +129,12 @@ angular.module('indigoeln')
             myLabel: '@',
             myModel: '=',
             myItems: '=',
+            myDictionary: '@',
             myMultiple: '=',
             myLabelVertical: '=',
             myPlaceHolder: '@',
             myItemProp: '@',
+            myOrderByProp: '@',
             myClasses: '@',
             myOnSelect: '&'
         },
@@ -144,16 +146,25 @@ angular.module('indigoeln')
             $scope.$watchCollection('myModel', function (myModel) {
                 $scope.ctrl.selected = myModel;
             });
+            if ($scope.myDictionary) {
+                Dictionary.get({id: $scope.myDictionary}, function(dictionary) {
+                    $scope.myItems = dictionary.words;
+                });
+            }
         },
         compile: function (tElement, tAttrs, transclude) {
             tAttrs.myItemProp = tAttrs.myItemProp || 'name';
+            tAttrs.myOrderByProp = tAttrs.myOrderByProp || 'rank';
             if (tAttrs.myMultiple) {
                 tElement.find('ui-select').attr('multiple', true);
                 tElement.find('ui-select-match').html('{{$item.' + tAttrs.myItemProp + '}}');
             }
             formUtils.doVertical(tAttrs, tElement);
-            tElement.find('ui-select-choices').append('<span ng-bind-html="item.' + tAttrs.myItemProp +
+            var select = tElement.find('ui-select-choices');
+            select.append('<span ng-bind-html="item.' + tAttrs.myItemProp +
                 ' | highlight: $select.search"></span>');
+            var repeat = select.attr('repeat');
+            select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.myOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +
