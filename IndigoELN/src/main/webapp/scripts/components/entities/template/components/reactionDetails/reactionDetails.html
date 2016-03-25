@@ -9,10 +9,12 @@
                     <my-input my-label="Experiment Subject / Title" my-label-vertical="true"
                               my-model="model.reactionDetails.title"></my-input>
                     <my-select my-label="Therapeutic Area"
-                               my-items="[{name:'fake item'}]" my-model="model.reactionDetails.therapeuticArea"
+                               my-dictionary="therapeuticArea"
+                               my-model="model.reactionDetails.therapeuticArea"
                                my-label-vertical="true"></my-select>
                     <my-select my-label="Project Code & Name"
-                               my-items="[{name:'fake item'}]" my-model="model.reactionDetails.codeAndName"
+                               my-dictionary="projectCode"
+                               my-model="model.reactionDetails.codeAndName"
                                my-label-vertical="true"></my-select>
                     <my-input my-label="Batch Creator" my-label-vertical="true"
                               my-model="experiment.author.login"
