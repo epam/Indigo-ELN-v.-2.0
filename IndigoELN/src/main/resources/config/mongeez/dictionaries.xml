@@ -63,7 +63,7 @@
                     "accessList" : []
                     }
                 ],
-                "name" : "Project Code & Name",
+                "name" : "Project Code &amp; Name",
                 "accessList" : []
             });
         </script>
