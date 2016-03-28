@@ -1,0 +1,162 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-14" author="evgeny_romanov">
+        <script>
+            db.dictionary.insert({
+            "_id" : "source",
+            "description" : "Source",
+            "words" : [
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 1,
+            "name" : "Source1",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 2,
+            "name" : "Source2",
+            "accessList" : []
+            }
+            ],
+            "name" : "Source",
+            "accessList" : []
+            });
+            db.dictionary.insert({
+            "_id" : "sourceDetail",
+            "description" : "Source Details",
+            "words" : [
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 1,
+            "name" : "Source Details2",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 2,
+            "name" : "Source Details3",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 0,
+            "name" : "Source Details1",
+            "accessList" : []
+            }
+            ],
+            "name" : "Source Details",
+            "accessList" : []
+            });
+            db.dictionary.insert({
+            "_id" : "stereoisomerCode",
+            "description" : "Stereoisomer Code",
+            "words" : [
+            {
+            "_id" : null,
+            "description" : "Single Enantiomer (chirality known)",
+            "enable" : true,
+            "rank" : 3,
+            "name" : "SNENK",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Enantio-Enriched (chirality unknown)",
+            "enable" : true,
+            "rank" : 2,
+            "name" : "ENENU",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Achiral - No Stereo Centers",
+            "enable" : true,
+            "rank" : 0,
+            "name" : "NOSTC",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Achiral - Cis/Trans Stereomers",
+            "enable" : true,
+            "rank" : 1,
+            "name" : "CISTR",
+            "accessList" : []
+            }
+            ],
+            "name" : "Stereoisomer Code",
+            "accessList" : []
+            });
+            db.dictionary.insert({
+            "_id" : "compoundState",
+            "description" : "Compound State",
+            "words" : [
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 3,
+            "name" : "liquid",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 2,
+            "name" : "oil",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 0,
+            "name" : "Solid",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 1,
+            "name" : "Gas",
+            "accessList" : []
+            }
+            ],
+            "name" : "Compound State",
+            "accessList" : []
+            });
+            db.dictionary.insert({
+            "_id" : "compoundProtection",
+            "description" : "Compound Protection",
+            "words" : [
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 0,
+            "name" : "Compound Protection1",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 1,
+            "name" : "Compound Protection2",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 2,
+            "name" : "Compound Protection3",
+            "accessList" : []
+            }
+            ],
+            "name" : "Compound Protection",
+            "accessList" : []
+            });
+        </script>
+    </changeSet>
+</mongoChangeLog>
