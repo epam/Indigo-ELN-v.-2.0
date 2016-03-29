@@ -17,11 +17,11 @@
                     <!--class="glyphicon glyphicon-arrow-down"></i></button>-->
                     <!--</div>-->
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-default ellipsis" ng-disabled="myReadonly">My Reagent List</button>
+                        <button type="button" ng-click="searchReagents(0)" class="btn btn-default ellipsis" ng-disabled="myReadonly">My Reagent List</button>
                         <!--<button type="button" class="btn btn-default ellipsis">Add To My Reagent List</button>-->
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-default ellipsis" ng-disabled="myReadonly">Search DBs</button>
+                        <button type="button" ng-click="searchReagents(1)" class="btn btn-default ellipsis" ng-disabled="myReadonly">Search DBs</button>
                         <!--<button type="button" class="btn btn-default ellipsis">MSDS Search</button>-->
                     </div>
                     <div class="btn-group btn-group-sm" role="group">
