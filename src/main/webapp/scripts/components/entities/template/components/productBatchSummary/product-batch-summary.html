@@ -23,10 +23,10 @@
                             <button type="button" class="btn btn-info" disabled>Sync with Intended Products
                             </button>
                             <button type="button" class="btn btn-info" disabled>VnV</button>
-                            <button type="button" class="btn btn-info"
+                            <button type="button" class="btn btn-info" ng-disabled="myReadonly"
                                     ng-click="addNewBatch()">Add New Batch
                             </button>
-                            <button type="button" class="btn btn-info" ng-disabled="!isHasCheckedRows()"
+                            <button type="button" class="btn btn-info" ng-disabled="myReadonly || !isHasCheckedRows()"
                                     ng-click="deleteBatches()">Delete Batch(es)
                             </button>
                             <button type="button" class="btn btn-info" disabled>Import SD File</button>
@@ -38,5 +38,6 @@
     </div>
     <my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
               my-draggable-columns="true"
+              my-readonly="myReadonly"
               my-on-row-selected="onRowSelected"></my-table>
 </div>

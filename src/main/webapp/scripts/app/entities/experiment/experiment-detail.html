@@ -39,7 +39,7 @@
         <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
 
             <my-components my-template="experiment.template.templateContent"
-                           my-disabled="!isEditAllowed"
+                           my-readonly="!isEditAllowed"
                            my-model="experiment.components"
                            my-experiment-form="experimentForm"
                            my-experiment="experiment"></my-components>

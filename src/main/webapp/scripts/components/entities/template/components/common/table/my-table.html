@@ -5,17 +5,17 @@
             <th ng-repeat="column in myColumns" ng-show="!column.isHidden" ng-style="{width: column.width}"
                 style="min-width: 150px;">
                 <div class="btn-group btn-group-sm btn-group-justified" ng-if="!column.actions.length">
-                    <a href class="btn btn-info">
+                    <a href class="btn btn-info" ng-disabled="myReadonly">
                         {{column.name}}
                     </a>
                 </div>
                 <div class="btn-group btn-group-sm btn-group-justified" uib-dropdown ng-if="column.actions.length">
-                    <a href class="btn btn-info" uib-dropdown-toggle>
+                    <a href class="btn btn-info" uib-dropdown-toggle ng-disabled="myReadonly">
                         {{column.name}} <span class="caret"></span>
                     </a>
                     <ul uib-dropdown-menu class="no-draggable">
                         <li ng-repeat="action in column.actions" class="no-draggable">
-                            <a href="" ng-click="action.action(column.id)" class="no-draggable">{{action.name}}</a>
+                            <a href="" ng-click="action.action(column.id)" class="no-draggable" ng-disabled="myReadonly">{{action.name}}</a>
                         </li>
                     </ul>
                 </div>

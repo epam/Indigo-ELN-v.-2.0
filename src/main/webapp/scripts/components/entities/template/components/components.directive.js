@@ -20,6 +20,7 @@ angular.module('indigoeln')
             scope: {
                 myModel: '=',
                 myExperiment: '=',
+                myReadonly: '=',
                 myExperimentForm: '=',
                 myShare: '='
             },
@@ -46,7 +47,7 @@ angular.module('indigoeln')
         replace: true,
         scope: {
             myTemplate: '=',
-            myDisabled: '=',
+            myReadonly: '=',
             myModel: '=',
             myExperiment: '=',
             myExperimentForm: '='
@@ -54,9 +55,9 @@ angular.module('indigoeln')
         link: function (scope, iElement, iAttrs, controller) {
             scope.share = {}; //for communication between components
         },
-        template: '<fieldset ng-disabled="myDisabled"><uib-tabset justified="true">' +
+        template: '<fieldset ng-disabled="myReadonly"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share"></div>' +
+        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     };
