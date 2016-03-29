@@ -10,37 +10,53 @@
                               my-name="conceptDetailsTitle"
                               my-validation-obj="experimentForm.conceptDetailsTitle"
                               my-validation-required="true"
-                              my-model="model.conceptDetails.title"></my-input>
+                              my-model="model.conceptDetails.title"
+                              my-readonly="myReadonly">
+                    </my-input>
                     <my-select my-label="Therapeutic Area"
                                my-dictionary="therapeuticArea"
                                my-model="model.conceptDetails.therapeuticArea"
                                my-multiple="true"
-                               my-label-vertical="true"></my-select>
+                               my-label-vertical="true"
+                               my-readonly="myReadonly">
+                    </my-select>
                     <my-select my-label="Project Code & Name"
                                my-items="[{name:'fake item'}]"
                                my-dictionary="projectCode"
                                my-model="model.conceptDetails.codeAndName"
-                               my-label-vertical="true"></my-select>
+                               my-label-vertical="true"
+                               my-readonly="myReadonly">
+                    </my-select>
                     <my-input my-label="Experiment creator" my-label-vertical="true"
                               my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
-                              my-readonly="true"></my-input>
-                    <my-input my-label="Co-authors" my-label-vertical="true"></my-input>
+                              my-readonly="true">
+                    </my-input>
+                    <my-input my-label="Co-authors" my-label-vertical="true"
+                              my-readonly="myReadonly">
+                    </my-input>
                     <my-select my-label="Experiment creator" my-label-vertical="true"
+                               my-readonly="myReadonly"
                     ></my-select>
                 </div>
                 <div class="col-xs-4">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate"
                                     my-readonly="true"></my-date-picker>
-                    <my-input my-label="Linked Experiment" my-label-vertical="true"></my-input>
+                    <my-input my-label="Linked Experiment" my-label-vertical="true"
+                              my-readonly="myReadonly">
+                    </my-input>
                     <my-text-area my-label="Designers" my-label-vertical="true"
-                                  my-model="model.conceptDetails.designers"></my-text-area>
+                                  my-model="model.conceptDetails.designers"
+                                  my-readonly="myReadonly">
+                    </my-text-area>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12">
                     <my-text-area my-label="Concept Keywords" my-label-vertical="true"
-                                  my-model="model.conceptDetails.keywords"></my-text-area>
+                                  my-model="model.conceptDetails.keywords"
+                                  my-readonly="myReadonly">
+                    </my-text-area>
                 </div>
             </div>
         </div>

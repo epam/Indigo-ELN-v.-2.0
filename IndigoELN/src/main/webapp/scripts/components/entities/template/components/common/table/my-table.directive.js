@@ -39,6 +39,7 @@ angular.module('indigoeln')
                 myId: '@',
                 myColumns: '=',
                 myRows: '=',
+                myReadonly: '=',
                 myOnRowSelected: '=',
                 myDraggableRows: '=',
                 myDraggableColumns: '='

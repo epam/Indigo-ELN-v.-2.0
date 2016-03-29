@@ -136,7 +136,8 @@ angular.module('indigoeln')
             myItemProp: '@',
             myOrderByProp: '@',
             myClasses: '@',
-            myOnSelect: '&'
+            myOnSelect: '&',
+            myReadonly: '='
         },
         controller: function ($scope) {
             $scope.ctrl = {selected: $scope.myModel};
@@ -170,7 +171,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="disabled" on-select="myOnSelect()">' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myOnSelect()">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +
@@ -188,7 +189,8 @@ angular.module('indigoeln')
             myFirst: '@',
             mySecond: '@',
             myLabelVertical: '=',
-            myClasses: '@'
+            myClasses: '@',
+            myReadonly: '='
         },
         compile: function (tElement, tAttrs, transclude) {
             formUtils.doVertical(tAttrs, tElement);
@@ -200,8 +202,8 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<div class="btn-group">' +
-        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="myFirst" uncheckable>{{myFirst}}</label>' +
-        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="mySecond" uncheckable>{{mySecond}}</label>' +
+        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +
+        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="mySecond" uncheckable ng-disabled="myReadonly">{{mySecond}}</label>' +
         '</div>' +
         '</div> ' +
         '</div> '

@@ -48,6 +48,9 @@ angular.module('indigoeln')
         });
 
         $scope.openEditor = function () {
+            if ($scope.myReadonly) {
+                return;
+            }
             // open editor with pre-defined structure (prestructure)
             var modalInstance = $uibModal.open({
                 animation: true,
@@ -74,7 +77,9 @@ angular.module('indigoeln')
         };
 
         $scope.importStructure = function () {
-
+            if ($scope.myReadonly) {
+                return;
+            }
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-import-modal.html',
@@ -89,7 +94,9 @@ angular.module('indigoeln')
         };
 
         $scope.exportStructure = function () {
-
+            if ($scope.myReadonly) {
+                return;
+            }
             var modalInstance = $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-export-modal.html',

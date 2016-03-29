@@ -7,19 +7,22 @@
             <div class="row">
                 <div class="col-xs-8">
                     <my-input my-label="Experiment Subject / Title" my-label-vertical="true"
-                              my-model="model.reactionDetails.title"></my-input>
+                              my-model="model.reactionDetails.title"
+                              my-readonly="myReadonly"></my-input>
                     <my-select my-label="Therapeutic Area"
                                my-dictionary="therapeuticArea"
                                my-model="model.reactionDetails.therapeuticArea"
-                               my-label-vertical="true"></my-select>
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"></my-select>
                     <my-select my-label="Project Code & Name"
                                my-dictionary="projectCode"
                                my-model="model.reactionDetails.codeAndName"
-                               my-label-vertical="true"></my-select>
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"></my-select>
                     <my-input my-label="Batch Creator" my-label-vertical="true"
                               my-model="experiment.author.login"
                               my-readonly="true"></my-input>
-                    <my-input my-label="Co-authors" my-label-vertical="true"></my-input>
+                    <my-input my-label="Co-authors" my-label-vertical="true" my-readonly="myReadonly"></my-input>
                     <my-input my-label="Experiment creator" my-label-vertical="true"
                               my-model="experiment.lastModifiedBy.login"
                               my-readonly="true"></my-input>
@@ -28,17 +31,21 @@
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate" my-readonly="true"></my-date-picker>
                     <my-input my-label="Cont. FROM Rxn" my-label-vertical="true"
-                              my-model="model.reactionDetails.contFromRxn" my-input-group="append">
-                        <button class="btn btn-default" type="button">link</button>
+                              my-model="model.reactionDetails.contFromRxn" my-input-group="append"
+                              my-readonly="myReadonly">
+                        <button class="btn btn-default" type="button" my-readonly="myReadonly">link</button>
                     </my-input>
                     <my-input my-label="Cont. TO Rxn" my-label-vertical="true"
-                              my-model="model.reactionDetails.contToRxn" my-input-group="append">
-                        <button class="btn btn-default" type="button">link</button>
+                              my-model="model.reactionDetails.contToRxn" my-input-group="append"
+                              my-readonly="myReadonly">
+                        <button class="btn btn-default" type="button" my-readonly="myReadonly">link</button>
                     </my-input>
                     <my-input my-label="Linked Experiment" my-label-vertical="true"
-                              my-model="model.reactionDetails.linkedExperiment"></my-input>
+                              my-model="model.reactionDetails.linkedExperiment"
+                              my-readonly="myReadonly"></my-input>
                     <my-input my-label="Project Alias Name" my-label-vertical="true"
-                              my-model="model.reactionDetails.projectAliasName"></my-input>
+                              my-model="model.reactionDetails.projectAliasName"
+                              my-readonly="myReadonly"></my-input>
                     <my-input my-label="Batch Owner" my-label-vertical="true"
                               my-model="displayOnly.batchOwner"
                               ng-init="displayOnly.batchOwner=experiment.batchOwner.login"
@@ -48,7 +55,8 @@
             <div class="row">
                 <div class="col-xs-12">
                     <my-text-area my-label="Literature Ref" my-label-vertical="true"
-                                  my-model="model.reactionDetails.literature"></my-text-area>
+                                  my-model="model.reactionDetails.literature"
+                                  my-readonly="myReadonly"></my-text-area>
                 </div>
             </div>
         </div>
