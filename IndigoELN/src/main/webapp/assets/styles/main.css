@@ -391,3 +391,75 @@ tr {
 .my-table.table-responsive .form-group .col-xs-12 {
     padding: 0;
 }
+
+.reagent-search-tab {
+    margin-top: 20px;
+}
+
+.reagent-search-container {
+    margin: 10px;
+}
+
+.reagent-search-row {
+    position: relative;
+}
+
+.reagent-search-row p {
+    position: absolute;
+    top: 8px;
+}
+
+.reagent-search-hint {
+    font-size: 12px;
+    top: -10px;
+    left: 10px;
+}
+
+.reagent-search-well {
+    margin-left: 12px;
+}
+
+.reagent-search-advanced {
+    position:relative
+}
+
+.reagent-search-advanced a {
+    position:absolute;
+    top: 32px;
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.reagent-search-collapse {
+    margin: 7px;
+}
+
+.reagent-search-collapse a {
+    text-decoration: none;
+}
+
+.reagent-search-row strong {
+    position:absolute;
+    top:15px;
+    left: 10px;
+}
+
+.reagent-search-row .info-col {
+    margin-top: 33px;
+}
+
+.search-button {
+    margin: 2px 7px;
+}
+
+.search-table-row-highlight {
+    background-color: rgba(153, 204, 255, 0.5);
+}
+
+.search-table-head {
+    background-color: rgba(191, 191, 191, 0.28);
+}
+
+#search-result-table td, #my-reagent-list-table td {
+    vertical-align: middle;
+}
