@@ -5,7 +5,7 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser) {
+        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -208,7 +208,9 @@ angular.module('indigoeln')
                 {
                     id: 'structureComments', name: 'Structure Comments',
                     type: 'input'
-                }
+                },
+                {id: 'regDate', name: 'Registration Date'},
+                {id: 'regStatus', name: 'Registration Status'}
             ];
 
             $scope.onRowSelected = function (row) {
@@ -239,6 +241,32 @@ angular.module('indigoeln')
                 });
                 column.width = 300 * newVal + 'px';
             });
+
+            $scope.$watch('isHasRegService', function (val) {
+                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isHidden = !val;
+                _.findWhere($scope.columns, {id: 'regDate'}).isHidden = !val;
+                _.findWhere($scope.columns, {id: 'regStatus'}).isHidden = !val;
+            });
+
+            $scope.registerBatches = function () {
+                var emptyFields = [];
+                _.each($scope.columns, function (column) {
+                    if (column.type && !column.readonly && column.name !== 'Select') {
+                        _.each($scope.model.productBatchSummary.batches, function (row) {
+                            var val = row[column.id];
+                            if (!val) {
+                                emptyFields.push(column.name);
+                            }
+                        });
+                    }
+                });
+                if (emptyFields.length) {
+                    AlertModal.error('This fields is required: ' + _.uniq(emptyFields).join(', '));
+                } else {
+                    AlertModal.info('Not implemented yet');
+                }
+
+            };
 
             $scope.addNewBatch = function () {
                 var batches = $scope.model.productBatchSummary.batches;

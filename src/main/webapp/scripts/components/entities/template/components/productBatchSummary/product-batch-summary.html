@@ -5,8 +5,17 @@
     <div class="panel-body">
         <div class="form-horizontal">
             <div class="row">
+                <div class="col-xs-12">
+                    <label for="isHasRegService" style="margin-top: 5px; font-weight: normal">
+                        <checkbox id="isHasRegService" class="btn-info" ng-model="isHasRegService"
+                                  name="isHasRegService"></checkbox>
+                        Has registration service (for test only)
+                    </label>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-2">
-                    <label style="    margin-top: 5px; font-weight: normal">
+                    <label style="margin-top: 5px; font-weight: normal">
                         <checkbox id="checkbox0" class="btn-info" ng-model="showStructures"
                                   name="custom-name"></checkbox>
                         Show Structures
@@ -30,6 +39,9 @@
                                     ng-click="deleteBatches()">Delete Batch(es)
                             </button>
                             <button type="button" class="btn btn-info" disabled>Import SD File</button>
+                            <button type="button" class="btn btn-info" ng-show="isHasRegService"
+                                    ng-click="registerBatches()">Register Batch(es)
+                            </button>
                         </div>
                     </div>
                 </div>
