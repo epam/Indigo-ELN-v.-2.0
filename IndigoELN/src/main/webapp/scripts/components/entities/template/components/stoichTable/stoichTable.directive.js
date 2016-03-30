@@ -8,7 +8,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $http, $q) {
+            controller: function ($scope, $http, $q, $uibModal) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -145,7 +145,6 @@ angular.module('indigoeln')
                     }
                 ];
 
-
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row;
                 };
@@ -193,8 +192,23 @@ angular.module('indigoeln')
                         resetMolInfo();
                     }
                 });
+
+                $scope.searchReagents = function (activeTab) {
+                    $uibModal.open({
+                        animation: true,
+                        size: 'lg',
+                        controller: 'SearchReagentsController',
+                        templateUrl: 'scripts/components/entities/template/components/common/search-reagents/search-reagents.html',
+                        resolve: {
+                            activeTab: function() {
+                                return activeTab;
+                            }
+                        }
+                    }).result.then(function (result) {
+
+                    });
+                };
             }
-        }
-            ;
+        };
     })
 ;
