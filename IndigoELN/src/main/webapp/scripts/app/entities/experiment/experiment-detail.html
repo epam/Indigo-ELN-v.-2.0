@@ -62,8 +62,16 @@
                 <li role="menuitem"><a ui-sref="entities.experiment-detail.preview-print">Print Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusComplete() || isStatusSubmitFail() || isStatusSubmitted() || isStatusArchieved() || isStatusSigning() || isStatusSigned()"><a href="#">Version Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail()"><a href="#">Resubmit for Signature</a></li>
-                <li role="menuitem" ng-if="isStatusSubmitFail() || isStatusSubmitted() || isStatusSigning() || isStatusSigned()"><a href="#">View Record Submitted for Signature</a></li>
-                <li role="menuitem" ng-if="isStatusArchieved()"><a href="#">View Record Archieved</a></li>
+                <li role="menuitem" ng-if="isStatusSubmitFail() || isStatusSubmitted() || isStatusSigning() || isStatusSigned()">
+                    <a href="/api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                        View Record Submitted for Signature
+                    </a>
+                </li>
+                <li role="menuitem" ng-if="isStatusArchieved()">
+                    <a href="/api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                        View Record Archieved
+                    </a>
+                </li>
             </ul>
         </div>
 
