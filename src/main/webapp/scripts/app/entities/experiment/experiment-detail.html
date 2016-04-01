@@ -62,12 +62,12 @@
                 <li role="menuitem" ng-if="isStatusComplete() || isStatusSubmitFail() || isStatusSubmitted() || isStatusArchieved() || isStatusSigning() || isStatusSigned()"><a href="#">Version Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail() || isStatusSubmitted() || isStatusSigning() || isStatusSigned()">
-                    <a href="/api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
                         View Record Submitted for Signature
                     </a>
                 </li>
                 <li role="menuitem" ng-if="isStatusArchieved()">
-                    <a href="/api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
                         View Record Archieved
                     </a>
                 </li>
