@@ -11,6 +11,8 @@ import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.Optional;
+
 /**
  * Custom Provider for auditing
  * Need to be defined for support Mongo Audit functionality
@@ -29,7 +31,8 @@ public class CustomAuditProvider implements AuditorAware<User>  {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user;
         try {
-            user = userService.getUserWithAuthoritiesByLogin(auth.getName());
+            user = Optional.ofNullable(auth).map(Authentication::getName).map(userService::getUserWithAuthoritiesByLogin)
+                    .orElse(null);
         } catch (EntityNotFoundException e) {
             if (LOGGER.isErrorEnabled()) {
                 LOGGER.error("User with name " + auth.getName() + " cannot be found.", e);

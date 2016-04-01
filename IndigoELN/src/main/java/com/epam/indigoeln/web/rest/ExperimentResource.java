@@ -1,17 +1,12 @@
 package com.epam.indigoeln.web.rest;
 
-import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
-import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,12 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -52,12 +42,6 @@ public class ExperimentResource {
     @Autowired
     private SequenceIdService sequenceIdService;
 
-    @Autowired
-    private SignatureService signatureService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     /**
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
@@ -66,7 +50,7 @@ public class ExperimentResource {
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllExperimentsByPermissions(@PathVariable String projectId,
-                                                            @PathVariable String notebookId) {
+                                                         @PathVariable String notebookId) {
         User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
             LOGGER.debug("REST request to get all experiments, which author is current user");
@@ -110,8 +94,8 @@ public class ExperimentResource {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
-        checkExperimentStatus(projectId, notebookId, experimentDTO, user);
-        return ResponseEntity.ok(experimentService.getExperiment(projectId, notebookId, id, user));
+        experimentDTO.setStatus(experimentService.checkExperimentStatus(experimentDTO));
+        return ResponseEntity.ok(experimentDTO);
     }
 
     /**
@@ -171,100 +155,12 @@ public class ExperimentResource {
      */
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity deleteExperiment(@PathVariable String id,
-                                              @PathVariable String projectId,
-                                              @PathVariable String notebookId) {
+                                           @PathVariable String projectId,
+                                           @PathVariable String notebookId) {
         LOGGER.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id, projectId, notebookId);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();
-    }
-
-    /**
-     *  Check experiment's status on Signature Service and update in DB if changed
-     */
-    private ExperimentDTO checkExperimentStatus(String projectId, String notebookId, ExperimentDTO experimentDTO, User user)
-            throws IOException {
-        // check experiment in status Submitted or Signing
-        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGING.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
-
-            if (experimentDTO.getDocumentId() == null) {
-                throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
-            }
-
-            // get document's status
-            String info = signatureService.getDocumentInfo(experimentDTO.getDocumentId());
-            int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
-            ISSStatus status = ISSStatus.fromValue(docStatus);
-
-            // match statuses
-            // Indigo Signature Service statuses:
-//            ------------------------------
-//             Signature(Id)    |  IndigoELN
-//            ------------------------------
-//            SUBMITTED(1) -> SUBMITTED
-//            SIGNING(2)   -> SIGNING
-//            SIGNED(3)    -> SIGNED
-//            REJECTED(4)  -> SUBMIT_FAILED
-//            WAITING(5)   -> SIGNING
-//            CANCELLED(6) -> SUBMIT_FAILED
-//            ARCHIVING(7) -> SIGNED
-//            ARCHIVED(8)  -> ARCHIVE
-//            ------------------------------
-            ExperimentStatus expectedStatus;
-            if (ISSStatus.SUBMITTED.equals(status)) {
-                expectedStatus = ExperimentStatus.SUBMITTED;
-            } else if (ISSStatus.SIGNING.equals(status) || ISSStatus.WAITING.equals(status)) {
-                expectedStatus = ExperimentStatus.SINGING;
-            } else if (ISSStatus.SIGNED.equals(status) || ISSStatus.ARCHIVING.equals(status)) {
-                expectedStatus = ExperimentStatus.SINGED;
-            } else if (ISSStatus.ARCHIVED.equals(status)) {
-                expectedStatus = ExperimentStatus.ARCHIVED;
-            } else {
-                expectedStatus = ExperimentStatus.SUBMIT_FAIL;
-            }
-
-            // update experiment if differ
-            if (!expectedStatus.equals(experimentDTO.getStatus())) {
-                experimentDTO.setStatus(expectedStatus);
-                return experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
-            }
-        }
-        return experimentDTO;
-    }
-
-    /**
-     * Indigo Signature Service statuses
-     */
-    private enum ISSStatus {
-            SUBMITTED(1),
-            SIGNING(2),
-            SIGNED(3),
-            REJECTED(4),
-            WAITING(5),
-            CANCELLED(6),
-            ARCHIVING(7),
-            ARCHIVED(8);
-
-        private Integer value;
-
-        ISSStatus(Integer value) {
-            this.value = value;
-        }
-
-        public Integer getValue() {
-            return value;
-        }
-
-        public static ISSStatus fromValue(Integer value){
-            for(ISSStatus status : ISSStatus.values()){
-                if(status.getValue().equals(value)){
-                    return status;
-                }
-            }
-            throw new IllegalArgumentException();
-        }
     }
 
 }
