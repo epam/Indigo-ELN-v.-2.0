@@ -2,6 +2,8 @@ package com.epam.indigoeln.core.repository.signature;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -16,6 +18,8 @@ import java.util.*;
 
 @Repository
 public class SignatureRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SignatureRepository.class);
 
     private static final String SESSION_ID_ATTRIBUTE = "SignatureSessionId";
 
@@ -120,6 +124,7 @@ public class SignatureRepository {
                 entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
                 return restTemplate.exchange(url, method, entity, clazz, args);
             } else {
+                LOGGER.error("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
                 throw e;
             }
         }
