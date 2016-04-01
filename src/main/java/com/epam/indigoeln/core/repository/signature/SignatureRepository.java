@@ -124,7 +124,9 @@ public class SignatureRepository {
                 entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
                 return restTemplate.exchange(url, method, entity, clazz, args);
             } else {
-                LOGGER.error("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
+                if (LOGGER.isErrorEnabled()) {
+                    LOGGER.error("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
+                }
                 throw e;
             }
         }
@@ -168,10 +170,10 @@ public class SignatureRepository {
     }
 
     private void setSessionId(String sessionId) {
-        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(ra -> {
-            ra.setAttribute(SESSION_ID_ATTRIBUTE, sessionId,
-                    RequestAttributes.SCOPE_SESSION);
-        });
+        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(
+                ra ->ra.setAttribute(SESSION_ID_ATTRIBUTE, sessionId,
+                    RequestAttributes.SCOPE_SESSION)
+        );
     }
 
 }
