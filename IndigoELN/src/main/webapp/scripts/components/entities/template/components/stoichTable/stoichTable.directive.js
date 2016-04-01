@@ -108,7 +108,7 @@ angular.module('indigoeln')
                     },
                     {
                         id: 'formula',
-                        name: 'Foumula'
+                        name: 'Formula'
                     },
                     {
                         id: 'molWt',

@@ -1,13 +1,13 @@
 'use strict';
 
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $uibModalInstance, $timeout, activeTab) {
+    function ($scope, $uibModalInstance, $timeout, Alert, activeTab) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
             searchQuery: '',
             advancedSearch: {
-                batchNumber: {name: 'Batch Number', searchCondition: {name: 'contains'}},
+                batchNumber: {name: 'NBK batch #', searchCondition: {name: 'contains'}},
                 molecularFormula: {name: 'Molecular Formula', searchCondition: {name: 'contains'}},
                 molecularWeight: {name: 'Molecular Weight', searchCondition: {name: '>'}},
                 chemicalName: {name: 'Chemical Name', searchCondition: {name: 'contains'}},
@@ -17,7 +17,14 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 batchHazardComment: {name: 'Batch Hazard Comment', searchCondition: {name: 'contains'}},
                 casNumber: {name: 'CAS Number', searchCondition: {name: 'contains'}}
             },
-            structure: {name: 'Reaction Scheme', similarityCriteria: {name: 'none'}, scheme: null}
+            structure: {
+                name: 'Reaction Scheme',
+                similarityCriteria: {name: 'none'},
+                similarityValue: null,
+                scheme: null,
+                image: null,
+                molFile: null
+            }
         };
 
         $scope.searchConditionText = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}];
@@ -69,65 +76,90 @@ angular.module('indigoeln').controller('SearchReagentsController',
                     {
                         molecularWeight: '88',
                         molecularFormula: 'C6 H6',
-                        reagentName: 'STR-00111111',
+                        compoundId: 'STR-00111111',
                         database: 'IndigoELN',
                         structure: '#image',
+                        chemicalName: 'benzene',
                         isCollapsed: true,
                         isSelected: false
                     },
                     {
                         molecularWeight: '48',
                         molecularFormula: 'C6 H6',
-                        reagentName: 'STR-00222222',
+                        compoundId: 'STR-00222222',
                         database: 'IndigoELN',
                         structure: '#image',
+                        chemicalName: 'benzene',
                         isCollapsed: true,
                         isSelected: false
                     },
                     {
                         molecularWeight: '45',
                         molecularFormula: 'C6 H6',
-                        reagentName: 'STR-00333333',
+                        compoundId: 'STR-00333333',
                         database: 'IndigoELN',
                         structure: '#image',
+                        chemicalName: 'benzene',
                         isCollapsed: true,
                         isSelected: false
                     }
                 ];
             });
         };
-        $scope.myReagentList = []; // todo take my reagent list from server
+        $scope.myReagentList = [];
         $scope.addToMyReagentList = function () {
-            var selected = angular.copy(_.where($scope.searchResults, {isSelected: true}));
-            var selectedReagents = _.map(selected, function(reagent) {
-                var reagentCopy = angular.copy(reagent);
-                reagentCopy.isSelected = false;
-                reagentCopy.isCollapsed = true;
-                return reagentCopy;
+            var selected = _.where($scope.searchResults, {isSelected: true});
+            var selectedPure, myReagentListPure;
+            var count = 0;
+            selectedPure = _.map(selected, function(item) {
+                return _.omit(item, 'isSelected', 'isCollapsed');
             });
-            $scope.myReagentList = _.union($scope.myReagentList, selectedReagents);
+            myReagentListPure = _.map($scope.myReagentList, function(item) {
+                return _.omit(item, 'isSelected', 'isCollapsed');
+            });
+            _.each(selectedPure, function(selectedItem) {
+                var isUnique = _.every(myReagentListPure, function(myListItem) {
+                    return !angular.equals(selectedItem, myListItem);
+                });
+                if (isUnique) {
+                    selectedItem.isSelected = false;
+                    selectedItem.isCollapsed = true;
+                    $scope.myReagentList.push(selectedItem);
+                    count = count + 1;
+                }
+            });
+            if (count === 1) {
+                Alert.info(count + ' reagent successfully added to My Reagent List');
+            } else if(count > 0) {
+                Alert.info(count + ' reagents successfully added to My Reagent List');
+            } else {
+                Alert.warning('My Reagent List already contains selected reagents');
+            }
         };
         $scope.removeFromMyReagentList = function () {
             var selected = _.where($scope.myReagentList, {isSelected: true});
-            $scope.myReagentList = _.without($scope.myReagentList, selected);
+            _.each(selected, function(item) {
+                $scope.myReagentList = _.without($scope.myReagentList, item);
+            });
         };
-        $scope.addToExperiment = function () {
+        var reagentsForStoich = [];
+        $scope.addToStoichTable = function () {
 
         };
-        $scope.addToTable = function () {
-
+        $scope.isEditMode = false;
+        $scope.editInfo = function (item) {
+            $scope.itemBeforeEdit = angular.copy(item);
+            $scope.isEditMode = true;
         };
-        $scope.saveOriginalBeforeEdit = function () {
-
+        $scope.finishEdit = function () {
+            $scope.isEditMode = false;
         };
-        $scope.saveEditedItem = function () {
-
-        };
-        $scope.cancelEdit = function () {
-
+        $scope.cancelEdit = function (index) {
+            $scope.myReagentList[index] = $scope.itemBeforeEdit;
+            $scope.isEditMode = false;
         };
 
         $scope.cancel = function () {
-            $uibModalInstance.close();
+            $uibModalInstance.close({});
         };
     });

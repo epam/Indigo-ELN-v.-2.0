@@ -445,7 +445,11 @@ tr {
 }
 
 .reagent-search-row .info-col {
-    margin-top: 33px;
+     margin-bottom: 25px;
+}
+
+.reagent-search-row div {
+    margin-bottom: 2px;
 }
 
 .search-button {
