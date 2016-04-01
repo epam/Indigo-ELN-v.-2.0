@@ -12,10 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class SignatureRepository {
@@ -112,16 +109,14 @@ public class SignatureRepository {
 
     private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz,
                                            Map<String, Object> args) {
-        String sessionId = (String) RequestContextHolder.getRequestAttributes().getAttribute(SESSION_ID_ATTRIBUTE,
-                RequestAttributes.SCOPE_SESSION);
+        String sessionId = getSessionId();
         HttpEntity<Object> entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
         try {
             return restTemplate.exchange(url, method, entity, clazz, args);
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
                 sessionId = login(username, password);
-                RequestContextHolder.getRequestAttributes().setAttribute(SESSION_ID_ATTRIBUTE, sessionId,
-                        RequestAttributes.SCOPE_SESSION);
+                setSessionId(sessionId);
                 entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
                 return restTemplate.exchange(url, method, entity, clazz, args);
             } else {
@@ -161,5 +156,17 @@ public class SignatureRepository {
         return null;
     }
 
+    private String getSessionId() {
+        return Optional.ofNullable(RequestContextHolder.getRequestAttributes()).map(
+                ra -> (String) ra.getAttribute(SESSION_ID_ATTRIBUTE, RequestAttributes.SCOPE_SESSION)
+        ).orElse(null);
+    }
+
+    private void setSessionId(String sessionId) {
+        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(ra -> {
+            ra.setAttribute(SESSION_ID_ATTRIBUTE, sessionId,
+                    RequestAttributes.SCOPE_SESSION);
+        });
+    }
 
 }
