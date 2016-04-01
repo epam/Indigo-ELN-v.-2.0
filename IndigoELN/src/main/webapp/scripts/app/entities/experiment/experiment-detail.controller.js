@@ -126,6 +126,18 @@ angular.module('indigoeln')
                 });
             };
 
+            $scope.reopenExperiment = function () {
+                $scope.isSaving = true;
+                rememberStatus = $scope.experiment.status;
+                setStatus('Open');
+                $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
+                var experimentForSave = _.extend({}, $scope.experiment);
+                $scope.loading = Experiment.update({
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId
+                }, experimentForSave, onCompleteSuccess, onCompleteError).$promise;
+            };
+
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';
             };
