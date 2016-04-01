@@ -11,37 +11,18 @@ angular.module('indigoeln')
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
         $scope.myModel = $scope.model[$attrs.myStructureType];
 
-        // watch structure's id and update structure and its image if changed
-        $scope.$watch('myModel.structureId', function () {
-            if ($scope.myModel.structureId) {
-                $scope.share[$attrs.myStructureType] = $scope.myModel.structureMolfile;
-                $http({
-                    url: 'api/renderer/' + $scope.structureType + '/image',
-                    method: 'POST',
-                    data: $scope.myModel.structureMolfile
-                }).success(function (result) {
-                    $scope.image = result.image;
-                    if ($scope.share.selectedRow) {
-                        $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
-                        $scope.share.selectedRow.structure.image = result.image;
-                        $scope.share.selectedRow.structure.structureType = $scope.structureType;
-                        $scope.share.selectedRow.structure.molfile = $scope.myModel.structureMolfile;
-                        $scope.share.selectedRow.structure.structureId = $scope.myModel.structureId;
-                    } else {
-                        $scope.myModel.image = result.image;
-                    }
-                }).error(function () {
-                    $scope.image = null;
-                    console.info('Cannot render the structure.');
-                });
-            }
-        }, true);
-
         $scope.$watch('share.selectedRow', function (row) {
             if (row && row.structure && row.structure.structureType === $scope.structureType) {
                 $scope.image = $scope.share.selectedRow.structure.image;
                 $scope.myModel.structureMolfile = $scope.share.selectedRow.structure.molfile;
                 $scope.myModel.structureId = $scope.share.selectedRow.structure.structureId;
+                $http({
+                    url: 'api/renderer/' + $scope.structureType + '/image',
+                    method: 'POST',
+                    data: $scope.myModel.structureMolfile
+                }).success(function (result) {
+                    $scope.myModel.image = result.image;
+                });
             } else {
                 $scope.image = $scope.myModel.structureMolfile = $scope.myModel.structureId = null;
             }
@@ -119,10 +100,35 @@ angular.module('indigoeln')
                 url: 'api/bingodb/' + type + '/',
                 method: 'POST',
                 data: structure
-            }).success(function (result) {
-                $scope.myModel.structureId = result;
+            }).success(function (structureId) {
+                $http({
+                    url: 'api/renderer/' + $scope.structureType + '/image',
+                    method: 'POST',
+                    data: structure
+                }).success(function (result) {
+                    $scope.image = result.image;
+                    $scope.share = $scope.share || {};
+                    if ($scope.share.selectedRow) {
+                        $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
+                        $scope.share.selectedRow.structure.image = result.image;
+                        $scope.share.selectedRow.structure.structureType = $scope.structureType;
+                        $scope.share.selectedRow.structure.molfile = structure;
+                        $scope.share.selectedRow.structure.structureId = structureId;
+                    } else {
+                        $scope.myModel.image = result.image;
+                        // case of search by molecule
+                        if ($scope.model.restrictions) {
+                            $scope.model.restrictions.structure = {};
+                            $scope.model.restrictions.structure.image = result.image;
+                            $scope.model.restrictions.structure.molfile = structure;
+                        }
+
+                    }
+
+                });
+                //$scope.myModel.structureId = result;
                 // set the renewed value if it's fine with bingo
-                $scope.myModel.structureMolfile = structure;
+                //$scope.myModel.structureMolfile = structure;
             }).error(function () {
                 console.info('Cannot save the structure.');
             });
