@@ -66,13 +66,13 @@ angular.module('indigoeln')
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
 
-            var onCompleteSuccess = function (result) {
+            var onChangeStatusSuccess = function (result) {
                 onSaveSuccess(result);
                 $rootScope.$broadcast('experiment-status-changed',
                     {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
             };
 
-            var onCompleteError = function (result) {
+            var onChangeStatusError = function (result) {
                 onSaveError(result);
                 setStatus(rememberStatus);
             };
@@ -110,7 +110,7 @@ angular.module('indigoeln')
                     $scope.loading = Experiment.update({
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId
-                    }, experimentForSave, onCompleteSuccess, onCompleteError).$promise;
+                    }, experimentForSave, onChangeStatusSuccess, onChangeStatusError).$promise;
                 });
             };
 
@@ -135,7 +135,7 @@ angular.module('indigoeln')
                 $scope.loading = Experiment.update({
                     projectId: $stateParams.projectId,
                     notebookId: $stateParams.notebookId
-                }, experimentForSave, onCompleteSuccess, onCompleteError).$promise;
+                }, experimentForSave, onChangeStatusSuccess, onChangeStatusError).$promise;
             };
 
             $scope.isStatusOpen = function () {
