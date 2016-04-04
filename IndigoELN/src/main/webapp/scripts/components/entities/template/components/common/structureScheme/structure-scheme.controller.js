@@ -118,17 +118,16 @@ angular.module('indigoeln')
                         $scope.myModel.image = result.image;
                         // case of search by molecule
                         if ($scope.model.restrictions) {
-                            $scope.model.restrictions.structure = {};
+                            $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
                             $scope.model.restrictions.structure.image = result.image;
                             $scope.model.restrictions.structure.molfile = structure;
                         }
 
                     }
-
+                    $scope.myModel.structureId = result;
+                    // set the renewed value if it's fine with bingo
+                    $scope.myModel.structureMolfile = structure;
                 });
-                //$scope.myModel.structureId = result;
-                // set the renewed value if it's fine with bingo
-                //$scope.myModel.structureMolfile = structure;
             }).error(function () {
                 console.info('Cannot save the structure.');
             });
