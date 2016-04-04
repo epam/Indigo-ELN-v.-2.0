@@ -71,12 +71,17 @@
                                 <td>{{item.database}}</td>
                                 <td>
                                     <div ng-if="!model.restrictions.structure.image">#image</div>
-                                    <div>
+                                    <div class="enlarge">
                                         <img ng-if="model.restrictions.structure.image"
                                              style="height:70px;"
                                              class="img-responsive"
                                              ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                              alt="Image is unavailable.">
+                                        <span>
+                                        <img ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
+                                             class="img-responsive"
+                                             alt="Image is unavailable." />
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
@@ -713,12 +718,17 @@
                             <td>{{result.database}}</td>
                             <td>
                                 <div ng-if="!model.restrictions.structure.image">#image</div>
-                                <div>
+                                <div class="enlarge">
                                     <img ng-if="model.restrictions.structure.image"
                                          class="img-responsive"
                                          style="height:70px;"
                                          ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                          alt="Image is unavailable.">
+                                    <span>
+                                        <img ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
+                                             class="img-responsive"
+                                             alt="Image is unavailable." />
+                                    </span>
                                 </div>
                             </td>
                         </tr>
