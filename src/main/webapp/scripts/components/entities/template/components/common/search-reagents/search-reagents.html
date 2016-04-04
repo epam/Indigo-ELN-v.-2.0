@@ -21,7 +21,7 @@
                     </div>
                 </div>
                 <div class="row reagent-search-row" style="margin-top:-20px;">
-                    <strong>{{}} XX reagents in my list</strong>
+                    <strong>{{myReagentList.length}} reagents in my list</strong>
                     <div class="pull-right">
                         <button class="btn btn-default search-button"
                                 type="button"
@@ -31,7 +31,7 @@
                         </button>
                         <button class="btn btn-default search-button"
                                 type="button"
-                                ng-click="addToStoichTable()"
+                                ng-click="addToStoichTable(myReagentList)"
                                 ng-disabled="false">
                             <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
                         </button>
@@ -42,29 +42,30 @@
                         <table class="table" id="my-reagent-list-table">
                             <thead class="search-table-head">
                             <tr>
-                                <th></th>
-                                <th>Mol. Wt.</th>
-                                <th>Molecular Formula</th>
+                                <th style="width:9%"></th>
+                                <th style="width:9%">Mol. Wt.</th>
+                                <th style="width:16%">Molecular Formula</th>
                                 <th>Chemical Name</th>
                                 <th>Compound ID</th>
                                 <th>Database</th>
-                                <th>Structure</th>
+                                <th style="width:20%">Structure</th>
                             </tr>
                             </thead>
                             <tbody ng-repeat="item in myReagentList">
                             <tr ng-class="{'search-table-row-highlight':item.isSelected}">
-                                <td>
+                                <td style="width:76px">
                                     <a ng-click="item.isCollapsed = !item.isCollapsed">
                                                             <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':item.isCollapsed,
                                                                 'glyphicon glyphicon-triangle-bottom':!item.isCollapsed}"></span></a>
                                     <my-checkbox
+                                            style="padding:0"
                                             class="checkbox-inline"
                                             my-model="item.isSelected"
                                             my-name="itemSelector"
                                     ></my-checkbox>
                                 </td>
-                                <td>{{item.molecularWeight}}</td>
-                                <td>{{item.molecularFormula}}</td>
+                                <td>{{item.molWeight}}</td>
+                                <td>{{item.molFormula}}</td>
                                 <td>{{item.chemicalName}}</td>
                                 <td>{{item.compoundId}}</td>
                                 <td>{{item.database}}</td>
@@ -73,6 +74,7 @@
                                     <div>
                                         <img ng-if="model.restrictions.structure.image"
                                              style="height:70px;"
+                                             class="img-responsive"
                                              ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                              alt="Image is unavailable.">
                                     </div>
@@ -107,8 +109,8 @@
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
                                                                   my-readonly="true"
-                                                                  my-model="item.batchNumber"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.batchNumber}}</p>
+                                                                  my-model="item.nbkBatch"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.nbkBatch}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -117,8 +119,8 @@
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
                                                                   my-readonly="true"
-                                                                  my-model="item.molecularFormula"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.molecularFormula}}</p>
+                                                                  my-model="item.molFormula"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.molFormula}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -127,8 +129,8 @@
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
                                                                   my-readonly="true"
-                                                                  my-model="item.molecularWeight"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.molecularWeight}}</p>
+                                                                  my-model="item.molWeight"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.molWeight}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -172,8 +174,8 @@
                                                         Compound State:</p></div>
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
-                                                                  my-model="item.molecularFormula"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.molecularFormula}}</p>
+                                                                  my-model="item.compoundState"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.compoundState}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -182,18 +184,17 @@
                                                         Comment:</p></div>
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
-                                                                  my-model="item.batchComment"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.batchComment}}</p>
+                                                                  my-model="item.comments"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.comments}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><p>
-                                                        Batch
-                                                        Hazard Comment:</p></div>
+                                                        Batch&nbsp;Hazard&nbsp;Comment</p></div>
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                                         <my-input ng-if="isEditMode"
-                                                                  my-model="item.batchHazardComment"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.batchHazardComment}}</p>
+                                                                  my-model="item.hazardComments"></my-input>
+                                                        <p ng-if="!isEditMode">{{item.hazardComments}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -221,7 +222,14 @@
                                         </div>
                                         <div class="col-xs-6">
                                             <strong>Structure</strong>
-                                            <div>#image</div>
+                                            <div ng-if="!model.restrictions.structure.image">#image</div>
+                                            <div>
+                                                <img style="padding:10px;margin:10px;border:1px solid black;"
+                                                     class="img-responsive"
+                                                     ng-if="model.restrictions.structure.image"
+                                                     ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
+                                                     alt="Image is unavailable.">
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -273,41 +281,41 @@
                             <div class="reagent-search-container">
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.batchNumber.name}}:</p>
+                                        {{model.restrictions.advancedSearch.nbkBatch.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.batchNumber.searchCondition"></my-select>
+                                                   my-model="model.restrictions.advancedSearch.nbkBatch.searchCondition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
-                                                my-model="model.restrictions.advancedSearch.batchNumber.value"></my-input>
+                                                my-model="model.restrictions.advancedSearch.nbkBatch.value"></my-input>
                                     </div>
                                 </div>
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3">
-                                        <p>{{model.restrictions.advancedSearch.molecularFormula.name}}:</p>
+                                        <p>{{model.restrictions.advancedSearch.molFormula.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.molecularFormula.searchCondition"></my-select>
+                                                   my-model="model.restrictions.advancedSearch.molFormula.searchCondition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
-                                                my-model="model.restrictions.advancedSearch.molecularFormula.value"></my-input>
+                                                my-model="model.restrictions.advancedSearch.molFormula.value"></my-input>
                                     </div>
                                 </div>
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.molecularWeight.name}}:</p>
+                                        {{model.restrictions.advancedSearch.molWeight.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="searchConditionNumber"
-                                                   my-model="model.restrictions.advancedSearch.molecularWeight.searchCondition"></my-select>
+                                                   my-model="model.restrictions.advancedSearch.molWeight.searchCondition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
-                                                my-model="model.restrictions.advancedSearch.molecularWeight.value"></my-input>
+                                                my-model="model.restrictions.advancedSearch.molWeight.value"></my-input>
                                     </div>
                                 </div>
                                 <div class="row reagent-search-row">
@@ -347,29 +355,29 @@
                                 </div>
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3">
-                                        <p>{{model.restrictions.advancedSearch.batchComment.name}}:</p>
+                                        <p>{{model.restrictions.advancedSearch.comments.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.batchComment.searchCondition"></my-select>
+                                                   my-model="model.restrictions.advancedSearch.comments.searchCondition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
-                                                my-model="model.restrictions.advancedSearch.batchComment.value"></my-input>
+                                                my-model="model.restrictions.advancedSearch.comments.value"></my-input>
                                     </div>
                                 </div>
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3">
                                         <p>
-                                            {{model.restrictions.advancedSearch.batchHazardComment.name}}:</p>
+                                            {{model.restrictions.advancedSearch.hazardComments.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.batchHazardComment.searchCondition"></my-select>
+                                                   my-model="model.restrictions.advancedSearch.hazardComments.searchCondition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
-                                                my-model="model.restrictions.advancedSearch.batchHazardComment.value"></my-input>
+                                                my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
                                     </div>
                                 </div>
                                 <div class="row reagent-search-row">
@@ -417,7 +425,7 @@
                             <structure-scheme
                                     my-structure-type="molecule"
                                     my-title="Structure"
-                                    my-model="model.restrictions.structure.scheme"></structure-scheme>
+                                    my-model="scheme"></structure-scheme>
                         </div>
                     </div>
                 </div>
@@ -478,42 +486,42 @@
                                         <div class="reagent-search-container">
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.batchNumber.name}}:</p>
+                                                    {{model.restrictions.advancedSearch.nbkBatch.name}}:</p>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.batchNumber.searchCondition"></my-select>
+                                                               my-model="model.restrictions.advancedSearch.nbkBatch.searchCondition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
-                                                            my-model="model.restrictions.advancedSearch.batchNumber.value"></my-input>
+                                                            my-model="model.restrictions.advancedSearch.nbkBatch.value"></my-input>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3">
                                                     <p>
-                                                        {{model.restrictions.advancedSearch.molecularFormula.name}}:</p>
+                                                        {{model.restrictions.advancedSearch.molFormula.name}}:</p>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.molecularFormula.searchCondition"></my-select>
+                                                               my-model="model.restrictions.advancedSearch.molFormula.searchCondition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
-                                                            my-model="model.restrictions.advancedSearch.molecularFormula.value"></my-input>
+                                                            my-model="model.restrictions.advancedSearch.molFormula.value"></my-input>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.molecularWeight.name}}:</p>
+                                                    {{model.restrictions.advancedSearch.molWeight.name}}:</p>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-select my-items="searchConditionNumber"
-                                                               my-model="model.restrictions.advancedSearch.molecularWeight.searchCondition"></my-select>
+                                                               my-model="model.restrictions.advancedSearch.molWeight.searchCondition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
-                                                            my-model="model.restrictions.advancedSearch.molecularWeight.value"></my-input>
+                                                            my-model="model.restrictions.advancedSearch.molWeight.value"></my-input>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
@@ -558,29 +566,29 @@
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3">
                                                     <p>
-                                                        {{model.restrictions.advancedSearch.batchComment.name}}:</p>
+                                                        {{model.restrictions.advancedSearch.comments.name}}:</p>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.batchComment.searchCondition"></my-select>
+                                                               my-model="model.restrictions.advancedSearch.comments.searchCondition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
-                                                            my-model="model.restrictions.advancedSearch.batchComment.value"></my-input>
+                                                            my-model="model.restrictions.advancedSearch.comments.value"></my-input>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3">
                                                     <p>
-                                                        {{model.restrictions.advancedSearch.batchHazardComment.name}}:</p>
+                                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</p>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.batchHazardComment.searchCondition"></my-select>
+                                                               my-model="model.restrictions.advancedSearch.hazardComments.searchCondition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
-                                                            my-model="model.restrictions.advancedSearch.batchHazardComment.value"></my-input>
+                                                            my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row" style="margin-bottom: -25px;">
@@ -639,7 +647,7 @@
                                     <structure-scheme
                                             my-structure-type="molecule"
                                             my-title="Structure"
-                                            my-model="model.restrictions.structure.scheme"></structure-scheme>
+                                            my-model="scheme"></structure-scheme>
                                 </div>
                             </div>
                         </div>
@@ -655,7 +663,7 @@
                 </button>
             </div>
             <div class="row reagent-search-row">
-                <strong>{{}} XX results found</strong>
+                <strong>{{searchResults.length}} results found</strong>
                 <div class="pull-right">
                     <button class="btn btn-default search-button"
                             type="button"
@@ -665,7 +673,7 @@
                     </button>
                     <button class="btn btn-default search-button"
                             type="button"
-                            ng-click="addToStoichTable()"
+                            ng-click="addToStoichTable(searchResults)"
                             ng-disabled="false">
                         <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
                     </button>
@@ -676,29 +684,30 @@
                     <table class="table" id="search-result-table">
                         <thead class="search-table-head">
                         <tr>
-                            <th></th>
-                            <th>Mol. Wt.</th>
-                            <th>Molecular Formula</th>
+                            <th style="width:9%"></th>
+                            <th style="width:9%">Mol. Wt.</th>
+                            <th style="width:16%">Molecular Formula</th>
                             <th>Chemical Name</th>
                             <th>Compound ID</th>
                             <th>Database</th>
-                            <th>Structure</th>
+                            <th style="width:20%">Structure</th>
                         </tr>
                         </thead>
                         <tbody ng-repeat="result in searchResults">
                         <tr ng-class="{'search-table-row-highlight':result.isSelected}">
-                            <td>
+                            <td style="width:76px">
                                 <a ng-click="result.isCollapsed = !result.isCollapsed">
                                                             <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.isCollapsed,
                                                                 'glyphicon glyphicon-triangle-bottom':!result.isCollapsed}"></span></a>
                                 <my-checkbox
+                                        style="padding:0"
                                         class="checkbox-inline"
                                         my-model="result.isSelected"
                                         my-name="resultSelector"
                                 ></my-checkbox>
                             </td>
-                            <td>{{result.molecularWeight}}</td>
-                            <td>{{result.molecularFormula}}</td>
+                            <td>{{result.molWeight}}</td>
+                            <td>{{result.molFormula}}</td>
                             <td>{{result.chemicalName}}</td>
                             <td>{{result.compoundId}}</td>
                             <td>{{result.database}}</td>
@@ -706,6 +715,7 @@
                                 <div ng-if="!model.restrictions.structure.image">#image</div>
                                 <div>
                                     <img ng-if="model.restrictions.structure.image"
+                                         class="img-responsive"
                                          style="height:70px;"
                                          ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                          alt="Image is unavailable.">
@@ -731,21 +741,21 @@
                                                 <div class="col-xs-6 info-col"><p>NBK batch #:</p>
                                                 </div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.batchNumber}}</p>
+                                                    <p>{{result.nbkBatch}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-6 info-col"><p>Molecular Formula:</p>
                                                 </div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.molecularFormula}}</p>
+                                                    <p>{{result.molFormula}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-6 info-col"><p>Molecular Weight:</p>
                                                 </div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.molecularWeight}}</p>
+                                                    <p>{{result.molWeight}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
@@ -786,14 +796,13 @@
                                                 <div class="col-xs-6 info-col"><p>Batch Comment:</p>
                                                 </div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.batchComment}}</p>
+                                                    <p>{{result.comments}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
-                                                <div class="col-xs-6 info-col"><p>Batch Hazard
-                                                    Comment:</p></div>
+                                                <div class="col-xs-6 info-col"><p>Batch&nbsp;Hazard&nbsp;Comment:</p></div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.batchHazardComment}}</p>
+                                                    <p>{{result.hazardComments}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
@@ -806,9 +815,11 @@
                                     </div>
                                     <div class="col-xs-6">
                                         <strong>Structure</strong>
-                                        <!--<div>#image</div>-->
+                                        <div ng-if="!model.restrictions.structure.image">#image</div>
                                         <div>
-                                            <img style="padding:10px;height:80px;"
+                                            <img style="padding:10px;margin:10px;border:1px solid black;"
+                                                 class="img-responsive"
+                                                 ng-if="model.restrictions.structure.image"
                                                  ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                                  alt="Image is unavailable.">
                                         </div>

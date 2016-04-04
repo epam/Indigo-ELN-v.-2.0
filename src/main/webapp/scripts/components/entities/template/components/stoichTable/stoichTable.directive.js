@@ -193,6 +193,13 @@ angular.module('indigoeln')
                     }
                 });
 
+                var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
+                    $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
+                });
+                $scope.$on('$destroy', function () {
+                    onNewStoichRows();
+                });
+
                 $scope.searchReagents = function (activeTab) {
                     $uibModal.open({
                         animation: true,
