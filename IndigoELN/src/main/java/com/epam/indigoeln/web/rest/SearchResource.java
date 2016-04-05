@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 import com.epam.indigoeln.core.service.search.SearchServiceConstants;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
@@ -36,9 +38,12 @@ public class SearchResource {
             value = "/batches/structure",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(@RequestBody String structure) {
+    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(
+            @RequestBody String structure,
+            @RequestParam(name = "searchMode", required = false) String searchMode) {
+        String searchModeWithDef = Optional.ofNullable(searchMode).orElse(SearchServiceConstants.CHEMISTRY_SEARCH_EXACT);
         Collection<ProductBatchDetailsDTO> batchDetails =
-                searchService.searchByMolecularStructure(structure, SearchServiceConstants.CHEMISTRY_SEARCH_EXACT, Collections.emptyMap());
+                searchService.searchByMolecularStructure(structure, searchModeWithDef, Collections.emptyMap());
         return ResponseEntity.ok(batchDetails);
     }
 
