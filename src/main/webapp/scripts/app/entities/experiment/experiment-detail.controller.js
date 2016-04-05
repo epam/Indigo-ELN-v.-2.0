@@ -20,12 +20,23 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function (event) {
+            var setStatus = function (status) {
+                $scope.experiment.status = status;
+            };
+
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
                 $scope.experiment.accessList = PermissionManagement.getAccessList();
+            });
+
+            var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
+                if (data.id === $scope.experiment.fullId) {
+                    setStatus(data.status);
+                }
             });
 
             $scope.$on('$destroy', function () {
                 onAccessListChangedEvent();
+                onExperimentStatusChangedEvent();
             });
 
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
@@ -42,10 +53,6 @@ angular.module('indigoeln')
 
             var onSaveError = function (result) {
                 $scope.isSaving = false;
-            };
-
-            var setStatus = function (status) {
-                $scope.experiment.status = status;
             };
 
             $scope.save = function (experiment) {
@@ -66,18 +73,11 @@ angular.module('indigoeln')
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
 
-            var onChangeStatusSuccess = function (result) {
+            var onChangeStatusSuccess = function (result, status) {
                 onSaveSuccess(result);
                 $rootScope.$broadcast('experiment-status-changed',
-                    {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
+                    {id: result.fullId, status: status});
             };
-
-            var onChangeStatusError = function (result) {
-                onSaveError(result);
-                setStatus(rememberStatus);
-            };
-
-            var rememberStatus = $scope.experiment.status;
 
             var openCompleteConfirmationModal = function () {
                 return $uibModal.open({
@@ -103,14 +103,14 @@ angular.module('indigoeln')
             $scope.completeExperiment = function () {
                 openCompleteConfirmationModal().result.then(function () {
                     $scope.isSaving = true;
-                    rememberStatus = $scope.experiment.status;
-                    setStatus('Completed');
                     $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
-                    var experimentForSave = _.extend({}, $scope.experiment);
+                    var experimentForSave = _.extend({}, $scope.experiment, {status: 'Completed'});
                     $scope.loading = Experiment.update({
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId
-                    }, experimentForSave, onChangeStatusSuccess, onChangeStatusError).$promise;
+                    }, experimentForSave, function(result) {
+                        onChangeStatusSuccess(result, 'Completed');
+                    }, onSaveError).$promise;
                 });
             };
 
@@ -128,14 +128,14 @@ angular.module('indigoeln')
 
             $scope.reopenExperiment = function () {
                 $scope.isSaving = true;
-                rememberStatus = $scope.experiment.status;
-                setStatus('Open');
                 $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
-                var experimentForSave = _.extend({}, $scope.experiment);
+                var experimentForSave = _.extend({}, $scope.experiment, {status: 'Open'});
                 $scope.loading = Experiment.update({
                     projectId: $stateParams.projectId,
                     notebookId: $stateParams.notebookId
-                }, experimentForSave, onChangeStatusSuccess, onChangeStatusError).$promise;
+                }, experimentForSave, function(result) {
+                    onChangeStatusSuccess(result, 'Open');
+                }, onSaveError).$promise;
             };
 
             $scope.isStatusOpen = function () {
