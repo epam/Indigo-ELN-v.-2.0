@@ -19,9 +19,10 @@ angular.module('indigoeln').controller('ExperimentSubmitController',
 
         $scope.currentDate = Date.now();
 
-        var onCompleteSuccess = function () {
-            $rootScope.$broadcast('experiment-status-changed',
-                {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: $scope.experiment.id});
+        var onCompleteSuccess = function (status) {
+            var statuses = {};
+            statuses[$scope.experiment.fullId] = status;
+            $rootScope.$broadcast('experiment-status-changed', statuses);
         };
 
         var selectTemplate = function (filename) {
@@ -50,7 +51,7 @@ angular.module('indigoeln').controller('ExperimentSubmitController',
                                 projectId: $scope.project.id
                             }, {},
                             function () {
-                                onCompleteSuccess();
+                                onCompleteSuccess('Submitted');
                                 $state.go('entities.experiment-detail', {
                                     statusChanged: true,
                                     experimentId: $scope.experiment.id,
