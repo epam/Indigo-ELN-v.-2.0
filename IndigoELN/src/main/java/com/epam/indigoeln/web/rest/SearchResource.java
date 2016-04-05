@@ -2,10 +2,12 @@ package com.epam.indigoeln.web.rest;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import com.epam.indigoeln.core.service.search.SearchServiceConstants;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
+import com.google.common.collect.ImmutableMap;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +42,13 @@ public class SearchResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(
             @RequestBody String structure,
-            @RequestParam(name = "searchMode", required = false) String searchMode) {
-        String searchModeWithDef = Optional.ofNullable(searchMode).orElse(SearchServiceConstants.CHEMISTRY_SEARCH_EXACT);
+            @RequestParam(name = "searchMode", required = false) Optional<String> searchMode,
+            @RequestParam(name = "similarity", required = false) Optional<Float> similarity) {
+        String searchModeWithDef = searchMode.orElse(SearchServiceConstants.CHEMISTRY_SEARCH_EXACT);
+        Map searchOptions = ImmutableMap.of("min", similarity.orElse(0f));
+
         Collection<ProductBatchDetailsDTO> batchDetails =
-                searchService.searchByMolecularStructure(structure, searchModeWithDef, Collections.emptyMap());
+                searchService.searchByMolecularStructure(structure, searchModeWithDef, searchOptions);
         return ResponseEntity.ok(batchDetails);
     }
 

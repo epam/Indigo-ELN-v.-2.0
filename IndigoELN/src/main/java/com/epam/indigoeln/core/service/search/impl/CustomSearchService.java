@@ -44,6 +44,7 @@ public class CustomSearchService implements SearchServiceAPI {
      * @return list of batches with received structure
      */
     @Override
+    @SuppressWarnings("unchecked")
     public Collection<ProductBatchDetailsDTO> searchByMolecularStructure(String structure,
                                                                          String searchOperator,
                                                                          Map options) {
@@ -59,7 +60,9 @@ public class CustomSearchService implements SearchServiceAPI {
                 bingoIds = bingoService.searchMoleculeExact(structure, StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_SIMILARITY:
-                bingoIds = bingoService.searchMoleculeSim(structure, Float.valueOf(options.get("min").toString()), Float.valueOf(options.get("max").toString()), StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeSim(structure,
+                        Float.valueOf(options.getOrDefault("min", 0f).toString()),
+                        Float.valueOf(options.getOrDefault("max", 1f).toString()), StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_MOLFORMULA:
                 bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY);
