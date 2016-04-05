@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, Alert, activeTab) {
+    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, activeTab) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -133,80 +133,29 @@ angular.module('indigoeln').controller('SearchReagentsController',
                     }
                 });
                 $scope.isSearchResultFound = true;
-                $scope.searchResults = [
-                    {
-                        compoundId: 'STR-00000000',
-                        casNumber: '123123123',
-                        nbkBatch: '000-000',
-                        chemicalName: 'benzene',
-                        molWeight: '100',
-                        weight: '200',
-                        volume: '300',
-                        mol: '50',
-                        limiting: 'limiting',
-                        rxnRole: 'rxn role',
-                        molarity: 'molarity',
-                        purity: 'pure',
-                        molFormula: 'C6 H6',
-                        saltCode: 'salt code',
-                        saltEq: 'salt eq',
-                        loadFactor: '70%',
-                        hazardComments: 'hazard comments',
-                        comments: 'some comments',
-                        database: 'IndigoELN',
-                        structure: '#image',
-                        isCollapsed: true,
-                        isSelected: false
-                    },
-                    {
-                        compoundId: 'STR-00111111',
-                        casNumber: '121212121',
-                        nbkBatch: '111-001',
-                        chemicalName: 'benzene',
-                        molWeight: '100',
-                        weight: '200',
-                        volume: '300',
-                        mol: '50',
-                        limiting: 'limiting',
-                        rxnRole: 'rxn role',
-                        molarity: 'molarity',
-                        purity: 'very pure',
-                        molFormula: 'C6 H6',
-                        saltCode: 'salt code',
-                        saltEq: 'salt eq',
-                        loadFactor: '70%',
-                        hazardComments: 'hazard comments',
-                        comments: 'some comments',
-                        database: 'IndigoELN',
-                        structure: '#image',
-                        isCollapsed: true,
-                        isSelected: false
-                    },
-                    {
-                        compoundId: 'STR-002222222',
-                        casNumber: '232323232',
-                        nbkBatch: '222-002',
-                        chemicalName: 'benzene',
-                        molWeight: '100',
-                        weight: '200',
-                        volume: '300',
-                        mol: '50',
-                        limiting: 'limiting',
-                        rxnRole: 'rxn role',
-                        molarity: 'molarity',
-                        purity: 'so pure',
-                        molFormula: 'C6 H6 ',
-                        saltCode: 'salt code',
-                        saltEq: 'salt eq',
-                        loadFactor: '70%',
-                        hazardComments: 'hazard comments',
-                        comments: 'some comments',
-                        database: 'IndigoELN',
-                        structure: '#image',
-                        isCollapsed: true,
-                        isSelected: false
-                    }
-                ];
+                if ($scope.model.restrictions.structure.molfile) {
+                    $http({
+                        //url: 'api/bingodb/molecule/search/exact',
+                        url: '/api/search/batches/structure',
+                        method: 'POST',
+                        data: $scope.model.restrictions.structure.molfile
+                        //params: {
+                        //    options: $scope.model.restrictions.structure.similarityCriteria.name
+                        //}
+                    }).success(function (result) {
+                        $scope.searchResults = _.map(result, function(item) {
+                            var batchDetails = _.extend({}, item.details);
+                            batchDetails.nbkBatch = item.notebookBatchNumber;
+                            batchDetails.isCollapsed = true;
+                            batchDetails.isSelected = false;
+                            batchDetails.database = $scope.model.databases.join(', ');
+                            batchDetails.molWeight = item.details.molWgt;
+                            return batchDetails;
+                        });
+                        console.log(result);
+                    });
+                }
+
             });
         };
 

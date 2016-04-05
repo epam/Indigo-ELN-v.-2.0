@@ -178,9 +178,10 @@
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><p>
                                                         Compound State:</p></div>
                                                     <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                                        <my-input ng-if="isEditMode"
-                                                                  my-model="item.compoundState"></my-input>
-                                                        <p ng-if="!isEditMode">{{item.compoundState}}</p>
+                                                        <my-select ng-if="isEditMode"
+                                                                  my-dictionary="compoundState"
+                                                                  my-model="item.compoundState"></my-select>
+                                                        <p ng-if="!isEditMode">{{item.compoundState.name}}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row reagent-search-row">
@@ -354,7 +355,7 @@
                                         <p>{{model.restrictions.advancedSearch.compoundState.name}}:</p>
                                     </div>
                                     <div class="col-xs-6">
-                                        <my-select my-items="[{name:'Liquid'},{name:'Gas'},{name:'Solid'}]"
+                                        <my-select my-dictionary="compoundState"
                                                    my-model="model.restrictions.advancedSearch.compoundState.value"></my-select>
                                     </div>
                                 </div>
@@ -564,7 +565,7 @@
                                                 </div>
                                                 <div class="col-xs-6">
                                                     <my-select
-                                                            my-items="[{name:'Liquid'},{name:'Gas'},{name:'Solid'}]"
+                                                            my-dictionary="compoundState"
                                                             my-model="model.restrictions.advancedSearch.compoundState.value"></my-select>
                                                 </div>
                                             </div>
@@ -799,7 +800,7 @@
                                                 <div class="col-xs-6 info-col"><p>Compound State:</p>
                                                 </div>
                                                 <div class="col-xs-6 info-col">
-                                                    <p>{{result.compoundState}}</p>
+                                                    <p>{{result.compoundState.name}}</p>
                                                 </div>
                                             </div>
                                             <div class="row reagent-search-row">
