@@ -3,6 +3,7 @@ package com.epam.indigoeln.web.rest;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
@@ -35,6 +36,9 @@ public class ExperimentResource {
 
     @Autowired
     private ExperimentService experimentService;
+
+    @Autowired
+    private SignatureService signatureService;
 
     @Autowired
     private UserService userService;
@@ -94,7 +98,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
-        experimentDTO.setStatus(experimentService.checkExperimentStatus(experimentDTO));
+        experimentDTO.setStatus(signatureService.checkExperimentStatus(experimentDTO));
         return ResponseEntity.ok(experimentDTO);
     }
 

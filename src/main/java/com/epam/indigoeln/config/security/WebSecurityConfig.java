@@ -124,7 +124,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .csrf()
-                .ignoringAntMatchers("/api/authentication", "/api/logout") // For solving a problem with login after logout
+                .ignoringAntMatchers("/api/authentication", "/api/logout", "/websocket/**") // For solving a problem with login after logout
                 .and()
                 .addFilterBefore(sessionExpirationFilter(), ConcurrentSessionFilter.class)
                 .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
@@ -239,7 +239,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //restrictions for swagger
                 .antMatchers("/swagger-ui.html").authenticated()
-                .antMatchers("/indigoeln/v2/api-docs").authenticated();
+                .antMatchers("/indigoeln/v2/api-docs").authenticated()
+
+                .antMatchers("/websocket/**").authenticated();
     }
 
     @Bean

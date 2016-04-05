@@ -4,7 +4,7 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
                                                AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
-                                               Principal, Alert) {
+                                               Principal, Alert, ExperimentStatus) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -171,4 +171,25 @@ angular
         $scope.toggleDictionaries = function () {
             $state.go('dictionary-management');
         };
+
+        var updateStatuses = function(projects, statuses) {
+            angular.forEach(projects, function(project) {
+                angular.forEach(project.children, function(notebook) {
+                    angular.forEach(notebook.children, function(experiment) {
+                        var status = statuses[experiment.fullId];
+                        if (status) {
+                            experiment.status = status;
+                        }
+                    });
+                });
+            });
+        };
+
+        ExperimentStatus.connect();
+        ExperimentStatus.subscribe();
+        ExperimentStatus.receive().then(null, null, function(data) {
+            updateStatuses($scope.myBookmarks.projects, data);
+            updateStatuses($scope.allProjects.projects, data);
+        });
+
     });
