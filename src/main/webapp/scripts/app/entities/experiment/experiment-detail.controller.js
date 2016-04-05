@@ -29,9 +29,11 @@ angular.module('indigoeln')
             });
 
             var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
-                if (data.id === $scope.experiment.fullId) {
-                    setStatus(data.status);
-                }
+                _.each(data, function(status, id) {
+                    if (id === $scope.experiment.fullId) {
+                        setStatus(status);
+                    }
+                });
             });
 
             $scope.$on('$destroy', function () {
@@ -75,8 +77,9 @@ angular.module('indigoeln')
 
             var onChangeStatusSuccess = function (result, status) {
                 onSaveSuccess(result);
-                $rootScope.$broadcast('experiment-status-changed',
-                    {id: result.fullId, status: status});
+                var statuses = {};
+                statuses[result.fullId] = status;
+                $rootScope.$broadcast('experiment-status-changed', statuses);
             };
 
             var openCompleteConfirmationModal = function () {

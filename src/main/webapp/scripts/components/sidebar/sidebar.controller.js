@@ -4,7 +4,7 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
                                                AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
-                                               Principal, Alert, ExperimentStatus) {
+                                               Principal, Alert) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -67,9 +67,7 @@ angular
         });
 
         var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
-            var statuses = {};
-            statuses[data.id] = data.status;
-            updateStatuses(statuses);
+            updateStatuses(data);
         });
 
         var updateTreeForExperiments = function (event, data) {
@@ -192,11 +190,5 @@ angular
         $scope.toggleDictionaries = function () {
             $state.go('dictionary-management');
         };
-
-        ExperimentStatus.connect();
-        ExperimentStatus.subscribe();
-        ExperimentStatus.receive().then(null, null, function(data) {
-            updateStatuses(data);
-        });
 
     });
