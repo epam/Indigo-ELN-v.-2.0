@@ -7,11 +7,9 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
-import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,9 +45,6 @@ public class ExperimentService {
 
     @Autowired
     private SequenceIdService sequenceIdService;
-
-    @Autowired
-    private SignatureService signatureService;
 
     @Autowired
     CustomDtoMapper dtoMapper;
@@ -274,66 +268,4 @@ public class ExperimentService {
                 experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
                         experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
-
-    /**
-     * Check experiment's status on Signature Service and update in DB if changed
-     */
-    public ExperimentStatus checkExperimentStatus(ExperimentDTO experimentDTO)
-            throws IOException {
-        // check experiment in status Submitted or Signing
-        if (ExperimentStatus.SUBMITTED.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGING.equals(experimentDTO.getStatus()) ||
-                ExperimentStatus.SINGED.equals(experimentDTO.getStatus())) {
-
-            if (experimentDTO.getDocumentId() == null) {
-                throw DocumentUploadException.createNullDocumentId(experimentDTO.getId());
-            }
-
-            SignatureService.ISSStatus status = signatureService.getStatus(experimentDTO.getDocumentId());
-            final ExperimentStatus expectedStatus = getExperimentStatus(status);
-
-            // update experiment if differ
-            if (!expectedStatus.equals(experimentDTO.getStatus())) {
-                final Experiment experiment = experimentRepository.findOne(experimentDTO.getFullId());
-                experiment.setStatus(expectedStatus);
-                experimentRepository.save(experiment);
-                return expectedStatus;
-            }
-        }
-        return experimentDTO.getStatus();
-    }
-
-    private ExperimentStatus getExperimentStatus(SignatureService.ISSStatus status) {
-
-        // match statuses
-        // Indigo Signature Service statuses:
-//            ------------------------------
-//             Signature(Id)    |  IndigoELN
-//            ------------------------------
-//            SUBMITTED(1) -> SUBMITTED
-//            SIGNING(2)   -> SIGNING
-//            SIGNED(3)    -> SIGNED
-//            REJECTED(4)  -> SUBMIT_FAILED
-//            WAITING(5)   -> SIGNING
-//            CANCELLED(6) -> SUBMIT_FAILED
-//            ARCHIVING(7) -> SIGNED
-//            ARCHIVED(8)  -> ARCHIVE
-//            ------------------------------
-        ExperimentStatus expectedStatus;
-        if (SignatureService.ISSStatus.SUBMITTED.equals(status)) {
-            expectedStatus = ExperimentStatus.SUBMITTED;
-        } else if (SignatureService.ISSStatus.SIGNING.equals(status) || SignatureService.ISSStatus.WAITING.equals(status)) {
-            expectedStatus = ExperimentStatus.SINGING;
-        } else if (SignatureService.ISSStatus.SIGNED.equals(status) || SignatureService.ISSStatus.ARCHIVING.equals(status)) {
-            expectedStatus = ExperimentStatus.SINGED;
-        } else if (SignatureService.ISSStatus.ARCHIVED.equals(status)) {
-            expectedStatus = ExperimentStatus.ARCHIVED;
-        } else {
-            expectedStatus = ExperimentStatus.SUBMIT_FAIL;
-        }
-        return expectedStatus;
-
-    }
-
-
 }

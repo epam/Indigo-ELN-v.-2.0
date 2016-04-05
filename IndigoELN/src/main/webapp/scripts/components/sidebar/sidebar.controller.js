@@ -15,6 +15,24 @@ angular
         $scope.myBookmarks = {};
         $scope.allProjects = {};
 
+        var updateProjectsStatuses = function(projects, statuses) {
+            angular.forEach(projects, function(project) {
+                angular.forEach(project.children, function(notebook) {
+                    angular.forEach(notebook.children, function(experiment) {
+                        var status = statuses[experiment.fullId];
+                        if (status) {
+                            experiment.status = status;
+                        }
+                    });
+                });
+            });
+        };
+
+        var updateStatuses = function(statuses) {
+            updateProjectsStatuses($scope.myBookmarks.projects, statuses);
+            updateProjectsStatuses($scope.allProjects.projects, statuses);
+        };
+
         var onProjectCreatedEvent = $scope.$on('project-created', function () {
             Project.query(function (result) {
                 $scope.projects = result;
@@ -49,7 +67,7 @@ angular
         });
 
         var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
-            updateTreeForExperiments(event, data);
+            updateStatuses(data);
         });
 
         var updateTreeForExperiments = function (event, data) {
@@ -65,6 +83,7 @@ angular
                     notebook.isOpen = true;
                 });
             } else { //find and update projects
+
                 Project.query(function (result) {
                     $scope.projects = result;
                     $scope.myBookmarks.projects = result;
@@ -171,4 +190,5 @@ angular
         $scope.toggleDictionaries = function () {
             $state.go('dictionary-management');
         };
+
     });
