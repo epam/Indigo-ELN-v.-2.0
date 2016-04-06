@@ -65,7 +65,9 @@
         </thead>
         <tbody class="main-table__body">
         <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp">
-            <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
+            <td class="table-list__item">
+                <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+            </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">

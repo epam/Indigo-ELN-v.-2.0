@@ -1,20 +1,14 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('ExperimentController', function ($scope, $state, Experiment, ParseLinks) {
+    .controller('ExperimentController', function ($scope, $state, Dashboard) {
 
         $scope.experiments = [];
         $scope.predicate = 'id';
         $scope.reverse = true;
         $scope.page = 1;
         $scope.loadAll = function () {
-            Experiment.query({
-                page: $scope.page - 1,
-                size: 20,
-                sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']
-            }, function (result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
+            Dashboard.get({}, function (result) {
                 $scope.experiments = result;
             });
         };
@@ -22,7 +16,7 @@ angular.module('indigoeln')
             $scope.page = page;
             $scope.loadAll();
         };
-        //$scope.loadAll();
+        $scope.loadAll();
 
 
         $scope.refresh = function () {
