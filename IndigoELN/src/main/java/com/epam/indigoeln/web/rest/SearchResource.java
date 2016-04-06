@@ -1,22 +1,17 @@
 package com.epam.indigoeln.web.rest;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Collections;
 
-import com.epam.indigoeln.core.service.search.SearchServiceConstants;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.google.common.collect.ImmutableMap;
-import org.springframework.http.HttpStatus;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
@@ -29,39 +24,34 @@ import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 public class SearchResource {
 
     @Autowired
-    @Qualifier("customSearchService")
+    @Qualifier("commonSearchService")
     private SearchServiceAPI searchService;
 
     /**
-     * POST /batches/structure -> find batch Components by molecular structure
+     * POST /batch/formula -> find batch Components by molecular formula
      */
     @RequestMapping(
-            value = "/batches/structure",
+            value = "/batch/formula",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(
-            @RequestBody String structure,
-            @RequestParam(name = "searchMode", required = false) Optional<String> searchMode,
-            @RequestParam(name = "similarity", required = false) Optional<Float> similarity) {
-        String searchModeWithDef = searchMode.orElse(SearchServiceConstants.CHEMISTRY_SEARCH_EXACT);
-        Map searchOptions = ImmutableMap.of("min", similarity.orElse(0f));
+    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(@RequestBody String formula) {
 
         Collection<ProductBatchDetailsDTO> batchDetails =
-                searchService.searchByMolecularStructure(structure, searchModeWithDef, searchOptions);
+                searchService.searchByMolecularFormula(formula, Collections.emptyMap());
         return ResponseEntity.ok(batchDetails);
     }
 
     /**
-     * GET /batches/{number} -> find batch Component details by full batch number
+     * POST /batch -> find batch Components by specified criteria
      */
     @RequestMapping(
-            value = "/batches/number/{fullBatchNumber}",
-            method = RequestMethod.GET,
+            value = "/batch",
+            method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProductBatchDetailsDTO> searchByNotebookBatchNumber(@PathVariable String fullBatchNumber)  {
-        return searchService.searchByNotebookBatchNumber(fullBatchNumber)
-                 .map(batchDetails -> new ResponseEntity<>(batchDetails, HttpStatus.OK))
-                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByNotebookBatchNumber(
+            @RequestBody BatchSearchRequestDTO searchRequest)  {
+        Collection<ProductBatchDetailsDTO> batchDetails = searchService.searchBatches(searchRequest);
+        return ResponseEntity.ok(batchDetails);
     }
 
 }
