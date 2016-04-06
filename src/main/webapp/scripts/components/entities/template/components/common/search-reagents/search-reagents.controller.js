@@ -135,13 +135,13 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 $scope.isSearchResultFound = true;
                 if ($scope.model.restrictions.structure.molfile) {
                     $http({
-                        //url: 'api/bingodb/molecule/search/exact',
                         url: '/api/search/batches/structure',
                         method: 'POST',
-                        data: $scope.model.restrictions.structure.molfile
-                        //params: {
-                        //    options: $scope.model.restrictions.structure.similarityCriteria.name
-                        //}
+                        data: $scope.model.restrictions.structure.molfile,
+                        params: {
+                            searchMode: $scope.model.restrictions.structure.similarityCriteria.name,
+                            similarity: $scope.model.restrictions.structure.similarityValue / 100
+                        }
                     }).success(function (result) {
                         $scope.searchResults = _.map(result, function(item) {
                             var batchDetails = _.extend({}, item.details);
