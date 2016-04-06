@@ -134,12 +134,18 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 });
                 $scope.isSearchResultFound = true;
                 if ($scope.model.restrictions.structure.molfile) {
+                    var searchMode = $scope.model.restrictions.structure.similarityCriteria.name;
+                    if (searchMode === 'none') {
+                        searchMode = null;
+                    } else if (searchMode === 'equal') {
+                        searchMode = 'exact';
+                    }
                     $http({
                         url: 'api/search/batches/structure',
                         method: 'POST',
                         data: $scope.model.restrictions.structure.molfile,
                         params: {
-                            searchMode: $scope.model.restrictions.structure.similarityCriteria.name,
+                            searchMode: searchMode,
                             similarity: $scope.model.restrictions.structure.similarityValue / 100
                         }
                     }).success(function (result) {
