@@ -8,7 +8,6 @@ import java.util.Set;
 
 public class DictionaryDTO extends BasicDTO {
 
-    private static final long serialVersionUID = -492928653193551903L;
 
     private Set<Word> words;
     private String description;

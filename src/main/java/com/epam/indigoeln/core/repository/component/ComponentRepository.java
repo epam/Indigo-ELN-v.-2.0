@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.repository.component;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -15,10 +14,6 @@ public interface ComponentRepository extends MongoRepository<Component, String> 
 
     @Query("{ 'name' :'productBatchSummary', 'content.batches' : {$elemMatch : {'registrationJobId' : ?0}}}")
     List<Component> findBatchSummariesByRegistrationJobId(Long jobId);
-
-
-    @Query("{ 'name' :'productBatchSummary', 'content.batches' : {$elemMatch : {'fullNbkBatch' : ?0}}}")
-    Optional<Component> findBatchSummaryByFullBatchNumber(String fullNbkBatchNumber);
 
     @Query("{ 'name' :'productBatchSummary', 'content.batches' : {$elemMatch : {'fullNbkBatch' : {$in : ?0}}}}")
     List<Component> findBatchSummariesByFullBatchNumbers(List<String> fullNbkBatchNumbers);
