@@ -135,7 +135,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 $scope.isSearchResultFound = true;
                 if ($scope.model.restrictions.structure.molfile) {
                     $http({
-                        url: '/api/search/batches/structure',
+                        url: 'api/search/batches/structure',
                         method: 'POST',
                         data: $scope.model.restrictions.structure.molfile,
                         params: {
