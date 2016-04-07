@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
@@ -20,11 +19,6 @@ public class SearchServiceFacade implements SearchServiceAPI {
     @Qualifier("customSearchService")
     private SearchServiceAPI customSearchService;
 
-
-    @Override
-    public Collection<ProductBatchDetailsDTO> searchByMolecularFormula(String formula, Map options) {
-        return customSearchService.searchByMolecularFormula(formula, options);
-    }
 
     @Override
     public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequestDTO searchRequest) {

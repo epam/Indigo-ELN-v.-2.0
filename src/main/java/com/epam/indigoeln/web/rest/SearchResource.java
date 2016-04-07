@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
@@ -26,20 +25,6 @@ public class SearchResource {
     @Autowired
     @Qualifier("commonSearchService")
     private SearchServiceAPI searchService;
-
-    /**
-     * POST /batch/formula -> find batch Components by molecular formula
-     */
-    @RequestMapping(
-            value = "/batch/formula",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByMolecularStructure(@RequestBody String formula) {
-
-        Collection<ProductBatchDetailsDTO> batchDetails =
-                searchService.searchByMolecularFormula(formula, Collections.emptyMap());
-        return ResponseEntity.ok(batchDetails);
-    }
 
     /**
      * POST /batch -> find batch Components by specified criteria
