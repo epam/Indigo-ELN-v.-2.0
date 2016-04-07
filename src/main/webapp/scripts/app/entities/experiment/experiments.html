@@ -72,7 +72,7 @@
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.coAuthors">{{user.login}}</li>
+                    <li ng-repeat="user in exp.coAuthors">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.project}}</td>
@@ -104,10 +104,10 @@
             </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
-            <td class="table-list__item">{{exp.author.login}}</td>
+            <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witness">{{user.name}}</li>
+                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
@@ -138,15 +138,19 @@
             </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
-            <td class="table-list__item">{{exp.author.login}}</td>
+            <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witness">{{user.name}}</li>
+                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
             <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{exp.comments}}</td>
+            <td class="table-list__item">
+                <ul>
+                    <li ng-repeat="comment in exp.comments track by $index">{{comment}}</li>
+                </ul>
+            </td>
         </tr>
         </tbody>
     </table>

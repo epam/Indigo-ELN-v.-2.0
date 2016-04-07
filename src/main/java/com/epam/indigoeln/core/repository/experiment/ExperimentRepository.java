@@ -19,13 +19,13 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 
-    @Query(value="{'status' : { $in : ?0}}")
+    @Query(value = "{'status' : { $in : ?0}}")
     List<Experiment> findByStatuses(List<ExperimentStatus> statuses);
 
-    @Query(value="{'author': ?0, 'status' : { $in : ?1 }, 'creationDate': { $gt: ?2 }}")
+    @Query(value = "{'author': ?0, 'status' : { $in : ?1 }, 'creationDate': { $gt: ?2 }}")
     List<Experiment> findByAuthorAndStatusesCreatedAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime date);
 
-    @Query(value="{'documentId': { $in : ?0 }}")
-    List<Experiment> findByDocumentsIds(List<String> documentsIds);
+    @Query(value = "{'documentId': { $in : ?0 }}")
+    List<Experiment> findByDocumentsIds(Collection<String> documentsIds);
 
 }

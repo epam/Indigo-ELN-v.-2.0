@@ -5,7 +5,7 @@ import com.epam.indigoeln.core.model.ExperimentStatus;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public class DashboardExperimentDTO {
+public class DashboardRowDTO {
 
     private String projectId;
 
@@ -28,6 +28,10 @@ public class DashboardExperimentDTO {
     private ZonedDateTime creationDate;
 
     private ZonedDateTime lastEditDate;
+
+    private List<UserDTO> witnesses;
+
+    private List<String> comments;
 
     public String getProjectId() {
         return projectId;
@@ -116,4 +120,41 @@ public class DashboardExperimentDTO {
     public void setLastEditDate(ZonedDateTime lastEditDate) {
         this.lastEditDate = lastEditDate;
     }
+
+    public List<UserDTO> getWitnesses() {
+        return witnesses;
+    }
+
+    public void setWitnesses(List<UserDTO> witnesses) {
+        this.witnesses = witnesses;
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<String> comments) {
+        this.comments = comments;
+    }
+
+    public static class UserDTO {
+
+        private final String firstName;
+
+        private final String lastName;
+
+        public UserDTO(String firstName, String lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+    }
+
 }
