@@ -5,7 +5,6 @@ import java.text.Format;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
@@ -13,7 +12,6 @@ import java.util.regex.Pattern;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import org.bson.BasicBSONObject;
 import org.springframework.util.StringUtils;
 
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
@@ -28,8 +26,6 @@ public final class BatchComponentUtil {
 
     public static final String COMPONENT_NAME_BATCH_SUMMARY = "productBatchSummary";
     public static final String COMPONENT_FIELD_BATCHES = "batches";
-    public static final String COMPONENT_FIELD_STRUCTURE = "structure";
-    public static final String COMPONENT_FIELD_STRUCTURE_ID = "structureId";
     public static final String COMPONENT_FIELD_NBK_BATCH = "nbkBatch";
     public static final String COMPONENT_FIELD_FULL_NBK_BATCH = "fullNbkBatch";
 
@@ -56,33 +52,6 @@ public final class BatchComponentUtil {
                flatMap(Collection::stream).
                map(o -> (BasicDBObject) o).
                collect(toList());
-    }
-
-    /**
-     * Retrieve json content of all batches for each component in received list.
-     * Filter batches by  bingo DB identifier (corresponds to field 'structure.structureId' of batch json content)
-     * Only batches with bingo DB identifier from received list should be returned
-     *
-     * @param components list of components to find batches
-     * @param bingoDbIds list of bingo db identifiers
-     * @return list of batches
-     */
-    public static List<BasicDBObject> retrieveBatchesByBingoDbId(Collection<ComponentDTO> components,
-                                                                 List<Integer> bingoDbIds) {
-        return retrieveBatches(components).stream().filter(b -> bingoDbIds.contains(getBatchBingoDbId(b))).collect(toList());
-    }
-
-    /**
-     * Retrieve json content of batch with specified full batch number
-     *
-     * @param components list of components to find batches
-     * @param fullBatchNumber full batch number
-     * @return map of batch parameters
-     */
-    public static Optional<Map> retrieveBatchByNumber(Collection<ComponentDTO> components, String fullBatchNumber) {
-         return retrieveBatches(components).stream().
-                filter(batch -> fullBatchNumber.equals(batch.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString())).findAny().
-                map(BasicBSONObject::toMap);
     }
 
 
@@ -136,16 +105,6 @@ public final class BatchComponentUtil {
      */
     public static boolean isValidBatchNumber(String batchNumber) {
         return !StringUtils.isEmpty(batchNumber) && Pattern.compile(PATTERN_BATCH_NUMBER).matcher(batchNumber).matches();
-    }
-
-    private static Integer getBatchBingoDbId(BasicDBObject batch) {
-        Integer result = null;
-        if(batch.containsField(COMPONENT_FIELD_STRUCTURE)) {
-            BasicDBObject structure = (BasicDBObject) batch.get(COMPONENT_FIELD_STRUCTURE);
-            Object structureId = structure.get(COMPONENT_FIELD_STRUCTURE_ID);
-            result = structureId != null ? (Integer) structureId : null;
-        }
-        return result;
     }
 
 }

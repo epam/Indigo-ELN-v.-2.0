@@ -9,9 +9,6 @@ import com.epam.indigoeln.core.model.Component;
 
 public interface ComponentRepository extends MongoRepository<Component, String> {
 
-    @Query("{ 'name' :'productBatchSummary', 'content.batches' : {$elemMatch : {'structure.structureId' : {$in : ?0}}}}")
-    List<Component> findBatchSummariesByBingoDbIds(List<Integer> bingoIds);
-
     @Query("{ 'name' :'productBatchSummary', 'content.batches' : {$elemMatch : {'registrationJobId' : ?0}}}")
     List<Component> findBatchSummariesByRegistrationJobId(Long jobId);
 
