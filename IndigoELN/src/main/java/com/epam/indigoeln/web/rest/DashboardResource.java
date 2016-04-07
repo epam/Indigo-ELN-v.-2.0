@@ -10,8 +10,7 @@ import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
-import com.epam.indigoeln.web.rest.dto.DashboardExperimentDTO;
-import com.epam.indigoeln.web.rest.dto.UserDTO;
+import com.epam.indigoeln.web.rest.dto.DashboardRowDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
@@ -72,33 +71,61 @@ public class DashboardResource {
         User user = userService.getUserWithAuthorities();
         DashboardDTO dashboardDTO = new DashboardDTO();
 
+        // Open and Completed Experiments
         ZonedDateTime date = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
         final List<Experiment> openAndCompletedExp = experimentRepository.findByAuthorAndStatusesCreatedAfter(user,
                 Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), date);
-        dashboardDTO.setOpenAndCompletedExp(convert(user, openAndCompletedExp, true));
+        dashboardDTO.setOpenAndCompletedExp(convert(user, openAndCompletedExp, null, true));
 
-        final List<String> documentsIds = signatureService.getDocumentsIds(Arrays.asList(SignatureService.ISSStatus.SIGNING,
-                SignatureService.ISSStatus.SUBMITTED));
-        final List<Experiment> waitingSignatureExp = experimentRepository.findByDocumentsIds(documentsIds);
-        dashboardDTO.setWaitingSignatureExp(convert(user, waitingSignatureExp, false));
+        final Map<String, SignatureService.Document> documents = signatureService.getDocuments()
+                .stream().collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+        final List<Experiment> experiments = experimentRepository.findByDocumentsIds(documents.keySet());
 
-//        final Collection<Experiment> submittedAndSigningExp = experimentRepository.findBySubmittedBy(user);
-//        dashboardDTO.setSubmittedAndSigningExp(convert(user, submittedAndSigningExp));        
-        
+        // Experiments Waiting Author’s Signature
+        final List<Experiment> waitingSignatureExp = experiments.stream().filter(e -> {
+            SignatureService.Document document = documents.get(e.getDocumentId());
+            return document.getStatus() == SignatureService.ISSStatus.SIGNING || document.getStatus() == SignatureService.ISSStatus.SUBMITTED;
+        }).collect(Collectors.toList());
+        dashboardDTO.setWaitingSignatureExp(convert(user, waitingSignatureExp, documents, false));
+
+        // Experiments Submitted by Author
+        final List<Experiment> submittedAndSigningExp = experiments.stream().filter(e -> {
+            final String submittedById = Optional.ofNullable(e.getSubmittedBy()).map(User::getId).orElse(null);
+            return user.getId().equals(submittedById);
+        }).collect(Collectors.toList());
+        dashboardDTO.setSubmittedAndSigningExp(convert(user, submittedAndSigningExp, documents, false));
+
         return ResponseEntity.ok(dashboardDTO);
     }
 
-    private List<DashboardExperimentDTO> convert(User user, Collection<Experiment> experiments, boolean filter) {
+    private List<DashboardRowDTO> convert(User user, Collection<Experiment> experiments, Map<String, SignatureService.Document> documents, boolean filter) {
         return experiments.stream().map(this::getEntities).filter(t -> !filter || hasAccess(user, t))
-                .map(this::convert).collect(Collectors.toList());
+                .map(t -> {
+                    final Project project = t.getLeft();
+                    final Notebook middle = t.getMiddle();
+                    final Experiment experiment = t.getRight();
+                    return convert(project, middle, experiment, Optional.ofNullable(documents)
+                            .map(d -> d.get(experiment.getDocumentId())).orElse(null));
+                }).collect(Collectors.toList());
     }
 
+    /**
+     * Gets all parent entities for experiment
+     * @param e experiment
+     * @return entities for experiment including itself
+     */
     private Triple<Project, Notebook, Experiment> getEntities(Experiment e) {
         final Notebook notebook = notebookRepository.findByExperimentId(e.getId());
         final Project project = projectRepository.findByNotebookId(notebook.getId());
         return Triple.of(project, notebook, e);
     }
 
+    /**
+     * Checks if user has access to all entities
+     * @param user user to check access for
+     * @param t entities to check (project, notebook, experiment)
+     * @return true if user has access to all the entities
+     */
     private boolean hasAccess(User user, Triple<Project, Notebook, Experiment> t) {
         final Project project = t.getLeft();
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(), UserPermission.READ_ENTITY)) {
@@ -112,16 +139,21 @@ public class DashboardResource {
         return PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY);
     }
 
-    private DashboardExperimentDTO convert(Triple<Project, Notebook, Experiment> t) {
-        DashboardExperimentDTO result = new DashboardExperimentDTO();
-
-        final Project project = t.getLeft();
-        final Notebook notebook = t.getMiddle();
-        final Experiment experiment = t.getRight();
+    /**
+     * Creates new dashboard row DTO
+     * @param project experiment project
+     * @param notebook experiment notebook
+     * @param experiment experiment
+     * @param document experiment document (in signature service)
+     * @return dashboard row DTO
+     */
+    private DashboardRowDTO convert(Project project, Notebook notebook, Experiment experiment, SignatureService.Document document) {
+        DashboardRowDTO result = new DashboardRowDTO();
 
         final List<ComponentDTO> components =
                 experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList());
 
+        // We get title from 'Reaction details' component or from 'Concept details' component
         final Optional<String> reactionTitle = BatchComponentUtil.getReactionDetails(components)
                 .map(BatchComponentUtil::getComponentTitle);
         String title = reactionTitle.orElseGet(() -> {
@@ -136,12 +168,27 @@ public class DashboardResource {
         result.setId(experiment.getId());
         result.setName(title);
         result.setStatus(experiment.getStatus());
-        result.setAuthor(Optional.ofNullable(experiment.getSubmittedBy()).map(UserDTO::new).orElse(null));
+
+        result.setAuthor(Optional.ofNullable(experiment.getSubmittedBy()).map(
+                u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
+        ).orElse(null));
+
         result.setCoAuthors(Optional.ofNullable(experiment.getCoAuthors()).orElse(new ArrayList<>())
-                .stream().map(UserDTO::new).collect(Collectors.toList()));
+                .stream().map(
+                        u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
+                ).collect(Collectors.toList()));
+
         result.setProject(project.getName());
         result.setCreationDate(experiment.getCreationDate());
         result.setLastEditDate(experiment.getLastEditDate());
+
+        if (document != null) {
+            result.setWitnesses(document.getWitnesses().stream().map(
+                    u -> new DashboardRowDTO.UserDTO(u.getFirstname(), u.getLastname())
+            ).collect(Collectors.toList()));
+            result.setComments(document.getWitnesses().stream().map(SignatureService.User::getComment)
+                    .collect(Collectors.toList()));
+        }
 
         return result;
     }

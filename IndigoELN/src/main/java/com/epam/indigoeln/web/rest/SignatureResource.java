@@ -88,7 +88,7 @@ public class SignatureResource {
 
         // set document id to experiment and update status
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO experimentDto  = experimentService.getExperiment(projectId, notebookId, experimentId, user);
+        ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         experimentDto.setDocumentId(documentId);
         experimentDto.setStatus(ExperimentStatus.SUBMITTED);
         experimentDto.setSubmittedBy(user);
@@ -111,13 +111,13 @@ public class SignatureResource {
 
     @RequestMapping(value = "/document", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getDocuments() {
+    public ResponseEntity<List<SignatureService.Document>> getDocuments() throws IOException {
         return ResponseEntity.ok(signatureService.getDocuments());
     }
 
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<InputStreamResource> downloadDocument(String documentId)throws IOException {
+    public ResponseEntity<InputStreamResource> downloadDocument(String documentId) throws IOException {
 
         final String info = signatureService.getDocumentInfo(documentId);
         String documentName = objectMapper.readValue(info, JsonNode.class).get("documentName").asText();
