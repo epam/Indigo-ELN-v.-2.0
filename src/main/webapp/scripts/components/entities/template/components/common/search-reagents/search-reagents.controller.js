@@ -3,27 +3,25 @@
 angular.module('indigoeln').controller('SearchReagentsController',
     function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, activeTab) {
         $scope.model = {};
-        $scope.isSearchResultFound = false;
+        $scope.isSearchCompleted = false;
         $scope.model.restrictions = {
             searchQuery: '',
             advancedSearch: {
-                nbkBatch: {name: 'NBK batch #', searchCondition: {name: 'contains'}},
-                molFormula: {name: 'Molecular Formula', searchCondition: {name: 'contains'}},
-                molWeight: {name: 'Molecular Weight', searchCondition: {name: '>'}},
-                chemicalName: {name: 'Chemical Name', searchCondition: {name: 'contains'}},
-                externalNumber: {name: 'External #', searchCondition: {name: 'contains'}},
-                compoundState: {name: 'Compound State'},
-                comments: {name: 'Batch Comment', searchCondition: {name: 'contains'}},
-                hazardComments: {name: 'Batch Hazard Comment', searchCondition: {name: 'contains'}},
-                casNumber: {name: 'CAS Number', searchCondition: {name: 'contains'}}
+                nbkBatch: {name: 'NBK batch #', field: 'nbkBatch', condition: {name: 'contains'}},
+                molFormula: {name: 'Molecular Formula', field: 'molFormula', condition: {name: 'contains'}},
+                molWeight: {name: 'Molecular Weight', field: 'molWeight', condition: {name: '>'}},
+                chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}},
+                externalNumber: {name: 'External #', field: 'externalNumber', condition: {name: 'contains'}},
+                compoundState: {name: 'Compound State', field: 'compoundState', condition: {name: 'contains'}},
+                comments: {name: 'Batch Comment', field: 'comments', condition: {name: 'contains'}},
+                hazardComments: {name: 'Batch Hazard Comment', field: 'hazardComments', condition: {name: 'contains'}},
+                casNumber: {name: 'CAS Number', field: 'casNumber', condition: {name: 'contains'}}
             },
             structure: {
                 name: 'Reaction Scheme',
-                similarityCriteria: {name: 'none'},
-                similarityValue: null,
-                scheme: null,
-                image: null,
-                molFile: null
+                searchMode: {name: 'none'},
+                similarity: null,
+                image: null
             }
         };
 
@@ -32,10 +30,10 @@ angular.module('indigoeln').controller('SearchReagentsController',
             $rootScope.$broadcast('new-stoich-rows', selected);
         };
 
-        $scope.searchConditionText = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}];
-        $scope.searchConditionChemicalName = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}];
-        $scope.searchConditionNumber = [{name: '>'}, {name: '<'}, {name: '='}];
-        $scope.searchConditionSimilarity = [{name:'none'},{name:'equal'},{name:'substructure'},{name:'similarity'}];
+        $scope.conditionText = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}];
+        $scope.conditionChemicalName = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}];
+        $scope.conditionNumber = [{name: '>'}, {name: '<'}, {name: '='}];
+        $scope.conditionSimilarity = [{name:'none'},{name:'equal'},{name:'substructure'},{name:'similarity'}];
 
         $scope.isActiveTab0 = activeTab === 0;
         $scope.isActiveTab1 = activeTab === 1;
@@ -123,46 +121,63 @@ angular.module('indigoeln').controller('SearchReagentsController',
             })).length;
         };
 
-        $scope.search = function () {
-            $scope.model.databases = _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
-            $timeout(function () {
-                $scope.model.restrictions.advancedSummary = [];
-                _.each($scope.model.restrictions.advancedSearch, function (restriction) {
-                    if (restriction.value) {
-                        $scope.model.restrictions.advancedSummary.push(restriction);
-                    }
-                });
-                $scope.isSearchResultFound = true;
-                if ($scope.model.restrictions.structure.molfile) {
-                    var searchMode = $scope.model.restrictions.structure.similarityCriteria.name;
-                    if (searchMode === 'none') {
-                        searchMode = null;
-                    } else if (searchMode === 'equal') {
-                        searchMode = 'exact';
-                    }
-                    $http({
-                        url: 'api/search/batches/structure',
-                        method: 'POST',
-                        data: $scope.model.restrictions.structure.molfile,
-                        params: {
-                            searchMode: searchMode,
-                            similarity: $scope.model.restrictions.structure.similarityValue / 100
-                        }
-                    }).success(function (result) {
-                        $scope.searchResults = _.map(result, function(item) {
-                            var batchDetails = _.extend({}, item.details);
-                            batchDetails.nbkBatch = item.notebookBatchNumber;
-                            batchDetails.isCollapsed = true;
-                            batchDetails.isSelected = false;
-                            batchDetails.database = $scope.model.databases.join(', ');
-                            batchDetails.molWeight = item.details.molWgt;
-                            return batchDetails;
-                        });
-                        console.log(result);
-                    });
+        var prepareAdvancedSearchSummary = function() {
+            var advancedSummary = [];
+            _.each($scope.model.restrictions.advancedSearch, function (restriction) {
+                if (restriction.value) {
+                    var restrictionCopy = angular.copy(restriction);
+                    restrictionCopy.condition = restriction.condition.name;
+                    advancedSummary.push(restrictionCopy);
                 }
-
             });
+            $scope.model.restrictions.advancedSummary = advancedSummary;
+            return advancedSummary;
+        };
+
+        var prepareStructure = function() {
+            var structure = angular.copy($scope.model.restrictions.structure);
+            if (structure.searchMode.name) {
+                structure.searchMode = structure.searchMode.name;
+                if (structure.searchMode === 'none') {
+                    structure.searchMode = null;
+                } else if (structure.searchMode === 'equal') {
+                    structure.searchMode = 'exact';
+                }
+            }
+            structure.similarity =  structure.similarity / 100;
+            return structure;
+        };
+
+        var prepareDatabases = function() {
+            var databases = _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
+            $scope.model.databases = databases;
+            return databases;
+        };
+
+        $scope.search = function () {
+            var searchCriteria = {
+                searchQuery: $scope.model.restrictions.searchQuery,
+                advancedSearch: prepareAdvancedSearchSummary(),
+                structure: prepareStructure(),
+                databases: prepareDatabases()
+            };
+            $http({
+                url: 'api/search/batch',
+                method: 'POST',
+                data: searchCriteria
+            }).success(function (result) {
+                $scope.searchResults = _.map(result, function(item) {
+                    var batchDetails = _.extend({}, item.details);
+                    batchDetails.nbkBatch = item.notebookBatchNumber;
+                    batchDetails.isCollapsed = true;
+                    batchDetails.isSelected = false;
+                    batchDetails.database = $scope.model.databases.join(', ');
+                    batchDetails.molWeight = item.details.molWgt;
+                    return batchDetails;
+                });
+                console.log(result);
+            });
+            $scope.isSearchCompleted = true;
         };
 
         $scope.cancel = function () {
