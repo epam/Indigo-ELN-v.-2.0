@@ -3,7 +3,7 @@ package com.epam.indigoeln.web.rest;
 import java.util.Collection;
 
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class SearchResource {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByNotebookBatchNumber(
-            @RequestBody BatchSearchRequestDTO searchRequest)  {
+            @RequestBody BatchSearchRequest searchRequest)  {
         Collection<ProductBatchDetailsDTO> batchDetails = searchService.searchBatches(searchRequest);
         return ResponseEntity.ok(batchDetails);
     }

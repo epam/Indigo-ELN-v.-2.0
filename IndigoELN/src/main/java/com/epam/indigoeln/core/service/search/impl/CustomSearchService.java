@@ -4,7 +4,7 @@ import com.epam.indigoeln.core.repository.search.SearchComponentsRepository;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class CustomSearchService implements SearchServiceAPI {
     private SearchComponentsRepository searchComponentsRepository;
 
     @Override
-    public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequestDTO searchRequest) {
+    public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequest searchRequest) {
         return searchComponentsRepository.findBatches(searchRequest);
     }
 

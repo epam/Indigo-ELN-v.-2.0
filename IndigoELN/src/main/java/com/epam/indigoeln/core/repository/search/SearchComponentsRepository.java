@@ -4,8 +4,8 @@ import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructureDTO;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,19 +39,19 @@ public class SearchComponentsRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequestDTO searchRequest) {
+    public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         TypedAggregation<Component> aggregation = buildAggregation(searchRequest);
         AggregationResults<Component> aggregate = mongoTemplate.aggregate(aggregation, Component.class);
         return aggregate.getMappedResults().stream().map(SearchComponentsRepository::convertResult).collect(Collectors.toList());
     }
 
-    private TypedAggregation<Component> buildAggregation(BatchSearchRequestDTO searchRequest) {
+    private TypedAggregation<Component> buildAggregation(BatchSearchRequest searchRequest) {
         List<AggregationOperation> aggregationOperations = new ArrayList<>();
         aggregationOperations.add(Aggregation.match(Criteria.where("name").is("productBatchSummary"))); // filter by type
         aggregationOperations.add(Aggregation.unwind("$content.batches")); // unwind (flat array of batches)
 
         if(searchRequest.getSearchQuery().isPresent()){ //if structure parameters required
-            BatchSearchStructureDTO structureDTO = searchRequest.getStructure().get();
+            BatchSearchStructure structureDTO = searchRequest.getStructure().get();
             List<Integer> bingoIds;
             if(structureDTO.getFormula().isPresent()) {
                 bingoIds = searchByBingoDb(structureDTO.getFormula().get(), CHEMISTRY_SEARCH_MOLFORMULA, Collections.emptyMap());

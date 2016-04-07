@@ -2,7 +2,7 @@ package com.epam.indigoeln.web.rest.dto.search.request;
 
 import java.util.Optional;
 
-public class BatchSearchCriteriaDTO {
+public class BatchSearchCriteria {
 
     private String name;
     private String field;
