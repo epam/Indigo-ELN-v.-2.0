@@ -1,16 +1,9 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.util.SequenceIdUtil;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class DashboardExperimentDTO {
 
@@ -34,19 +27,7 @@ public class DashboardExperimentDTO {
 
     private ZonedDateTime lastEditDate;
 
-    public DashboardExperimentDTO(Experiment experiment, Notebook notebook, Project project) {
-        this.projectId = SequenceIdUtil.extractShortId(project);
-        this.notebookId = SequenceIdUtil.extractShortId(notebook);
-        this.experimentId = SequenceIdUtil.extractShortId(experiment);
-        this.id = experiment.getId();
-        this.name = experiment.getName();
-        this.status = experiment.getStatus();
-        this.coAuthors =
-                Optional.ofNullable(experiment.getCoAuthors()).orElse(new ArrayList<>())
-                        .stream().map(UserDTO::new).collect(Collectors.toList());
-        this.project = project.getName();
-        this.creationDate = experiment.getCreationDate();
-        this.lastEditDate = experiment.getLastEditDate();
+    public DashboardExperimentDTO() {
     }
 
     public String getProjectId() {
