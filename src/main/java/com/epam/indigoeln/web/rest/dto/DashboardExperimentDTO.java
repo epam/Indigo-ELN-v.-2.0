@@ -19,6 +19,8 @@ public class DashboardExperimentDTO {
 
     private ExperimentStatus status;
 
+    private UserDTO author;
+
     private List<UserDTO> coAuthors;
 
     private String project;
@@ -26,9 +28,6 @@ public class DashboardExperimentDTO {
     private ZonedDateTime creationDate;
 
     private ZonedDateTime lastEditDate;
-
-    public DashboardExperimentDTO() {
-    }
 
     public String getProjectId() {
         return projectId;
@@ -76,6 +75,14 @@ public class DashboardExperimentDTO {
 
     public void setStatus(ExperimentStatus status) {
         this.status = status;
+    }
+
+    public UserDTO getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(UserDTO author) {
+        this.author = author;
     }
 
     public List<UserDTO> getCoAuthors() {

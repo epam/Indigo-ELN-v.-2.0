@@ -14,6 +14,8 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Collection<Experiment> findByAuthor(User author);
 
+    Collection<Experiment> findBySubmittedBy(User submittedBy);
+
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 
