@@ -100,7 +100,7 @@
         <tbody class="main-table__body">
         <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp">
             <td class="table-list__item">
-                <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+                <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
@@ -134,7 +134,7 @@
         <tbody class="main-table__body">
         <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp">
             <td class="table-list__item">
-                <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+                <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
