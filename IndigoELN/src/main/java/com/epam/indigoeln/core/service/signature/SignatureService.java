@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -57,6 +59,19 @@ public class SignatureService {
 
     public String getDocuments() {
         return signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+    }
+
+    public List<String> getDocumentsIds(Collection<ISSStatus> statuses) throws IOException {
+        final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+        final JsonNode documents = objectMapper.readValue(content, JsonNode.class).get("Documents");
+        List<String> result = new ArrayList<>();
+        for (JsonNode document : documents) {
+            final int status = document.get("status").asInt();
+            if (statuses.contains(ISSStatus.fromValue(status))) {
+                result.add(document.get("id").asText());
+            }
+        }
+        return result;
     }
 
     public byte[] downloadDocument(String documentId) {

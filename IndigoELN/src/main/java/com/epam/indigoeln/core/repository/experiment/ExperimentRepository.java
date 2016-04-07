@@ -22,4 +22,8 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     @Query(value="{'author': ?0, 'status' : { $in : ?1 }, 'creationDate': { $gt: ?2 }}")
     List<Experiment> findByAuthorAndStatusesCreatedAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime date);
+
+    @Query(value="{'documentId': { $in : ?0 }}")
+    List<Experiment> findByDocumentsIds(List<String> documentsIds);
+
 }

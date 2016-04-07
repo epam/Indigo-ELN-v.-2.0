@@ -11,6 +11,7 @@ import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.bson.BasicBSONObject;
@@ -27,6 +28,9 @@ import static java.util.stream.Collectors.toList;
 public final class BatchComponentUtil {
 
     public static final String COMPONENT_NAME_BATCH_SUMMARY = "productBatchSummary";
+    public static final String COMPONENT_NAME_REACTION_DETAILS = "reactionDetails";
+    public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
+    public static final String COMPONENT_FIELD_TITLE = "title";
     public static final String COMPONENT_FIELD_BATCHES = "batches";
     public static final String COMPONENT_FIELD_STRUCTURE = "structure";
     public static final String COMPONENT_FIELD_STRUCTURE_ID = "structureId";
@@ -37,6 +41,30 @@ public final class BatchComponentUtil {
     private static final String PATTERN_BATCH_NUMBER = "\\d{3}";
 
     private BatchComponentUtil() {
+    }
+
+    public static Optional<ComponentDTO> getReactionDetails(Collection<ComponentDTO> components) {
+        return getComponent(components, COMPONENT_NAME_REACTION_DETAILS);
+    }
+
+    public static Optional<ComponentDTO> getConceptDetails(Collection<ComponentDTO> components) {
+        return getComponent(components, COMPONENT_NAME_CONCEPT_DETAILS);
+    }
+
+    public static Optional<ComponentDTO> getComponent(Collection<ComponentDTO> components, String componentName) {
+        Predicate<ComponentDTO> batchFilter = c -> componentName.equals(c.getName()) &&
+                c.getContent() != null;
+
+        return components.stream().filter(batchFilter).findFirst();
+    }
+
+    public static String getComponentTitle(ComponentDTO component) {
+        return (String) getComponentField(component, COMPONENT_FIELD_TITLE);
+    }
+
+    public static Object getComponentField(ComponentDTO component, String fieldName) {
+        final BasicDBObject content = component.getContent();
+        return content.get(fieldName);
     }
 
     /**
