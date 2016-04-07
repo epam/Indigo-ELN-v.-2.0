@@ -28,6 +28,8 @@ public class Experiment extends ExperimentShort {
 
     private String documentId;
 
+    private User submittedBy;
+
     @JsonIgnore
     @DBRef
     private List<Component> components;
@@ -89,6 +91,14 @@ public class Experiment extends ExperimentShort {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public User getSubmittedBy() {
+        return submittedBy;
+    }
+
+    public void setSubmittedBy(User submittedBy) {
+        this.submittedBy = submittedBy;
     }
 
     public TreeNodeDTO  retrieveTreeNodeDTO() {

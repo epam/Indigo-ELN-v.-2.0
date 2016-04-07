@@ -4,7 +4,6 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
@@ -29,8 +28,6 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @RestController
@@ -78,18 +75,21 @@ public class DashboardResource {
         ZonedDateTime date = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
         final List<Experiment> openAndCompletedExp = experimentRepository.findByAuthorAndStatusesCreatedAfter(user,
                 Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), date);
-        dashboardDTO.setOpenAndCompletedExp(convert(user, openAndCompletedExp));
+        dashboardDTO.setOpenAndCompletedExp(convert(user, openAndCompletedExp, true));
 
         final List<String> documentsIds = signatureService.getDocumentsIds(Arrays.asList(SignatureService.ISSStatus.SIGNING,
                 SignatureService.ISSStatus.SUBMITTED));
         final List<Experiment> waitingSignatureExp = experimentRepository.findByDocumentsIds(documentsIds);
-        dashboardDTO.setWaitingSignatureExp(convert(user, waitingSignatureExp));
+        dashboardDTO.setWaitingSignatureExp(convert(user, waitingSignatureExp, false));
 
+//        final Collection<Experiment> submittedAndSigningExp = experimentRepository.findBySubmittedBy(user);
+//        dashboardDTO.setSubmittedAndSigningExp(convert(user, submittedAndSigningExp));        
+        
         return ResponseEntity.ok(dashboardDTO);
     }
 
-    private List<DashboardExperimentDTO> convert(User user, Collection<Experiment> experiments) {
-        return experiments.stream().map(this::getEntities).filter(t -> hasAccess(user, t))
+    private List<DashboardExperimentDTO> convert(User user, Collection<Experiment> experiments, boolean filter) {
+        return experiments.stream().map(this::getEntities).filter(t -> !filter || hasAccess(user, t))
                 .map(this::convert).collect(Collectors.toList());
     }
 
@@ -136,6 +136,7 @@ public class DashboardResource {
         result.setId(experiment.getId());
         result.setName(title);
         result.setStatus(experiment.getStatus());
+        result.setAuthor(Optional.ofNullable(experiment.getSubmittedBy()).map(UserDTO::new).orElse(null));
         result.setCoAuthors(Optional.ofNullable(experiment.getCoAuthors()).orElse(new ArrayList<>())
                 .stream().map(UserDTO::new).collect(Collectors.toList()));
         result.setProject(project.getName());

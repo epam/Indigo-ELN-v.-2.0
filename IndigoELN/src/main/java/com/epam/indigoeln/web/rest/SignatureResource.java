@@ -90,7 +90,8 @@ public class SignatureResource {
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDto  = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         experimentDto.setDocumentId(documentId);
-        experimentDto.setStatus(ExperimentStatus.fromValue("Submitted"));
+        experimentDto.setStatus(ExperimentStatus.SUBMITTED);
+        experimentDto.setSubmittedBy(user);
         experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
 
         return ResponseEntity.ok(result);

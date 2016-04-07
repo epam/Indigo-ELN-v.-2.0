@@ -26,28 +26,27 @@ import java.util.stream.Collectors;
 public class ExperimentService {
 
     @Autowired
+    CustomDtoMapper dtoMapper;
+    @Autowired
     private ProjectRepository projectRepository;
-
     @Autowired
     private NotebookRepository notebookRepository;
-
     @Autowired
     private ExperimentRepository experimentRepository;
-
     @Autowired
     private ComponentRepository componentRepository;
-
     @Autowired
     private FileRepository fileRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private SequenceIdService sequenceIdService;
 
-    @Autowired
-    CustomDtoMapper dtoMapper;
+    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
+        return experiments == null ? new ArrayList<>() :
+                experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
+                        experiment.getAccessList(), userId) != null).collect(Collectors.toList());
+    }
 
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId) {
         return getAllExperimentTreeNodes(projectId, notebookId, null);
@@ -194,6 +193,7 @@ public class ExperimentService {
         experimentFromDB.setStatus(experimentForSave.getStatus());
         experimentFromDB.setWitness(experimentForSave.getWitness());
         experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
+        experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
 
         experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
 
@@ -243,7 +243,6 @@ public class ExperimentService {
         return componentRepository.save(componentsForSave);
     }
 
-
     public void deleteExperiment(String id, String projectId, String notebookId) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
@@ -261,11 +260,5 @@ public class ExperimentService {
 
         fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
-    }
-
-    private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
-        return experiments == null ? new ArrayList<>() :
-                experiments.stream().filter(experiment -> PermissionUtil.findPermissionsByUserId(
-                        experiment.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 }
