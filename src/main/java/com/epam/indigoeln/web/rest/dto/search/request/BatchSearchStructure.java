@@ -2,7 +2,7 @@ package com.epam.indigoeln.web.rest.dto.search.request;
 
 import java.util.Optional;
 
-public class BatchSearchStructureDTO {
+public class BatchSearchStructure {
     private String name;
     private String searchMode;
     private float  similarity;

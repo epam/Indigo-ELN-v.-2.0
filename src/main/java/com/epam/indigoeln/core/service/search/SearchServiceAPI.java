@@ -3,9 +3,9 @@ package com.epam.indigoeln.core.service.search;
 import java.util.Collection;
 
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 
 public interface SearchServiceAPI {
 
-    Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequestDTO searchRequest);
+    Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequest searchRequest);
 }

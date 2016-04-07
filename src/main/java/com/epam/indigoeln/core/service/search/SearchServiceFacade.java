@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.search;
 
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequestDTO;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class SearchServiceFacade implements SearchServiceAPI {
 
 
     @Override
-    public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequestDTO searchRequest) {
+    public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequest searchRequest) {
         Collection<ProductBatchDetailsDTO> result = new ArrayList<>();
         for(SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
             result.addAll(provider.searchBatches(searchRequest));

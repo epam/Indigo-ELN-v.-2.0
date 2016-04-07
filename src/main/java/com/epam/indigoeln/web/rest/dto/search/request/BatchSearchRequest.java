@@ -5,19 +5,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Optional;
 
-public class BatchSearchRequestDTO {
+public class BatchSearchRequest {
 
     private Optional<String> searchQuery;
     @JsonProperty("criteria")
-    private List<BatchSearchCriteriaDTO> criteriaList;
-    private Optional<BatchSearchStructureDTO> structure;
+    private List<BatchSearchCriteria> criteriaList;
+    private Optional<BatchSearchStructure> structure;
     private List<String> databases;
 
     public Optional<String> getSearchQuery() {
         return searchQuery;
     }
 
-    public List<BatchSearchCriteriaDTO> getCriteriaList() {
+    public List<BatchSearchCriteria> getCriteriaList() {
         return criteriaList;
     }
 
@@ -25,7 +25,7 @@ public class BatchSearchRequestDTO {
         return databases;
     }
 
-    public Optional<BatchSearchStructureDTO> getStructure() {
+    public Optional<BatchSearchStructure> getStructure() {
         return structure;
     }
 
@@ -33,7 +33,7 @@ public class BatchSearchRequestDTO {
         this.searchQuery = searchQuery;
     }
 
-    public void setCriteriaList(List<BatchSearchCriteriaDTO> criteriaList) {
+    public void setCriteriaList(List<BatchSearchCriteria> criteriaList) {
         this.criteriaList = criteriaList;
     }
 
@@ -41,7 +41,7 @@ public class BatchSearchRequestDTO {
         this.databases = databases;
     }
 
-    public void setStructure(Optional<BatchSearchStructureDTO> structure) {
+    public void setStructure(Optional<BatchSearchStructure> structure) {
         this.structure = structure;
     }
 }
