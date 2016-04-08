@@ -47,6 +47,7 @@ public class ManagedUserDTO extends UserDTO {
         return id;
     }
 
+    @Override
     public void setId(String id) {
         this.id = id;
     }
@@ -88,6 +89,7 @@ public class ManagedUserDTO extends UserDTO {
         return group;
     }
 
+    @Override
     public void setGroup(String group) {
         this.group = group;
     }
