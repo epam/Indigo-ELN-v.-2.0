@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -168,6 +169,7 @@ public class SignatureService {
             return value;
         }
 
+        @JsonCreator
         public static ISSStatus fromValue(Integer value) {
             for (ISSStatus status : ISSStatus.values()) {
                 if (status.getValue().equals(value)) {
