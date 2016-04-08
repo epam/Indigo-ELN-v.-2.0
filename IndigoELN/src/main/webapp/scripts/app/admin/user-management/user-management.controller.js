@@ -45,7 +45,7 @@ angular.module('indigoeln')
 
         $scope.save = function () {
             $scope.isSaving = true;
-            if ($scope.user.group.name) {
+            if ($scope.user.group) {
                 $scope.user.group = $scope.user.group.name;
             }
             if ($scope.user.id != null) {
