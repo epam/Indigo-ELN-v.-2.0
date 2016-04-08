@@ -1,5 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
@@ -64,7 +65,7 @@ public class DashboardResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<DashboardDTO> getDashboard() throws IOException {
+    public ResponseEntity<DashboardDTO> getDashboard() {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get dashboard experiments");
         }
@@ -73,8 +74,14 @@ public class DashboardResource {
 
         ZonedDateTime threshold = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
 
-        final Map<String, SignatureService.Document> documents = signatureService.getDocuments()
-                .stream().collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+        final Map<String, SignatureService.Document> documents;
+        try {
+            documents = signatureService.getDocuments()
+                    .stream().collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+        } catch (IOException e) {
+            LOGGER.error("Unable to get list of documents from signature service.", e);
+            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+        }
         final List<Experiment> signatureServiceExperiments = experimentRepository.findByDocumentsIds(documents.keySet());
 
         // Open and Completed Experiments
