@@ -99,7 +99,8 @@ public class DashboardResource {
         // Experiments Waiting Author’s Signature
         final List<Experiment> waitingSignatureExp = signatureServiceExperiments.stream().filter(e -> {
             SignatureService.Document document = documents.get(e.getDocumentId());
-            return document.getStatus() == SignatureService.ISSStatus.SIGNING || document.getStatus() == SignatureService.ISSStatus.SUBMITTED;
+            return document.isActionRequired() &&
+                    (document.getStatus() == SignatureService.ISSStatus.SIGNING || document.getStatus() == SignatureService.ISSStatus.SUBMITTED);
         }).collect(Collectors.toList());
         dashboardDTO.setWaitingSignatureExp(
                 waitingSignatureExp.stream()

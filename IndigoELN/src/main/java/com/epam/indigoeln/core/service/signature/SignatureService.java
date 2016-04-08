@@ -200,6 +200,8 @@ public class SignatureService {
 
         private ISSStatus status;
 
+        private boolean actionRequired;
+
         private List<User> witnesses;
 
         public String getId() {
@@ -216,6 +218,14 @@ public class SignatureService {
 
         public void setStatus(ISSStatus status) {
             this.status = status;
+        }
+
+        public boolean isActionRequired() {
+            return actionRequired;
+        }
+
+        public void setActionRequired(boolean actionRequired) {
+            this.actionRequired = actionRequired;
         }
 
         public List<User> getWitnesses() {
