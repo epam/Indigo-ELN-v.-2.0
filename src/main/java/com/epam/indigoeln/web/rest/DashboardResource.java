@@ -69,10 +69,6 @@ public class DashboardResource {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get dashboard experiments");
         }
-        User user = userService.getUserWithAuthorities();
-        DashboardDTO dashboardDTO = new DashboardDTO();
-
-        ZonedDateTime threshold = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
 
         final Map<String, SignatureService.Document> documents;
         try {
@@ -82,6 +78,11 @@ public class DashboardResource {
             LOGGER.error("Unable to get list of documents from signature service.", e);
             throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
         }
+
+        User user = userService.getUserWithAuthorities();
+        DashboardDTO dashboardDTO = new DashboardDTO();
+
+        ZonedDateTime threshold = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
         final List<Experiment> signatureServiceExperiments = experimentRepository.findByDocumentsIds(documents.keySet());
 
         // Open and Completed Experiments

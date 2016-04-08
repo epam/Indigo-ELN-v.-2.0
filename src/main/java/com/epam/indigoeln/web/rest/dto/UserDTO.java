@@ -15,29 +15,22 @@ import java.util.Set;
  */
 public class UserDTO {
 
+    protected Set<Authority> authorities;
     @NotNull
     private String id;
-
     @Pattern(regexp = "^[a-z0-9]*$")
     @NotNull
     @Size(min = 1, max = 50)
     private String login;
-
     @Size(max = 50)
     private String firstName;
-
     @Size(max = 50)
     private String lastName;
-
     @Email
     @Size(min = 5, max = 100)
     private String email;
-
     private String group;
-
     private boolean activated;
-
-    protected HashSet<Authority> authorities;
 
     public UserDTO() {
         super();
@@ -110,11 +103,11 @@ public class UserDTO {
         this.activated = activated;
     }
 
-    public HashSet<Authority> getAuthorities() {
+    public Set<Authority> getAuthorities() {
         return authorities;
     }
 
-    public void setAuthorities(HashSet<Authority> authorities) {
+    public void setAuthorities(Set<Authority> authorities) {
         this.authorities = authorities;
     }
 
