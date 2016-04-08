@@ -188,7 +188,7 @@ public class DashboardResource {
         result.setProjectId(SequenceIdUtil.extractShortId(project));
         result.setNotebookId(SequenceIdUtil.extractShortId(notebook));
         result.setExperimentId(SequenceIdUtil.extractShortId(experiment));
-        result.setId(experiment.getId());
+        result.setId(notebook.getName() + "-" + experiment.getName());
         result.setName(title);
         result.setStatus(experiment.getStatus());
 
