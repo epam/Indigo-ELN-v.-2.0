@@ -104,7 +104,7 @@ public class ExperimentService {
     }
 
     public Collection<ExperimentDTO> getExperimentsByStatuses(List<ExperimentStatus> statuses) {
-        return experimentRepository.findByStatuses(statuses).stream().map(ExperimentDTO::new).collect(Collectors.toList());
+        return experimentRepository.findByStatusIn(statuses).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {

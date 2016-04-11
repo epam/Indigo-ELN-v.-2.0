@@ -14,18 +14,15 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     Collection<Experiment> findByAuthor(User author);
 
-    Collection<Experiment> findBySubmittedBy(User submittedBy);
+    Collection<Experiment> findByAuthorOrSubmittedBy(User author, User submittedBy);
 
     @Query("{'fileIds': ?0}")
     Experiment findByFileId(String fileId);
 
-    @Query(value = "{'status' : { $in : ?0}}")
-    List<Experiment> findByStatuses(List<ExperimentStatus> statuses);
+    List<Experiment> findByStatusIn(List<ExperimentStatus> statuses);
 
-    @Query(value = "{'author': ?0, 'status' : { $in : ?1 }}")
-    List<Experiment> findByAuthorAndStatuses(User user, List<ExperimentStatus> statuses);
+    List<Experiment> findByAuthorAndStatusIn(User user, List<ExperimentStatus> statuses);
 
-    @Query(value = "{'documentId': { $in : ?0 }}")
-    List<Experiment> findByDocumentsIds(Collection<String> documentsIds);
+    List<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
 
 }

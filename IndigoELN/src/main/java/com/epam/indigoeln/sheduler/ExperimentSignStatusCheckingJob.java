@@ -36,7 +36,7 @@ public class ExperimentSignStatusCheckingJob {
     @Scheduled(fixedDelay = DELAY)
     public void execute() {
         LOGGER.debug("Experiment sign status checking job started");
-        final List<Experiment> experiments = experimentRepository.findByStatuses(Arrays.asList(ExperimentStatus.SUBMITTED,
+        final List<Experiment> experiments = experimentRepository.findByStatusIn(Arrays.asList(ExperimentStatus.SUBMITTED,
                 ExperimentStatus.SINGING));
         Map<String, ExperimentStatus> updatedExperimentsStatuses = new HashMap<>();
         experiments.forEach(experiment -> {

@@ -105,14 +105,15 @@ public class SignatureResource {
 
     @RequestMapping(value = "/document/info", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getDocumentsInfo(List<String> documentIds) {
-        return ResponseEntity.ok(signatureService.getDocumentsInfo(documentIds));
+    public ResponseEntity<List<SignatureService.Document>> getDocumentsInfo(List<String> documentIds) throws IOException {
+        return ResponseEntity.ok(signatureService.getDocumentsByIds(documentIds));
     }
 
     @RequestMapping(value = "/document", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocuments() throws IOException {
-        return ResponseEntity.ok(signatureService.getDocuments());
+        User user = userService.getUserWithAuthorities();
+        return ResponseEntity.ok(signatureService.getDocumentsByUser(user));
     }
 
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
