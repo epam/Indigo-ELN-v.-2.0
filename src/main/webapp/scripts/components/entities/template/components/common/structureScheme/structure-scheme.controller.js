@@ -11,6 +11,12 @@ angular.module('indigoeln')
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
         $scope.myModel = $scope.model[$attrs.myStructureType];
 
+        $scope.$watch('myModel.structureId', function () {
+            if ($scope.myModel.structureId) {
+                $scope.share[$attrs.myStructureType] = $scope.myModel.structureMolfile;
+            }
+        });
+
         $scope.$watch('share.selectedRow', function (row) {
             if (row && row.structure && row.structure.structureType === $scope.structureType) {
                 $scope.image = $scope.share.selectedRow.structure.image;
