@@ -15,29 +15,22 @@ import java.util.Set;
  */
 public class UserDTO {
 
+    protected Set<Authority> authorities;
     @NotNull
     private String id;
-
     @Pattern(regexp = "^[a-z0-9]*$")
     @NotNull
     @Size(min = 1, max = 50)
     private String login;
-
     @Size(max = 50)
     private String firstName;
-
     @Size(max = 50)
     private String lastName;
-
     @Email
     @Size(min = 5, max = 100)
     private String email;
-
     private String group;
-
     private boolean activated;
-
-    protected HashSet<Authority> authorities;
 
     public UserDTO() {
         super();
@@ -58,32 +51,64 @@ public class UserDTO {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getLogin() {
         return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
     public String getLastName() {
         return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public boolean isActivated() {
         return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
     }
 
     public Set<Authority> getAuthorities() {
         return authorities;
     }
 
-    public String getGroup() {
-        return group;
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest.dto;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.User;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ public class ExperimentDTO extends BasicDTO {
     private List<ComponentDTO> components = new ArrayList<>();
     private ExperimentStatus status;
     private String documentId;
+    private User submittedBy;
 
     public ExperimentDTO() {
         super();
@@ -40,16 +42,16 @@ public class ExperimentDTO extends BasicDTO {
         return components;
     }
 
+    public void setComponents(List<ComponentDTO> components) {
+        this.components = components != null ? components : new ArrayList<>();
+    }
+
     public TemplateDTO getTemplate() {
         return template;
     }
 
     public void setTemplate(TemplateDTO template) {
         this.template = template;
-    }
-
-    public void setComponents(List<ComponentDTO> components) {
-        this.components = components != null ? components : new ArrayList<>();
     }
 
     public ExperimentStatus getStatus() {
@@ -66,5 +68,13 @@ public class ExperimentDTO extends BasicDTO {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public User getSubmittedBy() {
+        return submittedBy;
+    }
+
+    public void setSubmittedBy(User submittedBy) {
+        this.submittedBy = submittedBy;
     }
 }

@@ -72,7 +72,7 @@
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.coAuthors">{{user.name}}</li>
+                    <li ng-repeat="user in exp.coAuthors">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.project}}</td>
@@ -99,13 +99,15 @@
         </thead>
         <tbody class="main-table__body">
         <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp">
-            <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
+            <td class="table-list__item">
+                <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
+            </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
-            <td class="table-list__item">{{exp.author.name}}</td>
+            <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witness">{{user.name}}</li>
+                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
@@ -131,18 +133,24 @@
         </thead>
         <tbody class="main-table__body">
         <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp">
-            <td class="table-list__item"><a ui-sref="experiment({id: exp.id})">{{exp.id}}</a></td>
+            <td class="table-list__item">
+                <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
+            </td>
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
-            <td class="table-list__item">{{exp.author.name}}</td>
+            <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witness">{{user.name}}</li>
+                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
             <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{exp.comments}}</td>
+            <td class="table-list__item">
+                <ul>
+                    <li ng-repeat="comment in exp.comments track by $index">{{comment}}</li>
+                </ul>
+            </td>
         </tr>
         </tbody>
     </table>
