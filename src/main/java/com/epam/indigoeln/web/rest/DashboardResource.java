@@ -70,57 +70,65 @@ public class DashboardResource {
             LOGGER.debug("REST request to get dashboard experiments");
         }
 
-        final Map<String, SignatureService.Document> documents;
-        try {
-            documents = signatureService.getDocuments()
-                    .stream().collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
-        } catch (IOException e) {
-            LOGGER.error("Unable to get list of documents from signature service.", e);
-            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
-        }
-
         User user = userService.getUserWithAuthorities();
         DashboardDTO dashboardDTO = new DashboardDTO();
 
         ZonedDateTime threshold = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
-        final List<Experiment> signatureServiceExperiments = experimentRepository.findByDocumentsIds(documents.keySet());
 
-        // Open and Completed Experiments
-        final List<Experiment> openAndCompletedExp = experimentRepository.findByAuthorAndStatuses(user,
-                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED));
-        dashboardDTO.setOpenAndCompletedExp(
-                openAndCompletedExp.stream()
-                        .filter(e -> e.getCreationDate().isAfter(threshold))
-                        .map(this::getEntities)
-                        .filter(t -> hasAccess(user, t))
-                        .map(t -> convert(t, null)).collect(Collectors.toList())
-        );
-
-        // Experiments Waiting Author’s Signature
-        final List<Experiment> waitingSignatureExp = signatureServiceExperiments.stream().filter(e -> {
-            SignatureService.Document document = documents.get(e.getDocumentId());
-            return document.isActionRequired() &&
-                    (document.getStatus() == SignatureService.ISSStatus.SIGNING || document.getStatus() == SignatureService.ISSStatus.SUBMITTED);
-        }).collect(Collectors.toList());
-        dashboardDTO.setWaitingSignatureExp(
-                waitingSignatureExp.stream()
-                        .map(this::getEntities)
-                        .map(t -> convert(t, documents)).collect(Collectors.toList())
-        );
-
-        // Experiments Submitted by Author
-        final List<Experiment> submittedAndSigningExp = signatureServiceExperiments.stream().filter(e -> {
-            final String submittedById = Optional.ofNullable(e.getSubmittedBy()).map(User::getId).orElse(null);
-            return user.getId().equals(submittedById);
-        }).collect(Collectors.toList());
-        dashboardDTO.setSubmittedAndSigningExp(
-                submittedAndSigningExp.stream()
-                        .filter(e -> e.getCreationDate().isAfter(threshold))
-                        .map(this::getEntities)
-                        .map(t -> convert(t, documents)).collect(Collectors.toList())
-        );
+        dashboardDTO.setOpenAndCompletedExp(getCurrentRows(user, threshold));
+        dashboardDTO.setWaitingSignatureExp(getWaitingRows(user));
+        dashboardDTO.setSubmittedAndSigningExp(getSubmittedRows(user, threshold));
 
         return ResponseEntity.ok(dashboardDTO);
+    }
+
+    private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
+        // Open and Completed Experiments
+        final List<Experiment> openAndCompletedExp = experimentRepository.findByAuthorAndStatusIn(user,
+                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED));
+        return openAndCompletedExp.stream()
+                .filter(e -> e.getCreationDate().isAfter(threshold))
+                .map(this::getEntities)
+                .filter(t -> hasAccess(user, t))
+                .map(t -> convert(t, null)).collect(Collectors.toList());
+    }
+
+    private List<DashboardRowDTO> getWaitingRows(User user) {
+        // Experiments Waiting Author’s Signature
+        final Map<String, SignatureService.Document> waitingDocuments;
+        try {
+            waitingDocuments = signatureService.getDocumentsByUser(user).stream()
+                    .filter(d -> d.isActionRequired() && (d.getStatus() == SignatureService.ISSStatus.SIGNING || d.getStatus() == SignatureService.ISSStatus.SUBMITTED))
+                    .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+        } catch (IOException e) {
+            LOGGER.error("Unable to get list of documents from signature service.", e);
+            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+        }
+        final List<Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet());
+        return waitingExperiments.stream()
+                .map(this::getEntities)
+                .map(t -> convert(t, waitingDocuments)).collect(Collectors.toList());
+    }
+
+    private List<DashboardRowDTO> getSubmittedRows(User user, ZonedDateTime threshold) {
+        // Experiments Submitted by Author
+        final Collection<Experiment> submittedExp = experimentRepository.findByAuthorOrSubmittedBy(user, user).stream()
+                .filter(e -> e.getStatus() != ExperimentStatus.OPEN && e.getStatus() != ExperimentStatus.COMPLETED)
+                .collect(Collectors.toList());
+        final Set<String> submittedDocumentsIds = submittedExp.stream().map(Experiment::getDocumentId).collect(Collectors.toSet());
+        Map<String, SignatureService.Document> submittedDocuments;
+        try {
+            submittedDocuments = signatureService.getDocumentsByIds(submittedDocumentsIds).stream()
+                    .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+        } catch (IOException e) {
+            LOGGER.error("Unable to get list of documents from signature service.", e);
+            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+        }
+        return submittedExp.stream()
+                .filter(e -> e.getCreationDate().isAfter(threshold))
+                .map(this::getEntities)
+                .map(t -> convert(t, submittedDocuments)).collect(Collectors.toList());
+
     }
 
     private DashboardRowDTO convert(Triple<Project, Notebook, Experiment> t, Map<String, SignatureService.Document> documents) {

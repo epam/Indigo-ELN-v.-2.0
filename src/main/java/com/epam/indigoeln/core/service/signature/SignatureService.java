@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.service.signature;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
@@ -55,19 +56,16 @@ public class SignatureService {
         return signatureRepository.getDocumentInfo(documentId);
     }
 
-    public String getDocumentsInfo(List<String> documentIds) {
-        return signatureRepository.getDocumentsInfo(documentIds);
-    }
-
-    public List<Document> getDocuments() throws IOException {
-        final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+    public List<Document> getDocumentsByIds(Collection<String> documentIds) throws IOException {
+        final String content = signatureRepository.getDocumentsInfo(documentIds);
         final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
         return wrapper.getDocuments();
     }
 
-    public List<Document> getDocuments(Collection<ISSStatus> statuses) throws IOException {
-        return getDocuments().stream()
-                .filter(d -> statuses.contains(d.getStatus())).collect(Collectors.toList());
+    public List<Document> getDocumentsByUser(com.epam.indigoeln.core.model.User user) throws IOException {
+        final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+        return wrapper.getDocuments();
     }
 
     public byte[] downloadDocument(String documentId) {
