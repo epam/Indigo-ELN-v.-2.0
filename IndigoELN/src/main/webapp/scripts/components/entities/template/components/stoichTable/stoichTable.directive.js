@@ -211,8 +211,20 @@ angular.module('indigoeln')
                                 return activeTab;
                             }
                         }
-                    }).result.then(function (result) {
+                    });
+                };
 
+                $scope.analyzeRxn = function () {
+                    $uibModal.open({
+                        animation: true,
+                        size: 'lg',
+                        controller: 'AnalyzeRxnController',
+                        templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
+                        resolve: {
+                            reactants: function() {
+                                return _.pluck($scope.model.stoichTable.products, 'formula');
+                            }
+                        }
                     });
                 };
             }

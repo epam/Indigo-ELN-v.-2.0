@@ -511,3 +511,14 @@ div.enlarge:hover span{
     top: -290px;
     left: -600px;
 }
+.analyze-rxn-row div {
+    margin-bottom: 0;
+}
+
+.analyze-rxn-selected-reactants {
+    margin-left: 20px;
+}
+
+.search-tab-content {
+    margin: 10px;
+}
