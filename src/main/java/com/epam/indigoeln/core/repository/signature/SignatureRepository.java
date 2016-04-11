@@ -83,7 +83,7 @@ public class SignatureRepository {
                 String.class, Collections.singletonMap("id", documentId)).getBody();
     }
 
-    public String getDocumentsInfo(List<String> documentIds) {
+    public String getDocumentsInfo(Collection<String> documentIds) {
         if (CollectionUtils.isEmpty(documentIds)) {
             return org.apache.commons.lang.StringUtils.EMPTY;
         }

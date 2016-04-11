@@ -1,18 +1,11 @@
 package com.epam.indigoeln.web.rest.dto;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.util.SequenceIdUtil;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class DashboardExperimentDTO {
+public class DashboardRowDTO {
 
     private String projectId;
 
@@ -26,6 +19,8 @@ public class DashboardExperimentDTO {
 
     private ExperimentStatus status;
 
+    private UserDTO author;
+
     private List<UserDTO> coAuthors;
 
     private String project;
@@ -34,20 +29,9 @@ public class DashboardExperimentDTO {
 
     private ZonedDateTime lastEditDate;
 
-    public DashboardExperimentDTO(Experiment experiment, Notebook notebook, Project project) {
-        this.projectId = SequenceIdUtil.extractShortId(project);
-        this.notebookId = SequenceIdUtil.extractShortId(notebook);
-        this.experimentId = SequenceIdUtil.extractShortId(experiment);
-        this.id = experiment.getId();
-        this.name = experiment.getName();
-        this.status = experiment.getStatus();
-        this.coAuthors =
-                Optional.ofNullable(experiment.getCoAuthors()).orElse(new ArrayList<>())
-                        .stream().map(UserDTO::new).collect(Collectors.toList());
-        this.project = project.getName();
-        this.creationDate = experiment.getCreationDate();
-        this.lastEditDate = experiment.getLastEditDate();
-    }
+    private List<UserDTO> witnesses;
+
+    private List<String> comments;
 
     public String getProjectId() {
         return projectId;
@@ -97,6 +81,14 @@ public class DashboardExperimentDTO {
         this.status = status;
     }
 
+    public UserDTO getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(UserDTO author) {
+        this.author = author;
+    }
+
     public List<UserDTO> getCoAuthors() {
         return coAuthors;
     }
@@ -128,4 +120,41 @@ public class DashboardExperimentDTO {
     public void setLastEditDate(ZonedDateTime lastEditDate) {
         this.lastEditDate = lastEditDate;
     }
+
+    public List<UserDTO> getWitnesses() {
+        return witnesses;
+    }
+
+    public void setWitnesses(List<UserDTO> witnesses) {
+        this.witnesses = witnesses;
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<String> comments) {
+        this.comments = comments;
+    }
+
+    public static class UserDTO {
+
+        private final String firstName;
+
+        private final String lastName;
+
+        public UserDTO(String firstName, String lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+    }
+
 }

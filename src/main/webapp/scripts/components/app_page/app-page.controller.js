@@ -5,7 +5,7 @@
 
 angular
     .module('indigoeln')
-    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, ExperimentStatus) {
+    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, ExperimentStatus, Config) {
 
 
         /**
@@ -34,9 +34,13 @@ angular
             $rootScope.$broadcast('experiment-status-changed', statuses);
         });
 
+        Config.load({}, function(config) {
+            $rootScope.$broadcast('config-loaded', config);
+        });
+
         $rootScope.$on('$destroy', function() {
             ExperimentStatus.destroy();
-        })
+        });
 
         $scope.toggleSidebar = function () {
             $scope.toggle = !$scope.toggle;

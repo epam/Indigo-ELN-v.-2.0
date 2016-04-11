@@ -2,18 +2,23 @@ package com.epam.indigoeln.core.service.signature;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SignatureService {
@@ -51,12 +56,16 @@ public class SignatureService {
         return signatureRepository.getDocumentInfo(documentId);
     }
 
-    public String getDocumentsInfo(List<String> documentIds) {
-        return signatureRepository.getDocumentsInfo(documentIds);
+    public List<Document> getDocumentsByIds(Collection<String> documentIds) throws IOException {
+        final String content = signatureRepository.getDocumentsInfo(documentIds);
+        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+        return wrapper.getDocuments();
     }
 
-    public String getDocuments() {
-        return signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+    public List<Document> getDocumentsByUser(com.epam.indigoeln.core.model.User user) throws IOException {
+        final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
+        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+        return wrapper.getDocuments();
     }
 
     public byte[] downloadDocument(String documentId) {
@@ -158,6 +167,7 @@ public class SignatureService {
             return value;
         }
 
+        @JsonCreator
         public static ISSStatus fromValue(Integer value) {
             for (ISSStatus status : ISSStatus.values()) {
                 if (status.getValue().equals(value)) {
@@ -168,5 +178,94 @@ public class SignatureService {
         }
     }
 
+    private static class DocumentsWrapper {
+
+        @JsonProperty("Documents")
+        private List<Document> documents;
+
+        public List<Document> getDocuments() {
+            return documents;
+        }
+
+        public void setDocuments(List<Document> documents) {
+            this.documents = documents;
+        }
+    }
+
+    public static class Document {
+
+        private String id;
+
+        private ISSStatus status;
+
+        private boolean actionRequired;
+
+        private List<User> witnesses;
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public ISSStatus getStatus() {
+            return status;
+        }
+
+        public void setStatus(ISSStatus status) {
+            this.status = status;
+        }
+
+        public boolean isActionRequired() {
+            return actionRequired;
+        }
+
+        public void setActionRequired(boolean actionRequired) {
+            this.actionRequired = actionRequired;
+        }
+
+        public List<User> getWitnesses() {
+            return witnesses;
+        }
+
+        public void setWitnesses(List<User> witnesses) {
+            this.witnesses = witnesses;
+        }
+    }
+
+    public static class User {
+
+        private String firstname;
+
+        private String lastname;
+
+        private String comment;
+
+        public String getFirstname() {
+            return firstname;
+        }
+
+        public void setFirstname(String firstname) {
+            this.firstname = firstname;
+        }
+
+        public String getLastname() {
+            return lastname;
+        }
+
+        public void setLastname(String lastname) {
+            this.lastname = lastname;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+    }
 
 }

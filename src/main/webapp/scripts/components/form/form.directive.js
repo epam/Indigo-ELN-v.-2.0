@@ -109,13 +109,14 @@ angular.module('indigoeln')
             myModel: '=',
             myName: '@',
             myClasses: '@',
-            myDisabled: '='
+            myDisabled: '=',
+            myChange: '&'
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
         '<label>' +
-        '<input type="checkbox" id="{{myName}}" ng-model="myModel" ng-disabled="myDisabled"> {{myLabel}}' +
+        '<input type="checkbox" id="{{myName}}" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"> {{myLabel}}' +
         '</label> ' +
         '</div> ' +
         '</div> ' +
