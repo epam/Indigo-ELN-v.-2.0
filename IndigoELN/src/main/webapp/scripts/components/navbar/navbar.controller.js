@@ -13,7 +13,9 @@ angular.module('indigoeln')
         $scope.Principal = Principal;
 
         $scope.logout = function () {
+            var userId = Principal.getIdentity().id;
             Auth.logout();
+            $rootScope.$broadcast('user-logout', {id: userId});
             $state.go('login');
         };
     });
