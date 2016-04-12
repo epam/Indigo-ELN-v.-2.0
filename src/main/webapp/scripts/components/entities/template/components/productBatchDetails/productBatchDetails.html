@@ -120,20 +120,20 @@
                         <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-input my-label="Residual Solvents"
-                              my-model="model.productBatchDetails.residualSolvents"
+                              my-model="model.productBatchDetails.residualSolventsString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" ng-click="editResidualSolvents()" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-input>
                     <my-input my-label="Solubility in Solvents"
-                              my-model="model.productBatchDetails.solubilitySolvents"
+                              my-model="model.productBatchDetails.solubilityString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-input>
                     <my-text-area my-label="External Supplier"
                                   my-model="model.productBatchDetails.externalSupplier"
