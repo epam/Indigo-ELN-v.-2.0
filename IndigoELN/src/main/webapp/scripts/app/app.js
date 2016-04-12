@@ -110,11 +110,12 @@ angular.module('indigoeln',
                 }
             },
             resolve: {
-                authorize: ['Auth',
-                    function (Auth) {
-                        return Auth.authorize();
-                    }
-                ]
+                authorize: function (Auth) {
+                    return Auth.authorize();
+                },
+                experimentStatusSubscriber: function (WSService) {
+                    return WSService.subscribe('experiment_status');
+                }
             }
         }).state('navbar', {
             abstract: true,
