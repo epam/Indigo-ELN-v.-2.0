@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
@@ -31,9 +32,12 @@ public class SearchServiceFacade implements SearchServiceAPI {
 
     private List<SearchServiceAPI> getSearchProviders(List<String> dataSourceNames) {
         List<SearchServiceAPI> providerList = new ArrayList<>();
-        if(dataSourceNames.contains(INDIGO_ELN_DATABASE)) {
-            providerList.add(customSearchService);
-        } //could be extended for support external data sources
+
+        Optional.ofNullable(dataSourceNames).ifPresent(names -> {
+            if(names.contains(INDIGO_ELN_DATABASE)) {
+                providerList.add(customSearchService);
+            } //could be extended for support external data sources
+        });
 
         return providerList;
     }

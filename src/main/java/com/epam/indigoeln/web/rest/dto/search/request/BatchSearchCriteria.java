@@ -1,12 +1,10 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
-import java.util.Optional;
-
 public class BatchSearchCriteria {
 
     private String name;
     private String field;
-    private Optional<String> condition;
+    private String condition;
     private Object value;
 
     public String getName() {
@@ -17,7 +15,7 @@ public class BatchSearchCriteria {
         return field;
     }
 
-    public Optional<String> getCondition() {
+    public String getCondition() {
         return condition;
     }
 
@@ -34,7 +32,7 @@ public class BatchSearchCriteria {
     }
 
     public void setCondition(String condition) {
-        this.condition = Optional.ofNullable(condition);
+        this.condition = condition;
     }
 
     public void setValue(Object value) {

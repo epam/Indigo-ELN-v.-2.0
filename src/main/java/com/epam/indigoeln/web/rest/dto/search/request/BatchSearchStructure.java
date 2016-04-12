@@ -1,13 +1,11 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
-import java.util.Optional;
-
 public class BatchSearchStructure {
     private String name;
     private String searchMode;
     private float  similarity;
-    private Optional<String> molfile;
-    private Optional<String> formula;
+    private String molfile;
+    private String formula;
 
     public String getName() {
         return name;
@@ -21,11 +19,11 @@ public class BatchSearchStructure {
         return similarity;
     }
 
-    public Optional<String> getMolfile() {
+    public String getMolfile() {
         return molfile;
     }
 
-    public Optional<String> getFormula() {
+    public String getFormula() {
         return formula;
     }
 
@@ -42,10 +40,10 @@ public class BatchSearchStructure {
     }
 
     public void setMolfile(String molfile) {
-        this.molfile = Optional.ofNullable(molfile);
+        this.molfile = molfile;
     }
 
     public void setFormula(String formula) {
-        this.formula = Optional.ofNullable(formula);
+        this.formula =formula;
     }
 }

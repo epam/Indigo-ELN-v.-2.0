@@ -3,15 +3,17 @@ package com.epam.indigoeln.core.repository.search;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchCriteria;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.Optional;
+
 public final class BatchCriteriaConverter {
     private BatchCriteriaConverter() {
     }
 
     public static Criteria convert(BatchSearchCriteria dto) {
-        Criteria criteria = Criteria.where("content." + dto.getField());
+        Criteria criteria = Criteria.where("content.batches." + dto.getField());
 
         Object value = dto.getValue();
-        switch (dto.getCondition().orElse("")) {
+        switch (Optional.ofNullable(dto.getCondition()).orElse("")) {
             case "contains" :
                 criteria.is(value); break; //TODO: implement
             case "starts with" :
@@ -30,7 +32,7 @@ public final class BatchCriteriaConverter {
             default: criteria.is(value);
         }
 
-        return criteria.is(value);
+        return criteria;
     }
 
 }

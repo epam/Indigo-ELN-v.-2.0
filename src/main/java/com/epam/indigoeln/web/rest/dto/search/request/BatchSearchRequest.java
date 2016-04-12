@@ -1,47 +1,42 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
-import java.util.Optional;
 
 public class BatchSearchRequest {
 
-    private Optional<String> searchQuery;
-    @JsonProperty("criteria")
-    private List<BatchSearchCriteria> criteriaList;
-    private Optional<BatchSearchStructure> structure;
+    private String searchQuery;
+    private List<BatchSearchCriteria> advancedSearch;
+    private BatchSearchStructure structure;
     private List<String> databases;
 
-    public Optional<String> getSearchQuery() {
+    public String getSearchQuery() {
         return searchQuery;
     }
 
-    public List<BatchSearchCriteria> getCriteriaList() {
-        return criteriaList;
+    public List<BatchSearchCriteria> getAdvancedSearch() {
+        return advancedSearch;
     }
-
     public List<String> getDatabases() {
         return databases;
     }
 
-    public Optional<BatchSearchStructure> getStructure() {
+    public BatchSearchStructure getStructure() {
         return structure;
     }
 
-    public void setSearchQuery(Optional<String> searchQuery) {
+    public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
-    }
-
-    public void setCriteriaList(List<BatchSearchCriteria> criteriaList) {
-        this.criteriaList = criteriaList;
     }
 
     public void setDatabases(List<String> databases) {
         this.databases = databases;
     }
 
-    public void setStructure(Optional<BatchSearchStructure> structure) {
+    public void setStructure(BatchSearchStructure structure) {
         this.structure = structure;
+    }
+
+    public void setAdvancedSearch(List<BatchSearchCriteria> advancedSearch) {
+        this.advancedSearch = advancedSearch;
     }
 }
