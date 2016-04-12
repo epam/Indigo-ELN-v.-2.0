@@ -1,0 +1,51 @@
+<div class="modal-header">
+    <h5 class="modal-title">Edit Residual Solvents Information</h5>
+</div>
+<div class="modal-body">
+    <div><strong>Please add residual solvents</strong></div>
+    <br/>
+    <div class="row" ng-if="solvents.length">
+        <div class="col-xs-12">
+            <table class="table table-striped" id="search-result-table">
+                <thead class="search-table-head">
+                    <tr>
+                        <th>Solvent Name</th>
+                        <th># EQ. of Solvent</th>
+                        <th>Comment</th>
+                        <th style="width:5%"></th>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="item in solvents">
+                    <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                        <td><my-select my-items="solventsSelect"
+                                       my-model="solvents[$index].name"></my-select></td>
+                        <td><my-input my-model="solvents[$index].eq"></my-input></td>
+                        <td><my-input my-model="solvents[$index].comment"></my-input></td>
+                        <td><a ng-click="remove(solvents[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="btn-toolbar">
+        <button class="btn btn-primary"
+                type="button"
+                ng-click="addSolvent()">
+            <span class="glyphicon glyphicon-plus"></span> Add residual solvent
+        </button>
+        <button class="btn btn-default"
+                type="button"
+                ng-if="solvents.length"
+                ng-click="removeAll()">
+            <span class="glyphicon glyphicon-trash"></span> Remove all
+        </button>
+    </div>
+</div>
+
+
+</div>
+<div class="modal-footer text-right">
+    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>
