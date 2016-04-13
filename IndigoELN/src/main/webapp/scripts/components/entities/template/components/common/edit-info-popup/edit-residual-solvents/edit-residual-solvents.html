@@ -17,7 +17,7 @@
                 </thead>
                 <tbody ng-repeat="item in solvents">
                     <tr ng-class="{'search-table-row-highlight':item.isSelected}">
-                        <td><my-select my-items="solventsSelect"
+                        <td><my-select my-dictionary="solventName"
                                        my-model="solvents[$index].name"></my-select></td>
                         <td><my-input my-model="solvents[$index].eq"></my-input></td>
                         <td><my-input my-model="solvents[$index].comment"></my-input></td>

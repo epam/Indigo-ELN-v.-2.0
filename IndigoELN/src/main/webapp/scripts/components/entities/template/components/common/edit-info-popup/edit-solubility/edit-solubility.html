@@ -1,12 +1,76 @@
 <div class="modal-header">
-    <h5 class="modal-title">Reactant Structure Search</h5>
+    <h5 class="modal-title">Edit Solubility in Solvents Information</h5>
 </div>
 <div class="modal-body">
+    <div><strong>Please add solubility to set up solubility</strong></div>
+    <br/>
+    <div class="row" ng-if="solubility.length">
+        <div class="col-xs-12">
+            <table class="table table-striped" id="search-result-table">
+                <thead class="search-table-head">
+                <tr>
+                    <th style="width:18%">Solvent Name</th>
+                    <th style="width:18%">Solubility Type</th>
+                    <th>Solubility Value</th>
+                    <th style="width:25%">Comment</th>
+                    <th style="width:5%"></th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="item in solubility">
+                <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                    <td><my-select my-dictionary="solventName"
+                                   my-model="solubility[$index].solventName"></my-select></td>
+                    <td><my-select my-items="solubilityTypeSelect"
+                                   my-model="solubility[$index].type"></my-select></td>
+                    <td style="position:relative">
+                        <div class="row"
+                             style="position:absolute;top:8px"
+                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Quantitive'">
+                            <my-select my-items="operatorSelect"
+                                       style="padding:0;min-width: 40px;"
+                                       class="col-xs-4"
+                                       my-model="solubility[$index].value.operator"></my-select>
+                            <my-input class="col-xs-4"
+                                      style="padding:0;min-width: 65px;"
+                                      my-model="solubility[$index].value.value"></my-input>
+                            <my-select class="col-xs-4"
+                                       style="padding:0;min-width: 75px;"
+                                       my-items="unitSelect"
+                                       my-model="solubility[$index].value.unit"></my-select>
+                        </div>
+                        <div class="row col-xs-12"
+                             style="position:absolute;top:8px"
+                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Qualitive'">
+                            <my-select my-items="qualitiveSolubilitySelect"
+                                       my-model="solubility[$index].value.value"></my-select>
+                        </div>
+                    </td>
+                    <td><my-input my-model="solubility[$index].comment"></my-input></td>
+                    <td><a ng-click="remove(solubility[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <div class="btn-toolbar">
+        <button class="btn btn-primary"
+                type="button"
+                ng-click="addSolvent()">
+            <span class="glyphicon glyphicon-plus"></span> Add solvent
+        </button>
+        <button class="btn btn-default"
+                type="button"
+                ng-if="solubility.length"
+                ng-click="removeAll()">
+            <span class="glyphicon glyphicon-trash"></span> Remove all
+        </button>
+    </div>
 </div>
 
 
 </div>
 <div class="modal-footer text-right">
+    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
     <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
 </div>
