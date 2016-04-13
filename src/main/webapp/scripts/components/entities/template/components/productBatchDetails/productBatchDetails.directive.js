@@ -16,23 +16,32 @@ angular.module('indigoeln')
                 $scope.model.productBatchDetails.solubility = $scope.model.productBatchDetails.solubility || [];
 
                 var solventsToString = function() {
-                    var solvents = $scope.model.productBatchDetails.residualSolvents;
                     var solventStrings = _.map($scope.model.productBatchDetails.residualSolvents, function(solvent) {
-                        return solvent.name.name ? solvent.eq + ' mols of ' + solvent.name.name : '';
+                        if (solvent.name && solvent.eq) {
+                            return solvent.eq + ' mols of ' + solvent.name.name;
+                        } else {
+                            return '';
+                        }
                     });
-                    return solventStrings.join(', ');
+                    return _.compact(solventStrings).join(', ');
                 };
 
                 var solubilityToString = function() {
                     var solubilityStrings = _.map($scope.model.productBatchDetails.solubility, function(solubility) {
-                        return solubility.eq + ' mols of ' + solubility.name.name;
+                        if (solubility.value.operator && solubility.value.value && solubility.value.unit) {
+                            return solubility.value.operator.name + ' ' + solubility.value.value + ' ' +
+                                solubility.value.unit.name + ' in ' + solubility.solventName.name;
+                        } else if (solubility.value.value && solubility.value.value.name) {
+                            return solubility.value.value.name + ' in ' + solubility.solventName.name;
+                        } else {
+                            return '';
+                        }
                     });
-                    return solubilityStrings.join(', ');
+                    return _.compact(solubilityStrings).join(', ');
                 };
 
                 $scope.model.productBatchDetails.residualSolventsString = solventsToString();
                 $scope.model.productBatchDetails.solubilityString = solubilityToString();
-
 
                 $scope.editSolubility = function () {
                     $uibModal.open({
@@ -50,6 +59,7 @@ angular.module('indigoeln')
                         $scope.model.productBatchDetails.solubilityString = solubilityToString();
                     });
                 };
+
                 $scope.editResidualSolvents = function () {
                     $uibModal.open({
                         animation: true,

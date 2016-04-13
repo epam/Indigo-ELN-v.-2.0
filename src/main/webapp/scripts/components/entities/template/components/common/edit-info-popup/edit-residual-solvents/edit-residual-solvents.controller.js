@@ -4,11 +4,6 @@ angular.module('indigoeln').controller('EditResidualSolventsController',
     function ($scope, $rootScope, $uibModalInstance, data) {
         $scope.solvents = data;
 
-        $scope.solventsSelect = [
-            {name: 'Solvent 1 (WL = 10)'},
-            {name: 'Solvent 2 (WL = 20)'},
-            {name: 'Solvent 3 (WL = 30)'}];
-
         $scope.addSolvent = function () {
             $scope.solvents.push({name: '', eq: '', comment: ''});
         };
