@@ -1,0 +1,49 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-15" author="evgeny_romanov">
+        <script>
+            db.dictionary.insert({
+            "_id" : "solventName",
+            "description" : "Solvent name",
+            "words" : [
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 1,
+            "name" : "Acetic acid",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 2,
+            "name" : "Hydrochloric acid",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 3,
+            "name" : "Fumaric acid",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 4,
+            "name" : "Formaldehyde",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "enable" : true,
+            "rank" : 5,
+            "name" : "Sulfuric acid",
+            "accessList" : []
+            }
+            ],
+            "name" : "Solvent name",
+            "accessList" : []
+            });
+        </script>
+    </changeSet>
+</mongoChangeLog>
