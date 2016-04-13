@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Builds Aggregation For Search
@@ -45,7 +46,7 @@ public final class BatchSearchAggregationBuilder {
     public BatchSearchAggregationBuilder withSearchQuery(String searchQuery) {
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where("component.batches." + field).is(searchQuery)).
-                collect(Collectors.toList());
+                collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
@@ -60,7 +61,7 @@ public final class BatchSearchAggregationBuilder {
     }
 
     public BatchSearchAggregationBuilder withAdvancedCriteria(List<BatchSearchCriteria> batchCriteriaList) {
-        List<Criteria> fieldCriteriaList = batchCriteriaList.stream().map(BatchCriteriaConverter::convert).collect(Collectors.toList());
+        List<Criteria> fieldCriteriaList = batchCriteriaList.stream().map(BatchCriteriaConverter::convert).collect(toList());
         Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
         aggregationOperations.add(Aggregation.match(andCriteria));
