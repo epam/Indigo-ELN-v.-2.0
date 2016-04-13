@@ -33,7 +33,7 @@ public class SearchResource {
             value = "/batch",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchByNotebookBatchNumber(
+    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchBatches(
             @RequestBody BatchSearchRequest searchRequest)  {
         Collection<ProductBatchDetailsDTO> batchDetails = searchService.searchBatches(searchRequest);
         return ResponseEntity.ok(batchDetails);
