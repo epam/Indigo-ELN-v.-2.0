@@ -151,6 +151,10 @@ angular.module('indigoeln')
                     status: 'Open',
                     template: $scope.experiment.template
                 };
+                var productBatchSummary = experimentForSave.components.productBatchSummary;
+                if (productBatchSummary) {
+                    productBatchSummary.batches = [];
+                }
                 $scope.loading = Experiment.save({
                     projectId: $stateParams.projectId,
                     notebookId: $stateParams.notebookId
