@@ -141,6 +141,34 @@ angular.module('indigoeln')
                 }, onSaveError).$promise;
             };
 
+            $scope.repeatExperiment = function () {
+                $scope.isSaving = true;
+                $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
+                var experimentForSave = {
+                    accessList: $scope.experiment.accessList,
+                    components: $scope.experiment.components,
+                    name: $scope.experiment.name,
+                    status: 'Open',
+                    template: $scope.experiment.template
+                };
+                $scope.loading = Experiment.save({
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId
+                }, experimentForSave, function (result) {
+                    onSaveSuccess(result);
+                    $state.go('entities.experiment-detail', {
+                        experimentId: result.id,
+                        notebookId: $stateParams.notebookId,
+                        projectId: $stateParams.projectId
+                    });
+                    $rootScope.$broadcast('experiment-created', {
+                        projectId: $stateParams.projectId,
+                        notebookId: $stateParams.notebookId,
+                        id: result.id
+                    });
+                }, onSaveError).$promise;
+            };
+
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';
             };
