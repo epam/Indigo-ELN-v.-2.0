@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('WSService', function ($window, $cookies, $http, $q) {
+    .factory('WSService', function ($window, $cookies, $http, $q, $log) {
         var stompClient = null;
         var connected = $q.defer();
 
@@ -16,6 +16,8 @@ angular.module('indigoeln')
                 headers['X-CSRF-TOKEN'] = $cookies.get($http.defaults.xsrfCookieName);
                 stompClient.connect(headers, function () {
                     connected.resolve('success');
+                }, function () {
+                    connected.resolve('stub');
                 });
             }
         };
@@ -23,19 +25,31 @@ angular.module('indigoeln')
         var subscribe = function (destination) {
             var defer = $q.defer();
             connect();
-            connected.promise.then(function () {
-                var listener = $q.defer();
-                var subscriber = stompClient.subscribe('/topic/' + destination, function (data) {
-                    listener.notify(JSON.parse(data.body));
-                });
-                listener.unSubscribe = function () {
-                    subscriber.unsubscribe();
-                };
-                listener.onServerEvent = function (callback) {
-                    listener.promise.then(null, null, callback);
-                };
-                defer.resolve(listener);
+            connected.promise.then(function (mode) {
+                if(mode === 'success') {
+                    var listener = $q.defer();
+                    var subscriber = stompClient.subscribe('/topic/' + destination, function (data) {
+                        listener.notify(JSON.parse(data.body));
+                    });
+                    listener.unSubscribe = function () {
+                        subscriber.unsubscribe();
+                    };
+                    listener.onServerEvent = function (callback) {
+                        listener.promise.then(null, null, callback);
+                    };
+                    defer.resolve(listener);
+                }else {
+                    defer.resolve({
+                        unSubscribe: function () {
+                            $log.debug('Stubbed websockets mode');
+                        },
+                        onServerEvent: function () {
+                            $log.debug('Stubbed websockets mode');
+                        }
+                    });
+                }
             }, null, null);
+
             return defer.promise;
         };
 
