@@ -91,6 +91,7 @@
             <th class="table-list__item table-list__item_header">Title</th>
             <th class="table-list__item table-list__item_header">Status</th>
             <th class="table-list__item table-list__item_header">Author</th>
+            <th class="table-list__item table-list__item_header">Submitter</th>
             <th class="table-list__item table-list__item_header">Witness</th>
             <th class="table-list__item table-list__item_header">Creation Date</th>
             <th class="table-list__item table-list__item_header">Last Action Date</th>
@@ -105,6 +106,7 @@
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
+            <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
                     <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
@@ -125,6 +127,7 @@
             <th class="table-list__item table-list__item_header">Title</th>
             <th class="table-list__item table-list__item_header">Status</th>
             <th class="table-list__item table-list__item_header">Author</th>
+            <th class="table-list__item table-list__item_header">Submitter</th>
             <th class="table-list__item table-list__item_header">Witness</th>
             <th class="table-list__item table-list__item_header">Creation Date</th>
             <th class="table-list__item table-list__item_header">Last Edit Date</th>
@@ -139,6 +142,7 @@
             <td class="table-list__item">{{exp.name}}</td>
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
+            <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
                     <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
