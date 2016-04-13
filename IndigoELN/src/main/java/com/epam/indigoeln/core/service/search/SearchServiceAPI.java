@@ -6,6 +6,5 @@ import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 
 public interface SearchServiceAPI {
-
     Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequest searchRequest);
 }
