@@ -522,3 +522,12 @@ div.enlarge:hover span{
 .search-tab-content {
     margin: 10px;
 }
+
+.search-structure-scheme .panel-heading {
+    background-color: #f3f3f3;
+    border-color: #d1d1d1;
+}
+
+.search-structure-scheme.panel-info {
+    border-color: #d1d1d1;
+}
