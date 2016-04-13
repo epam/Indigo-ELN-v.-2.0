@@ -50,7 +50,7 @@ angular.module('indigoeln',
             if (!countdownDialog) {
                 countdownDialog = $uibModal.open({
                     animation: false,
-                    templateUrl: 'scripts/app/countdowndialog/countdown-dialog.html',
+                    templateUrl: 'scripts/app/timer/timer-dialog.html',
                     controller: 'CountdownDialogController',
                     windowClass: 'modal-danger',
                     resolve: {
