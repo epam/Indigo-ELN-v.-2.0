@@ -2,7 +2,7 @@
     <h5 class="modal-title">Edit Solubility in Solvents Information</h5>
 </div>
 <div class="modal-body">
-    <div><strong>Please add solubility to set up solubility</strong></div>
+    <div><strong>Please add solvent to set up solubility</strong></div>
     <br/>
     <div class="row" ng-if="solubility.length">
         <div class="col-xs-12">
@@ -25,7 +25,7 @@
                     <td style="position:relative">
                         <div class="row"
                              style="position:absolute;top:8px"
-                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Quantitive'">
+                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Quantitative'">
                             <my-select my-items="operatorSelect"
                                        style="padding:0;min-width: 40px;"
                                        class="col-xs-4"
@@ -40,8 +40,8 @@
                         </div>
                         <div class="row col-xs-12"
                              style="position:absolute;top:8px"
-                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Qualitive'">
-                            <my-select my-items="qualitiveSolubilitySelect"
+                             ng-if="solubility[$index].type && solubility[$index].type.name == 'Qualitative'">
+                            <my-select my-items="qualitativeSolubilitySelect"
                                        my-model="solubility[$index].value.value"></my-select>
                         </div>
                     </td>
