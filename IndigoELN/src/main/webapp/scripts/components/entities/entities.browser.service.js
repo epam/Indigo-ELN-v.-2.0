@@ -36,7 +36,7 @@ angular.module('indigoeln')
         };
 
         var resolvePrincipal = function (func) {
-            return Principal.identity().then(function (){return func();});
+            return Principal.identity().then(func);
         };
 
         var experimentStatusChangedEvent = $rootScope.$on('experiment-status-changed', function (event, statuses) {
@@ -96,6 +96,7 @@ angular.module('indigoeln')
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
+                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
                     return tabs[userId][that.compactIds(params)];
                 });
             },
