@@ -5,10 +5,10 @@ angular.module('indigoeln').controller('EditSolubilityController',
         $scope.solubility = data;
 
         $scope.solubilityTypeSelect = [
-            {name: 'Quantitive'},
-            {name: 'Qualitive'}];
+            {name: 'Quantitative'},
+            {name: 'Qualitative'}];
 
-        $scope.qualitiveSolubilitySelect = [
+        $scope.qualitativeSolubilitySelect = [
             {name: 'Soluble'},
             {name: 'Unsoluble'},
             {name: 'Precipitate'}];
