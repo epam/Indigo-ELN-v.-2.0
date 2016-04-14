@@ -216,6 +216,9 @@ angular.module('indigoeln')
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row;
             };
+
+            $scope.onRowSelected(_.findWhere($scope.model.productBatchSummary.batches, {$$selected: true}));
+
             $scope.isHasCheckedRows = function () {
                 return !!_.find($scope.model.productBatchSummary.batches, function (item) {
                     return item.select;
