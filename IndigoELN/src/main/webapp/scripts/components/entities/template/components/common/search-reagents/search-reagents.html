@@ -52,15 +52,15 @@
                             </tr>
                             </thead>
                             <tbody ng-repeat="item in myReagentList">
-                            <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                            <tr ng-class="{'search-table-row-highlight':item.$$isSelected}">
                                 <td style="width:76px">
-                                    <a ng-click="item.isCollapsed = !item.isCollapsed">
-                                                            <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':item.isCollapsed,
-                                                                'glyphicon glyphicon-triangle-bottom':!item.isCollapsed}"></span></a>
+                                    <a ng-click="item.$$isCollapsed = !item.$$isCollapsed">
+                                                            <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':item.$$isCollapsed,
+                                                                'glyphicon glyphicon-triangle-bottom':!item.$$isCollapsed}"></span></a>
                                     <my-checkbox
                                             style="padding:0"
                                             class="checkbox-inline"
-                                            my-model="item.isSelected"
+                                            my-model="item.$$isSelected"
                                             my-name="itemSelector"
                                     ></my-checkbox>
                                 </td>
@@ -85,7 +85,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr uib-collapse="item.isCollapsed">
+                            <tr uib-collapse="item.$$isCollapsed">
                                 <td colspan="6">
                                     <div class="row" style="margin-top:-6px;">
                                         <div class="col-xs-6">
@@ -265,23 +265,23 @@
                     </label>
                 </div>
             </div>
-            <div class="row well well-sm" ng-init="isCollapsed=true">
+            <div class="row well well-sm" ng-init="$$isCollapsed=true">
                 <my-input class="col-xs-9"
                           my-model="model.restrictions.searchQuery"
                           my-label="Type in your search query"
                           my-label-vertical="true"
                 ></my-input>
                 <div class="reagent-search-advanced">
-                    <a ng-click="isCollapsed = !isCollapsed">
-                                                <span ng-class="{'glyphicon glyphicon-triangle-right':isCollapsed,
-                                                                     'glyphicon glyphicon-triangle-bottom':!isCollapsed}"></span>
+                    <a ng-click="$$isCollapsed = !$$isCollapsed">
+                                                <span ng-class="{'glyphicon glyphicon-triangle-right':$$isCollapsed,
+                                                                     'glyphicon glyphicon-triangle-bottom':!$$isCollapsed}"></span>
                         Advanced search
                     </a>
                 </div>
                 <div class="col-xs-12 reagent-search-hint">If you search a molecular
                     formula, add spaces between each element: C8 H9 Br, C2 H5 OH
                 </div>
-                <div uib-collapse="isCollapsed">
+                <div uib-collapse="$$isCollapsed">
                     <div class="col-xs-12" style="margin-top:-15px;">
                         <div ng-show="!isSearchResultFound">
                             <div class="reagent-search-container">
@@ -702,15 +702,15 @@
                         </tr>
                         </thead>
                         <tbody ng-repeat="result in searchResults">
-                        <tr ng-class="{'search-table-row-highlight':result.isSelected}">
+                        <tr ng-class="{'search-table-row-highlight':result.$$isSelected}">
                             <td style="width:76px">
-                                <a ng-click="result.isCollapsed = !result.isCollapsed">
-                                                            <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.isCollapsed,
-                                                                'glyphicon glyphicon-triangle-bottom':!result.isCollapsed}"></span></a>
+                                <a ng-click="result.$$isCollapsed = !result.$$isCollapsed">
+                                                            <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.$$isCollapsed,
+                                                                'glyphicon glyphicon-triangle-bottom':!result.$$isCollapsed}"></span></a>
                                 <my-checkbox
                                         style="padding:0"
                                         class="checkbox-inline"
-                                        my-model="result.isSelected"
+                                        my-model="result.$$isSelected"
                                         my-name="resultSelector"
                                 ></my-checkbox>
                             </td>
@@ -735,7 +735,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr uib-collapse="result.isCollapsed">
+                        <tr uib-collapse="result.$$isCollapsed">
                             <td colspan="6">
                                 <div class="row" style="margin-top:-6px;">
                                     <div class="col-xs-6">

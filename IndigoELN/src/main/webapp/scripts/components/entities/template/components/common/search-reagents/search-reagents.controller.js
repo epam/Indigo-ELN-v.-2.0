@@ -28,7 +28,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.addToStoichTable = function (list) {
-            var selected = _.where(list, {isSelected: true});
+            var selected = _.where(list, {$$isSelected: true});
             $rootScope.$broadcast('new-stoich-rows', selected);
         };
 
@@ -65,22 +65,22 @@ angular.module('indigoeln').controller('SearchReagentsController',
         $scope.myReagentList = [];
 
         $scope.addToMyReagentList = function () {
-            var selected = _.where($scope.searchResults, {isSelected: true});
+            var selected = _.where($scope.searchResults, {$$isSelected: true});
             var selectedPure, myReagentListPure;
             var count = 0;
             selectedPure = _.map(selected, function(item) {
-                return _.omit(item, 'isSelected', 'isCollapsed');
+                return _.omit(item, '$$isSelected', '$$isCollapsed');
             });
             myReagentListPure = _.map($scope.myReagentList, function(item) {
-                return _.omit(item, 'isSelected', 'isCollapsed');
+                return _.omit(item, '$$isSelected', '$$isCollapsed');
             });
             _.each(selectedPure, function(selectedItem) {
                 var isUnique = _.every(myReagentListPure, function(myListItem) {
                     return !angular.equals(selectedItem, myListItem);
                 });
                 if (isUnique) {
-                    selectedItem.isSelected = false;
-                    selectedItem.isCollapsed = true;
+                    selectedItem.$$isSelected = false;
+                    selectedItem.$$isCollapsed = true;
                     $scope.myReagentList.push(selectedItem);
                     count = count + 1;
                 }
@@ -95,7 +95,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.removeFromMyReagentList = function () {
-            var selected = _.where($scope.myReagentList, {isSelected: true});
+            var selected = _.where($scope.myReagentList, {$$isSelected: true});
             _.each(selected, function(item) {
                 $scope.myReagentList = _.without($scope.myReagentList, item);
             });
@@ -152,8 +152,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
                         $scope.searchResults = _.map(result, function(item) {
                             var batchDetails = _.extend({}, item.details);
                             batchDetails.nbkBatch = item.notebookBatchNumber;
-                            batchDetails.isCollapsed = true;
-                            batchDetails.isSelected = false;
+                            batchDetails.$$isCollapsed = true;
+                            batchDetails.$$isSelected = false;
                             batchDetails.database = $scope.model.databases.join(', ');
                             batchDetails.molWeight = item.details.molWgt;
                             return batchDetails;
