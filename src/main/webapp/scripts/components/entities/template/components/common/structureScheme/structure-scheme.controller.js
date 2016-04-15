@@ -9,7 +9,6 @@ angular.module('indigoeln')
             return;
         }
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
-        $scope.model = $scope.model[$attrs.myStructureType];
         $scope.image = $scope.model.image;
 
         $scope.$watch('model.structureId', function () {
