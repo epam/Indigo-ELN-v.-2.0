@@ -11,7 +11,7 @@ angular.module('indigoeln')
     .directive('myTextEditor', function ($timeout, textEditorConfig) {
         return {
             scope: {
-                content: '=',
+                myModel: '=',
                 myReadonly: '='
             },
             restrict: 'E',
@@ -25,16 +25,16 @@ angular.module('indigoeln')
 
                 var newContent = '';
 
-                scope.$watch('content', function (value, old) {
+                scope.$watch('myModel', function (value, old) {
                     if (typeof value !== 'undefined' && value !== newContent) {
                         editor.setValue(value);
                     }
                 });
 
                 editor.on('valuechanged', function (e) {
-                    if (scope.content !== editor.getValue()) {
+                    if (scope.myModel !== editor.getValue()) {
                         $timeout(function () {
-                            scope.content = newContent = editor.getValue();
+                            scope.myModel = newContent = editor.getValue();
                         });
                     }
                 });

@@ -11,7 +11,8 @@ angular.module('indigoeln')
         {name: 'Product Batch Details', id: 'product-batch-details', desc: 'Fake description'},
         {name: 'Reaction Scheme', id: 'reaction-scheme', desc: 'Fake description'},
         {name: 'Stoich Table', id: 'stoich-table', desc: 'Fake description'},
-        {name: 'Batch Structure', id: 'batch-structure', desc: 'Fake description'}
+        {name: 'Batch Structure', id: 'batch-structure', desc: 'Fake description'},
+        {name: 'Experiment Description', id: 'experiment-description', desc: 'Fake description'}
     ])
     .directive('myComponent', function () {
         return {
@@ -39,6 +40,7 @@ angular.module('indigoeln')
             '<div ng-switch-when="reaction-scheme"><reaction-scheme /></div>' +
             '<div ng-switch-when="batch-structure"><batch-structure /></div>' +
             '<div ng-switch-when="stoich-table"><stoich-table /></div>' +
+            '<div ng-switch-when="experiment-description"><experiment-description /></div>' +
             '</div>'
         };
     }).directive('myComponents', function () {
