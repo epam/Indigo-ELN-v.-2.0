@@ -4,7 +4,7 @@
 <div class="modal-body">
     <div><strong>Please add residual solvents</strong></div>
     <br/>
-    <div class="row" ng-if="solvents.length">
+    <div class="row" ng-if="solvents.data.length">
         <div class="col-xs-12">
             <table class="table table-striped" id="search-result-table">
                 <thead class="search-table-head">
@@ -15,13 +15,13 @@
                         <th style="width:5%"></th>
                     </tr>
                 </thead>
-                <tbody ng-repeat="item in solvents">
+                <tbody ng-repeat="item in solvents.data">
                     <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                         <td><my-select my-dictionary="solventName"
-                                       my-model="solvents[$index].name"></my-select></td>
-                        <td><my-input my-model="solvents[$index].eq"></my-input></td>
-                        <td><my-input my-model="solvents[$index].comment"></my-input></td>
-                        <td><a ng-click="remove(solvents[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
+                                       my-model="solvents.data[$index].name"></my-select></td>
+                        <td><my-input my-model="solvents.data[$index].eq"></my-input></td>
+                        <td><my-input my-model="solvents.data[$index].comment"></my-input></td>
+                        <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
                     </tr>
                 </tbody>
             </table>

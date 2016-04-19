@@ -3,6 +3,7 @@
 angular.module('indigoeln').controller('EditSolubilityController',
     function ($scope, $rootScope, $uibModalInstance, data) {
         $scope.solubility = data;
+        $scope.solubility.data = $scope.solubility.data || [];
 
         $scope.solubilityTypeSelect = [
             {name: 'Quantitative'},
@@ -23,18 +24,33 @@ angular.module('indigoeln').controller('EditSolubilityController',
             {name: '~'}];
 
         $scope.addSolvent = function () {
-            $scope.solubility.push({solventName: {}, type: {}, value: {}, comment: ''});
+            $scope.solubility.data.push({solventName: {}, type: {}, value: {}, comment: ''});
         };
 
         $scope.remove = function (solvent) {
-            $scope.solubility = _.without($scope.solubility, solvent);
+            $scope.solubility.data = _.without($scope.solubility.data, solvent);
         };
 
         $scope.removeAll = function () {
-            $scope.solubility = [];
+            $scope.solubility.data = [];
+        };
+
+        var resultToString = function () {
+            var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
+                if (solubility.value.operator && solubility.value.value && solubility.value.unit) {
+                    return solubility.value.operator.name + ' ' + solubility.value.value + ' ' +
+                        solubility.value.unit.name + ' in ' + solubility.solventName.name;
+                } else if (solubility.value.value && solubility.value.value.name) {
+                    return solubility.value.value.name + ' in ' + solubility.solventName.name;
+                } else {
+                    return '';
+                }
+            });
+            return _.compact(solubilityStrings).join(', ');
         };
 
         $scope.save = function () {
+            $scope.solubility.asString = resultToString();
             $uibModalInstance.close($scope.solubility);
         };
 
