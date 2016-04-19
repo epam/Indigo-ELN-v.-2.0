@@ -4,15 +4,10 @@ angular.module('indigoeln')
     .factory('formUtils', function ($timeout) {
         return {
             doVertical: function (tAttrs, tElement) {
-                var columnsNum;
                 if (tAttrs.myLabelVertical && tAttrs.myLabel) {
                     tElement.find('.col-xs-2').removeClass('col-xs-2');
                     tElement.find('.col-xs-10').children().unwrap();
-                    if (tAttrs.myColumnsNum && tAttrs.myColumnsNum) {
-                        columnsNum = parseInt(tAttrs.myColumnsNum, 10);
-                    }
-                    columnsNum = (_.isNumber(columnsNum) && columnsNum < 12 && columnsNum > 0) ? columnsNum : 12;
-                    tElement.children().wrap('<div class="col-xs-"' + columnsNum + '/>');
+                    tElement.children().wrap('<div class="col-xs-12"/>');
                 }
             },
             clearLabel: function (tAttrs, tElement) {

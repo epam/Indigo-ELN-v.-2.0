@@ -2,23 +2,31 @@
     <h5 class="modal-title">Melting Point Information</h5>
 </div>
 <div class="modal-body">
-    <div class="row">
-        <!--<label class="col-xs-2">Melting Point Range</label>-->
-        <my-input my-model="meltingPoint.lower"
-                  my-class="col-xs-2"
-                  my-columns-num="3"
-                  my-label="Lower"
-                  my-label-vertical="true"></my-input>
-        <my-input my-model="meltingPoint.upper"
-                  my-class="col-xs-2"
-                  my-columns-num="3"
-                  my-label="Upper"
-                  my-label-vertical="true"></my-input>
-        <my-input my-model="meltingPoint.comments"
-                  my-class="col-xs-2"
-                  my-columns-num="3"
-                  my-label="Comments"
-                  my-label-vertical="true"></my-input>
+    <div class="row melting-point-info">
+        <div class="col-xs-4"  style="position:relative">
+            <strong style="position:absolute;top:33px;">Melting Point Range:</strong>
+        </div>
+        <div class="col-xs-2">
+            <my-input my-model="meltingPoint.lower"
+                my-label="Lower"
+                my-label-vertical="true"></my-input>
+            <div style="position:relative">
+                <span style="position:absolute;top:33px;">&deg;C</span>
+            </div>
+        </div>
+        <div class="col-xs-2">
+            <my-input my-model="meltingPoint.upper"
+                      my-label="Lower"
+                      my-label-vertical="true"></my-input>
+            <div style="position:relative">
+                <span style="position:absolute;top:33px;">&deg;C</span>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <my-input my-model="meltingPoint.comments"
+                my-columns-num="3"
+                my-label="Comments"
+                my-label-vertical="true"></my-input>
         </div>
     </div>
 </div>

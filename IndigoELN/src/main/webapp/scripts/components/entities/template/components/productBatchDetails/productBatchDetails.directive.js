@@ -86,7 +86,7 @@ angular.module('indigoeln')
                 $scope.editMeltingPoint = function () {
                     $uibModal.open({
                         animation: true,
-                        size: 'lg',
+                        size: 'md',
                         controller: 'EditMeltingPointController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
                         resolve: {
