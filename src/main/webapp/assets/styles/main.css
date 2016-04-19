@@ -531,3 +531,7 @@ div.enlarge:hover span{
 .search-structure-scheme.panel-info {
     border-color: #d1d1d1;
 }
+
+.melting-point-info div {
+    margin-bottom: 0;
+}
