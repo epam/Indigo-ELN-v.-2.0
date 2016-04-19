@@ -4,16 +4,30 @@ angular.module('indigoeln')
     .factory('formUtils', function ($timeout) {
         return {
             doVertical: function (tAttrs, tElement) {
+                var columnsNum;
                 if (tAttrs.myLabelVertical && tAttrs.myLabel) {
                     tElement.find('.col-xs-2').removeClass('col-xs-2');
                     tElement.find('.col-xs-10').children().unwrap();
-                    tElement.children().wrap('<div class="col-xs-12"/>');
+                    if (tAttrs.myColumnsNum && tAttrs.myColumnsNum) {
+                        columnsNum = parseInt(tAttrs.myColumnsNum, 10);
+                    }
+                    columnsNum = (_.isNumber(columnsNum) && columnsNum < 12 && columnsNum > 0) ? columnsNum : 12;
+                    tElement.children().wrap('<div class="col-xs-"' + columnsNum + '/>');
                 }
             },
             clearLabel: function (tAttrs, tElement) {
                 if (!tAttrs.myLabel) {
                     tElement.find('label').remove();
                     tElement.find('.col-xs-10').removeClass('col-xs-10').addClass('col-xs-12');
+                }
+            },
+            setLabelColumns: function (tAttrs, tElement) {
+                if (tAttrs.myLabelColumnsNum) {
+                    var labelColumnsNum = parseInt(tAttrs.myLabelColumnsNum, 10);
+                    if (_.isNumber(labelColumnsNum) && labelColumnsNum > 0 && labelColumnsNum < 12) {
+                        tElement.find('label').removeClass('col-xs-2').addClass('col-xs-' + labelColumnsNum);
+                        tElement.find('.col-xs-10').removeClass('col-xs-10').addClass('col-xs-' + (12 - labelColumnsNum));
+                    }
                 }
             },
             showValidation: function ($formGroup, scope) {
@@ -41,6 +55,7 @@ angular.module('indigoeln')
         scope: {
             myLabel: '@',
             myLabelVertical: '=',
+            myLabelColumnsNum: '=',
             myName: '@',
             myModel: '=',
             myReadonly: '=',
@@ -70,6 +85,7 @@ angular.module('indigoeln')
                 }
             }
             formUtils.clearLabel(tAttrs, tElement);
+            formUtils.setLabelColumns(tAttrs, tElement);
             if (tAttrs.myValidationMinlength) {
                 tElement.find('input').attr('ng-minlength', tAttrs.myValidationMinlength);
             }
@@ -133,6 +149,7 @@ angular.module('indigoeln')
             myDictionary: '@',
             myMultiple: '=',
             myLabelVertical: '=',
+            myLabelColumnsNum: '=',
             myPlaceHolder: '@',
             myItemProp: '@',
             myOrderByProp: '@',
@@ -168,6 +185,7 @@ angular.module('indigoeln')
             var repeat = select.attr('repeat');
             select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.myOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
+            formUtils.setLabelColumns(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +

@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <h5 class="modal-title">Melting Point Information</h5>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <!--<label class="col-xs-2">Melting Point Range</label>-->
+        <my-input my-model="meltingPoint.lower"
+                  my-class="col-xs-2"
+                  my-columns-num="3"
+                  my-label="Lower"
+                  my-label-vertical="true"></my-input>
+        <my-input my-model="meltingPoint.upper"
+                  my-class="col-xs-2"
+                  my-columns-num="3"
+                  my-label="Upper"
+                  my-label-vertical="true"></my-input>
+        <my-input my-model="meltingPoint.comments"
+                  my-class="col-xs-2"
+                  my-columns-num="3"
+                  my-label="Comments"
+                  my-label-vertical="true"></my-input>
+        </div>
+    </div>
+</div>
+
+</div>
+<div class="modal-footer text-right">
+    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>
