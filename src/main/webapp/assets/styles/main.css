@@ -535,3 +535,8 @@ div.enlarge:hover span{
 .melting-point-info div {
     margin-bottom: 0;
 }
+
+.long-content-popup {
+    overflow-y: scroll;
+    max-height: 500px;
+}
