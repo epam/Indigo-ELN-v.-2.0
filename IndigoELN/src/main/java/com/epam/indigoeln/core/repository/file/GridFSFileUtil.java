@@ -41,6 +41,10 @@ public final class GridFSFileUtil {
         return author;
     }
 
+    public static boolean isTemporaryFromMetadata(BSONObject metadata) {
+        return (Boolean) metadata.get("temporary");
+    }
+
     public static void setAuthorToMetadata(BSONObject metadata, User author) {
         BSONObject bsonAuthor = new BasicBSONObject(3);
         bsonAuthor.put("id", author.getId());
@@ -48,6 +52,10 @@ public final class GridFSFileUtil {
         bsonAuthor.put("lastName", author.getLastName());
 
         metadata.put("author", bsonAuthor);
+    }
+
+    public static void setTemporaryToMetadata(BSONObject metadata, boolean temporary) {
+        metadata.put("temporary", temporary);
     }
 
     public static Optional<Comparator<GridFSFile>> getComparator(String gridFSFileField) {

@@ -191,4 +191,6 @@ angular
             $state.go('dictionary-management');
         };
 
+        $scope.toggleProjects($scope.myBookmarks);
+
     });
