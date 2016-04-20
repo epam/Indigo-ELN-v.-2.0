@@ -2,7 +2,7 @@
 
 angular.module('indigoeln').controller('EditSolubilityController',
     function ($scope, $rootScope, $uibModalInstance, data) {
-        $scope.solubility = data;
+        $scope.solubility = data || {};
         $scope.solubility.data = $scope.solubility.data || [];
 
         $scope.solubilityTypeSelect = [

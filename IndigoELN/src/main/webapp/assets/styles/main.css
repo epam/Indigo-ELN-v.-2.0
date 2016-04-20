@@ -532,11 +532,11 @@ div.enlarge:hover span{
     border-color: #d1d1d1;
 }
 
-.melting-point-info div {
+.melting-point-info div, .select-from-dictionary div {
     margin-bottom: 0;
 }
 
 .long-content-popup {
     overflow-y: scroll;
-    max-height: 500px;
+    max-height: 400px;
 }
