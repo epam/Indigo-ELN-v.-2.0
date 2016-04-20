@@ -119,8 +119,7 @@ angular.module('indigoeln')
                 };
 
                 $scope.editHealthHazards = function () {
-                    var dictionary = 'solventName';
-                    //var dictionary = 'healthHazards';
+                    var dictionary = 'healthHazards';
                     var model = $scope.model.productBatchDetails.healthHazards;
                     var title = 'Edit Health Hazards';
                     var callback = function(result) {
@@ -129,8 +128,7 @@ angular.module('indigoeln')
                     selectFromDictionary(dictionary, model, title, callback);
                 };
                 $scope.editHandlingPrecautions = function () {
-                    var dictionary = 'solventName';
-                    //var dictionary = 'handlingPrecautions';
+                    var dictionary = 'handlingPrecautions';
                     var model = $scope.model.productBatchDetails.handlingPrecautions;
                     var title = 'Edit Handling Precautions';
                     var callback = function(result) {
@@ -139,8 +137,7 @@ angular.module('indigoeln')
                     selectFromDictionary(dictionary, model, title, callback);
                 };
                 $scope.editStorageInstructions = function () {
-                    var dictionary = 'solventName';
-                    //var dictionary = 'storageInstructions';
+                    var dictionary = 'storageInstructions';
                     var model = $scope.model.productBatchDetails.storageInstructions;
                     var title = 'Edit Storage Instructions';
                     var callback = function(result) {
