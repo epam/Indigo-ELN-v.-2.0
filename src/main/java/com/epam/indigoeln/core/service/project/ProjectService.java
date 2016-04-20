@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.service.project;
 
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.file.FileRepository;
+import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
@@ -15,6 +16,7 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -96,6 +98,14 @@ public class ProjectService {
         project.setId(sequenceIdService.getNextProjectId());
 
         project = saveProjectAndHandleError(project);
+
+        final Set<String> fileIds = project.getFileIds();
+        final List<GridFSDBFile> temporaryFiles = fileRepository.findTemporary(fileIds);
+        temporaryFiles.forEach(tf -> {
+            GridFSFileUtil.setTemporaryToMetadata(tf.getMetaData(), false);
+            tf.save();
+        });
+
         return new ProjectDTO(project);
     }
 
