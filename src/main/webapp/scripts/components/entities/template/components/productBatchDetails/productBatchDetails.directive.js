@@ -67,26 +67,10 @@ angular.module('indigoeln')
                     });
                 };
 
-                $scope.editPurity = function () {
-                    $uibModal.open({
-                        animation: true,
-                        size: 'lg',
-                        controller: 'EditPurityController',
-                        templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-purity/edit-purity.html',
-                        resolve: {
-                            data: function() {
-                                return $scope.model.productBatchDetails.purity;
-                            }
-                        }
-                    }).result.then(function(result) {
-                        $scope.model.productBatchDetails.purity = result;
-                    });
-                };
-
                 $scope.editMeltingPoint = function () {
                     $uibModal.open({
                         animation: true,
-                        size: 'lg',
+                        size: 'md',
                         controller: 'EditMeltingPointController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
                         resolve: {
@@ -96,6 +80,25 @@ angular.module('indigoeln')
                         }
                     }).result.then(function(result) {
                         $scope.model.productBatchDetails.meltingPoint = result;
+                    });
+                };
+
+                $scope.editPurity = function () {
+                    $uibModal.open({
+                        animation: true,
+                        size: 'lg',
+                        controller: 'EditPurityController',
+                        templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-purity/edit-purity.html',
+                        resolve: {
+                            data: function() {
+                                return $scope.model.productBatchDetails.purity;
+                            },
+                            dictionary: function(Dictionary) {
+                                return Dictionary.get({id: 'solventName'}).$promise;
+                            }
+                        }
+                    }).result.then(function(result) {
+                        $scope.model.productBatchDetails.purity = result;
                     });
                 };
 
