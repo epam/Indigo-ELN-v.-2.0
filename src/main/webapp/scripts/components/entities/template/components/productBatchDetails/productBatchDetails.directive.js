@@ -12,12 +12,6 @@ angular.module('indigoeln')
             controller: function($scope, $uibModal){
                 $scope.model = {};
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
-                $scope.model.productBatchDetails.residualSolvents = $scope.model.productBatchDetails.residualSolvents || {};
-                $scope.model.productBatchDetails.solubility = $scope.model.productBatchDetails.solubility || {};
-                $scope.model.productBatchDetails.meltingPoint = $scope.model.productBatchDetails.meltingPoint || {};
-                $scope.model.productBatchDetails.healthHazard = $scope.model.productBatchDetails.healthHazard || {};
-                $scope.model.productBatchDetails.externalSupplier = $scope.model.productBatchDetails.externalSupplier || {};
-                $scope.model.productBatchDetails.purity = $scope.model.productBatchDetails.purity || {};
 
                 $scope.editSolubility = function () {
                     $uibModal.open({
@@ -102,21 +96,60 @@ angular.module('indigoeln')
                     });
                 };
 
-                $scope.editHealthHazard = function () {
+                var selectFromDictionary = function (dictionary, model, title, callback) {
                     $uibModal.open({
                         animation: true,
-                        size: 'lg',
-                        controller: 'EditHealthHazardController',
-                        templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-health-hazard/edit-health-hazard.html',
+                        size: 'sm',
+                        controller: 'SelectFromDictionaryController',
+                        templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/select-from-dictionary/select-from-dictionary.html',
                         resolve: {
                             data: function() {
-                                return $scope.model.productBatchDetails.healthHazard;
+                                return model;
+                            },
+                            dictionary: function(Dictionary) {
+                                return Dictionary.get({id: dictionary}).$promise;
+                            },
+                            title: function() {
+                                return title;
                             }
                         }
                     }).result.then(function(result) {
-                        $scope.model.productBatchDetails.healthHazard = result;
+                        callback(result);
                     });
                 };
+
+                $scope.editHealthHazards = function () {
+                    var dictionary = 'solventName';
+                    //var dictionary = 'healthHazards';
+                    var model = $scope.model.productBatchDetails.healthHazards;
+                    var title = 'Edit Health Hazards';
+                    var callback = function(result) {
+                        $scope.model.productBatchDetails.healthHazards = _.compact(result);
+                    };
+                    selectFromDictionary(dictionary, model, title, callback);
+                };
+                $scope.editHandlingPrecautions = function () {
+                    var dictionary = 'solventName';
+                    //var dictionary = 'handlingPrecautions';
+                    var model = $scope.model.productBatchDetails.handlingPrecautions;
+                    var title = 'Edit Handling Precautions';
+                    var callback = function(result) {
+                        $scope.model.productBatchDetails.handlingPrecautions = _.compact(result);
+                    };
+                    selectFromDictionary(dictionary, model, title, callback);
+                };
+                $scope.editStorageInstructions = function () {
+                    var dictionary = 'solventName';
+                    //var dictionary = 'storageInstructions';
+                    var model = $scope.model.productBatchDetails.storageInstructions;
+                    var title = 'Edit Storage Instructions';
+                    var callback = function(result) {
+                        $scope.model.productBatchDetails.storageInstructions = _.compact(result);
+                    };
+                    selectFromDictionary(dictionary, model, title, callback);
+                };
+                
+
             }
         };
     });

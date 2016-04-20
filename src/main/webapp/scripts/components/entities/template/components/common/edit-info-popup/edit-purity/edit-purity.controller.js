@@ -2,14 +2,13 @@
 
 angular.module('indigoeln').controller('EditPurityController',
     function ($scope, $rootScope, $uibModalInstance, data, dictionary) {
-        $scope.purity = data;
+        $scope.purity = data || {};
         $scope.purity.data = $scope.purity.data || [];
         $scope.dictionary = dictionary;
 
         $scope.isDisabled = function () {
             return $scope.purity.property === 'Purity Unknown';
         };
-
         $scope.operatorSelect = [
             {name: '>'},
             {name: '<'},
