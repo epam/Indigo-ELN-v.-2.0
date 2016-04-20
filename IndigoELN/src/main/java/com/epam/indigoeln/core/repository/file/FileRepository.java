@@ -27,12 +27,20 @@ public class FileRepository {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
-    public GridFSFile store(InputStream content, String filename, String contentType, User author) {
-        return gridFsTemplate.store(content, filename, contentType, getMetadata(author));
+    public GridFSFile store(InputStream content, String filename, String contentType, User author, boolean temporary) {
+        return gridFsTemplate.store(content, filename, contentType, getMetadata(author, temporary));
     }
 
     public GridFSDBFile findOneById(String id) {
         return gridFsTemplate.findOne(query(where("_id").is(id)));
+    }
+
+    public List<GridFSDBFile> findTemporary(Collection<String> ids) {
+        return gridFsTemplate.find(query(where("metadata.temporary").is(true)).addCriteria(where("_id").in(ids)));
+    }
+
+    public List<GridFSDBFile> findAllTemporary() {
+        return gridFsTemplate.find(query(where("metadata.temporary").is(true)));
     }
 
     public Page<GridFSDBFile> findAll(Collection<String> ids, Pageable pageable) {
@@ -53,11 +61,12 @@ public class FileRepository {
         gridFsTemplate.delete(query(where("_id").in(ids)));
     }
 
-    private DBObject getMetadata(User author) {
+    private DBObject getMetadata(User author, boolean temporary) {
         DBObject metadata = new BasicDBObject(1);
         // Adding metadata about "author"
         GridFSFileUtil.setAuthorToMetadata(metadata, author);
-
+        // Adding metadata flag if file is temporary (not attached to entity)
+        GridFSFileUtil.setTemporaryToMetadata(metadata, temporary);
         return metadata;
     }
 
