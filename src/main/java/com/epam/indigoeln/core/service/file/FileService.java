@@ -59,7 +59,7 @@ public class FileService {
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
         }
 
-        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user);
+        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user, project == null);
         if (project != null) {
             project.getFileIds().add(gridFSFile.getId().toString());
             projectRepository.save(project);
@@ -72,7 +72,7 @@ public class FileService {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
-        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user);
+        GridFSFile gridFSFile = fileRepository.store(content, filename, contentType, user, false);
         experiment.getFileIds().add(gridFSFile.getId().toString());
         experimentRepository.save(experiment);
 

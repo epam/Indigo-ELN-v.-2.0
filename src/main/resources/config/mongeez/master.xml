@@ -16,4 +16,5 @@
     <file path="dictionaries.xml"/>
     <file path="dictionaries_1.xml"/>
     <file path="dictionaries_2.xml"/>
+    <file path="file_temporary.xml"/>
 </changeFiles>

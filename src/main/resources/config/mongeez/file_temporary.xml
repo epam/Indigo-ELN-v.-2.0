@@ -1,0 +1,9 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-12" author="bolbin_sergey">
+        <script>
+
+            db.fs.files.update({}, {$set: {"metadata.temporary": false}}, {multi: true})
+
+        </script>
+    </changeSet>
+</mongoChangeLog>
