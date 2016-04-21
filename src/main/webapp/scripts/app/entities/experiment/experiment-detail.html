@@ -1,7 +1,7 @@
 <div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
     <div class="panel-body">
         <div class="row">
-            <div  class="col-xs-12">
+            <div ng-init="isCollapsed=true;" class="col-xs-12">
                 <label class="control-label">Experiment Members&nbsp;</label>
                 <button type="submit"
                         ui-sref="entities.experiment-detail.permissions()"

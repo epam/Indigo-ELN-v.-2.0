@@ -134,6 +134,8 @@ public class ExperimentService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
         // add OWNER's permissions for specified User to experiment
         PermissionUtil.addOwnerToAccessList(experiment.getAccessList(), user);
+        // add VIEWER's permissions for Project Author to experiment, if Experiment creator is another User
+        PermissionUtil.addProjectAuthorToAccessList(experiment.getAccessList(), project.getAuthor(), user);
 
         experiment.setComponents(updateComponents(null, experiment.getComponents()));
 
