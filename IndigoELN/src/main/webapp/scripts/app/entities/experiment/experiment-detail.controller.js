@@ -12,9 +12,6 @@ angular.module('indigoeln')
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
             $scope.experimentId = $stateParams.experimentId;
-            $scope.experiment.author = $scope.experiment.author || pageInfo.identity;
-            $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(pageInfo.identity);
-            $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
