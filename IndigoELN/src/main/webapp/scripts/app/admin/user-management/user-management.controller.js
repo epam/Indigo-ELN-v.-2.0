@@ -89,7 +89,7 @@ angular.module('indigoeln')
                 '<div class="container" ><div class="row"><div class="col-xs-3">' +
                 '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" ' +
                 'my-name="password" my-type="password" my-model="password" ' +
-                'my-validation-obj="editForm.password" my-validation-required="password == null" my-validation-maxlength="50">' +
+                'my-validation-required="password == null" my-validation-maxlength="50">' +
                 '</my-input></div></div></div></div>' +
                 '<div class="modal-footer text-right">' +
                 '<button class="btn btn-primary" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
