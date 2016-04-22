@@ -10,8 +10,22 @@ angular.module('indigoeln')
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html',
             controller: function($scope, $uibModal){
-                $scope.model = {};
+                $scope.model = $scope.model || {};
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
+
+                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function(event, row) {
+                    $scope.initialValue = angular.copy($scope.model.productBatchDetails);
+                    $scope.model.productBatchDetails = row;
+                    console.log('row');
+                    console.log(row);
+                });
+                var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function(event) {
+                    $scope.model.productBatchDetails = $scope.initialValue;
+                });
+                $scope.$on('$destroy', function() {
+                    onBatchSummaryRowSelectedEvent();
+                    onBatchSummaryRowDeselectedEvent();
+                });
 
                 $scope.editSolubility = function () {
                     $uibModal.open({
