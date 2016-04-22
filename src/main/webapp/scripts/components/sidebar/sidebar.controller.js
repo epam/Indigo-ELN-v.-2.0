@@ -4,7 +4,7 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
                                                AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
-                                               Principal, Alert) {
+                                               Principal) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -163,11 +163,16 @@ angular
             }
         };
 
+
         $scope.onExperimentClick = function (experiment, notebook, project) {
+            var experimentId = experiment.id;
+            var notebookId = notebook.id;
+            var projectId = project.id;
+            $scope.activeExperimentId = projectId + '-' + notebookId + '-' + experimentId;
             $state.go('entities.experiment-detail', {
-                experimentId: experiment.id,
-                notebookId: notebook.id,
-                projectId: project.id
+                experimentId: experimentId,
+                notebookId: notebookId,
+                projectId: projectId
             });
         };
 
