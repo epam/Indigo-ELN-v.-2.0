@@ -21,6 +21,7 @@
                                     <span>Table</span>
                                     <ul class="level-five" ng-if="notebook.children.length && notebook.isOpen">
                                         <li ng-repeat="experiment in notebook.children"
+                                            ng-class="{'activ': experiment.fullId == activeExperimentId}"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                             <i class="icon-bg-round"></i>
                                             <span>{{experiment.name}}</span>
