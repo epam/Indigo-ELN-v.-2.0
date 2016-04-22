@@ -17,7 +17,7 @@ angular.module('indigoeln')
             }
         });
 
-        // TODO: rewrite all watches on events
+        // TODO: rewrite all watches on events, search 'batch-summary-row-selected', add same for stoich
         $scope.$watch('share.selectedRow', function (row) {
             if (row && row.structure && row.structure.structureType === $scope.structureType) {
                 $scope.image = $scope.share.selectedRow.structure.image;

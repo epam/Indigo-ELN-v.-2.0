@@ -5,7 +5,7 @@
 
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -135,6 +135,16 @@ angular.module('indigoeln')
                 },
                 {id: 'yield', name: '%Yield'},
                 {
+                    id: 'saltCode',
+                    name: 'Salt Code & Name',
+                    type: 'select',
+                    values: function () {
+                        return compoundValues;
+                    }
+
+                },
+                {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
+                {
                     id: 'compoundState',
                     name: 'Compound State',
                     type: 'select',
@@ -215,6 +225,11 @@ angular.module('indigoeln')
 
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row || null;
+                if (row) {
+                    $rootScope.$broadcast('batch-summary-row-selected', row);
+                } else {
+                    $rootScope.$broadcast('batch-summary-row-deselected');
+                }
             };
 
             $scope.share.selectedRow = _.findWhere($scope.model.productBatchSummary.batches, {$$selected: true});
@@ -271,50 +286,44 @@ angular.module('indigoeln')
 
             };
 
+            function requestNbkBatchNumber(latest, batchToDuplicate) {
+                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
+                    .then(function (result) {
+                        var batchNumber = result.data.batchNumber;
+                        EntitiesBrowser.resolveFromCache({
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        }).then(function (notebook) {
+                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
+                            var fullNbkImmutablePart = notebook.name + '-' + $scope.experiment.name + '-';
+                            var batch = {
+                                nbkBatch: batchNumber,
+                                fullNbkBatch: fullNbkBatch,
+                                fullNbkImmutablePart: fullNbkImmutablePart,
+                                $$selected: false
+                            };
+                            if(batchToDuplicate) {
+                                batch = _.extend(batchToDuplicate, batch);
+                            }
+                            $scope.model.productBatchSummary.batches.push(batch);
+                        });
+
+                    });
+            }
+
             $scope.addNewBatch = function () {
                 var batches = $scope.model.productBatchSummary.batches;
                 var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
 
-                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
-                    .then(function (result) {
-                        var batchNumber = result.data.batchNumber;
-                        EntitiesBrowser.resolveFromCache({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).then(function (notebook) {
-                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
-                            $scope.model.productBatchSummary.batches.push({
-                                nbkBatch: batchNumber,
-                                fullNbkBatch: fullNbkBatch
-                            });
-                        });
-
-                    });
+                requestNbkBatchNumber(latest);
             };
 
             $scope.duplicateBatch = function () {
-                var originalBatch = angular.copy($scope.share.selectedRow);
+                var batchToDuplicate = angular.copy($scope.share.selectedRow);
                 var batches = $scope.model.productBatchSummary.batches;
                 var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
-
-                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
-                    .then(function (result) {
-                        var batchNumber = result.data.batchNumber;
-                        EntitiesBrowser.resolveFromCache({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).then(function (notebook) {
-                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
-                            var newBatch = _.extend(originalBatch, {
-                                nbkBatch: batchNumber,
-                                fullNbkBatch: fullNbkBatch,
-                                $$selected: false
-                            });
-                            $scope.model.productBatchSummary.batches.push(newBatch);
-                        });
-                    });
+                requestNbkBatchNumber(latest, batchToDuplicate);
             };
 
             var structureWatchers = [];
