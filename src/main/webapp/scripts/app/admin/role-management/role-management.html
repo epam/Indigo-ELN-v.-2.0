@@ -87,17 +87,18 @@
             <tr ng-repeat="role in roles track by role.id">
                 <td>{{role.name}}</td>
                 <td ng-repeat="authority in authorities">
-                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"></span>
+                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
+                          class="role-check-icon"></span>
                 </td>
                 <td class="text-right">
                     <button type="submit"
                             ng-click="edit(role)"
-                            class="btn btn-info btn-sm">
+                            class="btn btn-info btn-sm pull-left">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </button>
                     <button type="submit"
                             ui-sref="role-management.delete({id:role.id})"
-                            class="btn btn-danger btn-sm">
+                            class="btn btn-danger btn-sm pull-right">
                         <span class="glyphicon glyphicon-remove-circle"></span>
                     </button>
                 </td>
