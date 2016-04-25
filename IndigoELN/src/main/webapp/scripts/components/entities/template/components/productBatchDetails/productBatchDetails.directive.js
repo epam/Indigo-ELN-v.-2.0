@@ -9,7 +9,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html',
-            controller: function($scope, $uibModal){
+            controller: function ($scope, $uibModal, AlertModal) {
                 $scope.model = $scope.model || {};
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
 
@@ -158,6 +158,9 @@ angular.module('indigoeln')
                         $scope.model.productBatchDetails.storageInstructions = _.compact(result);
                     };
                     selectFromDictionary(dictionary, model, title, callback);
+                };
+                $scope.registerBatch = function () {
+                    AlertModal.info('not implemented yet');
                 };
                 
 
