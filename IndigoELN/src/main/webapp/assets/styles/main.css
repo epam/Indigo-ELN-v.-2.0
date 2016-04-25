@@ -559,3 +559,9 @@ div.enlarge:hover span{
 .experiment-tabs .mCSB_container.mCS_x_hidden{
     margin-bottom: 0 !important;
 }
+.logo-wrapper{
+    height: 64px;
+    width: 159px;
+    background: url("/assets/images/logo.png") no-repeat;
+
+}
