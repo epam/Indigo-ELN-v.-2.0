@@ -540,3 +540,22 @@ div.enlarge:hover span{
     overflow-y: scroll;
     max-height: 400px;
 }
+
+.experiment-tabs {
+    overflow: auto;
+}
+
+.experiment-tabs .nav {
+    white-space:nowrap;
+}
+
+.experiment-tabs .nav li {
+    display: inline-block;
+    float: none;
+}
+.experiment-tabs .mCSB_container {
+    margin-bottom: 10px !important;
+}
+.experiment-tabs .mCSB_container.mCS_x_hidden{
+    margin-bottom: 0 !important;
+}
