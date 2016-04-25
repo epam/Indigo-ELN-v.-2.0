@@ -79,7 +79,7 @@ body {
 }
 
 .authoritiesTable td:last-child, .authoritiesTable th:last-child {
-    width: 90px;
+    min-width: 95px;
 }
 
 .login-form {
@@ -539,4 +539,12 @@ div.enlarge:hover span{
 .long-content-popup {
     overflow-y: scroll;
     max-height: 400px;
+}
+
+.role-check-icon {
+    color: #25aabb;
+}
+
+.ui-select-toggle {
+    background-color: transparent;
 }
