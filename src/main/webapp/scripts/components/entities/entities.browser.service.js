@@ -57,8 +57,16 @@ angular.module('indigoeln')
             userLogoutEvent();
         });
 
+        var extractParams = function (obj) {
+            return {
+                projectId: obj.projectId,
+                notebookId: obj.notebookId,
+                experimentId: obj.experimentId
+            };
+        };
         return {
             compactIds: function (params) {
+                params = extractParams(params);
                 var paramsArr = [];
                 if (params.projectId) {
                     paramsArr.push(params.projectId);
@@ -76,6 +84,7 @@ angular.module('indigoeln')
                 return {projectId: idsArr[0], notebookId: idsArr[1], experimentId: idsArr[2]};
             },
             getKind: function (params) {
+                params = extractParams(params);
                 if (params.experimentId) {
                     return 'experiment';
                 } else if (params.notebookId) {
@@ -85,6 +94,7 @@ angular.module('indigoeln')
                 }
             },
             resolveTabs: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
@@ -95,6 +105,7 @@ angular.module('indigoeln')
                 });
             },
             getCurrentEntity: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
@@ -132,6 +143,7 @@ angular.module('indigoeln')
                 }
             },
             resolveFromCache: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal( function () {
                     var userId = getUserId();
@@ -143,6 +155,7 @@ angular.module('indigoeln')
                 });
             },
             updateCacheAndTab: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal( function () {
                     var userId = getUserId();
@@ -159,10 +172,12 @@ angular.module('indigoeln')
                 });
             },
             getNotebookFromCache: function (params) {
+                params = extractParams(params);
                 var notebookParams = {projectId: params.projectId, notebookId: params.notebookId};
                 return this.resolveFromCache(notebookParams);
             },
             getProjectFromCache: function (params) {
+                params = extractParams(params);
                 var projectParams = {projectId: params.projectId};
                 return this.resolveFromCache(projectParams);
             }
