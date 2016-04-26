@@ -1,9 +1,15 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('EntitiesController', function ($scope, data, $stateParams, EntitiesBrowser) {
-        $scope.entityId = EntitiesBrowser.compactIds($stateParams);
-        $scope.entities = data.entities;
+    .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q, $location) {
+        //todo: refactoring
+        var initParams = $location.path().match(/\d+/g);
+
+        updateTabs({
+            projectId: initParams[0],
+            notebookId: initParams[1],
+            experimentId: initParams[2]
+        });
         $scope.onCloseTabClick = function (fullId, entityId) {
             EntitiesBrowser.close(fullId, entityId);
             EntitiesBrowser.getTabs().then(function (tabs) {
@@ -34,4 +40,45 @@ angular.module('indigoeln')
                 }
             });
         });
+
+        function updateTabs(toParams) {
+            resolveTabs(toParams).then(function (data) {
+                $scope.entities = data.entities;
+                $scope.entityId = EntitiesBrowser.compactIds(toParams);
+            });
+        }
+
+        $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+            updateTabs(toParams);
+        });
+
+        function resolveTabs($stateParams) {
+            var params = {
+                projectId: $stateParams.projectId,
+                notebookId: $stateParams.notebookId,
+                experimentId: $stateParams.experimentId
+            };
+            var deferred = $q.defer();
+            EntitiesBrowser
+                .resolveTabs(params)
+                .then(function (tabs) {
+                    var kind = EntitiesBrowser.getKind(params);
+                    if (kind === 'experiment') {
+                        EntitiesBrowser.resolveFromCache({
+                            projectId: params.projectId,
+                            notebookId: params.notebookId
+                        }).then(function () {
+                            deferred.resolve({
+                                entities: tabs
+                            });
+                        });
+                    } else {
+                        deferred.resolve({
+                            entities: tabs
+                        });
+                    }
+                });
+            return deferred.promise;
+        }
+
     });
