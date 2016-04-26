@@ -130,6 +130,10 @@ body {
     animation: fadeIn 0.7s;
 }
 
+.tab-content.ng-enter {
+    animation: fadeIn 0.7s;
+}
+
 .templates-holder {
     min-height: 200px;
 }
