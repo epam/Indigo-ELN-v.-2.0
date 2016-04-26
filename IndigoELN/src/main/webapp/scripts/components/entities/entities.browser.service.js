@@ -88,7 +88,9 @@ angular.module('indigoeln')
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
-                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    if (that.compactIds(params)) {
+                        tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    }
                     return $q.all(_.values(tabs[userId]));
                 });
             },
