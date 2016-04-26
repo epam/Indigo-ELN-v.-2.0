@@ -9,11 +9,11 @@ angular.module('indigoeln')
                     $element.mCustomScrollbar({
                         axis: 'x',
                         theme: 'indigo',
-                        scrollInertia: 300,
+                        scrollInertia: 100,
                         callbacks: {
                             onUpdate: function () {
                                 $element.mCustomScrollbar('scrollTo', '.active', {
-                                    scrollInertia: 300
+                                    scrollInertia: 100
                                 });
                             }
                         }
@@ -22,7 +22,7 @@ angular.module('indigoeln')
                         $timeout(function () {
                             $element.mCustomScrollbar('update');
                             $element.mCustomScrollbar('scrollTo', '.active', {
-                                scrollInertia: 300
+                                scrollInertia: 100
                             });
                         });
                     });
