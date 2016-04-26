@@ -123,6 +123,30 @@ angular.module('indigoeln').controller('SearchReagentsController',
             })).length;
         };
 
+        $scope.saltCodeValues = [
+            {name: '00 - Parent Structure', value: '0'},
+            {name: '01 - HYDROCHLORIDE', value: '1'},
+            {name: '02 - SODIUM', value: '2'},
+            {name: '03 - HYDRATE', value: '3'},
+            {name: '04 - HYDROBROMIDE', value: '4'},
+            {name: '05 - HYDROIODIDE', value: '5'},
+            {name: '06 - POTASSIUM', value: '6'},
+            {name: '07 - CALCIUM', value: '7'},
+            {name: '08 - SULFATE', value: '8'},
+            {name: '09 - PHOSPHATE', value: '9'},
+            {name: '10 - CITRATE', value: '10'}
+        ];
+
+        $scope.recalculateSalt = function (reagent) {
+            var config = {params: {
+                saltCode: reagent.saltCode ? reagent.saltCode.value : null,
+                saltEq: reagent.saltEq}};
+            $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
+                .then(function (result) {
+                        reagent.molWeight = result.data.molecularWeight;
+                });
+        };
+
         $scope.search = function () {
             $scope.model.databases = _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
             $timeout(function () {
@@ -155,7 +179,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
                             batchDetails.$$isCollapsed = true;
                             batchDetails.$$isSelected = false;
                             batchDetails.database = $scope.model.databases.join(', ');
-                            batchDetails.molWeight = item.details.molWgt;
+                            batchDetails.molWeight = item.details.molWt;
                             return batchDetails;
                         });
                         console.log(result);
