@@ -554,7 +554,7 @@ div.enlarge:hover span{
     float: none;
 }
 .experiment-tabs .mCSB_container {
-    margin-bottom: 10px !important;
+    margin-bottom: 15px !important;
 }
 .experiment-tabs .mCSB_container.mCS_x_hidden{
     margin-bottom: 0 !important;
@@ -569,7 +569,7 @@ div.enlarge:hover span{
 }
 
 .my-scroller-axis-x .mCSB_inside > .mCSB_container {
-    margin-bottom: 10px !important;
+    margin-bottom: 15px !important;
 }
 
 .my-scroller-axis-x .mCSB_container.mCS_x_hidden {
