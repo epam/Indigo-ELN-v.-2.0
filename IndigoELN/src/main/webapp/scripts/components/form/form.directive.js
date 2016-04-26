@@ -62,6 +62,7 @@ angular.module('indigoeln')
             myType: '@',
             myInputGroup: '@',
             myInputSize: '@',
+            myChange: '&',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
             myValidationMinlength: '@',
@@ -106,7 +107,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChange()" ng-model="myModel" ng-readonly="myReadonly"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
