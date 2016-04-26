@@ -18,7 +18,19 @@ angular.module('indigoeln')
                 var moles = ['umol', 'mmol', 'mol'];
                 var molarity = ['mM', 'M'];
                 var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
-                var saltCodeValues = [{name: '00 - Parent'}, {name: '01 - Salt1(MW-10)'}, {name: '02 - Salt2(MW-20)'}];
+                var saltCodeValues = [
+                    {name: '00 - Parent Structure', value: '0'},
+                    {name: '01 - HYDROCHLORIDE', value: '1'},
+                    {name: '02 - SODIUM', value: '2'},
+                    {name: '03 - HYDRATE', value: '3'},
+                    {name: '04 - HYDROBROMIDE', value: '4'},
+                    {name: '05 - HYDROIODIDE', value: '5'},
+                    {name: '06 - POTASSIUM', value: '6'},
+                    {name: '07 - CALCIUM', value: '7'},
+                    {name: '08 - SULFATE', value: '8'},
+                    {name: '09 - PHOSPHATE', value: '9'},
+                    {name: '10 - CITRATE', value: '10'}
+                ];
                 var loadFactorUnits = ['mmol/g'];
                 $scope.reactantsColumns = [
                     {
@@ -86,7 +98,8 @@ angular.module('indigoeln')
                         }
                     }, {
                         id: 'saltEq',
-                        name: 'Salt EQ'
+                        name: 'Salt EQ',
+                        type: 'input'
                     }, {
                         id: 'loadFactor',
                         name: 'Load Factor',
@@ -115,6 +128,16 @@ angular.module('indigoeln')
                         name: 'Mol.Wt.'
                     },
                     {
+                        id: 'saltCode',
+                        name: 'Salt Code',
+                        type: 'select'
+                    },
+                    {
+                        id: 'saltEq',
+                        name: 'Salt EQ',
+                        type: 'input'
+                    },
+                    {
                         id: 'exactMass',
                         name: 'Exact Mass'
                     },
@@ -125,14 +148,6 @@ angular.module('indigoeln')
                     {
                         id: 'theoMoles',
                         name: 'Theo. Moles'
-                    },
-                    {
-                        id: 'saltCode',
-                        name: 'Salt Code'
-                    },
-                    {
-                        id: 'saltEq',
-                        name: 'Salt EQ'
                     },
                     {
                         id: 'hazardComments',
@@ -160,17 +175,46 @@ angular.module('indigoeln')
                 $scope.removeRow = function () {
                     $scope.rows = _.without($scope.rows, $scope.selectedRow);
                 };
+
+                $scope.saltCodeValues = [
+                    {name: '00 - Parent Structure', value: '0'},
+                    {name: '01 - HYDROCHLORIDE', value: '1'},
+                    {name: '02 - SODIUM', value: '2'},
+                    {name: '03 - HYDRATE', value: '3'},
+                    {name: '04 - HYDROBROMIDE', value: '4'},
+                    {name: '05 - HYDROIODIDE', value: '5'},
+                    {name: '06 - POTASSIUM', value: '6'},
+                    {name: '07 - CALCIUM', value: '7'},
+                    {name: '08 - SULFATE', value: '8'},
+                    {name: '09 - PHOSPHATE', value: '9'},
+                    {name: '10 - CITRATE', value: '10'}
+                ];
+
+                $scope.recalculateSalt = function (reagent) {
+                    var config = {params: {
+                        saltCode: reagent.saltCode ? reagent.saltCode.value : null,
+                        saltEq: reagent.saltEq }};
+                    $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
+                        .then(function (result) {
+                                reagent.molWeight = result.data.molecularWeight;
+                            }
+                        );
+                };
+
+
                 $scope.$watch('share.reaction', function (newMolFile) {
                     var resetMolInfo = function () {
                         $scope.model.stoichTable.products = null;
                     };
                     if (newMolFile) {
-
                         $http.put('api/calculations/reaction/extract', newMolFile).then(function (reactionProperties) {
                                 if (reactionProperties.data.products && reactionProperties.data.products.length) {
                                     var promises = [];
                                     _.each(reactionProperties.data.products, function (product) {
-                                        promises.push($http.put('api/calculations/molecule/info', product));
+                                        var config = {params: {
+                                            saltCode: product.saltCode ? product.saltCode.value : null,
+                                            saltEq: product.saltEq}};
+                                        promises.push($http.put('api/calculations/molecule/info', product, config));
                                     });
                                     $q.all(promises).then(function (results) {
                                         $scope.model.stoichTable.products = _.map(results, function (result) {
@@ -192,6 +236,14 @@ angular.module('indigoeln')
                         resetMolInfo();
                     }
                 });
+
+                $scope.$watch('model.stoichTable.reactants', function (newRows) {
+                    _.each(newRows, function (row) {
+                        if (row.saltCode || row.saltEq) {
+                            $scope.recalculateSalt(row);
+                        }
+                    });
+                }, true);
 
                 var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
                     $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);

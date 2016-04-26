@@ -13,6 +13,19 @@ angular.module('indigoeln')
             var liters = ['ul', 'ml', 'l'];
             var moles = ['umol', 'mmol', 'mol'];
             var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
+            var saltCodeValues = [
+                {name: '00 - Parent Structure', value: '0'},
+                {name: '01 - HYDROCHLORIDE', value: '1'},
+                {name: '02 - SODIUM', value: '2'},
+                {name: '03 - HYDRATE', value: '3'},
+                {name: '04 - HYDROBROMIDE', value: '4'},
+                {name: '05 - HYDROIODIDE', value: '5'},
+                {name: '06 - POTASSIUM', value: '6'},
+                {name: '07 - CALCIUM', value: '7'},
+                {name: '08 - SULFATE', value: '8'},
+                {name: '09 - PHOSPHATE', value: '9'},
+                {name: '10 - CITRATE', value: '10'}
+            ];
             var stereoisomerValues = [
                 {name: 'NOSTC - Achiral - No Stereo Centers'},
                 {name: 'AMESO - Achiral - Meso Stereomers'},
@@ -139,9 +152,8 @@ angular.module('indigoeln')
                     name: 'Salt Code & Name',
                     type: 'select',
                     values: function () {
-                        return compoundValues;
+                        return saltCodeValues;
                     }
-
                 },
                 {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
                 {
@@ -155,7 +167,7 @@ angular.module('indigoeln')
                 },
                 {id: 'purity', name: 'Purity'},
                 {id: 'meltingPoint', name: 'Melting Point'},
-                {id: 'molWgt', name: 'Mol Wgt'},
+                {id: 'molWt', name: 'Mol Wgt'},
                 {id: 'molFormula', name: 'Mol Formula'},
                 {id: 'conversationalBatch', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
@@ -337,13 +349,16 @@ angular.module('indigoeln')
                     }, function (newMolFile) {
                         var resetMolInfo = function () {
                             row.molFormula = null;
-                            row.molWgt = null;
+                            row.molWt = null;
                         };
                         if (newMolFile) {
-                            $http.put('api/calculations/molecule/info', row.structure.molfile)
+                            var config = {params: {
+                                saltCode: row.saltCode ? row.saltCode.value : null,
+                                saltEq: row.saltEq}};
+                            $http.put('api/calculations/molecule/info', row.structure.molfile, config)
                                 .then(function (molInfo) {
                                     row.molFormula = molInfo.data.molecularFormula;
-                                    row.molWgt = molInfo.data.molecularWeight;
+                                    row.molWt = molInfo.data.molecularWeight;
                                 }, resetMolInfo);
                         } else {
                             resetMolInfo();

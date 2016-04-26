@@ -118,7 +118,7 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             //        batchDetails.$$isCollapsed = true;
             //        batchDetails.$$isSelected = false;
             //        batchDetails.database = $scope.model.databases.join(', ');
-            //        batchDetails.molWeight = item.details.molWgt;
+            //        batchDetails.molWeight = item.details.molWt;
             //        return batchDetails;
             //    });
             //});
