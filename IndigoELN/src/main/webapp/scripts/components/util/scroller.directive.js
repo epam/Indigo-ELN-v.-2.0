@@ -1,18 +1,19 @@
 'use strict';
 angular.module('indigoeln')
-    .directive('myScroller', function ($timeout) {
+    .directive('myTabScroller', function ($timeout) {
         return {
             restrict: 'A',
-            link: function (scope, iElement, iAttrs, controller ) {
+            link: function (scope, iElement, iAttrs, controller) {
                 $timeout(function () {
                     var $element = $(iElement);
                     $element.mCustomScrollbar({
                         axis: 'x',
-                        theme: 'dark-thin',
+                        theme: 'indigo',
+                        scrollInertia: 300,
                         callbacks: {
                             onUpdate: function () {
                                 $element.mCustomScrollbar('scrollTo', '.active', {
-                                    scrollInertia: 500
+                                    scrollInertia: 300
                                 });
                             }
                         }
@@ -21,10 +22,24 @@ angular.module('indigoeln')
                         $timeout(function () {
                             $element.mCustomScrollbar('update');
                             $element.mCustomScrollbar('scrollTo', '.active', {
-                                scrollInertia: 500
+                                scrollInertia: 300
                             });
                         });
                     });
+                });
+            }
+        };
+    })
+    .directive('myScroller', function ($timeout) {
+        return {
+            restrict: 'A',
+            link: function (scope, iElement, iAttrs, controller) {
+                var $element = $(iElement);
+                $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
+                $element.mCustomScrollbar({
+                    axis: iAttrs.myScroller,
+                    theme: iAttrs.myScrollerTheme || "indigo",
+                    scrollInertia: 300
                 });
             }
         };
