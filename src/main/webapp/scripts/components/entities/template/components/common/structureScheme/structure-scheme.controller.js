@@ -2,36 +2,36 @@
 
 angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal) {
-        $scope.structureType = $attrs.myStructureType;
+        var type = $attrs.myStructureType; // molecule, reaction
+        $scope.structureType = type;
         $scope.myTitle = $attrs.myTitle;
 
         if (!$scope.model) {
             return;
         }
-        $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
-        $scope.image = $scope.model.image;
+        $scope.model[type] = $scope.model[type] || {structureScheme: {}};
 
-        $scope.$watch('model.structureId', function () {
-            if ($scope.model.structureId) {
-                $scope.share[$attrs.myStructureType] = $scope.model.structureMolfile;
+        $scope.$watch('model[type].structureId', function () {
+            if ($scope.model[type].structureId) {
+                $scope.share[type] = $scope.model[type].structureMolfile;
             }
         });
 
         // TODO: rewrite all watches on events, search 'batch-summary-row-selected', add same for stoich
         $scope.$watch('share.selectedRow', function (row) {
-            if (row && row.structure && row.structure.structureType === $scope.structureType) {
-                $scope.image = $scope.share.selectedRow.structure.image;
-                $scope.model.structureMolfile = $scope.share.selectedRow.structure.molfile;
-                $scope.model.structureId = $scope.share.selectedRow.structure.structureId;
+            if (row && row.structure && row.structure.structureType === type) {
+                $scope.model[type].image = $scope.share.selectedRow.structure.image;
+                $scope.model[type].structureMolfile = $scope.share.selectedRow.structure.molfile;
+                $scope.model[type].structureId = $scope.share.selectedRow.structure.structureId;
                 $http({
-                    url: 'api/renderer/' + $scope.structureType + '/image',
+                    url: 'api/renderer/' + type + '/image',
                     method: 'POST',
-                    data: $scope.model.structureMolfile
+                    data: $scope.model[type].structureMolfile
                 }).success(function (result) {
-                    $scope.model.image = result.image;
+                    $scope.model[type].image = result.image;
                 });
             } else if(!_.isUndefined(row)) {
-                $scope.image = $scope.model.structureMolfile = $scope.model.structureId = null;
+                $scope.model[type].image = $scope.model[type].structureMolfile = $scope.model[type].structureId = null;
             }
         });
 
@@ -47,7 +47,7 @@ angular.module('indigoeln')
                 windowClass: 'structure-editor-modal',
                 resolve: {
                     prestructure: function () {
-                        return $scope.model.structureMolfile;
+                        return $scope.model[type].structureMolfile;
                     },
                     editor: function () {
                         // TODO: get editor name from user's settings; ketcher by default
@@ -59,7 +59,7 @@ angular.module('indigoeln')
             // process structure if changed
             modalInstance.result.then(function (structure) {
                 if (structure) {
-                    saveNewStructure(structure, $scope.structureType);
+                    saveNewStructure(structure, type);
                 }
             });
         };
@@ -77,7 +77,7 @@ angular.module('indigoeln')
 
             // set structure if picked
             modalInstance.result.then(function (structure) {
-                saveNewStructure(structure, $scope.structureType);
+                saveNewStructure(structure, type);
             });
         };
 
@@ -92,10 +92,10 @@ angular.module('indigoeln')
                 windowClass: 'structure-export-modal',
                 resolve: {
                     structureToSave: function () {
-                        return $scope.model.structureMolfile;
+                        return $scope.model[type].structureMolfile;
                     },
                     structureType: function () {
-                        return $scope.structureType;
+                        return type;
                     }
                 }
             });
@@ -109,20 +109,20 @@ angular.module('indigoeln')
                 data: structure
             }).success(function (structureId) {
                 $http({
-                    url: 'api/renderer/' + $scope.structureType + '/image',
+                    url: 'api/renderer/' + type + '/image',
                     method: 'POST',
                     data: structure
                 }).success(function (result) {
-                    $scope.image = result.image;
+                    $scope.model[type].image = result.image;
                     $scope.share = $scope.share || {};
                     if ($scope.share.selectedRow) {
                         $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
                         $scope.share.selectedRow.structure.image = result.image;
-                        $scope.share.selectedRow.structure.structureType = $scope.structureType;
+                        $scope.share.selectedRow.structure.structureType = type;
                         $scope.share.selectedRow.structure.molfile = structure;
                         $scope.share.selectedRow.structure.structureId = structureId;
                     } else {
-                        $scope.model.image = result.image;
+                        $scope.model[type].image = result.image;
                         // case of search by molecule
                         if ($scope.model.restrictions) {
                             $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
@@ -131,9 +131,9 @@ angular.module('indigoeln')
                         }
 
                     }
-                    $scope.model.structureId = result;
+                    $scope.model[type].structureId = result;
                     // set the renewed value if it's fine with bingo
-                    $scope.model.structureMolfile = structure;
+                    $scope.model[type].structureMolfile = structure;
                 });
             }).error(function () {
                 console.info('Cannot save the structure.');
