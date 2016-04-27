@@ -151,6 +151,10 @@ angular.module('indigoeln')
                     if (!cache[userId][entitiyId]) {
                         cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
                     }
+                    cache[userId][entitiyId].catch(function () {
+                        delete cache[userId][entitiyId];
+                        delete tabs[userId][entitiyId];
+                    });
                     return cache[userId][entitiyId];
                 });
             },
