@@ -14,9 +14,11 @@
                             <div class="row print-component">
                                 <div class="col-xs-12">
                                     <table class="print-header">
-                                        <tr>
-                                            <th colspan="2"><h3>CONFIDENTIAL</h3></th>
-                                            <th colspan="2" style="color: deepskyblue"><h3>#logo</h3></th>
+                                        <tr style="background-color:#6b8693;">
+                                            <th colspan="2" style="color:white; padding:0">
+                                                <h2 style="margin-bottom:23px;margin-left:30px;">CONFIDENTIAL</h2></th>
+                                            <th colspan="2" style="position:relative">
+                                                <div style="top:9px;right:0;" class="logo-wrapper"></div></th>
                                         </tr>
                                         <tr>
                                             <td width="20%">Author:</td>
@@ -59,8 +61,7 @@
                             </div>
 
                             <!--EXPERIMENT DETAILS-->
-                            <!-- reactionDetails-->
-                            <div class="row print-component" ng-if="true"> <!--ng-if="reactionDetails"-->
+                            <div class="row print-component" ng-if="reactionDetails">
                                 <div class="col-xs-1 need-to-print" ng-init="reactionDetails.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
@@ -104,8 +105,7 @@
                             </div>
 
                             <!--EXPERIMENT DESCRIPTION-->
-                            <!--no such component yet-->
-                            <div class="row print-component" ng-if="true">
+                            <div class="row print-component" ng-if="experimentDescription">
                                 <div class="col-xs-1 need-to-print"
                                      ng-init="experimentDescription.needToPrint = true">
                                     <my-checkbox
@@ -118,14 +118,13 @@
                                 <div class="col-xs-11">
                                     <div class="row"><b class="pull-right">EXPERIMENT DESCRIPTION</b>
                                     </div>
-                                    <div class="print-box" style="height: 100px;">#text-editor component
-                                    </div>
+                                    <my-text-editor my-model="experimentDescription.description"
+                                                    my-readonly="true"></my-text-editor>
                                 </div>
                             </div>
 
                             <!--SUMMARY REACTION-->
-                            <!--reaction-->
-                            <div class="row print-component" ng-if="true">  <!--ng-if="reaction"-->
+                            <div class="row print-component" ng-if="reaction">
                                 <div class="col-xs-1 need-to-print" ng-init="reaction.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
@@ -145,12 +144,11 @@
                             </div>
 
                             <!--STOICHIOMETRY-->
-                            <!--no such component yet-->
-                            <div class="row print-component" ng-if="true">
-                                <div class="col-xs-1 need-to-print" ng-init="stoichiometry.needToPrint = true">
+                            <div class="row print-component" ng-if="stoichTable">
+                                <div class="col-xs-1 need-to-print" ng-init="stoichTable.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
-                                            my-model="stoichiometry.needToPrint"
+                                            my-model="stoichTable.needToPrint"
                                             my-name="needToPrint"
                                             my-disabled="fullPrint"
                                     ></my-checkbox>
@@ -167,46 +165,52 @@
                                             <th width="8">EQ</th>
                                             <th width="30">Other Information</th>
                                         </tr>
-                                        <tr>  <!--ng-repeat=""-->
-                                            <td>#image<br>STR-00000069-00<br>11111111-0013-084</td>
-                                            <td>325</td>
-                                            <td>12 mg</td>
-                                            <td>0.0223 mmol</td>
-                                            <td>5 mL</td>
-                                            <td>1.00</td>
+                                        <tr ng-repeat="reactant in stoichTable.reactants">
+                                            <td>
+                                                <div><img ng-if="reactant.structure.image"
+                                                         class="img-responsive"
+                                                         style="height:100px;"
+                                                         ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
+                                                         alt="Image is unavailable."></div>
+                                                <p>{{reactant.fullNbkBatch}}</p></td>
+                                            <td>{{reactant.molWeight}}</td>
+                                            <td>{{reactant.weight.value + ' ' + reactant.weight.unit}}</td>
+                                            <td>{{reactant.mol.value + ' ' + reactant.mol.unit}}</td>
+                                            <td>{{reactant.volume.value + ' ' + reactant.volume.unit}}</td>
+                                            <td>???</td>
                                             <td>
                                                 <table class="print-table-inner">
                                                     <tr>
                                                         <td width="40%">Name:</td>
-                                                        <td>toluene</td>
+                                                        <td>{{reactant.chemicalName}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Rxn Role:</td>
-                                                        <td>SOLVENT</td>
+                                                        <td>{{reactant.rxnRole.name}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Purity:</td>
-                                                        <td>100%</td>
+                                                        <td>{{reactant.purity}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Molarity:</td>
-                                                        <td>0.008 M</td>
+                                                        <td>{{reactant.molarity.value + ' ' + reactant.molarity.unit}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Hazard:</td>
-                                                        <td>hazard info</td>
+                                                        <td>{{reactant.hazardComments}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Comments:</td>
-                                                        <td>STR-00000069-004564564</td>
+                                                        <td>{{reactant.comments}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Salt Code:</td>
-                                                        <td>{{}}</td>
+                                                        <td>{{reactant.saltCode.name}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Salt EQ:</td>
-                                                        <td>{{}}</td>
+                                                        <td>{{reactant.saltEq}}</td>
                                                     </tr>
                                                 </table>
                                             </td>
@@ -216,8 +220,7 @@
                             </div>
 
                             <!--BATCH INFORMATION-->
-                            <!--batchSummary.batches; product-batch-summary.controller -->
-                            <div class="row print-component" ng-if="true">   <!--ng-if="batchSummary"-->
+                            <div class="row print-component" ng-if="batchSummary">
                                 <div class="col-xs-1 need-to-print" ng-init="batchSummary.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
@@ -231,7 +234,7 @@
                                     <table class="print-table">
                                         <tr>
                                             <th width="10%">Nbk Batch</th>
-                                            <th width="25%">Structure</th>
+                                            <th width="20%">Structure</th>
                                             <th width="10%">Amount Made</th>
                                             <th width="10%">Theoretical Yield</th>
                                             <th width="10%">Purity (%) Determined By</th>
@@ -239,13 +242,14 @@
                                         </tr>
                                         <tr ng-repeat="batch in batchSummary.batches">
                                             <td>{{batch.nbkBatch}}</td>
-                                            <td>{{batch.structure}}</td>
-                                            <!--amount made ?-->
-                                            <td>12 mg ? {{}}</td>
-                                            <!--yield: not finished ?-->
-                                            <td>5.60 mg<br>450%</td>
-                                            <!--purity: not finished ?-->
-                                            <td></td>
+                                            <td><div><img ng-if="batch.structure.image"
+                                                          class="img-responsive"
+                                                          style="height:100px;"
+                                                          ng-src="data:image/svg+xml;base64,{{batch.structure.image}}"
+                                                          alt="Image is unavailable."></div></td>
+                                            <td>???</td>
+                                            <td>???</td>
+                                            <td>{{batch.purity.asString}}</td>
                                             <td>
                                                 <table class="print-table-inner">
                                                     <tr>
@@ -255,17 +259,15 @@
                                                     <tr>
                                                         <!--?-->
                                                         <td>Exact Mass:</td>
-                                                        <td>78.047</td>
+                                                        <td>???</td>
                                                     </tr>
                                                     <tr>
-                                                        <!--from batchDetails ?-->
                                                         <td>Salt Code:</td>
-                                                        <td>01 - Salt1(MW=10)</td>
+                                                        <td>{{batch.saltCode.name}}</td>
                                                     </tr>
                                                     <tr>
-                                                        <!--from batchDetails ?-->
                                                         <td>Salt EQ:</td>
-                                                        <td>0.008 M</td>
+                                                        <td>{{batch.saltEq}}</td>
                                                     </tr>
                                                     <tr>
                                                         <!--add field?-->
@@ -273,9 +275,8 @@
                                                         <td>{{}}</td>
                                                     </tr>
                                                     <tr>
-                                                        <!--from batchDetails.structureComments ?-->
                                                         <td>Comments:</td>
-                                                        <td>{{}}</td>
+                                                        <td>{{batch.comments}}</td>
                                                     </tr>
                                                 </table>
                                             </td>
@@ -317,7 +318,6 @@
 
 
                             <!--BATCH DETAILS-->
-                            <!--batchDetails-->
                             <div class="row print-component">
                                 <div class="col-xs-1 need-to-print" ng-init="batchDetails.needToPrint = true">
                                     <my-checkbox
@@ -327,13 +327,13 @@
                                             my-disabled="fullPrint"
                                     ></my-checkbox>
                                 </div>
-                                <div class="col-xs-11" ng-if="true">   <!--ng-if="batchDetails"-->
+                                <div class="col-xs-11" ng-if="batchDetails">
                                     <div class="row"><b class="pull-right">BATCH DETAILS</b></div>
                                     <table class="print-table">
                                         <tr>
                                             <th width="20%">For Notebook Batch:</th>
                                             <th>
-                                                <span class="pull-left">&nbsp; {{batchDetails.notebookBatch}}</span>
+                                                <span class="pull-left">&nbsp; {{batchDetails.fullNbkBatch}}</span>
                                                 <span class="pull-right">#barcode &nbsp;</span>
                                             </th>
                                         </tr>
@@ -347,14 +347,12 @@
                                             <td>{{batchDetails.structureComments}}</td>
                                         </tr>
                                         <tr>
-                                            <!--no model-->
                                             <td>Compound Source</td>
-                                            <td>{{}}</td>
+                                            <td>{{batchDetails.source}}</td>
                                         </tr>
                                         <tr>
-                                            <!--no model-->
                                             <td>Source Detail</td>
-                                            <td>{{}}</td>
+                                            <td>{{batchDetails.sourceDetail}}</td>
                                         </tr>
                                         <tr>
                                             <!--no such field!-->
@@ -383,11 +381,11 @@
                                         </tr>
                                         <tr>
                                             <td>Residual Solvents</td>
-                                            <td>{{batchDetails.residualSolvents}}</td>
+                                            <td>{{batchDetails.residualSolvents.asString}}</td>
                                         </tr>
                                         <tr>
                                             <td>Solubility in Solvents</td>
-                                            <td>{{batchDetails.solubilitySolvents}}</td>
+                                            <td>{{batchDetails.solubilitySolvents.asString}}</td>
                                         </tr>
                                         <tr>
                                             <!--no model-->
@@ -401,31 +399,30 @@
                                         </tr>
                                         <tr>
                                             <td>Precursor/Reactant IDs</td>
-                                            <td>{{batchDetails.precursorReactant}}</td>
+                                            <td>{{batchDetails.precursors}}</td>
                                         </tr>
                                         <tr>
                                             <td>External Supplier</td>
-                                            <td>{{batchDetails.externalSupplier}}</td>
+                                            <td>{{batchDetails.externalSupplier.asString}}</td>
                                         </tr>
                                         <tr>
                                             <td>Hazards</td>
-                                            <td>{{batchDetails.healthHazards}}</td>
+                                            <td>{{batchDetails.healthHazards.toString()}}</td>
                                         </tr>
                                         <tr>
                                             <td>Handling</td>
-                                            <td>{{batchDetails.handlingPrecautions}}</td>
+                                            <td>{{batchDetails.handlingPrecautions.toString()}}</td>
                                         </tr>
                                         <tr>
                                             <td>Storage</td>
-                                            <td>{{batchDetails.storageInstructions}}</td>
+                                            <td>{{batchDetails.storageInstructions.toString()}}</td>
                                         </tr>
                                     </table>
                                 </div>
                             </div>
 
                             <!--CONCEPT DETAIL-->
-                            <!--conceptDetails-->
-                            <div class="row print-component" ng-if="true"> <!--ng-if="conceptDetails"-->
+                            <div class="row print-component" ng-if="conceptDetails"> <!--ng-if="conceptDetails"-->
                                 <div class="col-xs-1 need-to-print" ng-init="conceptDetails.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
