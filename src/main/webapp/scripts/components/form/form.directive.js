@@ -134,7 +134,7 @@ angular.module('indigoeln')
         '<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
         '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}">' +
-        '<input type="checkbox" id="{{myName}}" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"> {{myLabel}}' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"></checkbox>  {{myLabel}}' +
         '</label> ' +
         '</div> ' +
         '</div> ' +
