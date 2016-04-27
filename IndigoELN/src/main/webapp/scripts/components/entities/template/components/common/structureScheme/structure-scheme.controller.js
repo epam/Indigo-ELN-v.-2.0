@@ -11,29 +11,32 @@ angular.module('indigoeln')
         }
         $scope.model[type] = $scope.model[type] || {structureScheme: {}};
 
-        $scope.$watch('model[type].structureId', function () {
+        var onStructureIdChange = function () {
             if ($scope.model[type].structureId) {
                 $scope.share[type] = $scope.model[type].structureMolfile;
             }
-        });
+        };
+        $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
 
         // TODO: rewrite all watches on events, search 'batch-summary-row-selected', add same for stoich
-        $scope.$watch('share.selectedRow', function (row) {
-            if (row && row.structure && row.structure.structureType === type) {
-                $scope.model[type].image = $scope.share.selectedRow.structure.image;
-                $scope.model[type].structureMolfile = $scope.share.selectedRow.structure.molfile;
-                $scope.model[type].structureId = $scope.share.selectedRow.structure.structureId;
-                $http({
-                    url: 'api/renderer/' + type + '/image',
-                    method: 'POST',
-                    data: $scope.model[type].structureMolfile
-                }).success(function (result) {
-                    $scope.model[type].image = result.image;
-                });
-            } else if(!_.isUndefined(row)) {
-                $scope.model[type].image = $scope.model[type].structureMolfile = $scope.model[type].structureId = null;
-            }
-        });
+        if (type === 'molecule') {
+            $scope.$on('batch-summary-row-selected', function (event, row) {
+                if (row && row.structure && row.structure.structureType === type) {
+                    $scope.model[type].image = $scope.share.selectedRow.structure.image;
+                    $scope.model[type].structureMolfile = $scope.share.selectedRow.structure.molfile;
+                    $scope.model[type].structureId = $scope.share.selectedRow.structure.structureId;
+                    $http({
+                        url: 'api/renderer/' + type + '/image',
+                        method: 'POST',
+                        data: $scope.model[type].structureMolfile
+                    }).success(function (result) {
+                        $scope.model[type].image = result.image;
+                    });
+                } else if (!_.isUndefined(row)) {
+                    $scope.model[type].image = $scope.model[type].structureMolfile = $scope.model[type].structureId = null;
+                }
+            });
+        }
 
         $scope.openEditor = function () {
             if ($scope.myReadonly) {
