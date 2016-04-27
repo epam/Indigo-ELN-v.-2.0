@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo) {
+    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo, $timeout) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
 
         $scope.roles = pageInfo.roles;
@@ -23,6 +23,12 @@ angular.module('indigoeln')
             {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Write some tooltip'}
         ];
 
+        $scope.$watch('role', function (role) {
+            _.each($scope.authorities, function (authority) {
+                authority.checked = $scope.hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
+
+            });
+        });
         function isLastRoleWithRoleEditor() {
             var roleEditorCount = 0;
             var lastRoleWithRoleEditorAuthority = false;
@@ -67,15 +73,13 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.updateAuthoritySelection = function($event, authority) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
-            updateAuthorities(action, authority);
+        $scope.updateAuthoritySelection = function ($event, authority) {
+            $timeout(function () {
+                var action = (authority.checked ? 'add' : 'remove');
+                updateAuthorities(action, authority);
+            });
         };
 
-        $scope.isAuthoritySelected = function(authority) {
-            return $scope.hasAuthority($scope.role, authority);
-        };
 
         $scope.clear = function () {
             $scope.role = null;

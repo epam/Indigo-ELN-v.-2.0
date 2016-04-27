@@ -235,6 +235,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/renderer/**").authenticated()
                 .antMatchers(HttpMethod.POST, "/api/signature/document").hasAnyAuthority(EXPERIMENT_CREATORS)
                 .antMatchers("/api/signature/**").authenticated()
+                .antMatchers("/api/user_reagents/**").authenticated()
                 .antMatchers("/protected/**").authenticated()
 
                 //restrictions for swagger

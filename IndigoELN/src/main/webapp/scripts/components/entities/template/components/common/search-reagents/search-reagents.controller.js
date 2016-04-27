@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, activeTab) {
+    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, activeTab, UserReagents) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -57,12 +57,16 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.selectAll = function () {
-            for (var i = 0; i < $scope.model.databases.length; i++) {
-                $scope.model.databases[i].isChecked = $scope.model.allItemsSelected;
-            }
+            $timeout(function () {
+                for (var i = 0; i < $scope.model.databases.length; i++) {
+                    $scope.model.databases[i].isChecked = $scope.model.allItemsSelected;
+                }
+            });
         };
 
-        $scope.myReagentList = [];
+        UserReagents.get({}, function (reagents) {
+            $scope.myReagentList = reagents;
+        });
 
         $scope.addToMyReagentList = function () {
             var selected = _.where($scope.searchResults, {$$isSelected: true});
@@ -85,10 +89,14 @@ angular.module('indigoeln').controller('SearchReagentsController',
                     count = count + 1;
                 }
             });
-            if (count === 1) {
-                Alert.info(count + ' reagent successfully added to My Reagent List');
-            } else if(count > 0) {
-                Alert.info(count + ' reagents successfully added to My Reagent List');
+            if (count > 0) {
+                UserReagents.save($scope.myReagentList, function () {
+                    if (count === 1) {
+                        Alert.info(count + ' reagent successfully added to My Reagent List');
+                    } else if (count > 0) {
+                        Alert.info(count + ' reagents successfully added to My Reagent List');
+                    }
+                });
             } else {
                 Alert.warning('My Reagent List already contains selected reagents');
             }
@@ -99,6 +107,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
             _.each(selected, function(item) {
                 $scope.myReagentList = _.without($scope.myReagentList, item);
             });
+            UserReagents.save($scope.myReagentList);
         };
 
         $scope.isEditMode = false;
