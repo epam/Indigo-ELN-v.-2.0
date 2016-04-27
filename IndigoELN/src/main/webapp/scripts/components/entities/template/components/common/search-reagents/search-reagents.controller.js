@@ -57,11 +57,9 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.selectAll = function () {
-            $timeout(function () {
-                for (var i = 0; i < $scope.model.databases.length; i++) {
-                    $scope.model.databases[i].isChecked = $scope.model.allItemsSelected;
-                }
-            });
+            for (var i = 0; i < $scope.model.databases.length; i++) {
+                $scope.model.databases[i].isChecked = $scope.model.allItemsSelected;
+            }
         };
 
         UserReagents.get({}, function (reagents) {
