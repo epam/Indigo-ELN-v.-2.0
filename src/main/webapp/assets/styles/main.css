@@ -324,7 +324,16 @@ tr {
 .print-header, .print-table, .print-table-simple, .print-box {
     width: 100%;
     margin-bottom: 50px;
+    padding: 5px;
     border: 1px black solid;
+}
+
+.print-component .simditor-toolbar {
+    display: none;
+}
+
+.print-component .simditor {
+    border-color: black;
 }
 
 .print-header td, .print-header th, .print-table-simple td, .print-table-simple th {
@@ -644,5 +653,9 @@ div.enlarge:hover span{
 
 .mCS-indigo.mCSB_scrollTools .mCSB_buttonRight {
     background-position: -80px -56px;
+}
+
+.inverted {
+    filter: invert(100%);
 }
 	
