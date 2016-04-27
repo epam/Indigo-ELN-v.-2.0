@@ -1,5 +1,8 @@
-<div class="panel panel-default notebooks" ng-class="{'notebook-create': !notebook.id}"
+<div class="panel panel-primary notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+        Notebook
+    </div>
     <div class="panel-body">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
               class="form-horizontal" autocomplete="off">
