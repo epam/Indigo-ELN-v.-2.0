@@ -6,20 +6,18 @@
         <div class="form-horizontal">
             <div class="row">
                 <div class="col-xs-12">
-                    <label for="isHasRegService" style="margin-top: 5px; font-weight: normal">
-                        <checkbox id="isHasRegService" class="btn-info my-checkbox" ng-model="isHasRegService"
-                                  name="isHasRegService"></checkbox>
-                        Has registration service (for test only)
-                    </label>
+                    <my-checkbox
+                            my-label="Has registration service (for test only)"
+                            my-model="isHasRegService"
+                    ></my-checkbox>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-2">
-                    <label style="margin-top: 5px; font-weight: normal">
-                        <checkbox id="checkbox0" class="btn-info my-checkbox" ng-model="showStructures"
-                                  name="custom-name"></checkbox>
-                        Show Structures
-                    </label>
+                    <my-checkbox
+                            my-label="Show Structures"
+                            my-model="showStructures"
+                    ></my-checkbox>
                 </div>
                 <div class="col-md-5">
                     <slider ng-model="structureSize" min="0.3" step="0.01" max="4" value="testOptions.value"
