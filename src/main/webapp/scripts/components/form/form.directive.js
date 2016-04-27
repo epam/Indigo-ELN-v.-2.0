@@ -116,7 +116,7 @@ angular.module('indigoeln')
         '</div>' +
         '</div>'
     };
-}).directive('myCheckbox', function () {
+}).directive('myCheckbox', function ($timeout) {
     return {
         restrict: 'E',
         replace: true,
@@ -130,13 +130,16 @@ angular.module('indigoeln')
             myTooltip: '@',
             myTooltipPlacement: '@'
         },
+        link: function (scope, iElement, iAttrs, controller) {
+            scope.myChangeAsync = function () {
+                $timeout(scope.myChange);
+            };
+        },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
-            //'<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
         '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}">' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"></checkbox>  {{myLabel}}' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChangeAsync()"></checkbox>  {{myLabel}}' +
         '</label> ' +
-            //'</div> ' +
         '</div> ' +
         '</div> '
     };

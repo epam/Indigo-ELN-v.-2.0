@@ -23,11 +23,14 @@ angular.module('indigoeln')
             {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Write some tooltip'}
         ];
 
-        $scope.$watch('role', function (role) {
+        function initAuthorities(role) {
             _.each($scope.authorities, function (authority) {
                 authority.checked = $scope.hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
-
             });
+        }
+
+        $scope.$watch('role', function (role) {
+            initAuthorities(role);
         });
         function isLastRoleWithRoleEditor() {
             var roleEditorCount = 0;
@@ -74,10 +77,8 @@ angular.module('indigoeln')
         };
 
         $scope.updateAuthoritySelection = function ($event, authority) {
-            $timeout(function () {
-                var action = (authority.checked ? 'add' : 'remove');
-                updateAuthorities(action, authority);
-            });
+            var action = (authority.checked ? 'add' : 'remove');
+            updateAuthorities(action, authority);
         };
 
 
@@ -138,6 +139,7 @@ angular.module('indigoeln')
 
         $scope.resetAuthorities = function () {
             $scope.role.authorities = ['PROJECT_READER'];
+            initAuthorities($scope.role);
         };
 
         $scope.search = function () {

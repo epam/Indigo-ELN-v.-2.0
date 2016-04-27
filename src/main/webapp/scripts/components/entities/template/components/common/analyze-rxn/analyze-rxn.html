@@ -2,22 +2,34 @@
     <h5 class="modal-title">Reactant Structure Search</h5>
 </div>
 <div class="modal-body">
-    <div class="row well well-sm analyze-rxn-row">
-        <div class="col-xs-12">
-            <div><label>Reactants: </label>
-                <span ng-repeat="reactant in model.reactants">{{reactant}}<span ng-if="!$last">, </span></span>
+    <div class="well well-sm">
+
+
+        <div class="row analyze-rxn-row">
+            <div class="col-xs-12">
+                <div>
+                    <label>Reactants: </label>
+                    <span ng-repeat="reactant in model.reactants">{{reactant}}<span ng-if="!$last">, </span></span>
                 </div>
-            <label class="inline">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-3">
                 Choose catalog to search in:
-                </label>
-            <label class="checkbox-inline">
-                <input type="checkbox" ng-model="allItemsSelected" ng-change="selectAll()">
-                All
-                </label>
-            <label class="checkbox-inline" ng-repeat="database in model.databases">
-                <input type="checkbox" ng-model="database.isChecked" ng-change="selectEntity()">
-                {{database.value}}
-                </label>
+            </div>
+            <div class="col-xs-9 form-inline">
+                <my-checkbox
+                        my-model="allItemsSelected"
+                        my-change="selectAll()"
+                        my-label="All"
+                ></my-checkbox>
+                <my-checkbox
+                        my-model="database.isChecked"
+                        my-label="{{database.value}}"
+                        my-change="selectEntity()"
+                        ng-repeat="database in model.databases"
+                ></my-checkbox>
+            </div>
         </div>
     </div>
     <div>
