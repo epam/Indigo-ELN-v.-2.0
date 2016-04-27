@@ -16,6 +16,8 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.reactionDetails = $scope.experiment.components.reactionDetails;
         $scope.reaction = $scope.experiment.components.reaction;
         $scope.molecule = $scope.experiment.components.molecule;
+        $scope.experimentDescription = $scope.experiment.components.experimentDescription;
+        $scope.stoichTable = $scope.experiment.components.stoichTable;
 
         $scope.currentDate = Date.now();
 
