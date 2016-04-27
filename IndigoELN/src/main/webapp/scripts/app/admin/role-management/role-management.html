@@ -31,13 +31,16 @@
                             </div>
                             <div class="col-xs-11">
                                 <div class="col-xs-3" ng-repeat="authority in authorities">
-                                    <div class="checkbox">
-                                        <label uib-tooltip="{{authority.tooltip}}" tooltip-placement="right">
-                                            <input ng-disabled="authority.readonly" type="checkbox" name="authorities"
-                                                   ng-checked="authority.checked || isAuthoritySelected(authority)"
-                                                   ng-click="updateAuthoritySelection($event, authority)">
-                                            {{authority.description}}
-                                        </label>
+                                    <div>
+                                        <my-checkbox
+                                                my-label="{{authority.description}}"
+                                                my-disabled="authority.readonly"
+                                                my-name="authorities"
+                                                my-model="authority.checked"
+                                                my-change="updateAuthoritySelection($event, authority)"
+                                                my-tooltip="{{authority.tooltip}}"
+                                                my-tooltip-placement="right"
+                                        ></my-checkbox>
                                     </div>
                                 </div>
                             </div>
