@@ -270,17 +270,17 @@ body {
     display: none !important;
 }
 
-.main-container .table {
+.table {
     border-collapse: separate;
     border-spacing: 3px;
     border: none;
 }
 
-.main-container .table thead {
-    background: #e0f7fa;
+.table thead {
+    background: #E0F7FA;
 }
 
-.main-container .table thead tr th {
+.table thead tr th {
     border: none;
     font: 14px/34px segoeui;
     padding: 0;
@@ -288,7 +288,7 @@ body {
     text-align: center;
 }
 
-.main-container .table tbody tr td {
+.table tbody tr td {
     vertical-align: middle;
 }
 
@@ -376,7 +376,11 @@ tr {
 }
 
 .my-table.table-responsive th {
-    background-color: #b2ebf2;
+    background-color: #E0F7FA;
+}
+
+.my-table.table-responsive th a {
+    color: black;
 }
 
 .my-table.table-responsive th .btn {
