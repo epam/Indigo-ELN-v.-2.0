@@ -132,12 +132,7 @@ angular.module('indigoeln')
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/template/template-delete-dialog.html',
                         controller: 'TemplateDeleteController',
-                        size: 'md',
-                        resolve: {
-                            entity: ['Template', function (Template) {
-                                return Template.get({id: $stateParams.id});
-                            }]
-                        }
+                        size: 'md'
                     }).result.then(function (result) {
                             $state.go('template', null, {reload: true});
                         }, function () {
