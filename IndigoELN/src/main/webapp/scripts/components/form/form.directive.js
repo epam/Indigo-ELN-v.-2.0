@@ -126,12 +126,14 @@ angular.module('indigoeln')
             myName: '@',
             myClasses: '@',
             myDisabled: '=',
-            myChange: '&'
+            myChange: '&',
+            myTooltip: '@',
+            myTooltipPlacement: '@'
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-offset-2 col-xs-10">' +
         '<div class="checkbox">' +
-        '<label>' +
+        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}">' +
         '<input type="checkbox" id="{{myName}}" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"> {{myLabel}}' +
         '</label> ' +
         '</div> ' +
