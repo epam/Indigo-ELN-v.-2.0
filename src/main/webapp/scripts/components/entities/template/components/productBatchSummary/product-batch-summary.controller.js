@@ -77,6 +77,15 @@ angular.module('indigoeln')
 
             };
 
+            $scope.$watch('model.productBatchSummary.batches', function (batches) {
+                _.each(batches, function (batch) {
+                    batch.$$purity = batch.purity ? batch.purity.asString : null;
+                    batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
+                    batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
+                    batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.toString() : null;
+                });
+            }, true);
+
             $scope.columns = [
                 {
                     id: 'structure',
@@ -165,8 +174,8 @@ angular.module('indigoeln')
                     }
 
                 },
-                {id: 'purity', name: 'Purity'},
-                {id: 'meltingPoint', name: 'Melting Point'},
+                {id: '$$purity', name: 'Purity'},
+                {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWt', name: 'Mol Wgt'},
                 {id: 'molFormula', name: 'Mol Formula'},
                 {id: 'conversationalBatch', name: 'Conversational Batch #'},
@@ -214,12 +223,12 @@ angular.module('indigoeln')
                         title: 'Source Detail'
                     })]
                 },
-                {id: 'extSupplier', name: 'Ext Supplier'},
+                {id: '$$externalSupplier', name: 'Ext Supplier'},
                 {
                     id: 'precursors', name: 'Precursors',
                     type: 'input'
                 },
-                {id: 'hazards', name: 'Hazards'},
+                {id: '$$healthHazards', name: 'Hazards'},
                 {
                     id: 'compoundProtection', name: 'Compound Protection',
                     type: 'select',
