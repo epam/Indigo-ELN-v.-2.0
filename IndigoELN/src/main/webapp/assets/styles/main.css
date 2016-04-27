@@ -258,7 +258,7 @@ body {
 
 .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
     color: #37474f;
-    background-color: #b2ebf2;
+    background-color: #4ed0e1;
 }
 
 #page-wrapper {
@@ -568,6 +568,10 @@ div.enlarge:hover span{
 }
 .experiment-tabs .mCSB_container {
     margin-bottom: 15px !important;
+}
+
+.experiment-tabs .mCSB_container .mCSB_draggerContainer {
+    background-color: #4ED0E1;
 }
 .experiment-tabs .mCSB_container.mCS_x_hidden{
     margin-bottom: 0 !important;

@@ -1,6 +1,8 @@
-<div>
-    <div class="panel panel-default projects" ng-class="{'project-create': project.id==null}"
-         cg-busy="{promise:loading, minDuration:700}">
+<div class="panel panel-primary projects" ng-class="{'project-create': project.id==null}"
+     cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+        Project
+    </div>
         <div class="panel-body">
             <form id="createProjectForm" name="createProjectForm" role="form" novalidate
                   class="form-horizontal" autocomplete="off">
@@ -78,4 +80,3 @@
             </button>
         </div>
     </div>
-</div>
