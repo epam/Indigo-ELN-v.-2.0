@@ -46,6 +46,10 @@ angular.module('indigoeln')
                         return angular.toJson(data);
                     }
                 },
+                'version': {
+                    method: 'POST',
+                    url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
+                },
                 'update': {method: 'PUT',
                     transformRequest: function (data) {
                         data.components = toComponents(data.components);

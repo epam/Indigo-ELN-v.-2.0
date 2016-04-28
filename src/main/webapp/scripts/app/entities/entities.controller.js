@@ -34,6 +34,9 @@ angular.module('indigoeln')
                         notebookId: params.notebookId
                     }).then(function (notebook) {
                         item.title = notebook.name ? notebook.name + '-' + item.name : item.name;
+                        if (item.experimentVersion > 1 || !item.lastVersion) {
+                            item.title += ' v' + item.experimentVersion;
+                        }
                     });
                 } else {
                     item.title = item.name;

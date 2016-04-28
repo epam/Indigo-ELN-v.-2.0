@@ -30,6 +30,10 @@ public class Experiment extends ExperimentShort {
 
     private User submittedBy;
 
+    private int experimentVersion;
+
+    private boolean lastVersion;
+
     @JsonIgnore
     @DBRef
     private List<Component> components;
@@ -101,10 +105,20 @@ public class Experiment extends ExperimentShort {
         this.submittedBy = submittedBy;
     }
 
-    public TreeNodeDTO  retrieveTreeNodeDTO() {
-        TreeNodeDTO result = new TreeNodeDTO(this);
-        result.setStatus(this.getStatus().toString());
-        return result;
+    public int getExperimentVersion() {
+        return experimentVersion;
+    }
+
+    public void setExperimentVersion(int experimentVersion) {
+        this.experimentVersion = experimentVersion;
+    }
+
+    public boolean isLastVersion() {
+        return lastVersion;
+    }
+
+    public void setLastVersion(boolean lastVersion) {
+        this.lastVersion = lastVersion;
     }
 
     @Override
