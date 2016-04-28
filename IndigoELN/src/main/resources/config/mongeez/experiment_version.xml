@@ -1,0 +1,9 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-12" author="evgeny_romanov">
+        <script>
+
+            db.experiment.update({}, {$set: {experimentVersion: 1, lastVersion: true}}, {multi: true})
+
+        </script>
+    </changeSet>
+</mongoChangeLog>

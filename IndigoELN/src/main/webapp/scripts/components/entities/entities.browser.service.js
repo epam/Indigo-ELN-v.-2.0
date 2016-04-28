@@ -48,12 +48,26 @@ angular.module('indigoeln')
             });
         });
 
+        var experimentVersionCreatedEvent = $rootScope.$on('experiment-version-created', function (event, data) {
+            resolvePrincipal(function () {
+                var userId = getUserId();
+                _.each(cache[userId], function (cachedItem, fullId) {
+                    cachedItem.then(function (item) {
+                        if (item.name === data.name) {
+                            delete cache[userId][fullId];
+                        }
+                    });
+                });
+            });
+        });
+
         var userLogoutEvent = $rootScope.$on('user-logout', function (event, data) {
             cache[data.id] = {};
         });
 
         $rootScope.$on('$destroy', function () {
             experimentStatusChangedEvent();
+            experimentVersionCreatedEvent();
             userLogoutEvent();
         });
 

@@ -31,6 +31,10 @@ public class EntityNotFoundException extends CustomParametrizedException {
         return new EntityNotFoundException("The notebook for child with id = " + childId + " isn't found", childId);
     }
 
+    public static EntityNotFoundException createWithExperimentName(String experimentName) {
+        return new EntityNotFoundException("The latest version of experiment with name = " + experimentName + " isn't found", experimentName);
+    }
+
     public static EntityNotFoundException createWithProjectFileId(String fileId) {
         return new EntityNotFoundException("The project for file with id = " + fileId + " isn't found", fileId);
     }

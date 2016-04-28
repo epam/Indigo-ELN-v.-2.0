@@ -85,7 +85,11 @@ angular.module('indigoeln')
                     templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
                     resolve: {
                         fullExperimentName: function () {
-                            return $scope.notebook.name + '-' + $scope.experiment.name;
+                            var fullName = $scope.notebook.name + '-' + $scope.experiment.name;
+                            if ($scope.experiment.experimentVersion > 1 || !$scope.experiment.lastVersion) {
+                                fullName += ' v' + $scope.experiment.experimentVersion;
+                            }
+                            return fullName;
                         }
                     },
                     controller: function ($scope, $uibModalInstance, fullExperimentName) {
@@ -166,6 +170,31 @@ angular.module('indigoeln')
                         projectId: $stateParams.projectId,
                         notebookId: $stateParams.notebookId,
                         id: result.id
+                    });
+                }, onSaveError).$promise;
+            };
+
+            $scope.versionExperiment = function () {
+                $scope.isSaving = true;
+                $scope.loading = Experiment.version({
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId
+                }, $scope.experiment.name, function (result) {
+                    onSaveSuccess(result);
+                    $state.go('entities.experiment-detail', {
+                        experimentId: result.id,
+                        notebookId: $stateParams.notebookId,
+                        projectId: $stateParams.projectId
+                    });
+                    $rootScope.$broadcast('experiment-created', {
+                        projectId: $stateParams.projectId,
+                        notebookId: $stateParams.notebookId,
+                        id: result.id
+                    });
+                    $rootScope.$broadcast('experiment-version-created', {
+                        projectId: $stateParams.projectId,
+                        notebookId: $stateParams.notebookId,
+                        name: result.name
                     });
                 }, onSaveError).$promise;
             };
