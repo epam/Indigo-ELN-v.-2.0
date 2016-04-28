@@ -21,7 +21,7 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.project.author);
             PermissionManagement.setAccessList($scope.project.accessList);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function(event) {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
                 $scope.project.accessList = PermissionManagement.getAccessList();
             });
             $scope.$on('$destroy', function() {
@@ -69,7 +69,7 @@ angular.module('indigoeln')
                 $scope.project.tags = [];
                 $scope.project.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
                 if ($scope.tags) {
-                    angular.forEach($scope.tags, function(tag, key) {
+                    angular.forEach($scope.tags, function (tag) {
                         $scope.project.tags.push(tag.text);
                     });
                 }

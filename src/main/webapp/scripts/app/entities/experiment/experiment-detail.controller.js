@@ -46,11 +46,11 @@ angular.module('indigoeln')
                 $scope.isContentEditor = result;
             });
 
-            var onSaveSuccess = function (result) {
+            var onSaveSuccess = function () {
                 $scope.isSaving = false;
             };
 
-            var onSaveError = function (result) {
+            var onSaveError = function () {
                 $scope.isSaving = false;
             };
 
@@ -68,7 +68,7 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.$watch('experiment.status', function (newValue) {
+            $scope.$watch('experiment.status', function () {
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
 

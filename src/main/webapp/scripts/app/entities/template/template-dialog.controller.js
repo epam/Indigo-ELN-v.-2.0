@@ -6,18 +6,18 @@ angular.module('indigoeln').controller('TemplateDialogController',
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
 
-        var onSaveSuccess = function (result) {
+        var onSaveSuccess = function () {
             $state.go('template');
             $scope.isSaving = false;
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
         };
 
         $scope.save = function () {
             $scope.isSaving = true;
-            if ($scope.template.id != null) {
+            if ($scope.template.id) {
                 Template.update($scope.template, onSaveSuccess, onSaveError);
             } else {
                 Template.save($scope.template, onSaveSuccess, onSaveError);
@@ -27,10 +27,10 @@ angular.module('indigoeln').controller('TemplateDialogController',
         dragulaService.options($scope, 'components', {
             //removeOnSpill: true,
             copy: function (el, source) {
-                return source.classList.contains('palette')
+                return source.classList.contains('palette');
             },
             accepts: function (el, target) {
-                return !target.classList.contains('palette')
+                return !target.classList.contains('palette');
             },
             moves: function (el, container, handle) {
                 return !handle.classList.contains('no-draggable');
@@ -48,7 +48,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
             $scope.template.templateContent.push({
                 name: 'Tab ' + ($scope.template.templateContent.length + 1),
                 components: []
-            })
+            });
         };
         if (!$scope.template.templateContent.length) {
             $scope.addTab();
@@ -60,6 +60,6 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         $scope.removeComponent = function (tab, component) {
             tab.components = _.without(tab.components, component);
-        }
+        };
 
     });

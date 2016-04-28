@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Experiment', function ($resource, DateUtils) {
+    .factory('Experiment', function ($resource) {
         function toModel(experiment) {
             var components = experiment.components;
             if (_.isArray(components)) {

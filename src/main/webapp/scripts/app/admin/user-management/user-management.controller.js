@@ -32,13 +32,13 @@ angular.module('indigoeln')
             $scope.user = null;
         };
 
-        var onSaveSuccess = function (result) {
+        var onSaveSuccess = function () {
             $scope.isSaving = false;
             $scope.user = null;
             $scope.loadAll();
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
             $scope.loadAll();
         };
@@ -48,7 +48,7 @@ angular.module('indigoeln')
             if ($scope.user.group) {
                 $scope.user.group = $scope.user.group.name;
             }
-            if ($scope.user.id != null) {
+            if ($scope.user.id) {
                 User.update($scope.user, onSaveSuccess, onSaveError);
             } else {
                 User.save($scope.user, onSaveSuccess, onSaveError);

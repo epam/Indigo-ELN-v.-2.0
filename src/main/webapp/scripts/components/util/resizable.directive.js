@@ -8,7 +8,7 @@ angular.module('indigoeln')
                 maxHeight: '=',
                 minHeight: '='
             },
-            link: function postLink(scope, elem, attrs) {
+            link: function postLink(scope, elem) {
                 elem.resizable({
                     handles: 's',
                     maxHeight: scope.maxHeight,

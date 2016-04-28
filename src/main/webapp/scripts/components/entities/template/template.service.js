@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Template', function ($resource, DateUtils) {
+    .factory('Template', function ($resource) {
         return $resource('api/templates/:id', {}, {
             'query': {method: 'GET', isArray: true},
             'get': {

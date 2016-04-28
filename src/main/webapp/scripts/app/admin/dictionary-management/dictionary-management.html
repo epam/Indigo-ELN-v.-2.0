@@ -97,9 +97,9 @@
 </div>
 <div class="panel panel-info" style="bottom: 0; margin:0; padding:0;">
     <div class="panel-heading">Words
-        <i class="pull-right glyphicon"
-           ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
-           ng-click="isCollapsed = !isCollapsed"></i>
+        <em class="pull-right glyphicon"
+            ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
+            ng-click="isCollapsed = !isCollapsed"></em>
     </div>
 
     <div class="panel-body" uib-collapse="isCollapsed">
@@ -165,7 +165,7 @@
                     <td class="dictionary-col-width dictionary-col-elipsis">{{word.name}}</td>
                     <td class="dictionary-col-width dictionary-col-elipsis">{{word.description}}</td>
                     <td>
-                        <i ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></i>
+                        <em ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></em>
                     </td>
                     <td>{{word.rank}}</td>
                     <td>{{word.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>

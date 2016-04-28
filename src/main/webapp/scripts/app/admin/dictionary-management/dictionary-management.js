@@ -38,7 +38,7 @@ angular.module('indigoeln')
                                 return Dictionary.get({id: $stateParams.id}).$promise;
                             }
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                         $state.go('dictionary-management', null, {reload: true});
                     }, function () {
                         $state.go('^');

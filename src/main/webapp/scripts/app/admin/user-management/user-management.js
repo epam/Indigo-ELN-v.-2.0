@@ -51,7 +51,7 @@ angular.module('indigoeln')
                                 return User.get({login: $stateParams.login});
                             }]
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                             $state.go('user-management', null, {reload: true});
                         }, function () {
                             $state.go('^');

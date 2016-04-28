@@ -4,7 +4,7 @@ angular.module('indigoeln')
     .service('ParseLinks', function () {
         this.parse = function (header) {
             if (header.length === 0) {
-                throw new Error("input must not be of zero length");
+                throw new Error('input must not be of zero length');
             }
 
             // Split parts by comma
@@ -33,5 +33,5 @@ angular.module('indigoeln')
             });
 
             return links;
-        }
+        };
     });

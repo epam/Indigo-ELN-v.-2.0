@@ -1,4 +1,3 @@
-/* globals $ */
 'use strict';
 angular.module('indigoeln')
     .directive('experimentDescription', function () {

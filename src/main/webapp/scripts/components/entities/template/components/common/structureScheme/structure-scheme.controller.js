@@ -88,7 +88,7 @@ angular.module('indigoeln')
             if ($scope.myReadonly) {
                 return;
             }
-            var modalInstance = $uibModal.open({
+            $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-export-modal.html',
                 controller: 'StructureExportModalController',

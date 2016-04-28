@@ -98,7 +98,7 @@ angular.module('indigoeln')
                 selectService.processColumns($scope.myColumns, $scope.myRows);
 
             },
-            compile: function (tElement, tAttrs, transclude) {
+            compile: function (tElement, tAttrs) {
                 if (tAttrs.myDraggableRows) {
                     var $tBody = $(tElement.find('tbody'));
                     $tBody.attr('dragula', '\'my-table-rows\'');

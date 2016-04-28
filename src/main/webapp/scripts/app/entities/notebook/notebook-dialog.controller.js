@@ -20,7 +20,7 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function(event) {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
                 $scope.notebook.accessList = PermissionManagement.getAccessList();
             });
             $scope.$on('$destroy', function() {
