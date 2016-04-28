@@ -19,7 +19,7 @@ angular.module('indigoeln')
 
                 return this.identity().then(function (_id) {
                     return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-                }, function (err) {
+                }, function () {
                     return false;
                 });
             },
@@ -39,7 +39,7 @@ angular.module('indigoeln')
             hasAuthorityIdentitySafe: function (authority) {
                 return this.identity().then(function (_id) {
                     return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-                }, function (err) {
+                }, function () {
                     return false;
                 });
             },

@@ -3,7 +3,7 @@ angular.module('indigoeln')
     .directive('myTabScroller', function ($timeout) {
         return {
             restrict: 'A',
-            link: function (scope, iElement, iAttrs, controller) {
+            link: function (scope, iElement) {
                 $timeout(function () {
                     var $element = $(iElement);
                     $element.mCustomScrollbar({
@@ -18,7 +18,7 @@ angular.module('indigoeln')
                             }
                         }
                     });
-                    scope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+                    scope.$on('$stateChangeSuccess', function () {
                         $timeout(function () {
                             $element.mCustomScrollbar('update');
                             $element.mCustomScrollbar('scrollTo', '.active', {
@@ -30,10 +30,10 @@ angular.module('indigoeln')
             }
         };
     })
-    .directive('myScroller', function ($timeout) {
+    .directive('myScroller', function () {
         return {
             restrict: 'A',
-            link: function (scope, iElement, iAttrs, controller) {
+            link: function (scope, iElement, iAttrs) {
                 var $element = $(iElement);
                 $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
                 $element.mCustomScrollbar({

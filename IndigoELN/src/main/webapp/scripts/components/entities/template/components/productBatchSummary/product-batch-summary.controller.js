@@ -45,7 +45,7 @@ angular.module('indigoeln')
                 {name: 'ST1 - Standard 1'},
                 {name: 'ST2 - Standard 2'}];
             var setSelectSourceValueAction = {
-                action: function (id) {
+                action: function () {
                     var that = this;
                     $uibModal.open({
                         templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.html',

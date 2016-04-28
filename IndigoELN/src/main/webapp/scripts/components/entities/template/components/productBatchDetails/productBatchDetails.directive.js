@@ -1,7 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 2/8/2016.
  */
-/* globals $ */
 'use strict';
 angular.module('indigoeln')
     .directive('productBatchDetails', function () {
@@ -17,7 +16,7 @@ angular.module('indigoeln')
                     $scope.initialValue = angular.copy($scope.model.productBatchDetails);
                     $scope.model.productBatchDetails = row;
                 });
-                var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function(event) {
+                var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
                     $scope.model.productBatchDetails = $scope.initialValue;
                 });
                 $scope.$on('$destroy', function() {

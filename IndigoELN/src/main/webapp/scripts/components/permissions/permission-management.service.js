@@ -49,7 +49,7 @@ angular.module('indigoeln')
                         }
                     });
                     return hasPermission;
-                }, function (err) {
+                }, function () {
                     return false;
                 });
             },
@@ -103,7 +103,6 @@ angular.module('indigoeln')
             hasAuthorityForProjectPermission: function(member, permission) {
                 var projectOwnerAuthoritySet = ['PROJECT_READER', 'PROJECT_CREATOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
                 var projectUserAuthoritySet = ['PROJECT_READER', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'];
-                var projectChildViewerAuthoritySet = ['PROJECT_READER', 'NOTEBOOK_READER'];
                 var projectViewerAuthoritySet = ['PROJECT_READER'];
 
                 if (permission === 'OWNER') {

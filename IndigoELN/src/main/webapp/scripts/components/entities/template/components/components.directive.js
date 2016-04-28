@@ -25,7 +25,7 @@ angular.module('indigoeln')
                 myExperimentForm: '=',
                 myShare: '='
             },
-            link: function (scope, iElement, iAttrs, controller) {
+            link: function (scope, iElement, iAttrs) {
                 scope.myComponent = iAttrs.myComponent;
                 scope.model = scope.myModel; //for capability
                 scope.experimentForm = scope.myExperimentForm; //for capability
@@ -54,7 +54,7 @@ angular.module('indigoeln')
             myExperiment: '=',
             myExperimentForm: '='
         },
-        link: function (scope, iElement, iAttrs, controller) {
+        link: function (scope) {
             scope.share = {}; //for communication between components
         },
         template: '<fieldset ng-disabled="myReadonly"><uib-tabset justified="true">' +

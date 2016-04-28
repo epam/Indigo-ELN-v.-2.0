@@ -130,7 +130,7 @@ angular.module('indigoeln')
             myTooltip: '@',
             myTooltipPlacement: '@'
         },
-        link: function (scope, iElement, iAttrs, controller) {
+        link: function (scope) {
             scope.myChangeAsync = function () {
                 $timeout(scope.myChange);
             };
@@ -176,7 +176,7 @@ angular.module('indigoeln')
                 });
             }
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             tAttrs.myItemProp = tAttrs.myItemProp || 'name';
             tAttrs.myOrderByProp = tAttrs.myOrderByProp || 'rank';
             if (tAttrs.myMultiple) {
@@ -216,7 +216,7 @@ angular.module('indigoeln')
             myClasses: '@',
             myReadonly: '='
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myLabelVertical) {
                 $('<br/>').insertAfter(tElement.find('label').first());
@@ -268,7 +268,7 @@ angular.module('indigoeln')
         '</div> ' +
         '</div> '
     };
-}).directive('mySimpleText', function (formUtils) {
+}).directive('mySimpleText', function () {
     return {
         restrict: 'E',
         replace: true,
@@ -283,7 +283,7 @@ angular.module('indigoeln')
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-12 text-left" style="padding-top: 7px">' +
-        '<div style="float: left; width: 150px"><b>{{myLabel}}</b></div> <span>{{myModel||myEmptyText}}</span>' +
+        '<div style="float: left; width: 150px"><strong>{{myLabel}}</strong></div> <span>{{myModel||myEmptyText}}</span>' +
         '</div>' +
         '</div>'
     };
@@ -302,7 +302,7 @@ angular.module('indigoeln')
             myValidationRequired: '=',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('input').attr('timezone', jstz.determine().name());
             return {
@@ -340,7 +340,7 @@ angular.module('indigoeln')
             myReadonly: '=',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +

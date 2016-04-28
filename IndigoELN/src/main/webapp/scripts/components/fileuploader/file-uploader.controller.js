@@ -4,7 +4,6 @@ angular.module('indigoeln')
     .controller('FileUploaderController', function ($scope, FileUploaderService, FileUploaderCash, FileUploader,
                                                     $cookies, $log, ParseLinks, Alert, $uibModal, $filter) {
 
-        var thatScope = $scope;
         var entityid = $scope.entityid;
 
         $scope.page = 1;
@@ -27,7 +26,7 @@ angular.module('indigoeln')
         $scope.loadAll();
 
         $scope.upload = function () {
-            var modal = $uibModal.open({
+            $uibModal.open({
                 animation: true,
                 size: 'lg',
                 templateUrl: 'scripts/components/fileuploader/file-uploader-modal.html',
@@ -88,7 +87,7 @@ angular.module('indigoeln')
                         if (entityid) {
                             FileUploaderService.delete({id: file.id})
                                 .$promise.then(
-                                function (result) {
+                                function () {
                                     $uibModalInstance.close(file);
                                 },
                                 function (error) {

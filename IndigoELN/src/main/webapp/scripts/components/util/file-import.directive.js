@@ -24,5 +24,5 @@ angular.module('indigoeln')
                     reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
                 });
             }
-        }
+        };
     });

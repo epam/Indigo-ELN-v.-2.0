@@ -52,7 +52,7 @@
                 <span class="glyphicon glyphicon-flash"></span>&nbsp;<span> Actions </span><span class="caret"></span>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
-                <li role="menuitem"><a><i>Status: </i><b>{{ experiment.status}}</b></a></li>
+                <li role="menuitem"><a><em>Status: </em><strong>{{ experiment.status}}</strong></a></li>
                 <li class="divider"></li>
                 <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperiment()"><a>Complete Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperimentAndSign()"><a>Complete & Sign </a></li>

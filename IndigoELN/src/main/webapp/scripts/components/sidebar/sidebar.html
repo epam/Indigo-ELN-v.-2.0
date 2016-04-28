@@ -1,5 +1,5 @@
 <div class="inner-menu-toggle-button">
-    <i class="inner-menu-toggle-button__btn-icon fa fa-chevron-left"></i>
+    <em class="inner-menu-toggle-button__btn-icon fa fa-chevron-left"></em>
 </div>
 <div class="wrapper-list-experiment" my-scroller="y" my-scroller-theme="light">
     <ul class="level-one">
@@ -12,27 +12,27 @@
                         <li class=""></li>
                         <li ng-repeat="notebook in project.children"
                             ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project); $event.stopPropagation();">
-                            <i class="icon-bg-round fa"
-                               ng-class="{'fa-plus':!notebook.isOpen,'fa-minus':notebook.isOpen}"></i>
+                            <em class="icon-bg-round fa"
+                                ng-class="{'fa-plus':!notebook.isOpen,'fa-minus':notebook.isOpen}"></em>
                             <span>{{notebook.name}}</span>
                             <ul class="level-four" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-click="$event.stopPropagation();">
-                                    <i class="icon-bg-round"></i>
+                                    <em class="icon-bg-round"></em>
                                     <span>Table</span>
                                     <ul class="level-five" ng-if="notebook.children.length && notebook.isOpen">
                                         <li ng-repeat="experiment in notebook.children"
                                             ng-class="{'activ': experiment.fullId == activeExperimentId}"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
-                                            <i class="icon-bg-round"></i>
+                                            <em class="icon-bg-round"></em>
                                             <span>{{experiment.name}}</span>
-                                            <i class="experiment-status"
-                                               ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                            <em class="experiment-status"
+                                                ng-class="{'fa fa-key': experiment.status == 'Completed',
                                                       'fa fa-check': experiment.status == 'Signing',
                                                       'fa fa-pencil-square-o': experiment.status == 'Signed',
                                                       'fa fa-pencil': experiment.status == 'Submitted',
                                                       'fa fa-archive': experiment.status == 'Archived',
                                                       'fa fa-times': experiment.status == 'Submit_Fail',
-                                                      'fa fa-circle-o': experiment.status == 'Open'}"></i>
+                                                      'fa fa-circle-o': experiment.status == 'Open'}"></em>
                                         </li>
                                     </ul>
                                 </li>
@@ -51,25 +51,25 @@
                     <ul class="level-three" ng-if="project.children.length && project.isOpen">
                         <li ng-repeat="notebook in project.children"
                             ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project, true); $event.stopPropagation();">
-                            <i class="icon-bg-round"></i>
+                            <em class="icon-bg-round"></em>
                             <span>{{notebook.name}}</span>
                             <ul class="level-four" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-click="$event.stopPropagation();">
-                                    <i class="icon-bg-round"></i>
+                                    <em class="icon-bg-round"></em>
                                     <span>Table</span>
                                     <ul class="level-five" ng-if="notebook.children.length && notebook.isOpen">
                                         <li ng-repeat="experiment in notebook.children"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
-                                            <i class="icon-bg-round"></i>
+                                            <em class="icon-bg-round"></em>
                                             <span>{{experiment.name}}</span>
-                                            <i class="experiment-status"
-                                               ng-class="{'fa fa-key': experiment.status == 'Completed',
+                                            <em class="experiment-status"
+                                                ng-class="{'fa fa-key': experiment.status == 'Completed',
                                                       'fa fa-pencil': experiment.status == 'Submitted',
                                                       'fa fa-check': experiment.status == 'Signing',
                                                       'fa fa-pencil-square-o': experiment.status == 'Signed',
                                                       'fa fa-archive': experiment.status == 'Archived',
                                                       'fa fa-times': experiment.status == 'Submit_Fail',
-                                                      'fa fa-circle-o': experiment.status == 'Open'}"></i>
+                                                      'fa fa-circle-o': experiment.status == 'Open'}"></em>
                                         </li>
                                     </ul>
                                 </li>

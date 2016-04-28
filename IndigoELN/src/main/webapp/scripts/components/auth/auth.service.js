@@ -9,7 +9,7 @@ angular.module('indigoeln')
 
                 AuthServerProvider.login(credentials).then(function (data) {
                     // retrieve the logged account information
-                    Principal.identity(true).then(function (account) {
+                    Principal.identity(true).then(function () {
                         deferred.resolve(data);
                     });
                     return cb();

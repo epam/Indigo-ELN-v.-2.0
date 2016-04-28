@@ -133,7 +133,7 @@ angular.module('indigoeln')
                         templateUrl: 'scripts/app/entities/template/template-delete-dialog.html',
                         controller: 'TemplateDeleteController',
                         size: 'md'
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                             $state.go('template', null, {reload: true});
                         }, function () {
                             $state.go('^');

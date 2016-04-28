@@ -2,9 +2,12 @@
     <div class="panel-heading">
         {{myTitle}}
             <span class="btn-group pull-right">
-                <i ng-disabled="myReadonly" class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add {{myTitle}}" ng-click="openEditor()"></i>
-                <i ng-disabled="myReadonly" class="fa  fa-folder-open-o btn" title="Import {{myTitle}}" ng-click="importStructure()"></i>
-                <i ng-disabled="myReadonly" class="fa fa-save btn" title="Export {{myTitle}}"  ng-click="exportStructure()"></i>
+                <em ng-disabled="myReadonly" class="fa fa-edit btn panel-btn-reaction-scheme"
+                    title="Edit/Add {{myTitle}}" ng-click="openEditor()"></em>
+                <em ng-disabled="myReadonly" class="fa  fa-folder-open-o btn" title="Import {{myTitle}}"
+                    ng-click="importStructure()"></em>
+                <em ng-disabled="myReadonly" class="fa fa-save btn" title="Export {{myTitle}}"
+                    ng-click="exportStructure()"></em>
             </span>
     </div>
     <div s-resizable max-height="300" min-height="50"

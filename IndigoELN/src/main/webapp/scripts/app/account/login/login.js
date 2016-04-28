@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 parent: 'account',
                 url: '/login',
                 data: {
-                    authorities: [], 
+                    authorities: [],
                     pageTitle: 'Sign in'
                 },
                 views: {
@@ -16,8 +16,6 @@ angular.module('indigoeln')
                         controller: 'LoginController'
                     }
                 },
-                resolve: {
-                    
-                }
+                resolve: {}
             });
     });

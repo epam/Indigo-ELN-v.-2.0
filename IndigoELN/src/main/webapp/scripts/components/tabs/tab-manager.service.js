@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('TabManager', function ($rootScope, $stateParams, Experiment, Notebook, Project, $q, $state, $injector) {
+    .factory('TabManager', function ($rootScope, $stateParams, Experiment, Notebook, Project, $q, $state) {
         var _tabs = {};
         var _cache = {};
         var _activeTab = {};
