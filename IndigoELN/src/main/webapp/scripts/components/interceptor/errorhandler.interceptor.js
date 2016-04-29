@@ -42,7 +42,8 @@ angular.module('indigoeln')
                             var $state = $injector.get('$state');
                             var params = $rootScope.toStateParams;
                             Auth.logout();
-                            $rootScope.previousStateName = null; // TODO after UI refactoring, change on "to" statement;
+                            // TODO after UI refactoring, change on "to" statement;
+                            $rootScope.previousStateName = null;
                             $rootScope.previousStateNameParams = params;
                             $state.go('login');
                         }

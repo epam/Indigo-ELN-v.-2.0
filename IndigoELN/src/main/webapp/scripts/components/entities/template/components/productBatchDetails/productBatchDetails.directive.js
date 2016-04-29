@@ -11,14 +11,14 @@ angular.module('indigoeln')
                 $scope.model = $scope.model || {};
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
 
-                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function(event, row) {
+                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, row) {
                     $scope.initialValue = angular.copy($scope.model.productBatchDetails);
                     $scope.model.productBatchDetails = row;
                 });
                 var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
                     $scope.model.productBatchDetails = $scope.initialValue;
                 });
-                $scope.$on('$destroy', function() {
+                $scope.$on('$destroy', function () {
                     onBatchSummaryRowSelectedEvent();
                     onBatchSummaryRowDeselectedEvent();
                 });
@@ -30,11 +30,11 @@ angular.module('indigoeln')
                         controller: 'EditSolubilityController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-solubility/edit-solubility.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return $scope.model.productBatchDetails.solubility;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         $scope.model.productBatchDetails.solubility = result;
                     });
                 };
@@ -46,15 +46,14 @@ angular.module('indigoeln')
                         controller: 'EditResidualSolventsController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return $scope.model.productBatchDetails.residualSolvents;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         $scope.model.productBatchDetails.residualSolvents = result;
                     });
                 };
-
                 $scope.editExternalSupplier = function () {
                     $uibModal.open({
                         animation: true,
@@ -62,15 +61,14 @@ angular.module('indigoeln')
                         controller: 'EditExternalSupplierController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-external-supplier/edit-external-supplier.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return $scope.model.productBatchDetails.externalSupplier;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         $scope.model.productBatchDetails.externalSupplier = result;
                     });
                 };
-
                 $scope.editMeltingPoint = function () {
                     $uibModal.open({
                         animation: true,
@@ -78,15 +76,14 @@ angular.module('indigoeln')
                         controller: 'EditMeltingPointController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return $scope.model.productBatchDetails.meltingPoint;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         $scope.model.productBatchDetails.meltingPoint = result;
                     });
                 };
-
                 $scope.editPurity = function () {
                     $uibModal.open({
                         animation: true,
@@ -94,18 +91,17 @@ angular.module('indigoeln')
                         controller: 'EditPurityController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-purity/edit-purity.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return $scope.model.productBatchDetails.purity;
                             },
-                            dictionary: function(Dictionary) {
+                            dictionary: function (Dictionary) {
                                 return Dictionary.get({id: 'solventName'}).$promise;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         $scope.model.productBatchDetails.purity = result;
                     });
                 };
-
                 var selectFromDictionary = function (dictionary, model, title, callback) {
                     $uibModal.open({
                         animation: true,
@@ -113,26 +109,25 @@ angular.module('indigoeln')
                         controller: 'SelectFromDictionaryController',
                         templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/select-from-dictionary/select-from-dictionary.html',
                         resolve: {
-                            data: function() {
+                            data: function () {
                                 return model;
                             },
-                            dictionary: function(Dictionary) {
+                            dictionary: function (Dictionary) {
                                 return Dictionary.get({id: dictionary}).$promise;
                             },
-                            title: function() {
+                            title: function () {
                                 return title;
                             }
                         }
-                    }).result.then(function(result) {
+                    }).result.then(function (result) {
                         callback(result);
                     });
                 };
-
                 $scope.editHealthHazards = function () {
                     var dictionary = 'healthHazards';
                     var model = $scope.model.productBatchDetails.healthHazards;
                     var title = 'Edit Health Hazards';
-                    var callback = function(result) {
+                    var callback = function (result) {
                         $scope.model.productBatchDetails.healthHazards = _.compact(result);
                     };
                     selectFromDictionary(dictionary, model, title, callback);
@@ -141,7 +136,7 @@ angular.module('indigoeln')
                     var dictionary = 'handlingPrecautions';
                     var model = $scope.model.productBatchDetails.handlingPrecautions;
                     var title = 'Edit Handling Precautions';
-                    var callback = function(result) {
+                    var callback = function (result) {
                         $scope.model.productBatchDetails.handlingPrecautions = _.compact(result);
                     };
                     selectFromDictionary(dictionary, model, title, callback);
@@ -150,7 +145,7 @@ angular.module('indigoeln')
                     var dictionary = 'storageInstructions';
                     var model = $scope.model.productBatchDetails.storageInstructions;
                     var title = 'Edit Storage Instructions';
-                    var callback = function(result) {
+                    var callback = function (result) {
                         $scope.model.productBatchDetails.storageInstructions = _.compact(result);
                     };
                     selectFromDictionary(dictionary, model, title, callback);
@@ -158,8 +153,6 @@ angular.module('indigoeln')
                 $scope.registerBatch = function () {
                     AlertModal.info('not implemented yet');
                 };
-                
-
             }
         };
     });

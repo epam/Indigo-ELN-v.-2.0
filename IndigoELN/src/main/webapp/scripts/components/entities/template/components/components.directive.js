@@ -25,10 +25,14 @@ angular.module('indigoeln')
             },
             link: function (scope, iElement, iAttrs) {
                 scope.myComponent = iAttrs.myComponent;
-                scope.model = scope.myModel; //for capability
-                scope.experimentForm = scope.myExperimentForm; //for capability
-                scope.experiment = _.extend({}, scope.myExperiment); //for readonly
-                scope.share = scope.myShare; //for communication between components
+                //for capability
+                scope.model = scope.myModel;
+                //for capability
+                scope.experimentForm = scope.myExperimentForm;
+                //for readonly
+                scope.experiment = _.extend({}, scope.myExperiment);
+                //for communication between components
+                scope.share = scope.myShare;
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
