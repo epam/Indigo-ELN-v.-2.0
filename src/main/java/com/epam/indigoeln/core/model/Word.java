@@ -2,10 +2,11 @@ package com.epam.indigoeln.core.model;
 
 import com.google.common.base.Objects;
 
-public class Word extends BasicModelObject{
+public class Word {
 
     private static final long serialVersionUID = 3317184304499940837L;
 
+    private String name;
     private String description;
     private boolean enable;
     private Integer rank;
@@ -34,9 +35,18 @@ public class Word extends BasicModelObject{
         this.rank = rank;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Word{" +
+                "name='" + name + '\'' +
                 "description='" + description + '\'' +
                 "enable='" + enable + '\'' +
                 "rank='" + rank + '\'' +
@@ -45,7 +55,7 @@ public class Word extends BasicModelObject{
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), description, enable, rank);
+        return Objects.hashCode(super.hashCode(), name, description, enable, rank);
     }
 
     @Override
@@ -60,7 +70,8 @@ public class Word extends BasicModelObject{
             return false;
         }
         Word w = (Word) o;
-        return  Objects.equal(description, w.description) &&
+        return Objects.equal(name, w.name) &&
+                Objects.equal(description, w.description) &&
                 Objects.equal(rank, w.rank) &&
                 Objects.equal(enable, w.enable);
     }
