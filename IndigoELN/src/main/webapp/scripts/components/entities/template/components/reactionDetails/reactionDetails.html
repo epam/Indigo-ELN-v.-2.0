@@ -23,9 +23,12 @@
                               my-model="experiment.author.login"
                               my-readonly="true"></my-input>
                     <my-input my-label="Co-authors" my-label-vertical="true" my-readonly="myReadonly"></my-input>
-                    <my-input my-label="Experiment creator" my-label-vertical="true"
-                              my-model="experiment.lastModifiedBy.login"
-                              my-readonly="true"></my-input>
+                    <my-select my-label="Experiment Creator (Author)"
+                               my-label-vertical="true"
+                               my-model="model.reactionDetails.experimentCreator"
+                               my-readonly="myReadonly"
+                               my-dictionary="users"
+                    ></my-select>
                 </div>
                 <div class="col-xs-4">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
