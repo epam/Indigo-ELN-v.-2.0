@@ -45,10 +45,12 @@ angular
 
         var onNotebookCreatedEvent = $scope.$on('notebook-created', function (event, data) {
             var project;
-            if ($scope.myBookmarks.projects) { //find  existing project and update children
+            if ($scope.myBookmarks.projects) {
+                //find  existing project and update children
                 project = $scope.getTreeItemById($scope.myBookmarks.projects, data.projectId);
                 $scope.projects = $scope.myBookmarks.projects;
-                Notebook.query({projectId: project.id}, function (notebookResult) { //fetch children only
+                Notebook.query({projectId: project.id}, function (notebookResult) {
+                    //fetch children only
                     project.children = notebookResult;
                     project.isOpen = true;
                 });
@@ -69,10 +71,10 @@ angular
         var updateTreeForExperiments = function (event, data) {
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
+            project = $scope.getTreeItemById($scope.projects, data.projectId);
+            notebook = $scope.getTreeItemById(project.children, data.notebookId);
 
-            if ($scope.projects) {
-                project = $scope.getTreeItemById($scope.projects, data.projectId);
-                notebook = $scope.getTreeItemById(project.children, data.notebookId);
+            if ($scope.projects && project && notebook) {
                 //find existing notebook and update children only
                 Experiment.query({notebookId: notebook.id, projectId: project.id}, function (expResult) {
                     notebook.children = expResult;
@@ -85,8 +87,7 @@ angular
                     $scope.projects = result;
                     $scope.myBookmarks.projects = result;
 
-                    if ((project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                        (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
+                    if (project && notebook) {
                         project.isOpen = true;
                         notebook.isOpen = true;
                     }
