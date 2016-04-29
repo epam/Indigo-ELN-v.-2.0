@@ -167,10 +167,8 @@ angular.module('indigoeln')
                 };
                 $scope.clear = function () {
                     for (var key in $scope.selectedRow) {
-                        if ($scope.selectedRow.hasOwnProperty(key)) {
-                            if (!_.contains(['$$hashKey', 'selected'], key)) {
-                                delete $scope.selectedRow[key];
-                            }
+                        if ($scope.selectedRow.hasOwnProperty(key) && !_.contains(['$$hashKey', 'selected'], key)) {
+                            delete $scope.selectedRow[key];
                         }
                     }
                 };
