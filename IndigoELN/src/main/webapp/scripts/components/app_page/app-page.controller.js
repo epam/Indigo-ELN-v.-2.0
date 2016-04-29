@@ -49,30 +49,12 @@ angular
         });
 
         $scope.onMouseWheel = function ($event) {
-            var $this = $($event.currentTarget),
-                scrollTop = $event.currentTarget.scrollTop,
-                scrollHeight = $event.currentTarget.scrollHeight,
-                height = $this.height(),
-                delta = ($event.type === 'DOMMouseScroll' ?
-                $event.originalEvent.detail * -40 :
-                    $event.originalEvent.wheelDelta),
-                up = delta > 0;
-
             var prevent = function () {
                 $event.stopPropagation();
                 $event.preventDefault();
                 $event.returnValue = false;
                 return false;
             };
-
-            if (!up && -delta > scrollHeight - height - scrollTop) {
-                // Scrolling down, but this will take us past the bottom.
-                $this.scrollTop(scrollHeight);
-                return prevent();
-            } else if (up && delta > scrollTop) {
-                // Scrolling up, but this will take us past the top.
-                $this.scrollTop(0);
-                return prevent();
-            }
+            return prevent();
         };
     });
