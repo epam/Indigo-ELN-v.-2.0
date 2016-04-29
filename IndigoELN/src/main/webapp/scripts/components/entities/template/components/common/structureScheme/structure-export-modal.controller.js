@@ -2,7 +2,8 @@ angular.module('indigoeln')
     .controller('StructureExportModalController', function ($scope, $uibModalInstance, $window, structureToSave, structureType, FileSaver) {
 
         $scope.structureToSave = structureToSave;
-        $scope.format = {name: 'MDL Molfile'}; // the only value at this moment
+        // the only value at this moment
+        $scope.format = {name: 'MDL Molfile'};
 
         $scope.download = function() {
 
@@ -22,5 +23,4 @@ angular.module('indigoeln')
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         };
-
     });

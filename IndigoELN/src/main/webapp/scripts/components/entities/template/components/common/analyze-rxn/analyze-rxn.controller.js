@@ -120,7 +120,6 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
              });
              });*/
         }
-        
         $scope.model.selectDatabase = function () {
             for (var i = 0; i < $scope.model.databases.length; i++) {
                 if (!$scope.model.databases[i].isChecked) {
