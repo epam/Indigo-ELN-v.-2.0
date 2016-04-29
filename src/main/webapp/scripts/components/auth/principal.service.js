@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Principal', function Principal($q, Account) {
+    .factory('Principal', function ($q, Account) {
         var _identity,
             _authenticated = false;
 

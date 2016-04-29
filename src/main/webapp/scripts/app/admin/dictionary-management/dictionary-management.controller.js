@@ -34,6 +34,19 @@ angular.module('indigoeln')
             }
         });
 
+        var onSaveSuccess = function () {
+            $scope.isSaving = false;
+            $scope.isWordSaving = false;
+            $scope.dictionary = null;
+            $scope.loadAllDictionaries();
+        };
+
+        var onSaveError = function () {
+            $scope.isSaving = false;
+            $scope.isWordSaving = false;
+            $scope.loadAllDictionaries();
+        };
+
         var updateRanks = function (len) {
             // check if an element removed
             var modified = $scope.selectedDictionary.words.length !== len;
@@ -56,19 +69,6 @@ angular.module('indigoeln')
                 updateRanks($scope.selectedDictionary.words.length);
             }
         });
-
-        var onSaveSuccess = function () {
-            $scope.isSaving = false;
-            $scope.isWordSaving = false;
-            $scope.dictionary = null;
-            $scope.loadAllDictionaries();
-        };
-
-        var onSaveError = function () {
-            $scope.isSaving = false;
-            $scope.isWordSaving = false;
-            $scope.loadAllDictionaries();
-        };
 
         $scope.saveDictionary = function () {
             $scope.isSaving = true;

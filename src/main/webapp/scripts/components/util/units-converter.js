@@ -23,7 +23,7 @@
         // first, convert from the current value to the base unit
         var target = table[this.targetUnit];
         var current = table[this.currentUnit];
-        if (target.base != current.base) {
+        if (target.base !== current.base) {
             throw new Error('Incompatible units; cannot convert from "' + this.currentUnit + '" to "' + this.targetUnit + '"');
         }
 

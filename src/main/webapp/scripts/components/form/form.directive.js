@@ -70,7 +70,7 @@ angular.module('indigoeln')
             myValidationPatternText: '@',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myInputGroup) {
                 var elementIg = $('<div class="input-group"/>');
@@ -99,7 +99,7 @@ angular.module('indigoeln')
                 tElement.find('input').attr('ng-required', tAttrs.myValidationRequired);
             }
             return {
-                post: function postLink(scope, iElement, iAttrs, formCtrl) {
+                post: function (scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);
                 }
             };
@@ -246,7 +246,7 @@ angular.module('indigoeln')
             myReadonly: '=',
             myRowsNum: '='
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             if (tAttrs.myInputGroup) {
                 var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
                 var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
@@ -278,8 +278,7 @@ angular.module('indigoeln')
             myEmptyText: '@',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
-            //formUtils.doVertical(tAttrs, tElement);
+        compile: function () {
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-12 text-left" style="padding-top: 7px">' +
@@ -306,7 +305,7 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('input').attr('timezone', jstz.determine().name());
             return {
-                post: function postLink(scope, iElement, iAttrs, formCtrl) {
+                post: function (scope, iElement, iAttrs, formCtrl) {
                     if (scope.myModel) {
                         scope.ctrl = {};
                         scope.ctrl.model = moment(scope.myModel);

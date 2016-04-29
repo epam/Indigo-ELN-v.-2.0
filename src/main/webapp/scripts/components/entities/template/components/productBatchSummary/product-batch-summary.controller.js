@@ -269,9 +269,7 @@ angular.module('indigoeln')
                 var structureColumn = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
                 });
-                //if (structureColumn) {
                 structureColumn.isHidden = !showStructures;
-                //}
             });
 
             $scope.$watch('structureSize', function (newVal) {
