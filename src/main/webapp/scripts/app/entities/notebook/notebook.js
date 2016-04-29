@@ -21,7 +21,7 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    pageInfo: function($q, Principal) {
+                    pageInfo: function ($q, $stateParams, Principal) {
                         var deferred = $q.defer();
                         $q.all([
                             Principal.identity(),
@@ -34,7 +34,8 @@ angular.module('indigoeln')
                                 identity: results[0],
                                 isContentEditor: results[1],
                                 hasEditAuthority: results[2],
-                                hasCreateChildAuthority: results[3]
+                                hasCreateChildAuthority: results[3],
+                                projectId: $stateParams.projectId
                             });
                         });
                         return deferred.promise;
@@ -67,7 +68,8 @@ angular.module('indigoeln')
                                 identity: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
-                                hasCreateChildAuthority: results[4]
+                                hasCreateChildAuthority: results[4],
+                                projectId: $stateParams.projectId
                             });
                         });
                         return deferred.promise;

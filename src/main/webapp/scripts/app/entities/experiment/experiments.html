@@ -1,53 +1,3 @@
-<!--<div>-->
-<!--<h2>Experiments</h2>-->
-<!--<div class="container">-->
-<!--<div class="row">-->
-<!--<div class="col-md-4">-->
-<!--<button class="btn btn-info" ui-sref="experiment.new">-->
-<!--<span class="glyphicon glyphicon-flash"></span> <span>Create a new Experiment</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-
-<!--<div class="table-responsive">-->
-<!--<table class="table table-striped">-->
-<!--<thead>-->
-<!--<tr my-sort="predicate" ascending="reverse" callback="loadAll()">-->
-<!--<th my-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="title"><span>Title</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="experimentNumber"><span>ExperimentNumber</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="templateId"><span>TemplateId</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th></th>-->
-<!--</tr>-->
-<!--</thead>-->
-<!--<tbody>-->
-<!--<tr ng-repeat="experiment in experiments track by experiment.id">-->
-<!--<td><a ui-sref="experiment.detail({id:experiment.id})">{{experiment.id}}</a></td>-->
-<!--<td>{{experiment.title}}</td>-->
-<!--<td>{{experiment.experimentNumber}}</td>-->
-<!--<td>{{experiment.templateId}}</td>-->
-<!--<td>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.detail({id:experiment.id})"-->
-<!--class="btn btn-info btn-sm">-->
-<!--<span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View</span>-->
-<!--</button>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.edit({id:experiment.id})"-->
-<!--class="btn btn-info btn-sm">-->
-<!--<span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>-->
-<!--</button>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.delete({id:experiment.id})"-->
-<!--class="btn btn-danger btn-sm">-->
-<!--<span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span> Delete</span>-->
-<!--</button>-->
-<!--</td>-->
-<!--</tr>-->
-<!--</tbody>-->
-<!--</table>-->
-<!--</div>-->
 <div>
     <h5>Open and Completed Experiments</h5>
     <table class="main-table table table-striped table-condensed">
@@ -159,7 +109,3 @@
         </tbody>
     </table>
 </div>
-<!--<div class="text-center">-->
-<!--<uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page" ng-change="loadAll()"></uib-pagination>-->
-<!--</div>-->
-<!--</div>-->
