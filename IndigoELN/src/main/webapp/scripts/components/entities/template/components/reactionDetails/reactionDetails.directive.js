@@ -7,6 +7,11 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
-            templateUrl: 'scripts/components/entities/template/components/reactionDetails/reactionDetails.html'
+            templateUrl: 'scripts/components/entities/template/components/reactionDetails/reactionDetails.html',
+            controller: function ($scope, Principal) {
+                $scope.model.reactionDetails = $scope.model.reactionDetails || {};
+                $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
+                    {name: Principal.getIdentity().fullName};
+            }
         };
     });
