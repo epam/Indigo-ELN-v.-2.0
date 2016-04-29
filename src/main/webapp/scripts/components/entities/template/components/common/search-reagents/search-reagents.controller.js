@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, activeTab, UserReagents) {
+    function ($scope, $rootScope, $uibModalInstance, $http, Alert, activeTab, UserReagents) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -156,44 +156,41 @@ angular.module('indigoeln').controller('SearchReagentsController',
 
         $scope.search = function () {
             $scope.model.databases = _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
-            $timeout(function () {
-                $scope.model.restrictions.advancedSummary = [];
-                _.each($scope.model.restrictions.advancedSearch, function (restriction) {
-                    if (restriction.value) {
-                        $scope.model.restrictions.advancedSummary.push(restriction);
-                    }
-                });
-                $scope.isSearchResultFound = true;
-                if ($scope.model.restrictions.structure.molfile) {
-                    var searchMode = $scope.model.restrictions.structure.similarityCriteria.name;
-                    if (searchMode === 'none') {
-                        searchMode = null;
-                    } else if (searchMode === 'equal') {
-                        searchMode = 'exact';
-                    }
-                    $http({
-                        url: 'api/search/batches/structure',
-                        method: 'POST',
-                        data: $scope.model.restrictions.structure.molfile,
-                        params: {
-                            searchMode: searchMode,
-                            similarity: $scope.model.restrictions.structure.similarityValue / 100
-                        }
-                    }).success(function (result) {
-                        $scope.searchResults = _.map(result, function(item) {
-                            var batchDetails = _.extend({}, item.details);
-                            batchDetails.nbkBatch = item.notebookBatchNumber;
-                            batchDetails.$$isCollapsed = true;
-                            batchDetails.$$isSelected = false;
-                            batchDetails.database = $scope.model.databases.join(', ');
-                            batchDetails.molWeight = item.details.molWt;
-                            return batchDetails;
-                        });
-                        console.log(result);
-                    });
+            $scope.model.restrictions.advancedSummary = [];
+            _.each($scope.model.restrictions.advancedSearch, function (restriction) {
+                if (restriction.value) {
+                    $scope.model.restrictions.advancedSummary.push(restriction);
                 }
-
             });
+            $scope.isSearchResultFound = true;
+            if ($scope.model.restrictions.structure.molfile) {
+                var searchMode = $scope.model.restrictions.structure.similarityCriteria.name;
+                if (searchMode === 'none') {
+                    searchMode = null;
+                } else if (searchMode === 'equal') {
+                    searchMode = 'exact';
+                }
+                $http({
+                    url: 'api/search/batches/structure',
+                    method: 'POST',
+                    data: $scope.model.restrictions.structure.molfile,
+                    params: {
+                        searchMode: searchMode,
+                        similarity: $scope.model.restrictions.structure.similarityValue / 100
+                    }
+                }).success(function (result) {
+                    $scope.searchResults = _.map(result, function (item) {
+                        var batchDetails = _.extend({}, item.details);
+                        batchDetails.nbkBatch = item.notebookBatchNumber;
+                        batchDetails.$$isCollapsed = true;
+                        batchDetails.$$isSelected = false;
+                        batchDetails.database = $scope.model.databases.join(', ');
+                        batchDetails.molWeight = item.details.molWt;
+                        return batchDetails;
+                    });
+                    console.log(result);
+                });
+            }
         };
 
         $scope.cancel = function () {
