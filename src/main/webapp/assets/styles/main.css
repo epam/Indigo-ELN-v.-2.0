@@ -666,4 +666,7 @@ div.enlarge:hover span{
 .inverted {
     filter: invert(100%);
 }
-	
+
+body > .ui-select-bootstrap.open {
+    z-index: 1050;
+}
