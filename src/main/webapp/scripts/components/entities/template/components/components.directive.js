@@ -57,7 +57,8 @@ angular.module('indigoeln')
             myExperimentForm: '='
         },
         link: function (scope) {
-            scope.share = {}; //for communication between components
+            //for communication between components
+            scope.share = {};
         },
         template: '<fieldset ng-disabled="myReadonly"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
