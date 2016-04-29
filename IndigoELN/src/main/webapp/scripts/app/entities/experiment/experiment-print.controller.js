@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentPrintController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, pageInfo,
-              experimentPdfCreator) {
+    function ($scope, pageInfo, experimentPdfCreator) {
 
         $scope.fullPrint = false;
 

@@ -1,8 +1,8 @@
 'use strict';
 
 angular.module('indigoeln').controller('ExperimentSubmitController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, pageInfo,
-              experimentPdfCreator, SignatureTemplates, $uibModal, PermissionManagement, SignatureDocument) {
+    function ($scope, $rootScope, $state, pageInfo, experimentPdfCreator,
+              SignatureTemplates, $uibModal, SignatureDocument) {
 
         $scope.fullPrint = true;
 

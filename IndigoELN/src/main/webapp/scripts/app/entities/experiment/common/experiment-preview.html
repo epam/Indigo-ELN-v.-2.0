@@ -1,7 +1,5 @@
 <div class="panel panel-info">
-    <div class="panel-heading">
-        Print Experiment {{experiment.name}}
-    </div>
+    <div class="panel-heading">Print Experiment {{experiment.name}}</div>
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-12">
@@ -9,7 +7,6 @@
                     <div class="panel-heading">Preview</div>
                     <div class="panel-body">
                         <form name="print-form" id="print-form" role="form" novalidate>
-
                             <!--HEADER-->
                             <div class="row print-component">
                                 <div class="col-xs-12">
@@ -21,12 +18,12 @@
                                                 <div style="top:9px;right:0;" class="logo-wrapper"></div></th>
                                         </tr>
                                         <tr>
-                                            <td width="20%">Author:</td>
-                                            <td width="30%">{{experiment.author.firstName + ' ' +
+                                            <td style="width:20%">Author:</td>
+                                            <td style="width:30%">{{experiment.author.firstName + ' ' +
                                                 experiment.author.lastName}}
                                             </td>
-                                            <td width="20%">Notebook&nbsp;Experiment:</td>
-                                            <td width="30%">{{notebook.name + '-' + experiment.name}}</td>
+                                            <td style="width:20%">Notebook&nbsp;Experiment:</td>
+                                            <td style="width:30%">{{notebook.name + '-' + experiment.name}}</td>
                                         </tr>
                                         <tr>
                                             <td>Co-authors:</td>
@@ -34,19 +31,15 @@
                                                 <!--to be added in details-->
                                                     <span ng-repeat="user in experiment.coAuthors track by user.id">
                                                         {{user.firstName + ' ' + user.lastName}}<span
-                                                            ng-if="!$last">, </span>
-                                                    </span>
-                                            </td>
+                                                            ng-if="!$last">, </span></span></td>
                                             <td>Status:</td>
                                             <td>{{experiment.status | uppercase }}</td>
                                         </tr>
                                         <tr>
-                                            <!--from reaction details: project code and name?-->
                                             <td>Project</td>
-                                            <td>{{project.name}}</td>
-                                            <!--think about-->
+                                            <td>{{project.name}}
                                             <td>Printed Page:</td>
-                                            <td>x{{}} of y{{}}</td>
+                                            <td>x{{}} of y{{}}</td><!--think about-->
                                         </tr>
                                         <tr>
                                             <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
@@ -67,20 +60,18 @@
                                             my-label="Print"
                                             my-model="reactionDetails.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">EXPERIMENT DETAILS</b></div>
-                                    <table style="border: 1px black solid"
-                                           class="print-table-simple">
+                                    <div class="row"><strong class="pull-right">EXPERIMENT DETAILS</strong></div>
+                                    <table style="border: 1px black solid" class="print-table-simple">
                                         <tr>
-                                            <th width="20%">Creation Date:</th>
-                                            <td width="30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss
-                                                z'}}
+                                            <th style="width:20%">Creation Date:</th>
+                                            <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY
+                                                HH:mm:ss z'}}
                                             </td>
-                                            <th width="20%">Therapeutic&nbsp;Area:</th>
-                                            <td width="30%">{{reactionDetails.therapeuticArea.name}}</td>
+                                            <th style="width:20%">Therapeutic&nbsp;Area:</th>
+                                            <td style="width:30%">{{reactionDetails.therapeuticArea.name}}</td>
                                         </tr>
                                         <tr>
                                             <th>Continued From:</th>
@@ -106,18 +97,15 @@
 
                             <!--EXPERIMENT DESCRIPTION-->
                             <div class="row print-component" ng-if="experimentDescription">
-                                <div class="col-xs-1 need-to-print"
-                                     ng-init="experimentDescription.needToPrint = true">
+                                <div class="col-xs-1 need-to-print" ng-init="experimentDescription.needToPrint = true">
                                     <my-checkbox
                                             my-label="Print"
                                             my-model="experimentDescription.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">EXPERIMENT DESCRIPTION</b>
-                                    </div>
+                                    <div class="row"><strong class="pull-right">EXPERIMENT DESCRIPTION</strong></div>
                                     <my-text-editor my-model="experimentDescription.description"
                                                     my-readonly="true"></my-text-editor>
                                 </div>
@@ -130,11 +118,10 @@
                                             my-label="Print"
                                             my-model="reaction.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">REACTION SCHEME</b></div>
+                                    <div class="row"><strong class="pull-right">REACTION SCHEME</strong></div>
                                     <div class="print-box">
                                         <img style="padding: 10px; background-color: white; "
                                              class="img-responsive center-block"
@@ -150,20 +137,19 @@
                                             my-label="Print"
                                             my-model="stoichTable.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">STOICHIOMETRY</b></div>
+                                    <div class="row"><strong class="pull-right">STOICHIOMETRY</strong></div>
                                     <table class="print-table">
                                         <tr>
-                                            <th width="30">Reagent</th>
-                                            <th width="8">Mol Wgh</th>
-                                            <th width="8">Weight</th>
-                                            <th width="8">Moles</th>
-                                            <th width="8">Volume</th>
-                                            <th width="8">EQ</th>
-                                            <th width="30">Other Information</th>
+                                            <th style="width:30%">Reagent</th>
+                                            <th style="width:8%">Mol Wgh</th>
+                                            <th style="width:8%">Weight</th>
+                                            <th style="width:8%">Moles</th>
+                                            <th style="width:8%">Volume</th>
+                                            <th style="width:8%">EQ</th>
+                                            <th style="width:30%">Other Information</th>
                                         </tr>
                                         <tr ng-repeat="reactant in stoichTable.reactants">
                                             <td>
@@ -181,7 +167,7 @@
                                             <td>
                                                 <table class="print-table-inner">
                                                     <tr>
-                                                        <td width="40%">Name:</td>
+                                                        <td style="width:40%">Name:</td>
                                                         <td>{{reactant.chemicalName}}</td>
                                                     </tr>
                                                     <tr>
@@ -226,18 +212,17 @@
                                             my-label="Print"
                                             my-model="batchSummary.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">BATCH INFORMATION</b></div>
+                                    <div class="row"><strong class="pull-right">BATCH INFORMATION</strong></div>
                                     <table class="print-table">
                                         <tr>
-                                            <th width="10%">Nbk Batch</th>
-                                            <th width="20%">Structure</th>
-                                            <th width="10%">Amount Made</th>
-                                            <th width="10%">Theoretical Yield</th>
-                                            <th width="10%">Purity (%) Determined By</th>
+                                            <th style="width:10%">Nbk Batch</th>
+                                            <th style="width:20%">Structure</th>
+                                            <th style="width:10%">Amount Made</th>
+                                            <th style="width:10%">Theoretical Yield</th>
+                                            <th style="width:10%">Purity (%) Determined By</th>
                                             <th>Batch Information</th>
                                         </tr>
                                         <tr ng-repeat="batch in batchSummary.batches">
@@ -253,11 +238,10 @@
                                             <td>
                                                 <table class="print-table-inner">
                                                     <tr>
-                                                        <td width="40%">Mol Wgt:</td>
+                                                        <td style="width:40%">Mol Wgt:</td>
                                                         <td>{{batch.molWt}}</td>
                                                     </tr>
                                                     <tr>
-                                                        <!--?-->
                                                         <td>Exact Mass:</td>
                                                         <td>???</td>
                                                     </tr>
@@ -285,8 +269,7 @@
                                 </div>
                             </div>
 
-                            <!--REGISTRATION SUMMARY-->
-                            <!--no such component-->
+                            <!--REGISTRATION SUMMARY--> <!--no such component-->
                             <div class="row print-component" ng-if="true">
                                 <div class="col-xs-1 need-to-print"
                                      ng-init="registrationSummary.needToPrint = true">
@@ -294,14 +277,13 @@
                                             my-label="Print"
                                             my-model="registrationSummary.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">REGISTRATION SUMMARY</b></div>
+                                    <div class="row"><strong class="pull-right">REGISTRATION SUMMARY</strong></div>
                                     <table class="print-table">
                                         <tr>
-                                            <th width="40%">Nbk Batch</th>
+                                            <th style="width:40%">Nbk Batch</th>
                                             <th>Total Amount Made</th>
                                             <th>Registration Status</th>
                                             <th>Conversational Batch</th>
@@ -316,7 +298,6 @@
                                 </div>
                             </div>
 
-
                             <!--BATCH DETAILS-->
                             <div class="row print-component">
                                 <div class="col-xs-1 need-to-print" ng-init="batchDetails.needToPrint = true">
@@ -324,14 +305,13 @@
                                             my-label="Print"
                                             my-model="batchDetails.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11" ng-if="batchDetails">
-                                    <div class="row"><b class="pull-right">BATCH DETAILS</b></div>
+                                    <div class="row"><strong class="pull-right">BATCH DETAILS</strong></div>
                                     <table class="print-table">
                                         <tr>
-                                            <th width="20%">For Notebook Batch:</th>
+                                            <th style="width:20%">For Notebook Batch:</th>
                                             <th>
                                                 <span class="pull-left">&nbsp; {{batchDetails.fullNbkBatch}}</span>
                                                 <span class="pull-right">#barcode &nbsp;</span>
@@ -428,19 +408,18 @@
                                             my-label="Print"
                                             my-model="conceptDetails.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <b class="pull-right">CONCEPT DETAILS</b>
+                                    <strong class="pull-right">CONCEPT DETAILS</strong>
                                     <table style="border: 1px black solid"
                                            class="print-table-simple">
                                         <tr>
-                                            <th width="20%">Therapeutic&nbsp;Area:</th>
-                                            <td width="30%">{{conceptDetails.therapeuticArea.name}}</td>
-                                            <th width="20%">Creation Date:</th>
-                                            <td width="30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss
-                                                z'}}
+                                            <th style="width:20%">Therapeutic&nbsp;Area:</th>
+                                            <td style="width:30%">{{conceptDetails.therapeuticArea.name}}</td>
+                                            <th style="width:20%">Creation Date:</th>
+                                            <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY
+                                                HH:mm:ss z'}}
                                             </td>
                                         </tr>
                                         <tr>
@@ -467,11 +446,10 @@
                                             my-label="Print"
                                             my-model="preferredCompounds.needToPrint"
                                             my-name="needToPrint"
-                                            my-disabled="fullPrint"
-                                    ></my-checkbox>
+                                            my-disabled="fullPrint"></my-checkbox>
                                 </div>
                                 <div class="col-xs-11">
-                                    <div class="row"><b class="pull-right">PREFERRED COMPOUNDS</b></div>
+                                    <div class="row"><strong class="pull-right">PREFERRED COMPOUNDS</strong></div>
                                     <table class="print-table">
                                         <tr>
                                             <th>Structure</th>
@@ -508,6 +486,3 @@
         </div>
     </div>
 </div>
-
-
-
