@@ -1,4 +1,4 @@
-ngular.module('indigoeln')
+angular.module('indigoeln')
     .directive('activeLink', function(location) {
         return {
             restrict: 'A',
