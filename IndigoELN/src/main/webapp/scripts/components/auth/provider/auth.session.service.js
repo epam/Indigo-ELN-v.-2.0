@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('AuthServerProvider', function loginService($http) {
+    .factory('AuthServerProvider', function ($http) {
         return {
             login: function (credentials) {
                 var data = 'j_username=' + encodeURIComponent(credentials.username) +

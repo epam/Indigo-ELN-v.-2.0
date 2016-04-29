@@ -2,9 +2,8 @@
 
 angular
     .module('indigoeln')
-    .controller('SidebarController', function ($scope, $state, User, Project, Notebook, Experiment,
-                                               AllProjects, AllNotebooks, AllExperiments, PermissionManagement,
-                                               Principal) {
+    .controller('SidebarController', function ($scope, $state, Project, Notebook, Experiment,
+                                               AllProjects, AllNotebooks, AllExperiments, Principal) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -15,10 +14,10 @@ angular
         $scope.myBookmarks = {};
         $scope.allProjects = {};
 
-        var updateProjectsStatuses = function(projects, statuses) {
-            angular.forEach(projects, function(project) {
-                angular.forEach(project.children, function(notebook) {
-                    angular.forEach(notebook.children, function(experiment) {
+        var updateProjectsStatuses = function (projects, statuses) {
+            angular.forEach(projects, function (project) {
+                angular.forEach(project.children, function (notebook) {
+                    angular.forEach(notebook.children, function (experiment) {
                         var status = statuses[experiment.fullId];
                         if (status) {
                             experiment.status = status;
@@ -28,7 +27,7 @@ angular
             });
         };
 
-        var updateStatuses = function(statuses) {
+        var updateStatuses = function (statuses) {
             updateProjectsStatuses($scope.myBookmarks.projects, statuses);
             updateProjectsStatuses($scope.allProjects.projects, statuses);
         };
@@ -40,55 +39,55 @@ angular
             });
         });
 
-        var onNotebookCreatedEvent = $scope.$on('notebook-created', function(event, data) {
+        $scope.getTreeItemById = function (items, itemId) {
+            return _.find(items, function (projectItem) {
+                return projectItem.id === itemId;
+            });
+        };
+
+        var onNotebookCreatedEvent = $scope.$on('notebook-created', function (event, data) {
             var project;
-            if($scope.myBookmarks.projects &&
-                    (project = $scope.getTreeItemById($scope.myBookmarks.projects, data.projectId))) { //find  existing project and update children
+            if ($scope.myBookmarks.projects) { //find  existing project and update children
+                project = $scope.getTreeItemById($scope.myBookmarks.projects, data.projectId);
                 $scope.projects = $scope.myBookmarks.projects;
                 Notebook.query({projectId: project.id}, function (notebookResult) { //fetch children only
                     project.children = notebookResult;
                     project.isOpen = true;
                 });
-            } else { //otherwise fetch all projects
-                Project.query(function (result) { //fetch all projects
+            } else {
+                //otherwise fetch all projects
+                Project.query(function (result) {
                     $scope.projects = result;
                     $scope.myBookmarks.projects = result;
 
                     project = $scope.getTreeItemById($scope.projects, data.projectId);
-                    if(project) {
+                    if (project) {
                         project.isOpen = true;
                     }
                 });
             }
         });
 
-        var onExperimentCreatedEvent = $scope.$on('experiment-created', function(event, data) {
-            updateTreeForExperiments(event, data);
-        });
-
-        var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
-            updateStatuses(data);
-        });
-
         var updateTreeForExperiments = function (event, data) {
             var project = null, notebook = null;
             $scope.projects = $scope.myBookmarks.projects;
 
-            if ($scope.projects && (project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
-                (notebook = $scope.getTreeItemById(project.children, data.notebookId)))
-            { //find existing notebook and update children only
-                Experiment.query({notebookId: notebook.id, projectId : project.id}, function (expResult) {
+            if ($scope.projects) {
+                project = $scope.getTreeItemById($scope.projects, data.projectId);
+                notebook = $scope.getTreeItemById(project.children, data.notebookId);
+                //find existing notebook and update children only
+                Experiment.query({notebookId: notebook.id, projectId: project.id}, function (expResult) {
                     notebook.children = expResult;
                     project.isOpen = true;
                     notebook.isOpen = true;
                 });
-            } else { //find and update projects
-
+            } else {
+                //find and update projects
                 Project.query(function (result) {
                     $scope.projects = result;
                     $scope.myBookmarks.projects = result;
 
-                    if((project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
+                    if ((project = $scope.getTreeItemById($scope.projects, data.projectId)) &&
                         (notebook = $scope.getTreeItemById(project.children, data.notebookId))) {
                         project.isOpen = true;
                         notebook.isOpen = true;
@@ -97,22 +96,20 @@ angular
             }
         };
 
-        $scope.$on('$destroy', function() {
+        var onExperimentCreatedEvent = $scope.$on('experiment-created', function (event, data) {
+            updateTreeForExperiments(event, data);
+        });
+
+        var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function (event, data) {
+            updateStatuses(data);
+        });
+
+        $scope.$on('$destroy', function () {
             onExperimentCreatedEvent();
             onNotebookCreatedEvent();
             onProjectCreatedEvent();
             onExperimentStatusChangedEvent();
         });
-
-        $scope.getTreeItemById = function(items, itemId) {
-            var result = null;
-            if(items) {
-                items.some(function (projectItem) {
-                    return projectItem.id === itemId ? ( (result = projectItem), true) : false;
-                });
-            }
-            return result;
-        };
 
         $scope.toggleProjects = function (parent, needAll) {
             if (!parent.projects) {

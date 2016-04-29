@@ -3,7 +3,6 @@
 angular.module('indigoeln').controller('AnalyzeRxnController',
     function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, reactants) {
         $scope.model = {};
-        //$scope.model.reactants = ['C6 H6', 'C9 H12', 'C2 H6 O', 'C3 H5 N3 O9'];
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
         $scope.isEditMode = false;
@@ -103,25 +102,25 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
                     }
                 ];
             });
-            //var searchCriteria = {
-            //    databases: prepareDatabases(),
-            //    structure: { formula: formula }
-            //};
-            //$http({
-            //    url: 'api/search/batch',
-            //    method: 'POST',
-            //    data: searchCriteria
-            //}).success(function (result) {
-            //    return _.map(result, function (item) {
-            //        var batchDetails = _.extend({}, item.details);
-            //        batchDetails.nbkBatch = item.notebookBatchNumber;
-            //        batchDetails.$$isCollapsed = true;
-            //        batchDetails.$$isSelected = false;
-            //        batchDetails.database = $scope.model.databases.join(', ');
-            //        batchDetails.molWeight = item.details.molWt;
-            //        return batchDetails;
-            //    });
-            //});
+            /*var searchCriteria = {
+             databases: prepareDatabases(),
+             structure: { formula: formula }
+             };
+             $http({
+             url: 'api/search/batch',
+             method: 'POST',
+             data: searchCriteria
+             }).success(function (result) {
+             return _.map(result, function (item) {
+             var batchDetails = _.extend({}, item.details);
+             batchDetails.nbkBatch = item.notebookBatchNumber;
+             batchDetails.$$isCollapsed = true;
+             batchDetails.$$isSelected = false;
+             batchDetails.database = $scope.model.databases.join(', ');
+             batchDetails.molWeight = item.details.molWt;
+             return batchDetails;
+             });
+             });*/
         }
         
         $scope.model.selectDatabase = function () {
