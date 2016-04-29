@@ -1,6 +1,5 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q, $location) {
-        //todo: refactoring
         var initParams = $location.path().match(/\d+/g);
 
         updateTabs({
