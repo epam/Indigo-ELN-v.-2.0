@@ -25,9 +25,13 @@
                                my-label-vertical="true"
                                my-readonly="myReadonly">
                     </my-select>
-                    <my-input my-label="Co-authors" my-label-vertical="true"
-                              my-readonly="myReadonly">
-                    </my-input>
+                    <my-select my-label="Co-authors"
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"
+                               my-dictionary="users"
+                               my-model="model.conceptDetails.coAuthors"
+                               my-multiple="true"
+                    ></my-select>
                     <my-select my-label="Experiment Creator (Author)"
                                my-label-vertical="true"
                                my-readonly="myReadonly"
@@ -42,10 +46,13 @@
                     <my-input my-label="Linked Experiment" my-label-vertical="true"
                               my-readonly="myReadonly">
                     </my-input>
-                    <my-text-area my-label="Designers" my-label-vertical="true"
-                                  my-model="model.conceptDetails.designers"
-                                  my-readonly="myReadonly">
-                    </my-text-area>
+                    <my-select my-label="Designers"
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"
+                               my-dictionary="users"
+                               my-model="model.conceptDetails.designers"
+                               my-multiple="true"
+                    ></my-select>
                 </div>
             </div>
             <div class="row">

@@ -130,7 +130,10 @@ angular.module('indigoeln')
                     {
                         id: 'saltCode',
                         name: 'Salt Code',
-                        type: 'select'
+                        type: 'select',
+                        values: function () {
+                            return saltCodeValues;
+                        }
                     },
                     {
                         id: 'saltEq',
