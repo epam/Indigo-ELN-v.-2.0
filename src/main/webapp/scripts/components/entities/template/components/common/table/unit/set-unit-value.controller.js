@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('SetUnitValueController', function ($scope, name, unitNames, $uibModalInstance) {
         $scope.name = name;

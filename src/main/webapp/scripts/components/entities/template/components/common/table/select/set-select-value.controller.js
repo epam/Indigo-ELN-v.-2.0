@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('SetSelectValueController', function ($scope, name, values, $uibModalInstance) {
         $scope.name = name;

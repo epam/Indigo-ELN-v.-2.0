@@ -1,7 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 3/1/2016.
  */
-'use strict';
 angular.module('indigoeln')
     .directive('myTableVal', function () {
         return {

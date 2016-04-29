@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Experiment', function ($resource) {
         function toModel(experiment) {

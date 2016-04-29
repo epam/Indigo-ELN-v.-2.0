@@ -1,7 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 3/10/2016.
  */
-'use strict';
 angular.module('indigoeln')
     .directive('stoichTable', function () {
         return {

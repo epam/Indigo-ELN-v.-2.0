@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('TabManagerController', function ($scope, $stateParams, TabManager) {
         $scope.tabs = TabManager.getTabs();

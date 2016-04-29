@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('LoginController', function ($rootScope, $scope, $state, $timeout, Auth) {
         $scope.user = {};

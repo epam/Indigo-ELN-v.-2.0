@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('NotebookDialogController',
         function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, pageInfo) {

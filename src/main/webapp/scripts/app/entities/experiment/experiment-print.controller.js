@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentPrintController',
     function ($scope, pageInfo, experimentPdfCreator) {
 

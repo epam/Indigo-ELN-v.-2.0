@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('notificationInterceptor', function ($q, Alert) {
         var SUCCESS_ALERT = 'X-indigoeln-success-alert',

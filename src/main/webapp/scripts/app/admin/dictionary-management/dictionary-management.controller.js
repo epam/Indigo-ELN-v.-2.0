@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal) {
         $scope.dictionaries = [];

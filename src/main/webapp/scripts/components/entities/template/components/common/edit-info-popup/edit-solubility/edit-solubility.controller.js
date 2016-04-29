@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('EditSolubilityController',
     function ($scope, $rootScope, $uibModalInstance, data) {
         $scope.solubility = data || {};

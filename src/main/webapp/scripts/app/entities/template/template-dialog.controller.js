@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo) {
         $scope.components = Components;

@@ -1,8 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 2/8/2016.
  */
-'use strict';
-
 angular.module('indigoeln')
     .constant('Components', [
         {name: 'Concept Details', id: 'concept-details', desc: 'Fake description'},

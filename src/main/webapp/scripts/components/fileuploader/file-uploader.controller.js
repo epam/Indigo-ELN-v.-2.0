@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('FileUploaderController', function ($scope, FileUploaderService, FileUploaderCash, FileUploader,
                                                     $cookies, ParseLinks, Alert, $uibModal, $filter) {

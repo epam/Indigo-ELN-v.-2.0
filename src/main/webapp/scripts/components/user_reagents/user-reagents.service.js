@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('UserReagents', function ($resource) {
         return $resource('api/user_reagents', {}, {

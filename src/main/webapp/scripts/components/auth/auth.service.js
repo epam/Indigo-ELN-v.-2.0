@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Auth', function ($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
         return {

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Principal', function ($q, Account) {
         var _identity,

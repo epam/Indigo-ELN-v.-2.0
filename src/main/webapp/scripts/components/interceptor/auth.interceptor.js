@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('authExpiredInterceptor', function ($rootScope, $q, $injector) {
         return {

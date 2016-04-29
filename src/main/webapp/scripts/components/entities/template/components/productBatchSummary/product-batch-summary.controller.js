@@ -1,8 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 3/2/2016.
  */
-'use strict';
-
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
         function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {

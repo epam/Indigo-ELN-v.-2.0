@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('WSService', function ($window, $cookies, $http, $q, $log) {
         var stompClient = null;

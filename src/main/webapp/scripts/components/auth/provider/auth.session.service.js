@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('AuthServerProvider', function ($http) {
         return {

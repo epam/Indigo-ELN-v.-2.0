@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('EditResidualSolventsController',
     function ($scope, $rootScope, $uibModalInstance, data) {
         $scope.solvents = data || {};

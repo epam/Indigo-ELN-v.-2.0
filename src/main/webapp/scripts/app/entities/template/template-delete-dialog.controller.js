@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('TemplateDeleteController', function ($scope, $uibModalInstance, $stateParams, Template) {
         $scope.clear = function () {

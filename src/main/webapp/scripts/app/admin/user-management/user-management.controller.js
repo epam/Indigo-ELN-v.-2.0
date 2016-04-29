@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo) {
         $scope.users = [];

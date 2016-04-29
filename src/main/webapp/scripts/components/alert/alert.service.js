@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Alert', function () {
         var common = {

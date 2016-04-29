@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('ExperimentDeleteController', function ($scope, $uibModalInstance, entity, Experiment, $stateParams) {
 

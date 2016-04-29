@@ -1,7 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 2/8/2016.
  */
-'use strict';
 angular.module('indigoeln')
     .directive('conceptDetails', function () {
         return {

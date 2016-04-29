@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('ProjectDialogController',
         function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash, pageInfo) {

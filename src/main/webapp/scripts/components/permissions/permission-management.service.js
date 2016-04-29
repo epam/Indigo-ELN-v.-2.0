@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('UserWithAuthority', function ($resource) {
         return $resource('api/users/permission-management', {}, {

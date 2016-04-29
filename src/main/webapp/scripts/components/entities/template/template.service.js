@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Template', function ($resource) {
         return $resource('api/templates/:id', {}, {

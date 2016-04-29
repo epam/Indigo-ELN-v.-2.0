@@ -1,5 +1,4 @@
 /* globals $ */
-'use strict';
 angular.module('indigoeln')
     .factory('formUtils', function ($timeout) {
         return {

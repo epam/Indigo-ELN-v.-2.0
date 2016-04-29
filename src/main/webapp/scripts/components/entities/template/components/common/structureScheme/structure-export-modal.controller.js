@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('StructureExportModalController', function ($scope, $uibModalInstance, $window, structureToSave, structureType, FileSaver) {
 

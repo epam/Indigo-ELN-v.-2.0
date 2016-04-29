@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal) {
         // molecule, reaction

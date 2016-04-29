@@ -1,6 +1,4 @@
-'use strict';
-
-angular.module('indigoeln')
+ngular.module('indigoeln')
     .directive('activeLink', function(location) {
         return {
             restrict: 'A',

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('FileUploaderService', function ($resource) {
         return $resource('api/project_files/:id', {}, {
