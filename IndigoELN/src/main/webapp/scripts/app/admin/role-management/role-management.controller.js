@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';

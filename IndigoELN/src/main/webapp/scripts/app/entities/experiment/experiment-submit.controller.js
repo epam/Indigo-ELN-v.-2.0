@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentSubmitController',
     function ($scope, $rootScope, $state, pageInfo, experimentPdfCreator,
               SignatureTemplates, $uibModal, SignatureDocument) {

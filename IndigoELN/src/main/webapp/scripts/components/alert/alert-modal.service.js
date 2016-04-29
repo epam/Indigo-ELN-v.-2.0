@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('AlertModal', function ($uibModal) {
         var alertModal = function (title, message, callback) {

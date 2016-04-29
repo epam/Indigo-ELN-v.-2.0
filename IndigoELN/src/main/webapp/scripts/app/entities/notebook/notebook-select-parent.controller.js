@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('NotebookSelectParentController', function ($scope, $uibModalInstance, parents) {
         $scope.parents = parents;

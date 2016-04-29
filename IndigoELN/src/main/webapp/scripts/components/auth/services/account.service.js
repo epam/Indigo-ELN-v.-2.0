@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Account', function ($resource) {
         return $resource('api/accounts/account', {}, {

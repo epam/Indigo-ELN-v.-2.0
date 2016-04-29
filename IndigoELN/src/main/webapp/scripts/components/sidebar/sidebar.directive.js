@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .directive('activeLink', function(location) {
         return {

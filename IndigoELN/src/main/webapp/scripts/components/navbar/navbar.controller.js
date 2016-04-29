@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('NavbarController', function ($scope, $state, $rootScope, Principal, Auth) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';

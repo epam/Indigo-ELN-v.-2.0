@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .service('ParseLinks', function () {
         this.parse = function (header) {

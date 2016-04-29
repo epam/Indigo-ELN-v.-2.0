@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('errorHandlerInterceptor', function ($q, $log, $injector, $rootScope, Alert) {
         return {

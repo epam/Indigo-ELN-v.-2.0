@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('SearchReagentsController',
     function ($scope, $rootScope, $uibModalInstance, $http, Alert, activeTab, UserReagents) {
         $scope.model = {};

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('AnalyzeRxnController',
     function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, reactants) {
         $scope.model = {};

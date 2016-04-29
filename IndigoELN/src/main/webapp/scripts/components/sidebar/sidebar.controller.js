@@ -1,5 +1,3 @@
-'use strict';
-
 angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, Project, Notebook, Experiment,

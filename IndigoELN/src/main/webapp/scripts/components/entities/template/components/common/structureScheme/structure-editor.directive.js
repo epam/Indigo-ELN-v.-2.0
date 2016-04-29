@@ -1,6 +1,4 @@
 /* jshint browser: true */
-'use strict';
-
 angular.module('indigoeln')
     .factory('editorUtils', function () {
         return {

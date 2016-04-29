@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('EditExternalSupplierController',
     function ($scope, $rootScope, $uibModalInstance, data) {
         $scope.externalSupplier = data || {};

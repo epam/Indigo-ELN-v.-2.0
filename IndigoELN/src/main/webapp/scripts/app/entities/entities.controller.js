@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q, $location) {
         //todo: refactoring

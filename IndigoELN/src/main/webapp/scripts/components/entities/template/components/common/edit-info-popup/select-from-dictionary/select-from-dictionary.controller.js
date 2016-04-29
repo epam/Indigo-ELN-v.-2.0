@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('SelectFromDictionaryController',
     function ($scope, $rootScope, $uibModalInstance, data, dictionary, title) {
         $scope.title = title;

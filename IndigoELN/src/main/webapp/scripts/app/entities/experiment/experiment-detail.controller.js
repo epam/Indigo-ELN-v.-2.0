@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal) {

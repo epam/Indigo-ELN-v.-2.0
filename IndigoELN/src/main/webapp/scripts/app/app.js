@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln',
 
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle', 'ct.ui.router.extras',

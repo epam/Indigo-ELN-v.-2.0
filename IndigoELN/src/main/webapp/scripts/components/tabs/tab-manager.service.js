@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('TabManager', function ($rootScope, $stateParams, Experiment, Notebook, Project, $q, $state) {
         var _tabs = {};

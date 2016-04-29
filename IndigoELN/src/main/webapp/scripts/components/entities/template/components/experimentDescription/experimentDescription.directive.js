@@ -1,4 +1,3 @@
-'use strict';
 angular.module('indigoeln')
     .directive('experimentDescription', function () {
         return {

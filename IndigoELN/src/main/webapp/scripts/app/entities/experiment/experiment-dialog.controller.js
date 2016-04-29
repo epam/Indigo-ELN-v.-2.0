@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentDialogController',
     function ($scope, $rootScope, $stateParams, $state, Experiment, pageInfo) {
 

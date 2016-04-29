@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function (uibPaginationConfig) {
         uibPaginationConfig.itemsPerPage = 20;

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('SignatureTemplates', function ($resource) {
         return $resource('api/signature/template', {}, {

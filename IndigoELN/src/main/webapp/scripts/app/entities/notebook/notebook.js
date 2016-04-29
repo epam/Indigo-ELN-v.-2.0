@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function ($stateProvider, PermissionManagementConfig) {
         $stateProvider

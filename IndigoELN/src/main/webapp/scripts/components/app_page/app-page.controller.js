@@ -1,8 +1,6 @@
 /**
  * Created by Selector on 21.02.2016.
  */
-'use strict';
-
 angular
     .module('indigoeln')
     .controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, Config) {

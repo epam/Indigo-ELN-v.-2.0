@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('role-managementSaveController', function ($scope, $uibModalInstance) {
         $scope.clear = function () {
