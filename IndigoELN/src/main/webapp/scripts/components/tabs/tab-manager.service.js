@@ -8,7 +8,6 @@ angular.module('indigoeln')
             addTab: function (tab) {
                 _tabs[tab.name] = tab;
                 _cache[tab.name] = tab;
-                //tab.resource = $injector.get(tab.service).get(tab.params);
                 this.setActiveTab(tab);
                 $rootScope.$broadcast('tabs-changed');
             },

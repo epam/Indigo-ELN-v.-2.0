@@ -1,9 +1,8 @@
 angular.module('indigoeln')
     .controller('FileUploaderController', function ($scope, FileUploaderService, FileUploaderCash, FileUploader,
                                                     $cookies, ParseLinks, Alert, $uibModal, $filter) {
-
-        var entityid = $scope.entityid;
         $scope.page = 1;
+        var entityid = $scope.entityid;
         $scope.loadAll = function () {
             FileUploaderService.query({
                 projectId: entityid,
@@ -15,13 +14,11 @@ angular.module('indigoeln')
                 $scope.files = result;
             });
         };
-
         $scope.loadPage = function (page) {
             $scope.page = page;
             $scope.loadAll();
         };
         $scope.loadAll();
-
         $scope.upload = function () {
             $uibModal.open({
                 animation: true,
@@ -49,25 +46,6 @@ angular.module('indigoeln')
                         }
                     });
                     // CALLBACKS
-                    uploader.onWhenAddingFileFailed = function () {
-                    };
-                    uploader.onAfterAddingFile = function () {
-                    };
-                    uploader.onAfterAddingAll = function () {
-                    };
-                    uploader.onBeforeUploadItem = function () {
-                    };
-                    uploader.onProgressItem = function () {
-                    };
-                    uploader.onProgressAll = function () {
-                    };
-                    uploader.onErrorItem = function () {
-                    };
-                    uploader.onCancelItem = function () {
-                    };
-                    uploader.onCompleteItem = function () {
-                    };
-                    uploader.onCompleteAll = function() {};
                     uploader.onSuccessItem = function (fileItem, response) {
                         $scope.files.push(response);
                     };
@@ -83,7 +61,6 @@ angular.module('indigoeln')
                 $scope.files = _.union($scope.files, result);
             });
         };
-
         $scope.delete = function (file) {
             $uibModal.open({
                 animation: true,
@@ -91,8 +68,7 @@ angular.module('indigoeln')
                 controller: function ($scope, $uibModalInstance) {
                     $scope.delete = function () {
                         if (entityid) {
-                            FileUploaderService.delete({id: file.id})
-                                .$promise.then(
+                            FileUploaderService.delete({id: file.id}).$promise.then(
                                 function () {
                                     $uibModalInstance.close(file);
                                 },
@@ -126,5 +102,4 @@ angular.module('indigoeln')
                 $scope.files = $filter('filter')(result, $scope.searchText);
             });
         };
-
     });
