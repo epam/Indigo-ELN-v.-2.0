@@ -2,7 +2,8 @@
 
 angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal) {
-        var type = $attrs.myStructureType; // molecule, reaction
+        // molecule, reaction
+        var type = $attrs.myStructureType;
         $scope.structureType = type;
         $scope.myTitle = $attrs.myTitle;
 
@@ -18,7 +19,6 @@ angular.module('indigoeln')
         };
         $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
 
-        // TODO: rewrite all watches on events, search 'batch-summary-row-selected', add same for stoich
         if (type === 'molecule') {
             $scope.$on('batch-summary-row-selected', function (event, row) {
                 if (row && row.structure && row.structure.structureType === type) {
@@ -37,6 +37,44 @@ angular.module('indigoeln')
                 }
             });
         }
+
+        // HTTP POST to save new structure into Bingo DB and get its id
+        var saveNewStructure = function (structure, type) {
+            $http({
+                url: 'api/bingodb/' + type + '/',
+                method: 'POST',
+                data: structure
+            }).success(function (structureId) {
+                $http({
+                    url: 'api/renderer/' + type + '/image',
+                    method: 'POST',
+                    data: structure
+                }).success(function (result) {
+                    $scope.model[type].image = result.image;
+                    $scope.share = $scope.share || {};
+                    if ($scope.share.selectedRow) {
+                        $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
+                        $scope.share.selectedRow.structure.image = result.image;
+                        $scope.share.selectedRow.structure.structureType = type;
+                        $scope.share.selectedRow.structure.molfile = structure;
+                        $scope.share.selectedRow.structure.structureId = structureId;
+                    } else {
+                        $scope.model[type].image = result.image;
+                        // case of search by molecule
+                        if ($scope.model.restrictions) {
+                            $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
+                            $scope.model.restrictions.structure.image = result.image;
+                            $scope.model.restrictions.structure.molfile = structure;
+                        }
+                    }
+                    $scope.model[type].structureId = result;
+                    // set the renewed value if it's fine with bingo
+                    $scope.model[type].structureMolfile = structure;
+                });
+            }).error(function () {
+                console.info('Cannot save the structure.');
+            });
+        };
 
         $scope.openEditor = function () {
             if ($scope.myReadonly) {
@@ -101,45 +139,6 @@ angular.module('indigoeln')
                         return type;
                     }
                 }
-            });
-        };
-
-        // HTTP POST to save new structure into Bingo DB and get its id
-        var saveNewStructure = function (structure, type) {
-            $http({
-                url: 'api/bingodb/' + type + '/',
-                method: 'POST',
-                data: structure
-            }).success(function (structureId) {
-                $http({
-                    url: 'api/renderer/' + type + '/image',
-                    method: 'POST',
-                    data: structure
-                }).success(function (result) {
-                    $scope.model[type].image = result.image;
-                    $scope.share = $scope.share || {};
-                    if ($scope.share.selectedRow) {
-                        $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
-                        $scope.share.selectedRow.structure.image = result.image;
-                        $scope.share.selectedRow.structure.structureType = type;
-                        $scope.share.selectedRow.structure.molfile = structure;
-                        $scope.share.selectedRow.structure.structureId = structureId;
-                    } else {
-                        $scope.model[type].image = result.image;
-                        // case of search by molecule
-                        if ($scope.model.restrictions) {
-                            $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
-                            $scope.model.restrictions.structure.image = result.image;
-                            $scope.model.restrictions.structure.molfile = structure;
-                        }
-
-                    }
-                    $scope.model[type].structureId = result;
-                    // set the renewed value if it's fine with bingo
-                    $scope.model[type].structureMolfile = structure;
-                });
-            }).error(function () {
-                console.info('Cannot save the structure.');
             });
         };
     });
