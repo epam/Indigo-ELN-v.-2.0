@@ -34,6 +34,23 @@ angular.module('indigoeln')
             }
         });
 
+        var updateRanks = function (len) {
+            // check if an element removed
+            var modified = $scope.selectedDictionary.words.length !== len;
+            // update ranks
+            if ($scope.selectedDictionary) {
+                for (var i = 0; i < $scope.selectedDictionary.words.length; i++) {
+                    if ($scope.selectedDictionary.words[i].rank !== i) {
+                        $scope.selectedDictionary.words[i].rank = i;
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
+                }
+            }
+        };
+
         $scope.$watchCollection('selectedDictionary.words', function () {
             if ($scope.selectedDictionary) {
                 updateRanks($scope.selectedDictionary.words.length);
@@ -128,23 +145,6 @@ angular.module('indigoeln')
 
         $scope.editWord = function (word) {
             $scope.word = _.extend({}, word);
-        };
-
-        var updateRanks = function (len) {
-            // check if an element removed
-            var modified = $scope.selectedDictionary.words.length !== len;
-            // update ranks
-            if ($scope.selectedDictionary) {
-                for (var i = 0; i < $scope.selectedDictionary.words.length; i++) {
-                    if ($scope.selectedDictionary.words[i].rank !== i) {
-                        $scope.selectedDictionary.words[i].rank = i;
-                        modified = true;
-                    }
-                }
-                if (modified) {
-                    Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
-                }
-            }
         };
 
         $scope.deleteWord = function (word) {

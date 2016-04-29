@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Auth', function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
+    .factory('Auth', function ($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
         return {
             login: function (credentials, callback) {
                 var cb = callback || angular.noop;

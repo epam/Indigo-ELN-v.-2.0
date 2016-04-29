@@ -2,8 +2,7 @@
 
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $stateParams, $state, Experiment, Principal, PermissionManagement, pageInfo,
-                  SignatureTemplates, $uibModal) {
+        function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal) {
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
 
@@ -11,11 +10,19 @@ angular.module('indigoeln')
 
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
-            $scope.experimentId = $stateParams.experimentId;
+            var experimentId = pageInfo.experimentId;
+            var notebookId = pageInfo.notebookId;
+            var projectId = pageInfo.projectId;
+            var isContentEditor = pageInfo.isContentEditor;
+            var hasEditAuthority = pageInfo.hasEditAuthority;
 
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
+
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
+                $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+            });
 
             var setStatus = function (status) {
                 $scope.experiment.status = status;
@@ -38,14 +45,6 @@ angular.module('indigoeln')
                 onExperimentStatusChangedEvent();
             });
 
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
-                $scope.isEditAllowed = pageInfo.isContentEditor || pageInfo.hasEditAuthority && hasEditPermission;
-            });
-
-            Principal.hasAuthority('CONTENT_EDITOR').then(function (result) {
-                $scope.isContentEditor = result;
-            });
-
             var onSaveSuccess = function () {
                 $scope.isSaving = false;
             };
@@ -60,8 +59,8 @@ angular.module('indigoeln')
                 var experimentForSave = _.extend({}, experiment);
                 if (experiment.template !== null) {
                     $scope.loading = Experiment.update({
-                        notebookId: $stateParams.notebookId,
-                        projectId: $stateParams.projectId
+                        notebookId: notebookId,
+                        projectId: projectId
                     }, experimentForSave, onSaveSuccess, onSaveError).$promise;
                 } else {
                     $scope.loading = Experiment.save(experimentForSave, onSaveSuccess, onSaveError).$promise;
@@ -110,8 +109,8 @@ angular.module('indigoeln')
                     $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
                     var experimentForSave = _.extend({}, $scope.experiment, {status: 'Completed'});
                     $scope.loading = Experiment.update({
-                        projectId: $stateParams.projectId,
-                        notebookId: $stateParams.notebookId
+                        projectId: projectId,
+                        notebookId: notebookId
                     }, experimentForSave, function(result) {
                         onChangeStatusSuccess(result, 'Completed');
                     }, onSaveError).$promise;
@@ -122,11 +121,10 @@ angular.module('indigoeln')
                 openCompleteConfirmationModal().result.then(function () {
                     // show PDF preview
                     $state.go('experiment-preview-submit', {
-                            experimentId: $scope.experiment.id,
-                            notebookId: $scope.notebook.id,
-                            projectId: $scope.notebook.parentId
+                        experimentId: experimentId,
+                        notebookId: notebookId,
+                        projectId: projectId
                         });
-                    //$state.go('entities.experiment-detail.preview-submit');
                 });
             };
 
@@ -135,8 +133,8 @@ angular.module('indigoeln')
                 $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
                 var experimentForSave = _.extend({}, $scope.experiment, {status: 'Open'});
                 $scope.loading = Experiment.update({
-                    projectId: $stateParams.projectId,
-                    notebookId: $stateParams.notebookId
+                    projectId: projectId,
+                    notebookId: notebookId
                 }, experimentForSave, function(result) {
                     onChangeStatusSuccess(result, 'Open');
                 }, onSaveError).$promise;
@@ -157,18 +155,18 @@ angular.module('indigoeln')
                     productBatchSummary.batches = [];
                 }
                 $scope.loading = Experiment.save({
-                    projectId: $stateParams.projectId,
-                    notebookId: $stateParams.notebookId
+                    projectId: projectId,
+                    notebookId: notebookId
                 }, experimentForSave, function (result) {
                     onSaveSuccess(result);
                     $state.go('entities.experiment-detail', {
                         experimentId: result.id,
-                        notebookId: $stateParams.notebookId,
-                        projectId: $stateParams.projectId
+                        notebookId: notebookId,
+                        projectId: projectId
                     });
                     $rootScope.$broadcast('experiment-created', {
-                        projectId: $stateParams.projectId,
-                        notebookId: $stateParams.notebookId,
+                        projectId: projectId,
+                        notebookId: notebookId,
                         id: result.id
                     });
                 }, onSaveError).$promise;
@@ -177,23 +175,23 @@ angular.module('indigoeln')
             $scope.versionExperiment = function () {
                 $scope.isSaving = true;
                 $scope.loading = Experiment.version({
-                    projectId: $stateParams.projectId,
-                    notebookId: $stateParams.notebookId
+                    projectId: projectId,
+                    notebookId: notebookId
                 }, $scope.experiment.name, function (result) {
                     onSaveSuccess(result);
                     $state.go('entities.experiment-detail', {
                         experimentId: result.id,
-                        notebookId: $stateParams.notebookId,
-                        projectId: $stateParams.projectId
+                        notebookId: notebookId,
+                        projectId: projectId
                     });
                     $rootScope.$broadcast('experiment-created', {
-                        projectId: $stateParams.projectId,
-                        notebookId: $stateParams.notebookId,
+                        projectId: projectId,
+                        notebookId: notebookId,
                         id: result.id
                     });
                     $rootScope.$broadcast('experiment-version-created', {
-                        projectId: $stateParams.projectId,
-                        notebookId: $stateParams.notebookId,
+                        projectId: projectId,
+                        notebookId: notebookId,
                         name: result.name
                     });
                 }, onSaveError).$promise;
