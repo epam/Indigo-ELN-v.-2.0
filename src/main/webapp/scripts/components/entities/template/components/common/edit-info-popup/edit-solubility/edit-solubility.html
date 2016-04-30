@@ -9,7 +9,7 @@
             <table class="table table-striped" id="search-result-table">
                 <thead class="search-table-head">
                 <tr>
-                    <th style="width:18%">Solvent Name</th>
+                    <th style="width:21%">Solvent Name</th>
                     <th style="width:18%">Solubility Type</th>
                     <th>Solubility Value</th>
                     <th style="width:25%">Comment</th>
@@ -24,7 +24,7 @@
                                    my-model="solubility.data[$index].type"></my-select></td>
                     <td style="position:relative">
                         <div class="row"
-                             style="position:absolute;top:8px"
+                             style="position:absolute;top:3px"
                              ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Quantitative'">
                             <my-select my-items="operatorSelect"
                                        style="padding:0;min-width: 40px;"
@@ -39,7 +39,7 @@
                                        my-model="solubility.data[$index].value.unit"></my-select>
                         </div>
                         <div class="row col-xs-12"
-                             style="position:absolute;top:8px"
+                             style="position:absolute;top:3px"
                              ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Qualitative'">
                             <my-select my-items="qualitativeSolubilitySelect"
                                        my-model="solubility.data[$index].value.value"></my-select>
