@@ -1,6 +1,7 @@
 angular.module('indigoeln').controller('AnalyzeRxnController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, Alert, reactants) {
+    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, reactants) {
         $scope.model = {};
+        //$scope.model.reactants = ['C6 H6', 'C9 H12', 'C2 H6 O', 'C3 H5 N3 O9'];
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
         $scope.isEditMode = false;
@@ -134,8 +135,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             return { formula: reactant, searchResult: [], selectedReactant: null };
         });
 
-        $scope.selectReactant = function (tab, reactant, tabIndex, reactantIndex, $$isSelected) {
-            if ($$isSelected) {
+        $scope.selectReactant = function (tab, reactant, tabIndex, reactantIndex, isDeselected) {
+            if (!isDeselected) {
                 // only one reactant can be selected from each tab
                 var reactantToReplaceIndex = _.findIndex($scope.model.selectedReactants, {molFormula: reactant.molFormula});
                 if (reactantToReplaceIndex > -1) {
