@@ -5,12 +5,12 @@ angular.module('indigoeln').factory('experimentPdfCreator',
             var $printFormClone = $('#print-form').clone();
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);
-                var $input = $this.find('input');
+                var $checkbox = $this.find('.need-to-print');
                 $this.find('div.col-xs-11').removeClass('col-xs-11').addClass('col-xs-12');
-                if ($input.length && $input.get(0).checked !== true) {
+                if (!$checkbox.find('.checked').length) {
                     $this.remove();
-                } else if ($input.length) {
-                    $this.find('div.need-to-print').remove();
+                } else if ($checkbox.length) {
+                    $checkbox.remove();
                 }
             });
             return $printFormClone;
