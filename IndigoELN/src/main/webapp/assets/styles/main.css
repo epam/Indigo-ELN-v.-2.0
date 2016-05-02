@@ -670,3 +670,7 @@ div.enlarge:hover span{
 body > .ui-select-bootstrap.open {
     z-index: 1050;
 }
+
+.wrapper-list-experiment .mCSB_container {
+    padding-bottom: 100px;
+}
