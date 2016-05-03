@@ -61,21 +61,18 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         UserReagents.get({}, function (reagents) {
-            $scope.myReagentList = reagents;
+            $scope.myReagentList = _.map(reagents, function (reagent) {
+                reagent.$$isSelected = false;
+                reagent.$$isCollapsed = true;
+                return reagent;
+            });
         });
 
         $scope.addToMyReagentList = function () {
             var selected = _.where($scope.searchResults, {$$isSelected: true});
-            var selectedPure, myReagentListPure;
             var count = 0;
-            selectedPure = _.map(selected, function(item) {
-                return _.omit(item, '$$isSelected', '$$isCollapsed');
-            });
-            myReagentListPure = _.map($scope.myReagentList, function(item) {
-                return _.omit(item, '$$isSelected', '$$isCollapsed');
-            });
-            _.each(selectedPure, function(selectedItem) {
-                var isUnique = _.every(myReagentListPure, function(myListItem) {
+            _.each(selected, function (selectedItem) {
+                var isUnique = _.every($scope.myReagentList, function (myListItem) {
                     return !angular.equals(selectedItem, myListItem);
                 });
                 if (isUnique) {
@@ -106,50 +103,10 @@ angular.module('indigoeln').controller('SearchReagentsController',
             UserReagents.save($scope.myReagentList);
         };
 
-        $scope.isEditMode = false;
-
-        $scope.editInfo = function (item) {
-            $scope.itemBeforeEdit = angular.copy(item);
-            $scope.isEditMode = true;
-        };
-
-        $scope.finishEdit = function () {
-            $scope.isEditMode = false;
-        };
-
-        $scope.cancelEdit = function (index) {
-            $scope.myReagentList[index] = $scope.itemBeforeEdit;
-            $scope.isEditMode = false;
-        };
-
         $scope.isAdvancedSearchFilled = function () {
             return !!_.compact(_.map($scope.model.restrictions.advancedSearch, function (restriction) {
                 return restriction.value;
             })).length;
-        };
-
-        $scope.saltCodeValues = [
-            {name: '00 - Parent Structure', value: '0'},
-            {name: '01 - HYDROCHLORIDE', value: '1'},
-            {name: '02 - SODIUM', value: '2'},
-            {name: '03 - HYDRATE', value: '3'},
-            {name: '04 - HYDROBROMIDE', value: '4'},
-            {name: '05 - HYDROIODIDE', value: '5'},
-            {name: '06 - POTASSIUM', value: '6'},
-            {name: '07 - CALCIUM', value: '7'},
-            {name: '08 - SULFATE', value: '8'},
-            {name: '09 - PHOSPHATE', value: '9'},
-            {name: '10 - CITRATE', value: '10'}
-        ];
-
-        $scope.recalculateSalt = function (reagent) {
-            var config = {params: {
-                saltCode: reagent.saltCode ? reagent.saltCode.value : null,
-                saltEq: reagent.saltEq}};
-            $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
-                .then(function (result) {
-                        reagent.molWeight = result.data.molecularWeight;
-                });
         };
 
         $scope.search = function () {
