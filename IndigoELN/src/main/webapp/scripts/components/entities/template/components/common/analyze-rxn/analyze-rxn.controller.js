@@ -4,7 +4,6 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         //$scope.model.reactants = ['C6 H6', 'C9 H12', 'C2 H6 O', 'C3 H5 N3 O9'];
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
-        $scope.isEditMode = false;
         $scope.isSearchResultFound = false;
         $scope.allItemsSelected = false;
 
@@ -28,20 +27,6 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             for (var i = 0; i < $scope.model.databases.length; i++) {
                 $scope.model.databases[i].isChecked = $scope.allItemsSelected;
             }
-        };
-
-        $scope.editInfo = function (item) {
-            $scope.itemBeforeEdit = angular.copy(item);
-            $scope.isEditMode = true;
-        };
-
-        $scope.finishEdit = function () {
-            $scope.isEditMode = false;
-        };
-
-        $scope.cancelEdit = function (index) {
-            $scope.myReagentList[index] = $scope.itemBeforeEdit;
-            $scope.isEditMode = false;
         };
 
         var prepareDatabases = function() {
@@ -134,25 +119,6 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         $scope.tabs = _.map($scope.model.reactants, function(reactant) {
             return { formula: reactant, searchResult: [], selectedReactant: null };
         });
-
-        $scope.selectReactant = function (tab, reactant, tabIndex, reactantIndex, isDeselected) {
-            if (!isDeselected) {
-                // only one reactant can be selected from each tab
-                var reactantToReplaceIndex = _.findIndex($scope.model.selectedReactants, {molFormula: reactant.molFormula});
-                if (reactantToReplaceIndex > -1) {
-                    _.each(tab.searchResult, function(item, index) {
-                        if (index !== reactantIndex) {
-                            item.$$isSelected = false;
-                        }
-                    });
-                    $scope.model.selectedReactants[reactantToReplaceIndex] = reactant;
-                } else {
-                    $scope.model.selectedReactants.push(reactant);
-                }
-            } else {
-                $scope.model.selectedReactants = _.without($scope.model.selectedReactants, reactant);
-            }
-        };
 
         $scope.addToStoichTable = function () {
             $rootScope.$broadcast('new-stoich-rows', $scope.model.selectedReactants);
