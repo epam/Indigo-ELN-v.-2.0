@@ -5,29 +5,12 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
         $scope.isSearchResultFound = false;
-        $scope.allItemsSelected = false;
 
         $scope.model.databases = [
             { key: 1, value: 'Indigo ELN', isChecked: true },
             { key: 2, value: 'Custom Catalog 1' },
             { key: 3, value: 'Custom Catalog 2' }
         ];
-
-        $scope.model.selectDatabase = function () {
-            for (var i = 0; i < $scope.model.databases.length; i++) {
-                if (!$scope.model.databases[i].isChecked) {
-                    $scope.allItemsSelected = false;
-                    return;
-                }
-            }
-            $scope.allItemsSelected = true;
-        };
-
-        $scope.selectAll = function () {
-            for (var i = 0; i < $scope.model.databases.length; i++) {
-                $scope.model.databases[i].isChecked = $scope.allItemsSelected;
-            }
-        };
 
         var prepareDatabases = function() {
             return _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
@@ -106,15 +89,6 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
              });
              });*/
         }
-        $scope.model.selectDatabase = function () {
-            for (var i = 0; i < $scope.model.databases.length; i++) {
-                if (!$scope.model.databases[i].isChecked) {
-                    $scope.allItemsSelected = false;
-                    return;
-                }
-            }
-            $scope.allItemsSelected = true;
-        };
 
         $scope.tabs = _.map($scope.model.reactants, function(reactant) {
             return { formula: reactant, searchResult: [], selectedReactant: null };
