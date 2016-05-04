@@ -13,24 +13,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-3">
-                Choose catalog to search in:
-            </div>
-            <div class="col-xs-9 form-inline">
-                <my-checkbox
-                        my-model="allItemsSelected"
-                        my-change="selectAll()"
-                        my-label="All"
-                ></my-checkbox>
-                <my-checkbox
-                        my-model="database.isChecked"
-                        my-label="{{database.value}}"
-                        my-change="selectEntity()"
-                        ng-repeat="database in model.databases"
-                ></my-checkbox>
-            </div>
-        </div>
+        <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
     </div>
     <div>
         <button class="btn btn-primary"

@@ -348,4 +348,26 @@ angular.module('indigoeln')
         '</div>' +
         '</div>'
     };
+}).directive('myChecklist', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myItems: '=',
+            myLabel: '@'
+        },
+        controller: function ($scope) {
+            $scope.allItemsSelected = false;
+            $scope.selectAll = function () {
+                for (var i = 0; i < $scope.myItems.length; i++) {
+                    $scope.myItems[i].isChecked = $scope.allItemsSelected;
+                }
+            };
+        },
+        template: '<div class="row"><div class="col-xs-3">{{myLabel}}:</div>' +
+        '<div class="col-xs-9 form-inline"><my-checkbox my-model="allItemsSelected" ' +
+        'my-change="selectAll()" my-label="All"></my-checkbox>' +
+        '<my-checkbox ng-repeat="item in myItems" my-label="{{item.value}}" ' +
+        'my-model="item.isChecked" ></my-checkbox></div></div>'
+    };
 });
