@@ -11,7 +11,7 @@ angular.module('indigoeln')
                 myTab: '=',
                 mySelectedItemsPerTab: '='
             },
-            controller: function ($scope, $http) {
+            controller: function ($scope, $http, UserReagents) {
                 $scope.editInfo = function (item) {
                     $scope.itemBeforeEdit = angular.copy(item);
                     $scope.isEditMode = true;
@@ -19,6 +19,7 @@ angular.module('indigoeln')
 
                 $scope.finishEdit = function () {
                     $scope.isEditMode = false;
+                    UserReagents.save($scope.myTableContent);
                 };
 
                 $scope.cancelEdit = function (index) {
