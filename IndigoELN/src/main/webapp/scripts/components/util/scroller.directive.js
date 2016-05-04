@@ -37,7 +37,7 @@ angular.module('indigoeln')
                 $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
                 $element.mCustomScrollbar({
                     axis: iAttrs.myScroller,
-                    theme: iAttrs.myScrollerTheme || "indigo",
+                    theme: iAttrs.myScrollerTheme || 'indigo',
                     scrollInertia: 300
                 });
             }
