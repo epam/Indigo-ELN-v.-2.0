@@ -11,7 +11,7 @@
             </span>
     </div>
     <div s-resizable max-height="300" min-height="50"
-         class="panel-body text-center" ng-class="{'sizable-panel-body': image}">
+         class="panel-body text-center" ng-class="{'sizable-panel-body': image}" style="height: 150px">
         <div ng-if="model[structureType].image" style="height: 100%;">
             <img  class="img-responsive center-block" style="height: 100%;"
             ng-src="data:image/svg+xml;base64,{{model[structureType].image}}" alt="Image is unavailable.">
