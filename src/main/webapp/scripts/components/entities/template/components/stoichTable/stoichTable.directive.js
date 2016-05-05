@@ -7,30 +7,18 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $http, $q, $uibModal) {
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, AppValues, StoichCalculation) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
 
-                var grams = ['mg', 'g', 'kg'];
-                var liters = ['ul', 'ml', 'l'];
-                var moles = ['umol', 'mmol', 'mol'];
-                var molarity = ['mM', 'M'];
-                var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
-                var saltCodeValues = [
-                    {name: '00 - Parent Structure', value: '0'},
-                    {name: '01 - HYDROCHLORIDE', value: '1'},
-                    {name: '02 - SODIUM', value: '2'},
-                    {name: '03 - HYDRATE', value: '3'},
-                    {name: '04 - HYDROBROMIDE', value: '4'},
-                    {name: '05 - HYDROIODIDE', value: '5'},
-                    {name: '06 - POTASSIUM', value: '6'},
-                    {name: '07 - CALCIUM', value: '7'},
-                    {name: '08 - SULFATE', value: '8'},
-                    {name: '09 - PHOSPHATE', value: '9'},
-                    {name: '10 - CITRATE', value: '10'}
-                ];
-                var loadFactorUnits = ['mmol/g'];
+                var grams = AppValues.getGrams();
+                var liters = AppValues.getLiters();
+                var moles = AppValues.getMoles();
+                var molarity = AppValues.getMolarity();
+                var rxnValues = AppValues.getRxnValues();
+                var saltCodeValues = AppValues.getSaltCodeValues();
+                var loadFactorUnits = AppValues.getLoadFactorUnits();
 
                 $scope.reactantsColumns = [
                     {id: 'compoundId', name: 'Compound ID', type: 'input'},
@@ -38,10 +26,18 @@ angular.module('indigoeln')
                     {id: 'nbkBatch', name: 'Nbk Batch #', type: 'input'},
                     {id: 'chemicalName', name: 'Chemical Name', type: 'input'},
                     {id: 'molWeight', name: 'Mol Weight'},
-                    {id: 'weight', name: 'Weight', type: 'unit', unitItems: grams},
+                    {id: 'weight', name: 'Weight', type: 'unit', unitItems: grams,
+                        onChange: function (model, row, column) {
+                        console.log(model, row, column);
+                    }},
                     {id: 'volume', name: 'Volume', type: 'unit', unitItems: liters},
                     {id: 'mol', name: 'Mol', unitItems: moles},
-                    {id: 'limiting', name: 'Limiting', type: 'boolean'},
+                    {
+                        id: 'limiting', name: 'Limiting', type: 'boolean',
+                        onChange: function (model, row, column) {
+                            console.log(model, row, column);
+                        }
+                    },
                     {
                         id: 'rxnRole', name: 'Rxn Role', type: 'select', values: function () {
                         return rxnValues;
@@ -63,7 +59,7 @@ angular.module('indigoeln')
                 $scope.productsColumns = [
                     {id: 'chemicalName', name: 'Chemical Name'},
                     {id: 'formula', name: 'Formula'},
-                    {id: 'molWt', name: 'Mol.Wt.'},
+                    {id: 'molWeight', name: 'Mol.Wt.'},
                     {
                         id: 'saltCode', name: 'Salt Code', type: 'select', values: function () {
                         return saltCodeValues;
@@ -76,9 +72,6 @@ angular.module('indigoeln')
                     {id: 'hazardComments', name: 'Hazard Comments'},
                     {id: 'eq', name: 'EQ', type: 'input'}
                 ];
-                $scope.onRowSelected = function (row) {
-                    $scope.selectedRow = row || null;
-                };
                 $scope.clear = function () {
                     for (var key in $scope.selectedRow) {
                         if ($scope.selectedRow.hasOwnProperty(key) && !_.contains(['$$hashKey', 'selected'], key)) {
@@ -88,6 +81,9 @@ angular.module('indigoeln')
                 };
                 $scope.removeRow = function () {
                     $scope.rows = _.without($scope.rows, $scope.selectedRow);
+                };
+                $scope.onRowSelected = function (row) {
+                    $scope.selectedRow = row || null;
                 };
                 $scope.recalculateSalt = function (reagent) {
                     var config = {
@@ -124,7 +120,7 @@ angular.module('indigoeln')
                                             return {
                                                 chemicalName: result.data.name,
                                                 formula: result.data.molecularFormula,
-                                                molWt: result.data.molecularWeight,
+                                                molWeight: result.data.molecularWeight,
                                                 exactMass: result.data.exactMolecularWeight,
                                                 saltEq: result.data.saltEq,
                                                 saltCode: result.data.saltCode

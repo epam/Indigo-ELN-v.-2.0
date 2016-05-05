@@ -11,7 +11,7 @@ angular.module('indigoeln')
                 myTab: '=',
                 mySelectedItemsPerTab: '='
             },
-            controller: function ($scope, $http, UserReagents) {
+            controller: function ($scope, $http, UserReagents, AppValues) {
                 $scope.editInfo = function (item) {
                     $scope.itemBeforeEdit = angular.copy(item);
                     $scope.isEditMode = true;
@@ -46,19 +46,7 @@ angular.module('indigoeln')
                     }
                 };
 
-                $scope.saltCodeValues = [
-                    {name: '00 - Parent Structure', value: '0'},
-                    {name: '01 - HYDROCHLORIDE', value: '1'},
-                    {name: '02 - SODIUM', value: '2'},
-                    {name: '03 - HYDRATE', value: '3'},
-                    {name: '04 - HYDROBROMIDE', value: '4'},
-                    {name: '05 - HYDROIODIDE', value: '5'},
-                    {name: '06 - POTASSIUM', value: '6'},
-                    {name: '07 - CALCIUM', value: '7'},
-                    {name: '08 - SULFATE', value: '8'},
-                    {name: '09 - PHOSPHATE', value: '9'},
-                    {name: '10 - CITRATE', value: '10'}
-                ];
+                $scope.saltCodeValues = AppValues.getSaltCodeValues();
 
                 $scope.recalculateSalt = function (reagent) {
                     var config = {

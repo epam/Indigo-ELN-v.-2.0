@@ -84,7 +84,7 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
              batchDetails.$$isCollapsed = true;
              batchDetails.$$isSelected = false;
              batchDetails.database = $scope.model.databases.join(', ');
-             batchDetails.molWeight = item.details.molWt;
+             batchDetails.molWeight = item.details.molWeight;
              return batchDetails;
              });
              });*/
