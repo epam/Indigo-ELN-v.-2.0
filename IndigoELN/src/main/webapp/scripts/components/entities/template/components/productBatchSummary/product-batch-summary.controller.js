@@ -3,45 +3,20 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
-            var grams = ['mg', 'g', 'kg'];
-            var liters = ['ul', 'ml', 'l'];
-            var moles = ['umol', 'mmol', 'mol'];
-            var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
-            var saltCodeValues = [
-                {name: '00 - Parent Structure', value: '0'},
-                {name: '01 - HYDROCHLORIDE', value: '1'},
-                {name: '02 - SODIUM', value: '2'},
-                {name: '03 - HYDRATE', value: '3'},
-                {name: '04 - HYDROBROMIDE', value: '4'},
-                {name: '05 - HYDROIODIDE', value: '5'},
-                {name: '06 - POTASSIUM', value: '6'},
-                {name: '07 - CALCIUM', value: '7'},
-                {name: '08 - SULFATE', value: '8'},
-                {name: '09 - PHOSPHATE', value: '9'},
-                {name: '10 - CITRATE', value: '10'}
-            ];
-            var stereoisomerValues = [
-                {name: 'NOSTC - Achiral - No Stereo Centers'},
-                {name: 'AMESO - Achiral - Meso Stereomers'},
-                {name: 'CISTR - Achiral - Cis/Trans Stereomers'},
-                {name: 'SNENK - Single Enantiomer (chirality known)'},
-                {name: 'RMCMX - Racemic (stereochemistry known)'},
-                {name: 'ENENK - Enantio-Enriched (chirality known)'},
-                {name: 'DSTRK - Diastereomers (stereochemistry known)'},
-                {name: 'SNENU - Other - Single Enantiomer (chirality unknown)'}];
-            var sourceValues = [
-                {name: 'Internal'},
-                {name: 'External'}];
-            var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
-            var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
-            var compoundProtectionValues = [
-                {name: 'NONE - None'},
-                {name: 'ST1 - Standard 1'},
-                {name: 'ST2 - Standard 2'}];
+            var grams = AppValues.getGrams();
+            var liters = AppValues.getLiters();
+            var moles = AppValues.getMoles();
+            var compoundValues = AppValues.getCompoundValues();
+            var saltCodeValues = AppValues.getSaltCodeValues();
+            var stereoisomerValues = AppValues.getStereoisomerValues();
+            var sourceValues = AppValues.getSourceValues();
+            var sourceDetailExternal = AppValues.getSourceDetailExternal();
+            var sourceDetailInternal = AppValues.getSourceDetailInternal();
+            var compoundProtectionValues = AppValues.getCompoundProtectionValues();
             var setSelectSourceValueAction = {
                 action: function () {
                     var that = this;
@@ -72,7 +47,6 @@ angular.module('indigoeln')
 
                     });
                 }
-
             };
 
             $scope.$watch('model.productBatchSummary.batches', function (batches) {
@@ -170,11 +144,10 @@ angular.module('indigoeln')
                     values: function () {
                         return compoundValues;
                     }
-
                 },
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
-                {id: 'molWt', name: 'Mol Wgt'},
+                {id: 'molWeight', name: 'Mol Wgt'},
                 {id: 'molFormula', name: 'Mol Formula'},
                 {id: 'conversationalBatch', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
@@ -354,7 +327,7 @@ angular.module('indigoeln')
                     }, function (newMolFile) {
                         var resetMolInfo = function () {
                             row.molFormula = null;
-                            row.molWt = null;
+                            row.molWeight = null;
                         };
                         if (newMolFile) {
                             var config = {params: {
@@ -363,7 +336,7 @@ angular.module('indigoeln')
                             $http.put('api/calculations/molecule/info', row.structure.molfile, config)
                                 .then(function (molInfo) {
                                     row.molFormula = molInfo.data.molecularFormula;
-                                    row.molWt = molInfo.data.molecularWeight;
+                                    row.molWeight = molInfo.data.molecularWeight;
                                 }, resetMolInfo);
                         } else {
                             resetMolInfo();

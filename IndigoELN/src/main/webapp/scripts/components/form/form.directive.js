@@ -43,6 +43,14 @@ angular.module('indigoeln')
                         }
                     }
                 });
+            },
+            addOnChange: function (scope) {
+                if (!scope.myChange) {
+                    return;
+                }
+                scope.myChangeAsync = function () {
+                    $timeout(scope.myChange);
+                };
             }
         };
     }).directive('myInput', function (formUtils) {
@@ -100,13 +108,14 @@ angular.module('indigoeln')
             return {
                 post: function (scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);
+                    formUtils.addOnChange(scope);
                 }
             };
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChange()" ng-model="myModel" ng-readonly="myReadonly"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-model="myModel" ng-readonly="myReadonly"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -115,7 +124,7 @@ angular.module('indigoeln')
         '</div>' +
         '</div>'
     };
-}).directive('myCheckbox', function ($timeout) {
+}).directive('myCheckbox', function (formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -129,16 +138,18 @@ angular.module('indigoeln')
             myTooltip: '@',
             myTooltipPlacement: '@'
         },
-        link: function (scope) {
-            scope.myChangeAsync = function () {
-                $timeout(scope.myChange);
+        compile: function (tElement, tAttrs) {
+            formUtils.clearLabel(tAttrs, tElement);
+            return {
+                post: function (scope) {
+                    formUtils.addOnChange(scope);
+                }
             };
         },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
-        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}">' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChangeAsync()"></checkbox>  {{myLabel}}' +
-        '</label> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChangeAsync()"></checkbox> ' +
+        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '
     };
@@ -170,7 +181,7 @@ angular.module('indigoeln')
                 $scope.ctrl.selected = myModel;
             });
             if ($scope.myDictionary) {
-                Dictionary.get({id: $scope.myDictionary}, function(dictionary) {
+                Dictionary.get({id: $scope.myDictionary}, function (dictionary) {
                     $scope.myItems = dictionary.words;
                 });
             }
