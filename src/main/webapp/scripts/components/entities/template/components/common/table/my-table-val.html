@@ -29,7 +29,7 @@
         <div ng-if="myColumn.type == 'unit'">
             <my-input my-model="myRow[myColumn.id].value" my-input-group="append" my-input-size="sm"
                       my-readonly="myColumn.readonly" my-change="myColumn.onChange(myRow[myColumn.id], myRow, myColumn.id)">
-                <div class="btn-group-sm" uib-dropdown
+                <div class="btn-group-sm" uib-dropdown dropdown-append-to-body
                      ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">
                     <button type="button" class="btn btn-default"
                             aria-haspopup="true"

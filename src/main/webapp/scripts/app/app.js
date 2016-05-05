@@ -5,6 +5,7 @@ angular.module('indigoeln',
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, TabManager) {
+        $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null, idleTime = 30, countdown = 30;
 
