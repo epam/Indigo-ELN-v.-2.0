@@ -176,7 +176,7 @@
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-text-area my-label="Health Hazards"
-                                  my-model="model.productBatchDetails.healthHazards.toString()"
+                                  my-model="model.productBatchDetails.healthHazards.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -184,7 +184,7 @@
                         <button class="btn btn-default" type="button" ng-click="editHealthHazards()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Handling Precautions"
-                                  my-model="model.productBatchDetails.handlingPrecautions.toString()"
+                                  my-model="model.productBatchDetails.handlingPrecautions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -192,7 +192,7 @@
                         <button class="btn btn-default" type="button" ng-click="editHandlingPrecautions()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Storage Instructions"
-                                  my-model="model.productBatchDetails.storageInstructions.toString()"
+                                  my-model="model.productBatchDetails.storageInstructions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
