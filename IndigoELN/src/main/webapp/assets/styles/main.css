@@ -786,3 +786,7 @@ html {
     margin-top: 32px;
     left: 20%;
 }
+
+.clickable {
+    cursor: pointer;
+}
