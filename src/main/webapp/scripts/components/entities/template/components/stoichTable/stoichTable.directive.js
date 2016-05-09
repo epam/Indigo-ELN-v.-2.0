@@ -11,6 +11,7 @@ angular.module('indigoeln')
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
+                $scope.model.stoichTable.products = $scope.model.stoichTable.products || [];
 
                 var grams = ['mg', 'g', 'kg'];
                 var liters = ['ul', 'ml', 'l'];
@@ -52,8 +53,8 @@ angular.module('indigoeln')
                     {id: 'molFormula', name: 'Mol Formula', type: 'input'},
                     {
                         id: 'saltCode', name: 'Salt Code', type: 'select', values: function () {
-                        return saltCodeValues;
-                    }
+                            return saltCodeValues;
+                        }
                     },
                     {id: 'saltEq', name: 'Salt EQ', type: 'input'},
                     {id: 'loadFactor', name: 'Load Factor', type: 'unit', unitItems: loadFactorUnits},
@@ -66,7 +67,7 @@ angular.module('indigoeln')
                     {id: 'molWt', name: 'Mol.Wt.'},
                     {
                         id: 'saltCode', name: 'Salt Code', type: 'select', values: function () {
-                        return saltCodeValues;
+                            return saltCodeValues;
                     }
                     },
                     {id: 'saltEq', name: 'Salt EQ', type: 'input'},
@@ -126,8 +127,7 @@ angular.module('indigoeln')
                                                 formula: result.data.molecularFormula,
                                                 molWt: result.data.molecularWeight,
                                                 exactMass: result.data.exactMolecularWeight,
-                                                saltEq: result.data.saltEq,
-                                                saltCode: result.data.saltCode
+                                                saltEq: result.data.saltEq
                                             };
                                         });
 
@@ -146,6 +146,14 @@ angular.module('indigoeln')
                         }
                     });
                 }, true);
+
+                // $scope.$watch('model.stoichTable.products', function (newRows) {
+                //     _.each(newRows, function (row) {
+                //         if (row.saltCode || row.saltEq) {
+                //             $scope.recalculateSalt(row);
+                //         }
+                //     });
+                // }, true);
 
                 var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
                     $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
