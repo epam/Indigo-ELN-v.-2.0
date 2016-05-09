@@ -23,7 +23,7 @@
                                 <span class="input-group-addon"><em class="fa fa-search"></em></span>
                             </div>
                             <br/>
-                            <div class="list-group templates-holder palette" dragula='"components"'
+                            <div class="list-group templates-holder palette animated" dragula='"components"'
                                  dragula-model='components'>
                                 <a class="list-group-item draggable-component"
                                    ng-repeat="component in components | filter:search">
@@ -47,7 +47,7 @@
                                  ng-if="!template.templateContent.length">
                                 <h3 class="no-draggable text-muted">Please add tabs</h3>
                             </div>
-                            <div class="panel panel-info tab" ng-repeat="tab in template.templateContent">
+                            <div class="panel panel-info tab animated" ng-repeat="tab in template.templateContent">
                                 <div class="panel-heading">
                                         <span editable-text="tab.name"
                                               e-form="tabName"
@@ -63,7 +63,7 @@
                                          ng-class="{'components-holder-empty':!tab.components.length}"
                                          dragula='"components"' dragula-model='tab.components'
                                          style="min-height: 100px">
-                                        <a class="list-group-item draggable-component component"
+                                        <a class="list-group-item draggable-component component animated"
                                            ng-repeat="component in tab.components">
                                             <h5 class="list-group-item-heading draggable-component">
                                                 {{component.name}} <em class="fa fa-remove pull-right text-muted"
