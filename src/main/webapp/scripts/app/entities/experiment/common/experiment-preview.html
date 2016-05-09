@@ -151,7 +151,7 @@
                                             <th style="width:8%">EQ</th>
                                             <th style="width:30%">Other Information</th>
                                         </tr>
-                                        <tr ng-repeat="reactant in stoichTable.reactants">
+                                        <tr ng-repeat="reactant in stoichTable.reactants track by $index">
                                             <td>
                                                 <div><img ng-if="reactant.structure.image"
                                                          class="img-responsive"
@@ -225,7 +225,7 @@
                                             <th style="width:10%">Purity (%) Determined By</th>
                                             <th>Batch Information</th>
                                         </tr>
-                                        <tr ng-repeat="batch in batchSummary.batches">
+                                        <tr ng-repeat="batch in batchSummary.batches track by $index">
                                             <td>{{batch.nbkBatch}}</td>
                                             <td><div><img ng-if="batch.structure.image"
                                                           class="img-responsive"

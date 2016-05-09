@@ -26,7 +26,7 @@
                             <div class="list-group templates-holder palette animated" dragula='"components"'
                                  dragula-model='components'>
                                 <a class="list-group-item draggable-component"
-                                   ng-repeat="component in components | filter:search">
+                                   ng-repeat="component in components track by $index | filter:search">
                                     <h5 class="list-group-item-heading draggable-component">{{component.name}}</h5>
                                     <p class="list-group-item-text draggable-component">{{component.desc}} </p>
                                 </a>
@@ -47,7 +47,8 @@
                                  ng-if="!template.templateContent.length">
                                 <h3 class="no-draggable text-muted">Please add tabs</h3>
                             </div>
-                            <div class="panel panel-info tab animated" ng-repeat="tab in template.templateContent">
+                            <div class="panel panel-info tab animated"
+                                 ng-repeat="tab in template.templateContent track by $index">
                                 <div class="panel-heading">
                                         <span editable-text="tab.name"
                                               e-form="tabName"
@@ -64,7 +65,7 @@
                                          dragula='"components"' dragula-model='tab.components'
                                          style="min-height: 100px">
                                         <a class="list-group-item draggable-component component animated"
-                                           ng-repeat="component in tab.components">
+                                           ng-repeat="component in tab.components track by $index">
                                             <h5 class="list-group-item-heading draggable-component">
                                                 {{component.name}} <em class="fa fa-remove pull-right text-muted"
                                                                        style="cursor: pointer" title="Remove"

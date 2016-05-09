@@ -33,7 +33,7 @@
                                 <label>Authorities</label>
                             </div>
                             <div class="col-xs-11">
-                                <div class="col-xs-3" ng-repeat="authority in authorities">
+                                <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
                                     <div>
                                         <my-checkbox
                                                 my-label="{{authority.description}}"
@@ -85,14 +85,14 @@
             <thead>
             <tr>
                 <th><p>Role name</p></th>
-                <th ng-repeat="authority in authorities"><p>{{authority.description}}</p></th>
+                <th ng-repeat="authority in authorities track by $index"><p>{{authority.description}}</p></th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="role in roles track by role.id">
                 <td>{{role.name}}</td>
-                <td ng-repeat="authority in authorities">
+                <td ng-repeat="authority in authorities track by $index">
                     <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
                           class="role-check-icon"></span>
                 </td>

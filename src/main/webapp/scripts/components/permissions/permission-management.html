@@ -27,7 +27,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="member in accessList">
+                    <tr ng-repeat="member in accessList track by $index">
                         <td>{{ member.user.lastName }}</td>
                         <td>{{ member.user.firstName }}</td>
                         <td>{{ member.user.login }}</td>
