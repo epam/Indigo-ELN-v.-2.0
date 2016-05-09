@@ -61,7 +61,7 @@ angular.module('indigoeln')
         };
 
         $scope.hasAuthority = function(role, authority) {
-            return role !== null && role.authorities.indexOf(authority.name) !== -1;
+            return role && role.authorities.indexOf(authority.name) !== -1;
         };
 
         var updateAuthorities = function(action, authority) {

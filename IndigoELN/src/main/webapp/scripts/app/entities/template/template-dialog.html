@@ -59,14 +59,10 @@
                                         ng-click="removeTab(tab)"></em>
                                 </div>
                                 <div class="panel-body">
-                                    <div class="list-group" dragula='"components"' dragula-model='tab.components'>
-                                        <div class="text-center no-draggable"
-                                             style="margin-top: 35px; margin-bottom: 35px"
-                                             ng-if="!tab.components.length">
-                                            <h3 class="no-draggable text-muted">You can <strong>drag & drop</strong>
-                                                components
-                                                here.</h3>
-                                        </div>
+                                    <div class="list-group"
+                                         ng-class="{'components-holder-empty':!tab.components.length}"
+                                         dragula='"components"' dragula-model='tab.components'
+                                         style="min-height: 100px">
                                         <a class="list-group-item draggable-component component"
                                            ng-repeat="component in tab.components">
                                             <h5 class="list-group-item-heading draggable-component">

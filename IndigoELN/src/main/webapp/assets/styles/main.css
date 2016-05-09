@@ -760,3 +760,13 @@ html {
 .mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonRight {
     background-position: -100px -56px;
 }
+
+.components-holder-empty:before {
+    content: 'You can drag & drop components here.';
+    position: absolute;
+    color: rgb(119, 119, 119);
+    font-size: 24px;
+    font-weight: 500;
+    margin-top: 32px;
+    left: 20%;
+}
