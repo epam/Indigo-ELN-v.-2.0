@@ -9,6 +9,7 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/conceptDetails/conceptDetails.html',
             controller: function ($scope, Principal, Dictionary) {
                 $scope.model.conceptDetails = $scope.model.conceptDetails || {};
+                $scope.model.reactionDetails = $scope.model.reactionDetails || {};
                 $scope.model.conceptDetails.experimentCreator = $scope.model.conceptDetails.experimentCreator ||
                     {name: Principal.getIdentity().fullName};
 
