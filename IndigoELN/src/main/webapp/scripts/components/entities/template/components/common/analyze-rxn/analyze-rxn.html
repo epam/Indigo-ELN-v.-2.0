@@ -9,7 +9,8 @@
             <div class="col-xs-12">
                 <div>
                     <label>Reactants: </label>
-                    <span ng-repeat="reactant in model.reactants">{{reactant}}<span ng-if="!$last">, </span></span>
+                    <span ng-repeat="reactant in model.reactants track by $index">{{reactant}}<span
+                            ng-if="!$last">, </span></span>
                 </div>
             </div>
         </div>
@@ -39,11 +40,12 @@
             </button>
         </div>
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
-            <div ng-repeat="reactant in model.selectedReactants"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
+            <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
             </div>
         </div>
         <uib-tabset active="activeForm">
-            <uib-tab ng-repeat="tab in tabs" heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
+            <uib-tab ng-repeat="tab in tabs track by $index"
+                     heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
                      active="tab.active">
                 <div class="search-tab-content">
                     <strong>{{tab.searchResult.length}} results found</strong>

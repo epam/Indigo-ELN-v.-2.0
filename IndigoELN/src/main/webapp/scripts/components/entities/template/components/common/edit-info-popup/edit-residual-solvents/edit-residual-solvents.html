@@ -15,7 +15,7 @@
                         <th style="width:5%"></th>
                     </tr>
                 </thead>
-                <tbody ng-repeat="item in solvents.data">
+                <tbody ng-repeat="item in solvents.data track by $index">
                     <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                         <td><my-select my-dictionary="solventName"
                                        my-model="solvents.data[$index].name"></my-select></td>

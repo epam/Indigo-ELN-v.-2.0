@@ -43,7 +43,7 @@
                         <hr>
                         <div class="col-xs-12">
                             <ul id="triple-list" class="members">
-                                <li class="members" ng-repeat="member in notebook.accessList">
+                                <li class="members" ng-repeat="member in notebook.accessList track by $index">
                                     {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
                                     + ')' }}
                                 </li>

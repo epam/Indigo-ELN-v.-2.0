@@ -218,7 +218,7 @@
                                                   ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
                                                   alt="Image is unavailable."></div></span>
                     <strong ng-if="!model.restrictions.structure.image && model.advancedSummary.length">&quot;
-                        <strong ng-repeat="restriction in model.advancedSummary">
+                        <strong ng-repeat="restriction in model.advancedSummary track by $index">
                             {{restriction.name}}: <span ng-if="restriction.searchCondition.name">
                                             {{restriction.searchCondition.name}}</span>
                             {{restriction.value.name || restriction.value}}

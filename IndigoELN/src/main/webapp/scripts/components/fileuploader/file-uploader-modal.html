@@ -27,7 +27,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in uploader.queue">
+                    <tr ng-repeat="item in uploader.queue track by $index">
                         <td><strong>{{ item.file.name }}</strong></td>
                         <td ng-show="uploader.isHTML5">{{ item.file.size/1024/1024|number:2 }} MB</td>
                         <td ng-show="uploader.isHTML5">

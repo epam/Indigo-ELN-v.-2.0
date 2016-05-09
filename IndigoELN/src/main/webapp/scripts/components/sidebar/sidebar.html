@@ -5,12 +5,13 @@
     <ul class="level-one animated">
         <li ng-click="toggleProjects(myBookmarks)"><span>My Bookmarks</span>
             <ul class="level-two animated" ng-if="myBookmarks.projects.length">
-                <li ng-repeat="project in myBookmarks.projects" ng-click="toggleNotebooks(project); $event.stopPropagation();">
+                <li ng-repeat="project in myBookmarks.projects track by $index"
+                    ng-click="toggleNotebooks(project); $event.stopPropagation();">
                 <span class="type-of-experiment">
                     {{project.name}}</span>
                     <ul class="level-three animated" ng-if="project.children.length && project.isOpen">
                         <li class=""></li>
-                        <li ng-repeat="notebook in project.children"
+                        <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project); $event.stopPropagation();">
                             <em class="icon-bg-round fa"
                                 ng-class="{'fa-plus':!notebook.isOpen,'fa-minus':notebook.isOpen}"></em>
@@ -20,7 +21,7 @@
                                     <em class="icon-bg-round"></em>
                                     <span>Table</span>
                                     <ul class="level-five animated" ng-if="notebook.children.length && notebook.isOpen">
-                                        <li ng-repeat="experiment in notebook.children"
+                                        <li ng-repeat="experiment in notebook.children track by $index"
                                             ng-class="{'activ': experiment.fullId == activeExperimentId}"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                             <em class="icon-bg-round"></em>
@@ -46,10 +47,11 @@
     <ul class="level-one animated" has-authority="{{CONTENT_EDITOR}}">
         <li ng-click="toggleProjects(allProjects, true); $event.stopPropagation();"><span>All Projects</span>
             <ul class="level-two animated" ng-if="allProjects.projects.length">
-                <li ng-repeat="project in allProjects.projects" ng-click="toggleNotebooks(project, true); $event.stopPropagation();">
+                <li ng-repeat="project in allProjects.projects track by $index"
+                    ng-click="toggleNotebooks(project, true); $event.stopPropagation();">
                     <span class="type-of-experiment">{{project.name}}</span>
                     <ul class="level-three animated" ng-if="project.children.length && project.isOpen">
-                        <li ng-repeat="notebook in project.children"
+                        <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project, true); $event.stopPropagation();">
                             <em class="icon-bg-round"></em>
                             <span>{{notebook.name}}</span>
@@ -58,7 +60,7 @@
                                     <em class="icon-bg-round"></em>
                                     <span>Table</span>
                                     <ul class="level-five animated" ng-if="notebook.children.length && notebook.isOpen">
-                                        <li ng-repeat="experiment in notebook.children"
+                                        <li ng-repeat="experiment in notebook.children track by $index"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                             <em class="icon-bg-round"></em>
                                             <span>{{experiment.name}}</span>
