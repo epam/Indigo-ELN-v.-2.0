@@ -44,25 +44,28 @@ angular.module('indigoeln')
                 myDraggableColumns: '='
 
             },
-            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService) {
-                var columnsIds = JSON.parse(localStorageService.get($scope.myId + '.columns'));
-
-                $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
-                    return _.indexOf(columnsIds, column.id);
-                });
-                if ($attrs.myDraggableColumns) {
-                    $scope.$watch(function () {
-                        return _.map($scope.myColumns, _.iteratee('id')).join('-');
-                    }, function () {
-                        localStorageService.set($scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
+            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
+                var that = this;
+                Principal.identity()
+                    .then(function (user) {
+                        var columnsIds = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
+                        $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
+                            return _.indexOf(columnsIds, column.id);
+                        });
+                        if ($attrs.myDraggableColumns) {
+                            $scope.$watch(function () {
+                                return _.map($scope.myColumns, _.iteratee('id')).join('-');
+                            }, function () {
+                                localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
+                            });
+                        }
                     });
-                }
 
                 var editableCell = null;
-                this.toggleEditable = function (columnId, rowIndex) {
+                that.toggleEditable = function (columnId, rowIndex) {
                     editableCell = columnId + '-' + rowIndex;
                 };
-                this.isEditable = function (columnId, rowIndex) {
+                that.isEditable = function (columnId, rowIndex) {
                     if (columnId === null || rowIndex === null) {
                         return false;
                     }
@@ -74,7 +77,7 @@ angular.module('indigoeln')
                         return;
                     }
                     _.each($scope.myRows, function (item) {
-                        if(item !== row) {
+                        if (item !== row) {
                             item.$$selected = false;
                         }
                     });
