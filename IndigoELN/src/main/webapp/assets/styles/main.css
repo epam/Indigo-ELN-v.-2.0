@@ -770,8 +770,3 @@ html {
     margin-top: 32px;
     left: 20%;
 }
-
-.tab-components.active a {
-    background-color: #b2ebf2 !important;
-    border-color: #b2ebf2 !important;
-}
