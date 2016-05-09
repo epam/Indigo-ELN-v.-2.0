@@ -8,7 +8,7 @@
             <span class="glyphicon glyphicon-flash"></span> <span>Create a new Role</span>
         </button>
 
-        <div ng-show="role" class="panel panel-info edit-form animated">
+        <div ng-if="role" class="panel panel-info edit-form animated">
             <div class="panel-heading">Create/Update Role</div>
             <div class="panel-body ">
                 <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"

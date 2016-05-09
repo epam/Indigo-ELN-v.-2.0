@@ -82,8 +82,6 @@ angular.module('indigoeln')
 
         $scope.clear = function () {
             $scope.role = null;
-            $scope.editForm.$setPristine();
-            $scope.editForm.$setUntouched();
         };
 
         var onSaveSuccess = function () {

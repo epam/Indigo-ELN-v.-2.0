@@ -42,11 +42,11 @@ body {
     margin: 0;
 }
 
-.role-management .edit-form.ng-hide-add {
+.role-management .edit-form.ng-leave {
     animation: fadeOutUp 0.3s;
 }
 
-.role-management .edit-form.ng-hide-remove {
+.role-management .edit-form.ng-enter {
     animation: fadeInDown 0.3s;
 }
 
@@ -95,6 +95,10 @@ body {
     animation: fadeInLeft 0.5s;
 }
 
+#sidebar-wrapper ul .ng-leave {
+    animation: none;
+}
+
 /* file uploader*/
 .my-drop-zone {
     border: dotted 3px lightgray !important;
@@ -130,8 +134,16 @@ body {
     animation: fadeIn 0.7s;
 }
 
+.page-content.ng-leave {
+    animation: none;
+}
+
 .tab-content.ng-enter {
     animation: fadeIn 0.7s;
+}
+
+.tab-content.ng-leave {
+    animation: none;
 }
 
 .templates-holder {
@@ -227,6 +239,10 @@ body {
 
 .palette .draggable-component.ng-enter {
     animation: fadeIn 0.5s;
+}
+
+.palette .draggable-component.ng-leave {
+    animation: none;
 }
 
 .experiment-tab-name:first-letter {
