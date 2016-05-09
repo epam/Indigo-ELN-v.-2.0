@@ -2,18 +2,27 @@
  * Created by Selector on 09.05.2016.
  */
 angular.module('indigoeln')
-    .directive('myCollapsibleComponent', function () {
+    .directive('myCollapsibleComponent', function ($state, EntitiesBrowser, localStorageService) {
         return {
             restrict: 'A',
             link: function (scope, iElement) {
                 var isCollapsed = false;
-                // var $panel = $(iElement).find('.panel:first');
-                var $heading = $(iElement).find('.panel-heading:first');
+                var $element = $(iElement);
+                var $heading = $element.find('.panel-heading:first');
+                var componentId = $element.parents('.my-component:first').attr('my-component');
+                var collapsedComponents = JSON.parse(localStorageService.get('collapsed-components'));
+                var entityId = EntitiesBrowser.compactIds($state.params);
+                if (collapsedComponents && collapsedComponents[entityId]) {
+                    isCollapsed = collapsedComponents[entityId][componentId];
+                }
                 var $collapsible = $heading.next();
                 var iconStyle = !isCollapsed ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down';
                 var $button = $('<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>');
                 var $icon = $button.find('i');
                 $heading.append($button);
+                if (isCollapsed) {
+                    $collapsible.hide();
+                }
                 $button.on('click', function () {
                     if (isCollapsed) {
                         // expand the panel
@@ -25,6 +34,11 @@ angular.module('indigoeln')
                         $icon.removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
                     }
                     isCollapsed = !isCollapsed;
+                    collapsedComponents = JSON.parse(localStorageService.get('collapsed-components'));
+                    collapsedComponents = collapsedComponents || {};
+                    collapsedComponents[entityId] = collapsedComponents[entityId] || {};
+                    collapsedComponents[entityId][componentId] = isCollapsed;
+                    localStorageService.set('collapsed-components', JSON.stringify(collapsedComponents));
                 });
             }
         };
