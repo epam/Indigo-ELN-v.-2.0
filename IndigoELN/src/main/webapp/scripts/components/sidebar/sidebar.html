@@ -6,13 +6,16 @@
         <li ng-click="toggleProjects(myBookmarks)"><span>My Bookmarks</span>
             <ul class="level-two animated" ng-if="myBookmarks.projects.length">
                 <li ng-repeat="project in myBookmarks.projects track by $index"
-                    ng-click="toggleNotebooks(project); $event.stopPropagation();">
+                    ng-click="toggleNotebooks(project); $event.stopPropagation();"
+                    ng-class="{'activ': project.fullId == activeMenuItem}">
                 <span class="type-of-experiment">
                     {{project.name}}</span>
                     <ul class="level-three animated" ng-if="project.children.length && project.isOpen">
                         <li class=""></li>
                         <li ng-repeat="notebook in project.children track by $index"
-                            ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project); $event.stopPropagation();">
+                            ng-click="notebook.projectId = project.id; toggleExperiments(notebook, project); $event.stopPropagation();"
+                            ng-class="{'activ': notebook.fullId == activeMenuItem}"
+                        >
                             <em class="icon-bg-round fa"
                                 ng-class="{'fa-plus':!notebook.isOpen,'fa-minus':notebook.isOpen}"></em>
                             <span>{{notebook.name}}</span>
@@ -22,7 +25,7 @@
                                     <span>Table</span>
                                     <ul class="level-five animated" ng-if="notebook.children.length && notebook.isOpen">
                                         <li ng-repeat="experiment in notebook.children track by $index"
-                                            ng-class="{'activ': experiment.fullId == activeExperimentId}"
+                                            ng-class="{'activ': experiment.fullId == activeMenuItem}"
                                             ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
                                             <em class="icon-bg-round"></em>
                                             <span>{{experiment.name}}</span>

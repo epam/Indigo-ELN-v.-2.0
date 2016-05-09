@@ -207,6 +207,9 @@
 .unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li.activ .icon-bg-round,
 .unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li:active .icon-bg-round {
   background: #4dd0e1;
+}
+
+li.activ > span {
   color: #4dd0e1;
   text-decoration: underline;
 }

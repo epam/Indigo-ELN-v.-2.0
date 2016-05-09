@@ -1,7 +1,7 @@
 angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, Project, Notebook, Experiment,
-                                               AllProjects, AllNotebooks, AllExperiments, Principal) {
+                                               AllProjects, AllNotebooks, AllExperiments, Principal, $rootScope, EntitiesBrowser) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -158,13 +158,10 @@ angular
                 }
             }
         };
-
-
         $scope.onExperimentClick = function (experiment, notebook, project) {
             var experimentId = experiment.id;
             var notebookId = notebook.id;
             var projectId = project.id;
-            $scope.activeExperimentId = projectId + '-' + notebookId + '-' + experimentId;
             $state.go('entities.experiment-detail', {
                 experimentId: experimentId,
                 notebookId: notebookId,
@@ -193,5 +190,11 @@ angular
         };
 
         $scope.toggleProjects($scope.myBookmarks);
+
+        $scope.activeMenuItem = EntitiesBrowser.compactIds($state.params);
+
+        $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+            $scope.activeMenuItem = EntitiesBrowser.compactIds(toParams);
+        });
 
     });
