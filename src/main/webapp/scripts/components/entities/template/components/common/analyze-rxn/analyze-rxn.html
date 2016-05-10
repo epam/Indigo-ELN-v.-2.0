@@ -17,7 +17,7 @@
         <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
     </div>
     <div>
-        <button class="btn btn-primary"
+        <button class="btn btn-info"
                 type="button"
                 ng-click="search()">Search
         </button>
@@ -32,7 +32,7 @@
                     Selected reactants ({{model.selectedReactants.length}})
                 </a>
             </div>
-            <button class="col-xs-2 btn btn-default btn-sm search-button"
+            <button class="col-xs-2 btn btn-info btn-sm search-button"
                     type="button"
                     ng-click="addToStoichTable(searchResult)"
                     ng-disabled="!model.selectedReactants.length">

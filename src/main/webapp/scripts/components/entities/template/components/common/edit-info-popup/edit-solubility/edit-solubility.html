@@ -54,12 +54,12 @@
     </div>
 
     <div class="btn-toolbar">
-        <button class="btn btn-primary"
+        <button class="btn btn-info"
                 type="button"
                 ng-click="addSolvent()">
             <span class="glyphicon glyphicon-plus"></span> Add solvent
         </button>
-        <button class="btn btn-default"
+        <button class="btn btn-danger"
                 type="button"
                 ng-if="solubility.data.length"
                 ng-click="removeAll()">
@@ -71,6 +71,6 @@
 
 </div>
 <div class="modal-footer text-right">
-    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-info" type="button" ng-click="save()">Save</button>
     <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
 </div>
