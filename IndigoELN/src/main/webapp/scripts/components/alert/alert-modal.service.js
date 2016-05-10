@@ -3,7 +3,7 @@ angular.module('indigoeln')
         var alertModal = function (title, message, callback) {
             $uibModal.open({
                 template: '<div class="modal-header">' +
-                    '<h4 class="modal-title">' + title + '</h4>' +
+                '<h5 class="modal-title">' + title + '</h5>' +
                     '</div>' +
                     '<div class="modal-body">' +
                     '<p>' + message + '</p>' +
