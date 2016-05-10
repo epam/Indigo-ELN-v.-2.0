@@ -22,6 +22,8 @@
                                     my-validation-required="true"
                                     my-validation-maxlength="200">
                             </my-input>
+                        </div>
+                        <div class="col-xs-6">
                             <my-text-area
                                     my-label="Description"
                                     my-model="dictionary.description">
@@ -115,7 +117,7 @@
                 <form id="editWordForm" name="editWordForm" role="form" novalidate ng-submit="saveWord()"
                       class="form-horizontal" autocomplete="off">
                     <div class="row">
-                        <div class="col-xs-6">
+                        <div class="col-xs-4">
                             <my-input
                                     my-label="Name"
                                     my-name="name"
@@ -124,14 +126,18 @@
                                     my-validation-required="true"
                                     my-validation-maxlength="200">
                             </my-input>
-                            <my-checkbox
-                                    my-label="Active"
-                                    my-model="word.enable">
-                            </my-checkbox>
+                        </div>
+                        <div class="col-xs-4">
                             <my-text-area
                                     my-label="Description"
                                     my-model="word.description">
                             </my-text-area>
+                        </div>
+                        <div class="col-xs-4">
+                            <my-checkbox
+                                    my-label="Active"
+                                    my-model="word.enable">
+                            </my-checkbox>
                         </div>
                     </div>
                 </form>
