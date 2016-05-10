@@ -1,21 +1,18 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.service.calculation.CalculationService;
+import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import com.google.common.base.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.springframework.util.StringUtils;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
-import com.epam.indigoeln.core.service.calculation.CalculationService;
 
 @RestController
 @RequestMapping("/api/calculations")
@@ -30,9 +27,13 @@ public class CalculationResource {
     @RequestMapping(value = "/molecule/info",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> getMolecularInformation(@RequestBody String molecule,
+    public ResponseEntity<Map> getMolecularInformation(@RequestBody(required = false) String molecule,
                                                        @RequestParam(required = false) String saltCode,
                                                        @RequestParam(required = false) Float saltEq) {
+        if (Strings.isNullOrEmpty(molecule)) {
+            return ResponseEntity.ok(new HashMap<>());
+
+        }
         return ResponseEntity.ok(calculationService.getMolecularInformation(normalizeMolFile(molecule),
                 Optional.ofNullable(saltCode), Optional.ofNullable(saltEq)));
     }
