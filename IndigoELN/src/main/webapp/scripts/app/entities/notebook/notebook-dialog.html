@@ -1,7 +1,6 @@
 <div class="panel panel-info notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
     <div class="panel-heading">
-        Notebook
     </div>
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
