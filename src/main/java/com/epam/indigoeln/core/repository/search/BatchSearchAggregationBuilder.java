@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,6 +28,7 @@ import static java.util.stream.Collectors.toList;
  */
 public final class BatchSearchAggregationBuilder {
 
+    private static final String CONTENT_PREFIX = "content.batches.";
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("nbkBatch", "molFormula", "molWeight",
             "chemicalName", "externalNumber", "compoundState", "comments", "hazardComments", "casNumber");
 
@@ -45,7 +47,7 @@ public final class BatchSearchAggregationBuilder {
 
     public BatchSearchAggregationBuilder withSearchQuery(String searchQuery) {
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
-                field -> Criteria.where("component.batches." + field).is(searchQuery)).
+                field -> Criteria.where(CONTENT_PREFIX + field).is(searchQuery)).
                 collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
@@ -55,13 +57,14 @@ public final class BatchSearchAggregationBuilder {
     }
 
     public BatchSearchAggregationBuilder withBingoIds(List<Integer> bingoIds) {
-        Criteria structureCriteria = Criteria.where("structure.structureId").in(bingoIds);
+        Criteria structureCriteria = Criteria.where(CONTENT_PREFIX + "structure.structureId").in(bingoIds);
         aggregationOperations.add(Aggregation.match(structureCriteria));
         return this;
     }
 
     public BatchSearchAggregationBuilder withAdvancedCriteria(List<BatchSearchCriteria> batchCriteriaList) {
-        List<Criteria> fieldCriteriaList = batchCriteriaList.stream().map(BatchCriteriaConverter::convert).collect(toList());
+        List<Criteria> fieldCriteriaList = batchCriteriaList.stream()
+                .map(BatchSearchAggregationBuilder::convertCriteria).collect(toList());
         Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
         aggregationOperations.add(Aggregation.match(andCriteria));
@@ -71,4 +74,29 @@ public final class BatchSearchAggregationBuilder {
     public Aggregation build() {
         return Aggregation.newAggregation(aggregationOperations);
     }
+
+    private static Criteria convertCriteria(BatchSearchCriteria dto) {
+        Criteria criteria = Criteria.where(CONTENT_PREFIX + dto.getField());
+        Object value = dto.getValue();
+        switch (Optional.ofNullable(dto.getCondition()).orElse("")) {
+            case "contains" :
+                criteria.regex(".*" + value + ".*"); break;
+            case "starts with" :
+                criteria.regex(value + ".*"); break;
+            case "ends with" :
+                criteria.regex(".*" + value); break;
+            case ">" :
+                criteria.gt(value); break;
+            case ">=" :
+                criteria.gte(value); break;
+            case "<" :
+                criteria.lt(value); break;
+            case "<=" :
+                criteria.lte(value); break;
+            default:
+                criteria.is(value);
+        }
+        return criteria;
+    }
+
 }

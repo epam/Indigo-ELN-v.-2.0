@@ -22,10 +22,10 @@ public class SearchServiceFacade implements SearchServiceAPI {
 
 
     @Override
-    public Collection<ProductBatchDetailsDTO> searchBatches(BatchSearchRequest searchRequest) {
+    public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         Collection<ProductBatchDetailsDTO> result = new ArrayList<>();
         for(SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
-            result.addAll(provider.searchBatches(searchRequest));
+            result.addAll(provider.findBatches(searchRequest));
         }
         return result;
     }

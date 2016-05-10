@@ -16,6 +16,7 @@ public class BatchSearchRequest {
     public List<BatchSearchCriteria> getAdvancedSearch() {
         return advancedSearch;
     }
+
     public List<String> getDatabases() {
         return databases;
     }
