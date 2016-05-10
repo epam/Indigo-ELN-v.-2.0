@@ -74,7 +74,7 @@ public class CustomSearchService implements SearchServiceAPI {
             case CHEMISTRY_SEARCH_SIMILARITY:
                 bingoIds = bingoService.searchMoleculeSim(structure,
                         Float.valueOf(options.getOrDefault("min", 0f).toString()),
-                        Float.valueOf(options.getOrDefault("max", 100f).toString()), StringUtils.EMPTY);
+                        Float.valueOf(options.getOrDefault("max", 1f).toString()), StringUtils.EMPTY);
                 break;
             case CHEMISTRY_SEARCH_MOLFORMULA:
                 bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY);
