@@ -9,7 +9,7 @@ angular.module('indigoeln')
                     '<p>' + message + '</p>' +
                     '</div>' +
                     '<div class="modal-footer text-right">' +
-                    '<button class="btn btn-primary" type="button" ng-click="ok()">Ok</button>' +
+                '<button class="btn btn-info" type="button" ng-click="ok()">Ok</button>' +
                     '<button class="btn btn-default" type="button" ng-if="hasCallback" ng-click="cancel()">Cancel</button>' +
                     '</div>',
                 controller: function ($scope, $uibModalInstance) {

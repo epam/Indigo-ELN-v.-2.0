@@ -11,13 +11,13 @@
                         ng-disabled="!isEditAllowed">
                     <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                 </button>
-                <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">
+                <button type="button" class="btn btn-info" ng-click="isCollapsed = !isCollapsed">
                     <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
                 </button>
                 <div class="col-sm-3 pull-right">
                     <div class="input-group ">
                     <span class="input-group-btn">
-                        <button  class="btn btn-default" type="button">Status:</button>
+                        <button class="btn btn-info" type="button">Status:</button>
                     </span>
                         <input ng-disabled="true" data-ng-model="experiment.status" type="text" class="form-control text-center">
                     </div>

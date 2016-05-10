@@ -12,7 +12,7 @@
                             <div class="input-group">
                                 <input type="text" class="form-control">
                                             <span class="input-group-btn">
-                                                <button class="btn btn-primary" ng-click="search()" type="button">Search
+                                                <button class="btn btn-info" ng-click="search()" type="button">Search
                                                 </button></span></div>
                         </div>
                     </div>
@@ -20,13 +20,13 @@
                 <div class="row reagent-search-row" style="margin-top:-20px;">
                     <strong>{{myReagentList.length}} reagents in my list</strong>
                     <div class="pull-right">
-                        <button class="btn btn-primary search-button"
+                        <button class="btn btn-info search-button"
                                 type="button"
                                 ng-click="removeFromMyReagentList()"
                                 ng-disabled="false">
                             <span class="glyphicon glyphicon-remove-sign"></span> Remove from My List
                         </button>
-                        <button class="btn btn-primary search-button"
+                        <button class="btn btn-info search-button"
                                 type="button"
                                 ng-click="addToStoichTable(myReagentList)"
                                 ng-disabled="false">
@@ -202,7 +202,7 @@
                 </div>
             </div>
             <div>
-                <button class="btn btn-primary"
+                <button class="btn btn-info"
                         type="button"
                         ng-click="search()"
                         ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
@@ -388,7 +388,7 @@
                 </div>
             </div>
             <div>
-                <button class="btn btn-primary search-button"
+                <button class="btn btn-info search-button"
                         type="button"
                         ng-click="search()"
                         ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
@@ -398,13 +398,13 @@
             <div class="row reagent-search-row">
                 <strong>{{searchResults.length}} results found</strong>
                 <div class="pull-right">
-                    <button class="btn btn-default search-button"
+                    <button class="btn btn-info search-button"
                             type="button"
                             ng-click="addToMyReagentList()"
                             ng-disabled="false">
                         <span class="glyphicon glyphicon-star"></span> Add to My Reagent List
                     </button>
-                    <button class="btn btn-default search-button"
+                    <button class="btn btn-info search-button"
                             type="button"
                             ng-click="addToStoichTable(searchResults)"
                             ng-disabled="false">
