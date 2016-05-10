@@ -202,17 +202,25 @@
   text-decoration: none;
   color: #51646e;
 }
-.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li.activ span,
-.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li:active span,
-.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li.activ .icon-bg-round,
-.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li:active .icon-bg-round {
-  background: #4dd0e1;
-}
 
-li.activ > span {
+.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four > li .level-five > li.activ span,
+.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four > li .level-five > li:active span,
+.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four > li .level-five > li.activ .icon-bg-round,
+.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four > li .level-five > li:active .icon-bg-round {
+  background: #4dd0e1;
   color: #4dd0e1;
   text-decoration: underline;
 }
+
+.unit-navigation-page .level-one > li .level-two > li .level-three > li.activ > span {
+  color: #4dd0e1;
+  text-decoration: underline;
+}
+
+.unit-navigation-page .level-one > li .level-two > li.activ {
+  background: #4dd0e1;
+}
+
 .unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li.activ span,
 .unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li .level-five li:active span {
   background: inherit;
