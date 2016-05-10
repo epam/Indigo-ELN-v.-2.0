@@ -50,6 +50,22 @@ body {
     animation: fadeInDown 0.3s;
 }
 
+.dictionary .edit-form.ng-leave {
+    animation: fadeOutUp 0.3s;
+}
+
+.dictionary .edit-form.ng-enter {
+    animation: fadeInDown 0.3s;
+}
+
+.words .edit-form.ng-leave {
+    animation: fadeOutUp 0.3s;
+}
+
+.words .edit-form.ng-enter {
+    animation: fadeInDown 0.3s;
+}
+
 .table.authoritiesTable thead tr th p {
     line-height: 17px;
     word-spacing: 90px;
@@ -789,4 +805,8 @@ html {
 
 .clickable {
     cursor: pointer;
+}
+
+.row > div {
+    margin-bottom: 0;
 }
