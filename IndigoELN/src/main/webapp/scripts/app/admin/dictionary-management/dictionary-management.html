@@ -1,11 +1,11 @@
-<div class="panel panel-info" style="min-height: 501px;height: 100%">
+<div class="panel panel-info dictionary">
     <div class="panel-body">
 
         <button class="btn btn-info" ng-click="createDictionary()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create new Dictionary</span>
         </button>
 
-        <div ng-show="dictionary" class="panel panel-info edit-form animated">
+        <div ng-if="dictionary" class="panel panel-info edit-form animated" style="margin-top: 20px">
             <div class="panel-heading">
                 Create/Edit Dictionary
             </div>
@@ -97,7 +97,7 @@
         </uib-pagination>
     </div>
 </div>
-<div class="panel panel-info" style="bottom: 0; margin:0; padding:0;">
+<div class="panel panel-info words" style="bottom: 0; margin:0; padding:0;">
     <div class="panel-heading">Words
         <em class="pull-right glyphicon"
             ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
@@ -105,11 +105,12 @@
     </div>
 
     <div class="panel-body" uib-collapse="isCollapsed">
-        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null">
+        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null"
+                style="margin-bottom: 20px">
             <span class="glyphicon glyphicon-plus"></span> <span>Add new Word</span>
         </button>
 
-        <div ng-show="word" class="panel panel-info edit-form animated">
+        <div ng-if="word" class="panel panel-info edit-form animated">
             <div class="panel-heading">
                 Create/Edit Word for dictionary {{selectedDictionary.name}}
             </div>
@@ -117,23 +118,26 @@
                 <form id="editWordForm" name="editWordForm" role="form" novalidate ng-submit="saveWord()"
                       class="form-horizontal" autocomplete="off">
                     <div class="row">
-                        <div class="col-xs-4">
+                        <div class="col-xs-5">
                             <my-input
                                     my-label="Name"
                                     my-name="name"
                                     my-type="text"
                                     my-model="word.name"
                                     my-validation-required="true"
-                                    my-validation-maxlength="200">
+                                    my-validation-maxlength="200"
+                                    my-label-vertical="true">
                             </my-input>
                         </div>
-                        <div class="col-xs-4">
+                        <div class="col-xs-5">
                             <my-text-area
                                     my-label="Description"
-                                    my-model="word.description">
+                                    my-model="word.description"
+                                    my-label-vertical="true">
                             </my-text-area>
                         </div>
-                        <div class="col-xs-4">
+                        <div class="col-xs-2">
+                            <br/>
                             <my-checkbox
                                     my-label="Active"
                                     my-model="word.enable">
