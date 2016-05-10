@@ -35,6 +35,9 @@
                             <button type="button" class="btn btn-info" ng-disabled="myReadonly"
                                     ng-click="addNewBatch()">Add New Batch
                             </button>
+                            <button type="button" class="btn btn-info" ng-disabled="myReadonly || !share.selectedRow"
+                                    ng-click="duplicateBatch()">Duplicate Batch
+                            </button>
                             <button type="button" class="btn btn-info" ng-disabled="myReadonly || !isHasCheckedRows()"
                                     ng-click="deleteBatches()">Delete Batch(es)
                             </button>

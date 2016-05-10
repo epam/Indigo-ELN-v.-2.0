@@ -15,4 +15,7 @@
     <file path="experiment_status.xml"/>
     <file path="dictionaries.xml"/>
     <file path="dictionaries_1.xml"/>
+    <file path="dictionaries_2.xml"/>
+    <file path="file_temporary.xml"/>
+    <file path="dictionaries_3.xml"/>
 </changeFiles>

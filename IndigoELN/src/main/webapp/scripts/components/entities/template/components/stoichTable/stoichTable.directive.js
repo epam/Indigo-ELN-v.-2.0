@@ -146,7 +146,7 @@ angular.module('indigoeln')
                 ];
 
                 $scope.onRowSelected = function (row) {
-                    $scope.selectedRow = row;
+                    $scope.selectedRow = row || null;
                 };
                 $scope.clear = function () {
                     for (var key in $scope.selectedRow) {

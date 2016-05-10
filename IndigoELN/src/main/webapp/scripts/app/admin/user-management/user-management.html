@@ -1,5 +1,4 @@
 <div class="panel panel-info user-management">
-    <div class="panel-heading">Users</div>
     <div class="panel-body">
         <button class="btn btn-info" ng-click="create()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create New User</span>
@@ -23,7 +22,6 @@
                                     my-name="login"
                                     my-type="text"
                                     my-model="user.login"
-                                    my-validation-obj="editForm.login"
                                     my-validation-required="user.id == null"
                                     my-validation-maxlength="50"
                                     ></my-input>
@@ -32,7 +30,6 @@
                                     my-name="firstName"
                                     my-type="text"
                                     my-model="user.firstName"
-                                    my-validation-obj="editForm.firstName"
                                     my-validation-required="user.firstName == null"
                                     my-validation-maxlength="50"
                                     ></my-input>
@@ -41,7 +38,6 @@
                                     my-name="lastName"
                                     my-type="text"
                                     my-model="user.lastName"
-                                    my-validation-obj="editForm.lastName"
                                     my-validation-required="user.lastName == null"
                                     my-validation-maxlength="50"
                             ></my-input>
@@ -60,7 +56,6 @@
                                     my-name="email"
                                     my-type="text"
                                     my-model="user.email"
-                                    my-validation-obj="editForm.email"
                                     my-validation-required="user.email == null"
                                     my-validation-maxlength="100"
                             ></my-input>
@@ -69,7 +64,6 @@
                                     my-name="password"
                                     my-type="password"
                                     my-model="user.password"
-                                    my-validation-obj="editForm.password"
                                     my-validation-required="user.id == null"
                                     my-validation-maxlength="50"
                                     ></my-input>

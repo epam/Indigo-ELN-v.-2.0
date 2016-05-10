@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('indigoeln')
-    .factory('Auth', function Auth($rootScope, $state, $q, Principal, AuthServerProvider) {
+    .factory('Auth', function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
         return {
             login: function (credentials, callback) {
                 var cb = callback || angular.noop;
@@ -28,6 +28,7 @@ angular.module('indigoeln')
                 // Reset state memory
                 $rootScope.previousStateName = undefined;
                 $rootScope.previousStateNameParams = undefined;
+                WSService.disconnect();
             },
 
             authorize: function (force) {

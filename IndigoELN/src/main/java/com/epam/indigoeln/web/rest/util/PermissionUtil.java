@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.security.Authority;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.PermissionIncorrectException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,6 +57,15 @@ public class PermissionUtil {
      */
     public static void addOwnerToAccessList(Set<UserPermission> accessList, User user) {
         setUserPermissions(accessList, user, UserPermission.OWNER_PERMISSIONS);
+    }
+
+     /**
+     * Adding Project Author as VIEWER to Experiment Access List if Experiment creator is another User
+     */
+    public static void addProjectAuthorToAccessList(Set<UserPermission> accessList, User projectAuthor, User experimentCreator) {
+        if (!StringUtils.equals(projectAuthor.getId(), experimentCreator.getId())) {
+            setUserPermissions(accessList, projectAuthor, UserPermission.VIEWER_PERMISSIONS);
+        }
     }
 
     public static void setUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {

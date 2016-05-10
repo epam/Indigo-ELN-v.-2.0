@@ -1,8 +1,5 @@
 <div class="panel panel-default notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-heading">
-        Create or edit a Notebook
-    </div>
     <div class="panel-body">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
               class="form-horizontal" autocomplete="off">
@@ -14,7 +11,6 @@
                               my-model="notebook.name"
                               my-readonly="!isEditAllowed"
                               my-label-vertical="true"
-                              my-validation-obj="createNotebookForm.notebookName"
                               my-validation-pattern="/^\d{8}$/"
                               my-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
                               my-validation-required="true"></my-input>
@@ -57,7 +53,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <label class="control-label">Description</label>
-                    <my-text-editor content="notebook.description" my-readonly="!isEditAllowed"></my-text-editor>
+                    <my-text-editor my-model="notebook.description" my-readonly="!isEditAllowed"></my-text-editor>
                 </div>
             </div>
         </form>

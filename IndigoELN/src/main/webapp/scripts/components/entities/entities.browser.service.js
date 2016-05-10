@@ -4,7 +4,7 @@
  * Created by Stepan_Litvinov on 2/17/2016.
  */
 angular.module('indigoeln')
-    .factory('EntitiesBrowser', function (Experiment, Notebook, Project, $q, $state, Principal) {
+    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -36,8 +36,26 @@ angular.module('indigoeln')
         };
 
         var resolvePrincipal = function (func) {
-            return Principal.identity().then(function (){return func();});
+            return Principal.identity().then(func);
         };
+
+        var experimentStatusChangedEvent = $rootScope.$on('experiment-status-changed', function (event, statuses) {
+            resolvePrincipal(function () {
+                var userId = getUserId();
+                _.each(statuses, function (status, fullId) {
+                    delete cache[userId][fullId];
+                });
+            });
+        });
+
+        var userLogoutEvent = $rootScope.$on('user-logout', function (event, data) {
+            cache[data.id] = {};
+        });
+
+        $rootScope.$on('$destroy', function () {
+            experimentStatusChangedEvent();
+            userLogoutEvent();
+        });
 
         return {
             compactIds: function (params) {
@@ -78,11 +96,12 @@ angular.module('indigoeln')
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
+                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
                     return tabs[userId][that.compactIds(params)];
                 });
             },
             getIdByVal: function (entity) {
-                return resolvePrincipal(this, function () {
+                return resolvePrincipal(function () {
                     var userId = getUserId();
                     return Object.keys(tabs).filter(function (key) {
                         return tabs[userId][key] === entity.$promise;

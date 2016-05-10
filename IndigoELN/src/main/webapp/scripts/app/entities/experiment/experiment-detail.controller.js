@@ -12,9 +12,6 @@ angular.module('indigoeln')
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
             $scope.experimentId = $stateParams.experimentId;
-            $scope.experiment.author = $scope.experiment.author || pageInfo.identity;
-            $scope.experiment.accessList = $scope.experiment.accessList || PermissionManagement.getAuthorAccessList(pageInfo.identity);
-            $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
@@ -138,6 +135,38 @@ angular.module('indigoeln')
                     notebookId: $stateParams.notebookId
                 }, experimentForSave, function(result) {
                     onChangeStatusSuccess(result, 'Open');
+                }, onSaveError).$promise;
+            };
+
+            $scope.repeatExperiment = function () {
+                $scope.isSaving = true;
+                $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
+                var experimentForSave = {
+                    accessList: $scope.experiment.accessList,
+                    components: $scope.experiment.components,
+                    name: $scope.experiment.name,
+                    status: 'Open',
+                    template: $scope.experiment.template
+                };
+                var productBatchSummary = experimentForSave.components.productBatchSummary;
+                if (productBatchSummary) {
+                    productBatchSummary.batches = [];
+                }
+                $scope.loading = Experiment.save({
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId
+                }, experimentForSave, function (result) {
+                    onSaveSuccess(result);
+                    $state.go('entities.experiment-detail', {
+                        experimentId: result.id,
+                        notebookId: $stateParams.notebookId,
+                        projectId: $stateParams.projectId
+                    });
+                    $rootScope.$broadcast('experiment-created', {
+                        projectId: $stateParams.projectId,
+                        notebookId: $stateParams.notebookId,
+                        id: result.id
+                    });
                 }, onSaveError).$promise;
             };
 

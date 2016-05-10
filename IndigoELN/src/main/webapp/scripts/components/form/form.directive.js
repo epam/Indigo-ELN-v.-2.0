@@ -16,18 +16,31 @@ angular.module('indigoeln')
                     tElement.find('.col-xs-10').removeClass('col-xs-10').addClass('col-xs-12');
                 }
             },
-            showValidation: function ($formGroup, scope) {
+            setLabelColumns: function (tAttrs, tElement) {
+                if (tAttrs.myLabelColumnsNum) {
+                    var labelColumnsNum = parseInt(tAttrs.myLabelColumnsNum, 10);
+                    if (_.isNumber(labelColumnsNum) && labelColumnsNum > 0 && labelColumnsNum < 12) {
+                        tElement.find('label').removeClass('col-xs-2').addClass('col-xs-' + labelColumnsNum);
+                        tElement.find('.col-xs-10').removeClass('col-xs-10').addClass('col-xs-' + (12 - labelColumnsNum));
+                    }
+                }
+            },
+            showValidation: function ($formGroup, scope, formCtrl) {
                 $timeout(function () {
-                    if (scope.myValidationObj) {
-                        var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
-                        if ($inputs.length > 0) {
-                            $inputs.each(function () {
-                                scope.$watch(function () {
-                                    return scope.myValidationObj.$invalid && scope.myValidationObj.$dirty;
-                                }, function (isInvalid) {
-                                    $formGroup.toggleClass('has-error', isInvalid);
+                    if (formCtrl) {
+                        var ngModelCtrl = formCtrl[scope.myName];
+                        if (ngModelCtrl) {
+                            scope.ngModelCtrl = ngModelCtrl;
+                            var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
+                            if ($inputs.length > 0) {
+                                $inputs.each(function () {
+                                    scope.$watch(function () {
+                                        return ngModelCtrl.$invalid && (ngModelCtrl.$dirty || formCtrl.$submitted);
+                                    }, function (isInvalid) {
+                                        $formGroup.toggleClass('has-error', isInvalid);
+                                    });
                                 });
-                            });
+                            }
                         }
                     }
                 });
@@ -38,16 +51,17 @@ angular.module('indigoeln')
         restrict: 'E',
         replace: true,
         transclude: true,
+        require: '?^form',
         scope: {
             myLabel: '@',
             myLabelVertical: '=',
+            myLabelColumnsNum: '=',
             myName: '@',
             myModel: '=',
             myReadonly: '=',
             myType: '@',
             myInputGroup: '@',
             myInputSize: '@',
-            myValidationObj: '=',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
             myValidationMinlength: '@',
@@ -70,6 +84,7 @@ angular.module('indigoeln')
                 }
             }
             formUtils.clearLabel(tAttrs, tElement);
+            formUtils.setLabelColumns(tAttrs, tElement);
             if (tAttrs.myValidationMinlength) {
                 tElement.find('input').attr('ng-minlength', tAttrs.myValidationMinlength);
             }
@@ -83,8 +98,8 @@ angular.module('indigoeln')
                 tElement.find('input').attr('ng-required', tAttrs.myValidationRequired);
             }
             return {
-                post: function postLink(scope, iElement, iAttrs, controller) {
-                    formUtils.showValidation(iElement, scope);
+                post: function postLink(scope, iElement, iAttrs, formCtrl) {
+                    formUtils.showValidation(iElement, scope, formCtrl);
                 }
             };
         },
@@ -92,10 +107,10 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly"/>' +
-        '<div ng-show="myValidationObj.$invalid">' +
-        '<p class="help-block" ng-if="myValidationObj.$error.required"> This field is required. </p>' +
-        '<p class="help-block" ng-if="myValidationObj.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
-        '<p class="help-block" ng-if="myValidationObj.$error.pattern" >{{myValidationPatternText}}</p>' +
+        '<div ng-show="ngModelCtrl.$invalid">' +
+        '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
+        '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
+        '<p class="help-block" ng-if="ngModelCtrl.$error.pattern" >{{myValidationPatternText}}</p>' +
         '</div>' +
         '</div>' +
         '</div>'
@@ -133,6 +148,7 @@ angular.module('indigoeln')
             myDictionary: '@',
             myMultiple: '=',
             myLabelVertical: '=',
+            myLabelColumnsNum: '=',
             myPlaceHolder: '@',
             myItemProp: '@',
             myOrderByProp: '@',
@@ -168,6 +184,7 @@ angular.module('indigoeln')
             var repeat = select.attr('repeat');
             select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.myOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
+            formUtils.setLabelColumns(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
@@ -268,6 +285,7 @@ angular.module('indigoeln')
     return {
         restrict: 'E',
         replace: true,
+        require: '?^form',
         scope: {
             myLabel: '@',
             myLabelVertical: '=',
@@ -275,7 +293,6 @@ angular.module('indigoeln')
             myModel: '=',
             myReadonly: '=',
             myType: '@',
-            myValidationObj: '=',
             myValidationRequired: '=',
             myClasses: '@'
         },
@@ -283,7 +300,7 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('input').attr('timezone', jstz.determine().name());
             return {
-                post: function postLink(scope, iElement, iAttrs, controller) {
+                post: function postLink(scope, iElement, iAttrs, formCtrl) {
                     if (scope.myModel) {
                         scope.ctrl = {};
                         scope.ctrl.model = moment(scope.myModel);
@@ -291,7 +308,7 @@ angular.module('indigoeln')
                             scope.myModel = date ? date.toISOString() : null;
                         });
                     }
-                    formUtils.showValidation(iElement, scope);
+                    formUtils.showValidation(iElement, scope, formCtrl);
                 }
             };
         },
@@ -300,8 +317,8 @@ angular.module('indigoeln')
         '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="ctrl.model" date-time view="date" ' +
         'format="MMM DD, YYYY HH:mm:ss z" ng-disabled="myReadonly" ng-required="myValidationRequired"/>' +
-        '<div ng-show="myValidationObj.$invalid">' +
-        '<p class="help-block" ng-show="myValidationObj.$error.required"> This field is required. </p>' +
+        '<div ng-show="ngModelCtrl.$invalid">' +
+        '<p class="help-block" ng-show="ngModelCtrl.$error.required"> This field is required. </p>' +
         '</div>' +
         '</div>' +
         '</div>'

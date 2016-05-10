@@ -9,28 +9,29 @@ angular.module('indigoeln')
             return;
         }
         $scope.model[$attrs.myStructureType] = $scope.model[$attrs.myStructureType] || {structureScheme: {}};
-        $scope.myModel = $scope.model[$attrs.myStructureType];
+        $scope.image = $scope.model.image;
 
-        $scope.$watch('myModel.structureId', function () {
-            if ($scope.myModel.structureId) {
-                $scope.share[$attrs.myStructureType] = $scope.myModel.structureMolfile;
+        $scope.$watch('model.structureId', function () {
+            if ($scope.model.structureId) {
+                $scope.share[$attrs.myStructureType] = $scope.model.structureMolfile;
             }
         });
 
+        // TODO: rewrite all watches on events
         $scope.$watch('share.selectedRow', function (row) {
             if (row && row.structure && row.structure.structureType === $scope.structureType) {
                 $scope.image = $scope.share.selectedRow.structure.image;
-                $scope.myModel.structureMolfile = $scope.share.selectedRow.structure.molfile;
-                $scope.myModel.structureId = $scope.share.selectedRow.structure.structureId;
+                $scope.model.structureMolfile = $scope.share.selectedRow.structure.molfile;
+                $scope.model.structureId = $scope.share.selectedRow.structure.structureId;
                 $http({
                     url: 'api/renderer/' + $scope.structureType + '/image',
                     method: 'POST',
-                    data: $scope.myModel.structureMolfile
+                    data: $scope.model.structureMolfile
                 }).success(function (result) {
-                    $scope.myModel.image = result.image;
+                    $scope.model.image = result.image;
                 });
-            } else {
-                $scope.image = $scope.myModel.structureMolfile = $scope.myModel.structureId = null;
+            } else if(!_.isUndefined(row)) {
+                $scope.image = $scope.model.structureMolfile = $scope.model.structureId = null;
             }
         });
 
@@ -46,7 +47,7 @@ angular.module('indigoeln')
                 windowClass: 'structure-editor-modal',
                 resolve: {
                     prestructure: function () {
-                        return $scope.myModel.structureMolfile;
+                        return $scope.model.structureMolfile;
                     },
                     editor: function () {
                         // TODO: get editor name from user's settings; ketcher by default
@@ -91,7 +92,7 @@ angular.module('indigoeln')
                 windowClass: 'structure-export-modal',
                 resolve: {
                     structureToSave: function () {
-                        return $scope.myModel.structureMolfile;
+                        return $scope.model.structureMolfile;
                     },
                     structureType: function () {
                         return $scope.structureType;
@@ -121,7 +122,7 @@ angular.module('indigoeln')
                         $scope.share.selectedRow.structure.molfile = structure;
                         $scope.share.selectedRow.structure.structureId = structureId;
                     } else {
-                        $scope.myModel.image = result.image;
+                        $scope.model.image = result.image;
                         // case of search by molecule
                         if ($scope.model.restrictions) {
                             $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
@@ -130,9 +131,9 @@ angular.module('indigoeln')
                         }
 
                     }
-                    $scope.myModel.structureId = result;
+                    $scope.model.structureId = result;
                     // set the renewed value if it's fine with bingo
-                    $scope.myModel.structureMolfile = structure;
+                    $scope.model.structureMolfile = structure;
                 });
             }).error(function () {
                 console.info('Cannot save the structure.');

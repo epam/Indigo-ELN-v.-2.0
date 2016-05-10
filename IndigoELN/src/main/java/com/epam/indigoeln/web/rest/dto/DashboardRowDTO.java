@@ -21,6 +21,8 @@ public class DashboardRowDTO {
 
     private UserDTO author;
 
+    private UserDTO submitter;
+
     private List<UserDTO> coAuthors;
 
     private String project;
@@ -87,6 +89,14 @@ public class DashboardRowDTO {
 
     public void setAuthor(UserDTO author) {
         this.author = author;
+    }
+
+    public UserDTO getSubmitter() {
+        return submitter;
+    }
+
+    public void setSubmitter(UserDTO submitter) {
+        this.submitter = submitter;
     }
 
     public List<UserDTO> getCoAuthors() {

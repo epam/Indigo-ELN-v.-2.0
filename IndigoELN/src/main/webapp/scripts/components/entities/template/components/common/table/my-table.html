@@ -23,7 +23,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-if="myRows.length" ng-repeat="row in myRows" ng-class="{'success':row.selected}">
+        <tr ng-if="myRows.length" ng-repeat="row in myRows" ng-class="{'success':row.$$selected}">
             <td ng-repeat="column in myColumns" class="text-center" ng-click="onRowSelect($event, row)"
                 ng-show="!column.isHidden" style="min-width: 150px;">
                 <my-table-val my-column="column" my-row="row" my-row-index="$parent.$index"></my-table-val>
