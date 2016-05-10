@@ -20,13 +20,13 @@
                 <div class="row reagent-search-row" style="margin-top:-20px;">
                     <strong>{{myReagentList.length}} reagents in my list</strong>
                     <div class="pull-right">
-                        <button class="btn btn-default search-button"
+                        <button class="btn btn-primary search-button"
                                 type="button"
                                 ng-click="removeFromMyReagentList()"
                                 ng-disabled="false">
                             <span class="glyphicon glyphicon-remove-sign"></span> Remove from My List
                         </button>
-                        <button class="btn btn-default search-button"
+                        <button class="btn btn-primary search-button"
                                 type="button"
                                 ng-click="addToStoichTable(myReagentList)"
                                 ng-disabled="false">
@@ -423,7 +423,6 @@
 </uib-tab>
 </uib-tab>
 </uib-tabset>
-</div>
 </div>
 <div class="modal-footer text-right">
     <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
