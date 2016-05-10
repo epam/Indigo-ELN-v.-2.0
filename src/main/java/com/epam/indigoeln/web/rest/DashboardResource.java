@@ -202,7 +202,9 @@ public class DashboardResource {
         result.setName(title);
         result.setStatus(experiment.getStatus());
 
-        result.setAuthor(Optional.ofNullable(experiment.getSubmittedBy()).map(
+        final User author = experiment.getAuthor();
+        result.setAuthor(new DashboardRowDTO.UserDTO(author.getFirstName(), author.getLastName()));
+        result.setSubmitter(Optional.ofNullable(experiment.getSubmittedBy()).map(
                 u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
         ).orElse(null));
 

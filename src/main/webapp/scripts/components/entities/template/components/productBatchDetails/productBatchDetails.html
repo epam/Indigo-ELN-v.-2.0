@@ -105,43 +105,43 @@
                               my-readonly="myReadonly"
                     ></my-input>
                     <my-text-area my-label="Purity"
-                                  my-model="model.productBatchDetails.purity"
+                                  my-model="model.productBatchDetails.purity.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true">
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" type="button" ng-click="editPurity()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Melting Point"
-                                  my-model="model.productBatchDetails.meltingPoint"
+                                  my-model="model.productBatchDetails.meltingPoint.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" type="button" ng-click="editMeltingPoint()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-input my-label="Residual Solvents"
-                              my-model="model.productBatchDetails.residualSolvents"
+                              my-model="model.productBatchDetails.residualSolvents.asString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" ng-click="editResidualSolvents()" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-input>
                     <my-input my-label="Solubility in Solvents"
-                              my-model="model.productBatchDetails.solubilitySolvents"
+                              my-model="model.productBatchDetails.solubility.asString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-input>
                     <my-text-area my-label="External Supplier"
-                                  my-model="model.productBatchDetails.externalSupplier"
+                                  my-model="model.productBatchDetails.externalSupplier.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" ng-click="editExternalSupplier()" type="button" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-lg-4">
@@ -151,34 +151,34 @@
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-text-area my-label="Health Hazards"
-                                  my-model="model.productBatchDetails.healthHazards"
+                                  my-model="model.productBatchDetails.healthHazards.toString()"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" type="button" ng-click="editHealthHazards()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Handling Precautions"
-                                  my-model="model.productBatchDetails.handlingPrecautions"
+                                  my-model="model.productBatchDetails.handlingPrecautions.toString()"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" type="button" ng-click="editHandlingPrecautions()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Storage Instructions"
-                                  my-model="model.productBatchDetails.storageInstructions"
+                                  my-model="model.productBatchDetails.storageInstructions.toString()"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-default" type="button" ng-click="editStorageInstructions()" ng-disabled="myReadonly">Edit</button>
                     </my-text-area>
                     <my-text-area my-label="Batch Comments"
                                   my-model="model.productBatchDetails.comments"
                                   my-label-vertical="true"
                                   my-readonly="myReadonly"
-                    >
+                    ></my-text-area>
                 </div>
             </div>
         </div>

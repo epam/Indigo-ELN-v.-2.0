@@ -1,0 +1,43 @@
+<div class="modal-header">
+    <h5 class="modal-title">Purity % Information</h5>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <my-two-toggle my-label="Purity % Information"
+                       my-first="Purity Available"
+                       my-second="Purity Unknown"
+                       my-model="purity.property"
+        ></my-two-toggle>
+    </div>
+    <br/>
+    <div class="row long-content-popup">
+        <div class="col-xs-12">
+            <table class="table" id="search-result-table">
+                <thead class="search-table-head">
+                    <tr>
+                        <th style="width:20%">Purity Determined By</th>
+                        <th style="width:15%">Operator</th>
+                        <th style="width:15%">Purity%</th>
+                        <th>Purity Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in dictionary.words track by item.name" ng-init="purity.data[$index].determinedBy = item.name">
+                        <td>{{purity.data[$index].determinedBy}}</td>
+                        <td><my-select my-items="operatorSelect"
+                                       my-readonly="isDisabled()"
+                                       my-model="purity.data[$index].operator"></my-select></td>
+                        <td><my-input my-model="purity.data[$index].value" my-readonly="isDisabled()"></my-input></td>
+                        <td><my-input my-model="purity.data[$index].comments" my-readonly="isDisabled()"></my-input></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</div>
+<div class="modal-footer text-right">
+    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>

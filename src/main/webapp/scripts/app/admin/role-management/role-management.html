@@ -1,5 +1,4 @@
 <div class="panel panel-info role-management">
-    <div class="panel-heading">Roles</div>
     <div class="panel-body">
         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
         <button class="btn btn-info" ng-click="create()">
@@ -7,9 +6,7 @@
         </button>
 
         <div ng-show="role" class="panel panel-info edit-form">
-            <div class="panel-heading">
-                Create/Update Role
-            </div>
+            <div class="panel-heading">Create/Update Role</div>
             <div class="panel-body ">
                 <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
                       class="form-horizontal" autocomplete="off">
@@ -24,7 +21,6 @@
                                     my-name="name"
                                     my-type="text"
                                     my-model="role.name"
-                                    my-validation-obj="editForm.name"
                                     my-validation-required="true"
                                     my-validation-maxlength="50"
                             ></my-input>

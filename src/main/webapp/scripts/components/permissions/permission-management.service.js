@@ -53,12 +53,22 @@ angular.module('indigoeln')
                     return false;
                 });
             },
-            getAuthorAccessList: function(author) {
-                return [{
-                    user: author,
+            getAuthorAccessList: function(entityAuthor, projectAuthor) {
+                var experimentCreatorPermissions = {
+                    user: entityAuthor,
                     permissions: ['READ_ENTITY', 'CREATE_SUB_ENTITY', 'UPDATE_ENTITY'],
                     permissionView: 'OWNER'
-                }];
+                };
+                if (projectAuthor && projectAuthor.id !== entityAuthor.id) {
+                    var projectCreatorPermissions = {
+                        user: projectAuthor,
+                        permissions: ['READ_ENTITY'],
+                        permissionView: 'VIEWER'
+                    };
+                    return [experimentCreatorPermissions, projectCreatorPermissions];
+                } else {
+                    return [experimentCreatorPermissions];
+                }
             },
             getAccessList: function() {
                 return _accessList;

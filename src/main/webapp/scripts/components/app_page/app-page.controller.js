@@ -5,7 +5,7 @@
 
 angular
     .module('indigoeln')
-    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, ExperimentStatus, Config) {
+    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, experimentStatusSubscriber, Config) {
 
 
         /**
@@ -30,16 +30,8 @@ angular
 
         });
 
-        ExperimentStatus.onStatusChanged(function(statuses) {
-            $rootScope.$broadcast('experiment-status-changed', statuses);
-        });
-
         Config.load({}, function(config) {
             $rootScope.$broadcast('config-loaded', config);
-        });
-
-        $rootScope.$on('$destroy', function() {
-            ExperimentStatus.destroy();
         });
 
         $scope.toggleSidebar = function () {
@@ -50,6 +42,13 @@ angular
         window.onresize = function () {
             $scope.$apply();
         };
+
+        $scope.$on('$destroy', experimentStatusSubscriber.unSubscribe);
+
+        //todo: refactoring
+        experimentStatusSubscriber.onServerEvent(function (statuses) {
+            $rootScope.$broadcast('experiment-status-changed', statuses);
+        });
 
         $scope.onMouseWheel = function ($event, $delta, $deltaX, $deltaY) {
             var $this = $(event.currentTarget),
@@ -77,5 +76,5 @@ angular
                 $this.scrollTop(0);
                 return prevent();
             }
-        }
+        };
     });

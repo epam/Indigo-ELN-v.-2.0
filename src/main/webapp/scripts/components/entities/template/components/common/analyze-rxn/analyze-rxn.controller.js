@@ -74,8 +74,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
                         comments: 'some comments',
                         database: 'IndigoELN',
                         structure: '#image',
-                        isCollapsed: true,
-                        isSelected: false
+                        $$isCollapsed: true,
+                        $$isSelected: false
                     },
                     {
                         compoundId: 'STR-00111111',
@@ -98,8 +98,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
                         comments: 'some comments',
                         database: 'IndigoELN',
                         structure: '#image',
-                        isCollapsed: true,
-                        isSelected: false
+                        $$isCollapsed: true,
+                        $$isSelected: false
                     }
                 ];
             });
@@ -115,8 +115,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             //    return _.map(result, function (item) {
             //        var batchDetails = _.extend({}, item.details);
             //        batchDetails.nbkBatch = item.notebookBatchNumber;
-            //        batchDetails.isCollapsed = true;
-            //        batchDetails.isSelected = false;
+            //        batchDetails.$$isCollapsed = true;
+            //        batchDetails.$$isSelected = false;
             //        batchDetails.database = $scope.model.databases.join(', ');
             //        batchDetails.molWeight = item.details.molWgt;
             //        return batchDetails;
@@ -138,14 +138,14 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             return { formula: reactant, searchResult: [], selectedReactant: null };
         });
 
-        $scope.selectReactant = function (tab, reactant, tabIndex, reactantIndex, isSelected) {
-            if (isSelected) {
+        $scope.selectReactant = function (tab, reactant, tabIndex, reactantIndex, $$isSelected) {
+            if ($$isSelected) {
                 // only one reactant can be selected from each tab
                 var reactantToReplaceIndex = _.findIndex($scope.model.selectedReactants, {molFormula: reactant.molFormula});
                 if (reactantToReplaceIndex > -1) {
                     _.each(tab.searchResult, function(item, index) {
                         if (index !== reactantIndex) {
-                            item.isSelected = false;
+                            item.$$isSelected = false;
                         }
                     });
                     $scope.model.selectedReactants[reactantToReplaceIndex] = reactant;

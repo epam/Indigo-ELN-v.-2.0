@@ -29,10 +29,10 @@
     <br>
     <div ng-if="isSearchCompleted" class="search-result-container">
         <div class="row">
-            <div class="col-xs-3 reagent-search-collapse" ng-init="isSelectedReactantsCollapsed=true">
-                <a ng-click="isSelectedReactantsCollapsed = !isSelectedReactantsCollapsed">
-                        <span ng-class="{'glyphicon glyphicon-triangle-right':isSelectedReactantsCollapsed,
-                             'glyphicon glyphicon-triangle-bottom':!isSelectedReactantsCollapsed}"></span>
+            <div class="col-xs-3 reagent-search-collapse" ng-init="$$isSelectedReactantsCollapsed=true">
+                <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed">
+                        <span ng-class="{'glyphicon glyphicon-triangle-right':$$isSelectedReactantsCollapsed,
+                             'glyphicon glyphicon-triangle-bottom':!$$isSelectedReactantsCollapsed}"></span>
                     Selected reactants ({{model.selectedReactants.length}})
                 </a>
             </div>
@@ -43,7 +43,7 @@
                 <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
             </button>
         </div>
-        <div uib-collapse="isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
+        <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
             <div ng-repeat="reactant in model.selectedReactants"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
             </div>
         </div>
@@ -67,16 +67,16 @@
                                 </tr>
                                 </thead>
                                 <tbody ng-repeat="result in tab.searchResult">
-                                <tr ng-class="{'search-table-row-highlight':result.isSelected}">
+                                <tr ng-class="{'search-table-row-highlight':result.$$isSelected}">
                                     <td style="width:76px">
-                                        <a ng-click="result.isCollapsed = !result.isCollapsed">
-                                                                        <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.isCollapsed,
-                                                                            'glyphicon glyphicon-triangle-bottom':!result.isCollapsed}"></span></a>
+                                        <a ng-click="result.$$isCollapsed = !result.$$isCollapsed">
+                                                                        <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.$$isCollapsed,
+                                                                            'glyphicon glyphicon-triangle-bottom':!result.$$isCollapsed}"></span></a>
                                         <my-checkbox
                                                 style="padding:0"
                                                 class="checkbox-inline"
-                                                my-change="selectReactant(tab, result, $parent.$index, $index, !result.isSelected)"
-                                                my-model="result.isSelected"
+                                                my-change="selectReactant(tab, result, $parent.$index, $index, !result.$$isSelected)"
+                                                my-model="result.$$isSelected"
                                                 my-name="resultSelector"
                                         ></my-checkbox>
                                     </td>
@@ -101,7 +101,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                                <tr uib-collapse="result.isCollapsed">
+                                <tr uib-collapse="result.$$isCollapsed">
                                     <td colspan="6">
                                         <div class="row" style="margin-top:-6px;">
                                             <div class="col-xs-6">

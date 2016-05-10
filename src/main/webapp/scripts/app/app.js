@@ -50,7 +50,7 @@ angular.module('indigoeln',
             if (!countdownDialog) {
                 countdownDialog = $uibModal.open({
                     animation: false,
-                    templateUrl: 'scripts/app/countdowndialog/countdown-dialog.html',
+                    templateUrl: 'scripts/app/timer/timer-dialog.html',
                     controller: 'CountdownDialogController',
                     windowClass: 'modal-danger',
                     resolve: {
@@ -110,11 +110,12 @@ angular.module('indigoeln',
                 }
             },
             resolve: {
-                authorize: ['Auth',
-                    function (Auth) {
-                        return Auth.authorize();
-                    }
-                ]
+                authorize: function (Auth) {
+                    return Auth.authorize();
+                },
+                experimentStatusSubscriber: function (WSService) {
+                    return WSService.subscribe('experiment_status');
+                }
             }
         }).state('navbar', {
             abstract: true,

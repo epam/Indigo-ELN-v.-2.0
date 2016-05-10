@@ -74,19 +74,17 @@ angular.module('indigoeln')
                     if (target.is('button,span,ul,a,li,input')) {
                         return;
                     }
-                    if (row.selected) {
-                        _.each($scope.myRows, function (item) {
-                            item.selected = false;
-                        });
-                    } else {
-                        _.each($scope.myRows, function (item) {
-                            item.selected = false;
-                        });
-                        row.selected = true;
-                    }
+                    _.each($scope.myRows, function (item) {
+                        if(item !== row) {
+                            item.$$selected = false;
+                        }
+                    });
+
+                    row.$$selected = !row.$$selected;
+
                     if ($scope.myOnRowSelected) {
                         $scope.myOnRowSelected(_.find($scope.myRows, function (item) {
-                            return item.selected;
+                            return item.$$selected;
                         }));
                     }
                 };

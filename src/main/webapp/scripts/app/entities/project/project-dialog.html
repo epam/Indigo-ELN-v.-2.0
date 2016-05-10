@@ -1,9 +1,6 @@
 <div>
     <div class="panel panel-default projects" ng-class="{'project-create': project.id==null}"
          cg-busy="{promise:loading, minDuration:700}">
-        <div class="panel-heading">
-            Create or edit a Project
-        </div>
         <div class="panel-body">
             <form id="createProjectForm" name="createProjectForm" role="form" novalidate
                   class="form-horizontal" autocomplete="off">
@@ -15,7 +12,6 @@
                                   my-type="text"
                                   my-label-vertical="true"
                                   my-model="project.name"
-                                  my-validation-obj="createProjectForm.projectName"
                                   my-validation-required="!project.name.trim()"></my-input>
                     </div>
                 </div>
@@ -61,7 +57,7 @@
                         <my-input my-label="Literature References" my-label-vertical="true" my-readonly="!isEditAllowed"
                                   my-model="project.references"></my-input>
                         <label class="control-label">Description</label>
-                        <my-text-editor content="project.description" my-readonly="!isEditAllowed"></my-text-editor>
+                        <my-text-editor my-model="project.description" my-readonly="!isEditAllowed"></my-text-editor>
                         <my-file-uploader entityid="project.id"
                                                  my-readonly="!isEditAllowed"></my-file-uploader>
                     </div>

@@ -2,7 +2,7 @@
 
 angular.module('indigoeln')
     .controller('PermissionManagementController',
-        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal, UserRemovableFromProject, UserRemovableFromNotebook) {
+        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal) {
 
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
