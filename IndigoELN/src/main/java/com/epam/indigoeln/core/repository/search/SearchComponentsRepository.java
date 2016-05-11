@@ -6,7 +6,6 @@ import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 
 import com.mongodb.DBObject;
-import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +32,8 @@ public class SearchComponentsRepository {
 
     public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest, List<Integer> bingoIds) {
         Aggregation aggregation = buildAggregation(searchRequest, bingoIds);
-        LOGGER.info("Perform search query: " + aggregation.toString());
+        LOGGER.debug("Perform search query: " + aggregation.toString());
+
         AggregationResults<DBObject> aggregate = mongoTemplate.aggregate(aggregation, Component.class, DBObject.class);
         List<DBObject> mappedResults = aggregate.getMappedResults();
         return mappedResults.stream().map(convertResult).collect(Collectors.toList());
@@ -42,14 +41,13 @@ public class SearchComponentsRepository {
 
     private Aggregation buildAggregation(BatchSearchRequest request, List<Integer> bingoIds) {
         BatchSearchAggregationBuilder builder = BatchSearchAggregationBuilder.getInstance();
+        request.getSearchQuery().ifPresent(builder::withSearchQuery);
 
-        Optional.ofNullable(request.getSearchQuery()).ifPresent(builder::withSearchQuery);
-
-        if(!CollectionUtils.isEmpty(bingoIds)) {
+        if(!bingoIds.isEmpty()) {
             builder.withBingoIds(bingoIds);
         }
 
-        if(!CollectionUtils.isEmpty(request.getAdvancedSearch())){
+        if(!request.getAdvancedSearch().isEmpty()) {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
