@@ -27,6 +27,8 @@
                                     my-model="user.login"
                                     my-validation-required="user.id == null"
                                     my-validation-maxlength="50"
+                                    my-validation-pattern="/^[a-z0-9]*$/"
+                                    my-validation-pattern-text="Login should not contain symbols in upper case."
                                     ></my-input>
                             <my-input
                                     my-label="First Name"
