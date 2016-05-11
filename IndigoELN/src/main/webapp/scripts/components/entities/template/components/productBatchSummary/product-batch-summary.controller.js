@@ -54,7 +54,7 @@ angular.module('indigoeln')
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
                     batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
                     batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
-                    batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.toString() : null;
+                    batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
             }, true);
 

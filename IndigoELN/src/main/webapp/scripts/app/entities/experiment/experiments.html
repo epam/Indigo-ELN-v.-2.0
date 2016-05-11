@@ -14,7 +14,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp">
+        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp track by $index">
             <td class="table-list__item">
                 <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
             </td>
@@ -22,7 +22,7 @@
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.coAuthors">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.project}}</td>
@@ -49,7 +49,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp">
+        <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
             <td class="table-list__item">
                 <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
@@ -59,7 +59,7 @@
             <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
@@ -85,7 +85,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp">
+        <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
             <td class="table-list__item">
                 <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
@@ -95,7 +95,7 @@
             <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>

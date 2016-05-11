@@ -10,7 +10,7 @@
         <th style="width:18%">Structure</th>
     </tr>
     </thead>
-    <tbody ng-repeat="item in myTableContent">
+    <tbody ng-repeat="item in myTableContent track by $index">
     <tr ng-class="{'search-table-row-highlight':item.$$isSelected}">
         <td style="width:76px">
             <a ng-click="item.$$isCollapsed = !item.$$isCollapsed">
@@ -57,7 +57,7 @@
                 <div class="col-xs-6">
                     <div class="row">
                         <strong>Reagent Information</strong>
-                        <button class="btn btn-default btn-sm search-button"
+                        <button class="btn btn-info btn-sm search-button"
                                 type="button"
                                 ng-if="myEditableInfo"
                                 ng-click="editInfo(item)"
@@ -182,7 +182,7 @@
                             </div>
                         </div>
                         <div class="row reagent-search-row" ng-if="isEditMode">
-                            <button class="btn btn-primary btn-sm search-button"
+                            <button class="btn btn-info btn-sm search-button"
                                     type="button"
                                     ng-click="finishEdit()"
                                     ng-disabled="false">Save

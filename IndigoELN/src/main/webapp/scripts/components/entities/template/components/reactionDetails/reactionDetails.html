@@ -1,4 +1,4 @@
-<div class="panel panel-info component">
+<div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         Reaction Details
     </div>
@@ -20,7 +20,7 @@
                                my-label-vertical="true"
                                my-readonly="myReadonly"></my-select>
                     <my-input my-label="Batch Creator" my-label-vertical="true"
-                              my-model="experiment.author.login"
+                              my-model="experiment.author.fullName"
                               my-readonly="true"></my-input>
                     <my-select my-label="Co-authors"
                                my-label-vertical="true"
@@ -39,26 +39,39 @@
                 <div class="col-xs-4">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate" my-readonly="true"></my-date-picker>
-                    <my-input my-label="Cont. FROM Rxn" my-label-vertical="true"
-                              my-model="model.reactionDetails.contFromRxn" my-input-group="append"
-                              my-readonly="myReadonly">
-                        <button class="btn btn-default" type="button" my-readonly="myReadonly">link</button>
-                    </my-input>
-                    <my-input my-label="Cont. TO Rxn" my-label-vertical="true"
-                              my-model="model.reactionDetails.contToRxn" my-input-group="append"
-                              my-readonly="myReadonly">
-                        <button class="btn btn-default" type="button" my-readonly="myReadonly">link</button>
-                    </my-input>
-                    <my-input my-label="Linked Experiment" my-label-vertical="true"
-                              my-model="model.reactionDetails.linkedExperiment"
-                              my-readonly="myReadonly"></my-input>
+                    <my-tag-input my-label="Cont. FROM Rxn"
+                                  my-model="model.reactionDetails.contFromRxn"
+                                  my-readonly="myReadonly"
+                                  my-label-vertical="true"
+                                  my-on-click="onLinkedExperimentClick"
+                                  my-placeholder="11112222-0003"
+                                  my-classes="linkedExperiments"
+                                  my-max-tags="1"></my-tag-input>
+                    <my-tag-input my-label="Cont. TO Rxn"
+                                  my-model="model.reactionDetails.contToRxn"
+                                  my-readonly="myReadonly"
+                                  my-label-vertical="true"
+                                  my-on-click="onLinkedExperimentClick"
+                                  my-placeholder="11112222-0005"
+                                  my-classes="linkedExperiments"
+                                  my-max-tags="1"></my-tag-input>
+                    <my-tag-input my-label="Linked Experiment"
+                                  my-model="model.reactionDetails.linkedExperiments"
+                                  my-readonly="myReadonly"
+                                  my-label-vertical="true"
+                                  my-on-click="onLinkedExperimentClick"
+                                  my-placeholder="11112222-0003, 11112222-0005"
+                                  my-classes="linkedExperiments"></my-tag-input>
                     <my-input my-label="Project Alias Name" my-label-vertical="true"
                               my-model="model.reactionDetails.projectAliasName"
                               my-readonly="myReadonly"></my-input>
-                    <my-input my-label="Batch Owner" my-label-vertical="true"
-                              my-model="displayOnly.batchOwner"
-                              ng-init="displayOnly.batchOwner=experiment.batchOwner.login"
-                              my-readonly="true"></my-input>
+                    <my-select my-label="Batch Owner"
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"
+                               my-items="users"
+                               my-model="model.reactionDetails.batchOwner"
+                               my-multiple="true"
+                    ></my-select>
                 </div>
             </div>
             <div class="row">

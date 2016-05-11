@@ -62,7 +62,7 @@ angular.module('indigoeln')
         },
         template: '<fieldset ng-disabled="myReadonly"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
+        '<div class="my-component" ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     };

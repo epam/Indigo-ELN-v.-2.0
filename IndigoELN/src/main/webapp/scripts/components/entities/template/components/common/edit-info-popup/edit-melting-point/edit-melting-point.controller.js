@@ -5,9 +5,9 @@ angular.module('indigoeln').controller('EditMeltingPointController',
         var resultToString = function () {
             if ($scope.meltingPoint.lower && $scope.meltingPoint.upper && $scope.meltingPoint.comments) {
                 return 'Range ' + $scope.meltingPoint.lower + ' ~ ' + $scope.meltingPoint.upper +
-                    ', ' + $scope.meltingPoint.comments;
+                    '\xB0C, ' + $scope.meltingPoint.comments;
             } else if ($scope.meltingPoint.lower && $scope.meltingPoint.upper) {
-                return 'Range ' + $scope.meltingPoint.lower + ' ~ ' + $scope.meltingPoint.upper;
+                return 'Range ' + $scope.meltingPoint.lower + ' ~ ' + $scope.meltingPoint.upper + '\xB0C';
             }
         };
 

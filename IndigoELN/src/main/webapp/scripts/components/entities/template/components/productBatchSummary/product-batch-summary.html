@@ -1,56 +1,60 @@
-<div class="panel panel-info product-batch-summary" style="min-height: 300px">
+<div class="panel panel-info product-batch-summary" my-collapsible-component>
     <div class="panel-heading">
         Product Batch Summary
     </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-12">
-                    <my-checkbox
-                            my-label="Has registration service (for test only)"
-                            my-model="isHasRegService"
-                    ></my-checkbox>
+    <div class="collapsible">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <my-checkbox
+                                my-label="Has registration service (for test only)"
+                                my-model="isHasRegService"
+                        ></my-checkbox>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-2">
-                    <my-checkbox
-                            my-label="Show Structures"
-                            my-model="showStructures"
-                    ></my-checkbox>
-                </div>
-                <div class="col-md-5">
-                    <slider ng-model="structureSize" min="0.3" step="0.01" max="4" value="testOptions.value"
-                            style="margin-top: 10px;"
-                            ng-show="showStructures"></slider>
-                </div>
-                <div class="col-md-5">
-                    <div class="btn-toolbar pull-right" role="toolbar">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-info" disabled>Sync with Intended Products
-                            </button>
-                            <button type="button" class="btn btn-info" disabled>VnV</button>
-                            <button type="button" class="btn btn-info" ng-disabled="myReadonly"
-                                    ng-click="addNewBatch()">Add New Batch
-                            </button>
-                            <button type="button" class="btn btn-info" ng-disabled="myReadonly || !share.selectedRow"
-                                    ng-click="duplicateBatch()">Duplicate Batch
-                            </button>
-                            <button type="button" class="btn btn-info" ng-disabled="myReadonly || !isHasCheckedRows()"
-                                    ng-click="deleteBatches()">Delete Batch(es)
-                            </button>
-                            <button type="button" class="btn btn-info" disabled>Import SD File</button>
-                            <button type="button" class="btn btn-info" ng-show="isHasRegService"
-                                    ng-click="registerBatches()">Register Batch(es)
-                            </button>
+                <div class="row">
+                    <div class="col-md-2">
+                        <my-checkbox
+                                my-label="Show Structures"
+                                my-model="showStructures"
+                        ></my-checkbox>
+                    </div>
+                    <div class="col-md-5">
+                        <slider ng-model="structureSize" min="0.3" step="0.01" max="4" value="testOptions.value"
+                                style="margin-top: 10px;"
+                                ng-show="showStructures"></slider>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="btn-toolbar pull-right" role="toolbar">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-info" disabled>Sync with Intended Products
+                                </button>
+                                <button type="button" class="btn btn-info" disabled>VnV</button>
+                                <button type="button" class="btn btn-info" ng-disabled="myReadonly"
+                                        ng-click="addNewBatch()">Add New Batch
+                                </button>
+                                <button type="button" class="btn btn-info"
+                                        ng-disabled="myReadonly || !share.selectedRow"
+                                        ng-click="duplicateBatch()">Duplicate Batch
+                                </button>
+                                <button type="button" class="btn btn-info"
+                                        ng-disabled="myReadonly || !isHasCheckedRows()"
+                                        ng-click="deleteBatches()">Delete Batch(es)
+                                </button>
+                                <button type="button" class="btn btn-info" disabled>Import SD File</button>
+                                <button type="button" class="btn btn-info" ng-show="isHasRegService"
+                                        ng-click="registerBatches()">Register Batch(es)
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
+                  my-draggable-columns="true"
+                  my-readonly="myReadonly"
+                  my-on-row-selected="onRowSelected"></my-table>
     </div>
-    <my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
-              my-draggable-columns="true"
-              my-readonly="myReadonly"
-              my-on-row-selected="onRowSelected"></my-table>
 </div>

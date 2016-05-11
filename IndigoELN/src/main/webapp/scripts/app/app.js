@@ -91,7 +91,7 @@ angular.module('indigoeln',
         editableOptions.theme = 'bs3';
     })
 
-    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider, $animateProvider) {
         //enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
@@ -141,4 +141,6 @@ angular.module('indigoeln',
         IdleProvider.timeout(30);
         // to allow file's export
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/);
+
+        $animateProvider.classNameFilter(/\banimated\b/);
     });

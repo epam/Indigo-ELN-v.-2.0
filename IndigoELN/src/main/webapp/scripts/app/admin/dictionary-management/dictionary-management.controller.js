@@ -98,8 +98,6 @@ angular.module('indigoeln')
 
         $scope.clearDictionary = function () {
             $scope.dictionary = null;
-            $scope.editForm.$setPristine();
-            $scope.editForm.$setUntouched();
         };
 
         $scope.setSelected = function (id) {
@@ -120,8 +118,6 @@ angular.module('indigoeln')
 
         $scope.clearWord = function () {
             $scope.word = null;
-            $scope.editWordForm.$setPristine();
-            $scope.editWordForm.$setUntouched();
         };
 
         $scope.saveWord = function () {
