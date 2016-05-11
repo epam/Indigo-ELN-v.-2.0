@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
 public class BatchSearchStructure {
+
     private String name;
     private String searchMode;
     private float  similarity;

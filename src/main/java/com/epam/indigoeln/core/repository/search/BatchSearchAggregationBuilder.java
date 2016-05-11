@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -78,7 +77,7 @@ public final class BatchSearchAggregationBuilder {
     private static Criteria convertCriteria(BatchSearchCriteria dto) {
         Criteria criteria = Criteria.where(CONTENT_PREFIX + dto.getField());
         Object value = dto.getValue();
-        switch (Optional.ofNullable(dto.getCondition()).orElse("")) {
+        switch (dto.getCondition()) {
             case "contains" :
                 criteria.regex(".*" + value + ".*"); break;
             case "starts with" :

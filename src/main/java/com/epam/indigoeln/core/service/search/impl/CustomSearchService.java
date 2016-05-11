@@ -5,9 +5,8 @@ import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
 
-import com.google.common.collect.ImmutableMap;
+import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
@@ -31,54 +29,38 @@ public class CustomSearchService implements SearchServiceAPI {
 
     @Override
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
-        List<Integer> bingoIds;
-        if(searchRequest.getStructure() != null) {
-            bingoIds = getBingoDbIds(searchRequest);
-            if(bingoIds.isEmpty()) {
-                return Collections.emptyList();
-            }
+        if(searchRequest.getStructure().isPresent()) {
+            List<Integer> bingoIds = searchByBingoDb(searchRequest.getStructure().get());
+            return bingoIds.isEmpty() ? Collections.emptyList() :
+                    searchComponentsRepository.findBatches(searchRequest, bingoIds);
         } else {
-            bingoIds = Collections.emptyList();
+            return searchComponentsRepository.findBatches(searchRequest, Collections.emptyList());
         }
-
-        return searchComponentsRepository.findBatches(searchRequest, bingoIds);
-    }
-
-    private List<Integer> getBingoDbIds(BatchSearchRequest searchRequest) {
-        if(searchRequest.getStructure() == null) {
-            return Collections.emptyList();
-        }
-
-        BatchSearchStructure structure = searchRequest.getStructure();
-        List<Integer> result;
-        if(structure.getFormula()!= null) {
-            result = searchByBingoDb(structure.getFormula(), CHEMISTRY_SEARCH_MOLFORMULA, Collections.emptyMap());
-        } else {
-            Map options = ImmutableMap.of("min", structure.getSimilarity());
-            result = searchByBingoDb(structure.getMolfile(), structure.getSearchMode(), options);
-        }
-        return result;
     }
 
     @SuppressWarnings("unchecked")
-    private List<Integer> searchByBingoDb(String structure, String searchOperator, Map options) {
+    private List<Integer> searchByBingoDb(BatchSearchStructure structure) {
         List<Integer> bingoIds;
+        String molFile = structure.getMolfile();
+        String molFormula = structure.getFormula();
 
-        switch (searchOperator) {
+        switch (structure.getSearchMode()) {
             case CHEMISTRY_SEARCH_SUBSTRUCTURE:
-                bingoIds = bingoService.searchMoleculeSub(structure, StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeSub(molFile, StringUtils.EMPTY);
                 break;
+
             case CHEMISTRY_SEARCH_EXACT:
-                bingoIds = bingoService.searchMoleculeExact(structure, StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeExact(molFile, StringUtils.EMPTY);
                 break;
+
             case CHEMISTRY_SEARCH_SIMILARITY:
-                bingoIds = bingoService.searchMoleculeSim(structure,
-                        Float.valueOf(options.getOrDefault("min", 0f).toString()),
-                        Float.valueOf(options.getOrDefault("max", 1f).toString()), StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeSim(molFile, structure.getSimilarity(), 1f, StringUtils.EMPTY);
                 break;
+
             case CHEMISTRY_SEARCH_MOLFORMULA:
-                bingoIds = bingoService.searchMoleculeMolFormula(structure, StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeMolFormula(molFormula, StringUtils.EMPTY);
                 break;
+
             default:
                 bingoIds = Collections.emptyList();
         }
