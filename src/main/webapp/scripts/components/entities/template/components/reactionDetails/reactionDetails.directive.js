@@ -16,8 +16,13 @@ angular.module('indigoeln')
                     $scope.users = dictionary.words;
                     $scope.model.reactionDetails.coAuthors = $scope.model.reactionDetails.coAuthors ||
                         _.where($scope.users, {name: Principal.getIdentity().fullName});
+
+                    $scope.model.reactionDetails.batchOwner = $scope.model.reactionDetails.batchOwner ||
+                        _.where($scope.users, {name: Principal.getIdentity().fullName});
                 });
                 $scope.onLinkedExperimentClick = LinkedExperimentUtils.onLinkedExperimentClick;
+
+
             }
         };
     });
