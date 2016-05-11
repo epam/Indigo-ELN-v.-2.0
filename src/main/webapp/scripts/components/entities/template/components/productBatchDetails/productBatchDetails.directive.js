@@ -55,19 +55,19 @@ angular.module('indigoeln')
                 };
                 $scope.editHealthHazards = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.healthHazards = _.compact(result);
+                        $scope.model.productBatchDetails.healthHazards = result;
                     };
                     InfoEditor.editHealthHazards($scope.model.productBatchDetails.healthHazards, callback);
                 };
                 $scope.editHandlingPrecautions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.handlingPrecautions = _.compact(result);
+                        $scope.model.productBatchDetails.handlingPrecautions = result;
                     };
                     InfoEditor.editHandlingPrecautions($scope.model.productBatchDetails.handlingPrecautions, callback);
                 };
                 $scope.editStorageInstructions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.storageInstructions = _.compact(result);
+                        $scope.model.productBatchDetails.storageInstructions = result;
                     };
                     InfoEditor.editStorageInstructions($scope.model.productBatchDetails.storageInstructions, callback);
                 };

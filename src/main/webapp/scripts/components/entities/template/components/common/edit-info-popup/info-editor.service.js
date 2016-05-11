@@ -94,7 +94,7 @@ angular.module('indigoeln')
                             return data;
                         },
                         dictionary: function (Dictionary) {
-                            return Dictionary.get({id: 'solventName'}).$promise;
+                            return Dictionary.get({id: 'purity'}).$promise;
                         }
                     }
                 }).result.then(function (result) {

@@ -1,4 +1,4 @@
-<div class="panel panel-info component">
+<div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         Concept Details
     </div>
@@ -43,9 +43,13 @@
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate"
                                     my-readonly="true"></my-date-picker>
-                    <my-input my-label="Linked Experiment" my-label-vertical="true"
-                              my-readonly="myReadonly">
-                    </my-input>
+                    <my-tag-input my-label="Linked Experiment"
+                                  my-model="model.conceptDetails.linkedExperiments"
+                                  my-readonly="myReadonly"
+                                  my-label-vertical="true"
+                                  my-on-click="onLinkedExperimentClick"
+                                  my-placeholder="11112222-0003, 11112222-0005"
+                                  my-classes="linkedExperiments"></my-tag-input>
                     <my-select my-label="Designers"
                                my-label-vertical="true"
                                my-readonly="myReadonly"

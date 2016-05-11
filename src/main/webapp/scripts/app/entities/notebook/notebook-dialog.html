@@ -1,7 +1,6 @@
 <div class="panel panel-info notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
     <div class="panel-heading">
-        Notebook
     </div>
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
@@ -36,14 +35,14 @@
                             ng-disabled="!isEditAllowed">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
-                    <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">
+                    <button type="button" class="btn btn-info" ng-click="isCollapsed = !isCollapsed">
                         <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
                     </button>
                     <div uib-collapse="isCollapsed">
                         <hr>
                         <div class="col-xs-12">
                             <ul id="triple-list" class="members">
-                                <li class="members" ng-repeat="member in notebook.accessList">
+                                <li class="members" ng-repeat="member in notebook.accessList track by $index">
                                     {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
                                     + ')' }}
                                 </li>

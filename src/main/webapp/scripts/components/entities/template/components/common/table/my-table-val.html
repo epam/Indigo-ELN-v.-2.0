@@ -18,7 +18,7 @@
         </div>
     </div>
     <div id="myTableVal" ng-if="isEditable()" click-outside="closeThis()"
-         outside-if-not="btn btn-default form-control ui-select-toggle">
+         outside-if-not="btn btn-info form-control ui-select-toggle">
         <div ng-if="!myColumn.type">{{myRow[myColumn.id]}}</div>
         <div ng-if="myColumn.type == 'boolean'">
             <my-checkbox
@@ -31,7 +31,7 @@
                       my-readonly="myColumn.readonly" my-change="myColumn.onChange(myRow[myColumn.id], myRow, myColumn.id)">
                 <div class="btn-group-sm" uib-dropdown dropdown-append-to-body
                      ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">
-                    <button type="button" class="btn btn-default"
+                    <button type="button" class="btn btn-info"
                             aria-haspopup="true"
                             aria-expanded="false"
                             uib-dropdown-toggle>{{myRow[myColumn.id].unit}} <span class="caret"></span>

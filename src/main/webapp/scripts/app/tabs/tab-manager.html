@@ -1,7 +1,7 @@
 <div my-tab-scroller class="experiment-tabs">
     <ul class="nav nav-pills">
         <li role="presentation" ng-class="{'active' : tab.name === activeTab.name}"
-            ng-repeat="tab in tabs" class="experiment-tab">
+            ng-repeat="tab in tabs track by $index" class="experiment-tab">
             <a class="experiment-tab-name" ng-click="$event.stopPropagation(); onTabClick(tab.name)">
                 {{tab.name}}
                 <!--{{getKind(entity.fullId)}} {{entity.title}} <i-->
@@ -13,7 +13,7 @@
         </li>
     </ul>
 </div>
-<div class="tab-content">
+<div class="tab-content animated">
     <div class="tab-pane active">
         <div ui-view="tabContent"></div>
     </div>

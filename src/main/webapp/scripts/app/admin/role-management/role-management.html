@@ -8,7 +8,7 @@
             <span class="glyphicon glyphicon-flash"></span> <span>Create a new Role</span>
         </button>
 
-        <div ng-show="role" class="panel panel-info edit-form">
+        <div ng-if="role" class="panel panel-info edit-form animated">
             <div class="panel-heading">Create/Update Role</div>
             <div class="panel-body ">
                 <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
@@ -33,7 +33,7 @@
                                 <label>Authorities</label>
                             </div>
                             <div class="col-xs-11">
-                                <div class="col-xs-3" ng-repeat="authority in authorities">
+                                <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
                                     <div>
                                         <my-checkbox
                                                 my-label="{{authority.description}}"
@@ -72,7 +72,7 @@
                 <input type="text" class="form-control" id="searchRole" placeholder="Role name"
                        ng-model="searchText">
             </div>
-            <button type="submit" class="btn btn-default" ng-click="search()">
+            <button type="submit" class="btn btn-info" ng-click="search()">
                 <span class="glyphicon glyphicon-search"></span>
                 Search
             </button>
@@ -85,14 +85,14 @@
             <thead>
             <tr>
                 <th><p>Role name</p></th>
-                <th ng-repeat="authority in authorities"><p>{{authority.description}}</p></th>
+                <th ng-repeat="authority in authorities track by $index"><p>{{authority.description}}</p></th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="role in roles track by role.id">
                 <td>{{role.name}}</td>
-                <td ng-repeat="authority in authorities">
+                <td ng-repeat="authority in authorities track by $index">
                     <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
                           class="role-check-icon"></span>
                 </td>

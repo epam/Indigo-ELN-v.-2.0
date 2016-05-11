@@ -90,7 +90,7 @@ angular.module('indigoeln')
                 'my-validation-required="password == null" my-validation-maxlength="50">' +
                 '</my-input></div></div></div></div>' +
                 '<div class="modal-footer text-right">' +
-                '<button class="btn btn-primary" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
+                '<button class="btn btn-info" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
                 '<button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>' +
                 '</div>',
                 controller: function ($scope, $uibModalInstance) {
