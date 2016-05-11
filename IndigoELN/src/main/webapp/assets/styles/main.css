@@ -810,3 +810,9 @@ html {
 .row > div {
     margin-bottom: 0;
 }
+
+.linkedExperiments .tag-list span {
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
+}

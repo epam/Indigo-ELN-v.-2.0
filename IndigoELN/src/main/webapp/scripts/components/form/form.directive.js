@@ -336,7 +336,9 @@ angular.module('indigoeln')
             myLabelVertical: '=',
             myModel: '=',
             myReadonly: '=',
-            myClasses: '@'
+            myClasses: '@',
+            myOnClick: '=',
+            myPlaceholder: '@'
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
@@ -344,7 +346,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        ' <tags-input ng-model="myModel" ng-disabled="myReadonly"></tags-input>' +
+        ' <tags-input ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" placeholder="{{myPlaceholder}}"></tags-input>' +
         '</div>' +
         '</div>'
     };

@@ -7,7 +7,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/reactionDetails/reactionDetails.html',
-            controller: function ($scope, Principal, Dictionary) {
+            controller: function ($scope, Principal, Dictionary, LinkedExperimentUtils) {
                 $scope.model.reactionDetails = $scope.model.reactionDetails || {};
                 $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
                     {name: Principal.getIdentity().fullName};
@@ -17,6 +17,7 @@ angular.module('indigoeln')
                     $scope.model.reactionDetails.coAuthors = $scope.model.reactionDetails.coAuthors ||
                         _.where($scope.users, {name: Principal.getIdentity().fullName});
                 });
+                $scope.onLinkedExperimentClick = LinkedExperimentUtils.onLinkedExperimentClick;
             }
         };
     });
