@@ -48,16 +48,39 @@ angular.module('indigoeln')
                 var that = this;
                 Principal.identity()
                     .then(function (user) {
-                        var columnsIds = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
+                        $scope.saveInLocalStorage = function () {
+                            localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(
+                                _.map($scope.myColumns, function (column) {
+                                    return {id: column.id, isVisible: column.isVisible};
+                                })
+                            ));
+                        };
+
+                        var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
+                        if (!columnIdsAndFlags) {
+                            $scope.saveInLocalStorage();
+                        }
                         $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
-                            return _.indexOf(columnsIds, column.id);
+                                return _.findIndex(columnIdsAndFlags, function (item) {
+                                    return item.id === column.id;
+                                });
+                            }
+                        );
+
+                        $scope.myColumns = _.map($scope.myColumns, function (column) {
+                            var index = _.findIndex(columnIdsAndFlags, function (item) {
+                                return item.id === column.id;
+                            });
+                            if (index > -1) {
+                                column.isVisible = columnIdsAndFlags[index].isVisible;
+                            }
+                            return column;
                         });
+
                         if ($attrs.myDraggableColumns) {
                             $scope.$watch(function () {
                                 return _.map($scope.myColumns, _.iteratee('id')).join('-');
-                            }, function () {
-                                localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
-                            });
+                            }, $scope.saveInLocalStorage);
                         }
                     });
 
