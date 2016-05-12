@@ -63,7 +63,7 @@ angular.module('indigoeln')
                     id: 'structure',
                     name: 'Structure',
                     type: 'image',
-                    isHidden: true,
+                    isVisible: false,
                     width: '300px'
                 },
                 {
@@ -240,7 +240,7 @@ angular.module('indigoeln')
                 var structureColumn = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
                 });
-                structureColumn.isHidden = !showStructures;
+                structureColumn.isVisible = showStructures;
             });
 
             $scope.$watch('structureSize', function (newVal) {
@@ -251,9 +251,9 @@ angular.module('indigoeln')
             });
 
             $scope.$watch('isHasRegService', function (val) {
-                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isHidden = !val;
-                _.findWhere($scope.columns, {id: 'regDate'}).isHidden = !val;
-                _.findWhere($scope.columns, {id: 'regStatus'}).isHidden = !val;
+                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'regDate'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'regStatus'}).isVisible = val;
             });
 
             $scope.registerBatches = function () {
