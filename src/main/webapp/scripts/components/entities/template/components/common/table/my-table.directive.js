@@ -51,6 +51,7 @@ angular.module('indigoeln')
                         $scope.saveInLocalStorage = function () {
                             localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(
                                 _.map($scope.myColumns, function (column) {
+                                    column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
                                     return {id: column.id, isVisible: column.isVisible};
                                 })
                             ));
