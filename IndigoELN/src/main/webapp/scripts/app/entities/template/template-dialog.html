@@ -25,7 +25,7 @@
                             <br/>
                             <div class="list-group templates-holder palette animated" dragula='"components"'
                                  dragula-model='components'>
-                                <a class="list-group-item draggable-component"
+                                <a class="list-group-item draggable-component" data-id="{{component.id}}"
                                    ng-repeat="component in components | filter:search track by $index">
                                     <h5 class="list-group-item-heading draggable-component">{{component.name}}</h5>
                                     <p class="list-group-item-text draggable-component">{{component.desc}} </p>
