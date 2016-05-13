@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .constant('textEditorConfig', {
         placeholder: 'Add a description',
@@ -17,7 +15,7 @@ angular.module('indigoeln')
             restrict: 'E',
             template: '<textarea data-autosave="editor-content" autofocus></textarea>',
             replace: true,
-            link: function (scope, elem, attrs) {
+            link: function (scope, elem) {
                 Simditor.locale = 'en_EN';
                 var editor = new Simditor(
                     angular.extend({textarea: elem}, textEditorConfig)
@@ -25,13 +23,13 @@ angular.module('indigoeln')
 
                 var newContent = '';
 
-                scope.$watch('myModel', function (value, old) {
+                scope.$watch('myModel', function (value) {
                     if (typeof value !== 'undefined' && value !== newContent) {
                         editor.setValue(value);
                     }
                 });
 
-                editor.on('valuechanged', function (e) {
+                editor.on('valuechanged', function () {
                     if (scope.myModel !== editor.getValue()) {
                         $timeout(function () {
                             scope.myModel = newContent = editor.getValue();

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
@@ -38,7 +36,7 @@ angular.module('indigoeln')
                                 return Dictionary.get({id: $stateParams.id}).$promise;
                             }
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                         $state.go('dictionary-management', null, {reload: true});
                     }, function () {
                         $state.go('^');

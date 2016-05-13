@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
@@ -11,7 +9,7 @@ angular.module('indigoeln')
             {name: 'ROLE_EDITOR', description: 'Role editor', tooltip: 'Write some tooltip'},
             {name: 'CONTENT_EDITOR', description: 'Content editor', tooltip: 'Write some tooltip'},
             {name: 'TEMPLATE_EDITOR', description: 'Template editor', tooltip: 'Write some tooltip'},
-			{name: 'DICTIONARY_EDITOR', description: 'Dictionary editor', tooltip: 'Write some tooltip'},
+            {name: 'DICTIONARY_EDITOR', description: 'Dictionary editor', tooltip: 'Write some tooltip'},
             {name: 'PROJECT_READER', description: 'Project reader', tooltip: 'This is required minimal authority for each Role, which cannot be removed', readonly: true, checked: true},
             {name: 'PROJECT_CREATOR', description: 'Project creator', tooltip: 'Write some tooltip'},
             {name: 'PROJECT_REMOVER', description: 'Project remover', tooltip: 'Write some tooltip'},
@@ -23,6 +21,15 @@ angular.module('indigoeln')
             {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Write some tooltip'}
         ];
 
+        function initAuthorities(role) {
+            _.each($scope.authorities, function (authority) {
+                authority.checked = $scope.hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
+            });
+        }
+
+        $scope.$watch('role', function (role) {
+            initAuthorities(role);
+        });
         function isLastRoleWithRoleEditor() {
             var roleEditorCount = 0;
             var lastRoleWithRoleEditorAuthority = false;
@@ -54,7 +61,7 @@ angular.module('indigoeln')
         };
 
         $scope.hasAuthority = function(role, authority) {
-            return role != null && role.authorities.indexOf(authority.name) !== -1;
+            return role && role.authorities.indexOf(authority.name) !== -1;
         };
 
         var updateAuthorities = function(action, authority) {
@@ -67,36 +74,30 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.updateAuthoritySelection = function($event, authority) {
-            var checkbox = $event.target;
-            var action = (checkbox.checked ? 'add' : 'remove');
+        $scope.updateAuthoritySelection = function ($event, authority) {
+            var action = (authority.checked ? 'add' : 'remove');
             updateAuthorities(action, authority);
         };
 
-        $scope.isAuthoritySelected = function(authority) {
-            return $scope.hasAuthority($scope.role, authority);
-        };
 
         $scope.clear = function () {
             $scope.role = null;
-            $scope.editForm.$setPristine();
-            $scope.editForm.$setUntouched();
         };
 
-        var onSaveSuccess = function (result) {
+        var onSaveSuccess = function () {
             $scope.isSaving = false;
             $scope.role = null;
             loadAll();
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
             loadAll();
         };
 
         var save = function () {
             $scope.isSaving = true;
-            if ($scope.role.id != null) {
+            if ($scope.role.id !== null) {
                 Role.update($scope.role, onSaveSuccess, onSaveError);
             } else {
                 Role.save($scope.role, onSaveSuccess, onSaveError);
@@ -134,6 +135,7 @@ angular.module('indigoeln')
 
         $scope.resetAuthorities = function () {
             $scope.role.authorities = ['PROJECT_READER'];
+            initAuthorities($scope.role);
         };
 
         $scope.search = function () {

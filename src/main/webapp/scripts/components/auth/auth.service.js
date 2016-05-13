@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('indigoeln')
-    .factory('Auth', function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
+    .factory('Auth', function ($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
         return {
             login: function (credentials, callback) {
                 var cb = callback || angular.noop;
@@ -9,7 +7,7 @@ angular.module('indigoeln')
 
                 AuthServerProvider.login(credentials).then(function (data) {
                     // retrieve the logged account information
-                    Principal.identity(true).then(function (account) {
+                    Principal.identity(true).then(function () {
                         deferred.resolve(data);
                     });
                     return cb();

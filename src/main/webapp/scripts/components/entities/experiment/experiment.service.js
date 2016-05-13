@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('indigoeln')
-    .factory('Experiment', function ($resource, DateUtils) {
+    .factory('Experiment', function ($resource) {
         function toModel(experiment) {
             var components = experiment.components;
             if (_.isArray(components)) {
@@ -45,6 +43,10 @@ angular.module('indigoeln')
                         data.components = toComponents(data.components);
                         return angular.toJson(data);
                     }
+                },
+                'version': {
+                    method: 'POST',
+                    url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
                 },
                 'update': {method: 'PUT',
                     transformRequest: function (data) {

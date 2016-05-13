@@ -1,8 +1,5 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentPrintController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, pageInfo,
-              experimentPdfCreator) {
+    function ($scope, pageInfo, experimentPdfCreator) {
 
         $scope.fullPrint = false;
 
@@ -16,6 +13,8 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.reactionDetails = $scope.experiment.components.reactionDetails;
         $scope.reaction = $scope.experiment.components.reaction;
         $scope.molecule = $scope.experiment.components.molecule;
+        $scope.experimentDescription = $scope.experiment.components.experimentDescription;
+        $scope.stoichTable = $scope.experiment.components.stoichTable;
 
         $scope.currentDate = Date.now();
 
@@ -33,6 +32,9 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.print = function () {
             $scope.isPrinting = true;
             var fileName = $scope.notebook.name + '-' + $scope.experiment.name;
+            if ($scope.experiment.experimentVersion > 1 || !$scope.experiment.lastVersion) {
+                fileName += ' v' + $scope.experiment.experimentVersion;
+            }
             experimentPdfCreator.createPDF(fileName, downloadReport);
         };
 

@@ -1,5 +1,7 @@
-<div class="panel panel-default" cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-body">
+<div class="panel panel-info" cg-busy="{promise:loading, minDuration:700}">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <div class="row">
             <div ng-init="isCollapsed=true;" class="col-xs-12">
                 <label class="control-label">Experiment Members&nbsp;</label>
@@ -9,13 +11,13 @@
                         ng-disabled="!isEditAllowed">
                     <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                 </button>
-                <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">
+                <button type="button" class="btn btn-info" ng-click="isCollapsed = !isCollapsed">
                     <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
                 </button>
                 <div class="col-sm-3 pull-right">
                     <div class="input-group ">
                     <span class="input-group-btn">
-                        <button  class="btn btn-default" type="button">Status:</button>
+                        <button class="btn btn-info" type="button">Status:</button>
                     </span>
                         <input ng-disabled="true" data-ng-model="experiment.status" type="text" class="form-control text-center">
                     </div>
@@ -24,7 +26,7 @@
                     <hr>
                     <div class="col-xs-12">
                         <ul id="triple-list" class="members">
-                            <li class="members" ng-repeat="member in experiment.accessList">
+                            <li class="members" ng-repeat="member in experiment.accessList track by $index">
                                 {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
                             </li>
                         </ul>
@@ -33,7 +35,8 @@
                 </div>
             </div>
         </div>
-        <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
+        <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)"
+              style="margin-top: 20px">
 
             <my-components my-template="experiment.template.templateContent"
                            my-readonly="!isEditAllowed"
@@ -49,14 +52,16 @@
                 <span class="glyphicon glyphicon-flash"></span>&nbsp;<span> Actions </span><span class="caret"></span>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
-                <li role="menuitem"><a><i>Status: </i><b>{{ experiment.status}}</b></a></li>
+                <li role="menuitem"><a><em>Status: </em><strong>{{ experiment.status}}</strong></a></li>
                 <li class="divider"></li>
                 <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperiment()"><a>Complete Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperimentAndSign()"><a>Complete & Sign </a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="reopenExperiment()"><a>Reopen Experiment for Edit</a></li>
                 <li role="menuitem" ng-click="repeatExperiment()"><a>Repeat Experiment</a></li>
                 <li role="menuitem"><a ui-sref="entities.experiment-detail.preview-print">Print Experiment</a></li>
-                <li role="menuitem" ng-if="isStatusComplete() || isStatusSubmitFail() || isStatusSubmitted() || isStatusArchieved() || isStatusSigning() || isStatusSigned()"><a href="#">Version Experiment</a></li>
+                <li role="menuitem"
+                    ng-if="experiment.lastVersion && (isStatusComplete() || isStatusSubmitFail() || isStatusSubmitted() || isStatusArchieved() || isStatusSigning() || isStatusSigned())"
+                    ng-click="versionExperiment()"><a>Version Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail() || isStatusSubmitted() || isStatusSigning() || isStatusSigned()">
                     <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
@@ -71,10 +76,10 @@
             </ul>
         </div>
 
-        <div class="pull-left text-justify" style="margin-left: 30px; margin-top:7px;">
+        <!--<div class="pull-left text-justify" style="margin-left: 30px; margin-top:7px;">
             <small>Status-list (for testing only): </small>
             <select ng-model="experiment.status" ng-options="o as o for o in statuses"></select>
-        </div>
+        </div>-->
 
         <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid"
                 class="btn btn-info">

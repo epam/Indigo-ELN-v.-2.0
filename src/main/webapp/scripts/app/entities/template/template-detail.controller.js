@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('TemplateDetailController', function ($scope, $rootScope, $stateParams, pageInfo, Template) {
         $scope.template = pageInfo.entity;

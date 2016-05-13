@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo) {
         $scope.users = [];
@@ -32,13 +30,13 @@ angular.module('indigoeln')
             $scope.user = null;
         };
 
-        var onSaveSuccess = function (result) {
+        var onSaveSuccess = function () {
             $scope.isSaving = false;
             $scope.user = null;
             $scope.loadAll();
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
             $scope.loadAll();
         };
@@ -48,7 +46,7 @@ angular.module('indigoeln')
             if ($scope.user.group) {
                 $scope.user.group = $scope.user.group.name;
             }
-            if ($scope.user.id != null) {
+            if ($scope.user.id) {
                 User.update($scope.user, onSaveSuccess, onSaveError);
             } else {
                 User.save($scope.user, onSaveSuccess, onSaveError);
@@ -92,7 +90,7 @@ angular.module('indigoeln')
                 'my-validation-required="password == null" my-validation-maxlength="50">' +
                 '</my-input></div></div></div></div>' +
                 '<div class="modal-footer text-right">' +
-                '<button class="btn btn-primary" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
+                '<button class="btn btn-info" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
                 '<button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>' +
                 '</div>',
                 controller: function ($scope, $uibModalInstance) {

@@ -1,23 +1,36 @@
-<div class="panel panel-info component">
+<div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         Product Batch Details
     </div>
     <div class="panel-body">
         <div class="form-horizontal">
+            <br>
             <div class="row">
-                <div class="col-xs-6">
-                    <my-input my-label="Notebook Batch #"
-                              my-model="model.productBatchDetails.notebookBatch"
-                              my-readonly="myReadonly"
-                    ></my-input>
-                </div>
-                <div class="col-xs-6">
-                    <my-two-toggle my-label=""
-                                   my-first="Intermediate"
-                                   my-second="Test Compound"
-                                   my-model="model.productBatchDetails.batchType"
-                                   my-readonly="myReadonly"
-                    ></my-two-toggle>
+                <div style="position:relative">
+                    <div class="col-xs-4">
+                        <label>Notebook Batch #: </label>
+                        <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span>
+                    </div>
+                    <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
+                        <my-input my-model="model.productBatchDetails.nbkBatch"
+                                  my-readonly="myReadonly"
+                        ></my-input>
+                    </div>
+                    <div class="col-xs-3 text-right">
+                        <my-two-toggle my-label=""
+                                       my-first="Intermediate"
+                                       my-second="Test Compound"
+                                       my-model="model.productBatchDetails.batchType"
+                                       my-readonly="myReadonly"
+                        ></my-two-toggle>
+                    </div>
+                    <div class="col-xs-3">
+                        <button class="btn btn-info pull-left"
+                                type="button"
+                                ng-click="registerBatch()">
+                            <span class="glyphicon glyphicon-plus"></span> Register Batch
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -35,12 +48,12 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>{{model.productBatchDetails.totalWeight.value + ' ' + model.productBatchDetails.totalWeight.unit}}</td>
+                            <td>{{model.productBatchDetails.totalVolume.value + ' '+  model.productBatchDetails.totalVolume.unit}}</td>
+                            <td>{{model.productBatchDetails.totalMoles.value + ' ' + model.productBatchDetails.totalMoles.unit}}</td>
+                            <td>{{model.productBatchDetails.theoWgt.value + ' ' + model.productBatchDetails.theoWgt.unit}}</td>
+                            <td>{{model.productBatchDetails.theoMoles.value + ' ' + model.productBatchDetails.theoMoles.unit}}</td>
+                            <td>{{model.productBatchDetails.yield}}</td>
                         </tr>
                         </tbody>
                     </table>
@@ -50,8 +63,14 @@
                 <div class="col-xs-12 col-sm-6 col-lg-4">
                     <my-select my-label="Status"
                                my-label-vertical="true"
+                               my-model="model.productBatchDetails.regStatus"
                                my-readonly="myReadonly"
                     ></my-select>
+                    <my-input my-label="Conversational Batch number"
+                              my-model="model.productBatchDetails.conversationalBatchNumber"
+                              my-label-vertical="true"
+                              my-readonly="true"
+                    ></my-input>
                     <my-input my-label="Virtual Compound Id"
                               my-model="model.productBatchDetails.virtualCompoundId"
                               my-label-vertical="true"
@@ -59,17 +78,20 @@
                     ></my-input>
                     <my-select my-label="Source"
                                my-label-vertical="true"
+                               my-model="model.productBatchDetails.source"
                                my-dictionary="source"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-select my-label="Source Detail"
                                my-label-vertical="true"
+                               my-model="model.productBatchDetails.sourceDetail"
                                my-dictionary="sourceDetail"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-select my-label="Sterioisomer Code"
                                my-label-vertical="true"
                                my-dictionary="stereoisomerCode"
+                               my-model="model.productBatchDetails.stereoisomer"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-simple-text my-label="Calculated Batch MW"
@@ -80,10 +102,11 @@
                     </my-simple-text>
                     <my-select my-label="Salt Code & Name"
                                my-label-vertical="true"
+                               my-model="model.productBatchDetails.saltCode"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-input my-label="Salt Equivalent"
-                              my-model="model.productBatchDetails.saltEquivalent"
+                              my-model="model.productBatchDetails.saltEq"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
                     ></my-input>
@@ -97,10 +120,11 @@
                     <my-select my-label="Compound State"
                                my-label-vertical="true"
                                my-dictionary="compoundState"
+                               my-model="model.productBatchDetails.compoundState"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-input my-label="Precursor/Reactant IDs"
-                              my-model="model.productBatchDetails.precursorReactant"
+                              my-model="model.productBatchDetails.precursors"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
                     ></my-input>
@@ -109,7 +133,9 @@
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true">
-                        <button class="btn btn-default" type="button" ng-click="editPurity()" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" type="button" ng-click="editPurity()" ng-disabled="myReadonly">
+                            Edit
+                        </button>
                     </my-text-area>
                     <my-text-area my-label="Melting Point"
                                   my-model="model.productBatchDetails.meltingPoint.asString"
@@ -117,7 +143,9 @@
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-click="editMeltingPoint()" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" type="button" ng-click="editMeltingPoint()"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-text-area>
                     <my-input my-label="Residual Solvents"
                               my-model="model.productBatchDetails.residualSolvents.asString"
@@ -125,7 +153,9 @@
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" ng-click="editResidualSolvents()" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" ng-click="editResidualSolvents()" type="button"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-input>
                     <my-input my-label="Solubility in Solvents"
                               my-model="model.productBatchDetails.solubility.asString"
@@ -133,7 +163,9 @@
                               my-input-group="append"
                               my-readonly="true"
                     >
-                        <button class="btn btn-default" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">
+                            Edit
+                        </button>
                     </my-input>
                     <my-text-area my-label="External Supplier"
                                   my-model="model.productBatchDetails.externalSupplier.asString"
@@ -141,38 +173,47 @@
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" ng-click="editExternalSupplier()" type="button" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" ng-click="editExternalSupplier()" type="button"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-text-area>
                 </div>
                 <div class="col-xs-12 col-sm-6 col-lg-4">
                     <my-select my-label="Compound Protection"
+                               my-model="model.productBatchDetails.compoundProtection"
                                my-label-vertical="true"
                                my-dictionary="compoundProtection"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-text-area my-label="Health Hazards"
-                                  my-model="model.productBatchDetails.healthHazards.toString()"
+                                  my-model="model.productBatchDetails.healthHazards.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-click="editHealthHazards()" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" type="button" ng-click="editHealthHazards()"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-text-area>
                     <my-text-area my-label="Handling Precautions"
-                                  my-model="model.productBatchDetails.handlingPrecautions.toString()"
+                                  my-model="model.productBatchDetails.handlingPrecautions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-click="editHandlingPrecautions()" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" type="button" ng-click="editHandlingPrecautions()"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-text-area>
                     <my-text-area my-label="Storage Instructions"
-                                  my-model="model.productBatchDetails.storageInstructions.toString()"
+                                  my-model="model.productBatchDetails.storageInstructions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
                     >
-                        <button class="btn btn-default" type="button" ng-click="editStorageInstructions()" ng-disabled="myReadonly">Edit</button>
+                        <button class="btn btn-info" type="button" ng-click="editStorageInstructions()"
+                                ng-disabled="myReadonly">Edit
+                        </button>
                     </my-text-area>
                     <my-text-area my-label="Batch Comments"
                                   my-model="model.productBatchDetails.comments"

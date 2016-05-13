@@ -1,7 +1,7 @@
 <form id="productBatchSummarySetUnitValueForm" name="productBatchSummarySetUnitValueForm" ng-submit="save()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
-        <h4 class="modal-title">Set value for {{name}}</h4>
+        <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
         <div class="form-horizontal">
@@ -10,7 +10,7 @@
                     <my-input my-label="Value" my-model="value" my-input-group="append"
                               my-validation-required="true">
                         <div class="btn-group" uib-dropdown ng-init="initUnit()">
-                            <button type="button" class="btn btn-default"
+                            <button type="button" class="btn btn-info"
                                     aria-haspopup="true"
                                     aria-expanded="false"
                                     uib-dropdown-toggle>{{unit}} <span class="caret"></span>

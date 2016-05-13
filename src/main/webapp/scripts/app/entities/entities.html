@@ -1,17 +1,19 @@
-<ul class="nav nav-pills experiment-tabs">
-    <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
-        ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
-        <a class="experiment-tab-name" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
-            {{getKind(entity.fullId)}} {{entity.title}} <i
-                class="glyphicon glyphicon-remove text-muted pull-right experiment-tab-close"
-                ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"
-                style="cursor: pointer"
-                ng-if="entities.length>1"></i>
-        </a>
-    </li>
-</ul>
-<div class="tab-content">
+<div my-tab-scroller class="experiment-tabs">
+    <ul class="nav nav-pills">
+        <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
+            ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
+            <a class="experiment-tab-name" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
+                {{getKind(entity.fullId)}} {{entity.title}} <em
+                    class="glyphicon glyphicon-remove text-muted pull-right experiment-tab-close"
+                    ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"
+                    style="cursor: pointer"
+                    ng-if="entities.length>1"></em>
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="tab-content animated">
     <div class="tab-pane active">
-        <div ui-view="tabContent"></div>
+        <div ui-view="tabContent" class="tab-content animated" my-tab-content></div>
     </div>
 </div>

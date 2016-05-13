@@ -1,6 +1,10 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.model.Dictionary;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.Word;
 import com.epam.indigoeln.core.service.dictionary.DictionaryService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
@@ -20,6 +24,7 @@ import javax.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,6 +41,29 @@ public class DictionaryResource {
 
     @Autowired
     DictionaryService dictionaryService;
+
+    @Autowired
+    UserService userService;
+
+
+    /**
+     * GET /dictionaries/users -> get users dictionary
+     */
+    @RequestMapping(value = "/users", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DictionaryDTO> getUsers() {
+        LOGGER.debug("REST request to get dictionary for users");
+        List<User> allUsers = userService.getAllUsers();
+        Dictionary dictionary = new Dictionary();
+        dictionary.setDescription("all users");
+        Set<Word> words = allUsers.stream().map(user -> {
+            Word word = new Word();
+            word.setName(user.getFullName());
+            return word;
+        }).collect(Collectors.toSet());
+        dictionary.setWords(words);
+        DictionaryDTO dict = new DictionaryDTO(dictionary);
+        return new ResponseEntity<>(dict, HttpStatus.OK);
+    }
 
     /**
      * GET /dictionaries/:id -> get dictionary by id

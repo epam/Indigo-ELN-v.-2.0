@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .service('DateUtils', function() {
         return {

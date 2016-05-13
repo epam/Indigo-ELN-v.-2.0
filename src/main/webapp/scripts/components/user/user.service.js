@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('User', function ($resource) {
         return $resource('api/users/:login', {}, {

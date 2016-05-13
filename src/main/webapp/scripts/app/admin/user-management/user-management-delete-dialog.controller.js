@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('user-managementDeleteController', function ($scope, $uibModalInstance, entity, User) {
 

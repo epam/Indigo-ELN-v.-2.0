@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Project', function($resource) {
         return $resource('api/projects/:projectId', {}, {

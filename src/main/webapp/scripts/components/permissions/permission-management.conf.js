@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .constant('PermissionManagementConfig', {
         url: '/permissions',

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('StructureEditorModalController', function ($scope, $uibModalInstance, prestructure, editor) {
 

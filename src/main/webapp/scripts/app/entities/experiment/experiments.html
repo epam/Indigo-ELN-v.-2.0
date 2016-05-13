@@ -1,53 +1,3 @@
-<!--<div>-->
-<!--<h2>Experiments</h2>-->
-<!--<div class="container">-->
-<!--<div class="row">-->
-<!--<div class="col-md-4">-->
-<!--<button class="btn btn-info" ui-sref="experiment.new">-->
-<!--<span class="glyphicon glyphicon-flash"></span> <span>Create a new Experiment</span>-->
-<!--</button>-->
-<!--</div>-->
-<!--</div>-->
-<!--</div>-->
-
-<!--<div class="table-responsive">-->
-<!--<table class="table table-striped">-->
-<!--<thead>-->
-<!--<tr my-sort="predicate" ascending="reverse" callback="loadAll()">-->
-<!--<th my-sort-by="id"><span>ID</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="title"><span>Title</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="experimentNumber"><span>ExperimentNumber</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th my-sort-by="templateId"><span>TemplateId</span> <span class="glyphicon glyphicon-sort"></span></th>-->
-<!--<th></th>-->
-<!--</tr>-->
-<!--</thead>-->
-<!--<tbody>-->
-<!--<tr ng-repeat="experiment in experiments track by experiment.id">-->
-<!--<td><a ui-sref="experiment.detail({id:experiment.id})">{{experiment.id}}</a></td>-->
-<!--<td>{{experiment.title}}</td>-->
-<!--<td>{{experiment.experimentNumber}}</td>-->
-<!--<td>{{experiment.templateId}}</td>-->
-<!--<td>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.detail({id:experiment.id})"-->
-<!--class="btn btn-info btn-sm">-->
-<!--<span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View</span>-->
-<!--</button>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.edit({id:experiment.id})"-->
-<!--class="btn btn-info btn-sm">-->
-<!--<span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>-->
-<!--</button>-->
-<!--<button type="submit"-->
-<!--ui-sref="experiment.delete({id:experiment.id})"-->
-<!--class="btn btn-danger btn-sm">-->
-<!--<span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span> Delete</span>-->
-<!--</button>-->
-<!--</td>-->
-<!--</tr>-->
-<!--</tbody>-->
-<!--</table>-->
-<!--</div>-->
 <div>
     <h5>Open and Completed Experiments</h5>
     <table class="main-table table table-striped table-condensed">
@@ -64,7 +14,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp">
+        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp track by $index">
             <td class="table-list__item">
                 <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
             </td>
@@ -72,7 +22,7 @@
             <td class="table-list__item">{{exp.status}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.coAuthors">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.project}}</td>
@@ -99,7 +49,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp">
+        <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
             <td class="table-list__item">
                 <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
@@ -109,7 +59,7 @@
             <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
@@ -135,7 +85,7 @@
         </tr>
         </thead>
         <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp">
+        <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
             <td class="table-list__item">
                 <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
             </td>
@@ -145,7 +95,7 @@
             <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
             <td class="table-list__item">
                 <ul>
-                    <li ng-repeat="user in exp.witnesses">{{user.firstName + ' ' + user.lastName}}</li>
+                    <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                 </ul>
             </td>
             <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
@@ -159,7 +109,3 @@
         </tbody>
     </table>
 </div>
-<!--<div class="text-center">-->
-<!--<uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page" ng-change="loadAll()"></uib-pagination>-->
-<!--</div>-->
-<!--</div>-->

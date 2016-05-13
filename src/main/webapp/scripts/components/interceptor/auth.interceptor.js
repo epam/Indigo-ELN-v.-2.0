@@ -1,12 +1,10 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('authExpiredInterceptor', function ($rootScope, $q, $injector) {
         return {
             responseError: function (response) {
                 // If we have an unauthorized request we redirect to the login page
                 // Don't do this check on the account API to avoid infinite loop
-                if (response.status == 401 && response.data.path !== undefined && response.data.path.indexOf("/api/account") == -1) {
+                if (response.status === 401 && response.data.path !== undefined && response.data.path.indexOf('/api/account') === -1) {
                     var Auth = $injector.get('Auth');
                     var $state = $injector.get('$state');
                     var to = $rootScope.toState;
@@ -15,7 +13,7 @@ angular.module('indigoeln')
                     $rootScope.previousStateName = to;
                     $rootScope.previousStateNameParams = params;
                     $state.go('login');
-                } else if (response.status == 403 && response.config.method != 'GET' && getCSRF() == '') {
+                } else if (response.status === 403 && response.config.method !== 'GET' && getCSRF() === '') {
                     // If the CSRF token expired, then try to get a new CSRF token and retry the old request
                     var $http = $injector.get('$http');
                     return $http.get('/').finally(function () {
@@ -42,8 +40,12 @@ angular.module('indigoeln')
             var ca = document.cookie.split(';');
             for (var i = 0; i < ca.length; i++) {
                 var c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1);
-                if (c.indexOf(name) != -1) return c.substring(name.length, c.length);
+                while (c.charAt(0) === ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) !== -1) {
+                    return c.substring(name.length, c.length);
+                }
             }
             return '';
         }

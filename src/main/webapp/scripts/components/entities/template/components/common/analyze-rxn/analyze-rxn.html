@@ -2,26 +2,22 @@
     <h5 class="modal-title">Reactant Structure Search</h5>
 </div>
 <div class="modal-body">
-    <div class="row well well-sm analyze-rxn-row">
-        <div class="col-xs-12">
-            <div><label>Reactants: </label>
-                <span ng-repeat="reactant in model.reactants">{{reactant}}<span ng-if="!$last">, </span></span>
+    <div class="well well-sm">
+
+
+        <div class="row analyze-rxn-row">
+            <div class="col-xs-12">
+                <div>
+                    <label>Reactants: </label>
+                    <span ng-repeat="reactant in model.reactants track by $index">{{reactant}}<span
+                            ng-if="!$last">, </span></span>
                 </div>
-            <label class="inline">
-                Choose catalog to search in:
-                </label>
-            <label class="checkbox-inline">
-                <input type="checkbox" ng-model="allItemsSelected" ng-change="selectAll()">
-                All
-                </label>
-            <label class="checkbox-inline" ng-repeat="database in model.databases">
-                <input type="checkbox" ng-model="database.isChecked" ng-change="selectEntity()">
-                {{database.value}}
-                </label>
+            </div>
         </div>
+        <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
     </div>
     <div>
-        <button class="btn btn-primary"
+        <button class="btn btn-info"
                 type="button"
                 ng-click="search()">Search
         </button>
@@ -36,7 +32,7 @@
                     Selected reactants ({{model.selectedReactants.length}})
                 </a>
             </div>
-            <button class="col-xs-2 btn btn-default btn-sm search-button"
+            <button class="col-xs-2 btn btn-info btn-sm search-button"
                     type="button"
                     ng-click="addToStoichTable(searchResult)"
                     ng-disabled="!model.selectedReactants.length">
@@ -44,171 +40,22 @@
             </button>
         </div>
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
-            <div ng-repeat="reactant in model.selectedReactants"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
+            <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
             </div>
         </div>
         <uib-tabset active="activeForm">
-            <uib-tab ng-repeat="tab in tabs" heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
+            <uib-tab ng-repeat="tab in tabs track by $index"
+                     heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
                      active="tab.active">
                 <div class="search-tab-content">
                     <strong>{{tab.searchResult.length}} results found</strong>
                     <div class="row">
                         <div class="col-xs-12">
-                            <table class="table" id="search-result-table">
-                                <thead class="search-table-head">
-                                <tr>
-                                    <th style="width:10%"></th>
-                                    <th style="width:10%">Mol. Wt.</th>
-                                    <th>Molecular&nbsp;Formula</th>
-                                    <th>Chemical Name</th>
-                                    <th>Compound ID</th>
-                                    <th>Database</th>
-                                    <th>Structure</th>
-                                </tr>
-                                </thead>
-                                <tbody ng-repeat="result in tab.searchResult">
-                                <tr ng-class="{'search-table-row-highlight':result.$$isSelected}">
-                                    <td style="width:76px">
-                                        <a ng-click="result.$$isCollapsed = !result.$$isCollapsed">
-                                                                        <span style="font-size:1.5em" ng-class="{'glyphicon glyphicon-triangle-right':result.$$isCollapsed,
-                                                                            'glyphicon glyphicon-triangle-bottom':!result.$$isCollapsed}"></span></a>
-                                        <my-checkbox
-                                                style="padding:0"
-                                                class="checkbox-inline"
-                                                my-change="selectReactant(tab, result, $parent.$index, $index, !result.$$isSelected)"
-                                                my-model="result.$$isSelected"
-                                                my-name="resultSelector"
-                                        ></my-checkbox>
-                                    </td>
-                                    <td>{{result.molWeight}}</td>
-                                    <td>{{result.molFormula}}</td>
-                                    <td>{{result.chemicalName}}</td>
-                                    <td>{{result.compoundId}}</td>
-                                    <td>{{result.database}}</td>
-                                    <td>
-                                        <div ng-if="!model.restrictions.structure.image">#image</div>
-                                        <div class="enlarge">
-                                            <img ng-if="model.restrictions.structure.image"
-                                                 class="img-responsive"
-                                                 style="height:70px;"
-                                                 ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
-                                                 alt="Image is unavailable.">
-                                                <span>
-                                                    <img ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
-                                                         class="img-responsive"
-                                                         alt="Image is unavailable."/>
-                                                </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr uib-collapse="result.$$isCollapsed">
-                                    <td colspan="6">
-                                        <div class="row" style="margin-top:-6px;">
-                                            <div class="col-xs-6">
-                                                <div class="row">
-                                                    <strong>Reagent Information</strong>
-                                                </div>
-                                                <div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Compound ID:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.compoundId}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>NBK batch #:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.nbkBatch}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Molecular Formula:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.molFormula}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Molecular Weight:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.molWeight}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Chemical Name:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.chemicalName}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Salt Code:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.saltCode}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Salt EQ:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.saltEq}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>External #:</p></div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.externalNumber}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Compound State:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.compoundState}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Batch Comment:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.comments}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6 info-col"><p>Batch&nbsp;Hazard&nbsp;Comment:</p>
-                                                        </div>
-                                                        <div class="col-xs-6 info-col">
-                                                            <p>{{result.hazardComments}}</p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row reagent-search-row">
-                                                        <div class="col-xs-6"><p>CAS Number:</p></div>
-                                                        <div class="col-xs-6">
-                                                            <p>{{result.casNumber}}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xs-6">
-                                                <strong>Structure</strong>
-                                                <div ng-if="!model.restrictions.structure.image">#image</div>
-                                                <div>
-                                                    <img style="padding:10px;margin:10px;border:1px solid black;"
-                                                         class="img-responsive"
-                                                         ng-if="model.restrictions.structure.image"
-                                                         ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
-                                                         alt="Image is unavailable.">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <search-result-table my-table-content="tab.searchResult"
+                                                 my-editable-info="false"
+                                                 my-single-item-per-tab="true"
+                                                 my-selected-items-per-tab="model.selectedReactants"
+                                                 my-tab="tab"></search-result-table>
                         </div>
                     </div>
                 </div>

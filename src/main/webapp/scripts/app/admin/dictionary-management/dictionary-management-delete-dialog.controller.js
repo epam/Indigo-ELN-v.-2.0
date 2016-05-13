@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('DictionaryManagementDeleteController', function ($scope, $uibModalInstance, Dictionary, entity) {
 

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentDialogController',
     function ($scope, $rootScope, $stateParams, $state, Experiment, pageInfo) {
 
@@ -19,7 +17,7 @@ angular.module('indigoeln').controller('ExperimentDialogController',
             $rootScope.$broadcast('experiment-created', {projectId: $stateParams.projectId, notebookId: $stateParams.notebookId, id: result.id});
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
         };
 

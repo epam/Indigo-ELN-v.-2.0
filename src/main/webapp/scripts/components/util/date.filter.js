@@ -6,7 +6,7 @@ angular.module('indigoeln').config(function ($provide) {
         var tzName;
         return function () {
             var format = 'MMM DD, YYYY HH:mm:ss z';
-            if (arguments[1] == format) {
+            if (arguments[1] === format) {
                 if (!tzName) {
                     tzName = jstz.determine().name();
                 }

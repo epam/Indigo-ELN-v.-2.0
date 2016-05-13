@@ -3,6 +3,9 @@ package com.epam.indigoeln.core.model;
 import com.epam.indigoeln.core.security.Authority;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import org.hibernate.validator.constraints.Email;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -127,6 +130,10 @@ public class User implements Serializable {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public String getFullName() {
+        return CharMatcher.WHITESPACE.trimFrom(Joiner.on(' ').skipNulls().join(ImmutableList.of(lastName, firstName)));
     }
 
     public Set<Authority> getAuthorities() {

@@ -1,14 +1,10 @@
-'use strict';
-
 angular.module('indigoeln')
-    .controller('TemplateDeleteController', function ($scope, $uibModalInstance, pageInfo, Template) {
-
-        $scope.template = pageInfo.entity;
+    .controller('TemplateDeleteController', function ($scope, $uibModalInstance, $stateParams, Template) {
         $scope.clear = function () {
             $uibModalInstance.dismiss('cancel');
         };
-        $scope.confirmDelete = function (id) {
-            Template.delete({id: id},
+        $scope.confirmDelete = function () {
+            Template.delete({id: $stateParams.id},
                 function () {
                     $uibModalInstance.close(true);
                 });

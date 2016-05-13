@@ -1,11 +1,11 @@
-<div class="panel panel-info" style="min-height: 501px;height: 100%">
+<div class="panel panel-info dictionary">
     <div class="panel-body">
 
         <button class="btn btn-info" ng-click="createDictionary()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create new Dictionary</span>
         </button>
 
-        <div ng-show="dictionary" class="panel panel-info edit-form">
+        <div ng-if="dictionary" class="panel panel-info edit-form animated" style="margin-top: 20px">
             <div class="panel-heading">
                 Create/Edit Dictionary
             </div>
@@ -20,11 +20,15 @@
                                     my-type="text"
                                     my-model="dictionary.name"
                                     my-validation-required="true"
-                                    my-validation-maxlength="200">
+                                    my-validation-maxlength="200"
+                                    my-label-vertical="true">
                             </my-input>
+                        </div>
+                        <div class="col-xs-6">
                             <my-text-area
                                     my-label="Description"
-                                    my-model="dictionary.description">
+                                    my-model="dictionary.description"
+                                    my-label-vertical="true">
                             </my-text-area>
                         </div>
                     </div>
@@ -43,7 +47,7 @@
 
         <form class="form-inline text-right">
             <my-input id="searchDictionary" my-label="Search Dictionary" my-model="searchText" my-input-group="append">
-                <button class="btn btn-default" type="submit" ng-click="searchDictionary()">
+                <button class="btn btn-info" type="submit" ng-click="searchDictionary()">
                     <span class="glyphicon glyphicon-search"></span>
                     Search
                 </button>
@@ -52,7 +56,7 @@
     </div>
 
 
-    <div class="table-responsive" style="min-height: 273px">
+    <div class="table-responsive" style="min-height: 273px" my-scroller="x">
         <table class="table table-striped table-hover">
             <thead>
             <tr>
@@ -95,19 +99,20 @@
         </uib-pagination>
     </div>
 </div>
-<div class="panel panel-info" style="bottom: 0; margin:0; padding:0;">
+<div class="panel panel-info words" style="bottom: 0; margin:0; padding:0;">
     <div class="panel-heading">Words
-        <i class="pull-right glyphicon"
-           ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
-           ng-click="isCollapsed = !isCollapsed"></i>
+        <em class="pull-right glyphicon"
+            ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
+            ng-click="isCollapsed = !isCollapsed"></em>
     </div>
 
     <div class="panel-body" uib-collapse="isCollapsed">
-        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null">
+        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null"
+                style="margin-bottom: 20px">
             <span class="glyphicon glyphicon-plus"></span> <span>Add new Word</span>
         </button>
 
-        <div ng-show="word" class="panel panel-info edit-form">
+        <div ng-if="word" class="panel panel-info edit-form animated">
             <div class="panel-heading">
                 Create/Edit Word for dictionary {{selectedDictionary.name}}
             </div>
@@ -115,23 +120,30 @@
                 <form id="editWordForm" name="editWordForm" role="form" novalidate ng-submit="saveWord()"
                       class="form-horizontal" autocomplete="off">
                     <div class="row">
-                        <div class="col-xs-6">
+                        <div class="col-xs-5">
                             <my-input
                                     my-label="Name"
                                     my-name="name"
                                     my-type="text"
                                     my-model="word.name"
                                     my-validation-required="true"
-                                    my-validation-maxlength="200">
+                                    my-validation-maxlength="200"
+                                    my-label-vertical="true">
                             </my-input>
+                        </div>
+                        <div class="col-xs-5">
+                            <my-text-area
+                                    my-label="Description"
+                                    my-model="word.description"
+                                    my-label-vertical="true">
+                            </my-text-area>
+                        </div>
+                        <div class="col-xs-2">
+                            <br/>
                             <my-checkbox
                                     my-label="Active"
                                     my-model="word.enable">
                             </my-checkbox>
-                            <my-text-area
-                                    my-label="Description"
-                                    my-model="word.description">
-                            </my-text-area>
                         </div>
                     </div>
                 </form>
@@ -147,7 +159,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" my-scroller="x">
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -165,7 +177,7 @@
                     <td class="dictionary-col-width dictionary-col-elipsis">{{word.name}}</td>
                     <td class="dictionary-col-width dictionary-col-elipsis">{{word.description}}</td>
                     <td>
-                        <i ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></i>
+                        <em ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></em>
                     </td>
                     <td>{{word.rank}}</td>
                     <td>{{word.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>

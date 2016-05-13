@@ -11,20 +11,20 @@
 .main-container {
   .inner-menu-toggle-button {
     background: @bg4;
-    border: 1px solid @bg1;
-    left: 238px;
+    right: 7px;
     position: absolute;
-    top: 25px;
+    top: 7px;
+    transition: right .3s ease-out;
     z-index: 500;
     &__btn-icon {
-      .set-icon-bg(@bg: transparent,@br:none, @br-s: 0, @color: @bg1, @fs: 14px, @lh: 20px, @ht: 20px, @wt: 20px);
+      .set-icon-bg(@bg: transparent,@br:none, @br-s: 0, @color: @bg3, @fs: 17px, @lh: 26px, @ht: inherit, @wt: 26px);
       box-sizing: content-box;
+      vertical-align: inherit;
       transition: all .5s ease-out;
     }
   }
   &.hide-menu {
     .inner-menu-toggle-button {
-      border: 1px solid @bg3;
       &__btn-icon {
         transform: rotate(-180deg);
       }
@@ -50,7 +50,7 @@
     }
   }
   &__sidebar {
-    padding-top: 36px;
+    padding-top: 40px;
     transition: left 0.5s;
     width: 220px;
   }
@@ -105,7 +105,7 @@
             position: relative;
             &:before {
               .set-list-item-border(@bg:@bg11);
-              height: ~"calc(100% - 35px)";
+              height: ~"calc(100% - 36px)";
               left: 38px;
               top: 28px;
               width: 1px;
@@ -173,15 +173,15 @@
                             text-decoration: none;
                             color: darken(@bg10, 30%);
                           }
-                          &.activ, &:active {
-                            span, .icon-bg-round {
-                              background: @bg11;
-                              color: @bg11;
-                              text-decoration: underline;
-                            }
-                            span {
-                              background: inherit;
-                            }
+                        }
+                        &.activ, &:active {
+                          span, .icon-bg-round {
+                            background: @bg11;
+                            color: @bg11;
+                            text-decoration: underline;
+                          }
+                          span {
+                            background: inherit;
                           }
                         }
                         &:after {
@@ -204,65 +204,20 @@
   }
 }
 
-.main-container {
-  .checkbox label {
-    color: @link-color1;
-    font: 11px/14px segoeui;
-    padding: 0 10px;
-    margin: -10px 0 0 5px;
-    &:before {
-      background-color: @bg1;
-      border: 1px solid @bg12;
-      border-radius: 0;
-      content: "";
-      margin-top: 8px;
-    }
-    &:after {
-      content: "";
-      color: @bg1;
-      margin-top: 9px;
-    }
+.hide-menu {
+  .inner-menu-toggle-button {
+    transition: right .3s ease-out;
+  }
+  .wrapper-list-experiment {
+    margin-right: 50px;
+    transition: right .3s ease-out;
   }
 }
 
-.main-container {
-  .checkbox {
-    label {
-      color: @link-color1;
-      font: 11px/14px segoeui;
-      padding: 0 10px;
-      margin: -10px 0 0 5px;
-      &:before {
-        background-color: @bg1;
-        border: 1px solid @bg12;
-        border-radius: 0;
-        content: "";
-        margin-top: 8px;
-      }
-      &:after {
-        content: "";
-        color: @bg1;
-        margin-top: 9px;
-      }
-    }
-    &_grid {
-      margin: 0 0 0 25px;
-      text-align: center;
-      label {
-        padding: 0;
-        margin: 0;
-        &:before {
-          content: "";
-          margin-top: 5px;
-        }
-        &:after {
-          content: "";
-          margin-top: 6px;
-          left: -1px;
-        }
-      }
-    }
-  }
+.open .wrapper-list-experiment {
+  overflow-x: visible;
+  overflow-y: auto;
+  height: ~"calc(100% - 17px)";
 }
 
 .table-list__item {

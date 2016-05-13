@@ -1,36 +1,30 @@
-<ul class="head-controls-list head-controls-list_main">
-    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
-        <i class="icon-header-control-list fa fa-arrow-circle-o-up"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-        <!--<li class="head-controls-list-submenu__item"><a ng-click="newProject($event)" href="#">Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
-        <i class="icon-header-control-list fa fa-cog"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-        <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="icon-header-control-list fa fa-th-large"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-        <!--<li class="head-controls-list-submenu__item"><a ui-sref="project">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <i class="icon-header-control-list fa fa-question-circle"></i>
-        <!--<ul class="head-controls-list-submenu ">-->
-        <!--<li class="head-controls-list-submenu__item"><a ui-sref="project.new">New Project</a></li>-->
-        <!--</ul>-->
-    </li>
-</ul>
+
+<a href="" class="logo-wrapper">
+</a>
 <ul class="head-controls-list">
+    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
+        <em class="icon-header-control-list fa fa-arrow-circle-o-up"></em>
+        <span class="tooltip-icon-header">Create Project</span>
+    </li>
+    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
+        <em class="icon-header-control-list fa fa-cog"></em>
+        <span class="tooltip-icon-header">Create Project</span>
+    </li>
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
+        <em class="icon-header-control-list fa fa-th-large"></em>
+        <span class="tooltip-icon-header">Create Project</span>
+    </li>
+    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
+        <em class="icon-header-control-list fa fa-question-circle"></em>
+        <span class="tooltip-icon-header">Create Project</span>
+    </li>
     <li class="head-controls-list__item" ui-sref="experiment">
-        <i class="icon-header-control-list fa fa-home"></i>
+        <em class="icon-header-control-list fa fa-home"></em>
+        <span class="tooltip-icon-header">Home</span>
     </li>
     <li class="head-controls-list__item" uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
-        <i class="icon-header-control-list fa fa-file-o"></i>
-        <ul class="head-controls-list-submenu" uib-dropdown-menu aria-labelledby="new-entity-dropdown">
+        <em class="icon-header-control-list fa fa-file-o"></em>
+        <ul class="head-controls-list-submenu" uib-dropdown-menu aria-labelledby="new-entity-dropdown" has-any-authority="{{ENTITY_CREATORS}}" >
             <li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}"><a
                     ui-sref="project.new">New Project</a></li>
             <li class="head-controls-list-submenu__item" has-any-authority="{{NOTEBOOK_CREATORS}}"><a
@@ -40,31 +34,33 @@
         </ul>
     </li>
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list fa fa-files-o"></i>
+        <em class="icon-header-control-list fa fa-files-o"></em>
     </li>
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list fa fa-inbox"></i>
+        <em class="icon-header-control-list fa fa-inbox"></em>
     </li>
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list fa fa-folder-open"></i>
+        <em class="icon-header-control-list fa fa-folder-open"></em>
     </li>
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list fa fa-floppy-o"></i>
+        <em class="icon-header-control-list fa fa-floppy-o"></em>
     </li>
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list fa fa-print"></i>
+        <em class="icon-header-control-list fa fa-print"></em>
+        <span class="tooltip-icon-header">Print</span>
     </li>
     <li class="head-controls-list__item">
-        <i class=" icon-header-control-list fa fa-search"></i>
+        <em class="icon-header-control-list fa fa-search"></em>
+        <span class="tooltip-icon-header">Search</span>
     </li>
 </ul>
 <ul class="head-controls-list head-controls-list_right">
     <li class="head-controls-list__item">
-        <i class="icon-header-control-list icon-header-control-list_user fa fa-user"><span>{{Principal.getIdentity().login}}</span></i>
+        <em class="icon-header-control-list icon-header-control-list_user fa fa-user"><span>{{Principal.getIdentity().login}}</span></em>
     </li>
     <a ng-click="logout()">
         <li class="head-controls-list__item" title="Log out">
-            <i class="icon-header-control-list fa fa-sign-out"></i>
+            <em class="icon-header-control-list fa fa-sign-out"></em>
         </li>
     </a>
 </ul>

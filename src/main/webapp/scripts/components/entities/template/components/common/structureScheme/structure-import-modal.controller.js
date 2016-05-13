@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('StructureImportModalController', function ($scope, $uibModalInstance) {
 
