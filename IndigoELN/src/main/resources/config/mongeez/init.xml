@@ -1,0 +1,54 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-1">
+        <script>
+
+            db.role.ensureIndex({"name" : 1}, {"unique" : true});
+
+            db.user.ensureIndex({"login" : 1}, {"unique" : true});
+            db.user.ensureIndex({"email" : 1});
+            db.user.ensureIndex({"roles":1})
+
+            db.project.ensureIndex({"accessList.user":1})
+            db.project.ensureIndex({"notebooks":1})
+            db.project.ensureIndex({"fileIds":1})
+            db.project.ensureIndex({"sequenceId":1})
+            db.project.ensureIndex({"name" : 1}, {"unique" : true});
+
+            db.notebook.ensureIndex({"experiments":1})
+            db.notebook.ensureIndex({"name" : 1}, {"unique" : true});
+            db.notebook.ensureIndex({"sequenceId":1})
+
+            db.experiment.ensureIndex({"fileIds":1})
+            db.experiment.ensureIndex({"sequenceId":1})
+
+            db.role.insert({
+            "_id" : "role-0",
+            "name" : "All Permissions",
+            "authorities": [
+            "USER_EDITOR", "ROLE_EDITOR", "CONTENT_EDITOR",
+            "PROJECT_READER", "NOTEBOOK_READER", "EXPERIMENT_READER",
+            "PROJECT_CREATOR", "NOTEBOOK_CREATOR", "EXPERIMENT_CREATOR",
+            "PROJECT_REMOVER", "NOTEBOOK_REMOVER", "EXPERIMENT_REMOVER",
+            "TEMPLATE_EDITOR", "DICTIONARY_EDITOR"
+            ]
+            });
+
+            db.user.insert(
+            {
+            "_id" : "user-0",
+            "login" : "admin",
+            "password" : "$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC",
+            "first_name": "admin",
+            "last_name": "Administrator",
+            "email": "admin@localhost",
+            "activated": "true",
+            "lang_key": "en",
+            "created_by": "system",
+            "created_date": new Date(),
+            "roles": [DBRef("role", "role-0")]
+            });
+
+
+        </script>
+    </changeSet>
+</mongoChangeLog>
