@@ -22,13 +22,23 @@ angular.module('indigoeln').controller('TemplateDialogController',
             }
         };
 
+        var hasComponent = function (id) {
+            var component = _.chain($scope.template.templateContent).map(function (tc) {
+                return tc.components;
+            }).flatten().find(function (c) {
+                return c.id === id;
+            }).value();
+            return !_.isUndefined(component);
+        };
+
         dragulaService.options($scope, 'components', {
             //removeOnSpill: true,
             copy: function (el, source) {
                 return source.classList.contains('palette');
             },
             accepts: function (el, target) {
-                return !target.classList.contains('palette');
+                var componentId = angular.element(el).data('id');
+                return !target.classList.contains('palette') && !hasComponent(componentId);
             },
             moves: function (el, container, handle) {
                 return !handle.classList.contains('no-draggable');
