@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('indigoeln')
-    .factory('Principal', function Principal($q, Account) {
+    .factory('Principal', function ($q, Account) {
         var _identity,
             _authenticated = false;
 
@@ -19,7 +17,7 @@ angular.module('indigoeln')
 
                 return this.identity().then(function (_id) {
                     return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-                }, function (err) {
+                }, function () {
                     return false;
                 });
             },
@@ -39,7 +37,7 @@ angular.module('indigoeln')
             hasAuthorityIdentitySafe: function (authority) {
                 return this.identity().then(function (_id) {
                     return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-                }, function (err) {
+                }, function () {
                     return false;
                 });
             },

@@ -1,4 +1,4 @@
-<div class="panel panel-info component">
+<div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         Concept Details
     </div>
@@ -25,28 +25,38 @@
                                my-label-vertical="true"
                                my-readonly="myReadonly">
                     </my-select>
-                    <my-input my-label="Experiment creator" my-label-vertical="true"
-                              my-model="displayOnly.creator" ng-init="displayOnly.creator=experiment.createdBy.login"
-                              my-readonly="true">
-                    </my-input>
-                    <my-input my-label="Co-authors" my-label-vertical="true"
-                              my-readonly="myReadonly">
-                    </my-input>
-                    <my-select my-label="Experiment creator" my-label-vertical="true"
+                    <my-select my-label="Co-authors"
+                               my-label-vertical="true"
                                my-readonly="myReadonly"
+                               my-items="users"
+                               my-model="model.conceptDetails.coAuthors"
+                               my-multiple="true"
+                    ></my-select>
+                    <my-select my-label="Experiment Creator (Author)"
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"
+                               my-dictionary="users"
+                               my-model="model.conceptDetails.experimentCreator"
                     ></my-select>
                 </div>
                 <div class="col-xs-4">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate"
                                     my-readonly="true"></my-date-picker>
-                    <my-input my-label="Linked Experiment" my-label-vertical="true"
-                              my-readonly="myReadonly">
-                    </my-input>
-                    <my-text-area my-label="Designers" my-label-vertical="true"
-                                  my-model="model.conceptDetails.designers"
-                                  my-readonly="myReadonly">
-                    </my-text-area>
+                    <my-tag-input my-label="Linked Experiment"
+                                  my-model="model.conceptDetails.linkedExperiments"
+                                  my-readonly="myReadonly"
+                                  my-label-vertical="true"
+                                  my-on-click="onLinkedExperimentClick"
+                                  my-placeholder="11112222-0003, 11112222-0005"
+                                  my-classes="linkedExperiments"></my-tag-input>
+                    <my-select my-label="Designers"
+                               my-label-vertical="true"
+                               my-readonly="myReadonly"
+                               my-dictionary="users"
+                               my-model="model.conceptDetails.designers"
+                               my-multiple="true"
+                    ></my-select>
                 </div>
             </div>
             <div class="row">

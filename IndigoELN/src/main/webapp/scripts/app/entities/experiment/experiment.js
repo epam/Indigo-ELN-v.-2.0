@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function ($stateProvider, PermissionManagementConfig) {
         $stateProvider
@@ -75,16 +73,17 @@ angular.module('indigoeln')
                         $q.all([
                             EntitiesBrowser.getCurrentEntity(params),
                             EntitiesBrowser.getNotebookFromCache(params),
-                            Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function (results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
-                                identity: results[2],
-                                isContentEditor: results[3],
-                                hasEditAuthority: results[4]
+                                isContentEditor: results[2],
+                                hasEditAuthority: results[3],
+                                experimentId: $stateParams.experimentId,
+                                notebookId: $stateParams.notebookId,
+                                projectId: $stateParams.projectId
                             });
                         });
                         return deferred.promise;
@@ -143,7 +142,7 @@ angular.module('indigoeln')
                                 }).$promise;
                             }]
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                         $state.go('experiment', null, {reload: true});
                     }, function () {
                         $state.go('^');

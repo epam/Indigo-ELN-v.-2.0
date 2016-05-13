@@ -117,12 +117,16 @@ public class DashboardResource {
                 .collect(Collectors.toList());
         final Set<String> submittedDocumentsIds = submittedExp.stream().map(Experiment::getDocumentId).collect(Collectors.toSet());
         Map<String, SignatureService.Document> submittedDocuments;
-        try {
-            submittedDocuments = signatureService.getDocumentsByIds(submittedDocumentsIds).stream()
-                    .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
-        } catch (IOException e) {
-            LOGGER.error("Unable to get list of documents from signature service.", e);
-            throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+        if (!submittedDocumentsIds.isEmpty()) {
+            try {
+                submittedDocuments = signatureService.getDocumentsByIds(submittedDocumentsIds).stream()
+                        .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
+            } catch (IOException e) {
+                LOGGER.error("Unable to get list of documents from signature service.", e);
+                throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
+            }
+        } else {
+            submittedDocuments = new HashMap<>();
         }
         return submittedExp.stream()
                 .filter(e -> e.getCreationDate().isAfter(threshold))

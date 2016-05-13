@@ -1,8 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 2/8/2016.
  */
-'use strict';
-
 angular.module('indigoeln')
     .constant('Components', [
         {name: 'Concept Details', id: 'concept-details', desc: 'Fake description'},
@@ -25,12 +23,16 @@ angular.module('indigoeln')
                 myExperimentForm: '=',
                 myShare: '='
             },
-            link: function (scope, iElement, iAttrs, controller) {
+            link: function (scope, iElement, iAttrs) {
                 scope.myComponent = iAttrs.myComponent;
-                scope.model = scope.myModel; //for capability
-                scope.experimentForm = scope.myExperimentForm; //for capability
-                scope.experiment = _.extend({}, scope.myExperiment); //for readonly
-                scope.share = scope.myShare; //for communication between components
+                //for capability
+                scope.model = scope.myModel;
+                //for capability
+                scope.experimentForm = scope.myExperimentForm;
+                //for readonly
+                scope.experiment = _.extend({}, scope.myExperiment);
+                //for communication between components
+                scope.share = scope.myShare;
             },
             template: '<div ng-switch="myComponent">' +
             '<div ng-switch-when="concept-details"><concept-details /></div>' +
@@ -54,12 +56,13 @@ angular.module('indigoeln')
             myExperiment: '=',
             myExperimentForm: '='
         },
-        link: function (scope, iElement, iAttrs, controller) {
-            scope.share = {}; //for communication between components
+        link: function (scope) {
+            //for communication between components
+            scope.share = {};
         },
         template: '<fieldset ng-disabled="myReadonly"><uib-tabset justified="true">' +
         '<uib-tab heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
+        '<div class="my-component" ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
         '</uib-tab>' +
         '</uib-tabset></fieldset>'
     };

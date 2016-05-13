@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('ProductBatchSummarySetSourceController', function ($scope, name, sourceValues, sourceDetailExternal,
                                                                     sourceDetailInternal, $uibModalInstance) {

@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('role-managementDeleteController', function ($scope, $uibModalInstance, Role, entity) {
 

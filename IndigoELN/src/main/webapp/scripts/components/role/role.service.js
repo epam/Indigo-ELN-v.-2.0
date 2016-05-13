@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Role', function ($resource) {
         return $resource('api/roles/:id', {}, {

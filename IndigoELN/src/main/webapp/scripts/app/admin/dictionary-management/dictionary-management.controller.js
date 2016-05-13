@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal) {
         $scope.dictionaries = [];
@@ -23,7 +21,7 @@ angular.module('indigoeln')
 
         $scope.loadAllDictionaries();
 
-        $scope.$watch('selectedDictionaryId', function (newValue) {
+        $scope.$watch('selectedDictionaryId', function () {
             if ($scope.selectedDictionaryId) {
                 $scope.isCollapsed = false;
                 $scope.selectedDictionary = _.find($scope.dictionaries, function (dict) {
@@ -34,28 +32,45 @@ angular.module('indigoeln')
             }
         });
 
-        $scope.$watchCollection('selectedDictionary.words', function (newValue) {
-            if ($scope.selectedDictionary) {
-                updateRanks($scope.selectedDictionary.words.length);
-            }
-        });
-
-        var onSaveSuccess = function (result) {
+        var onSaveSuccess = function () {
             $scope.isSaving = false;
             $scope.isWordSaving = false;
             $scope.dictionary = null;
             $scope.loadAllDictionaries();
         };
 
-        var onSaveError = function (result) {
+        var onSaveError = function () {
             $scope.isSaving = false;
             $scope.isWordSaving = false;
             $scope.loadAllDictionaries();
         };
 
+        var updateRanks = function (len) {
+            // check if an element removed
+            var modified = $scope.selectedDictionary.words.length !== len;
+            // update ranks
+            if ($scope.selectedDictionary) {
+                for (var i = 0; i < $scope.selectedDictionary.words.length; i++) {
+                    if ($scope.selectedDictionary.words[i].rank !== i) {
+                        $scope.selectedDictionary.words[i].rank = i;
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
+                }
+            }
+        };
+
+        $scope.$watchCollection('selectedDictionary.words', function () {
+            if ($scope.selectedDictionary) {
+                updateRanks($scope.selectedDictionary.words.length);
+            }
+        });
+
         $scope.saveDictionary = function () {
             $scope.isSaving = true;
-            if ($scope.dictionary.id != null) {
+            if ($scope.dictionary.id) {
                 Dictionary.update($scope.dictionary, onSaveSuccess, onSaveError);
             } else {
                 Dictionary.save($scope.dictionary, onSaveSuccess, onSaveError);
@@ -83,8 +98,6 @@ angular.module('indigoeln')
 
         $scope.clearDictionary = function () {
             $scope.dictionary = null;
-            $scope.editForm.$setPristine();
-            $scope.editForm.$setUntouched();
         };
 
         $scope.setSelected = function (id) {
@@ -105,8 +118,6 @@ angular.module('indigoeln')
 
         $scope.clearWord = function () {
             $scope.word = null;
-            $scope.editWordForm.$setPristine();
-            $scope.editWordForm.$setUntouched();
         };
 
         $scope.saveWord = function () {
@@ -132,7 +143,7 @@ angular.module('indigoeln')
 
         $scope.deleteWord = function (word) {
 
-            var modalInstance = $uibModal.open({
+            $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/app/admin/dictionary-management/dictionary-management-delete-word-dialog.html',
                 controller: function ($scope, $uibModalInstance) {
@@ -151,22 +162,4 @@ angular.module('indigoeln')
                 updateRanks(len);
             });
         };
-
-        var updateRanks = function(len) {
-            // check if an element removed
-            var modified = $scope.selectedDictionary.words.length !== len;
-            // update ranks
-            if ($scope.selectedDictionary) {
-                for(var i = 0; i < $scope.selectedDictionary.words.length; i++) {
-                    if ($scope.selectedDictionary.words[i].rank !== i) {
-                        $scope.selectedDictionary.words[i].rank = i;
-                        modified = true;
-                    }
-                }
-                if (modified) {
-                    Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
-                }
-            }
-        };
-
     });

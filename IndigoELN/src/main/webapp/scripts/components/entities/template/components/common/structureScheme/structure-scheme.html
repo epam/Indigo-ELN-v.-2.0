@@ -1,19 +1,20 @@
-<div class="panel panel-info component">
+<div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         {{myTitle}}
-            <span class="btn-group pull-right">
-                <i ng-disabled="myReadonly" class="fa fa-edit btn panel-btn-reaction-scheme" title="Edit/Add {{myTitle}}" ng-click="openEditor()"></i>
-                <i ng-disabled="myReadonly" class="fa  fa-folder-open-o btn" title="Import {{myTitle}}" ng-click="importStructure()"></i>
-                <i ng-disabled="myReadonly" class="fa fa-save btn" title="Export {{myTitle}}"  ng-click="exportStructure()"></i>
-            </span>
+                <span ng-disabled="myReadonly" class="fa fa-save btn pull-right" title="Export {{myTitle}}"
+                      ng-click="exportStructure()"></span>
+                <span ng-disabled="myReadonly" class="fa  fa-folder-open-o btn pull-right" title="Import {{myTitle}}"
+                      ng-click="importStructure()"></span>
+                <span ng-disabled="myReadonly" class="fa fa-edit btn panel-btn-reaction-scheme pull-right"
+                      title="Edit/Add {{myTitle}}" ng-click="openEditor()"></span>
     </div>
     <div s-resizable max-height="300" min-height="50"
-         class="panel-body text-center" ng-class="{'sizable-panel-body': image}">
-        <div ng-if="image" style="height: 100%;">
+         class="panel-body text-center" ng-class="{'sizable-panel-body': image}" style="height: 150px">
+        <div ng-if="model[structureType].image" style="height: 100%;">
             <img  class="img-responsive center-block" style="height: 100%;"
-            ng-src="data:image/svg+xml;base64,{{image}}" alt="Image is unavailable.">
+            ng-src="data:image/svg+xml;base64,{{model[structureType].image}}" alt="Image is unavailable.">
             <span class="glyphicon glyphicon-option-horizontal" style="color: #B2EBF2"></span>
         </div>
-        <h3 ng-if="!image" class="text-muted">empty</h3>
+        <h3 ng-if="!model[structureType].image" class="text-muted">empty</h3>
     </div>
 </div>

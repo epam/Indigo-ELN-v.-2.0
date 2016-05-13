@@ -1,8 +1,6 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function ($scope, $rootScope, $stateParams, $state, Notebook, Alert, PermissionManagement, pageInfo) {
+        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, pageInfo) {
 
             var identity = pageInfo.identity;
             var isContentEditor = pageInfo.isContentEditor;
@@ -11,7 +9,7 @@ angular.module('indigoeln')
             $scope.notebook = pageInfo.notebook;
             $scope.notebook.author = $scope.notebook.author || identity;
             $scope.notebook.accessList = $scope.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
-            $scope.projectId = $stateParams.projectId;
+            $scope.projectId = pageInfo.projectId;
             $scope.isCollapsed = true;
 
             PermissionManagement.setEntity('Notebook');
@@ -20,7 +18,7 @@ angular.module('indigoeln')
             PermissionManagement.setAuthor($scope.notebook.author);
             PermissionManagement.setAccessList($scope.notebook.accessList);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function(event) {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
                 $scope.notebook.accessList = PermissionManagement.getAccessList();
             });
             $scope.$on('$destroy', function() {
@@ -46,7 +44,7 @@ angular.module('indigoeln')
                 $scope.isSaving = false;
                 Alert.success('Notebook successfully saved');
                 $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
-                $state.go('entities.notebook-detail', {projectId: $stateParams.projectId, notebookId: result.id});
+                $state.go('entities.notebook-detail', {projectId: $scope.projectId, notebookId: result.id});
             };
 
             var onSaveError = function (result) {
@@ -60,11 +58,11 @@ angular.module('indigoeln')
 
                 if ($scope.notebook.id) {
                     Notebook.update({
-                        projectId: $stateParams.projectId
+                        projectId: $scope.projectId
                     }, $scope.notebook, onSaveSuccess, onSaveError);
                 } else {
                     Notebook.save({
-                        projectId: $stateParams.projectId
+                        projectId: $scope.projectId
                     }, $scope.notebook, onSaveSuccess, onSaveError);
                 }
             };

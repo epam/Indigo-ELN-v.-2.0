@@ -1,11 +1,14 @@
 <div class="panel panel-info role-management">
+    <div class="panel-heading">
+        Roles
+    </div>
     <div class="panel-body">
         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
         <button class="btn btn-info" ng-click="create()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create a new Role</span>
         </button>
 
-        <div ng-show="role" class="panel panel-info edit-form">
+        <div ng-if="role" class="panel panel-info edit-form animated">
             <div class="panel-heading">Create/Update Role</div>
             <div class="panel-body ">
                 <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
@@ -30,14 +33,17 @@
                                 <label>Authorities</label>
                             </div>
                             <div class="col-xs-11">
-                                <div class="col-xs-3" ng-repeat="authority in authorities">
-                                    <div class="checkbox">
-                                        <label uib-tooltip="{{authority.tooltip}}" tooltip-placement="right">
-                                            <input ng-disabled="authority.readonly" type="checkbox" name="authorities"
-                                                   ng-checked="authority.checked || isAuthoritySelected(authority)"
-                                                   ng-click="updateAuthoritySelection($event, authority)">
-                                            {{authority.description}}
-                                        </label>
+                                <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
+                                    <div>
+                                        <my-checkbox
+                                                my-label="{{authority.description}}"
+                                                my-disabled="authority.readonly"
+                                                my-name="authorities"
+                                                my-model="authority.checked"
+                                                my-change="updateAuthoritySelection($event, authority)"
+                                                my-tooltip="{{authority.tooltip}}"
+                                                my-tooltip-placement="right"
+                                        ></my-checkbox>
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +72,7 @@
                 <input type="text" class="form-control" id="searchRole" placeholder="Role name"
                        ng-model="searchText">
             </div>
-            <button type="submit" class="btn btn-default" ng-click="search()">
+            <button type="submit" class="btn btn-info" ng-click="search()">
                 <span class="glyphicon glyphicon-search"></span>
                 Search
             </button>
@@ -74,30 +80,31 @@
 
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive" my-scroller="x">
         <table class="table table-striped authoritiesTable">
             <thead>
             <tr>
                 <th><p>Role name</p></th>
-                <th ng-repeat="authority in authorities"><p>{{authority.description}}</p></th>
+                <th ng-repeat="authority in authorities track by $index"><p>{{authority.description}}</p></th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
             <tr ng-repeat="role in roles track by role.id">
                 <td>{{role.name}}</td>
-                <td ng-repeat="authority in authorities">
-                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"></span>
+                <td ng-repeat="authority in authorities track by $index">
+                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
+                          class="role-check-icon"></span>
                 </td>
                 <td class="text-right">
                     <button type="submit"
                             ng-click="edit(role)"
-                            class="btn btn-info btn-sm">
+                            class="btn btn-info btn-sm pull-left">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </button>
                     <button type="submit"
                             ui-sref="role-management.delete({id:role.id})"
-                            class="btn btn-danger btn-sm">
+                            class="btn btn-danger btn-sm pull-right">
                         <span class="glyphicon glyphicon-remove-circle"></span>
                     </button>
                 </td>

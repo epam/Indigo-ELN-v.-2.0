@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('indigoeln')
-    .factory('TabManager', function ($rootScope, $stateParams, Experiment, Notebook, Project, $q, $state, $injector) {
+    .factory('TabManager', function ($rootScope, $stateParams, Experiment, Notebook, Project, $q, $state) {
         var _tabs = {};
         var _cache = {};
         var _activeTab = {};
@@ -10,7 +8,6 @@ angular.module('indigoeln')
             addTab: function (tab) {
                 _tabs[tab.name] = tab;
                 _cache[tab.name] = tab;
-                //tab.resource = $injector.get(tab.service).get(tab.params);
                 this.setActiveTab(tab);
                 $rootScope.$broadcast('tabs-changed');
             },

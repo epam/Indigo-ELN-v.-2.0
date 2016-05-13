@@ -1,5 +1,4 @@
 /* globals $ */
-'use strict';
 angular.module('indigoeln')
     .factory('formUtils', function ($timeout) {
         return {
@@ -44,6 +43,14 @@ angular.module('indigoeln')
                         }
                     }
                 });
+            },
+            addOnChange: function (scope) {
+                if (!scope.myChange) {
+                    return;
+                }
+                scope.myChangeAsync = function () {
+                    $timeout(scope.myChange);
+                };
             }
         };
     }).directive('myInput', function (formUtils) {
@@ -62,6 +69,7 @@ angular.module('indigoeln')
             myType: '@',
             myInputGroup: '@',
             myInputSize: '@',
+            myChange: '&',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
             myValidationMinlength: '@',
@@ -69,7 +77,7 @@ angular.module('indigoeln')
             myValidationPatternText: '@',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myInputGroup) {
                 var elementIg = $('<div class="input-group"/>');
@@ -98,15 +106,16 @@ angular.module('indigoeln')
                 tElement.find('input').attr('ng-required', tAttrs.myValidationRequired);
             }
             return {
-                post: function postLink(scope, iElement, iAttrs, formCtrl) {
+                post: function (scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);
+                    formUtils.addOnChange(scope);
                 }
             };
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="myModel" ng-readonly="myReadonly"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-model="myModel" ng-readonly="myReadonly"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -115,7 +124,7 @@ angular.module('indigoeln')
         '</div>' +
         '</div>'
     };
-}).directive('myCheckbox', function () {
+}).directive('myCheckbox', function (formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -125,15 +134,22 @@ angular.module('indigoeln')
             myName: '@',
             myClasses: '@',
             myDisabled: '=',
-            myChange: '&'
+            myChange: '&',
+            myTooltip: '@',
+            myTooltipPlacement: '@'
         },
-        template: '<div class="form-group {{myClasses}}">' +
-        '<div class="col-xs-offset-2 col-xs-10">' +
+        compile: function (tElement, tAttrs) {
+            formUtils.clearLabel(tAttrs, tElement);
+            return {
+                post: function (scope) {
+                    formUtils.addOnChange(scope);
+                }
+            };
+        },
+        template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
-        '<label>' +
-        '<input type="checkbox" id="{{myName}}" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChange()"> {{myLabel}}' +
-        '</label> ' +
-        '</div> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChangeAsync()"></checkbox> ' +
+        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '
     };
@@ -165,12 +181,12 @@ angular.module('indigoeln')
                 $scope.ctrl.selected = myModel;
             });
             if ($scope.myDictionary) {
-                Dictionary.get({id: $scope.myDictionary}, function(dictionary) {
+                Dictionary.get({id: $scope.myDictionary}, function (dictionary) {
                     $scope.myItems = dictionary.words;
                 });
             }
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             tAttrs.myItemProp = tAttrs.myItemProp || 'name';
             tAttrs.myOrderByProp = tAttrs.myOrderByProp || 'rank';
             if (tAttrs.myMultiple) {
@@ -189,7 +205,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myOnSelect()">' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myOnSelect()" append-to-body="true">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +
@@ -210,7 +226,7 @@ angular.module('indigoeln')
             myClasses: '@',
             myReadonly: '='
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             if (tAttrs.myLabelVertical) {
                 $('<br/>').insertAfter(tElement.find('label').first());
@@ -240,7 +256,7 @@ angular.module('indigoeln')
             myReadonly: '=',
             myRowsNum: '='
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             if (tAttrs.myInputGroup) {
                 var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
                 var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
@@ -262,7 +278,7 @@ angular.module('indigoeln')
         '</div> ' +
         '</div> '
     };
-}).directive('mySimpleText', function (formUtils) {
+}).directive('mySimpleText', function () {
     return {
         restrict: 'E',
         replace: true,
@@ -272,12 +288,11 @@ angular.module('indigoeln')
             myEmptyText: '@',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
-            //formUtils.doVertical(tAttrs, tElement);
+        compile: function () {
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<div class="col-xs-12 text-left" style="padding-top: 7px">' +
-        '<div style="float: left; width: 150px"><b>{{myLabel}}</b></div> <span>{{myModel||myEmptyText}}</span>' +
+        '<div style="float: left; width: 150px"><strong>{{myLabel}}</strong></div> <span>{{myModel||myEmptyText}}</span>' +
         '</div>' +
         '</div>'
     };
@@ -296,11 +311,11 @@ angular.module('indigoeln')
             myValidationRequired: '=',
             myClasses: '@'
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
             tElement.find('input').attr('timezone', jstz.determine().name());
             return {
-                post: function postLink(scope, iElement, iAttrs, formCtrl) {
+                post: function (scope, iElement, iAttrs, formCtrl) {
                     if (scope.myModel) {
                         scope.ctrl = {};
                         scope.ctrl.model = moment(scope.myModel);
@@ -332,16 +347,42 @@ angular.module('indigoeln')
             myLabelVertical: '=',
             myModel: '=',
             myReadonly: '=',
-            myClasses: '@'
+            myClasses: '@',
+            myOnClick: '=',
+            myPlaceholder: '@',
+            myMaxTags: '='
         },
-        compile: function (tElement, tAttrs, transclude) {
+        compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        ' <tags-input ng-model="myModel" ng-disabled="myReadonly"></tags-input>' +
+        ' <tags-input ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" placeholder="{{myPlaceholder}}"' +
+        'max-tags="{{myMaxTags}}"></tags-input>' +
         '</div>' +
         '</div>'
+    };
+}).directive('myChecklist', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        scope: {
+            myItems: '=',
+            myLabel: '@'
+        },
+        controller: function ($scope) {
+            $scope.allItemsSelected = false;
+            $scope.selectAll = function () {
+                for (var i = 0; i < $scope.myItems.length; i++) {
+                    $scope.myItems[i].isChecked = $scope.allItemsSelected;
+                }
+            };
+        },
+        template: '<div class="row"><div class="col-xs-3">{{myLabel}}:</div>' +
+        '<div class="col-xs-9 form-inline"><my-checkbox my-model="allItemsSelected" ' +
+        'my-change="selectAll()" my-label="All"></my-checkbox>' +
+        '<my-checkbox ng-repeat="item in myItems" my-label="{{item.value}}" ' +
+        'my-model="item.isChecked" ></my-checkbox></div></div>'
     };
 });

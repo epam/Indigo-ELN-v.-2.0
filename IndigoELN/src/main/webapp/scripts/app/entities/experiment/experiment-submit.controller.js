@@ -1,8 +1,6 @@
-'use strict';
-
 angular.module('indigoeln').controller('ExperimentSubmitController',
-    function ($scope, $rootScope, $stateParams, $state, $compile, $window, Experiment, PdfService, pageInfo,
-              experimentPdfCreator, SignatureTemplates, $uibModal, PermissionManagement, SignatureDocument) {
+    function ($scope, $rootScope, $state, pageInfo, experimentPdfCreator,
+              SignatureTemplates, $uibModal, SignatureDocument) {
 
         $scope.fullPrint = true;
 
@@ -66,6 +64,9 @@ angular.module('indigoeln').controller('ExperimentSubmitController',
 
         $scope.submit = function () {
             var fileName = $scope.notebook.name + '-' + $scope.experiment.name;
+            if ($scope.experiment.experimentVersion > 1 || !$scope.experiment.lastVersion) {
+                fileName += ' v' + $scope.experiment.experimentVersion;
+            }
             experimentPdfCreator.createPDF(fileName, selectTemplate);
         };
 

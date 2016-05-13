@@ -23,6 +23,9 @@ public class ExperimentDTO extends BasicDTO {
     private String documentId;
     private User submittedBy;
 
+    private int experimentVersion;
+    private boolean lastVersion;
+
     public ExperimentDTO() {
         super();
     }
@@ -36,6 +39,8 @@ public class ExperimentDTO extends BasicDTO {
                 experiment.getComponents().stream().map(ComponentDTO::new).collect(Collectors.toList()) : new ArrayList<>();
         this.status = experiment.getStatus();
         this.documentId = experiment.getDocumentId();
+        this.experimentVersion = experiment.getExperimentVersion();
+        this.lastVersion = experiment.isLastVersion();
     }
 
     public List<ComponentDTO> getComponents() {
@@ -76,5 +81,21 @@ public class ExperimentDTO extends BasicDTO {
 
     public void setSubmittedBy(User submittedBy) {
         this.submittedBy = submittedBy;
+    }
+
+    public int getExperimentVersion() {
+        return experimentVersion;
+    }
+
+    public void setExperimentVersion(int experimentVersion) {
+        this.experimentVersion = experimentVersion;
+    }
+
+    public boolean isLastVersion() {
+        return lastVersion;
+    }
+
+    public void setLastVersion(boolean lastVersion) {
+        this.lastVersion = lastVersion;
     }
 }

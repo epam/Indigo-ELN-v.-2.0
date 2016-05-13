@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .controller('PermissionManagementController',
         function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal) {

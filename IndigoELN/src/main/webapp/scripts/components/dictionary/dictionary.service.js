@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .factory('Dictionary', function ($resource) {
         return $resource('api/dictionaries/:id', {}, {

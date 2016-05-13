@@ -1,7 +1,7 @@
 <form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
     <div>
 		<div class="modal-header">
-            <h3 class="modal-title">Notebook selection</h3>
+            <h5 class="modal-title">Notebook selection</h5>
 		</div>
 		<div class="modal-body">
             <div>
@@ -34,7 +34,7 @@
             </div>
 		</div>
 		<div class="modal-footer">
-            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-primary">
+            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-info">
 				Ok
 			</button>
 			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">

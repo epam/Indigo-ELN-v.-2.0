@@ -31,6 +31,7 @@ public class UserDTO {
     private String email;
     private String group;
     private boolean activated;
+    private String fullName;
 
     public UserDTO() {
         super();
@@ -45,6 +46,7 @@ public class UserDTO {
         this.activated = user.getActivated();
         this.authorities = new HashSet<>(user.getAuthorities());
         this.group = user.getGroup();
+        this.fullName = user.getFullName();
     }
 
     public String getId() {
@@ -111,6 +113,14 @@ public class UserDTO {
         this.authorities = authorities;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     @Override
     public String toString() {
         return "UserDTO{" +
@@ -121,6 +131,7 @@ public class UserDTO {
                 ", email='" + email + '\'' +
                 ", activated=" + activated +
                 ", authorities=" + authorities +
+                ", fullName=" + fullName +
                 '}';
     }
 }

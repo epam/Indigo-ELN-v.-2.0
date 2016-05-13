@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Created by Stepan_Litvinov on 2/17/2016.
  */
@@ -48,17 +46,39 @@ angular.module('indigoeln')
             });
         });
 
+        var experimentVersionCreatedEvent = $rootScope.$on('experiment-version-created', function (event, data) {
+            resolvePrincipal(function () {
+                var userId = getUserId();
+                _.each(cache[userId], function (cachedItem, fullId) {
+                    cachedItem.then(function (item) {
+                        if (item.name === data.name) {
+                            delete cache[userId][fullId];
+                        }
+                    });
+                });
+            });
+        });
+
         var userLogoutEvent = $rootScope.$on('user-logout', function (event, data) {
             cache[data.id] = {};
         });
 
         $rootScope.$on('$destroy', function () {
             experimentStatusChangedEvent();
+            experimentVersionCreatedEvent();
             userLogoutEvent();
         });
 
+        var extractParams = function (obj) {
+            return {
+                projectId: obj.projectId,
+                notebookId: obj.notebookId,
+                experimentId: obj.experimentId
+            };
+        };
         return {
             compactIds: function (params) {
+                params = extractParams(params);
                 var paramsArr = [];
                 if (params.projectId) {
                     paramsArr.push(params.projectId);
@@ -76,6 +96,7 @@ angular.module('indigoeln')
                 return {projectId: idsArr[0], notebookId: idsArr[1], experimentId: idsArr[2]};
             },
             getKind: function (params) {
+                params = extractParams(params);
                 if (params.experimentId) {
                     return 'experiment';
                 } else if (params.notebookId) {
@@ -85,14 +106,18 @@ angular.module('indigoeln')
                 }
             },
             resolveTabs: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
-                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    if (that.compactIds(params)) {
+                        tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    }
                     return $q.all(_.values(tabs[userId]));
                 });
             },
             getCurrentEntity: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal(function () {
                     var userId = getUserId();
@@ -130,6 +155,7 @@ angular.module('indigoeln')
                 }
             },
             resolveFromCache: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal( function () {
                     var userId = getUserId();
@@ -137,10 +163,15 @@ angular.module('indigoeln')
                     if (!cache[userId][entitiyId]) {
                         cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
                     }
+                    cache[userId][entitiyId].catch(function () {
+                        delete cache[userId][entitiyId];
+                        delete tabs[userId][entitiyId];
+                    });
                     return cache[userId][entitiyId];
                 });
             },
             updateCacheAndTab: function (params) {
+                params = extractParams(params);
                 var that = this;
                 return resolvePrincipal( function () {
                     var userId = getUserId();
@@ -157,10 +188,12 @@ angular.module('indigoeln')
                 });
             },
             getNotebookFromCache: function (params) {
+                params = extractParams(params);
                 var notebookParams = {projectId: params.projectId, notebookId: params.notebookId};
                 return this.resolveFromCache(notebookParams);
             },
             getProjectFromCache: function (params) {
+                params = extractParams(params);
                 var projectParams = {projectId: params.projectId};
                 return this.resolveFromCache(projectParams);
             }

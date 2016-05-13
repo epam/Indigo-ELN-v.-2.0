@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.experiment;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
@@ -12,9 +13,13 @@ import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +59,7 @@ public class ExperimentService {
 
     public List<TreeNodeDTO> getAllExperimentTreeNodes(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
-        return experiments.stream().map(Experiment::retrieveTreeNodeDTO).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
+        return experiments.stream().map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
 
     /**
@@ -145,6 +150,10 @@ public class ExperimentService {
         //generate name
         experiment.setName(SequenceIdUtil.generateExperimentName(experiment));
 
+        //set latest version
+        experiment.setExperimentVersion(1);
+        experiment.setLastVersion(true);
+
         experiment = experimentRepository.save(experiment);
 
         // add all users as VIEWER to notebook & project
@@ -157,6 +166,53 @@ public class ExperimentService {
         projectRepository.save(project);
 
         return new ExperimentDTO(experiment);
+    }
+
+    public ExperimentDTO versionExperiment(String experimentName, String projectId, String notebookId, User user) {
+        if (StringUtils.isEmpty(experimentName)) {
+            throw new IllegalArgumentException("Experiment name cannot be null.");
+        }
+        Project project = projectRepository.findOne(projectId);
+        if (project == null) {
+            throw EntityNotFoundException.createWithProjectId(projectId);
+        }
+        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+
+        // check of EntityAccess (User must have "Create Sub-Entity" permission in notebook's access list,
+        // or must have CONTENT_EDITOR authority)
+        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(),
+                UserPermission.CREATE_SUB_ENTITY)) {
+            throw OperationDeniedException.createNotebookSubEntityCreateOperation(notebook.getId());
+        }
+
+        // Update previous version
+        Experiment lastVersion = notebook.getExperiments().stream().filter(e -> e.isLastVersion() && experimentName.equals(e.getName()))
+                .findFirst().orElseThrow(() -> EntityNotFoundException.createWithExperimentName(experimentName));
+        lastVersion.setLastVersion(false);
+        experimentRepository.save(lastVersion);
+
+        // Save new version
+        Experiment newVersion = new Experiment();
+        newVersion.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
+        newVersion.setName(experimentName);
+        newVersion.setAccessList(lastVersion.getAccessList());
+        newVersion.setTemplate(lastVersion.getTemplate());
+        newVersion.setCoAuthors(lastVersion.getCoAuthors());
+        newVersion.setWitness(lastVersion.getWitness());
+        newVersion.setStatus(ExperimentStatus.OPEN);
+        final List<Component> components = lastVersion.getComponents();
+        components.forEach(c -> c.setId(null));
+        final List<Component> newComponents = updateComponents(Collections.EMPTY_LIST, components);
+        newVersion.setComponents(newComponents);
+        newVersion.setLastVersion(true);
+        newVersion.setExperimentVersion(lastVersion.getExperimentVersion() + 1);
+
+        final Experiment savedNewVersion = experimentRepository.save(newVersion);
+        notebook.getExperiments().add(savedNewVersion);
+        notebookRepository.save(notebook);
+
+        return new ExperimentDTO(savedNewVersion);
     }
 
     public ExperimentDTO updateExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user) {

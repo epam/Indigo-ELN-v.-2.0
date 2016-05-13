@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
@@ -53,7 +51,7 @@ angular.module('indigoeln')
                                 return Role.get({id: $stateParams.id}).$promise;
                             }]
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function () {
                             $state.go('role-management', null, {reload: true});
                         }, function () {
                             $state.go('^');

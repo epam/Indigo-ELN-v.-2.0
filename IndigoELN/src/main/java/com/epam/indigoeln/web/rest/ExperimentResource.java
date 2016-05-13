@@ -9,6 +9,7 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +136,27 @@ public class ExperimentResource {
         HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, savedExperimentDTO.getId());
         return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + experimentDTO.getId()))
                 .headers(headers).body(savedExperimentDTO);
+    }
+
+    /**
+     * POST  /experiments/version?:notebookId -> Creates experiment version with OWNER's permissions for current User
+     * as child for specified Notebook
+     */
+    @RequestMapping(
+            path = "/version",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExperimentDTO> versionExperiment(@RequestBody String experimentName,
+                                                           @PathVariable String projectId,
+                                                           @PathVariable String notebookId)
+            throws URISyntaxException {
+        LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}", experimentName, notebookId);
+        User user = userService.getUserWithAuthorities();
+        ExperimentDTO createdExperimentDTO = experimentService.versionExperiment(experimentName, projectId, notebookId, user);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdExperimentDTO.getId());
+        return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + createdExperimentDTO.getId()))
+                .headers(headers).body(createdExperimentDTO);
     }
 
     /**

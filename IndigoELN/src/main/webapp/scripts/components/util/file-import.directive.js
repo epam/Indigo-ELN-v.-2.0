@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .directive('myFileReader', function ($parse) {
         return {
@@ -24,5 +22,5 @@ angular.module('indigoeln')
                     reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
                 });
             }
-        }
+        };
     });

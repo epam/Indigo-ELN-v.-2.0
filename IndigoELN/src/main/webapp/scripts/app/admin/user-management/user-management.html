@@ -1,10 +1,13 @@
 <div class="panel panel-info user-management">
+    <div class="panel-heading">
+        Users
+    </div>
     <div class="panel-body">
         <button class="btn btn-info" ng-click="create()">
             <span class="glyphicon glyphicon-flash"></span> <span>Create New User</span>
         </button>
 
-        <div ng-if="user" class="panel panel-info edit-form">
+        <div ng-if="user" class="panel panel-info edit-form animated">
             <div class="panel-heading">
                 Create/Edit User
             </div>
@@ -24,6 +27,8 @@
                                     my-model="user.login"
                                     my-validation-required="user.id == null"
                                     my-validation-maxlength="50"
+                                    my-validation-pattern="/^[a-z0-9]*$/"
+                                    my-validation-pattern-text="Login should not contain symbols in upper case."
                                     ></my-input>
                             <my-input
                                     my-label="First Name"
@@ -70,7 +75,8 @@
                             <my-select my-label="Groups"
                                        my-items="[{name:'Group 1'}, {name:'Group 2'}]" my-model="user.group"
                             ></my-select>
-                            &nbsp;<button class="btn btn-default col-xs-offset-2"
+                            &nbsp;
+                            <button class="btn btn-info col-xs-offset-2"
                                     ng-if="user.id"
                                     ng-click="changePassword()">Change Password
                             </button>&nbsp;&nbsp;
@@ -105,7 +111,7 @@
                 <input type="text" class="form-control" id="searchUser" placeholder="Username, first name or last name"
                        ng-model="searchText">
             </div>
-            <button type="submit" class="btn btn-default" ng-click="search()">
+            <button type="submit" class="btn btn-info" ng-click="search()">
                 <span class="glyphicon glyphicon-search"></span>
                 Search
             </button>
@@ -126,7 +132,6 @@
         </thead>
         <tbody>
         <tr ng-repeat="user in users track by user.id">
-            <!--<td><a ui-sref="user-management-detail({login:user.login})">{{user.id}}</a></td>-->
             <td>{{user.login}}</td>
             <td>{{user.firstName}}</td>
             <td>{{user.lastName}}</td>

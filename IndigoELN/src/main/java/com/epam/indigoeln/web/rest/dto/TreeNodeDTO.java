@@ -13,13 +13,11 @@ import java.util.Set;
  */
 public class TreeNodeDTO {
 
-    public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
-            (o1, o2) -> o1.getName().compareTo(o2.getName());
-
     private String id;
     private String fullId;
     private String name;
-    private String status;
+    public static final Comparator<TreeNodeDTO> NAME_COMPARATOR =
+            (o1, o2) -> o1.getName().compareTo(o2.getName());
     private HashSet<UserPermission> accessList;
 
     public TreeNodeDTO() {
@@ -37,24 +35,31 @@ public class TreeNodeDTO {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getFullId() {
         return fullId;
+    }
+
+    public void setFullId(String fullId) {
+        this.fullId = fullId;
     }
 
     public String getName() {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Set<UserPermission> getAccessList() {
         return accessList;
     }
 
-    public String getStatus() {
-        return status;
+    public void setAccessList(Set<UserPermission> accessList) {
+        this.accessList = accessList == null ? null : new HashSet<>(accessList);
     }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
 }

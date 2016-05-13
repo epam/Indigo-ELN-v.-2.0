@@ -6,9 +6,9 @@
         <div class="row select-from-dictionary" ng-repeat="item in dictionary.words track by item.name">
             <div class="col-xs-12">
                 <my-checkbox
-                        my-model="isSelected[$index]"
+                        my-model="selectedItemsFlags[$index]"
                         my-label="{{item.name}}"
-                        my-change="selectItems($index, item.name)"
+                        my-change="selectItem($index, item.name)"
                 ></my-checkbox>
             </div>
         </div>
@@ -17,6 +17,6 @@
 
 </div>
 <div class="modal-footer text-right">
-    <button class="btn btn-primary" type="button" ng-click="save()">Save</button>
+    <button class="btn btn-info" type="button" ng-click="save()">Save</button>
     <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
 </div>

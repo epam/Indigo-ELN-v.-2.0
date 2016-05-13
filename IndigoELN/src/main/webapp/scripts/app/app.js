@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln',
 
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle', 'ct.ui.router.extras',
@@ -7,9 +5,9 @@ angular.module('indigoeln',
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, TabManager) {
-        var countdownDialog = null,
-            idleTime = 30,  // 30 minutes
-            countdown = 30; // 30 seconds
+        $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
+        // idleTime: 30 minutes, countdown: 30 seconds
+        var countdownDialog = null, idleTime = 30, countdown = 30;
 
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
@@ -46,7 +44,7 @@ angular.module('indigoeln',
             }
             $window.document.title = titleKey;
         });
-        $rootScope.$on('IdleStart', function() {
+        $rootScope.$on('IdleStart', function () {
             if (!countdownDialog) {
                 countdownDialog = $uibModal.open({
                     animation: false,
@@ -54,33 +52,32 @@ angular.module('indigoeln',
                     controller: 'CountdownDialogController',
                     windowClass: 'modal-danger',
                     resolve: {
-                        countdown: function() {
+                        countdown: function () {
                             return countdown;
                         },
-                        idleTime: function() {
+                        idleTime: function () {
                             return idleTime;
                         }
                     }
                 });
             }
         });
-        $rootScope.$on('IdleEnd', function() {
+        $rootScope.$on('IdleEnd', function () {
             if (countdownDialog) {
                 countdownDialog.close();
                 countdownDialog = null;
             }
         });
-        $rootScope.$on('IdleTimeout', function() {
+        $rootScope.$on('IdleTimeout', function () {
             if (countdownDialog) {
                 countdownDialog.close();
                 countdownDialog = null;
             }
             Auth.logout();
-            //$window.location.reload();
             $state.go('login');
         });
         $rootScope.$on('$stateChangeSuccess', function () {
-            $("html, body").animate({scrollTop: 0}, 200);
+            $('html, body').animate({scrollTop: 0}, 200);
         });
         $rootScope.back = function () {
             // If previous state is 'activate' or do not exist go to 'home'
@@ -90,12 +87,11 @@ angular.module('indigoeln',
                 $state.go($rootScope.previousStateName, $rootScope.previousStateParams);
             }
         };
-
         // Theme for angular-xeditable. Can also be 'bs2', 'default'
         editableOptions.theme = 'bs3';
     })
 
-    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider) {
+    .config(function ($stateProvider, $urlRouterProvider, $provide, $httpProvider, $compileProvider, IdleProvider, $animateProvider) {
         //enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
@@ -139,8 +135,12 @@ angular.module('indigoeln',
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
 
-        IdleProvider.idle(30 * 60); // 30 min of idleness
-        IdleProvider.timeout(30); // 30 sec to do something
+        // 30 min of idleness
+        IdleProvider.idle(30 * 60);
+        // 30 sec to do something
+        IdleProvider.timeout(30);
+        // to allow file's export
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/);
 
-        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|tel|file|blob):/); // to allow file's export
+        $animateProvider.classNameFilter(/\banimated\b/);
     });

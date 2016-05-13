@@ -2,35 +2,49 @@
   font-family: FontAwesome;
   src: url(../fonts/segoeui.ttf);
 }
-
 @font-face {
   font-family: segoeui;
   src: url(../fonts/segoeui.ttf);
 }
 /****header page****/
+.main-container {
+  position: relative;
+}
 .main-container__head {
   background: #607d8b;
   height: 70px;
   position: fixed;
-  min-width: 850px;
+  min-width: 1048px;
   width: 100%;
   z-index: 1000;
 }
+.logo-wrapper {
+  position: absolute;
+  top: 4px;
+  left: 35px;
+}
+.logo-wrapper__img {
+  height: 65px;
+}
 .head-controls-list {
   float: left;
-  margin: 25px 20px 0;
+  margin: 25px 8px 0 260px;
   padding: 0;
+  white-space: nowrap;
 }
 .head-controls-list_right {
   float: right;
+  margin: 25px 20px 0 0;
 }
 .head-controls-list__item {
   cursor: pointer;
-  display: inline-block;
-  height: 36px;
+  float: left;
   list-style-type: none;
-  margin-right: 8px;
+  margin-right: 12px;
   position: relative;
+}
+.head-controls-list__item:hover .tooltip-icon-header {
+  display: block;
 }
 .icon-header-control-list {
   background: #546e7a;
@@ -58,9 +72,13 @@
   border: 1px solid #4dd0e1;
 }
 .icon-header-control-list_user {
-  border-radius: 20px;
-  padding: 0 15px;
+  background: inherit;
+  border: none;
   width: inherit;
+}
+.icon-header-control-list_user:hover {
+  border: none;
+  color: #E7E1E1;
 }
 .icon-header-control-list_user span {
   margin-left: 8px;
@@ -119,16 +137,16 @@
   min-width: 150px;
   position: absolute;
   padding: 0;
-  top: 47px;
+  top: 44px;
   z-index: 5;
 }
 .head-controls-list-submenu:before {
   content: "\f0d8";
   color: #fff;
-  font: 42px fontawesome;
+  font: 32px fontawesome;
   left: 19px;
   position: absolute;
-  top: -34px;
+  top: -30px;
 }
 .head-controls-list-submenu__item a {
   color: #6b8693;
@@ -146,6 +164,24 @@
 .head-controls-list-submenu__item a:active {
   color: #263035;
 }
+.tooltip-icon-header {
+  color: #fff;
+  display: none;
+  position: absolute;
+  top: -20px;
+  text-align: center;
+  left: 50%;
+  margin-left: -100px;
+  white-space: nowrap;
+  width: 200px;
+}
+.tooltip-icon-header:hover {
+  display: block;
+}
 .open-menu {
   display: block !important;
+}
+.open .icon-header-control-list {
+  background: #fff;
+  color: #546e7a;
 }

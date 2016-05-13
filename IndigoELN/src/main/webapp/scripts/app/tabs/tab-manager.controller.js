@@ -1,7 +1,5 @@
-'use strict';
-
 angular.module('indigoeln')
-    .controller('TabManagerController', function ($scope, $stateParams, TabManager, EntitiesBrowser) {
+    .controller('TabManagerController', function ($scope, $stateParams, TabManager) {
         $scope.tabs = TabManager.getTabs();
         $scope.activeTab = TabManager.getActiveTab();
 

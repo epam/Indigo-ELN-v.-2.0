@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
@@ -132,13 +130,8 @@ angular.module('indigoeln')
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/template/template-delete-dialog.html',
                         controller: 'TemplateDeleteController',
-                        size: 'md',
-                        resolve: {
-                            entity: ['Template', function (Template) {
-                                return Template.get({id: $stateParams.id});
-                            }]
-                        }
-                    }).result.then(function (result) {
+                        size: 'md'
+                    }).result.then(function () {
                             $state.go('template', null, {reload: true});
                         }, function () {
                             $state.go('^');

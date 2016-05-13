@@ -1,38 +1,24 @@
 /**
  * Created by Stepan_Litvinov on 3/2/2016.
  */
-'use strict';
-
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
-            var grams = ['mg', 'g', 'kg'];
-            var liters = ['ul', 'ml', 'l'];
-            var moles = ['umol', 'mmol', 'mol'];
-            var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
-            var stereoisomerValues = [
-                {name: 'NOSTC - Achiral - No Stereo Centers'},
-                {name: 'AMESO - Achiral - Meso Stereomers'},
-                {name: 'CISTR - Achiral - Cis/Trans Stereomers'},
-                {name: 'SNENK - Single Enantiomer (chirality known)'},
-                {name: 'RMCMX - Racemic (stereochemistry known)'},
-                {name: 'ENENK - Enantio-Enriched (chirality known)'},
-                {name: 'DSTRK - Diastereomers (stereochemistry known)'},
-                {name: 'SNENU - Other - Single Enantiomer (chirality unknown)'}];
-            var sourceValues = [
-                {name: 'Internal'},
-                {name: 'External'}];
-            var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
-            var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
-            var compoundProtectionValues = [
-                {name: 'NONE - None'},
-                {name: 'ST1 - Standard 1'},
-                {name: 'ST2 - Standard 2'}];
+            var grams = AppValues.getGrams();
+            var liters = AppValues.getLiters();
+            var moles = AppValues.getMoles();
+            var compoundValues = AppValues.getCompoundValues();
+            var saltCodeValues = AppValues.getSaltCodeValues();
+            var stereoisomerValues = AppValues.getStereoisomerValues();
+            var sourceValues = AppValues.getSourceValues();
+            var sourceDetailExternal = AppValues.getSourceDetailExternal();
+            var sourceDetailInternal = AppValues.getSourceDetailInternal();
+            var compoundProtectionValues = AppValues.getCompoundProtectionValues();
             var setSelectSourceValueAction = {
-                action: function (id) {
+                action: function () {
                     var that = this;
                     $uibModal.open({
                         templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.html',
@@ -61,15 +47,23 @@ angular.module('indigoeln')
 
                     });
                 }
-
             };
+
+            $scope.$watch('model.productBatchSummary.batches', function (batches) {
+                _.each(batches, function (batch) {
+                    batch.$$purity = batch.purity ? batch.purity.asString : null;
+                    batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
+                    batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
+                    batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
+                });
+            }, true);
 
             $scope.columns = [
                 {
                     id: 'structure',
                     name: 'Structure',
                     type: 'image',
-                    isHidden: true,
+                    isVisible: false,
                     width: '300px'
                 },
                 {
@@ -135,17 +129,25 @@ angular.module('indigoeln')
                 },
                 {id: 'yield', name: '%Yield'},
                 {
+                    id: 'saltCode',
+                    name: 'Salt Code & Name',
+                    type: 'select',
+                    values: function () {
+                        return saltCodeValues;
+                    }
+                },
+                {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
+                {
                     id: 'compoundState',
                     name: 'Compound State',
                     type: 'select',
                     values: function () {
                         return compoundValues;
                     }
-
                 },
-                {id: 'purity', name: 'Purity'},
-                {id: 'meltingPoint', name: 'Melting Point'},
-                {id: 'molWgt', name: 'Mol Wgt'},
+                {id: '$$purity', name: 'Purity'},
+                {id: '$$meltingPoint', name: 'Melting Point'},
+                {id: 'molWeight', name: 'Mol Wgt'},
                 {id: 'molFormula', name: 'Mol Formula'},
                 {id: 'conversationalBatch', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
@@ -192,12 +194,12 @@ angular.module('indigoeln')
                         title: 'Source Detail'
                     })]
                 },
-                {id: 'extSupplier', name: 'Ext Supplier'},
+                {id: '$$externalSupplier', name: 'Ext Supplier'},
                 {
                     id: 'precursors', name: 'Precursors',
                     type: 'input'
                 },
-                {id: 'hazards', name: 'Hazards'},
+                {id: '$$healthHazards', name: 'Hazards'},
                 {
                     id: 'compoundProtection', name: 'Compound Protection',
                     type: 'select',
@@ -215,6 +217,11 @@ angular.module('indigoeln')
 
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row || null;
+                if (row) {
+                    $rootScope.$broadcast('batch-summary-row-selected', row);
+                } else {
+                    $rootScope.$broadcast('batch-summary-row-deselected');
+                }
             };
 
             $scope.share.selectedRow = _.findWhere($scope.model.productBatchSummary.batches, {$$selected: true});
@@ -233,9 +240,7 @@ angular.module('indigoeln')
                 var structureColumn = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
                 });
-                //if (structureColumn) {
-                structureColumn.isHidden = !showStructures;
-                //}
+                structureColumn.isVisible = showStructures;
             });
 
             $scope.$watch('structureSize', function (newVal) {
@@ -246,9 +251,9 @@ angular.module('indigoeln')
             });
 
             $scope.$watch('isHasRegService', function (val) {
-                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isHidden = !val;
-                _.findWhere($scope.columns, {id: 'regDate'}).isHidden = !val;
-                _.findWhere($scope.columns, {id: 'regStatus'}).isHidden = !val;
+                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'regDate'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'regStatus'}).isVisible = val;
             });
 
             $scope.registerBatches = function () {
@@ -271,50 +276,44 @@ angular.module('indigoeln')
 
             };
 
+            function requestNbkBatchNumber(latest, batchToDuplicate) {
+                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
+                    .then(function (result) {
+                        var batchNumber = result.data.batchNumber;
+                        EntitiesBrowser.resolveFromCache({
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        }).then(function (notebook) {
+                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
+                            var fullNbkImmutablePart = notebook.name + '-' + $scope.experiment.name + '-';
+                            var batch = {
+                                nbkBatch: batchNumber,
+                                fullNbkBatch: fullNbkBatch,
+                                fullNbkImmutablePart: fullNbkImmutablePart,
+                                $$selected: false
+                            };
+                            if(batchToDuplicate) {
+                                batch = _.extend(batchToDuplicate, batch);
+                            }
+                            $scope.model.productBatchSummary.batches.push(batch);
+                        });
+
+                    });
+            }
+
             $scope.addNewBatch = function () {
                 var batches = $scope.model.productBatchSummary.batches;
                 var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
 
-                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
-                    .then(function (result) {
-                        var batchNumber = result.data.batchNumber;
-                        EntitiesBrowser.resolveFromCache({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).then(function (notebook) {
-                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
-                            $scope.model.productBatchSummary.batches.push({
-                                nbkBatch: batchNumber,
-                                fullNbkBatch: fullNbkBatch
-                            });
-                        });
-
-                    });
+                requestNbkBatchNumber(latest);
             };
 
             $scope.duplicateBatch = function () {
-                var originalBatch = angular.copy($scope.share.selectedRow);
+                var batchToDuplicate = angular.copy($scope.share.selectedRow);
                 var batches = $scope.model.productBatchSummary.batches;
                 var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
-
-                $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
-                    .then(function (result) {
-                        var batchNumber = result.data.batchNumber;
-                        EntitiesBrowser.resolveFromCache({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).then(function (notebook) {
-                            var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
-                            var newBatch = _.extend(originalBatch, {
-                                nbkBatch: batchNumber,
-                                fullNbkBatch: fullNbkBatch,
-                                $$selected: false
-                            });
-                            $scope.model.productBatchSummary.batches.push(newBatch);
-                        });
-                    });
+                requestNbkBatchNumber(latest, batchToDuplicate);
             };
 
             var structureWatchers = [];
@@ -328,13 +327,16 @@ angular.module('indigoeln')
                     }, function (newMolFile) {
                         var resetMolInfo = function () {
                             row.molFormula = null;
-                            row.molWgt = null;
+                            row.molWeight = null;
                         };
                         if (newMolFile) {
-                            $http.put('api/calculations/molecule/info', row.structure.molfile)
+                            var config = {params: {
+                                saltCode: row.saltCode ? row.saltCode.value : null,
+                                saltEq: row.saltEq}};
+                            $http.put('api/calculations/molecule/info', row.structure.molfile, config)
                                 .then(function (molInfo) {
                                     row.molFormula = molInfo.data.molecularFormula;
-                                    row.molWgt = molInfo.data.molecularWeight;
+                                    row.molWeight = molInfo.data.molecularWeight;
                                 }, resetMolInfo);
                         } else {
                             resetMolInfo();

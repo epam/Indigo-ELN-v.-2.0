@@ -1,7 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 3/1/2016.
  */
-'use strict';
 angular.module('indigoeln')
     .directive('myTableVal', function () {
         return {
@@ -45,25 +44,52 @@ angular.module('indigoeln')
                 myDraggableColumns: '='
 
             },
-            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService) {
-                var columnsIds = JSON.parse(localStorageService.get($scope.myId + '.columns'));
+            controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
+                var that = this;
+                Principal.identity()
+                    .then(function (user) {
+                        $scope.saveInLocalStorage = function () {
+                            localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(
+                                _.map($scope.myColumns, function (column) {
+                                    column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
+                                    return {id: column.id, isVisible: column.isVisible};
+                                })
+                            ));
+                        };
 
-                $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
-                    return _.indexOf(columnsIds, column.id);
-                });
-                if ($attrs.myDraggableColumns) {
-                    $scope.$watch(function () {
-                        return _.map($scope.myColumns, _.iteratee('id')).join('-');
-                    }, function () {
-                        localStorageService.set($scope.myId + '.columns', JSON.stringify(_.pluck($scope.myColumns, 'id')));
+                        var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
+                        if (!columnIdsAndFlags) {
+                            $scope.saveInLocalStorage();
+                        }
+                        $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
+                                return _.findIndex(columnIdsAndFlags, function (item) {
+                                    return item.id === column.id;
+                                });
+                            }
+                        );
+
+                        $scope.myColumns = _.map($scope.myColumns, function (column) {
+                            var index = _.findIndex(columnIdsAndFlags, function (item) {
+                                return item.id === column.id;
+                            });
+                            if (index > -1) {
+                                column.isVisible = columnIdsAndFlags[index].isVisible;
+                            }
+                            return column;
+                        });
+
+                        if ($attrs.myDraggableColumns) {
+                            $scope.$watch(function () {
+                                return _.map($scope.myColumns, _.iteratee('id')).join('-');
+                            }, $scope.saveInLocalStorage);
+                        }
                     });
-                }
 
                 var editableCell = null;
-                this.toggleEditable = function (columnId, rowIndex) {
+                that.toggleEditable = function (columnId, rowIndex) {
                     editableCell = columnId + '-' + rowIndex;
                 };
-                this.isEditable = function (columnId, rowIndex) {
+                that.isEditable = function (columnId, rowIndex) {
                     if (columnId === null || rowIndex === null) {
                         return false;
                     }
@@ -75,7 +101,7 @@ angular.module('indigoeln')
                         return;
                     }
                     _.each($scope.myRows, function (item) {
-                        if(item !== row) {
+                        if (item !== row) {
                             item.$$selected = false;
                         }
                     });
@@ -98,7 +124,7 @@ angular.module('indigoeln')
                 selectService.processColumns($scope.myColumns, $scope.myRows);
 
             },
-            compile: function (tElement, tAttrs, transclude) {
+            compile: function (tElement, tAttrs) {
                 if (tAttrs.myDraggableRows) {
                     var $tBody = $(tElement.find('tbody'));
                     $tBody.attr('dragula', '\'my-table-rows\'');

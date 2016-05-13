@@ -1,8 +1,6 @@
 /**
  * Created by Stepan_Litvinov on 3/15/2016.
  */
-'use strict';
-
 angular.module('indigoeln')
     .factory('unitService', function ($uibModal) {
 
