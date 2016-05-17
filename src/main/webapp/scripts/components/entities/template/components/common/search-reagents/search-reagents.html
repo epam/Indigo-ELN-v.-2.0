@@ -17,7 +17,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row reagent-search-row" style="margin-top:-20px;">
+                <div class="row reagent-search-row">
                     <strong>{{myReagentList.length}} reagents in my list</strong>
                     <div class="pull-right">
                         <button class="btn btn-info search-button"
@@ -47,7 +47,7 @@
     <div class="reagent-search-tab">
         <div class="reagent-search-container" ng-show="!isSearchResultFound">
             <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
-            <div class="row well well-sm" ng-init="$$isCollapsed=true">
+            <div class="row well well-sm" ng-init="$$isCollapsed=true" style="margin-top:3px;">
                 <my-input class="col-xs-9" my-model="model.restrictions.searchQuery"
                           my-label="Type in your search query"
                           my-label-vertical="true"></my-input>
@@ -59,15 +59,15 @@
                     formula, add spaces between each element: C8 H9 Br, C2 H5 OH
                 </div>
                 <div uib-collapse="$$isCollapsed">
-                    <div class="col-xs-12" style="margin-top:-15px;">
+                    <div class="col-xs-12">
                         <div ng-show="!isSearchResultFound">
                             <div class="reagent-search-container">
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.nbkBatch.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.nbkBatch.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.nbkBatch.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -78,8 +78,8 @@
                                     <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.molFormula.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.molFormula.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.molFormula.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -90,8 +90,8 @@
                                     <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.molWeight.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionNumber"
-                                                   my-model="model.restrictions.advancedSearch.molWeight.searchCondition"></my-select>
+                                        <my-select my-items="conditionNumber"
+                                                   my-model="model.restrictions.advancedSearch.molWeight.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -102,8 +102,8 @@
                                     <div class="col-xs-3"><p>
                                         {{model.restrictions.advancedSearch.chemicalName.name}}:</p></div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionChemicalName"
-                                                   my-model="model.restrictions.advancedSearch.chemicalName.searchCondition"></my-select>
+                                        <my-select my-items="conditionChemicalName"
+                                                   my-model="model.restrictions.advancedSearch.chemicalName.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -114,8 +114,8 @@
                                     <div class="col-xs-3"><p>
                                         {{model.restrictions.advancedSearch.externalNumber.name}}:</p></div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.externalNumber.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.externalNumber.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -134,8 +134,8 @@
                                     <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.comments.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.comments.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.comments.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -146,8 +146,8 @@
                                     <div class="col-xs-3"><p>
                                         {{model.restrictions.advancedSearch.hazardComments.name}}:</p></div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.hazardComments.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.hazardComments.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -159,8 +159,8 @@
                                         {{model.restrictions.advancedSearch.casNumber.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="searchConditionText"
-                                                   my-model="model.restrictions.advancedSearch.casNumber.searchCondition"></my-select>
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.casNumber.condition"></my-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-input
@@ -177,7 +177,7 @@
                     <div class="row reagent-search-row">
                         <div class="col-xs-2"><p>Similarity criteria</p></div>
                         <div class="col-xs-4">
-                            <my-select my-items="searchConditionSimilarity"
+                            <my-select my-items="conditionSimilarity"
                                        my-model="model.restrictions.structure.similarityCriteria"></my-select>
                         </div>
                         <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
@@ -219,8 +219,8 @@
                                                   alt="Image is unavailable."></div></span>
                     <strong ng-if="!model.restrictions.structure.image && model.advancedSummary.length">&quot;
                         <strong ng-repeat="restriction in model.advancedSummary track by $index">
-                            {{restriction.name}}: <span ng-if="restriction.searchCondition.name">
-                                            {{restriction.searchCondition.name}}</span>
+                            {{restriction.name}}: <span ng-if="restriction.condition.name">
+                                            {{restriction.condition.name}}</span>
                             {{restriction.value.name || restriction.value}}
                             <span ng-if="!$last">AND </span></strong>&quot;</strong>
                     <strong ng-if="!model.restrictions.structure.image &&
@@ -240,15 +240,15 @@
                                 <div class="col-xs-12 reagent-search-hint">If you search a molecular
                                     formula, add spaces between each element: C8 H9 Br, C2 H5 OH
                                 </div>
-                                <div class="col-xs-12" style="margin-top:-15px;">
+                                <div class="col-xs-12">
                                     <div>
                                         <div class="reagent-search-container">
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.nbkBatch.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.nbkBatch.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.nbkBatch.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -259,8 +259,8 @@
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.molFormula.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.molFormula.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.molFormula.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -271,8 +271,8 @@
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.molWeight.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionNumber"
-                                                               my-model="model.restrictions.advancedSearch.molWeight.searchCondition"></my-select>
+                                                    <my-select my-items="conditionNumber"
+                                                               my-model="model.restrictions.advancedSearch.molWeight.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -283,8 +283,8 @@
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.chemicalName.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionChemicalName"
-                                                               my-model="model.restrictions.advancedSearch.chemicalName.searchCondition"></my-select>
+                                                    <my-select my-items="conditionChemicalName"
+                                                               my-model="model.restrictions.advancedSearch.chemicalName.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -293,10 +293,10 @@
                                             </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
-                                                    {model.restrictions.advancedSearch.externalNumber.name}}:</p></div>
+                                                    {{model.restrictions.advancedSearch.externalNumber.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.externalNumber.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.externalNumber.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -315,8 +315,8 @@
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.comments.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.comments.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.comments.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -327,20 +327,20 @@
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.hazardComments.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.hazardComments.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.hazardComments.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
                                                             my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
                                                 </div>
                                             </div>
-                                            <div class="row reagent-search-row" style="margin-bottom: -25px;">
+                                            <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.casNumber.name}}:</p></div>
                                                 <div class="col-xs-3">
-                                                    <my-select my-items="searchConditionText"
-                                                               my-model="model.restrictions.advancedSearch.casNumber.searchCondition"></my-select>
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.casNumber.condition"></my-select>
                                                 </div>
                                                 <div class="col-xs-3">
                                                     <my-input
@@ -365,7 +365,7 @@
                             <div class="row reagent-search-row">
                                 <div class="col-xs-2"><p>Similarity criteria</p></div>
                                 <div class="col-xs-4">
-                                    <my-select my-items="searchConditionSimilarity"
+                                    <my-select my-items="conditionSimilarity"
                                                my-model="model.restrictions.structure.similarityCriteria"></my-select>
                                 </div>
                                 <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
