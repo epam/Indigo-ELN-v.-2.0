@@ -3,6 +3,7 @@ angular.module('indigoeln')
         var grams = ['mg', 'g', 'kg'];
         var liters = ['ul', 'ml', 'l'];
         var moles = ['umol', 'mmol', 'mol'];
+        var density = ['g/mL'];
         var molarity = ['mM', 'M'];
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
         var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
@@ -43,6 +44,9 @@ angular.module('indigoeln')
             },
             getMoles: function () {
                 return moles;
+            },
+            getDensity: function () {
+                return density;
             },
             getMolarity: function () {
                 return molarity;

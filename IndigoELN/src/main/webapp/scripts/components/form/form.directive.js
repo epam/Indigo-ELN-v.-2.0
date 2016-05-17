@@ -169,7 +169,7 @@ angular.module('indigoeln')
             myItemProp: '@',
             myOrderByProp: '@',
             myClasses: '@',
-            myOnSelect: '&',
+            myChange: '&',
             myReadonly: '='
         },
         controller: function ($scope) {
@@ -201,11 +201,16 @@ angular.module('indigoeln')
             select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.myOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
             formUtils.setLabelColumns(tAttrs, tElement);
+            return {
+                post: function (scope) {
+                    formUtils.addOnChange(scope);
+                }
+            };
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myOnSelect()" append-to-body="true">' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" append-to-body="true">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +

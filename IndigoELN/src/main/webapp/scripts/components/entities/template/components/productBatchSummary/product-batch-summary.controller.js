@@ -165,7 +165,7 @@ angular.module('indigoeln')
                     values: function () {
                         return sourceValues;
                     },
-                    onSelect: function (row) {
+                    onChange: function (row) {
                         row.sourceDetail = {};
                     },
                     hideSelectValue: true,

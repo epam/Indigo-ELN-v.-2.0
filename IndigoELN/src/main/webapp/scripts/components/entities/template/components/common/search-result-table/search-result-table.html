@@ -120,7 +120,7 @@
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-select ng-if="isEditMode"
                                            my-items="saltCodeValues"
-                                           my-on-select="recalculateSalt(item)"
+                                           my-change="recalculateSalt(item)"
                                            my-model="item.saltCode"></my-select>
                                 <p ng-if="!isEditMode">{{item.saltCode.name}}</p>
                             </div>
