@@ -20,6 +20,7 @@ angular.module('indigoeln')
                 var rxnValues = AppValues.getRxnValues();
                 var saltCodeValues = AppValues.getSaltCodeValues();
                 var loadFactorUnits = AppValues.getLoadFactorUnits();
+                var reactionReactants;
 
                 $scope.reactantsColumns = [
                     {id: 'compoundId', name: 'Compound ID', type: 'input'},
@@ -134,7 +135,7 @@ angular.module('indigoeln')
 
                                 });
                                 $q.all(reactantPromises).then(function (results) {
-                                    $scope.model.reactionSchemeReactants = moleculeInfoResponseCallback(results);
+                                    reactionReactants = moleculeInfoResponseCallback(results);
                                 });
                             }
                         }
@@ -195,7 +196,7 @@ angular.module('indigoeln')
                         templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                         resolve: {
                             reactants: function () {
-                                return _.pluck($scope.model.reactionSchemeReactants, 'formula');
+                                return _.pluck(reactionReactants, 'formula');
                             }
                         }
                     });
