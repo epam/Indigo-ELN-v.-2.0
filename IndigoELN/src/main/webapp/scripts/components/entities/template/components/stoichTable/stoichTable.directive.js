@@ -99,38 +99,54 @@ angular.module('indigoeln')
                             }
                         );
                 };
+
+                function moleculeInfoResponseCallback(results) {
+                    return _.map(results, function (result) {
+                        return {
+                            chemicalName: result.data.name,
+                            formula: result.data.molecularFormula,
+                            molWeight: result.data.molecularWeight,
+                            exactMass: result.data.exactMolecularWeight,
+                            saltEq: result.data.saltEq
+                        };
+                    });
+                }
+
+                function getPromisesForMoleculeInfoRequest(reactionProperties, target) {
+                    return _.map(reactionProperties.data[target], function (reactionProperty) {
+                        var config = {
+                            params: {
+                                saltCode: reactionProperty.saltCode ? reactionProperty.saltCode.value : null,
+                                saltEq: reactionProperty.saltEq
+                            }
+                        };
+                        return $http.put('api/calculations/molecule/info', reactionProperty, config);
+                    });
+                }
+
+                function getReactionProductsAndReactants(molFile) {
+                    $http.put('api/calculations/reaction/extract', molFile).then(function (reactionProperties) {
+                            if (reactionProperties.data.products && reactionProperties.data.products.length) {
+                                var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
+                                var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
+                                $q.all(productPromises).then(function (results) {
+                                    $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
+
+                                });
+                                $q.all(reactantPromises).then(function (results) {
+                                    $scope.model.reactionSchemeReactants = moleculeInfoResponseCallback(results);
+                                });
+                            }
+                        }
+                    );
+                }
+
                 $scope.$watch('share.reaction', function (newMolFile) {
                     var resetMolInfo = function () {
                         $scope.model.stoichTable.products = null;
                     };
                     if (newMolFile) {
-                        $http.put('api/calculations/reaction/extract', newMolFile).then(function (reactionProperties) {
-                                if (reactionProperties.data.products && reactionProperties.data.products.length) {
-                                    var promises = [];
-                                    _.each(reactionProperties.data.products, function (product) {
-                                        var config = {
-                                            params: {
-                                                saltCode: product.saltCode ? product.saltCode.value : null,
-                                                saltEq: product.saltEq
-                                            }
-                                        };
-                                        promises.push($http.put('api/calculations/molecule/info', product, config));
-                                    });
-                                    $q.all(promises).then(function (results) {
-                                        $scope.model.stoichTable.products = _.map(results, function (result) {
-                                            return {
-                                                chemicalName: result.data.name,
-                                                formula: result.data.molecularFormula,
-                                                molWeight: result.data.molecularWeight,
-                                                exactMass: result.data.exactMolecularWeight,
-                                                saltEq: result.data.saltEq
-                                            };
-                                        });
-
-                                    });
-                                }
-                            }
-                        );
+                        getReactionProductsAndReactants(newMolFile);
                     } else {
                         resetMolInfo();
                     }
@@ -179,7 +195,7 @@ angular.module('indigoeln')
                         templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                         resolve: {
                             reactants: function () {
-                                return _.pluck($scope.model.stoichTable.products, 'formula');
+                                return _.pluck($scope.model.reactionSchemeReactants, 'formula');
                             }
                         }
                     });
