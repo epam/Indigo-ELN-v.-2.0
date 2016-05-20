@@ -823,3 +823,7 @@ html {
 .show-hide-columns ul.dropdown-menu li {
     margin-left:10px;
 }
+
+.mCSB_2_container {
+    overflow: visible;
+}
