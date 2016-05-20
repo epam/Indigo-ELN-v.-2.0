@@ -1,6 +1,7 @@
 <div class="panel panel-info notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
     <div class="panel-heading">
+        <span ng-show="{notebook.id==null}">New Notebook</span>
     </div>
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
