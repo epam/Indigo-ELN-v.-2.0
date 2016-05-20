@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo) {
+    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, TabManager) {
         $scope.components = Components;
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
@@ -7,6 +7,11 @@ angular.module('indigoeln').controller('TemplateDialogController',
         var onSaveSuccess = function () {
             $state.go('template');
             $scope.isSaving = false;
+            if (!$scope.template.id) {
+                TabManager.closeTab('New Template');
+            } else {
+                TabManager.closeTab('Edit Template');
+            }
         };
 
         var onSaveError = function () {
@@ -19,6 +24,15 @@ angular.module('indigoeln').controller('TemplateDialogController',
                 Template.update($scope.template, onSaveSuccess, onSaveError);
             } else {
                 Template.save($scope.template, onSaveSuccess, onSaveError);
+            }
+        };
+
+        $scope.cancel = function () {
+            $state.go('template');
+            if (!$scope.template.id) {
+                TabManager.closeTab('New Template');
+            } else {
+                TabManager.closeTab('Edit Template');
             }
         };
 

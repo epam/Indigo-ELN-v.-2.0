@@ -59,7 +59,7 @@ angular.module('indigoeln')
                     authorities: ['TEMPLATE_EDITOR'],
                     pageTitle: 'Template',
                     tab: {
-                        name: 'Manage Templates',
+                        name: 'Templates',
                         kind: 'management',
                         state: 'template.detail',
                         id: null,
