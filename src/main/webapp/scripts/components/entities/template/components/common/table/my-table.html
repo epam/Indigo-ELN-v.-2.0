@@ -1,18 +1,16 @@
 <div>
-    <div class="row show-hide-columns">
-        <div class="btn-group btn-group-sm" uib-dropdown>
+    <div class="row">
+        <div class="btn-group btn-group-sm" uib-dropdown dropdown-append-to-body>
             <button id="single-button" type="button" class="btn btn-info btn-sm" uib-dropdown-toggle
-                    ng-disabled="disabled">
+                    ng-disabled="disabled" style="margin-left: 3px">
                 Show / hide columns </span><span class="caret"></span>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button" style="overflow:auto;height:248px;"
-                my-scroller="y" my-scroller-theme="indigo-thick">
-                <div ng-repeat="column in myColumns">
-                    <li role="menuitem" ng-click="$event.stopPropagation();">
-                        <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
-                                     my-change="saveInLocalStorage();"></my-checkbox>
-                    </li>
-                </div>
+                my-scroller="y" my-scroller-theme="indigo-thick" class="show-hide-columns">
+                <li ng-repeat="column in myColumns" role="menuitem" ng-click="$event.stopPropagation();">
+                    <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
+                                 my-change="saveInLocalStorage();"></my-checkbox>
+                </li>
             </ul>
         </div>
     </div>
@@ -24,36 +22,35 @@
                 <tr>
                     <th>
                         <div class="show-hide-columns">
-                            <div class="btn-group btn-group-sm" uib-dropdown>
-                                <button id="show-hide-button" type="button" class="btn btn-info btn-sm"
+                            <div class="btn-group btn-group-sm" uib-dropdown dropdown-append-to-body>
+                                <button id="show-hide-button" type="button" class="btn btn-info btn-sm no-draggable"
                                         uib-dropdown-toggle
                                         ng-disabled="disabled">
-                                    <span class="glyphicon glyphicon-menu-hamburger"></span>
+                                    <span class="glyphicon glyphicon-menu-hamburger no-draggable"></span>
                                 </button>
                                 <ul uib-dropdown-menu role="menu" aria-labelledby="show-hide-button"
                                     style="overflow:auto;height:248px;" my-scroller="y"
-                                    my-scroller-theme="indigo-thick">
-                                    <div ng-repeat="column in myColumns">
-                                        <li role="menuitem" ng-click="$event.stopPropagation();">
-                                            <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
-                                                         my-change="saveInLocalStorage();"></my-checkbox>
-                                        </li>
-                                    </div>
+                                    my-scroller-theme="indigo-thick" class="show-hide-columns">
+                                    <li ng-repeat="column in myColumns" role="menuitem"
+                                        ng-click="$event.stopPropagation();">
+                                        <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
+                                                     my-change="saveInLocalStorage();"></my-checkbox>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
                     </th>
                     <th ng-repeat="column in myColumns track by $index" ng-show="column.isVisible" ng-style="{width: column.width}"
-                        style="width: 150px;">
+                        style="min-width: 150px;">
                         <div class="btn-group btn-group-sm btn-group-justified" ng-if="!column.actions.length">
                             <a href class="btn btn-info" ng-disabled="myReadonly">
                                 {{column.name}}
                             </a>
                         </div>
-                        <div class="btn-group btn-group-sm btn-group-justified" uib-dropdown
+                        <div class="btn-group btn-group-sm btn-group-justified" uib-dropdown dropdown-append-to-body
                              ng-if="column.actions.length">
                             <a href class="btn btn-info" uib-dropdown-toggle ng-disabled="myReadonly">
-                                {{column.name}} <span class="caret"></span>
+                                <span class="no-draggable">{{column.name}} <span class="caret"></span></span>
                             </a>
                             <ul uib-dropdown-menu class="no-draggable">
                                 <li ng-repeat="action in column.actions track by $index" class="no-draggable">
@@ -66,6 +63,7 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr></tr>
                 <tr ng-if="myRows.length" ng-repeat="row in myRows" ng-class="{'success':row.$$selected}">
                     <td></td>
                     <td ng-repeat="column in myColumns track by $index" class="text-center" ng-click="onRowSelect($event, row)"
