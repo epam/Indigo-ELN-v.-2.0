@@ -812,14 +812,14 @@ html {
     cursor: pointer;
 }
 
-.show-hide-columns button {
-    margin-left: 3px !important;
-}
-
-.show-hide-columns ul.dropdown-menu {
-    min-width: 200px;
-}
-
-.show-hide-columns ul.dropdown-menu li {
+.show-hide-columns li {
     margin-left:10px;
+}
+
+.show-hide-columns button {
+    margin-bottom: 2px;
+}
+
+.mCSB_2_container {
+    overflow: visible;
 }

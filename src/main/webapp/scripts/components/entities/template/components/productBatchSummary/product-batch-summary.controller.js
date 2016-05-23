@@ -94,15 +94,6 @@ angular.module('indigoeln')
                     ]
                 },
                 {
-                    id: 'theoWgt',
-                    name: 'Theo. Wgt.',
-                    type: 'unit',
-                    width: '150px',
-                    unitItems: grams,
-                    hideSetValue: true,
-                    readonly: true
-                },
-                {
                     id: 'totalWeight',
                     name: 'Total Weight',
                     type: 'unit',
@@ -122,12 +113,29 @@ angular.module('indigoeln')
                     unitItems: moles
                 },
                 {
+                    id: 'theoWgt',
+                    name: 'Theo. Wgt.',
+                    type: 'unit',
+                    width: '150px',
+                    unitItems: grams,
+                    hideSetValue: true,
+                    readonly: true
+                },
+                {
                     id: 'theoMoles', name: 'Theo. Moles',
                     type: 'unit',
                     width: '150px',
                     unitItems: grams
                 },
                 {id: 'yield', name: '%Yield'},
+                {
+                    id: 'compoundState',
+                    name: 'Compound State',
+                    type: 'select',
+                    values: function () {
+                        return compoundValues;
+                    }
+                },
                 {
                     id: 'saltCode',
                     name: 'Salt Code & Name',
@@ -137,14 +145,6 @@ angular.module('indigoeln')
                     }
                 },
                 {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
-                {
-                    id: 'compoundState',
-                    name: 'Compound State',
-                    type: 'select',
-                    values: function () {
-                        return compoundValues;
-                    }
-                },
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt'},

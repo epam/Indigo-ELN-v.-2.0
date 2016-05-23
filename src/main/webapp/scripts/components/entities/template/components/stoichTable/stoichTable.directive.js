@@ -34,11 +34,6 @@ angular.module('indigoeln')
                         name: 'CAS Number'
                     },
                     {
-                        id: 'nbkBatch',
-                        name: 'Nbk Batch #',
-                        type: 'input'
-                    },
-                    {
                         id: 'chemicalName',
                         name: 'Chemical Name',
                         type: 'input'
@@ -65,6 +60,11 @@ angular.module('indigoeln')
                         }
                     },
                     {
+                        id: 'nbkBatch',
+                        name: 'Nbk Batch #',
+                        type: 'input'
+                    },
+                    {
                         id: 'volume',
                         name: 'Volume',
                         type: 'unit',
@@ -72,17 +72,6 @@ angular.module('indigoeln')
                         onChange: function (data) {
                             data.stoichTable = $scope.model.stoichTable;
                             console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
-                    },
-                    {
-                        id: 'density',
-                        name: 'Density',
-                        type: 'unit',
-                        unitItems: density,
-                        onChange: function (data) {
-                            console.log(data);
-                            data.stoichTable = $scope.model.stoichTable;
                             // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
@@ -125,6 +114,17 @@ angular.module('indigoeln')
                         onChange: function (data) {
                             data.stoichTable = $scope.model.stoichTable;
                             console.log(data);
+                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
+                        }
+                    },
+                    {
+                        id: 'density',
+                        name: 'Density',
+                        type: 'unit',
+                        unitItems: density,
+                        onChange: function (data) {
+                            console.log(data);
+                            data.stoichTable = $scope.model.stoichTable;
                             // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
@@ -210,6 +210,18 @@ angular.module('indigoeln')
                         id: 'molWeight', name: 'Mol.Wt.'
                     },
                     {
+                        id: 'exactMass',
+                        name: 'Exact Mass'
+                    },
+                    {
+                        id: 'theoWgt',
+                        name: 'Theo. Wgt.'
+                    },
+                    {
+                        id: 'theoMoles',
+                        name: 'Theo. Moles'
+                    },
+                    {
                         id: 'saltCode',
                         name: 'Salt Code',
                         type: 'select',
@@ -231,18 +243,6 @@ angular.module('indigoeln')
                             data.stoichTable = $scope.model.stoichTable;
                             // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
-                    },
-                    {
-                        id: 'exactMass',
-                        name: 'Exact Mass'
-                    },
-                    {
-                        id: 'theoWgt',
-                        name: 'Theo. Wgt.'
-                    },
-                    {
-                        id: 'theoMoles',
-                        name: 'Theo. Moles'
                     },
                     {
                         id: 'hazardComments',
