@@ -816,10 +816,12 @@ html {
     margin-left:10px;
 }
 
+.show-hide-columns.dropdown-menu {
+    height: 230px;
+    overflow: auto;
+}
+
 .show-hide-columns button {
     margin-bottom: 2px;
 }
 
-.mCSB_2_container {
-    overflow: visible;
-}
