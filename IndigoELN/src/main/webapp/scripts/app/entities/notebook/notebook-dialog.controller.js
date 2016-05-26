@@ -7,6 +7,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.notebook = pageInfo.notebook;
+            $scope.newNotebook = _.isUndefined($scope.notebook.id) || _.isNull($scope.notebook.id);
             $scope.notebook.author = $scope.notebook.author || identity;
             $scope.notebook.accessList = $scope.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
             $scope.projectId = pageInfo.projectId;

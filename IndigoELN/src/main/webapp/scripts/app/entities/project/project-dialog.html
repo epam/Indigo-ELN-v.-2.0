@@ -1,7 +1,7 @@
 <div class="panel panel-info projects" ng-class="{'project-create': project.id==null}"
      cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-heading">
-        <span ng-show="{project.id==null}">New Project</span>
+    <div class="panel-heading" ng-show="newProject">
+        <span>New Project</span>
     </div>
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
             <form id="createProjectForm" name="createProjectForm" role="form" novalidate
