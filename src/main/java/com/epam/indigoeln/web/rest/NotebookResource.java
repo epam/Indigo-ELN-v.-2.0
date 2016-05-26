@@ -8,6 +8,9 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
+@Api
 @RestController
 @RequestMapping(NotebookResource.URL_MAPPING)
 public class NotebookResource {
@@ -44,11 +48,13 @@ public class NotebookResource {
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
      * for tree representation according to his User permissions
      */
+    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation according to his permissions.", produces = "application/json")
     @RequestMapping(
             value = PARENT_PATH_ID,
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(@PathVariable String projectId) {
+    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooksByPermissions(
+            @ApiParam("Project id") @PathVariable String projectId) {
         LOGGER.debug("REST request to get all notebooks of project: {} according to user permissions", projectId);
         User user = userService.getUserWithAuthorities();
         List<TreeNodeDTO> result = notebookService.getAllNotebookTreeNodes(projectId, user);
@@ -59,9 +65,11 @@ public class NotebookResource {
      * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project
      * without checking for User permissions
      */
+    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.", produces = "application/json")
     @RequestMapping(value = PARENT_PATH_ID + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(@PathVariable String projectId) {
+    public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
+            @ApiParam("Project id") @PathVariable String projectId) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get all notebooks of project: {} " +
                     "without checking for permissions", projectId);
@@ -73,9 +81,14 @@ public class NotebookResource {
     /**
      * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed from notebook without problems
      */
+    @ApiOperation(value = "Returns true if user can be removed from notebook without problems.", produces = "application/json")
     @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> isUserRemovable(String projectId, String notebookId, String userId) {
+    public ResponseEntity<Map> isUserRemovable(
+            @ApiParam("Project id") String projectId,
+            @ApiParam("Notebook id") String notebookId,
+            @ApiParam("User id") String userId
+        ) {
         LOGGER.debug("REST request to check if user can be deleted from notebook's access list without problems");
         boolean result = notebookService.isUserRemovable(projectId, notebookId, userId);
         return ResponseEntity.ok(ImmutableMap.of("isUserRemovable", result));
@@ -84,6 +97,7 @@ public class NotebookResource {
     /**
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
+    @ApiOperation(value = "Returns all notebooks available for experiment creation.", produces = "application/json")
     @RequestMapping(value = "notebooks/sub-creations",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getNotebooksForExperimentCreation() {
@@ -95,9 +109,13 @@ public class NotebookResource {
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
      */
+    @ApiOperation(value = "Returns notebook by it's id according to permissions.", produces = "application/json")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> getNotebook(@PathVariable String projectId, @PathVariable String id) {
+    public ResponseEntity<NotebookDTO> getNotebook(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String id
+        ) {
         LOGGER.debug("REST request to get notebook: {}", id);
         User user = userService.getUserWithAuthorities();
         NotebookDTO notebook = notebookService.getNotebookById(projectId, id, user);
@@ -110,12 +128,14 @@ public class NotebookResource {
      * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User
      * as child for specified Project
      */
+    @ApiOperation(value = "Creates notebook with OWNER's permissions for current user.", produces = "application/json")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> createNotebook(
-            @PathVariable String projectId,
-            @RequestBody @Valid NotebookDTO notebook) throws URISyntaxException {
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook to create") @RequestBody @Valid NotebookDTO notebook
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         NotebookDTO createdNotebook = notebookService.createNotebook(notebook, projectId, user);
@@ -127,11 +147,14 @@ public class NotebookResource {
     /**
      * PUT  /notebooks/:id -> Updates notebook according to User permissions
      */
+    @ApiOperation(value = "Updates notebook according to permissions.", produces = "application/json")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<NotebookDTO> updateNotebook(@PathVariable String projectId,
-                                                      @RequestBody @Valid NotebookDTO notebook) {
+    public ResponseEntity<NotebookDTO> updateNotebook(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook to update") @RequestBody @Valid NotebookDTO notebook
+        ) {
         LOGGER.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         NotebookDTO updatedNotebook = notebookService.updateNotebook(notebook, projectId, user);
@@ -142,9 +165,11 @@ public class NotebookResource {
     /**
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
+    @ApiOperation(value = "Removes notebook.", produces = "application/json")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteNotebook(@PathVariable String projectId,
-                                               @PathVariable String id) {
+    public ResponseEntity<Void> deleteNotebook(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String id) {
         LOGGER.debug("REST request to remove notebook: {}", id);
         notebookService.deleteNotebook(projectId, id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);

@@ -4,6 +4,9 @@ import java.util.Collection;
 
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 /**
  * REST Controller for Custom Search Implementation
  */
+@Api
 @RestController
 @RequestMapping("/api/search")
 public class SearchResource {
@@ -29,12 +33,14 @@ public class SearchResource {
     /**
      * POST /batch -> find batch Components by specified criteria
      */
+    @ApiOperation(value = "Searches for batch components by specified criteria.", produces = "application/json")
     @RequestMapping(
             value = "/batch",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchBatches(
-            @RequestBody BatchSearchRequest searchRequest)  {
+            @ApiParam("Search params.") @RequestBody BatchSearchRequest searchRequest
+        )  {
         Collection<ProductBatchDetailsDTO> batchDetails = searchService.findBatches(searchRequest);
         return ResponseEntity.ok(batchDetails);
     }
