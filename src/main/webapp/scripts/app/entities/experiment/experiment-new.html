@@ -1,6 +1,6 @@
 <div class="panel panel-info">
     <div class="panel-body">
-        <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
+        <form id="editForm" name="editForm" role="form" novalidate ng-submit="ok()"
               class="form-horizontal">
             <my-select
                     my-label="Template"
@@ -16,7 +16,7 @@
            ng-if="mode == 'edit'">
             <span class="glyphicon glyphicon-trash"></span>&nbsp;<span>Delete</span>
         </a>
-        <a class="btn btn-default" data-dismiss="modal" ng-click="back()">
+        <a class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
             <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
         </a>
         <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-info">

@@ -22,26 +22,36 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
-                views: {
-                    'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
-                        controller: 'ExperimentDialogController'
-                    }
-                },
-                resolve: {
-                    pageInfo: function ($q, $stateParams, Template) {
-                        var deferred = $q.defer();
-                        $q.all([
-                            Template.query().$promise
-                        ]).then(function (results) {
-                            deferred.resolve({
-                                entity: {name: null, experimentNumber: null, template: null, id: null},
-                                templates: results[0],
-                                mode: 'new'
-                            });
+                onEnter: function ($state, $uibModal) {
+                    $uibModal.open({
+                        animation: true,
+                        templateUrl: 'scripts/app/entities/experiment/experiment-new.html',
+                        controller: 'ExperimentNewController',
+                        size: 'lg',
+                        resolve: {
+                            pageInfo: function ($q, $stateParams, Template) {
+                                var deferred = $q.defer();
+                                $q.all([
+                                    Template.query().$promise
+                                ]).then(function (results) {
+                                    deferred.resolve({
+                                        entity: {name: null, experimentNumber: null, template: null, id: null},
+                                        templates: results[0],
+                                        mode: 'new'
+                                    });
+                                });
+                                return deferred.promise;
+                            }
+                        }
+                    }).result.then(function (result) {
+                            $state.go('entities.experiment-detail', {
+                                notebookId: result.notebookId,
+                                projectId: result.projectId,
+                                experimentId: result.id
                         });
-                        return deferred.promise;
-                    }
+                        }, function () {
+                            $state.go('^');
+                        });
                 }
             })
             .state('entities.experiment-detail', {
@@ -90,41 +100,8 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('experiment.edit', {
-                parent: 'experiment',
-                url: '/project/{projectId}/notebook/{notebookId}/experiment/{id}/edit',
-                data: {
-                    authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
-                },
-                views: {
-                    'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/experiment-dialog.html',
-                        controller: 'ExperimentDialogController'
-                    }
-                },
-                resolve: {
-                    pageInfo: function ($q, $stateParams, Experiment, Template) {
-                        var deferred = $q.defer();
-                        $q.all([
-                            Experiment.get({
-                                experimentId: $stateParams.id,
-                                notebookId: $stateParams.notebookId,
-                                projectId: $stateParams.projectId
-                            }).$promise,
-                            Template.query().$promise
-                        ]).then(function (results) {
-                            deferred.resolve({
-                                entity: results[0],
-                                templates: results[1],
-                                mode: 'edit'
-                            });
-                        });
-                        return deferred.promise;
-                    }
-                }
-            })
             .state('experiment.delete', {
-                parent: 'experiment.edit',
+                parent: 'experiment',
                 url: '/delete',
                 data: {
                     authorities: ['EXPERIMENT_REMOVER', 'CONTENT_EDITOR']
@@ -149,9 +126,9 @@ angular.module('indigoeln')
                     });
                 }]
             })
-            .state('experiment.select-notebook', {
+            .state('experiment.select-notebook-template', {
                 parent: 'experiment',
-                url: 'experiment/select-notebook',
+                url: 'experiment/select-notebook-template',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
                     pageTitle: 'indigoeln'
@@ -159,16 +136,23 @@ angular.module('indigoeln')
                 onEnter: function ($state, $uibModal) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/experiment-select-parent.html',
-                        controller: 'ExperimentSelectParentController',
+                        templateUrl: 'scripts/app/entities/experiment/experiment-select-parent-template.html',
+                        controller: 'ExperimentSelectParentTemplateController',
                         size: 'lg',
                         resolve: {
                             parents: function (NotebooksForSubCreation) {
                                 return NotebooksForSubCreation.query().$promise;
+                            },
+                            templates: function (Template) {
+                                return Template.query().$promise;
                             }
                         }
                     }).result.then(function (result) {
-                        $state.go('experiment.new', {projectId: result.projectId, notebookId: result.notebookId});
+                            $state.go('entities.experiment-detail', {
+                                notebookId: result.notebookId,
+                                projectId: result.projectId,
+                                experimentId: result.id
+                            });
                     }, function () {
                         $state.go('^');
                     });
@@ -176,16 +160,6 @@ angular.module('indigoeln')
             })
             .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.experiment-detail',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
-                },
-                permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read experiment)'},
-                    {id: 'OWNER', name: 'OWNER (read and update experiment)'}
-                ]
-            }))
-            .state('experiment.edit.permissions', _.extend({}, PermissionManagementConfig, {
-                parent: 'experiment.edit',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
                 },
