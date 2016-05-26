@@ -13,6 +13,8 @@ import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardRowDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Api
 @RestController
 @RequestMapping(DashboardResource.URL_MAPPING)
 public class DashboardResource {
@@ -63,6 +66,7 @@ public class DashboardResource {
      * GET  /dashboard -> Returns dashboard experiments
      * 1. Experiments created by current user during one month which are in one of following statuses: 'Open', 'Completed'
      */
+    @ApiOperation(value = "Returns dashboard content.", produces = "application/json")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardDTO> getDashboard() {

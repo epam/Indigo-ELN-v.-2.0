@@ -5,6 +5,9 @@ import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 /**
  * REST controller for managing Resources
  */
+@Api
 @RestController
 @RequestMapping("/api/templates")
 public class TemplateResource {
@@ -38,9 +42,12 @@ public class TemplateResource {
     /**
      * GET /templates/:id -> get template by id
      */
+    @ApiOperation(value = "Returns template by it's id.", produces = "application/json")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> getTemplate(@PathVariable String id) {
+    public ResponseEntity<TemplateDTO> getTemplate(
+            @ApiParam("Template id") @PathVariable String id
+        ) {
         return templateService.getTemplateById(id)
                 .map(template -> new ResponseEntity<>(template, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -52,8 +59,10 @@ public class TemplateResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TemplateDTO>> getAllTemplates(Pageable pageable)
-            throws URISyntaxException {
+    @ApiOperation(value = "Returns all templates (with paging).", produces = "application/json")
+    public ResponseEntity<List<TemplateDTO>> getAllTemplates(
+            @ApiParam("Paging data") Pageable pageable
+        ) throws URISyntaxException {
         Page<TemplateDTO> page = templateService.getAllTemplates(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/templates");
         return new ResponseEntity<>(page.getContent().stream()
@@ -73,11 +82,13 @@ public class TemplateResource {
      * @param templateDTO template for save
      * @return saved template item wrapped to ResponseEntity
      */
+    @ApiOperation(value = "Creates new template.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity createTemplate(@Valid @RequestBody TemplateDTO templateDTO)
-            throws URISyntaxException {
+    public ResponseEntity createTemplate(
+            @ApiParam("Template to create") @Valid @RequestBody TemplateDTO templateDTO
+        ) throws URISyntaxException {
         TemplateDTO result = templateService.createTemplate(templateDTO);
         return ResponseEntity.created(new URI("/api/templates/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreateAlert("template", result.getId()))
@@ -99,10 +110,13 @@ public class TemplateResource {
      * @param template template for save
      * @return saved template item wrapped to ResponseEntity
      */
+    @ApiOperation(value = "Updates existing template.", produces = "application/json")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TemplateDTO> updateTemplate(@RequestBody TemplateDTO template){
+    public ResponseEntity<TemplateDTO> updateTemplate(
+            @ApiParam("Template to update") @RequestBody TemplateDTO template
+        ){
         if(!templateService.getTemplateById(template.getId()).isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -123,8 +137,11 @@ public class TemplateResource {
      * @param id id of template
      * @return operation status Response Entity
      */
+    @ApiOperation(value = "Removes template.", produces = "application/json")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteTemplate(@PathVariable String id) {
+    public ResponseEntity<Void> deleteTemplate(
+            @ApiParam("Template id to delete") @PathVariable String id
+        ) {
         templateService.deleteTemplate(id);
         return ResponseEntity.ok().headers(
                 HeaderUtil.createEntityDeleteAlert("template", id)).build();

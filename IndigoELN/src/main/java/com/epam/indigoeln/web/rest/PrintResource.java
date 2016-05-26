@@ -10,6 +10,9 @@ import com.itextpdf.text.pdf.PdfPageEventHelper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.ElementList;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.slf4j.Logger;
@@ -31,6 +34,7 @@ import java.util.UUID;
 
 import static com.epam.indigoeln.core.service.util.TempFileUtil.TEMP_FILE_PREFIX;
 
+@Api
 @RestController
 @RequestMapping("/api/print")
 public class PrintResource {
@@ -43,9 +47,11 @@ public class PrintResource {
     @Autowired
     private PhantomJsService phantomJsService;
 
+    @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> createPdf(@RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
+    public ResponseEntity<Map> createPdf(
+            @ApiParam("HTML printout") @RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
         String fileName = String.format("%s.pdf", wrapper.getFileName());
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
         try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
@@ -64,9 +70,12 @@ public class PrintResource {
         return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
     }
 
+    @ApiOperation(value = "Returns file content by it's name.", produces = "application/json")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<InputStreamResource> download(@PathParam("fileName") String fileName) {
+    public ResponseEntity<InputStreamResource> download(
+            @ApiParam("File name") @PathParam("fileName") String fileName
+        ) {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
         try {  //NOSONAR: spring will close stream, after it will send bytes to client
             InputStream is = new FileInputStream(file);
