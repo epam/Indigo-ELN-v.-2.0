@@ -21,7 +21,12 @@ angular.module('indigoeln')
                 var rxnValues = AppValues.getRxnValues();
                 var saltCodeValues = AppValues.getSaltCodeValues();
                 var loadFactorUnits = AppValues.getLoadFactorUnits();
-                var reactionReactants;
+                var reactionReactants, actualProducts;
+
+                function initDataForCalculation(data) {
+                    data.stoichTable = $scope.model.stoichTable;
+                    data.actualProducts = actualProducts;
+                }
 
                 $scope.reactantsColumns = [
                     {
@@ -41,23 +46,13 @@ angular.module('indigoeln')
                     {
                         id: 'molWeight',
                         name: 'Mol Weight',
-                        type: 'input',
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'input'
                     },
                     {
                         id: 'weight',
                         name: 'Weight',
                         type: 'unit',
-                        unitItems: grams,
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        unitItems: grams
                     },
                     {
                         id: 'nbkBatch',
@@ -68,41 +63,23 @@ angular.module('indigoeln')
                         id: 'volume',
                         name: 'Volume',
                         type: 'unit',
-                        unitItems: liters,
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        unitItems: liters
                     },
                     {
                         id: 'mol',
                         name: 'Mol',
-                        unitItems: moles,
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'unit',
+                        unitItems: moles
                     },
                     {
                         id: 'eq',
                         name: 'EQ',
-                        type: 'input',
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'input'
                     },
                     {
                         id: 'limiting',
                         name: 'Limiting',
-                        type: 'boolean',
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'boolean'
                     },
                     {
                         id: 'rxnRole',
@@ -110,44 +87,24 @@ angular.module('indigoeln')
                         type: 'select',
                         values: function () {
                             return rxnValues;
-                        },
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
                     {
                         id: 'density',
                         name: 'Density',
                         type: 'unit',
-                        unitItems: density,
-                        onChange: function (data) {
-                            console.log(data);
-                            data.stoichTable = $scope.model.stoichTable;
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        unitItems: density
                     },
                     {
                         id: 'molarity',
                         name: 'Molarity',
                         type: 'unit',
-                        unitItems: molarity,
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateMolarAmountForSolvent(data);
-                        }
+                        unitItems: molarity
                     },
                     {
-                        id: 'purity',
+                        id: 'stoicPurity',
                         name: 'Purity',
-                        type: 'input',
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'input'
                     },
                     {
                         id: 'molFormula',
@@ -170,23 +127,13 @@ angular.module('indigoeln')
                     {
                         id: 'saltEq',
                         name: 'Salt EQ',
-                        type: 'input',
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        type: 'input'
                     },
                     {
                         id: 'loadFactor',
                         name: 'Load Factor',
                         type: 'unit',
-                        unitItems: loadFactorUnits,
-                        onChange: function (data) {
-                            data.stoichTable = $scope.model.stoichTable;
-                            console.log(data);
-                            // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
-                        }
+                        unitItems: loadFactorUnits
                     },
                     {
                         id: 'hazardComments',
@@ -199,6 +146,20 @@ angular.module('indigoeln')
                         type: 'input'
                     }
                 ];
+                _.each($scope.reactantsColumns, function (column, i) {
+                    var columnsToRecalculateStoic = ['molWeight', 'weight', 'volume', 'density', 'mol', 'eq',
+                        'limiting', 'rxnRole', 'molarity', 'stoicPurity', 'saltCode', 'saltEq', 'loadFactor'];
+
+                    if (_.contains(columnsToRecalculateStoic, column.id)) {
+                        $scope.reactantsColumns[i] = _.extend(column, {
+                            onClose: function (data) {
+                                initDataForCalculation(data);
+                                console.log(data);
+                                StoichCalculator.recalculateStoich(data, false);
+                            }
+                        });
+                    }
+                });
                 $scope.productsColumns = [
                     {
                         id: 'chemicalName', name: 'Chemical Name'
@@ -212,14 +173,21 @@ angular.module('indigoeln')
                     {
                         id: 'exactMass',
                         name: 'Exact Mass'
+
                     },
                     {
-                        id: 'theoWgt',
-                        name: 'Theo. Wgt.'
+                        id: 'theoWeight',
+                        name: 'Theo. Wgt.',
+                        type: 'unit',
+                        unitItems: grams,
+                        readonly: true
                     },
                     {
                         id: 'theoMoles',
-                        name: 'Theo. Moles'
+                        name: 'Theo. Moles',
+                        type: 'unit',
+                        unitItems: moles,
+                        readonly: true
                     },
                     {
                         id: 'saltCode',
@@ -230,7 +198,7 @@ angular.module('indigoeln')
                         },
                         onChange: function (data) {
                             console.log(data);
-                            data.stoichTable = $scope.model.stoichTable;
+                            initDataForCalculation(data);
                             // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
@@ -240,7 +208,7 @@ angular.module('indigoeln')
                         type: 'input',
                         onChange: function (data) {
                             console.log(data);
-                            data.stoichTable = $scope.model.stoichTable;
+                            initDataForCalculation(data);
                             // StoichCalculator.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
@@ -332,6 +300,9 @@ angular.module('indigoeln')
                         resetMolInfo();
                     }
                 });
+                $scope.$watch('share.actualProducts', function (products) {
+                    actualProducts = products;
+                }, true);
                 $scope.$watch('model.stoichTable.reactants', function (newRows) {
                     _.each(newRows, function (row) {
                         if (row.saltCode || row.saltEq) {
@@ -351,8 +322,23 @@ angular.module('indigoeln')
                 var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
                     $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
                 });
+                var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
+                    var newReactants = data.stoicBatches;
+                    var newProducts = data.intendedProducts;
+                    if (newReactants.length === $scope.model.stoichTable.reactants.length) {
+                        _.each($scope.model.stoichTable.reactants, function (reactant, i) {
+                            _.extend(reactant, newReactants[i]);
+                        });
+                    }
+                    if (newProducts.length === $scope.model.stoichTable.products.length) {
+                        _.each($scope.model.stoichTable.products, function (product, i) {
+                            _.extend(product, newProducts[i]);
+                        });
+                    }
+                });
                 $scope.$on('$destroy', function () {
                     onNewStoichRows();
+                    onStoicTableRecalculated();
                 });
 
                 $scope.searchReagents = function (activeTab) {

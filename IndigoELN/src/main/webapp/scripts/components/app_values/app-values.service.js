@@ -7,10 +7,10 @@ angular.module('indigoeln')
         var molarity = ['mM', 'M'];
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
         var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
-        var sourceValues = [{name: 'Internal'},{name: 'External'}];
+        var sourceValues = [{name: 'Internal'}, {name: 'External'}];
         var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
         var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
-        var compoundProtectionValues = [{name: 'NONE - None'},{name: 'ST1 - Standard 1'},{name: 'ST2 - Standard 2'}];
+        var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
         var loadFactorUnits = ['mmol/g'];
         var saltCodeValues = [
             {name: '00 - Parent Structure', value: '0'},
