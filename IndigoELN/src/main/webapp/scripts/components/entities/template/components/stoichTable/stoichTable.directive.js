@@ -325,12 +325,12 @@ angular.module('indigoeln')
                 var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
                     var newReactants = data.stoicBatches;
                     var newProducts = data.intendedProducts;
-                    if (newReactants.length === $scope.model.stoichTable.reactants.length) {
+                    if ($scope.model.stoichTable.reactants && newReactants.length === $scope.model.stoichTable.reactants.length) {
                         _.each($scope.model.stoichTable.reactants, function (reactant, i) {
                             _.extend(reactant, newReactants[i]);
                         });
                     }
-                    if (newProducts.length === $scope.model.stoichTable.products.length) {
+                    if ($scope.model.stoichTable.products && newProducts.length === $scope.model.stoichTable.products.length) {
                         _.each($scope.model.stoichTable.products, function (product, i) {
                             _.extend(product, newProducts[i]);
                         });
