@@ -2,6 +2,7 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
+import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.google.common.base.Strings;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -139,4 +140,15 @@ public class CalculationResource {
     private String normalizeMolFile(String structure){
         return StringUtils.replace(structure, "\\n", System.getProperty("line.separator"));
     }
+
+    /**
+     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     */
+    @RequestMapping(value = "/stoich/calculate",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StoicTableDTO> calculateStoicTable(@RequestBody StoicTableDTO stoicTableDTO) {
+        return ResponseEntity.ok(calculationService.calculateStoicTable(stoicTableDTO));
+    }
+
 }

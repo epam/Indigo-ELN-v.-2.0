@@ -56,6 +56,7 @@ angular.module('indigoeln')
                     batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
+                $scope.share.actualProducts = batches;
             }, true);
 
             $scope.columns = [
@@ -92,6 +93,15 @@ angular.module('indigoeln')
                             }
                         }
                     ]
+                },
+                {
+                    id: 'theoWeight',
+                    name: 'Theo. Wgt.',
+                    type: 'unit',
+                    width: '150px',
+                    unitItems: grams,
+                    hideSetValue: true,
+                    readonly: true
                 },
                 {
                     id: 'totalWeight',
@@ -344,5 +354,16 @@ angular.module('indigoeln')
                     }));
                 });
             }, true);
+
+            var onProductBatchSummaryRecalculated = $scope.$on('product-batch-summary-recalculated', function (event, data) {
+                if (data.length === $scope.model.productBatchSummary.batches.length) {
+                    _.each($scope.model.productBatchSummary.batches, function (batch, i) {
+                        _.extend(batch, data[i]);
+                    });
+                }
+            });
+            $scope.$on('$destroy', function () {
+                onProductBatchSummaryRecalculated();
+            });
         }
     );
