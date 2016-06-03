@@ -229,8 +229,11 @@ angular.module('indigoeln')
                         }
                     }
                 };
+                $scope.appendRow = function () {
+                    $scope.model.stoichTable.reactants.push({});
+                };
                 $scope.removeRow = function () {
-                    $scope.rows = _.without($scope.rows, $scope.selectedRow);
+                    $scope.model.stoichTable.reactants = _.without($scope.model.stoichTable.reactants, $scope.selectedRow);
                 };
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row || null;
