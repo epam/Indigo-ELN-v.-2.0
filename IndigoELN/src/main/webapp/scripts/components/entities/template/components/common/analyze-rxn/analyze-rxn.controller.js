@@ -31,6 +31,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
                 batchDetails.$$isSelected = false;
                 batchDetails.nbkBatch = item.notebookBatchNumber;
                 batchDetails.database = databases.join(', ');
+                batchDetails.rxnRole = batchDetails.rxnRole || {name: 'REACTANT'};
+                batchDetails.saltCode = batchDetails.saltCode || {name: '00 - Parent Structure', value: '0'};
                 return batchDetails;
             });
         }

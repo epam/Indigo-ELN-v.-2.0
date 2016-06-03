@@ -45,6 +45,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
             $scope.myReagentList = _.map(reagents, function (reagent) {
                 reagent.$$isSelected = false;
                 reagent.$$isCollapsed = true;
+                reagent.rxnRole = reagent.rxnRole || {name: 'REACTANT'};
+                reagent.saltCode = reagent.saltCode || {name: '00 - Parent Structure', value: '0'};
                 return reagent;
             });
         });
@@ -143,6 +145,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 batchDetails.$$isSelected = false;
                 batchDetails.nbkBatch = item.notebookBatchNumber;
                 batchDetails.database = $scope.databases.join(', ');
+                batchDetails.rxnRole = batchDetails.rxnRole || {name: 'REACTANT'};
+                batchDetails.saltCode = batchDetails.saltCode || {name: '00 - Parent Structure', value: '0'};
                 return batchDetails;
             });
         }
