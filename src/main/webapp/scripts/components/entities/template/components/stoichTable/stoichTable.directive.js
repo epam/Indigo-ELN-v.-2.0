@@ -320,6 +320,9 @@ angular.module('indigoeln')
                 // }, true);
 
                 var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
+                    _.each(data, function (reactant) {
+                        reactant.rxnRole = reactant.rxnRole || {name: 'REACTANT'};
+                    });
                     $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
                 });
                 var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {

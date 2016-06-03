@@ -11,7 +11,7 @@ angular.module('indigoeln')
             theoWeight: {value: 0, unit: ''},
             theoMoles: {value: 0, unit: ''},
             rxnRole: {name: 'REACTANT'},
-            saltCode: {name: ''},
+            saltCode: {name: '00 - Parent Structure', value: '0'},
             saltEq: 0,
             molWeight: 0,
             stoicPurity: 100,

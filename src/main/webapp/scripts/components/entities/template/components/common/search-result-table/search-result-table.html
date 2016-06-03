@@ -107,6 +107,16 @@
                         </div>
                         <div class="row reagent-search-row">
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><p>
+                                Reagent Type:</p></div>
+                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                <my-select ng-if="isEditMode"
+                                           my-items="rxnValues"
+                                           my-model="item.rxnRole"></my-select>
+                                <p ng-if="!isEditMode">{{item.rxnRole.name}}</p>
+                            </div>
+                        </div>
+                        <div class="row reagent-search-row">
+                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><p>
                                 Chemical Name:</p></div>
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-input ng-if="isEditMode"
