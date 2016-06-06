@@ -1,29 +1,30 @@
-<div class="panel panel-info">
-    <div class="panel-body">
-        <form id="editForm" name="editForm" role="form" novalidate ng-submit="ok()"
-              class="form-horizontal">
+<form id="editForm" name="editForm" role="form" novalidate ng-submit="ok()" class="form-horizontal">
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title">Experiment creation</h5>
+        </div>
+        <div class="modal-body">
             <my-select
-                    my-label="Template"
+                    my-label="Please select template for new experiment"
                     my-name="template"
                     my-model="template"
                     my-items="templates"
                     my-label-vertical="true"
-            ></my-select>
-        </form>
+                    ></my-select>
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
+               ng-if="mode == 'edit'">
+                <span class="glyphicon glyphicon-trash"></span>&nbsp;<span>Delete</span>
+            </a>
+            <a class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            </a>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-info">
+                <span class="glyphicon glyphicon-save"></span>&nbsp;<span>OK</span>
+            </button>
+        </div>
     </div>
-    <div class="panel-footer text-right">
-        <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
-           ng-if="mode == 'edit'">
-            <span class="glyphicon glyphicon-trash"></span>&nbsp;<span>Delete</span>
-        </a>
-        <a class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
-        </a>
-        <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-info">
-            <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
-        </button>
-    </div>
-</div>
-
+</form>
 
 

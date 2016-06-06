@@ -1,7 +1,8 @@
-<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off"
+      class="form-horizontal">
     <div>
 		<div class="modal-header">
-            <h5 class="modal-title">Notebook selection</h5>
+            <h5 class="modal-title">Experiment creation</h5>
 		</div>
 		<div class="modal-body">
             <div>
@@ -20,7 +21,7 @@
                            my-item-prop="name"
                 ></my-select>
             </div>
-            <div style="margin: 100px 10px 0 20px; height: 100px;">
+            <div style="margin: 20px 10px 0 20px; height: 100px;">
                 <table class="table table-striped" ng-show="selectedParent">
                     <thead>
                     <tr>
@@ -44,7 +45,7 @@
 		<div class="modal-footer">
             <button type="submit" form="select-parent-dialog"
                     ng-disabled="!selectedParent.id || !selectedTemplate.id || isSaving" class="btn btn-info">
-				Ok
+                OK
 			</button>
 			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
 				Cancel
