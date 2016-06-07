@@ -1,22 +1,21 @@
 package com.epam.indigoeln.web.rest;
 
-import java.util.Collection;
-
+import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.epam.indigoeln.core.service.search.SearchServiceAPI;
+import java.util.Collection;
 
 /**
  * REST Controller for Custom Search Implementation
@@ -44,5 +43,4 @@ public class SearchResource {
         Collection<ProductBatchDetailsDTO> batchDetails = searchService.findBatches(searchRequest);
         return ResponseEntity.ok(batchDetails);
     }
-
 }

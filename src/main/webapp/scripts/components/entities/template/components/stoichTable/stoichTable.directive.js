@@ -28,6 +28,22 @@ angular.module('indigoeln')
                     data.actualProducts = actualProducts;
                 }
 
+                function fetchBatchByNbkNumber(nbkBatch, row) {
+                    var searchRequest = {
+                        advancedSearch: [{
+                            condition: 'contains', field: 'fullNbkBatch', name: 'NBK batch #', value: nbkBatch
+                        }],
+                        databases: ['Indigo ELN']
+                    };
+                    $http.post('api/search/batch', searchRequest)
+                        .then(function (result) {
+                            var source = result.data[0];
+                            if (source) {
+                                _.extend(row, source.details);
+                            }
+                        });
+                }
+
                 $scope.reactantsColumns = [
                     {
                         id: 'compoundId',
@@ -55,9 +71,14 @@ angular.module('indigoeln')
                         unitItems: grams
                     },
                     {
-                        id: 'nbkBatch',
+                        id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
-                        type: 'input'
+                        type: 'input',
+                        onClose: function (data) {
+                            var row = data.row;
+                            var nbkBatch = data.model;
+                            fetchBatchByNbkNumber(nbkBatch, row);
+                        }
                     },
                     {
                         id: 'volume',

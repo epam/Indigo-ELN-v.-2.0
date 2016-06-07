@@ -5,7 +5,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
         $scope.model.restrictions = {
             searchQuery: '',
             advancedSearch: {
-                nbkBatch: {name: 'NBK batch #', field: 'nbkBatch', condition: {name: 'contains'}},
+                fullNbkBatch: {name: 'NBK batch #', field: 'fullNbkBatch', condition: {name: 'contains'}},
                 molFormula: {name: 'Molecular Formula', field: 'molFormula', condition: {name: 'contains'}},
                 molWeight: {name: 'Molecular Weight', field: 'molWeight', condition: {name: '>'}},
                 chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}},
