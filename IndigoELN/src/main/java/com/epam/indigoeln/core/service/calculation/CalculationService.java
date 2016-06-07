@@ -89,6 +89,7 @@ public class CalculationService {
         float molecularWeightCalculated = molecularWeightOriginal + saltEq * saltWeight;
 
         result.put("name", handle.name());
+        result.put("molecule", molecule);
         result.put("molecularFormula", handle.grossFormula());
         result.put("molecularWeightOriginal", String.valueOf(molecularWeightOriginal));
         result.put("exactMolecularWeight", String.valueOf(handle.monoisotopicMass()));
