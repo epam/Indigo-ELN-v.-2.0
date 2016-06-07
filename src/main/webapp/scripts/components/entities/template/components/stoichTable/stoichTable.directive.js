@@ -351,23 +351,23 @@ angular.module('indigoeln')
                 };
 
                 var getMissingReactionReactantsInStoic = function (callback) {
-                    var stoicReactants = [];
                     var batchesToSearch = [];
+                    var stoicReactants = [];
                     _.each($scope.model.stoichTable.reactants, function (item) {
                         if (_.isEqual(item.rxnRole, {name: 'REACTANT'}) && item.structure) {
                             stoicReactants.push(item);
                         }
                     });
                     var isReactantAlreadyInStoic;
-                    var reactionReactantPromises = [];
+                    var allPromises = [];
                     _.each(reactionReactants, function (reactionReactant) {
-                        var stoicReactantPromises = [];
+                        var stoicAndReactionReactantsEqualityPromises = [];
                         _.each(stoicReactants, function (stoicReactant) {
-                            stoicReactantPromises.push(isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
+                            stoicAndReactionReactantsEqualityPromises.push(isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
                         });
-                        reactionReactantPromises.push($q.all(stoicReactantPromises).then(function () {
-                            if (stoicReactantPromises.length) {
-                                isReactantAlreadyInStoic = _.some(stoicReactantPromises, function (result) {
+                        allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function () {
+                            if (stoicAndReactionReactantsEqualityPromises.length) {
+                                isReactantAlreadyInStoic = _.some(stoicAndReactionReactantsEqualityPromises, function (result) {
                                     return !!result.$$state.value.data;
                                 });
                             } else {
@@ -378,7 +378,7 @@ angular.module('indigoeln')
                             }
                         }));
                     });
-                    $q.all(reactionReactantPromises).then(function () {
+                    $q.all(allPromises).then(function () {
                         callback(batchesToSearch);
                     });
                 };
