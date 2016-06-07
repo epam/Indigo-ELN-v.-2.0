@@ -1,7 +1,8 @@
 angular.module('indigoeln')
     .factory('AlertModal', function ($uibModal) {
-        var alertModal = function (title, message, callback) {
+        var alertModal = function (title, message, size, callback) {
             $uibModal.open({
+                size: size || 'md',
                 template: '<div class="modal-header">' +
                 '<h5 class="modal-title">' + title + '</h5>' +
                     '</div>' +
@@ -27,17 +28,17 @@ angular.module('indigoeln')
             });
         };
         return {
-            error: function (msg) {
-                alertModal('Error', msg);
+            error: function (msg, size) {
+                alertModal('Error', msg, size);
             },
-            warning: function (msg) {
-                alertModal('Warning', msg);
+            warning: function (msg, size) {
+                alertModal('Warning', msg, size);
             },
-            info: function (msg) {
-                alertModal('Info', msg);
+            info: function (msg, size) {
+                alertModal('Info', msg, size);
             },
-            confirm: function (msg, callback) {
-                alertModal('Confirm', msg, callback);
+            confirm: function (msg, size, callback) {
+                alertModal('Confirm', msg, size, callback);
             }
         };
 

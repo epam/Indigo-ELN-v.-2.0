@@ -7,7 +7,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $rootScope, $http, $q, $uibModal, AppValues, StoichCalculator) {
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, StoichCalculator) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -237,6 +237,7 @@ angular.module('indigoeln')
                 };
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row || null;
+                    $log.log(row);
                 };
                 $scope.recalculateSalt = function (reagent) {
                     var config = {
@@ -259,7 +260,8 @@ angular.module('indigoeln')
                             formula: result.data.molecularFormula,
                             molWeight: result.data.molecularWeight,
                             exactMass: result.data.exactMolecularWeight,
-                            saltEq: result.data.saltEq
+                            saltEq: result.data.saltEq,
+                            molecule: result.data.molecule
                         };
                     });
                 }
@@ -344,6 +346,63 @@ angular.module('indigoeln')
                     onStoicTableRecalculated();
                 });
 
+                var isMoleculesEqual = function (molecule1, molecule2) {
+                    return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
+                };
+
+                var getMissingReactionReactantsInStoic = function (callback) {
+                    var stoicReactants = [];
+                    var batchesToSearch = [];
+                    _.each($scope.model.stoichTable.reactants, function (item) {
+                        if (_.isEqual(item.rxnRole, {name: 'REACTANT'}) && item.structure) {
+                            stoicReactants.push(item);
+                        }
+                    });
+                    var isReactantAlreadyInStoic;
+                    var reactionReactantPromises = [];
+                    _.each(reactionReactants, function (reactionReactant) {
+                        var stoicReactantPromises = [];
+                        _.each(stoicReactants, function (stoicReactant) {
+                            stoicReactantPromises.push(isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
+                        });
+                        reactionReactantPromises.push($q.all(stoicReactantPromises).then(function () {
+                            if (stoicReactantPromises.length) {
+                                isReactantAlreadyInStoic = _.some(stoicReactantPromises, function (result) {
+                                    return !!result.$$state.value.data;
+                                });
+                            } else {
+                                isReactantAlreadyInStoic = false;
+                            }
+                            if (!isReactantAlreadyInStoic) {
+                                batchesToSearch.push(reactionReactant);
+                            }
+                        }));
+                    });
+                    $q.all(reactionReactantPromises).then(function () {
+                        callback(batchesToSearch);
+                    });
+                };
+
+                $scope.analyzeRxn = function () {
+                    getMissingReactionReactantsInStoic(function (batchesToSearch) {
+                        if (batchesToSearch.length) {
+                            $uibModal.open({
+                                animation: true,
+                                size: 'lg',
+                                controller: 'AnalyzeRxnController',
+                                templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
+                                resolve: {
+                                    reactants: function () {
+                                        return _.pluck(batchesToSearch, 'formula');
+                                    }
+                                }
+                            });
+                        } else {
+                            AlertModal.info('Stoichiometry is synchronized', 'sm');
+                        }
+                    });
+                };
+
                 $scope.searchReagents = function (activeTab) {
                     $uibModal.open({
                         animation: true,
@@ -353,19 +412,6 @@ angular.module('indigoeln')
                         resolve: {
                             activeTab: function () {
                                 return activeTab;
-                            }
-                        }
-                    });
-                };
-                $scope.analyzeRxn = function () {
-                    $uibModal.open({
-                        animation: true,
-                        size: 'lg',
-                        controller: 'AnalyzeRxnController',
-                        templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
-                        resolve: {
-                            reactants: function () {
-                                return _.pluck(reactionReactants, 'formula');
                             }
                         }
                     });
