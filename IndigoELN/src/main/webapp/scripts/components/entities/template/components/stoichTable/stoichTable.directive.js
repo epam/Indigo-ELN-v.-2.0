@@ -40,6 +40,7 @@ angular.module('indigoeln')
                             var source = result.data[0];
                             if (source) {
                                 _.extend(row, source.details);
+                                row.rxnRole = row.rxnRole || {name: 'REACTANT'};
                             }
                         });
                 }
