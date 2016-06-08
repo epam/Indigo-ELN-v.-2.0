@@ -34,7 +34,7 @@ import java.util.Map;
 public class ExperimentResource {
 
     static final String URL_MAPPING = "/api/projects/{projectId:[\\d]+}/notebooks/{notebookId:[\\d]+}/experiments";
-    private static final String PATH_ID = "/{id:[\\d]+}";
+    private static final String PATH_ID = "/{id:[\\d_]+}";
     private static final String ENTITY_NAME = "Experiment";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentResource.class);
