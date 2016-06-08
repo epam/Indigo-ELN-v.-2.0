@@ -8,7 +8,13 @@
         <a ng-if="!isEmpty(myRow[myColumn.id]) && myColumn.type && myColumn.type!== 'image'"
            ng-click="toggleEditable()">
             <span ng-if="myColumn.type == 'boolean'">{{myRow[myColumn.id]?'yes':'no'}}</span>
-            <span ng-if="myColumn.type == 'input'">{{myRow[myColumn.id]}}</span>
+            <span ng-if="myColumn.type == 'input' && !myColumn.hasPopover">{{myRow[myColumn.id]}}</span>
+            <span ng-if="myColumn.type == 'input' && myColumn.hasPopover"
+                  uib-popover-html="popoverTemplate"
+                  popover-title="{{popoverTitle}}"
+                  popover-trigger="mouseenter"
+                  popover-placement="top-right"
+                  popover-append-to-body="true">{{myRow[myColumn.id]}}</span>
             <span ng-if="myColumn.type == 'select'">{{myRow[myColumn.id].name}}</span>
             <span ng-if="myColumn.type == 'unit'">{{myRow[myColumn.id].value}} {{myRow[myColumn.id].unit}}</span>
         </a>
