@@ -192,9 +192,12 @@ public class ExperimentService {
         lastVersion.setLastVersion(false);
         experimentRepository.save(lastVersion);
 
+        int newExperimentVersion = lastVersion.getExperimentVersion() + 1;
+
         // Save new version
         Experiment newVersion = new Experiment();
-        newVersion.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
+        String id = lastVersion.getId() + "_" + newExperimentVersion;
+        newVersion.setId(id);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
         newVersion.setTemplate(lastVersion.getTemplate());
@@ -206,7 +209,7 @@ public class ExperimentService {
         final List<Component> newComponents = updateComponents(Collections.EMPTY_LIST, components);
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
-        newVersion.setExperimentVersion(lastVersion.getExperimentVersion() + 1);
+        newVersion.setExperimentVersion(newExperimentVersion);
 
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
