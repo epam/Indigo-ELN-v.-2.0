@@ -49,6 +49,9 @@ public class RoleService {
         if (roleFromDB == null) {
             throw EntityNotFoundException.createWithRoleId(role.getId());
         }
+        if (roleFromDB.isSystem()) {
+            throw new IllegalArgumentException("Cannot update system role.");
+        }
         Role savedRole = roleRepository.save(role);
 
         // check for significant changes and perform logout for users
@@ -61,7 +64,9 @@ public class RoleService {
         if (role == null) {
             throw EntityNotFoundException.createWithRoleId(id);
         }
-
+        if (role.isSystem()) {
+            throw new IllegalArgumentException("Cannot delete system role.");
+        }
         if (userRepository.countByRoleId(id) > 0) {
             throw AlreadyInUseException.createWithRoleId(id);
         }

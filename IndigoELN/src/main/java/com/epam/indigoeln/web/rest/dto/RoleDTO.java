@@ -14,6 +14,8 @@ public class RoleDTO {
     @Size(min = 1, max = 50)
     private String name;
 
+    private boolean system;
+
     private Set<Authority> authorities;
 
     public RoleDTO() {
@@ -24,16 +26,24 @@ public class RoleDTO {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     public Set<Authority> getAuthorities() {
