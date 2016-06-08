@@ -42,7 +42,7 @@ angular.module('indigoeln')
                     if (isRemovable) {
                         callback();
                     } else {
-                        AlertModal.confirm(message, callback);
+                        AlertModal.confirm(message, null, callback);
                     }
                 });
             };

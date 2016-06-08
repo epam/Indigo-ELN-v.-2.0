@@ -12,8 +12,6 @@ import com.epam.indigoeln.core.util.JsonUtil;
 @JsonTypeName("Template")
 public class TemplateDTO extends BasicDTO {
 
-    private static final long serialVersionUID = 7951973267736585187L;
-
     @JsonProperty("templateContent")
     private Object[] templateContent;
 

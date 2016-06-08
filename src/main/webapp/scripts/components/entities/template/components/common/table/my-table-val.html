@@ -18,17 +18,18 @@
         </div>
     </div>
     <div id="myTableVal" ng-if="isEditable()" click-outside="closeThis()"
-         outside-if-not="btn btn-info form-control ui-select-toggle">
+         outside-if-not="btn btn-default form-control ui-select-toggle">
         <div ng-if="!myColumn.type">{{myRow[myColumn.id]}}</div>
         <div ng-if="myColumn.type == 'boolean'">
             <my-checkbox
                     my-model="myRow[myColumn.id]"
-                    my-change="myColumn.onChange(myRow[myColumn.id], myRow, myColumn.id)"
+                    my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
             ></my-checkbox>
         </div>
         <div ng-if="myColumn.type == 'unit'">
             <my-input my-model="myRow[myColumn.id].value" my-input-group="append" my-input-size="sm"
-                      my-readonly="myColumn.readonly" my-change="myColumn.onChange(myRow[myColumn.id], myRow, myColumn.id)">
+                      my-readonly="myColumn.readonly"
+                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})">
                 <div class="btn-group-sm" uib-dropdown dropdown-append-to-body
                      ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">
                     <button type="button" class="btn btn-info"
@@ -45,11 +46,13 @@
             </my-input>
         </div>
         <div ng-if="myColumn.type == 'select'">
-            <my-select my-on-select="myColumn.onSelect(myRow)" my-model="myRow[myColumn.id]"
+            <my-select my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
+                       my-model="myRow[myColumn.id]"
                        my-items="myColumn.values(myRow)" my-classes="form-group-sm"></my-select>
         </div>
         <div ng-if="myColumn.type == 'input'">
-            <my-input my-model="myRow[myColumn.id]" my-classes="form-group-sm" my-change="myColumn.onChange(myRow[myColumn.id])"></my-input>
+            <my-input my-model="myRow[myColumn.id]" my-classes="form-group-sm"
+                      my-change="myColumn.onChange(myRow[myColumn.id])"></my-input>
         </div>
     </div>
 </div>

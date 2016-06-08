@@ -5,6 +5,10 @@ import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.RoleDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Api
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountResource {
@@ -34,6 +39,8 @@ public class AccountResource {
     /**
      * GET  /authenticate -> check if the user is authenticated, and return its login.
      */
+    @ApiOperation(value = "Checks if user is authenticated and returns it's login.",
+        produces = "application/json")
     @RequestMapping(value = "/authenticate", method = RequestMethod.GET)
     public String isAuthenticated(HttpServletRequest request) {
         LOGGER.debug("REST request to check if the current user is authenticated");
@@ -43,6 +50,7 @@ public class AccountResource {
     /**
      * GET  /account -> get the current user.
      */
+    @ApiOperation(value = "Returns current user.", produces = "application/json")
     @RequestMapping(value = "/account", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UserDTO> getAccount() {
@@ -53,6 +61,7 @@ public class AccountResource {
     /**
      * GET  /account/roles -> get the current user.
      */
+    @ApiOperation(value = "Returns current user roles.", produces = "application/json", responseContainer = "List")
     @RequestMapping(value = "/account/roles", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RoleDTO>> getAccountRoles() {

@@ -9,6 +9,9 @@ import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+@Api
 @RestController
 @RequestMapping(ExperimentResource.URL_MAPPING)
 public class ExperimentResource {
@@ -52,10 +56,13 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
+    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.", produces = "application/json")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getAllExperimentsByPermissions(@PathVariable String projectId,
-                                                         @PathVariable String notebookId) {
+    public ResponseEntity getAllExperimentsByPermissions(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+        ) {
         User user = userService.getUserWithAuthorities();
         if (notebookId == null) {
             LOGGER.debug("REST request to get all experiments, which author is current user");
@@ -75,10 +82,12 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments/all -> Returns all experiments of specified notebook
      * without checking for User permissions
      */
+    @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation", produces = "application/json")
     @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(@PathVariable String projectId,
-                                                               @PathVariable String notebookId) {
+    public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("REST request to get all experiments of notebook: {} " +
                     "without checking for permissions", notebookId);
@@ -90,12 +99,14 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions
      */
+    @ApiOperation(value = "Returns experiment with specified id according to User permissions.", produces = "application/json")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
-            @PathVariable String projectId,
-            @PathVariable String notebookId,
-            @PathVariable String id) throws IOException {
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId,
+            @ApiParam("Experiment id") @PathVariable String id
+        ) throws IOException {
         LOGGER.debug("REST request to get experiment: {}", id);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDTO = experimentService.getExperiment(projectId, notebookId, id, user);
@@ -106,13 +117,15 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id/batch_number -> Returns batch_number
      */
+    @ApiOperation(value = "Returns batch number.", produces = "application/json")
     @RequestMapping(value = PATH_ID + "/batch_number", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> getNotebookBatchNumber(
-            @PathVariable String projectId,
-            @PathVariable String notebookId,
-            @PathVariable String id,
-            @RequestParam(required = false, name = "latest") String clientLatestBatchNumber) {
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId,
+            @ApiParam("Experiment id") @PathVariable String id,
+            @ApiParam("If latest number should be returned") @RequestParam(required = false, name = "latest") String clientLatestBatchNumber
+        ) {
         String batchNumber = sequenceIdService.getNotebookBatchNumber(projectId, notebookId, id, clientLatestBatchNumber);
         LOGGER.debug("REST request to get batch number: {}", batchNumber);
         return ResponseEntity.ok(ImmutableMap.of("batchNumber", batchNumber));
@@ -122,14 +135,16 @@ public class ExperimentResource {
      * POST  /experiments?:notebookId -> Creates experiment with OWNER's permissions for current User
      * as child for specified Notebook
      */
+    @ApiOperation(value = "Creates experiment with OWNER's permissions for current user.", produces = "application/json")
     @RequestMapping(
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> createExperiment(@RequestBody ExperimentDTO experimentDTO,
-                                                          @PathVariable String projectId,
-                                                          @PathVariable String notebookId)
-            throws URISyntaxException {
+    public ResponseEntity<ExperimentDTO> createExperiment(
+            @ApiParam("Experiment to create") @RequestBody ExperimentDTO experimentDTO,
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+        ) throws URISyntaxException {
         LOGGER.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO savedExperimentDTO = experimentService.createExperiment(experimentDTO, projectId, notebookId, user);
@@ -142,15 +157,17 @@ public class ExperimentResource {
      * POST  /experiments/version?:notebookId -> Creates experiment version with OWNER's permissions for current User
      * as child for specified Notebook
      */
+    @ApiOperation(value = "Creates experiment version with OWNER's permissions for current user.", produces = "application/json")
     @RequestMapping(
             path = "/version",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> versionExperiment(@RequestBody String experimentName,
-                                                           @PathVariable String projectId,
-                                                           @PathVariable String notebookId)
-            throws URISyntaxException {
+    public ResponseEntity<ExperimentDTO> versionExperiment(
+            @ApiParam("Experiment name") @RequestBody String experimentName,
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+        ) throws URISyntaxException {
         LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}", experimentName, notebookId);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO createdExperimentDTO = experimentService.versionExperiment(experimentName, projectId, notebookId, user);
@@ -166,9 +183,12 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ExperimentDTO> updateExperiment(@RequestBody ExperimentDTO experimentDTO,
-                                                          @PathVariable String projectId,
-                                                          @PathVariable String notebookId) {
+    @ApiOperation(value = "Updates experiment according to permissions.", produces = "application/json")
+    public ResponseEntity<ExperimentDTO> updateExperiment(
+            @ApiParam("Experiment to update") @RequestBody ExperimentDTO experimentDTO,
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+        ) {
         LOGGER.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO updatedExperimentDTO = experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
@@ -179,10 +199,13 @@ public class ExperimentResource {
     /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
+    @ApiOperation(value = "Removes experiment.", produces = "application/json")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
-    public ResponseEntity deleteExperiment(@PathVariable String id,
-                                           @PathVariable String projectId,
-                                           @PathVariable String notebookId) {
+    public ResponseEntity deleteExperiment(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId,
+            @ApiParam("Experiment id") @PathVariable String id
+        ) {
         LOGGER.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id, projectId, notebookId);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);

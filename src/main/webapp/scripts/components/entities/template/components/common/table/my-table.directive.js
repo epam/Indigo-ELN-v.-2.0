@@ -20,10 +20,17 @@ angular.module('indigoeln')
                     return myTableCtrl.isEditable($scope.myColumn.id, $scope.myRowIndex);
                 };
                 $scope.closeThis = function () {
+                    if ($scope.myColumn.onClose) {
+                        $scope.myColumn.onClose({
+                            model: $scope.myRow[$scope.myColumn.id],
+                            row: $scope.myRow,
+                            column: $scope.myColumn.id
+                        });
+                    }
                     return myTableCtrl.toggleEditable(null, null, null);
                 };
                 $scope.isEmpty = function (obj) {
-                    return typeof obj !== 'boolean' && _.isEmpty(obj);
+                    return (_.isObject(obj) && _.isEmpty(obj)) || _.isNull(obj) || _.isUndefined(obj);
                 };
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'

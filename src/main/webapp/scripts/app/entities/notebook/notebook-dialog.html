@@ -1,6 +1,7 @@
 <div class="panel panel-info notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-heading">
+    <div class="panel-heading" ng-show="newNotebook">
+        <span>New Notebook</span>
     </div>
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
@@ -54,7 +55,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <label class="control-label">Description</label>
+                    <label class="control-label">Notebook Description</label>
                     <my-text-editor my-model="notebook.description" my-readonly="!isEditAllowed"></my-text-editor>
                 </div>
             </div>

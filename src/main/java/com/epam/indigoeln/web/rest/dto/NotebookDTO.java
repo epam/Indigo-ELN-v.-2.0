@@ -11,8 +11,6 @@ import java.util.List;
 @JsonTypeName("Notebook")
 public class NotebookDTO extends BasicDTO {
 
-    private static final long serialVersionUID = -1261267009811486561L;
-
     private String description;
     private List<ExperimentDTO> experiments;
 

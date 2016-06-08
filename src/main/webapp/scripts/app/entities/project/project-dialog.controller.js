@@ -7,6 +7,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.project = project;
+            $scope.newProject = _.isUndefined($scope.project.id) || _.isNull($scope.project.id);
             $scope.project.author = $scope.project.author || identity;
             $scope.project.accessList = $scope.project.accessList || PermissionManagement.getAuthorAccessList(identity);
             $scope.isCollapsed = true;
@@ -85,4 +86,5 @@ angular.module('indigoeln')
                     Project.save($scope.project, onSaveSuccess, onSaveError);
                 }
             };
+
         });

@@ -12,6 +12,9 @@ angular.module('indigoeln')
                 mySelectedItemsPerTab: '='
             },
             controller: function ($scope, $http, UserReagents, AppValues) {
+                $scope.rxnValues = AppValues.getRxnValues();
+                $scope.saltCodeValues = AppValues.getSaltCodeValues();
+                
                 $scope.editInfo = function (item) {
                     $scope.itemBeforeEdit = angular.copy(item);
                     $scope.isEditMode = true;
@@ -45,8 +48,6 @@ angular.module('indigoeln')
                         $scope.mySelectedItemsPerTab = _.without($scope.mySelectedItemsPerTab, reactant);
                     }
                 };
-
-                $scope.saltCodeValues = AppValues.getSaltCodeValues();
 
                 $scope.recalculateSalt = function (reagent) {
                     var config = {
