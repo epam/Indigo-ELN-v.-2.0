@@ -523,42 +523,6 @@ tr {
     overflow-wrap: break-word;
 }
 
-div.enlarge {
-    display:inline-block;
-    position: relative;
-    z-index: 0;
-    margin:2px 8px 0 4px;
-}
-div.enlarge img {
-    width: 450px;
-    height: 300px;
-    background-color: white;
-    padding: 3px;
-    -webkit-box-shadow: 0 0 6px rgba(132, 132, 132, .75);
-    -moz-box-shadow: 0 0 6px rgba(132, 132, 132, .75);
-    box-shadow: 0 0 6px rgba(132, 132, 132, .75);
-}
-div.enlarge span{
-    position:absolute;
-    left: -9999px;
-    background-color: white;
-    padding: 10px;
-    -webkit-box-shadow: 0 0 20px rgba(0,0,0, .75);
-    -moz-box-shadow: 0 0 20px rgba(0,0,0, .75);
-    box-shadow: 0 0 20px rgba(0,0,0, .75);
-}
-div.enlarge:hover{
-    z-index: 50;
-    cursor:pointer;
-}
-div.enlarge span img{
-    padding:2px;
-    background: white;
-}
-div.enlarge:hover span{
-    top: -190px;
-    left: -500px;
-}
 .analyze-rxn-row div {
     margin-bottom: 0;
 }

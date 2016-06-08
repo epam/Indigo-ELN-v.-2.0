@@ -36,18 +36,16 @@
         <td>{{item.compoundId}}</td>
         <td>{{item.database}}</td>
         <td>
-            <div ng-if="!item.structure.image">#image</div>
-            <div class="enlarge">
-                <img ng-if="item.structure.image"
-                     style="height:70px;"
+            <div>
+                <img style="padding:5px;margin:5px;max-height:70px;"
                      class="img-responsive"
+                     ng-if="item.structure.image"
+                     uib-popover-html="item.$$popoverTemplate"
+                     popover-title="{{item.fullNbkBatch}}"
+                     popover-trigger="mouseenter"
+                     popover-placement="left"
                      ng-src="data:image/svg+xml;base64,{{item.structure.image}}"
                      alt="Image is unavailable.">
-                                        <span>
-                                        <img ng-src="data:image/svg+xml;base64,{{item.structure.image}}"
-                                             class="img-responsive"
-                                             alt="Image is unavailable."/>
-                                        </span>
             </div>
         </td>
     </tr>
@@ -207,7 +205,6 @@
                 </div>
                 <div class="col-xs-6">
                     <strong>Structure</strong>
-                    <div ng-if="!item.structure.image">#image</div>
                     <div>
                         <img style="padding:10px;margin:10px;border:1px solid black;"
                              class="img-responsive"
