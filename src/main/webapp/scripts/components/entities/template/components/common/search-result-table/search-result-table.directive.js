@@ -11,7 +11,7 @@ angular.module('indigoeln')
                 myTab: '=',
                 mySelectedItemsPerTab: '='
             },
-            controller: function ($scope, $http, UserReagents, AppValues) {
+            controller: function ($scope, $http, UserReagents, AppValues, $sce) {
                 $scope.rxnValues = AppValues.getRxnValues();
                 $scope.saltCodeValues = AppValues.getSaltCodeValues();
                 
@@ -61,6 +61,13 @@ angular.module('indigoeln')
                             reagent.molWeight = result.data.molecularWeight;
                         });
                 };
+
+                $scope.$watch('myTableContent', function (newVal) {
+                    _.each(newVal, function (item) {
+                        item.$$popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
+                            'src="data:image/svg+xml;base64,' + item.structure.image + '" alt="Image is unavailable."></div>');
+                    });
+                });
             }
         };
     });
