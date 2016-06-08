@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/1/2016.
  */
 angular.module('indigoeln')
-    .directive('myTableVal', function () {
+    .directive('myTableVal', function ($sce) {
         return {
             restrict: 'E',
             replace: true,
@@ -32,6 +32,10 @@ angular.module('indigoeln')
                 $scope.isEmpty = function (obj) {
                     return (_.isObject(obj) && _.isEmpty(obj)) || _.isNull(obj) || _.isUndefined(obj);
                 };
+                $scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
+                var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
+                $scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
+                    'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
         };

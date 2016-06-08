@@ -48,7 +48,8 @@ angular.module('indigoeln')
                     {
                         id: 'compoundId',
                         name: 'Compound ID',
-                        type: 'input'
+                        type: 'input',
+                        hasPopover: true
                     },
                     {
                         id: 'casNumber',
@@ -74,6 +75,7 @@ angular.module('indigoeln')
                         id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
                         type: 'input',
+                        hasPopover: true,
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
