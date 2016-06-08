@@ -76,7 +76,9 @@ public class UserService {
         if (userFromDB == null) {
             throw EntityNotFoundException.createWithUserLogin(user.getLogin());
         }
-
+        if (userFromDB.isSystem()) {
+            throw new IllegalArgumentException("Cannot update system user.");
+        }
         // encoding of user's password, or getting from DB entity
         String encryptedPassword;
         if (!Strings.isNullOrEmpty(user.getPassword())) {
@@ -107,7 +109,9 @@ public class UserService {
         if (userByLogin == null) {
             throw EntityNotFoundException.createWithUserLogin(login);
         }
-
+        if (userByLogin.isSystem()) {
+            throw new IllegalArgumentException("Cannot delete system user.");
+        }
         // checking for disallowed operation for current user
         if (userByLogin.getId().equals(executingUser.getId())) {
             throw OperationDeniedException.createUserDeleteOperation(executingUser.getId());

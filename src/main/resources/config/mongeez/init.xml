@@ -24,6 +24,7 @@
             db.role.insert({
             "_id" : "role-0",
             "name" : "All Permissions",
+            "system" : "true",
             "authorities": [
             "USER_EDITOR", "ROLE_EDITOR", "CONTENT_EDITOR",
             "PROJECT_READER", "NOTEBOOK_READER", "EXPERIMENT_READER",
@@ -42,6 +43,7 @@
             "last_name": "Administrator",
             "email": "admin@localhost",
             "activated": "true",
+            "system" : "true",
             "lang_key": "en",
             "created_by": "system",
             "created_date": new Date(),

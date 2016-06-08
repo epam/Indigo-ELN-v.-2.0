@@ -56,6 +56,8 @@ public class User implements Serializable {
 
     private boolean activated;
 
+    private boolean system;
+
     @JsonIgnore
     @DBRef(lazy = true)
     private HashSet<Role> roles = new HashSet<>();
@@ -114,6 +116,14 @@ public class User implements Serializable {
 
     public void setActivated(boolean activated) {
         this.activated = activated;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     public Set<Role> getRoles() {

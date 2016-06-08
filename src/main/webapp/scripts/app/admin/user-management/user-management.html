@@ -150,11 +150,13 @@
             <td class="text-right">
                 <button type="submit"
                         ng-click="edit(user)"
+                        ng-show="!user.system"
                         class="btn btn-info btn-sm">
                     <span class="glyphicon glyphicon-pencil"></span>
                 </button>
                 <button type="submit"
                         ui-sref="user-management.delete({login:user.login})"
+                        ng-show="!user.system"
                         class="btn btn-danger btn-sm">
                     <span class="glyphicon glyphicon-remove-circle"></span>
                 </button>
