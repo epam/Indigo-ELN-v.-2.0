@@ -22,7 +22,7 @@
     "angular-pretty-bytes": "1.0.1",
     "angular-resource": "1.4.8",
     "angular-route": "1.4.8",
-    "angular-sanitize": "1.5.0",
+    "angular-sanitize": "1.4.8",
     "angular-ui-router": "ui-router#0.2.15",
     "angular-ui-tree": "2.11.0",
     "angular-validator": "0.2.6",
@@ -62,9 +62,9 @@
     }
   },
   "resolutions": {
-    "angular": "1.4.8",
     "moment": "2.11.2",
     "moment-timezone": "0.5.0",
-    "angular-animate": "1.4.8"
+    "angular-animate": "1.4.8",
+    "angular": "1.4.8"
   }
 }

@@ -3,13 +3,14 @@ angular.module('indigoeln')
         var grams = ['mg', 'g', 'kg'];
         var liters = ['ul', 'ml', 'l'];
         var moles = ['umol', 'mmol', 'mol'];
+        var density = ['g/mL'];
         var molarity = ['mM', 'M'];
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
         var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
-        var sourceValues = [{name: 'Internal'},{name: 'External'}];
+        var sourceValues = [{name: 'Internal'}, {name: 'External'}];
         var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
         var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
-        var compoundProtectionValues = [{name: 'NONE - None'},{name: 'ST1 - Standard 1'},{name: 'ST2 - Standard 2'}];
+        var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
         var loadFactorUnits = ['mmol/g'];
         var saltCodeValues = [
             {name: '00 - Parent Structure', value: '0'},
@@ -22,8 +23,7 @@ angular.module('indigoeln')
             {name: '07 - CALCIUM', value: '7'},
             {name: '08 - SULFATE', value: '8'},
             {name: '09 - PHOSPHATE', value: '9'},
-            {name: '10 - CITRATE', value: '10'}
-        ];
+            {name: '10 - CITRATE', value: '10'}];
         var stereoisomerValues = [
             {name: 'NOSTC - Achiral - No Stereo Centers'},
             {name: 'AMESO - Achiral - Meso Stereomers'},
@@ -33,6 +33,24 @@ angular.module('indigoeln')
             {name: 'ENENK - Enantio-Enriched (chirality known)'},
             {name: 'DSTRK - Diastereomers (stereochemistry known)'},
             {name: 'SNENU - Other - Single Enantiomer (chirality unknown)'}];
+        var defaultBatch = {
+            limiting: false,
+            weight: {value: 0, unit: ''},
+            volume: {value: 0, unit: ''},
+            density: {value: 0, unit: ''},
+            molarity: {value: 0, unit: ''},
+            mol: {value: 0, unit: ''},
+            loadFactor: {value: 0, unit: ''},
+            theoWeight: {value: 0, unit: ''},
+            theoMoles: {value: 0, unit: ''},
+            rxnRole: {name: 'REACTANT'},
+            saltCode: {name: '00 - Parent Structure', value: '0'},
+            saltEq: 0,
+            molWeight: 0,
+            stoicPurity: 100,
+            eq: 1,
+            yield: 0
+        };
 
         return {
             getGrams: function () {
@@ -43,6 +61,9 @@ angular.module('indigoeln')
             },
             getMoles: function () {
                 return moles;
+            },
+            getDensity: function () {
+                return density;
             },
             getMolarity: function () {
                 return molarity;
@@ -73,6 +94,9 @@ angular.module('indigoeln')
             },
             getLoadFactorUnits: function () {
                 return loadFactorUnits;
+            },
+            getDefaultBatch: function () {
+                return defaultBatch;
             }
         };
     });

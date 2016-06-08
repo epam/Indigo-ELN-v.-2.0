@@ -56,6 +56,7 @@ angular.module('indigoeln')
                     batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
+                $scope.share.actualProducts = batches;
             }, true);
 
             $scope.columns = [
@@ -94,7 +95,7 @@ angular.module('indigoeln')
                     ]
                 },
                 {
-                    id: 'theoWgt',
+                    id: 'theoWeight',
                     name: 'Theo. Wgt.',
                     type: 'unit',
                     width: '150px',
@@ -122,12 +123,29 @@ angular.module('indigoeln')
                     unitItems: moles
                 },
                 {
+                    id: 'theoWgt',
+                    name: 'Theo. Wgt.',
+                    type: 'unit',
+                    width: '150px',
+                    unitItems: grams,
+                    hideSetValue: true,
+                    readonly: true
+                },
+                {
                     id: 'theoMoles', name: 'Theo. Moles',
                     type: 'unit',
                     width: '150px',
                     unitItems: grams
                 },
                 {id: 'yield', name: '%Yield'},
+                {
+                    id: 'compoundState',
+                    name: 'Compound State',
+                    type: 'select',
+                    values: function () {
+                        return compoundValues;
+                    }
+                },
                 {
                     id: 'saltCode',
                     name: 'Salt Code & Name',
@@ -137,14 +155,6 @@ angular.module('indigoeln')
                     }
                 },
                 {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
-                {
-                    id: 'compoundState',
-                    name: 'Compound State',
-                    type: 'select',
-                    values: function () {
-                        return compoundValues;
-                    }
-                },
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt'},
@@ -165,7 +175,7 @@ angular.module('indigoeln')
                     values: function () {
                         return sourceValues;
                     },
-                    onSelect: function (row) {
+                    onChange: function (row) {
                         row.sourceDetail = {};
                     },
                     hideSelectValue: true,
@@ -344,5 +354,16 @@ angular.module('indigoeln')
                     }));
                 });
             }, true);
+
+            var onProductBatchSummaryRecalculated = $scope.$on('product-batch-summary-recalculated', function (event, data) {
+                if (data.length === $scope.model.productBatchSummary.batches.length) {
+                    _.each($scope.model.productBatchSummary.batches, function (batch, i) {
+                        _.extend(batch, data[i]);
+                    });
+                }
+            });
+            $scope.$on('$destroy', function () {
+                onProductBatchSummaryRecalculated();
+            });
         }
     );

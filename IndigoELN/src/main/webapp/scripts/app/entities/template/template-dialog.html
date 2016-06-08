@@ -25,7 +25,7 @@
                             <br/>
                             <div class="list-group templates-holder palette animated" dragula='"components"'
                                  dragula-model='components'>
-                                <a class="list-group-item draggable-component"
+                                <a class="list-group-item draggable-component" data-id="{{component.id}}"
                                    ng-repeat="component in components | filter:search track by $index">
                                     <h5 class="list-group-item-heading draggable-component">{{component.name}}</h5>
                                     <p class="list-group-item-text draggable-component">{{component.desc}} </p>
@@ -88,7 +88,7 @@
             </div>
         </div>
         <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" onclick="window.history.back()">
+            <button type="button" class="btn btn-default" ng-click="cancel()">
                 <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
             </button>
             <button ng-click="save()" class="btn btn-info">
