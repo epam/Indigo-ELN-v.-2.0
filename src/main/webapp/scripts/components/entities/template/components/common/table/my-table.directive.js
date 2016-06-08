@@ -29,8 +29,9 @@ angular.module('indigoeln')
                     }
                     return myTableCtrl.toggleEditable(null, null, null);
                 };
+                var isZeroValue = value => value === 0;
                 $scope.isEmpty = function (obj) {
-                    return (_.isObject(obj) && _.isEmpty(obj)) || _.isNull(obj) || _.isUndefined(obj);
+                    return (_.isObject(obj) && (_.isEmpty(obj) || isZeroValue(obj.value))) || _.isNull(obj) || _.isUndefined(obj) || isZeroValue(obj);
                 };
                 $scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
                 var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
