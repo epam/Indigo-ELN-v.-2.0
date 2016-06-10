@@ -15,8 +15,6 @@ angular.module('indigoeln')
                 $scope.onLinkedExperimentClick = LinkedExperimentUtils.onLinkedExperimentClick;
                 Dictionary.get({id: 'users'}, function (dictionary) {
                     $scope.users = dictionary.words;
-                    $scope.model.conceptDetails.coAuthors = $scope.model.reactionDetails.coAuthors ||
-                        _.where($scope.users, {name: Principal.getIdentity().fullName});
                 });
             }
         };
