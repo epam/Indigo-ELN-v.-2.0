@@ -20,56 +20,83 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     private static final int UPDATE_TYPE_VOLUME = 2;
     // Describes concentration of batch before updating with latests Amount
     private final AmountModel previousMolarAmount = new AmountModel(UnitType.MOLAR);
-    // used to dynamically set the column names when used in a table
-//    private String[] propertyNames;
-    private final ParentCompoundModel compound; // Holds structure molFormula wgt and other info.
-    private final AmountModel molecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
-    private final AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
-    // number of molecules we have
-    private final AmountModel weightAmount = new AmountModel(UnitType.MASS); // AmountModel will contain unit conversions original amount
-    // and original units
-    private final AmountModel loadingAmount = new AmountModel(UnitType.LOADING); // Loading is generally mmol/gram - tackles resins
-    private final AmountModel volumeAmount = new AmountModel(UnitType.VOLUME); // AmountModel in volume
-    private final AmountModel densityAmount = new AmountModel(UnitType.DENSITY); // Density of compound in g/mL
-    private final AmountModel molarAmount = new AmountModel(UnitType.MOLAR); // Describes concentration of batch
-    private final AmountModel purityAmount = new AmountModel(UnitType.SCALAR, 100); // % Purity info 100 - 0
-    private final AmountModel rxnEquivsAmount = new AmountModel(UnitType.SCALAR, 1.0, 1.0); // Represents equivalants of compound to a
-    private final SaltFormModel saltForm = new SaltFormModel("00"); // Must be from a vetted list
-    /*
-     * This will hold the List Key corresponding the Batch. It will be used while loading Batches to determine the listkey to which
-     * the batch is assigned to, which helps in building the BatchesList object.
-     */
-    private final AmountModel totalVolume = new AmountModel(UnitType.VOLUME);
-    private final AmountModel totalWeight = new AmountModel(UnitType.MASS);
-    private final AmountModel totalMolarity = new AmountModel(UnitType.MOLAR); // Total Amount made molarity
-    private final String stoicLabel = null;
     boolean autoCalcOn = true;
     // limiting
     // reagent in the reaction
     boolean inCalculation = false; // Do not disturb. Batch is in process of calculating values
+    // used to dynamically set the column names when used in a table
+//    private String[] propertyNames;
+    private ParentCompoundModel compound; // Holds structure molFormula wgt and other info.
+    private AmountModel molecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
+    private AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
+    // number of molecules we have
+    private AmountModel weightAmount = new AmountModel(UnitType.MASS); // AmountModel will contain unit conversions original amount
+    // and original units
+    private AmountModel loadingAmount = new AmountModel(UnitType.LOADING); // Loading is generally mmol/gram - tackles resins
+    private AmountModel volumeAmount = new AmountModel(UnitType.VOLUME); // AmountModel in volume
+    private AmountModel densityAmount = new AmountModel(UnitType.DENSITY); // Density of compound in g/mL
+    private AmountModel molarAmount = new AmountModel(UnitType.MOLAR); // Describes concentration of batch
+    private AmountModel purityAmount = new AmountModel(UnitType.SCALAR, 100); // % Purity info 100 - 0
+    private AmountModel rxnEquivsAmount = new AmountModel(UnitType.SCALAR, 1.0, 1.0); // Represents equivalants of compound to a
+    private SaltFormModel saltForm = new SaltFormModel("00"); // Must be from a vetted list
+    /*
+     * This will hold the List Key corresponding the Batch. It will be used while loading Batches to determine the listkey to which
+     * the batch is assigned to, which helps in building the BatchesList object.
+     */
+    private AmountModel totalVolume = new AmountModel(UnitType.VOLUME);
+    private AmountModel totalWeight = new AmountModel(UnitType.MASS);
+    private AmountModel totalMolarity = new AmountModel(UnitType.MOLAR); // Total Amount made molarity
     private boolean limiting = false;
     private BatchType batchType = null;
-    private String conversationalBatchNumber = "";
     private double saltEquivs;
     private List<String> precursors = new ArrayList<>(); // holds compound ids that were used to create this batch.
     private int transactionOrder = 0;
     // uses constants from above
     private int lastUpdatedType = UPDATE_TYPE_MOLES;
 
-    /*
-     * Constructors
-     */
-    BatchModel() {
-        // Batch_Key in CeN table
+    public BatchModel() {
         this.compound = new ParentCompoundModel();
+    }
+
+    public BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
+                      AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
+                      AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType) {
+        this.molecularWeightAmount = molecularWeightAmount;
+        this.moleAmount = moleAmount;
+        this.weightAmount = weightAmount;
+        this.volumeAmount = volumeAmount;
+        this.densityAmount = densityAmount;
+        this.molarAmount = molarAmount;
+        this.purityAmount = purityAmount;
+        this.rxnEquivsAmount = rxnEquivsAmount;
+        this.limiting = limiting;
+        this.batchType = batchType;
+    }
+
+    public BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
+                      AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
+                      AmountModel purityAmount, AmountModel rxnEquivsAmount, SaltFormModel saltForm,
+                      AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity,
+                      boolean limiting, BatchType batchType, double saltEquivs) {
+        this.molecularWeightAmount = molecularWeightAmount;
+        this.moleAmount = moleAmount;
+        this.weightAmount = weightAmount;
+        this.volumeAmount = volumeAmount;
+        this.densityAmount = densityAmount;
+        this.molarAmount = molarAmount;
+        this.purityAmount = purityAmount;
+        this.rxnEquivsAmount = rxnEquivsAmount;
+        this.saltForm = saltForm;
+        this.totalVolume = totalVolume;
+        this.totalWeight = totalWeight;
+        this.totalMolarity = totalMolarity;
+        this.limiting = limiting;
+        this.batchType = batchType;
+        this.saltEquivs = saltEquivs;
     }
 
     private ParentCompoundModel getCompound() {
         return compound;
-    }
-
-    private String getConversationalBatchNumber() {
-        return conversationalBatchNumber;
     }
 
     public AmountModel getDensityAmount() {
@@ -90,7 +117,16 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         } else {
             densityAmount.setValue("0");
         }
+    }
 
+    public void setDensityAmountQuitly(AmountModel density) {
+        if (density != null) {
+            if (density.getUnitType().getOrdinal() == UnitType.DENSITY.getOrdinal()) {
+                densityAmount.deepCopy(density);
+            }
+        } else {
+            densityAmount.setValue("0");
+        }
     }
 
     public boolean isLimiting() {
@@ -124,6 +160,16 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         }
     }
 
+    public void setMolarAmountQuitly(AmountModel molarAmnt) {
+        if (molarAmnt != null) {
+            if (molarAmnt.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal()) {
+                molarAmount.deepCopy(molarAmnt);
+            }
+        } else {
+            molarAmount.setValue("0");
+        }
+    }
+
     public AmountModel getMoleAmount() {
         return moleAmount;
     }
@@ -148,7 +194,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         } else {
             moleAmount.setValue("0");
         }
-        setModelChanged(true);
+    }
+
+    public void setMoleAmountQuitly(AmountModel moles) {
+        if (moles != null) {
+            moleAmount.deepCopy(moles);
+        } else {
+            moleAmount.setValue("0");
+        }
     }
 
     public AmountModel getMolecularWeightAmount() {
@@ -182,6 +235,19 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         return purityAmount;
     }
 
+    public void setPurityAmount(AmountModel purity) {
+        if (purity != null) {
+            if (!purityAmount.equals(purity)) {
+                purityAmount.deepCopy(purity);
+                recalcAmounts();
+                setModified(true);
+            }
+        } else {
+            purityAmount.setValue("100", true);
+        }
+        updateCalcFlags(purityAmount);
+    }
+
     public AmountModel getRxnEquivsAmount() {
         return rxnEquivsAmount;
     }
@@ -191,6 +257,12 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             rxnEquivsAmount.deepCopy(equiv);
             updateCalcFlags(rxnEquivsAmount);
             setModified(true);
+        }
+    }
+
+    public void setRxnEquivsAmountQuitly(AmountModel equiv) {
+        if (!rxnEquivsAmount.equals(equiv)) {
+            rxnEquivsAmount.deepCopy(equiv);
         }
     }
 
@@ -227,6 +299,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         }
     }
 
+    public void setVolumeAmountQuitly(AmountModel volume) {
+        if (volume != null) {
+            volumeAmount.deepCopy(volume);
+        } else {
+            this.volumeAmount.setValue("0");
+        }
+    }
+
     public AmountModel getWeightAmount() {
         return weightAmount;
     }
@@ -248,6 +328,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
                 if (!unitChange)
                     recalcAmounts();
             }
+        } else {
+            weightAmount.setValue("0");
+        }
+    }
+
+    public void setWeightAmountQuitly(AmountModel weight) {
+        if (weight != null) {
+            weightAmount.deepCopy(weight);
         } else {
             weightAmount.setValue("0");
         }
@@ -277,6 +365,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         this.modelChanged = true;
     }
 
+    public void setPurityAmountQuitly(AmountModel purity) {
+        if (purity != null) {
+            purityAmount.deepCopy(purity);
+        } else {
+            purityAmount.setValue("100", true);
+        }
+    }
+
     public void setPurity(double value) {
         if (value > 0.0 && value <= 100.0) {
             purityAmount.setValue(value, false);
@@ -284,27 +380,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             purityAmount.setValue("100", true);
         }
         updateCalcFlags(purityAmount);
-    }
-
-    public void clearData() {
-        conversationalBatchNumber = "";
-        molecularWeightAmount.reset();
-        moleAmount.reset();
-        weightAmount.reset();
-        loadingAmount.reset();
-        volumeAmount.reset();
-        densityAmount.reset();
-        molarAmount.reset();
-        purityAmount.reset();
-        rxnEquivsAmount.reset();
-
-        saltForm.setCode("00");
-        saltEquivs = 0;
-        limiting = false;
-        autoCalcOn = true;
-        precursors = new ArrayList<>();
-        inCalculation = false;
-        transactionOrder = 0;
     }
 
     public String getStoicReactionRole() {
@@ -531,10 +606,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (totalMolarity != null ? !totalMolarity.equals(that.totalMolarity) : that.totalMolarity != null)
             return false;
         if (batchType != null ? !batchType.equals(that.batchType) : that.batchType != null) return false;
-        if (conversationalBatchNumber != null ? !conversationalBatchNumber.equals(that.conversationalBatchNumber) : that.conversationalBatchNumber != null)
-            return false;
-        if (precursors != null ? !precursors.equals(that.precursors) : that.precursors != null) return false;
-        return stoicLabel != null ? stoicLabel.equals(that.stoicLabel) : that.stoicLabel == null;
+        return precursors != null ? precursors.equals(that.precursors) : that.precursors == null;
 
     }
 
@@ -561,13 +633,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         result = 31 * result + (inCalculation ? 1 : 0);
         result = 31 * result + (limiting ? 1 : 0);
         result = 31 * result + (batchType != null ? batchType.hashCode() : 0);
-        result = 31 * result + (conversationalBatchNumber != null ? conversationalBatchNumber.hashCode() : 0);
         temp = Double.doubleToLongBits(saltEquivs);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (precursors != null ? precursors.hashCode() : 0);
         result = 31 * result + transactionOrder;
         result = 31 * result + lastUpdatedType;
-        result = 31 * result + (stoicLabel != null ? stoicLabel.hashCode() : 0);
         return result;
     }
 
@@ -580,12 +650,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             // Precedence should be batchNumber if Product otherwise (Transaction Step Number) for now: Compound Number then batch
             // then molFormula
             if (result == 0) {
-                if (getConversationalBatchNumber() != null && !getConversationalBatchNumber().equals(""))
-                    if (ab.getConversationalBatchNumber() != null && !ab.getConversationalBatchNumber().equals(""))
-                        result = (getConversationalBatchNumber().compareTo(ab.getConversationalBatchNumber()));
-                    else
-                        result = 1;
-                else if (getCompound() != null)
+                if (getCompound() != null)
                     if (ab.getCompound() != null)
                         result = (getCompound().compareTo(ab.getCompound()));
                     else
