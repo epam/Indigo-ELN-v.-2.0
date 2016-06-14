@@ -14,7 +14,6 @@ public abstract class CeNAbstractModel implements java.io.Serializable {
     // GUID generated key ( Also Key in Database if highlevel object)
     // This key value is important for an object that represents a CeN table record
     // Ex: NotebookPageModel,ReactionStepModel,ReactionSchemeModel,BatchModel,ParentCompoundModel
-    private final String key = "";
     // Classes used as it is as they are pure POJOs in 1.1
     // BatchNumber
     // BatchType
@@ -25,10 +24,6 @@ public abstract class CeNAbstractModel implements java.io.Serializable {
     //for changing the flag when data of interest has changed and that needs to be persisited in DB
     boolean modelChanged = false;
     //Flag to indicate if the object is loaded from DB or new obj in memory
-
-    public String getKey() {
-        return key;
-    }
 
     /**
      * Set the Boolean flag to identify if a model has changed.  Model itself is responsible

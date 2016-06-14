@@ -4,7 +4,7 @@ public class BatchTypeFactory {
     private BatchTypeFactory() {
     }
 
-    public static BatchType getBatchType(String batchType) throws InvalidBatchTypeException {
+    public static BatchType getBatchType(String batchType) {
         BatchType result = null;
         if (batchType.equalsIgnoreCase(BatchType.REAGENT.toString())) {
             result = BatchType.REAGENT;
@@ -22,8 +22,6 @@ public class BatchTypeFactory {
         if ((batchType.equalsIgnoreCase(BatchType.ACTUAL_PRODUCT.toString())) || (batchType.equalsIgnoreCase("ACTUAL"))) {
             result = BatchType.ACTUAL_PRODUCT;
         }
-        if (result == null)
-            throw new InvalidBatchTypeException("BatchType value not found: " + batchType);
         return result;
     }
 }

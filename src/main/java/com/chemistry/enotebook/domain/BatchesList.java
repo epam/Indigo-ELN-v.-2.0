@@ -22,7 +22,6 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     private final AmountModel listPreviousMolarAmount = new AmountModel(UnitType.MOLAR);
     // ArrayList has ProductBatch or MonomerBatch models in the list
     private final List<E> batchModels = new ArrayList<>();
-    private final String stoicLabel = null;
     // Required for StoicModel
     // Position this list of batchMode
     // A,B,C for monomers and P1,P2 for final products,intermediate products
@@ -552,7 +551,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
             return false;
         if (!listPreviousMolarAmount.equals(that.listPreviousMolarAmount))
             return false;
-        return batchModels != null ? batchModels.equals(that.batchModels) : that.batchModels == null && (position != null ? position.equals(that.position) : that.position == null && (stoicLabel != null ? stoicLabel.equals(that.stoicLabel) : that.stoicLabel == null));
+        return batchModels != null ? batchModels.equals(that.batchModels) : that.batchModels == null && (position != null ? position.equals(that.position) : that.position == null);
 
     }
 
