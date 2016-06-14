@@ -260,9 +260,6 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
                 }
                 setCalculated(isCalc);
                 setModelChanged(true);
-            } else {
-                //Invalid operation on this amount. For debugging enable this SOP
-                log.debug("Invalid operation resulting in NAN or Infinty:" + this.getKey());
             }
         } else {
             setValue(defaultValue, isCalc);
@@ -339,9 +336,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default.
+     *            value to be used as default. Must be a number.
      */
-    protected void setDefaultValue(double val) {
+    public void setDefaultValue(String val) {
         defaultValue = new BigDecimal(val);
     }
 
@@ -350,9 +347,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default. Must be a number.
+     *            value to be used as default.
      */
-    public void setDefaultValue(String val) {
+    protected void setDefaultValue(double val) {
         defaultValue = new BigDecimal(val);
     }
 
