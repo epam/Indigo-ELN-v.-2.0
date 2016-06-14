@@ -33,7 +33,7 @@ public class StoichCalculator {
      */
     private void recalculateStoich() {
         log.debug("StoichCalculator.recalculateStoich().enter");
-        StoicModelInterface rb = null;
+        StoicModelInterface rb;
         // Determine the limiting reagent
         if (autoCalcOn)
             rb = setLimitingReagent();

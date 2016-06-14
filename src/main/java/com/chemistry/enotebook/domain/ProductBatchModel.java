@@ -25,6 +25,14 @@ public class ProductBatchModel extends BatchModel {
         super.setBatchType(BatchType.INTENDED_PRODUCT);
     }
 
+    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType) {
+        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, limiting, batchType);
+    }
+
+    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, SaltFormModel saltForm, AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity, boolean limiting, BatchType batchType, double saltEquivs) {
+        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, saltForm, totalVolume, totalWeight, totalMolarity, limiting, batchType, saltEquivs);
+    }
+
     /**
      * @param intendedBatchAdditionOrder the intendedBatchAdditionOrder to set
      */

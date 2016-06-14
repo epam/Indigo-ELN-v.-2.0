@@ -8,6 +8,7 @@ public class StoicTableDTO {
     private List<StoicBatchDTO> intendedProducts;
     private List<StoicBatchDTO> actualProducts;
     private StoicBatchDTO changedBatch;
+    private String changedField;
 
     public StoicTableDTO() {
     }
@@ -48,5 +49,9 @@ public class StoicTableDTO {
 
     public void setChangedBatch(StoicBatchDTO changedBatch) {
         this.changedBatch = changedBatch;
+    }
+
+    public String getChangedField() {
+        return changedField;
     }
 }
