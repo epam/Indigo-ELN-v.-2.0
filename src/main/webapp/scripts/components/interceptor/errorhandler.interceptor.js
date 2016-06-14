@@ -36,8 +36,7 @@ angular.module('indigoeln')
                         break;
 
                     case 401:
-                        if (httpResponse.config.url !== 'login' || (httpResponse.data.path !== undefined &&
-                            httpResponse.data.path.indexOf('/api/accounts/account') === -1)) {
+                        if (httpResponse.config.url !== 'login') {
                             var Auth = $injector.get('Auth');
                             var $state = $injector.get('$state');
                             var params = $rootScope.toStateParams;
