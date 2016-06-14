@@ -26,7 +26,10 @@ angular.module('indigoeln')
                 // Reset state memory
                 $rootScope.previousStateName = undefined;
                 $rootScope.previousStateNameParams = undefined;
-                WSService.disconnect();
+                try {
+                    WSService.disconnect();
+                } catch (e) {
+                }
             },
 
             authorize: function (force) {
