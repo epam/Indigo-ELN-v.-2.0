@@ -53,12 +53,13 @@ angular.module('indigoeln')
                     var config = {
                         params: {
                             saltCode: reagent.saltCode ? reagent.saltCode.value : null,
-                            saltEq: reagent.saltEq
+                            saltEq: reagent.saltEq ? reagent.saltEq.value : null
                         }
                     };
                     $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
                         .then(function (result) {
-                            reagent.molWeight = result.data.molecularWeight;
+                            reagent.molWeight = reagent.molWeight || {};
+                            reagent.molWeight.value = result.data.molecularWeight;
                         });
                 };
 

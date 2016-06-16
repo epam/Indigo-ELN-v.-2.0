@@ -89,6 +89,13 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         setValue(val);
     }
 
+    public Amount2(UnitType unitType, double val, boolean isCalculated) {
+        this();
+        unit = UnitFactory2.createUnitOfType(unitType);
+        setValue(val);
+        setCalculated(isCalculated);
+    }
+
     public void finalize() throws Throwable {
         super.finalize();
         unit = null;
@@ -184,6 +191,13 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
 		 */
     }
 
+    private void setValue(BigDecimal val) {
+        setValue(val.doubleValue()); // this is an effective copy of BigDecimal
+        if (!isCalculated())
+            setFixedFigs(val.scale());
+        setModelChanged(true);
+    }
+
     /**
      * Sets the value of the Amount object to the value in numbers the string represents If the string is "" the default value is
      * used. The default value is initialized as 0.000;
@@ -197,13 +211,6 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
 
     public void setValue(double val) {
         setValue(Double.toString(val));
-    }
-
-    private void setValue(BigDecimal val) {
-        setValue(val.doubleValue()); // this is an effective copy of BigDecimal
-        if (!isCalculated())
-            setFixedFigs(val.scale());
-        setModelChanged(true);
     }
 
     protected String GetValueForDisplay() {
@@ -336,9 +343,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default. Must be a number.
+     *            value to be used as default.
      */
-    public void setDefaultValue(String val) {
+    protected void setDefaultValue(double val) {
         defaultValue = new BigDecimal(val);
     }
 
@@ -347,9 +354,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default.
+     *            value to be used as default. Must be a number.
      */
-    protected void setDefaultValue(double val) {
+    public void setDefaultValue(String val) {
         defaultValue = new BigDecimal(val);
     }
 

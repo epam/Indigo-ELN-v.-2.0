@@ -154,10 +154,10 @@ angular.module('indigoeln')
                         return saltCodeValues;
                     }
                 },
-                {id: 'saltEq', name: 'Salt Equivalent', type: 'input'},
+                {id: 'saltEq', name: 'Salt Equivalent', type: 'scalar'},
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
-                {id: 'molWeight', name: 'Mol Wgt'},
+                {id: 'molWeight', name: 'Mol Wgt', type: 'scalar'},
                 {id: 'molFormula', name: 'Mol Formula'},
                 {id: 'conversationalBatch', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
@@ -342,11 +342,14 @@ angular.module('indigoeln')
                         if (newMolFile) {
                             var config = {params: {
                                 saltCode: row.saltCode ? row.saltCode.value : null,
-                                saltEq: row.saltEq}};
+                                saltEq: row.saltEq ? row.saltEq.value : null
+                            }
+                            };
                             $http.put('api/calculations/molecule/info', row.structure.molfile, config)
                                 .then(function (molInfo) {
                                     row.molFormula = molInfo.data.molecularFormula;
-                                    row.molWeight = molInfo.data.molecularWeight;
+                                    row.molWeight = row.molWeight || {};
+                                    row.molWeight.value = molInfo.data.molecularWeight;
                                 }, resetMolInfo);
                         } else {
                             resetMolInfo();

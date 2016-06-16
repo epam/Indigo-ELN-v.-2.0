@@ -1,12 +1,20 @@
 angular.module('indigoeln')
     .factory('StoichCalculator', function ($rootScope, NumberUtil, $http, AppValues) {
         var defaultBatch = AppValues.getDefaultBatch();
+        var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
 
-        function setDefaultValues(batches) {
+        var setDefaultValues = function (batches) {
             return _.map(batches, function (batch) {
+                _.each(batch, function (value, key) {
+                    if (_.isObject(value)) {
+                        value.entered = value.entered || false;
+                    } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                        batch[key] = {value: value, entered: false};
+                    }
+                });
                 return _.defaults(batch, defaultBatch);
             });
-        }
+        };
 
         var recalculateStoich = function (data) {
             var requestData = {

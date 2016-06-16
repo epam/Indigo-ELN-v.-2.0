@@ -789,3 +789,6 @@ html {
     margin-bottom: 2px;
 }
 
+.entered-value {
+    color: blue;
+}

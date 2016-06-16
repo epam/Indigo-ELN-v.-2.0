@@ -19,6 +19,9 @@ public class AmountModel extends Amount2 {
         super(unitType, value);
     }
 
+    public AmountModel(UnitType unitType, double value, boolean isCalculated) {
+        super(unitType, value, isCalculated);
+    }
 
     public AmountModel(UnitType unitType, String defaultVal) {
         super(unitType, defaultVal);

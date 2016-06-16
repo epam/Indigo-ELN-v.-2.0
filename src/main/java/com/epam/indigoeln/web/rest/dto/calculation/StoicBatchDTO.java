@@ -1,8 +1,9 @@
 package com.epam.indigoeln.web.rest.dto.calculation;
 
 
-import com.epam.indigoeln.web.rest.dto.common.StringValueDTO;
-import com.epam.indigoeln.web.rest.dto.common.UnitValueDTO;
+import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
+import com.epam.indigoeln.web.rest.dto.calculation.common.StringValueDTO;
+import com.epam.indigoeln.web.rest.dto.calculation.common.UnitValueDTO;
 
 public class StoicBatchDTO {
 
@@ -17,10 +18,10 @@ public class StoicBatchDTO {
     private UnitValueDTO theoMoles;
     private StringValueDTO rxnRole;
     private StringValueDTO saltCode;
-    private double molWeight;
-    private double stoicPurity;
-    private double saltEq;
-    private double eq;
+    private ScalarValueDTO molWeight;
+    private ScalarValueDTO stoicPurity;
+    private ScalarValueDTO saltEq;
+    private ScalarValueDTO eq;
     private double yield;
 
     public boolean isLimiting() {
@@ -111,35 +112,35 @@ public class StoicBatchDTO {
         this.saltCode = saltCode;
     }
 
-    public double getMolWeight() {
+    public ScalarValueDTO getMolWeight() {
         return molWeight;
     }
 
-    public void setMolWeight(double molWeight) {
+    public void setMolWeight(ScalarValueDTO molWeight) {
         this.molWeight = molWeight;
     }
 
-    public double getStoicPurity() {
+    public ScalarValueDTO getStoicPurity() {
         return stoicPurity;
     }
 
-    public void setStoicPurity(double stoicPurity) {
+    public void setStoicPurity(ScalarValueDTO stoicPurity) {
         this.stoicPurity = stoicPurity;
     }
 
-    public double getSaltEq() {
+    public ScalarValueDTO getSaltEq() {
         return saltEq;
     }
 
-    public void setSaltEq(double saltEq) {
+    public void setSaltEq(ScalarValueDTO saltEq) {
         this.saltEq = saltEq;
     }
 
-    public double getEq() {
+    public ScalarValueDTO getEq() {
         return eq;
     }
 
-    public void setEq(double eq) {
+    public void setEq(ScalarValueDTO eq) {
         this.eq = eq;
     }
 
@@ -149,51 +150,5 @@ public class StoicBatchDTO {
 
     public void setYield(double yield) {
         this.yield = yield;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        StoicBatchDTO myBatch = (StoicBatchDTO) o;
-
-        if (limiting != myBatch.limiting) return false;
-        if (Double.compare(myBatch.molWeight, molWeight) != 0) return false;
-        if (Double.compare(myBatch.stoicPurity, stoicPurity) != 0) return false;
-        if (Double.compare(myBatch.saltEq, saltEq) != 0) return false;
-        if (Double.compare(myBatch.eq, eq) != 0) return false;
-        if (weight != null ? !weight.equals(myBatch.weight) : myBatch.weight != null) return false;
-        if (volume != null ? !volume.equals(myBatch.volume) : myBatch.volume != null) return false;
-        if (density != null ? !density.equals(myBatch.density) : myBatch.density != null) return false;
-        if (molarity != null ? !molarity.equals(myBatch.molarity) : myBatch.molarity != null) return false;
-        if (mol != null ? !mol.equals(myBatch.mol) : myBatch.mol != null) return false;
-        if (loadFactor != null ? !loadFactor.equals(myBatch.loadFactor) : myBatch.loadFactor != null) return false;
-        if (rxnRole != null ? !rxnRole.equals(myBatch.rxnRole) : myBatch.rxnRole != null) return false;
-        return saltCode != null ? saltCode.equals(myBatch.saltCode) : myBatch.saltCode == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = (limiting ? 1 : 0);
-        result = 31 * result + (weight != null ? weight.hashCode() : 0);
-        result = 31 * result + (volume != null ? volume.hashCode() : 0);
-        result = 31 * result + (density != null ? density.hashCode() : 0);
-        result = 31 * result + (molarity != null ? molarity.hashCode() : 0);
-        result = 31 * result + (mol != null ? mol.hashCode() : 0);
-        result = 31 * result + (loadFactor != null ? loadFactor.hashCode() : 0);
-        result = 31 * result + (rxnRole != null ? rxnRole.hashCode() : 0);
-        result = 31 * result + (saltCode != null ? saltCode.hashCode() : 0);
-        temp = Double.doubleToLongBits(molWeight);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(stoicPurity);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(saltEq);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(eq);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        return result;
     }
 }
