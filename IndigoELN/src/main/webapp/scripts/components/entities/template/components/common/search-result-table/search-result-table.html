@@ -30,7 +30,7 @@
                     my-change="selectSingleItemtPerTab(myTab, item, $parent.$index, $index, !item.$$isSelected)"
                     my-model="item.$$isSelected"></my-checkbox>
         </td>
-        <td>{{item.molWeight}}</td>
+        <td>{{item.molWeight.value}}</td>
         <td>{{item.molFormula}}</td>
         <td>{{item.chemicalName}}</td>
         <td>{{item.compoundId}}</td>
@@ -99,8 +99,8 @@
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-input ng-if="isEditMode"
                                           my-readonly="true"
-                                          my-model="item.molWeight"></my-input>
-                                <p ng-if="!isEditMode">{{item.molWeight}}</p>
+                                          my-model="item.molWeight.value"></my-input>
+                                <p ng-if="!isEditMode">{{item.molWeight.value}}</p>
                             </div>
                         </div>
                         <div class="row reagent-search-row">
@@ -139,8 +139,8 @@
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-input ng-if="isEditMode"
                                           ng-keyup="recalculateSalt(item)"
-                                          my-model="item.saltEq"></my-input>
-                                <p ng-if="!isEditMode">{{item.saltEq}}</p>
+                                          my-model="item.saltEq.value"></my-input>
+                                <p ng-if="!isEditMode">{{item.saltEq.value}}</p>
                             </div>
                         </div>
                         <div class="row reagent-search-row">

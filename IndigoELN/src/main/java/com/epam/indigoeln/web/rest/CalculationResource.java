@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
+import com.epam.indigoeln.core.service.calculation.StoicCalculationService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.google.common.base.Strings;
@@ -25,6 +26,9 @@ public class CalculationResource {
 
     @Autowired
     private CalculationService calculationService;
+
+    @Autowired
+    private StoicCalculationService stoicCalculationService;
 
     /**
      * PUT /molecule/info/ -> get calculated molecular fields
@@ -148,7 +152,7 @@ public class CalculationResource {
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoicTableDTO> calculateStoicTable(@RequestBody StoicTableDTO stoicTableDTO) {
-        return ResponseEntity.ok(calculationService.calculateStoicTable(stoicTableDTO));
+        return ResponseEntity.ok(stoicCalculationService.calculateStoicTable(stoicTableDTO));
     }
 
 }
