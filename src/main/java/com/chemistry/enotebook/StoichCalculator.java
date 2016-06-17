@@ -20,7 +20,6 @@ public class StoichCalculator {
 
     private static final Log log = LogFactory.getLog(StoichCalculator.class);
     private final ReactionStepModel rxnStepModel;
-    private final boolean autoCalcOn = true;
 
 //    private String pageType; // Parallel/Med_chem etc
 
@@ -31,12 +30,11 @@ public class StoichCalculator {
     /**
      * Use to have the ReactionStep's Stoichiometry reevaluated Resets limiting reagent if one can't be found.
      */
-    private void recalculateStoich() {
+    public void recalculateStoich() {
         log.debug("StoichCalculator.recalculateStoich().enter");
         StoicModelInterface rb;
         // Determine the limiting reagent
-        if (autoCalcOn)
-            rb = setLimitingReagent();
+        rb = setLimitingReagent();
         // Make sure there is at least one Intended Product if there is a limiting Reagent.
         if (rb != null) {
             // Now make sure everyone is up to date
@@ -56,7 +54,7 @@ public class StoichCalculator {
             }
             // find limiting reagent
             StoicModelInterface limitingReag = findLimitingReagent();
-            if (limitingReag == null && autoCalcOn) {
+            if (limitingReag == null) {
                 limitingReag = setLimitingReagent();
             }
             if (rb.getStoicReactionRole().equals(BatchType.SOLVENT.toString())) {
@@ -362,10 +360,6 @@ public class StoichCalculator {
         } // end of for loop
     }
 
-    // private List getReagentBatches() {
-    // return rxnStepModel.getStoicElementListInTransactionOrder();
-    // }
-
     private void updateActualProductTheoAmounts(StoicModelInterface limitingReag) {
         log.debug("StoichCalculator.updateActualProductTheoAmounts().enter");
         if (limitingReag != null && canBeLimiting(limitingReag)) {
@@ -405,31 +399,7 @@ public class StoichCalculator {
                     prodBatch.applyLatestSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
                 }
             }
-
-            //--equivalents of Int. Prod should not be recalculated. It can be set only by user
-            //			//calculate the equivalents of Int. Prod after the Limiting
-            //			//reagent moles have changed
-            //            //calc new Equiv amount
-            //			AmountModel amtTempEquiv = (AmountModel) prodBatch.getStoicRxnEquivsAmount().deepClone();
-            //			if(limitingReag.getStoicRxnEquivsAmount().equals(prodBatch.getStoicRxnEquivsAmount()) == false) {
-            //				amtTempEquiv.setValue(limitingReag.getStoicRxnEquivsAmount().doubleValue());
-            //			} else {
-            //				double newEquivValue = BatchUtils.calcEquivalentsWithMoles(prodBatch.getStoicMoleAmount(), limitingReag.getStoicMoleAmount());
-            //				amtTempEquiv.setValue(newEquivValue);
-            //			}
-            //			amtTempEquiv.setCalculated(true);
-            //			// Causes batch to recalculate amounts based on Equivs change.
-            //			prodBatch.setStoicRxnEquivsAmount(amtTempEquiv);
-
-            //			if (limitingReag.shouldApplySigFigRules())
-            //				prodBatch.applyLatestSigDigits(amtTempEquiv.getSigDigits());
-            //			else
-            //				prodBatch.applyLatestSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-
-//            if (this.pageType.equals(CeNConstants.PAGE_TYPE_MED_CHEM)) {
-            //Now loop through the matching ACTUAL prod batches and update theo values
             updateActualProductTheoAmounts(limitingReag);
-//            }
         }
         log.debug("StoichCalculator.recalculateProductAmounts().exit");
     }
@@ -863,7 +833,6 @@ public class StoichCalculator {
             result.addAll(rxnStepModel.getProductBatches().stream().filter(productBatchModel -> productBatchModel.getBatchType() == BatchType.REACTANT).collect(Collectors.toList()));
         }
         return result;
-//        return getBatches(BatchType.REACTANT_ORDINAL);
     }
 
     /**
@@ -881,103 +850,6 @@ public class StoichCalculator {
         Collections.sort(result, new ComparatorStoicAdditionOrder());
         return result;
     }
-
-    /**
-     * @return list of StoicModelInterface object: BatchesList and BatchModel
-     * that are of product type: INTENDED only for this reaction step
-     */
-//    public List<StoicModelInterface> getIntendedProductBatches() {
-//        List<StoicModelInterface> result = new ArrayList<StoicModelInterface>();
-//        if (this.pageType.equals(CeNConstants.PAGE_TYPE_PARALLEL)) {
-//            return result;
-//        } else {
-//            result = getBatches(BatchType.INTENDED_PRODUCT_ORDINAL);
-//        }
-//
-//        Collections.sort(result, new ComparatorStoicAdditionOrder());
-//        return result;
-//    }
-
-    /**
-     * @return a list of StoicModelInterface object: BatchesList and BatchModel
-     * that are of a product type: ACTUAL or INTENDED only for this reaction step
-     */
-//    public List<StoicModelInterface> getProductBatchesSortedByAdditionOrder() {
-//        List<StoicModelInterface> result = null;
-////        if (this.pageType.equals(CeNConstants.PAGE_TYPE_PARALLEL)) {
-////            result = getBatches(BatchType.ACTUAL_PRODUCT_ORDINAL);
-//            result = getActualProductBatches();
-////        } else {
-////            result = getBatches(BatchType.INTENDED_PRODUCT_ORDINAL);
-//            result = getIntendedProductBatches();
-//        }
-//        Collections.sort(result, new ComparatorStoicAdditionOrder());
-//        return result;
-//    }
-
-    /**
-     * @return all batches in stoich model
-     */
-//    public List<StoicModelInterface> getBatches() {
-//        List<StoicModelInterface> result = null;
-//        if (this.pageType.equals(CeNConstants.PAGE_TYPE_PARALLEL)) {
-//            result = getBatches(BatchType.ACTUAL_PRODUCT_ORDINAL);
-//        } else {
-//            result = getBatches(BatchType.REACTANT_ORDINAL |
-//                    BatchType.REAGENT_ORDINAL |
-//                    BatchType.SOLVENT_ORDINAL |
-//                    BatchType.START_MTRL_ORDINAL |
-//                    BatchType.INTENDED_PRODUCT_ORDINAL);
-//        }
-//        return result;
-//    }
-
-    /**
-     * Use the BatchType class to feed ordinal values to this method. You can OR them together to get multiple types returned. Or
-     * use -1 to get all batches returned. Batches are returned in order of addition.
-     * <p>
-     * Note: what is returned can be a BatchesList or BatchModel.  Hence the use of the StoicModelInterface
-     *
-     * @param batchTypes OR'ed bitmap of ORDINAL values in BatchType
-     * @return List of requested batches or an empty list if no batches matched the criteria
-     */
-//    public List<StoicModelInterface> getBatches(int batchTypes) {
-//        log.debug("StoichCalculator.getBatches().enter");
-//        ArrayList<StoicModelInterface> stoicList = new ArrayList<>();
-//        if (rxnStepModel != null) {
-    // adding MonomerList Objects
-//            stoicList.addAll(rxnStepModel.getMonomers());
-    //System.out.println("Monomer Lists size:" + rxnStepModel.getMonomers().size());
-    // adding MonomerBatchModel objects
-//    stoicList.addAll(rxnStepModel.getBatchesFromStoicBatchesList());
-    //System.out.println("Stoic element batches size:" + rxnStepModel.getBatchesFromStoicBatchesList().size());
-    // adding Intended and Actual ProductBatchModel objects
-//            stoicList.addAll(rxnStepModel.getProductBatches());
-    //System.out.println("Product batches size:" + rxnStepModel.getProductBatches().size());
-
-    // Collections.sort(result, new ComparatorStoicAdditionOrder());
-//}
-
-//        ArrayList<StoicModelInterface> bList = new ArrayList<StoicModelInterface>();
-//System.out.println("Complete Stoiclist size:" + stoicList.size());
-//System.out.println("BatchType filter:" + batchTypes);
-//        for (StoicModelInterface ab : stoicList) {
-//            if (ab == null || ab.getBatchType() == null) {
-//                continue;
-//            }
-//            if ((ab.getBatchType().getOrdinal() & batchTypes) != 0) {
-//                // System.out.println("Element ->BatchType:"+ab.getBatchType().toString()+" ordinal
-//                // is:"+ab.getBatchType().getOrdinal()+" -- matched");
-//                bList.add(ab);
-//            } else {
-//                // System.out.println("Element ->BatchType:"+ab.getBatchType().toString()+" ordinal
-//                // is:"+ab.getBatchType().getOrdinal());
-//            }
-//        }
-//System.out.println("getBatches(int batchTypes).Total filtered batches returned:" + bList.size());
-//log.debug("StoichCalculator.getBatches().exit");
-//        return stoicList;
-//        }
 
     //all stoic table
     private List<StoicModelInterface> getBatches(int batchTypes) {

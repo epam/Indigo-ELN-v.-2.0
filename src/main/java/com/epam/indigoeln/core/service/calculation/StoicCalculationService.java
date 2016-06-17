@@ -9,8 +9,6 @@ import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.StringValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.UnitValueDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,7 +22,12 @@ import static com.chemistry.enotebook.experiment.common.units.UnitType.*;
 @Service
 public class StoicCalculationService {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    public StoicTableDTO calculateStoicTable(StoicTableDTO stoicTableDTO) {
+        ReactionStepModel reactionStepModel = createReactionStepModelForCalculation(stoicTableDTO);
+        StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
+        stoichCalculator.recalculateStoich();
+        return prepareStoicTableForResponse(reactionStepModel);
+    }
 
     /**
      * Recalculates stoic table batches, actual product and intended product batches
@@ -33,13 +36,7 @@ public class StoicCalculationService {
      *                      and intended product batches
      * @return stoicTableDTO with recalculated batches
      */
-    public StoicTableDTO calculateStoicTable(StoicTableDTO stoicTableDTO) {
-        try {
-            String result = objectMapper.writeValueAsString(stoicTableDTO);
-            System.out.println(result);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public StoicTableDTO calculateStoicTableBasedOnBatch(StoicTableDTO stoicTableDTO) {
         StoicBatchDTO sourceBatch = stoicTableDTO.getChangedBatch();
         String changedField = stoicTableDTO.getChangedField();
         MonomerBatchModel batchModel = createMonomerBatchModel(sourceBatch);
@@ -51,11 +48,6 @@ public class StoicCalculationService {
 
         stoichCalculator.recalculateStoichBasedOnBatch(batchModel, false);
 
-        try {
-            System.out.println(objectMapper.writeValueAsString(batchModel));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
         return prepareStoicTableForResponse(reactionStepModel);
     }
 

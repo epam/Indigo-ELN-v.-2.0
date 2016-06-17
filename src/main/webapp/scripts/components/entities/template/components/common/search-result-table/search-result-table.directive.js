@@ -11,10 +11,10 @@ angular.module('indigoeln')
                 myTab: '=',
                 mySelectedItemsPerTab: '='
             },
-            controller: function ($scope, $http, UserReagents, AppValues, $sce) {
+            controller: function ($scope, $http, UserReagents, AppValues, $sce, CalculationService) {
                 $scope.rxnValues = AppValues.getRxnValues();
                 $scope.saltCodeValues = AppValues.getSaltCodeValues();
-                
+
                 $scope.editInfo = function (item) {
                     $scope.itemBeforeEdit = angular.copy(item);
                     $scope.isEditMode = true;
@@ -49,18 +49,14 @@ angular.module('indigoeln')
                     }
                 };
 
+
                 $scope.recalculateSalt = function (reagent) {
-                    var config = {
-                        params: {
-                            saltCode: reagent.saltCode ? reagent.saltCode.value : null,
-                            saltEq: reagent.saltEq ? reagent.saltEq.value : null
-                        }
-                    };
-                    $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
-                        .then(function (result) {
-                            reagent.molWeight = reagent.molWeight || {};
-                            reagent.molWeight.value = result.data.molecularWeight;
-                        });
+                    function callback(reagent, result) {
+                        reagent.molWeight = reagent.molWeight || {};
+                        reagent.molWeight.value = result.data.molecularWeight;
+                    }
+
+                    CalculationService.recalculateSalt(reagent, callback);
                 };
 
                 $scope.$watch('myTableContent', function (newVal) {

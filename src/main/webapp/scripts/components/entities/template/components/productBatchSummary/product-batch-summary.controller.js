@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues, CalculationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -339,18 +339,13 @@ angular.module('indigoeln')
                             row.molFormula = null;
                             row.molWeight = null;
                         };
+                        var getInfoCallback = function (molInfo) {
+                            row.molFormula = molInfo.data.molecularFormula;
+                            row.molWeight = row.molWeight || {};
+                            row.molWeight.value = molInfo.data.molecularWeight;
+                        };
                         if (newMolFile) {
-                            var config = {params: {
-                                saltCode: row.saltCode ? row.saltCode.value : null,
-                                saltEq: row.saltEq ? row.saltEq.value : null
-                            }
-                            };
-                            $http.put('api/calculations/molecule/info', row.structure.molfile, config)
-                                .then(function (molInfo) {
-                                    row.molFormula = molInfo.data.molecularFormula;
-                                    row.molWeight = row.molWeight || {};
-                                    row.molWeight.value = molInfo.data.molecularWeight;
-                                }, resetMolInfo);
+                            CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
                         } else {
                             resetMolInfo();
                         }

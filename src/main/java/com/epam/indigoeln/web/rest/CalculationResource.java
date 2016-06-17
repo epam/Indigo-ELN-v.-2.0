@@ -146,13 +146,23 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     * PUT /stoich/calculate -> calcalate stoich table
      */
     @RequestMapping(value = "/stoich/calculate",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StoicTableDTO> calculateStoicTable(@RequestBody StoicTableDTO stoicTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateStoicTable(stoicTableDTO));
+    }
+
+    /**
+     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     */
+    @RequestMapping(value = "/stoich/calculate/batch",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StoicTableDTO> calculateStoicTableBasedOnBatch(@RequestBody StoicTableDTO stoicTableDTO) {
+        return ResponseEntity.ok(stoicCalculationService.calculateStoicTableBasedOnBatch(stoicTableDTO));
     }
 
 }
