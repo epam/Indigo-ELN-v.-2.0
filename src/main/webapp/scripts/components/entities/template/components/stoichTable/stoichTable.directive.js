@@ -324,7 +324,7 @@ angular.module('indigoeln')
                     };
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
-                        CalculationService.recalculateStoich(initDataForCalculation({}));
+                        CalculationService.recalculateStoich(initDataForCalculation());
                     } else {
                         resetMolInfo();
                     }
