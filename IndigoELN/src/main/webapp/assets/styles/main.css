@@ -792,3 +792,7 @@ html {
 .entered-value {
     color: blue;
 }
+
+.table .checkbox {
+    margin: 0;
+}
