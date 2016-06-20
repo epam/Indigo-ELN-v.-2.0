@@ -62,6 +62,7 @@ public class ProjectFileResource {
      * <b>Available sort options</b>: filename, contentType, length, uploadDate
      */
     @ApiOperation(value = "Returns all project files (with paging).", produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FileDTO>> getAllFiles(
             @ApiParam("Identifier of the project to get files for.") @RequestParam String projectId,
             @ApiParam("Paging data.") Pageable pageable)
