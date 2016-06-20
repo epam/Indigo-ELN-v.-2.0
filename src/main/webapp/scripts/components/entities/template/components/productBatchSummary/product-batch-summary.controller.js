@@ -297,16 +297,20 @@ angular.module('indigoeln')
                         }).then(function (notebook) {
                             var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
                             var fullNbkImmutablePart = notebook.name + '-' + $scope.experiment.name + '-';
+                            _.each($scope.model.productBatchSummary.batches, function (row) {
+                                row.$$selected = false;
+                            });
                             var batch = {
                                 nbkBatch: batchNumber,
                                 fullNbkBatch: fullNbkBatch,
                                 fullNbkImmutablePart: fullNbkImmutablePart,
-                                $$selected: false
+                                $$selected: true
                             };
                             if(batchToDuplicate) {
                                 batch = _.extend(batchToDuplicate, batch);
                             }
                             $scope.model.productBatchSummary.batches.push(batch);
+                            $rootScope.$broadcast('batch-summary-row-selected', batch);
                         });
 
                     });
