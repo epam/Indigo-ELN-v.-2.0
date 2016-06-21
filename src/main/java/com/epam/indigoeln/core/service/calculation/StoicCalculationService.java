@@ -37,15 +37,14 @@ public class StoicCalculationService {
      * @return stoicTableDTO with recalculated batches
      */
     public StoicTableDTO calculateStoicTableBasedOnBatch(StoicTableDTO stoicTableDTO) {
-        StoicBatchDTO sourceBatch = stoicTableDTO.getChangedBatch();
-        String changedField = stoicTableDTO.getChangedField();
-        MonomerBatchModel batchModel = createMonomerBatchModel(sourceBatch);
-        callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
-
         ReactionStepModel reactionStepModel = createReactionStepModelForCalculation(stoicTableDTO);
 
-        StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
+        String changedField = stoicTableDTO.getChangedField();
+        StoicBatchDTO sourceBatch = stoicTableDTO.getStoicBatches().get(stoicTableDTO.getChangedBatchRowNumber());
+        MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
+        callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
 
+        StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
         stoichCalculator.recalculateStoichBasedOnBatch(batchModel, false);
 
         return prepareStoicTableForResponse(reactionStepModel);
@@ -100,22 +99,29 @@ public class StoicCalculationService {
 
     private BatchesList<MonomerBatchModel> prepareStoicBatchesList(List<StoicBatchDTO> stoicBatches) {
         BatchesList<MonomerBatchModel> stoicBatchesList = new BatchesList<>();
+        int order = 0;
         for (StoicBatchDTO sourceMonomerBatch : stoicBatches) {
             MonomerBatchModel monomer = createMonomerBatchModel(sourceMonomerBatch);
+            monomer.setStoicTransactionOrder(order);
             stoicBatchesList.addBatch(monomer);
+            order++;
         }
         return stoicBatchesList;
     }
 
     private ArrayList<BatchesList<ProductBatchModel>> prepareProductBatchesList(List<StoicBatchDTO> intendedProducts, List<StoicBatchDTO> actualProducts) {
         ArrayList<BatchesList<ProductBatchModel>> productBatchesList = new ArrayList<>();
+        int intendedOrder = 0;
+        int stoicOrder = 0;
         // intended products
         for (StoicBatchDTO sourceProductBatch : intendedProducts) {
             ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
             BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
             productBatchModel.setBatchType(BatchType.INTENDED_PRODUCT);
+            productBatchModel.setIntendedBatchAdditionOrder(intendedOrder);
             productBatches.addBatch(productBatchModel);
             productBatchesList.add(productBatches);
+            intendedOrder++;
         }
 
         // actual products
@@ -123,8 +129,10 @@ public class StoicCalculationService {
             ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
             BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
             productBatchModel.setBatchType(BatchType.ACTUAL_PRODUCT);
+            productBatchModel.setStoicTransactionOrder(stoicOrder);
             productBatches.addBatch(productBatchModel);
             productBatchesList.add(productBatches);
+            stoicOrder++;
         }
         return productBatchesList;
     }
