@@ -16,7 +16,7 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         });
 
         $scope.addToStoichTable = function () {
-            $rootScope.$broadcast('new-stoich-rows', $scope.model.selectedReactants);
+            $rootScope.$broadcast('stoich-rows-changed', $scope.model.selectedReactants);
         };
 
         var prepareDatabases = function () {

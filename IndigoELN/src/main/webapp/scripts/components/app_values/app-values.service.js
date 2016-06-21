@@ -43,11 +43,14 @@ angular.module('indigoeln')
             loadFactor: {value: 0, unit: '', entered: false},
             theoWeight: {value: 0, unit: '', entered: false},
             theoMoles: {value: 0, unit: '', entered: false},
+            totalVolume: {value: 0, unit: '', entered: false},
+            totalWeight: {value: 0, unit: '', entered: false},
+            totalMoles: {value: 0, unit: '', entered: false},
             rxnRole: {name: 'REACTANT', entered: false},
             saltCode: {name: '00 - Parent Structure', value: '0', entered: false},
-            saltEq: {value: 0, entered: false},
             molWeight: {value: 0, entered: false},
             stoicPurity: {value: 100, entered: false},
+            saltEq: {value: 0, entered: false},
             eq: {value: 1, entered: false},
             yield: 0
         };
