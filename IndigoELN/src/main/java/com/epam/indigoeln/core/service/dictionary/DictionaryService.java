@@ -25,6 +25,10 @@ public class DictionaryService {
         return Optional.ofNullable(dictionaryRepository.findOne(id)).map(DictionaryDTO::new);
     }
 
+    public Optional<DictionaryDTO> getDictionaryByName(String name) {
+        return Optional.ofNullable(dictionaryRepository.findByName(name)).map(DictionaryDTO::new);
+    }
+
     public DictionaryDTO createDictionary(DictionaryDTO dictionaryDTO) {
         Dictionary dictionary = dtoMapper.convertFromDTO(dictionaryDTO);
         Dictionary savedDictionary = dictionaryRepository.save(dictionary);

@@ -181,7 +181,7 @@ angular.module('indigoeln')
                 $scope.ctrl.selected = myModel;
             });
             if ($scope.myDictionary) {
-                Dictionary.get({id: $scope.myDictionary}, function (dictionary) {
+                Dictionary.getByName({name: $scope.myDictionary}, function (dictionary) {
                     $scope.myItems = dictionary.words;
                 });
             }

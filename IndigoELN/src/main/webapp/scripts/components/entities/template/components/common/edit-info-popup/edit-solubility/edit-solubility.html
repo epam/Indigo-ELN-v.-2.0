@@ -18,7 +18,8 @@
                 </thead>
                 <tbody ng-repeat="item in solubility.data track by $index">
                 <tr ng-class="{'search-table-row-highlight':item.isSelected}">
-                    <td><my-select my-dictionary="solventName"
+                    <td>
+                        <my-select my-dictionary="Solvent name"
                                    my-model="solubility.data[$index].solventName"></my-select></td>
                     <td><my-select my-items="solubilityTypeSelect"
                                    my-model="solubility.data[$index].type"></my-select></td>

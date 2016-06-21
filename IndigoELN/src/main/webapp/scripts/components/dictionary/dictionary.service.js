@@ -3,6 +3,7 @@ angular.module('indigoeln')
         return $resource('api/dictionaries/:id', {}, {
             'query': {method: 'GET', isArray: true},
             'get': {method: 'GET'},
+            'getByName': {url:'api/dictionaries/byName/:name', method: 'GET'},
             'save': {method: 'POST'},
             'update': {method: 'PUT'},
             'delete': {method: 'DELETE'}
