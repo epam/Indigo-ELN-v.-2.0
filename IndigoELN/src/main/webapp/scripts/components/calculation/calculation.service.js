@@ -54,7 +54,7 @@ angular.module('indigoeln')
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
                 actualProducts: setDefaultValues(data.actualProducts),
-                changedBatch: null,
+                changedBatchRowNumber: null,
                 changedField: null
             };
             return $http.put('api/calculations/stoich/calculate', requestData).then(function (result) {
@@ -63,12 +63,13 @@ angular.module('indigoeln')
             });
         };
 
+
         var recalculateStoichBasedOnBatch = function (data) {
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
                 actualProducts: setDefaultValues(data.actualProducts),
-                changedBatch: _.defaults(data.row, defaultBatch),
+                changedBatchRowNumber: _.indexOf(data.stoichTable.reactants, data.row),
                 changedField: data.column
             };
             return $http.put('api/calculations/stoich/calculate/batch', requestData).then(function (result) {
