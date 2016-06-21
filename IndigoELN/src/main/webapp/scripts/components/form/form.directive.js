@@ -162,6 +162,7 @@ angular.module('indigoeln')
             myModel: '=',
             myItems: '=',
             myDictionary: '@',
+            myDictionaryFull: '@',
             myMultiple: '=',
             myLabelVertical: '=',
             myLabelColumnsNum: '=',
@@ -182,6 +183,11 @@ angular.module('indigoeln')
             });
             if ($scope.myDictionary) {
                 Dictionary.getByName({name: $scope.myDictionary}, function (dictionary) {
+                    if ($scope.myDictionaryFull) {
+                        dictionary.words = _.map(dictionary.words, function (item) {
+                            return _.extend(item, {name: item.name + ' - ' + item.description});
+                        });
+                    }
                     $scope.myItems = dictionary.words;
                 });
             }
