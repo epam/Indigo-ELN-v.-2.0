@@ -115,7 +115,7 @@ angular.module('indigoeln')
                         id: 'limiting',
                         name: 'Limiting',
                         type: 'boolean',
-                        onChange: function (data) {
+                        onClick: function (data) {
                             setEntered(data);
                             data = initDataForCalculation(data);
                             console.log(data);
@@ -268,6 +268,7 @@ angular.module('indigoeln')
                 };
                 $scope.removeRow = function () {
                     $scope.model.stoichTable.reactants = _.without($scope.model.stoichTable.reactants, $scope.selectedRow);
+                    $rootScope.$broadcast('stoich-rows-changed');
                 };
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row || null;
@@ -333,8 +334,11 @@ angular.module('indigoeln')
                     actualProducts = products;
                 }, true);
 
-                var onNewStoichRows = $scope.$on('new-stoich-rows', function (event, data) {
-                    $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
+                var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {
+                    if (data) {
+                        $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
+                    }
+                    CalculationService.recalculateStoich(initDataForCalculation());
                 });
                 var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
                     var newReactants = data.stoicBatches;

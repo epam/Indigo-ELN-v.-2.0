@@ -45,12 +45,17 @@ angular.module('indigoeln')
                 });
             },
             addOnChange: function (scope) {
-                if (!scope.myChange) {
-                    return;
+                if (scope.myChange) {
+                    scope.myChangeAsync = function () {
+                        $timeout(scope.myChange);
+                    };
                 }
-                scope.myChangeAsync = function () {
-                    $timeout(scope.myChange);
-                };
+                if (scope.myClick) {
+                    scope.myClickAsync = function () {
+                        $timeout(scope.myClick);
+                    };
+                }
+                
             }
         };
     }).directive('myInput', function (formUtils) {
@@ -70,6 +75,7 @@ angular.module('indigoeln')
             myInputGroup: '@',
             myInputSize: '@',
             myChange: '&',
+            myClick: '&',
             myValidationRequired: '=',
             myValidationMaxlength: '@',
             myValidationMinlength: '@',
@@ -115,7 +121,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-model="myModel" ng-readonly="myReadonly"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model="myModel" ng-readonly="myReadonly"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -135,6 +141,7 @@ angular.module('indigoeln')
             myClasses: '@',
             myDisabled: '=',
             myChange: '&',
+            myClick: '&',
             myTooltip: '@',
             myTooltipPlacement: '@'
         },
@@ -148,7 +155,7 @@ angular.module('indigoeln')
         },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-change="myChangeAsync()"></checkbox> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-click="myClickAsync()" ng-change="myChangeAsync()"></checkbox> ' +
         '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="myModel = !myModel">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '

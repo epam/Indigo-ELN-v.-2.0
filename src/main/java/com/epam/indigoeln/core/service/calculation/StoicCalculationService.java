@@ -50,6 +50,7 @@ public class StoicCalculationService {
         return prepareStoicTableForResponse(reactionStepModel);
     }
 
+    // mimic changes on the field by resetting value and calling setter
     private void callRecalculatingSetterForChangedField(StoicBatchDTO sourceBatch, MonomerBatchModel batchModel, String changedField) {
         switch (changedField) {
             case "weight":
@@ -147,7 +148,9 @@ public class StoicCalculationService {
     private List<StoicBatchDTO> convertProductBatchesListForResponse(List<ProductBatchModel> sourceBatches) {
         List<StoicBatchDTO> myBatches = new ArrayList<>();
         for (ProductBatchModel sourceBatch : sourceBatches) {
-            myBatches.add(convertBatchModelForResponse(sourceBatch, new StoicBatchDTO()));
+            StoicBatchDTO converdedBatch = convertBatchModelForResponse(sourceBatch, new StoicBatchDTO());
+            converdedBatch.setYield(sourceBatch.getTheoreticalYieldPercentAmount().doubleValue());
+            myBatches.add(converdedBatch);
         }
         return myBatches;
     }
@@ -170,7 +173,10 @@ public class StoicCalculationService {
                 new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(), !sourceBatch.getStoicPurity().isEntered()),
                 new AmountModel(SCALAR, sourceBatch.getEq().getValue(), !sourceBatch.getEq().isEntered()),
                 sourceBatch.isLimiting(),
-                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()));
+                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()),
+                new AmountModel(VOLUME, sourceBatch.getTotalVolume().getValue(), !sourceBatch.getTotalVolume().isEntered()),
+                new AmountModel(MASS, sourceBatch.getTotalWeight().getValue(), !sourceBatch.getTotalWeight().isEntered()),
+                new AmountModel(MOLES, sourceBatch.getTotalMoles().getValue(), !sourceBatch.getTotalMoles().isEntered()));
     }
 
     private ProductBatchModel createProductBatchModelForCalculation(StoicBatchDTO sourceBatch) {
@@ -183,7 +189,13 @@ public class StoicCalculationService {
                 new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(), !sourceBatch.getStoicPurity().isEntered()),
                 new AmountModel(SCALAR, sourceBatch.getEq().getValue(), !sourceBatch.getEq().isEntered()),
                 sourceBatch.isLimiting(),
-                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()));
+                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()),
+                new AmountModel(VOLUME, sourceBatch.getTotalVolume().getValue(), !sourceBatch.getTotalVolume().isEntered()),
+                new AmountModel(MASS, sourceBatch.getTotalWeight().getValue(), !sourceBatch.getTotalWeight().isEntered()),
+                new AmountModel(MOLES, sourceBatch.getTotalMoles().getValue(), !sourceBatch.getTotalMoles().isEntered()),
+                new AmountModel(SCALAR, sourceBatch.getYield()),
+                new AmountModel(MASS, sourceBatch.getTheoWeight().getValue(), !sourceBatch.getTheoWeight().isEntered()),
+                new AmountModel(MOLES, sourceBatch.getTheoMoles().getValue(), !sourceBatch.getTheoMoles().isEntered()));
     }
 
     private StoicBatchDTO convertBatchModelForResponse(BatchModel sourceBatch, StoicBatchDTO targetBatch) {
@@ -197,9 +209,14 @@ public class StoicCalculationService {
         targetBatch.setRxnRole(new StringValueDTO(sourceBatch.getBatchType().toString(), false));
         targetBatch.setEq(new ScalarValueDTO(sourceBatch.getRxnEquivsAmount().doubleValue(), !sourceBatch.getRxnEquivsAmount().isCalculated())); // todo check rxnEquivsAmount or stoicRxnEquivsAmount
         targetBatch.setLimiting(sourceBatch.isLimiting());
-//        targetBatch.setTheoMoles(new UnitValueDTO(sourceBatch.getTheoreticalMoleAmount().doubleValue(), sourceBatch.getTheoreticalMoleAmount().getUnit().getDisplayValue()));
-//        targetBatch.setTheoWeight(new UnitValueDTO(sourceBatch.getTheoreticalWeightAmount().doubleValue(), sourceBatch.getTheoreticalWeightAmount().getUnit().getDisplayValue()));
-        // + yield
+        targetBatch.setTotalWeight(new UnitValueDTO(sourceBatch.getTotalWeight().doubleValue(), sourceBatch.getTotalWeight().getUnit().getDisplayValue(), !sourceBatch.getTotalWeight().isCalculated()));
+        targetBatch.setTotalVolume(new UnitValueDTO(sourceBatch.getTotalVolume().doubleValue(), sourceBatch.getTotalVolume().getUnit().getDisplayValue(), !sourceBatch.getTotalVolume().isCalculated()));
+        targetBatch.setTotalMoles(new UnitValueDTO(sourceBatch.getTotalMolarity().doubleValue(), sourceBatch.getTotalMolarity().getUnit().getDisplayValue(), !sourceBatch.getTotalMolarity().isCalculated())); // todo check, should be mass to volume?
+        if (sourceBatch instanceof ProductBatchModel) {
+            targetBatch.setTheoMoles(new UnitValueDTO(sourceBatch.getTheoreticalMoleAmount().doubleValue(), sourceBatch.getTheoreticalMoleAmount().getUnit().getDisplayValue(), !sourceBatch.getTheoreticalMoleAmount().isCalculated()));
+            targetBatch.setTheoWeight(new UnitValueDTO(sourceBatch.getTheoreticalWeightAmount().doubleValue(), sourceBatch.getTheoreticalWeightAmount().getUnit().getDisplayValue(), !sourceBatch.getTheoreticalWeightAmount().isCalculated()));
+        }
+
         return targetBatch;
     }
 }
