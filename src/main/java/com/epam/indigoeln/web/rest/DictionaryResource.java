@@ -85,6 +85,20 @@ public class DictionaryResource {
     }
 
     /**
+     * GET /dictionaries/byName/:name -> get dictionary by name
+     */
+    @ApiOperation(value = "Returns dictionary by it's name.", produces = "application/json")
+    @RequestMapping(value = "/byName/{name}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<DictionaryDTO> getDictionaryByName(
+            @ApiParam("Name of the dictionary.") @PathVariable String name
+    ) {
+        LOGGER.debug("REST request to get dictionary with name: {}", name);
+        return dictionaryService.getDictionaryByName(name)
+                .map(dict -> new ResponseEntity<>(dict, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    /**
      * GET /dictionaries -> fetch all dictionary list
      */
     @RequestMapping(method = RequestMethod.GET,
