@@ -367,7 +367,7 @@ angular.module('indigoeln')
                     var batchesToSearch = [];
                     var stoicReactants = [];
                     _.each($scope.model.stoichTable.reactants, function (item) {
-                        if (_.isEqual(item.rxnRole, {name: 'REACTANT'}) && item.structure) {
+                        if (_.findWhere(item, {name: 'REACTANT'}) && item.structure) {
                             stoicReactants.push(item);
                         }
                     });
