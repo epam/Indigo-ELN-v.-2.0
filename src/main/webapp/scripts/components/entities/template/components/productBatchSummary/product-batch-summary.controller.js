@@ -17,6 +17,7 @@ angular.module('indigoeln')
             var sourceDetailExternal = AppValues.getSourceDetailExternal();
             var sourceDetailInternal = AppValues.getSourceDetailInternal();
             var compoundProtectionValues = AppValues.getCompoundProtectionValues();
+            var stoichTable;
             var setSelectSourceValueAction = {
                 action: function () {
                     var that = this;
@@ -57,6 +58,10 @@ angular.module('indigoeln')
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
                 $scope.share.actualProducts = batches;
+            }, true);
+
+            $scope.$watch('share.stoichTable', function (table) {
+                stoichTable = table;
             }, true);
 
             $scope.columns = [
@@ -102,13 +107,15 @@ angular.module('indigoeln')
                     unitItems: grams
                 },
                 {
-                    id: 'totalVolume', name: 'Total Volume',
+                    id: 'totalVolume',
+                    name: 'Total Volume',
                     type: 'unit',
                     width: '150px',
                     unitItems: liters
                 },
                 {
-                    id: 'totalMoles', name: 'Total Moles',
+                    id: 'totalMoles',
+                    name: 'Total Moles',
                     type: 'unit',
                     width: '150px',
                     unitItems: moles
@@ -123,7 +130,8 @@ angular.module('indigoeln')
                     readonly: true
                 },
                 {
-                    id: 'theoMoles', name: 'Theo. Moles',
+                    id: 'theoMoles',
+                    name: 'Theo. Moles',
                     width: '150px',
                     type: 'unit',
                     unitItems: moles,
@@ -293,12 +301,11 @@ angular.module('indigoeln')
                             _.each($scope.model.productBatchSummary.batches, function (row) {
                                 row.$$selected = false;
                             });
-                            var batch = {
-                                nbkBatch: batchNumber,
-                                fullNbkBatch: fullNbkBatch,
-                                fullNbkImmutablePart: fullNbkImmutablePart,
-                                $$selected: true
-                            };
+                            var batch = _.extend(CalculationService.createBatch(stoichTable, true),
+                                {
+                                    nbkBatch: batchNumber, fullNbkBatch: fullNbkBatch,
+                                    fullNbkImmutablePart: fullNbkImmutablePart, $$selected: true
+                                });
                             if(batchToDuplicate) {
                                 batch = _.extend(batchToDuplicate, batch);
                             }

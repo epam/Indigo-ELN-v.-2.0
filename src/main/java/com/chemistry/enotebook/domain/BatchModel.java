@@ -7,7 +7,6 @@ import com.chemistry.enotebook.experiment.datamodel.common.SignificantFigures;
 import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -701,13 +700,15 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         // Do not enforce sig figs here.
         // Don't return more than three places after decimal point
         double result = 0.0;
-        if (compound.getMolWgt() > 0.0) {
-            result = compound.getMolWgt() + (getSaltForm().getMolWgt() * getSaltEquivs());
-            String test = Double.toString(result);
-            if (test.indexOf(".") > 0)
-                if (test.substring(test.indexOf(".") + 1, test.length()).length() > 3)
-                    result = new BigDecimal(result).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-        }
+
+        // uncomment if there is a case when compound.getMolWgt() > 0.0 is true
+//        if (compound.getMolWgt() > 0.0) {
+//            result = compound.getMolWgt() + (getSaltForm().getMolWgt() * getSaltEquivs());
+//            String test = Double.toString(result);
+//            if (test.indexOf(".") > 0)
+//                if (test.substring(test.indexOf(".") + 1, test.length()).length() > 3)
+//                    result = new BigDecimal(result).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
+//        }
         return result;
     }
 
