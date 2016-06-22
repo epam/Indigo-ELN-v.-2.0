@@ -9,9 +9,17 @@
         <em class="icon-header-control-list fa fa-cog"></em>
         <span class="tooltip-icon-header">Fake Tooltip</span>
     </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
+    <li class="head-controls-list__item head-controls-list__item_dark-color" id="opened-entities-dropdown"
+        toggle-class-child="open-menu">
         <em class="icon-header-control-list fa fa-th-large"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
+        <ul class="head-controls-list-submenu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
+            <li class="head-controls-list-submenu__item"><a>Close All</a></li>
+            <li class="head-controls-list-submenu__item" ng-repeat="entity in entities"><a
+                    ng-click="onEntityClick(entity.fullId)">
+                {{getKind(entity.fullId)}} {{entity.title}}
+            </a></li>
+        </ul>
+        <span class="tooltip-icon-header">Opened Entities</span>
     </li>
     <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
         <em class="icon-header-control-list fa fa-question-circle"></em>
