@@ -9,7 +9,10 @@ angular.module('indigoeln')
                     if (_.isObject(value)) {
                         value.entered = value.entered || false;
                     } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                        // TODO this can be deleted after database drop
                         batch[key] = {value: value, entered: false};
+                    } else if (_.isNull(value)) {
+                        batch[key] = undefined; // because _.defaults omits nulls
                     }
                 });
                 return _.defaults(batch, defaultBatch);

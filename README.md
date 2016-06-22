@@ -51,8 +51,7 @@ webapp
 │   ├── components                    - Our reusable components, non-specific to our app
 │   │   ├── navbar
 │   │   │   ├── navbar.js
-│   │   │   ├── navbar.controller.js  
-│   │   │   ├── navbar.directive.js
+│   │   │   ├── navbar.controller.js
 │   │   │   ├── navbar.html
 │   │   ├── util                      - Generic components like filters to format data
 ```

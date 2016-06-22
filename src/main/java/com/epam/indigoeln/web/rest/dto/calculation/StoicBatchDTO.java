@@ -11,18 +11,21 @@ public class StoicBatchDTO {
     private UnitValueDTO weight;
     private UnitValueDTO volume;
     private UnitValueDTO density;
-    private UnitValueDTO molarity;
-    private UnitValueDTO mol;
+    private UnitValueDTO molarity; // molarAmount
+    private UnitValueDTO mol; // moleAmount
     private UnitValueDTO loadFactor;
-    private UnitValueDTO theoWeight;
-    private UnitValueDTO theoMoles;
-    private StringValueDTO rxnRole;
+    private UnitValueDTO theoWeight; // theoreticalWeightAmount; - product
+    private UnitValueDTO theoMoles; // theoreticalMoleAmount; - product
+    private UnitValueDTO totalVolume; // totalVolume
+    private UnitValueDTO totalWeight; // totalWeight
+    private UnitValueDTO totalMoles; //totalMolarity
+    private StringValueDTO rxnRole; // batchType
     private StringValueDTO saltCode;
-    private ScalarValueDTO molWeight;
+    private ScalarValueDTO molWeight; // molecularWeightAmount
     private ScalarValueDTO stoicPurity;
     private ScalarValueDTO saltEq;
-    private ScalarValueDTO eq;
-    private double yield;
+    private ScalarValueDTO eq; // rxnEq
+    private double yield; // theoreticalYieldPercentAmount; - product
 
     public boolean isLimiting() {
         return limiting;
@@ -150,5 +153,29 @@ public class StoicBatchDTO {
 
     public void setYield(double yield) {
         this.yield = yield;
+    }
+
+    public UnitValueDTO getTotalVolume() {
+        return totalVolume;
+    }
+
+    public void setTotalVolume(UnitValueDTO totalVolume) {
+        this.totalVolume = totalVolume;
+    }
+
+    public UnitValueDTO getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(UnitValueDTO totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public UnitValueDTO getTotalMoles() {
+        return totalMoles;
+    }
+
+    public void setTotalMoles(UnitValueDTO totalMoles) {
+        this.totalMoles = totalMoles;
     }
 }

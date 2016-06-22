@@ -17,20 +17,19 @@ public class ProductBatchModel extends BatchModel {
     // The values will be as below unless intendedBatch != null
     // Also the IntProd's weightAmount is ActualProd's theoWeightAmount
     // IntProd's moleAmount is ActualProd's theoMoleAmount
-    private final AmountModel theoreticalYieldPercentAmount = new AmountModel(UnitType.SCALAR, "-1.0"); // -1 means not set.
-    private final AmountModel theoreticalWeightAmount = new AmountModel(UnitType.MASS);
-    private final AmountModel theoreticalMoleAmount = new AmountModel(UnitType.MOLES);
+    private AmountModel theoreticalYieldPercentAmount = new AmountModel(UnitType.SCALAR, "-1.0"); // -1 means not set.
+    private AmountModel theoreticalWeightAmount = new AmountModel(UnitType.MASS);
+    private AmountModel theoreticalMoleAmount = new AmountModel(UnitType.MOLES);
 
     public ProductBatchModel() {
         super.setBatchType(BatchType.INTENDED_PRODUCT);
     }
 
-    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType) {
-        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, limiting, batchType);
-    }
-
-    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, SaltFormModel saltForm, AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity, boolean limiting, BatchType batchType, double saltEquivs) {
-        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, saltForm, totalVolume, totalWeight, totalMolarity, limiting, batchType, saltEquivs);
+    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType, AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity, AmountModel theoreticalYieldPercentAmount, AmountModel theoreticalWeightAmount, AmountModel theoreticalMoleAmount) {
+        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, limiting, batchType, totalVolume, totalWeight, totalMolarity);
+        this.theoreticalMoleAmount = theoreticalMoleAmount;
+        this.theoreticalWeightAmount = theoreticalWeightAmount;
+        this.theoreticalYieldPercentAmount = theoreticalYieldPercentAmount;
     }
 
     /**
@@ -150,11 +149,11 @@ public class ProductBatchModel extends BatchModel {
      * IntendedProduct's moleAmount.GetValueInStdUnits() == 0.0. 100.0 -
      * 0.0 value if there is an IntendedProduct to match.
      */
-    private AmountModel getTheoreticalYieldPercentAmount() {
+    public AmountModel getTheoreticalYieldPercentAmount() {
         return theoreticalYieldPercentAmount;
     }
 
-    private AmountModel getTotalMolarAmount() {
+    public AmountModel getTotalMolarAmount() {
         return super.getTotalMolarity();
     }
 

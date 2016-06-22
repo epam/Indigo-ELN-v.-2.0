@@ -25,7 +25,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
 
         $scope.addToStoichTable = function (list) {
             var selected = _.where(list, {$$isSelected: true});
-            $rootScope.$broadcast('new-stoich-rows', selected);
+            $rootScope.$broadcast('stoich-rows-changed', selected);
         };
 
         $scope.conditionText = [{name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}];
