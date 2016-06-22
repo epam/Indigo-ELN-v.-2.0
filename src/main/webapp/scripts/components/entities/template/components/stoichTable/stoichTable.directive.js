@@ -197,14 +197,14 @@ angular.module('indigoeln')
                         name: 'Exact Mass'
                     },
                     {
-                        id: 'theoWeight',
+                        id: 'weight',
                         name: 'Theo. Wgt.',
                         type: 'unit',
                         unitItems: grams,
                         readonly: true
                     },
                     {
-                        id: 'theoMoles',
+                        id: 'mol',
                         name: 'Theo. Moles',
                         type: 'unit',
                         unitItems: moles,
