@@ -62,7 +62,6 @@
     }
   },
   "resolutions": {
-    "moment": "2.11.2",
     "moment-timezone": "0.5.0",
     "angular-animate": "1.4.8",
     "angular": "1.4.8"

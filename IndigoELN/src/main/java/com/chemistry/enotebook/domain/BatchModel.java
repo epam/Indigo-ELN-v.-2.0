@@ -60,7 +60,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
                       AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
-                      AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType) {
+                      AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType,
+                      AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) {
         this.molecularWeightAmount = molecularWeightAmount;
         this.moleAmount = moleAmount;
         this.weightAmount = weightAmount;
@@ -71,28 +72,9 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         this.rxnEquivsAmount = rxnEquivsAmount;
         this.limiting = limiting;
         this.batchType = batchType;
-    }
-
-    public BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
-                      AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
-                      AmountModel purityAmount, AmountModel rxnEquivsAmount, SaltFormModel saltForm,
-                      AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity,
-                      boolean limiting, BatchType batchType, double saltEquivs) {
-        this.molecularWeightAmount = molecularWeightAmount;
-        this.moleAmount = moleAmount;
-        this.weightAmount = weightAmount;
-        this.volumeAmount = volumeAmount;
-        this.densityAmount = densityAmount;
-        this.molarAmount = molarAmount;
-        this.purityAmount = purityAmount;
-        this.rxnEquivsAmount = rxnEquivsAmount;
-        this.saltForm = saltForm;
         this.totalVolume = totalVolume;
         this.totalWeight = totalWeight;
         this.totalMolarity = totalMolarity;
-        this.limiting = limiting;
-        this.batchType = batchType;
-        this.saltEquivs = saltEquivs;
     }
 
     private ParentCompoundModel getCompound() {
@@ -852,7 +834,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     }
 
-    AmountModel getTotalMolarity() {
+    public AmountModel getTotalMolarity() {
         return totalMolarity;
     }
 

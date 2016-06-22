@@ -93,16 +93,7 @@ angular.module('indigoeln')
                             }
                         }
                     ]
-                },
-                {
-                    id: 'theoWeight',
-                    name: 'Theo. Wgt.',
-                    type: 'unit',
-                    width: '150px',
-                    unitItems: grams,
-                    hideSetValue: true,
-                    readonly: true
-                },
+                },               
                 {
                     id: 'totalWeight',
                     name: 'Total Weight',
@@ -123,19 +114,21 @@ angular.module('indigoeln')
                     unitItems: moles
                 },
                 {
-                    id: 'theoWgt',
+                    id: 'theoWeight',
                     name: 'Theo. Wgt.',
                     type: 'unit',
-                    width: '150px',
                     unitItems: grams,
+                    width: '150px',
                     hideSetValue: true,
                     readonly: true
                 },
                 {
                     id: 'theoMoles', name: 'Theo. Moles',
-                    type: 'unit',
                     width: '150px',
-                    unitItems: grams
+                    type: 'unit',
+                    unitItems: moles,
+                    hideSetValue: true,
+                    readonly: true
                 },
                 {id: 'yield', name: '%Yield'},
                 {
