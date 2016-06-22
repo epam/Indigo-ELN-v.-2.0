@@ -264,7 +264,8 @@ angular.module('indigoeln')
                     }
                 };
                 $scope.appendRow = function () {
-                    $scope.model.stoichTable.reactants.push({});
+                    var reactant = CalculationService.createBatch($scope.model.stoichTable);
+                    $scope.model.stoichTable.reactants.push(reactant);
                 };
                 $scope.removeRow = function () {
                     $scope.model.stoichTable.reactants = _.without($scope.model.stoichTable.reactants, $scope.selectedRow);
@@ -332,6 +333,10 @@ angular.module('indigoeln')
                 });
                 $scope.$watch('share.actualProducts', function (products) {
                     actualProducts = products;
+                }, true);
+
+                $scope.$watch('model.stoichTable', function (stoichTable) {
+                    $scope.share.stoichTable = stoichTable;
                 }, true);
 
                 var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {

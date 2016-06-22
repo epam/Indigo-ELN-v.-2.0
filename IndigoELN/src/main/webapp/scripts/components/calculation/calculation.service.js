@@ -44,6 +44,21 @@ angular.module('indigoeln')
             }
         };
 
+        function findLimiting(stoichTable) {
+            return _.findWhere(stoichTable.reactants, {limiting: true});
+        }
+
+        var createBatch = function (stoichTable, isProduct) {
+            var batch = _.extend({}, AppValues.getDefaultBatch());
+            var limiting = findLimiting(stoichTable);
+            var property = isProduct ? 'theoMoles' : 'mol';
+            if (limiting) {
+                batch[property] = angular.copy(limiting.mol);
+                batch[property].entered = false;
+            }
+            return batch;
+        };
+
         var recalculateSalt = function (reagent, callback) {
             var config = getSaltConfig(reagent);
             $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
@@ -82,6 +97,7 @@ angular.module('indigoeln')
         };
 
         return {
+            createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
             recalculateSalt: recalculateSalt,
             recalculateStoich: recalculateStoich,
