@@ -1,6 +1,15 @@
 body {
     font-family: 'Roboto', sans-serif;
 }
+
+.panel-body {
+    padding: 0;
+}
+
+.panel-body > .table {
+    margin-bottom: 0;
+}
+
 .countdown-dialog {
     position: relative;
 }
@@ -11,7 +20,6 @@ body {
     width: 100%;
     color: black;
 }
-
 
 .newtemplate {
     width: 100px;
