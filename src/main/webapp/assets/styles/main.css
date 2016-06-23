@@ -2,14 +2,6 @@ body {
     font-family: 'Roboto', sans-serif;
 }
 
-.panel-body {
-    padding: 0;
-}
-
-.panel-body > .table {
-    margin-bottom: 0;
-}
-
 .countdown-dialog {
     position: relative;
 }
