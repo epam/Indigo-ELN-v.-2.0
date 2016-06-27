@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues, CalculationService) {
+    function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -297,7 +297,10 @@ angular.module('indigoeln')
                 if (emptyFields.length) {
                     AlertModal.error('This fields is required: ' + _.uniq(emptyFields).join(', '));
                 } else {
-                    AlertModal.info('Not implemented yet');
+                    var batchNumbers = _.map($scope.model.productBatchSummary.batches, function (batch) {
+                        return batch.fullNbkBatch;
+                    });
+                    RegistrationService.register({}, batchNumbers);
                 }
 
             };

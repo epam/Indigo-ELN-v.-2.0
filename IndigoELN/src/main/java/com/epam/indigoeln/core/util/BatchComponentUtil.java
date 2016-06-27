@@ -10,7 +10,6 @@ import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.springframework.util.StringUtils;

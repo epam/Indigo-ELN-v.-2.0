@@ -80,6 +80,7 @@ public class RegistrationService {
         batches.keySet().stream().forEach(b -> {
             b.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS.toString());
             b.setRegistrationJobId(jobId);
+            b.setRegistrationRepositoryId(id);
         });
 
         componentRepository.save(new HashSet<>(batches.values()));
@@ -182,6 +183,14 @@ public class RegistrationService {
 
         public void setRegistrationJobId(long registrationJobId) {
             delegate.put("registrationJobId", registrationJobId);
+        }
+
+        public String getRegistrationRepositoryId() {
+            return delegate.getString("registrationRepositoryId");
+        }
+
+        public void setRegistrationRepositoryId(String registrationRepositoryId) {
+            delegate.put("registrationRepositoryId", registrationRepositoryId);
         }
 
     }
