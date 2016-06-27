@@ -4,42 +4,42 @@ import java.util.List;
 
 public class StoicTableDTO {
 
-    private List<StoicBatchDTO> stoicBatches;
-    private List<StoicBatchDTO> intendedProducts;
-    private List<StoicBatchDTO> actualProducts;
+    private List<BasicBatchModel> stoicBatches;
+    private List<BasicBatchModel> intendedProducts;
+    private List<BasicBatchModel> actualProducts;
     private int changedBatchRowNumber;
     private String changedField;
 
     public StoicTableDTO() {
     }
 
-    public StoicTableDTO(List<StoicBatchDTO> stoicBatches, List<StoicBatchDTO> intendedProducts, List<StoicBatchDTO> actualProducts) {
+    public StoicTableDTO(List<BasicBatchModel> stoicBatches, List<BasicBatchModel> intendedProducts, List<BasicBatchModel> actualProducts) {
         this.stoicBatches = stoicBatches;
         this.intendedProducts = intendedProducts;
         this.actualProducts = actualProducts;
     }
 
-    public List<StoicBatchDTO> getStoicBatches() {
+    public List<BasicBatchModel> getStoicBatches() {
         return stoicBatches;
     }
 
-    public void setStoicBatches(List<StoicBatchDTO> stoicBatches) {
+    public void setStoicBatches(List<BasicBatchModel> stoicBatches) {
         this.stoicBatches = stoicBatches;
     }
 
-    public List<StoicBatchDTO> getIntendedProducts() {
+    public List<BasicBatchModel> getIntendedProducts() {
         return intendedProducts;
     }
 
-    public void setIntendedProducts(List<StoicBatchDTO> intendedProducts) {
+    public void setIntendedProducts(List<BasicBatchModel> intendedProducts) {
         this.intendedProducts = intendedProducts;
     }
 
-    public List<StoicBatchDTO> getActualProducts() {
+    public List<BasicBatchModel> getActualProducts() {
         return actualProducts;
     }
 
-    public void setActualProducts(List<StoicBatchDTO> actualProducts) {
+    public void setActualProducts(List<BasicBatchModel> actualProducts) {
         this.actualProducts = actualProducts;
     }
 

@@ -30,15 +30,6 @@ angular.module('indigoeln')
                     return calcData;
                 }
 
-                function setEntered(data) {
-                    var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
-                    if (_.isObject(data.row[data.column])) {
-                        data.row[data.column].entered = true;
-                    } else if (!_.isObject(data.row[data.column]) && _.contains(simpleValues, data.column)) {
-                        data.row[data.column] = {value: data.row[data.column], entered: true};
-                    }
-                }
-
                 function fetchBatchByNbkNumber(nbkBatch, row) {
                     var searchRequest = {
                         advancedSearch: [{
@@ -116,7 +107,7 @@ angular.module('indigoeln')
                         name: 'Limiting',
                         type: 'boolean',
                         onClick: function (data) {
-                            setEntered(data);
+                            CalculationService.setEntered(data);
                             data = initDataForCalculation(data);
                             console.log(data);
                             CalculationService.recalculateStoichBasedOnBatch(data, false);
@@ -241,7 +232,7 @@ angular.module('indigoeln')
                     if (_.contains(columnsToRecalculateStoic, column.id)) {
                         $scope.reactantsColumns[i] = _.extend(column, {
                             onClose: function (data) {
-                                setEntered(data);
+                                CalculationService.setEntered(data);
                                 data = initDataForCalculation(data);
                                 console.log(data);
                                 CalculationService.recalculateStoichBasedOnBatch(data, false);
@@ -250,7 +241,7 @@ angular.module('indigoeln')
                     } else if (_.contains(columnsToRecalculateSalt, column.id)) {
                         $scope.reactantsColumns[i] = _.extend(column, {
                             onClose: function (data) {
-                                setEntered(data);
+                                CalculationService.setEntered(data);
                                 $scope.recalculateSalt(data.row);
                             }
                         });
