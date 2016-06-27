@@ -11,10 +11,9 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Api
@@ -33,13 +32,21 @@ public class RegistrationResource {
     }
 
     @ApiOperation(value = "Registers batches.", produces = "application/json")
-    @RequestMapping(value = "/register", method = RequestMethod.POST,
+    @RequestMapping(value = "/{repositoryId}/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Long register(
-            @ApiParam("Registration repository id") String id,
-            @ApiParam("Batch numbers") List<String> fullBatchNumbers
-        ) throws RegistrationException {
-        return registrationService.register(id, fullBatchNumbers);
+            @ApiParam("Registration repository id") @PathVariable("repositoryId") String id,
+            @ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
+    ) throws RegistrationException {
+        return registrationService.register(id, Arrays.asList(fullBatchNumbers));
+    }
+
+    @ApiOperation(value = "Registers batches.", produces = "application/json")
+    @RequestMapping(value = "/register", method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Long register(@ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
+    ) throws RegistrationException {
+        return registrationService.register(getRepositoryId(), Arrays.asList(fullBatchNumbers));
     }
 
     @ApiOperation(value = "Returns registration status.", produces = "application/json")
@@ -48,7 +55,10 @@ public class RegistrationResource {
     public RegistrationStatus status(
             @ApiParam("Registration repository id") String id,
             @ApiParam("Registration job id") Long jobId
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return registrationService.getStatus(id, jobId);
     }
 
@@ -58,7 +68,10 @@ public class RegistrationResource {
     public List<Compound> compounds(
             @ApiParam("Registration repository id") String id,
             @ApiParam("Registration job id") Long jobId
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return registrationService.getRegisteredCompounds(id, jobId);
     }
 
@@ -69,7 +82,10 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Substructure") String structure,
             @ApiParam("Search options") String searchOption
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return ResponseEntity.ok(registrationService.searchSubstructure(id, structure, searchOption));
     }
 
@@ -80,7 +96,10 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return ResponseEntity.ok(registrationService.searchSimilarity(id, structure, searchOption));
     }
 
@@ -90,7 +109,10 @@ public class RegistrationResource {
     public ResponseEntity<List<Integer>> searchSmarts(
             @ApiParam("Registration repository id") String id,
             @ApiParam("Structure") String structure
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return ResponseEntity.ok(registrationService.searchSmarts(id, structure));
     }
 
@@ -101,8 +123,20 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
-        ) throws RegistrationException {
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
         return ResponseEntity.ok(registrationService.searchExact(id, structure, searchOption));
+    }
+
+    private String getRepositoryId() throws RegistrationException {
+        final List<RegistrationRepositoryInfo> repositoriesInfo = registrationService.getRepositoriesInfo();
+        if (repositoriesInfo != null && repositoriesInfo.size() == 1) {
+            return repositoriesInfo.get(0).getId();
+        } else {
+            throw new RegistrationException("More than one registration repository found, please specify repository id.");
+        }
     }
 
 }
