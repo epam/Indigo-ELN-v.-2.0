@@ -13,10 +13,14 @@ import java.util.List;
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
 
     public static final long serialVersionUID = 7526472295622776147L;
-    static final int UPDATE_TYPE_MOLES = 0;
-    static final int UPDATE_TYPE_TOTAL_MOLARITY = 5;
-    private static final int UPDATE_TYPE_WEIGHT = 1;
-    private static final int UPDATE_TYPE_VOLUME = 2;
+
+    public static final int UPDATE_TYPE_MOLES = 0;
+    public static final int UPDATE_TYPE_WEIGHT = 1;
+    public static final int UPDATE_TYPE_VOLUME = 2;
+
+    public static final int UPDATE_TYPE_TOTAL_WEIGHT = 3; // vb 2/2
+    public static final int UPDATE_TYPE_TOTAL_VOLUME = 4;
+    public static final int UPDATE_TYPE_TOTAL_MOLARITY = 5;
     // Describes concentration of batch before updating with latests Amount
     private final AmountModel previousMolarAmount = new AmountModel(UnitType.MOLAR);
     boolean autoCalcOn = true;
@@ -682,7 +686,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
      *
      * @return Returns molecularWeightAmount.doubleValue() or the calculated amount if the double Value = the defaultValue of Zero
      */
-    double getMolWgt() {
+    public double getMolWgt() {
         double result = molecularWeightAmount.doubleValue();
         // return 0 if no compound weight has been set -or- return weight set by user
         if (molecularWeightAmount.isValueDefault() && molecularWeightAmount.isCalculated()) {

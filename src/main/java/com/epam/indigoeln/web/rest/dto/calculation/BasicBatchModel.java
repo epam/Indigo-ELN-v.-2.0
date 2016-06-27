@@ -5,7 +5,7 @@ import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.StringValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.UnitValueDTO;
 
-public class StoicBatchDTO {
+public class BasicBatchModel {
 
     private boolean limiting;
     private UnitValueDTO weight;

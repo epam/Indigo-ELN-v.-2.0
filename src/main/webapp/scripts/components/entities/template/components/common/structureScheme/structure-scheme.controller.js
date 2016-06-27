@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal) {
+    .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, $rootScope) {
         // molecule, reaction
         var type = $attrs.myStructureType;
         $scope.structureType = type;
@@ -56,6 +56,10 @@ angular.module('indigoeln')
                         $scope.share.selectedRow.structure.structureType = type;
                         $scope.share.selectedRow.structure.molfile = structure;
                         $scope.share.selectedRow.structure.structureId = structureId;
+
+                        if (type === 'molecule' && result.image) {
+                            $rootScope.$broadcast('product-batch-structure-changed', $scope.share.selectedRow);
+                        }
                     } else {
                         $scope.model[type].image = result.image;
                         // case of search by molecule
