@@ -98,7 +98,7 @@ angular.module('indigoeln')
                             }
                         }
                     ]
-                },               
+                },
                 {
                     id: 'totalWeight',
                     name: 'Total Weight',
@@ -238,7 +238,7 @@ angular.module('indigoeln')
                     type: 'input'
                 },
                 {id: 'regDate', name: 'Registration Date'},
-                {id: 'regStatus', name: 'Registration Status'}
+                {id: 'registrationStatus', name: 'Registration Status'}
             ];
 
             $scope.onRowSelected = function (row) {
@@ -279,7 +279,7 @@ angular.module('indigoeln')
             $scope.$watch('isHasRegService', function (val) {
                 _.findWhere($scope.columns, {id: 'conversationalBatch'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'regDate'}).isVisible = val;
-                _.findWhere($scope.columns, {id: 'regStatus'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
             });
         RegistrationService.info({}, function (info) {
             $scope.isHasRegService = _.isArray(info) && info.length > 0;
@@ -300,13 +300,24 @@ angular.module('indigoeln')
                 if (emptyFields.length) {
                     AlertModal.error('This fields is required: ' + _.uniq(emptyFields).join(', '));
                 } else {
-                    var batchNumbers = _.map($scope.model.productBatchSummary.batches, function (batch) {
+                    var batches = $scope.model.productBatchSummary.batches;
+                    var batchNumbers = _.map(batches, function (batch) {
                         return batch.fullNbkBatch;
                     });
                     RegistrationService.register({}, batchNumbers);
                 }
 
             };
+        $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
+            _.each(statuses, function (status, fullNbkMatch) {
+                var batch = _.find($scope.model.productBatchSummary.batches, function (batch) {
+                    return batch.fullNbkMatch = fullNbkMatch;
+                });
+                if (batch) {
+                    batch.registrationStatus = status;
+                }
+            });
+        });
 
             function requestNbkBatchNumber(latest, batchToDuplicate) {
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +

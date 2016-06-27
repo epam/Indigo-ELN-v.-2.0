@@ -111,6 +111,9 @@ angular.module('indigoeln',
                 },
                 experimentStatusSubscriber: function (WSService) {
                     return WSService.subscribe('experiment_status');
+                },
+                batchStatusSubscriber: function (WSService) {
+                    return WSService.subscribe('registration_status');
                 }
             }
         }).state('navbar', {
