@@ -3,7 +3,7 @@
  */
 angular
     .module('indigoeln')
-    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, Config) {
+    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, batchStatusSubscriber, Config) {
         /**
          * Sidebar Toggle & Cookie Control
          */
@@ -40,11 +40,16 @@ angular
         };
 
         $scope.$on('$destroy', experimentStatusSubscriber.unSubscribe);
+        $scope.$on('$destroy', batchStatusSubscriber.unSubscribe);
 
         //todo: refactoring
         experimentStatusSubscriber.onServerEvent(function (statuses) {
             $rootScope.$broadcast('experiment-status-changed', statuses);
         });
+        batchStatusSubscriber.onServerEvent(function (statuses) {
+            $rootScope.$broadcast('batch-registration-status-changed', statuses);
+        });
+
 
         $scope.onMouseWheel = function ($event) {
             var prevent = function () {

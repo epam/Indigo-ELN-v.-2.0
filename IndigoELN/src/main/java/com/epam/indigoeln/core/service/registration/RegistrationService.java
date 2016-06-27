@@ -11,6 +11,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +29,9 @@ public class RegistrationService {
 
     @Autowired
     private ComponentRepository componentRepository;
+
+    @Autowired
+    private SimpMessagingTemplate template;
 
     public List<RegistrationRepositoryInfo> getRepositoriesInfo() {
         return repositories.stream().map(RegistrationRepository::getInfo).collect(Collectors.toList());
@@ -84,6 +88,8 @@ public class RegistrationService {
         });
 
         componentRepository.save(new HashSet<>(batches.values()));
+
+        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.Status.IN_PROGRESS)));
 
         return jobId;
     }
