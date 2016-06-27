@@ -281,6 +281,9 @@ angular.module('indigoeln')
                 _.findWhere($scope.columns, {id: 'regDate'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'regStatus'}).isVisible = val;
             });
+        RegistrationService.info({}, function (info) {
+            $scope.isHasRegService = _.isArray(info) && info.length > 0;
+        });
 
             $scope.registerBatches = function () {
                 var emptyFields = [];
