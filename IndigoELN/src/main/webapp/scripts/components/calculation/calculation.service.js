@@ -1,22 +1,36 @@
 angular.module('indigoeln')
-    .factory('CalculationService', function ($rootScope, NumberUtil, $http, AppValues) {
+    .factory('CalculationService', function ($rootScope, NumberUtil, $http, AppValues, $log) {
         var defaultBatch = AppValues.getDefaultBatch();
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
 
         var setDefaultValues = function (batches) {
-            return _.map(batches, function (batch) {
-                _.each(batch, function (value, key) {
+            if (_.isObject(batches)) {
+                _.each(batches, function (value, key) {
                     if (_.isObject(value)) {
                         value.entered = value.entered || false;
                     } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
                         // TODO this can be deleted after database drop
-                        batch[key] = {value: value, entered: false};
+                        batches[key] = {value: value, entered: false};
                     } else if (_.isNull(value)) {
-                        batch[key] = undefined; // because _.defaults omits nulls
+                        batches[key] = undefined; // because _.defaults omits nulls
                     }
                 });
-                return _.defaults(batch, defaultBatch);
-            });
+                return _.defaults(batches, defaultBatch);
+            } else {
+                return _.map(batches, function (batch) {
+                    _.each(batch, function (value, key) {
+                        if (_.isObject(value)) {
+                            value.entered = value.entered || false;
+                        } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                            // TODO this can be deleted after database drop
+                            batch[key] = {value: value, entered: false};
+                        } else if (_.isNull(value)) {
+                            batch[key] = undefined; // because _.defaults omits nulls
+                        }
+                    });
+                    return _.defaults(batch, defaultBatch);
+                });
+            }
         };
 
         function getSaltConfig(reagent) {
@@ -49,7 +63,7 @@ angular.module('indigoeln')
         }
 
         var createBatch = function (stoichTable, isProduct) {
-            var batch = _.extend({}, AppValues.getDefaultBatch());
+            var batch = angular.copy(AppValues.getDefaultBatch());
             var limiting = findLimiting(stoichTable);
             var property = isProduct ? 'theoMoles' : 'mol';
             if (limiting) {
@@ -96,9 +110,31 @@ angular.module('indigoeln')
             });
         };
 
+        var calculateProductBatch = function (data) {
+            var requestData = {
+                productBatch: setDefaultValues(data.row),
+                changedField: data.column
+            };
+            return $http.put('api/calculations/product/calculate/batch', requestData).then(function (result) {
+                _.extend(data.row, result.data);
+                $log.log(result);
+            });
+        };
+
+        var setEntered = function (data) {
+            var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
+            if (_.isObject(data.row[data.column])) {
+                data.row[data.column].entered = true;
+            } else if (!_.isObject(data.row[data.column]) && _.contains(simpleValues, data.column)) {
+                data.row[data.column] = {value: data.row[data.column], entered: true};
+            }
+        };
+
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
+            setEntered: setEntered,
+            calculateProductBatch: calculateProductBatch,
             recalculateSalt: recalculateSalt,
             recalculateStoich: recalculateStoich,
             recalculateStoichBasedOnBatch: recalculateStoichBasedOnBatch

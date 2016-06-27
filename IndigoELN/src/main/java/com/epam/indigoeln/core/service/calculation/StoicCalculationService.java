@@ -1,10 +1,12 @@
 package com.epam.indigoeln.core.service.calculation;
 
+import com.chemistry.enotebook.ProductCalculator;
 import com.chemistry.enotebook.StoichCalculator;
 import com.chemistry.enotebook.domain.*;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchTypeFactory;
-import com.epam.indigoeln.web.rest.dto.calculation.StoicBatchDTO;
+import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
+import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.StringValueDTO;
@@ -40,7 +42,7 @@ public class StoicCalculationService {
         ReactionStepModel reactionStepModel = createReactionStepModelForCalculation(stoicTableDTO);
 
         String changedField = stoicTableDTO.getChangedField();
-        StoicBatchDTO sourceBatch = stoicTableDTO.getStoicBatches().get(stoicTableDTO.getChangedBatchRowNumber());
+        BasicBatchModel sourceBatch = stoicTableDTO.getStoicBatches().get(stoicTableDTO.getChangedBatchRowNumber());
         MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
         callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
 
@@ -51,7 +53,7 @@ public class StoicCalculationService {
     }
 
     // mimic changes on the field by resetting value and calling setter
-    private void callRecalculatingSetterForChangedField(StoicBatchDTO sourceBatch, MonomerBatchModel batchModel, String changedField) {
+    private void callRecalculatingSetterForChangedField(BasicBatchModel sourceBatch, MonomerBatchModel batchModel, String changedField) {
         switch (changedField) {
             case "weight":
                 batchModel.setWeightAmountQuitly(new AmountModel(MASS, 0));
@@ -85,9 +87,9 @@ public class StoicCalculationService {
     }
 
     private ReactionStepModel createReactionStepModelForCalculation(StoicTableDTO data) {
-        List<StoicBatchDTO> stoicBatches = data.getStoicBatches();
-        List<StoicBatchDTO> intendedProducts = data.getIntendedProducts();
-        List<StoicBatchDTO> actualProducts = data.getActualProducts();
+        List<BasicBatchModel> stoicBatches = data.getStoicBatches();
+        List<BasicBatchModel> intendedProducts = data.getIntendedProducts();
+        List<BasicBatchModel> actualProducts = data.getActualProducts();
 
         BatchesList<MonomerBatchModel> stoicBatchesList = prepareStoicBatchesList(stoicBatches);
         ArrayList<BatchesList<ProductBatchModel>> productBatchesList = prepareProductBatchesList(intendedProducts, actualProducts);
@@ -98,10 +100,10 @@ public class StoicCalculationService {
         return reactionStepModel;
     }
 
-    private BatchesList<MonomerBatchModel> prepareStoicBatchesList(List<StoicBatchDTO> stoicBatches) {
+    private BatchesList<MonomerBatchModel> prepareStoicBatchesList(List<BasicBatchModel> stoicBatches) {
         BatchesList<MonomerBatchModel> stoicBatchesList = new BatchesList<>();
         int order = 0;
-        for (StoicBatchDTO sourceMonomerBatch : stoicBatches) {
+        for (BasicBatchModel sourceMonomerBatch : stoicBatches) {
             MonomerBatchModel monomer = createMonomerBatchModel(sourceMonomerBatch);
             monomer.setStoicTransactionOrder(order);
             stoicBatchesList.addBatch(monomer);
@@ -110,12 +112,12 @@ public class StoicCalculationService {
         return stoicBatchesList;
     }
 
-    private ArrayList<BatchesList<ProductBatchModel>> prepareProductBatchesList(List<StoicBatchDTO> intendedProducts, List<StoicBatchDTO> actualProducts) {
+    private ArrayList<BatchesList<ProductBatchModel>> prepareProductBatchesList(List<BasicBatchModel> intendedProducts, List<BasicBatchModel> actualProducts) {
         ArrayList<BatchesList<ProductBatchModel>> productBatchesList = new ArrayList<>();
         int intendedOrder = 0;
         int stoicOrder = 0;
         // intended products
-        for (StoicBatchDTO sourceProductBatch : intendedProducts) {
+        for (BasicBatchModel sourceProductBatch : intendedProducts) {
             ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
             BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
             productBatchModel.setBatchType(BatchType.INTENDED_PRODUCT);
@@ -126,7 +128,7 @@ public class StoicCalculationService {
         }
 
         // actual products
-        for (StoicBatchDTO sourceProductBatch : actualProducts) {
+        for (BasicBatchModel sourceProductBatch : actualProducts) {
             ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
             BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
             productBatchModel.setBatchType(BatchType.ACTUAL_PRODUCT);
@@ -139,31 +141,31 @@ public class StoicCalculationService {
     }
 
     private StoicTableDTO prepareStoicTableForResponse(ReactionStepModel reactionStepModel) {
-        List<StoicBatchDTO> stoicBatches = convertMonomerBatchesListForResponse(reactionStepModel.getBatchesFromStoicBatchesList());
-        List<StoicBatchDTO> intendedProducts = convertProductBatchesListForResponse(reactionStepModel.getIntendedProductBatches());
-        List<StoicBatchDTO> actualProducts = convertProductBatchesListForResponse(reactionStepModel.getActualProductBatches());
+        List<BasicBatchModel> stoicBatches = convertMonomerBatchesListForResponse(reactionStepModel.getBatchesFromStoicBatchesList());
+        List<BasicBatchModel> intendedProducts = convertProductBatchesListForResponse(reactionStepModel.getIntendedProductBatches());
+        List<BasicBatchModel> actualProducts = convertProductBatchesListForResponse(reactionStepModel.getActualProductBatches());
         return new StoicTableDTO(stoicBatches, intendedProducts, actualProducts);
     }
 
-    private List<StoicBatchDTO> convertProductBatchesListForResponse(List<ProductBatchModel> sourceBatches) {
-        List<StoicBatchDTO> myBatches = new ArrayList<>();
+    private List<BasicBatchModel> convertProductBatchesListForResponse(List<ProductBatchModel> sourceBatches) {
+        List<BasicBatchModel> myBatches = new ArrayList<>();
         for (ProductBatchModel sourceBatch : sourceBatches) {
-            StoicBatchDTO converdedBatch = convertBatchModelForResponse(sourceBatch, new StoicBatchDTO());
+            BasicBatchModel converdedBatch = createBatchModelForResponse(sourceBatch);
             converdedBatch.setYield(sourceBatch.getTheoreticalYieldPercentAmount().doubleValue());
             myBatches.add(converdedBatch);
         }
         return myBatches;
     }
 
-    private List<StoicBatchDTO> convertMonomerBatchesListForResponse(List<MonomerBatchModel> sourceBatches) {
-        List<StoicBatchDTO> myBatches = new ArrayList<>();
+    private List<BasicBatchModel> convertMonomerBatchesListForResponse(List<MonomerBatchModel> sourceBatches) {
+        List<BasicBatchModel> myBatches = new ArrayList<>();
         for (MonomerBatchModel sourceBatch : sourceBatches) {
-            myBatches.add(convertBatchModelForResponse(sourceBatch, new StoicBatchDTO()));
+            myBatches.add(createBatchModelForResponse(sourceBatch));
         }
         return myBatches;
     }
 
-    private MonomerBatchModel createMonomerBatchModel(StoicBatchDTO sourceBatch) {
+    private MonomerBatchModel createMonomerBatchModel(BasicBatchModel sourceBatch) {
         return new MonomerBatchModel(new AmountModel(MASS, sourceBatch.getMolWeight().getValue(), !sourceBatch.getMolWeight().isEntered()),
                 new AmountModel(MOLES, sourceBatch.getMol().getValue(), !sourceBatch.getMol().isEntered()),
                 new AmountModel(MASS, sourceBatch.getWeight().getValue(), !sourceBatch.getWeight().isEntered()),
@@ -179,7 +181,7 @@ public class StoicCalculationService {
                 new AmountModel(MOLES, sourceBatch.getTotalMoles().getValue(), !sourceBatch.getTotalMoles().isEntered()));
     }
 
-    private ProductBatchModel createProductBatchModelForCalculation(StoicBatchDTO sourceBatch) {
+    private ProductBatchModel createProductBatchModelForCalculation(BasicBatchModel sourceBatch) {
         return new ProductBatchModel(new AmountModel(MASS, sourceBatch.getMolWeight().getValue(), !sourceBatch.getMolWeight().isEntered()),
                 new AmountModel(MOLES, sourceBatch.getMol().getValue(), !sourceBatch.getMol().isEntered()),
                 new AmountModel(MASS, sourceBatch.getWeight().getValue(), !sourceBatch.getWeight().isEntered()),
@@ -198,7 +200,8 @@ public class StoicCalculationService {
                 new AmountModel(MOLES, sourceBatch.getTheoMoles().getValue(), !sourceBatch.getTheoMoles().isEntered()));
     }
 
-    private StoicBatchDTO convertBatchModelForResponse(BatchModel sourceBatch, StoicBatchDTO targetBatch) {
+    private BasicBatchModel createBatchModelForResponse(BatchModel sourceBatch) {
+        BasicBatchModel targetBatch = new BasicBatchModel();
         targetBatch.setMolWeight(new ScalarValueDTO(sourceBatch.getMolecularWeightAmount().doubleValue(), !sourceBatch.getMolecularWeightAmount().isCalculated())); //todo check unit type for mW (g/mol)
         targetBatch.setMol(new UnitValueDTO(sourceBatch.getMoleAmount().doubleValue(), sourceBatch.getMoleAmount().getUnit().getDisplayValue(), !sourceBatch.getMoleAmount().isCalculated())); // todo check, should be mass to volume?
         targetBatch.setMolarity(new UnitValueDTO(sourceBatch.getMolarAmount().doubleValue(), sourceBatch.getMolarAmount().getUnit().getDisplayValue(), !sourceBatch.getMolarAmount().isCalculated()));
@@ -219,4 +222,17 @@ public class StoicCalculationService {
 
         return targetBatch;
     }
+
+    public BasicBatchModel calculateProductBatch(ProductTableDTO productTableDTO) {
+        ProductCalculator productCalculator = new ProductCalculator();
+        BasicBatchModel rawBatch = productTableDTO.getProductBatch();
+        ProductBatchModel productBatch = createProductBatchModelForCalculation(rawBatch);
+        String changedField = productTableDTO.getChangedField();
+        productCalculator.calculateProductBatch(productBatch, rawBatch, changedField);
+
+        BasicBatchModel convertedBatch = createBatchModelForResponse(productBatch);
+        convertedBatch.setYield(productBatch.getTheoreticalYieldPercentAmount().doubleValue());
+        return convertedBatch;
+    }
+
 }

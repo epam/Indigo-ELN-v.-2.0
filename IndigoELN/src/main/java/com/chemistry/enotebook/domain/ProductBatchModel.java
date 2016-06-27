@@ -3,6 +3,7 @@ package com.chemistry.enotebook.domain;
 import com.chemistry.enotebook.experiment.common.units.Unit2;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
+import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ public class ProductBatchModel extends BatchModel {
     private AmountModel theoreticalYieldPercentAmount = new AmountModel(UnitType.SCALAR, "-1.0"); // -1 means not set.
     private AmountModel theoreticalWeightAmount = new AmountModel(UnitType.MASS);
     private AmountModel theoreticalMoleAmount = new AmountModel(UnitType.MOLES);
+
+    private int lastUpdatedProductType = UPDATE_TYPE_MOLES;
 
     public ProductBatchModel() {
         super.setBatchType(BatchType.INTENDED_PRODUCT);
@@ -157,6 +160,30 @@ public class ProductBatchModel extends BatchModel {
         return super.getTotalMolarity();
     }
 
+    public void setTotalMolarAmount(AmountModel totalMolarAmount) {
+        if (totalMolarAmount != null
+                && totalMolarAmount.GetValueInStdUnitsAsDouble() != 0.0) {
+            if (totalMolarAmount.getUnitType().getOrdinal() == UnitType.MOLAR
+                    .getOrdinal()) {
+                // Check to see if it is a unit change
+                if (getTotalMolarity() != null
+                        && !getTotalMolarity().equals(totalMolarAmount)) {
+                    boolean unitChange = BatchUtils.isUnitOnlyChanged(
+                            getTotalMolarity(), totalMolarAmount);
+                    getTotalMolarity().deepCopy(totalMolarAmount);
+                    if (!unitChange) {
+                        lastUpdatedProductType = BatchModel.UPDATE_TYPE_TOTAL_MOLARITY;
+                        //This includes recalcTotalAmounts() as well
+                        recalcAmounts();
+                        setModified(true);
+                    }
+                }
+            }
+        } else {
+            getTotalMolarity().setValue("0");
+        }
+    }
+
     // vb 2/2
     private void recalcTotalAmounts() {
         // Make sure we don't get into a loop!
@@ -250,6 +277,70 @@ public class ProductBatchModel extends BatchModel {
         this.getMoleAmount().SetValueInStdUnits(result, true);
         this.getMoleAmount().setUnit(unit);
         this.getMoleAmount().setCalculated(true);
+    }
+
+    public void setTotalWeightAmount(AmountModel weight) {
+        if (weight != null /*&& weight.GetValueInStdUnitsAsDouble() != 0.0*/) {
+            if (weight.getUnitType().getOrdinal() == UnitType.MASS.getOrdinal()) {
+                boolean unitChange = false;
+                // Check to see if it is a unit change
+                if (!weight.equals(this.getTotalWeight())) {
+                    unitChange = BatchUtils.isUnitOnlyChanged(weight, this
+                            .getTotalWeight());
+                    this.getTotalWeight().deepCopy(weight);
+                    if (!unitChange) {
+                        lastUpdatedProductType = BatchModel.UPDATE_TYPE_TOTAL_WEIGHT;
+                        // updateCalcFlags(weightAmount);
+                        setModified(true);
+                    }
+                }
+                if (!unitChange)
+                    //this includes recalcTotalAmounts();
+                    recalcAmounts();
+            }
+        } else {
+            this.getTotalWeight().setValue("0");
+        }
+    }
+
+    public void setTotalWeightAmountQuitly(AmountModel weight) {
+        if (weight != null) {
+            this.getTotalWeight().deepCopy(weight);
+        } else {
+            this.getTotalWeight().setValue("0");
+        }
+    }
+
+    public void setTotalVolumeAmount(AmountModel volume) {
+        if (volume != null /*&& volume.GetValueInStdUnitsAsDouble() != 0.0*/) {
+            if (volume.getUnitType().getOrdinal() == UnitType.VOLUME
+                    .getOrdinal()) {
+                boolean unitChange = false;
+                if (!this.getTotalVolume().equals(volume)) {
+                    unitChange = BatchUtils.isUnitOnlyChanged(this
+                            .getTotalVolume(), volume);
+                    this.getTotalVolume().deepCopy(volume);
+                    if (!unitChange) {
+                        lastUpdatedProductType = UPDATE_TYPE_TOTAL_VOLUME;
+                        // updateCalcFlags(volumeAmount);
+                        setModified(true);
+                    }
+                }
+                if (!unitChange)
+                    //This will trigger recalcTotalAmounts() as well
+                    recalcAmounts();
+            }
+        } else {
+            this.getTotalVolume().setValue("0");
+        }
+    }
+
+    public void setTotalVolumeAmountQuitly(AmountModel volume) {
+        if (volume != null) {
+            this.getTotalVolume().deepCopy(volume);
+        } else {
+            this.getTotalVolume().setValue("0");
+        }
     }
 
     @Override
