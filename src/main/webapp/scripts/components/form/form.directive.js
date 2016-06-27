@@ -367,17 +367,23 @@ angular.module('indigoeln')
             myReadonly: '=',
             myClasses: '@',
             myOnClick: '=',
+            myOnAdding: '=',
             myPlaceholder: '@',
-            myMaxTags: '='
+            myMaxTags: '=',
+            mySource: '='
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
+            if (tAttrs.mySource) {
+                var autoComplete = '<auto-complete min-length="1" source="mySource($query)">';
+                tElement.find('tags-input').append(autoComplete);
+            }
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        ' <tags-input ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" placeholder="{{myPlaceholder}}"' +
-        'max-tags="{{myMaxTags}}"></tags-input>' +
+        ' <tags-input ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" on-tag-adding="myOnAdding($tag)" placeholder="{{myPlaceholder}}"' +
+        'max-tags="{{myMaxTags}}" replace-spaces-with-dashes="false"></tags-input>' +
         '</div>' +
         '</div>'
     };

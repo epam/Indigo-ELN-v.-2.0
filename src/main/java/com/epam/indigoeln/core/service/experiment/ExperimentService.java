@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.service.experiment;
 
-import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
@@ -18,8 +17,6 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -196,8 +193,13 @@ public class ExperimentService {
 
         // Save new version
         Experiment newVersion = new Experiment();
-        String id = lastVersion.getId() + "_" + newExperimentVersion;
-        newVersion.setId(id);
+        String id;
+        if (lastVersion.getExperimentVersion() > 1) {
+            id = lastVersion.getId().split("_")[0];
+        } else {
+            id = lastVersion.getId();
+        }
+        newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
         newVersion.setTemplate(lastVersion.getTemplate());
