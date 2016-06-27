@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.model.Word;
 import com.epam.indigoeln.core.service.dictionary.DictionaryService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.DictionaryDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentDictionaryDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -41,14 +42,24 @@ public class DictionaryResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryResource.class);
 
     @Autowired
-    CustomDtoMapper dtoMapper;
+    private CustomDtoMapper dtoMapper;
 
     @Autowired
-    DictionaryService dictionaryService;
+    private DictionaryService dictionaryService;
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
+    /**
+     * GET /dictionaries/experiments -> get experiments dictionary
+     */
+    @ApiOperation(value = "Returns experiments dictionary.", produces = "application/json")
+    @RequestMapping(value = "/experiments", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ExperimentDictionaryDTO> getExperiments() {
+        LOGGER.debug("REST request to get dictionary for experiments");
+        User user = userService.getUserWithAuthorities();
+        return new ResponseEntity<>(dictionaryService.getExperiments(user), HttpStatus.OK);
+    }
 
     /**
      * GET /dictionaries/users -> get users dictionary
@@ -77,7 +88,7 @@ public class DictionaryResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> getDictionary(
             @ApiParam("Identifier of the dictionary.") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to get dictionary with id: {}", id);
         return dictionaryService.getDictionaryById(id)
                 .map(dict -> new ResponseEntity<>(dict, HttpStatus.OK))
@@ -108,12 +119,12 @@ public class DictionaryResource {
             @ApiParam("Page number.") @RequestParam(value = "page") Integer pageno,
             @ApiParam("Page size.") @RequestParam(value = "size") Integer size,
             @ApiParam("Search string.") @RequestParam(value = "search") String search
-        ) throws URISyntaxException {
+    ) throws URISyntaxException {
         LOGGER.debug("REST request to get all dictionaries");
         Page<DictionaryDTO> page = dictionaryService.getAllDictionaries(new PageRequest(pageno, size), search);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING);
         return new ResponseEntity<>(page.getContent().stream()
-            .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
+                .collect(Collectors.toCollection(LinkedList::new)), headers, HttpStatus.OK);
     }
 
     /**
@@ -125,7 +136,7 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity createDictionary(
             @ApiParam("Dictionary to create.") @RequestBody @Valid DictionaryDTO dictionaryDTO
-        )
+    )
             throws URISyntaxException {
         LOGGER.debug("REST request to create new dictionary: {}", dictionaryDTO);
         DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO);
@@ -141,12 +152,13 @@ public class DictionaryResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DictionaryDTO> updateRole(
             @ApiParam("Dictionary to create.") @RequestBody @Valid DictionaryDTO dictionaryDTO
-        ) {
+    ) {
         LOGGER.debug("REST request to update dictionary: {}", dictionaryDTO);
         DictionaryDTO updatedDictDTO = dictionaryService.updateDictionary(dictionaryDTO);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedDictDTO.getId());
         return ResponseEntity.ok().headers(headers).body(updatedDictDTO);
     }
+
     /**
      * DELETE  /dictionaries/:id -> Removes dictionary with specified id
      */
@@ -154,13 +166,12 @@ public class DictionaryResource {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteDictionary(
             @ApiParam("Id of the dictionary to delete.") @PathVariable String id
-        ) {
+    ) {
         LOGGER.debug("REST request to delete dictionary: {}", id);
         dictionaryService.deleteDictionary(id);
         HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
         return ResponseEntity.ok().headers(headers).build();
     }
-
 
 
 }

@@ -6,7 +6,6 @@ import com.epam.indigoeln.core.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
