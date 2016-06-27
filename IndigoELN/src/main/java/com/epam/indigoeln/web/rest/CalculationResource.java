@@ -2,6 +2,8 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.calculation.StoicCalculationService;
+import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
+import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.google.common.base.Strings;
@@ -164,5 +166,16 @@ public class CalculationResource {
     public ResponseEntity<StoicTableDTO> calculateStoicTableBasedOnBatch(@RequestBody StoicTableDTO stoicTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateStoicTableBasedOnBatch(stoicTableDTO));
     }
+
+    /**
+     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     */
+    @RequestMapping(value = "/product/calculate/batch",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BasicBatchModel> calculateProductBatch(@RequestBody ProductTableDTO productTableDTO) {
+        return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
+    }
+
 
 }

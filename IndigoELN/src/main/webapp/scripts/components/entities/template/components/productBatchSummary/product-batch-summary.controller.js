@@ -104,21 +104,36 @@ angular.module('indigoeln')
                     name: 'Total Weight',
                     type: 'unit',
                     width: '150px',
-                    unitItems: grams
+                    unitItems: grams,
+                    onClose: function (data) {
+                        CalculationService.setEntered(data);
+                        console.log(data);
+                        CalculationService.calculateProductBatch(data);
+                    }
                 },
                 {
                     id: 'totalVolume',
                     name: 'Total Volume',
                     type: 'unit',
                     width: '150px',
-                    unitItems: liters
+                    unitItems: liters,
+                    onClose: function (data) {
+                        CalculationService.setEntered(data);
+                        console.log(data);
+                        CalculationService.calculateProductBatch(data);
+                    }
                 },
                 {
                     id: 'totalMoles',
                     name: 'Total Moles',
                     type: 'unit',
                     width: '150px',
-                    unitItems: moles
+                    unitItems: moles,
+                    onClose: function (data) {
+                        CalculationService.setEntered(data);
+                        console.log(data);
+                        CalculationService.calculateProductBatch(data);
+                    }
                 },
                 {
                     id: 'theoWeight',
@@ -310,7 +325,7 @@ angular.module('indigoeln')
                                 batch = _.extend(batchToDuplicate, batch);
                             }
                             $scope.model.productBatchSummary.batches.push(batch);
-                            $rootScope.$broadcast('batch-summary-row-selected', batch);
+                            $scope.onRowSelected(batch);
                         });
 
                     });
@@ -330,32 +345,23 @@ angular.module('indigoeln')
                 requestNbkBatchNumber(latest, batchToDuplicate);
             };
 
-            var structureWatchers = [];
-            $scope.$watch('model.productBatchSummary.batches', function (newRows) {
-                _.each(structureWatchers, function (unsubscribe) {
-                    unsubscribe();
-                });
-                _.each(newRows, function (row) {
-                    structureWatchers.push($scope.$watch(function () {
-                        return row.structure ? row.structure.molfile : null;
-                    }, function (newMolFile) {
-                        var resetMolInfo = function () {
-                            row.molFormula = null;
-                            row.molWeight = null;
-                        };
-                        var getInfoCallback = function (molInfo) {
-                            row.molFormula = molInfo.data.molecularFormula;
-                            row.molWeight = row.molWeight || {};
-                            row.molWeight.value = molInfo.data.molecularWeight;
-                        };
-                        if (newMolFile) {
-                            CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
-                        } else {
-                            resetMolInfo();
-                        }
-                    }));
-                });
-            }, true);
+            var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
+                var resetMolInfo = function () {
+                    row.molFormula = null;
+                    row.molWeight = null;
+                };
+                var getInfoCallback = function (molInfo) {
+                    row.molFormula = molInfo.data.molecularFormula;
+                    row.molWeight = row.molWeight || {};
+                    row.molWeight.value = molInfo.data.molecularWeight;
+                    CalculationService.calculateProductBatch({row: row, column: ''});
+                };
+                if (row.structure && row.structure.molfile) {
+                    CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
+                } else {
+                    resetMolInfo();
+                }
+            });
 
             var onProductBatchSummaryRecalculated = $scope.$on('product-batch-summary-recalculated', function (event, data) {
                 if (data.length === $scope.model.productBatchSummary.batches.length) {
@@ -366,6 +372,7 @@ angular.module('indigoeln')
             });
             $scope.$on('$destroy', function () {
                 onProductBatchSummaryRecalculated();
+                onProductBatchStructureChanged();
             });
         }
     );
