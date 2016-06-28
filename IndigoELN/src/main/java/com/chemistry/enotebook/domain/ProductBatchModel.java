@@ -3,6 +3,7 @@ package com.chemistry.enotebook.domain;
 import com.chemistry.enotebook.experiment.common.units.Unit2;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
+import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 
@@ -59,6 +60,15 @@ public class ProductBatchModel extends BatchModel {
 
     public AmountModel getTheoreticalWeightAmount() {
         return theoreticalWeightAmount;
+    }
+
+    /**
+     * @param theoreticalWeightAmount
+     *            the theoreticalWeightAmount to set
+     */
+    public void setTheoreticalWeightAmount(AmountModel theoreticalWeightAmount) {
+        this.theoreticalWeightAmount = theoreticalWeightAmount;
+        this.modelChanged = true;
     }
 
     /**
@@ -197,8 +207,60 @@ public class ProductBatchModel extends BatchModel {
         // Molar type as last updated not considered here because moles is
         // considered driver
         // when there is a tie in flags.
-        int lastUpdatedProductType = UPDATE_TYPE_MOLES;
-        if (lastUpdatedProductType == UPDATE_TYPE_TOTAL_MOLARITY) {
+        if (lastUpdatedProductType == UPDATE_TYPE_TOTAL_VOLUME) { // && !
+            // this.getTotalVolume().isCalculated())
+            // {
+            // We need to update moles and weight from volume
+            // Molarity takes precedence over density
+            if (this.getMolarAmount().doubleValue() > 0) {
+                amts.add(this.getMolarAmount());
+                amts.add(this.getTotalVolume());
+                applySigFigRules(this.getMoleAmount(), amts);
+                amts.clear(); // important to clear the amts list
+                // Update mole amount
+                // Std unit for molar is mMolar
+                // mMoles = (mole/L) * mL
+                this.getMoleAmount().SetValueInStdUnits(
+                        this.getMolarAmount().GetValueInStdUnitsAsDouble()
+                                * this.getTotalVolume()
+                                .GetValueInStdUnitsAsDouble(), true);
+                getMoleAmount().setCalculated(true);
+                updateTotalWeightFromMoles();
+            } else if (this.getDensityAmount().doubleValue() > 0) {
+                // find governing sig figs
+                amts.add(this.getTotalVolume());
+                amts.add(this.getDensityAmount());
+                applySigFigRules(this.getTotalWeight(), amts);
+                amts.clear();// important to clear the amts list
+                // mg = (mL * g/mL)/ (1000 mg/g)
+                this.getTotalWeight().SetValueInStdUnits(1000 * this.getTotalVolume().GetValueInStdUnitsAsDouble()
+                        * this.getDensityAmount().GetValueInStdUnitsAsDouble(), true);
+                updateMolesFromTotalWeight();
+            }
+            updateTotalMolarity();
+        } else if (lastUpdatedProductType == UPDATE_TYPE_TOTAL_WEIGHT) {
+            updateMolesFromTotalWeight();
+            // Now that the solids are straightened out, we can calc the liquid
+            if (this.getMolarAmount().doubleValue() > 0) {
+                // update volume
+                amts.add(this.getMoleAmount());
+                amts.add(this.getMolarAmount());
+                if (this.getTotalVolume().isCalculated()
+                        && this.getTotalWeight().isCalculated())
+                    this.getTotalVolume().setSigDigits(
+                            CeNNumberUtils.DEFAULT_SIG_DIGITS);
+                else
+                    applySigFigRules(this.getTotalVolume(), amts);
+                amts.clear();// important to clear the amts list
+                this.getTotalVolume().SetValueInStdUnits(
+                        this.getMoleAmount().GetValueInStdUnitsAsDouble()
+                                / this.getMolarAmount()
+                                .GetValueInStdUnitsAsDouble(), true);
+                this.getTotalVolume().setCalculated(true);
+            }
+            // Calculate total Molarity
+            updateTotalMolarity();
+        } else if (lastUpdatedProductType == UPDATE_TYPE_TOTAL_MOLARITY) {
             updateMolesFromTotalWeight();
             // Now that the solids are straightened out, we can calc the liquid
             if (this.getTotalMolarAmount().doubleValue() > 0) {
@@ -231,6 +293,17 @@ public class ProductBatchModel extends BatchModel {
         inCalculation = false;
     }
 
+    private void updateTotalMolarity() {
+        if (getMolarAmount().doubleValue() == 0.0
+                && getMoleAmount().doubleValue() > 0.0
+                && getTotalVolume().doubleValue() > 0.0) {
+            double result = getMoleAmount().GetValueInStdUnitsAsDouble()
+                    / getTotalVolume().GetValueInStdUnitsAsDouble();
+            this.getTotalMolarAmount().SetValueInStdUnits(result, true);
+            this.getTotalMolarAmount().setCalculated(true);
+        }
+    }
+
     /**
      * Do we apply sig fig rules to calculations?
      */
@@ -240,12 +313,61 @@ public class ProductBatchModel extends BatchModel {
     }
 
     /**
+     * Applies SigFigs for the Amount Obeject. Checks if the standard sigfig
+     * rules to be applied, which checks for any user edits on Measured Amounts
+     * (Weight,Volume). else any other edit would lead to Default SigFig
+     * application on the Amount.
+     *
+     * @param amt
+     * @param amts
+     */
+    public void applySigFigRules(Amount2 amt, List<AmountModel> amts) {
+        if (shouldApplySigFigRules()) {
+            amt.setSigDigits(CeNNumberUtils
+                    .getSmallestSigFigsFromAmountModelList(amts));
+        } else {
+            if (shouldApplyDefaultSigFigs())
+                amt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+        }
+    }
+
+    /**
      *
      */
     public boolean shouldApplyDefaultSigFigs() {
         return (!this.getRxnEquivsAmount().isCalculated()
                 || !this.getMoleAmount().isCalculated() || !this
                 .getTotalMolarAmount().isCalculated());
+    }
+
+    private void updateTotalWeightFromMoles() {
+        this.getTotalWeight().setCalculated(true);
+        ArrayList<AmountModel> amts = new ArrayList<AmountModel>();
+        // weight = weight/mole * moles
+        // In this case moles are always mMoles and the default return of mole
+        // amount is in mmoles
+        // Hence when we setValue for weight we are doing so in mg and no
+        // conversion is necessary.
+        double result = getMolWgt()
+                * getMoleAmount().GetValueInStdUnitsAsDouble();
+        if (getPurityAmount().doubleValue() < 100d
+                && getPurityAmount().doubleValue() > 0.0) {
+            result = result / (getPurityAmount().doubleValue() / 100);
+            amts.add(this.getMoleAmount());
+            amts.add(this.getPurityAmount());
+            amts.add(this.getMolecularWeightAmount());
+        } else {
+            amts.add(this.getMoleAmount());
+            amts.add(this.getMolecularWeightAmount());
+        }
+        // Applies SignificantFigures to weightAmount
+        applySigFigRules(this.getTotalWeight(), amts);
+        amts.clear();
+
+        // We just got the result for mg * purity),
+        // Now we need to make sure the answer makes sense for the units of
+        // weight currently being used.
+        this.getTotalWeight().SetValueInStdUnits(result, true);
     }
 
     private void updateMolesFromTotalWeight() {

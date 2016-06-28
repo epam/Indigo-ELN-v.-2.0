@@ -57,14 +57,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     // uses constants from above
     private int lastUpdatedType = UPDATE_TYPE_MOLES;
 
-    public BatchModel() {
+    BatchModel() {
         this.compound = new ParentCompoundModel();
     }
 
-    public BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
-                      AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
-                      AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType,
-                      AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) {
+    BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
+               AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
+               AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType,
+               AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) {
         this.molecularWeightAmount = molecularWeightAmount;
         this.moleAmount = moleAmount;
         this.weightAmount = weightAmount;
@@ -179,6 +179,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         } else {
             moleAmount.setValue("0");
         }
+        setModelChanged(true);
     }
 
     public void setMoleAmountQuitly(AmountModel moles) {
@@ -199,9 +200,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setMolecularWeightAmount(AmountModel molecularWeight) {
-        if (!this.molecularWeightAmount.equals(molecularWeight)) {
-            this.molecularWeightAmount.deepCopy(molecularWeight);
-            setModified(true);
+        if (molecularWeightAmount != null) {
+            if (!this.molecularWeightAmount.equals(molecularWeight)) {
+                this.molecularWeightAmount.deepCopy(molecularWeight);
+                setModified(true);
+            }
         }
     }
 
@@ -242,6 +245,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             rxnEquivsAmount.deepCopy(equiv);
             updateCalcFlags(rxnEquivsAmount);
             setModified(true);
+        } else if (equiv == null) {
+            this.rxnEquivsAmount.setValue("1.00");
         }
     }
 

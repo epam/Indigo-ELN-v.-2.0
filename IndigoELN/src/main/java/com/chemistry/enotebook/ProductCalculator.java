@@ -28,6 +28,7 @@ public class ProductCalculator {
         batch.recalcAmounts();
         //Sync all units
         ArrayList objectList = new ArrayList();
+        objectList.add(batch);
         syncUnitsAndSigDigits(objectList, amount, WEIGHT_AMOUNT);
     }
 
@@ -38,10 +39,11 @@ public class ProductCalculator {
         batch.recalcAmounts();
         //Sync all units
         ArrayList objectList = new ArrayList();
+        objectList.add(batch);
         syncUnitsAndSigDigits(objectList, amount, VOLUME_AMOUNT);
     }
 
-    private static void setTotalAmountMadeMoles(BatchModel batch, AmountModel totalMolesAmountModel) {
+    private static void setTotalMoles(BatchModel batch, AmountModel totalMolesAmountModel) {
         double totalWeightInStdUnits = totalMolesAmountModel.GetValueInStdUnitsAsDouble() * batch.getMolWgt();
         AmountModel newTotalWeightAmountModel = new AmountModel(MASS, totalWeightInStdUnits);
         newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles. Total wt unit takes precedence.
@@ -105,9 +107,9 @@ public class ProductCalculator {
                 amount = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered());
                 setTotalAmountMadeVolume(batch, amount);
                 break;
-            case "totalMoles":
-                amount = new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTheoMoles().isEntered());
-                setTotalAmountMadeMoles(batch, amount);
+            case "mol":
+                amount = new AmountModel(MOLES, rawBatch.getMol().getValue(), !rawBatch.getMol().isEntered());
+                setTotalMoles(batch, amount);
                 break;
             default:
                 batch.recalcAmounts();
