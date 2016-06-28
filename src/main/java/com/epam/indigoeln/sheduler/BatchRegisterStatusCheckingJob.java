@@ -1,13 +1,10 @@
 package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
-import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.registration.RegistrationService;
-import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.mongodb.BasicDBObject;
@@ -19,9 +16,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 public class BatchRegisterStatusCheckingJob {
@@ -33,8 +31,6 @@ public class BatchRegisterStatusCheckingJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchRegisterStatusCheckingJob.class);
 
-    private static final long DELAY = 1000 * 60L; // 1 minute
-
     @Autowired
     private RegistrationService registrationService;
 
@@ -44,7 +40,7 @@ public class BatchRegisterStatusCheckingJob {
     @Autowired
     private SimpMessagingTemplate template;
 
-    @Scheduled(fixedDelay = DELAY)
+    @Scheduled(fixedRateString = "${schedule.batch.register.status.check.rate:60}000")
     public void execute() {
         LOGGER.debug("Batch registration status checking job started");
         final List<Experiment> experiments = experimentRepository.findAll();
