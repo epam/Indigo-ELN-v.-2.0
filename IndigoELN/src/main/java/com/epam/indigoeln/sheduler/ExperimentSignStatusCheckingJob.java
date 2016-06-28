@@ -22,8 +22,6 @@ public class ExperimentSignStatusCheckingJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExperimentSignStatusCheckingJob.class);
 
-    private static final long DELAY = 1000 * 60L; // 1 minute
-
     @Autowired
     private SignatureService signatureService;
 
@@ -33,7 +31,7 @@ public class ExperimentSignStatusCheckingJob {
     @Autowired
     private SimpMessagingTemplate template;
 
-    @Scheduled(fixedDelay = DELAY)
+    @Scheduled(fixedRateString = "${schedule.experiment.sign.status.check.rate:60}000")
     public void execute() {
         LOGGER.debug("Experiment sign status checking job started");
         final List<Experiment> experiments = experimentRepository.findByStatusIn(Arrays.asList(ExperimentStatus.SUBMITTED,
