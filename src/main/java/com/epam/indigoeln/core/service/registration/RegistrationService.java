@@ -106,7 +106,12 @@ public class RegistrationService {
                     });
 
             batches.keySet().stream().forEach(
-                    b -> b.setRegistrationStatus(registrationStatus.getStatus().toString())
+                    b -> {
+                        b.setRegistrationStatus(registrationStatus.getStatus().toString());
+                        if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
+                            b.setRegistrationDate(new Date());
+                        }
+                    }
             );
 
             componentRepository.save(new HashSet<>(batches.values()));
@@ -191,12 +196,12 @@ public class RegistrationService {
             delegate.put("registrationJobId", registrationJobId);
         }
 
-        public String getRegistrationRepositoryId() {
-            return delegate.getString("registrationRepositoryId");
-        }
-
         public void setRegistrationRepositoryId(String registrationRepositoryId) {
             delegate.put("registrationRepositoryId", registrationRepositoryId);
+        }
+
+        public void setRegistrationDate(Date registrationDate) {
+            delegate.put("registrationDate", registrationDate);
         }
 
     }

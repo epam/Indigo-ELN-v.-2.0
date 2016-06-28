@@ -237,7 +237,7 @@ angular.module('indigoeln')
                     id: 'structureComments', name: 'Structure Comments',
                     type: 'input'
                 },
-                {id: 'regDate', name: 'Registration Date'},
+                {id: 'registrationDate', name: 'Registration Date'},
                 {id: 'registrationStatus', name: 'Registration Status'}
             ];
 
@@ -278,7 +278,7 @@ angular.module('indigoeln')
 
             $scope.$watch('isHasRegService', function (val) {
                 _.findWhere($scope.columns, {id: 'conversationalBatch'}).isVisible = val;
-                _.findWhere($scope.columns, {id: 'regDate'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
             });
         RegistrationService.info({}, function (info) {
