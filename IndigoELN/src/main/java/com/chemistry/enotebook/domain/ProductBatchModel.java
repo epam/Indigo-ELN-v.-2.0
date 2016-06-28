@@ -3,6 +3,7 @@ package com.chemistry.enotebook.domain;
 import com.chemistry.enotebook.experiment.common.units.Unit2;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
+import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 
@@ -59,6 +60,15 @@ public class ProductBatchModel extends BatchModel {
 
     public AmountModel getTheoreticalWeightAmount() {
         return theoreticalWeightAmount;
+    }
+
+    /**
+     * @param theoreticalWeightAmount
+     *            the theoreticalWeightAmount to set
+     */
+    public void setTheoreticalWeightAmount(AmountModel theoreticalWeightAmount) {
+        this.theoreticalWeightAmount = theoreticalWeightAmount;
+        this.modelChanged = true;
     }
 
     /**
@@ -300,6 +310,25 @@ public class ProductBatchModel extends BatchModel {
     public boolean shouldApplySigFigRules() {
         return (!getTotalWeight().isCalculated() || !getTotalVolume()
                 .isCalculated());
+    }
+
+    /**
+     * Applies SigFigs for the Amount Obeject. Checks if the standard sigfig
+     * rules to be applied, which checks for any user edits on Measured Amounts
+     * (Weight,Volume). else any other edit would lead to Default SigFig
+     * application on the Amount.
+     *
+     * @param amt
+     * @param amts
+     */
+    public void applySigFigRules(Amount2 amt, List<AmountModel> amts) {
+        if (shouldApplySigFigRules()) {
+            amt.setSigDigits(CeNNumberUtils
+                    .getSmallestSigFigsFromAmountModelList(amts));
+        } else {
+            if (shouldApplyDefaultSigFigs())
+                amt.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+        }
     }
 
     /**
