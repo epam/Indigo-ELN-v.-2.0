@@ -46,6 +46,11 @@ public class NotebookService {
     @Autowired
     private CustomDtoMapper dtoMapper;
 
+    private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
+        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
+                notebook.getAccessList(), userId) != null).collect(Collectors.toList());
+    }
+
     public List<TreeNodeDTO> getAllNotebookTreeNodes(String projectId) {
         return getAllNotebookTreeNodes(projectId, null);
     }
@@ -88,7 +93,7 @@ public class NotebookService {
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
         List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
             notebookRepository.findAllIgnoreChildren() :
-            notebookRepository.findByUserIdAndPermissions(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
+                notebookRepository.findByUserIdAndPermissionsShort(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
         return notebooks.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
 
@@ -122,7 +127,7 @@ public class NotebookService {
         // Check of EntityAccess (User must have "Create Sub-Entity" permission in project access list,
         // or must have CONTENT_EDITOR authority)
         if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(),
-                    UserPermission.CREATE_SUB_ENTITY)) {
+                UserPermission.CREATE_SUB_ENTITY)) {
             throw OperationDeniedException.createProjectSubEntityCreateOperation(project.getId());
         }
 
@@ -223,12 +228,6 @@ public class NotebookService {
             UserPermission permission = PermissionUtil.findPermissionsByUserId(e.getAccessList(), userId);
             return permission != null;
         }).count() == 0;
-    }
-
-
-    private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
-        return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
-                notebook.getAccessList(), userId) != null).collect(Collectors.toList());
     }
 
     private Notebook saveNotebookAndHandleError(Notebook notebook) {
