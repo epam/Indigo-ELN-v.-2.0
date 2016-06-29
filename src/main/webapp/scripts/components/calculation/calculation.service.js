@@ -77,7 +77,7 @@ angular.module('indigoeln')
             var config = getSaltConfig(reagent);
             $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
                 .then(function (result) {
-                    callback(reagent, result);
+                    callback(result);
                 });
         };
 
