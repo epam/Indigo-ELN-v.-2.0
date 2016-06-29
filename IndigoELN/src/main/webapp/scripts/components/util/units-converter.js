@@ -20,6 +20,12 @@
     };
 
     unitConverter.prototype.val = function () {
+        if (!this.currentUnit && this.targetUnit) {
+            this.currentUnit = table[this.targetUnit].base;
+        }
+        if (!this.targetUnit && this.currentUnit) {
+            this.targetUnit = table[this.currentUnit].base;
+        }
         // first, convert from the current value to the base unit
         var target = table[this.targetUnit];
         var current = table[this.currentUnit];

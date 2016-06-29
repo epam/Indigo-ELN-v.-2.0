@@ -81,7 +81,9 @@ angular.module('indigoeln')
             myValidationMinlength: '@',
             myValidationPattern: '@',
             myValidationPatternText: '@',
-            myClasses: '@'
+            myClasses: '@',
+            myParsers: '=',
+            myFormatters: '='
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
@@ -121,7 +123,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model="myModel" ng-readonly="myReadonly"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -129,6 +131,24 @@ angular.module('indigoeln')
         '</div>' +
         '</div>' +
         '</div>'
+    };
+}).directive('myParsersFormatters', function () {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        scope: {
+            myParsersFormatters: '='
+        },
+        link: function (scope, element, attrs, ngModel) {
+            //model -> view
+            _.each(scope.myParsersFormatters.myFormatters, function (i) {
+                ngModel.$formatters.push(i);
+            });
+            //view -> model
+            _.each(scope.myParsersFormatters.myParsers, function (i) {
+                ngModel.$parsers.push(i);
+            });
+        }
     };
 }).directive('myCheckbox', function (formUtils) {
     return {

@@ -46,6 +46,12 @@ angular.module('indigoeln')
                 var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
                 $scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
                     'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
+                $scope.unitParsers = [function (viewValue) {
+                    return $u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
+                }];
+                $scope.unitFormatters = [function (modelValue) {
+                    return $u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val();
+                }];
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
         };

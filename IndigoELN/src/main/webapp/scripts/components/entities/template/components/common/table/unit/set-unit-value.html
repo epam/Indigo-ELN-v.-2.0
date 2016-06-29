@@ -8,7 +8,8 @@
             <div class="row">
                 <div class="col-xs-12" style="margin-bottom: 0">
                     <my-input my-label="Value" my-model="value" my-input-group="append"
-                              my-validation-required="true">
+                              my-validation-required="true"
+                              my-parsers="unitParsers" my-formatters="unitFormatters">
                         <div class="btn-group" uib-dropdown ng-init="initUnit()">
                             <button type="button" class="btn btn-info"
                                     aria-haspopup="true"

@@ -4,18 +4,14 @@
 angular.module('indigoeln')
     .factory('unitService', function ($uibModal) {
 
-        var convertUnit = function (name, item) {
-            if (!item || item.unit === name) {
-                return;
-            }
-            item.value = $u(item.value, item.unit).as(name).val();
+        var setUnit = function (name, item) {
             item.unit = name;
         };
 
         var toUnitNameAction = function (unit) {
             return {
                 name: unit,
-                onClick: convertUnit.bind(null, unit)
+                onClick: setUnit.bind(null, unit)
             };
         };
 
@@ -24,7 +20,7 @@ angular.module('indigoeln')
                 name: 'Set Unit ' + unit,
                 action: function (id) {
                     _.each(rows, function (row) {
-                        convertUnit(unit, row[id]);
+                        setUnit(unit, row[id]);
                     });
                 }
             };
