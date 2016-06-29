@@ -4,19 +4,7 @@ angular.module('indigoeln')
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
 
         var setDefaultValues = function (batches) {
-            if (_.isObject(batches)) {
-                _.each(batches, function (value, key) {
-                    if (_.isObject(value)) {
-                        value.entered = value.entered || false;
-                    } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
-                        // TODO this can be deleted after database drop
-                        batches[key] = {value: value, entered: false};
-                    } else if (_.isNull(value)) {
-                        batches[key] = undefined; // because _.defaults omits nulls
-                    }
-                });
-                return _.defaults(batches, defaultBatch);
-            } else {
+            if (_.isArray(batches)) {
                 return _.map(batches, function (batch) {
                     _.each(batch, function (value, key) {
                         if (_.isObject(value)) {
@@ -30,6 +18,18 @@ angular.module('indigoeln')
                     });
                     return _.defaults(batch, defaultBatch);
                 });
+            } else if (_.isObject(batches)) {
+                _.each(batches, function (value, key) {
+                    if (_.isObject(value)) {
+                        value.entered = value.entered || false;
+                    } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                        // TODO this can be deleted after database drop
+                        batches[key] = {value: value, entered: false};
+                    } else if (_.isNull(value)) {
+                        batches[key] = undefined; // because _.defaults omits nulls
+                    }
+                });
+                return _.defaults(batches, defaultBatch);
             }
         };
 
@@ -130,10 +130,32 @@ angular.module('indigoeln')
             }
         };
 
+        var resetValuesToDefault = function (values, batch) {
+            var defaultBatch = AppValues.getDefaultBatch();
+            _.each(values, function (value) {
+                batch[value] = angular.copy(defaultBatch[value]);
+            });
+        };
+
+        var setValuesReadonly = function (values, batch) {
+            _.each(values, function (value) {
+                batch[value].readonly = true;
+            });
+        };
+
+        var setValuesEditable = function (values, batch) {
+            _.each(values, function (value) {
+                batch[value].readonly = false;
+            });
+        };
+        
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
             setEntered: setEntered,
+            resetValuesToDefault: resetValuesToDefault,
+            setValuesReadonly: setValuesReadonly,
+            setValuesEditable: setValuesEditable,
             calculateProductBatch: calculateProductBatch,
             recalculateSalt: recalculateSalt,
             recalculateStoich: recalculateStoich,

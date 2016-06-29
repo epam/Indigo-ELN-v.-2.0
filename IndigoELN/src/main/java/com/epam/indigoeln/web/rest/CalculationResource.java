@@ -168,7 +168,7 @@ public class CalculationResource {
     }
 
     /**
-     * PUT /stoich/calculate -> calcalate stoich table based on batch
+     * PUT /product/calculate/batch -> calcalate batch from product batch summary table
      */
     @RequestMapping(value = "/product/calculate/batch",
             method = RequestMethod.PUT,

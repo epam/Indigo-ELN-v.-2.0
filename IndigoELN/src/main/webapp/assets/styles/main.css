@@ -796,3 +796,9 @@ html {
 .table .checkbox {
     margin: 0;
 }
+
+.not-editable {
+    text-decoration: none;
+    color: black;
+    cursor: default;
+}
