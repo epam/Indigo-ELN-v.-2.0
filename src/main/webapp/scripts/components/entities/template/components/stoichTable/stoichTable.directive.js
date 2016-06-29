@@ -43,6 +43,7 @@ angular.module('indigoeln')
                             if (source) {
                                 _.extend(row, source.details);
                                 row.rxnRole = row.rxnRole || {name: 'REACTANT'};
+                                CalculationService.recalculateStoich(initDataForCalculation());
                             }
                         });
                 }
@@ -282,7 +283,6 @@ angular.module('indigoeln')
                         reagent.molWeight = reagent.molWeight || {};
                         reagent.molWeight.value = result.data.molecularWeight;
                     }
-
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
