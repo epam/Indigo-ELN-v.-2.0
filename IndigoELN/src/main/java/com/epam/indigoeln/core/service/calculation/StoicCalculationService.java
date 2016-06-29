@@ -61,7 +61,8 @@ public class StoicCalculationService {
                 break;
             case "volume":
                 batchModel.setVolumeAmountQuitly(new AmountModel(VOLUME, 0));
-                batchModel.setVolumeAmount(new AmountModel(VOLUME, sourceBatch.getVolume().getValue(), !sourceBatch.getVolume().isEntered()));
+                AmountModel volume = new AmountModel(VOLUME, sourceBatch.getVolume().getValue(), !sourceBatch.getVolume().isEntered());
+                batchModel.setVolumeAmount(volume);
                 break;
             case "molarity":
                 batchModel.setMolarAmountQuitly(new AmountModel(MOLAR, 0));
@@ -117,25 +118,29 @@ public class StoicCalculationService {
         int intendedOrder = 0;
         int stoicOrder = 0;
         // intended products
-        for (BasicBatchModel sourceProductBatch : intendedProducts) {
-            ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
-            BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
-            productBatchModel.setBatchType(BatchType.INTENDED_PRODUCT);
-            productBatchModel.setIntendedBatchAdditionOrder(intendedOrder);
-            productBatches.addBatch(productBatchModel);
-            productBatchesList.add(productBatches);
-            intendedOrder++;
+        if (intendedProducts != null) {
+            for (BasicBatchModel sourceProductBatch : intendedProducts) {
+                ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
+                BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
+                productBatchModel.setBatchType(BatchType.INTENDED_PRODUCT);
+                productBatchModel.setIntendedBatchAdditionOrder(intendedOrder);
+                productBatches.addBatch(productBatchModel);
+                productBatchesList.add(productBatches);
+                intendedOrder++;
+            }
         }
 
         // actual products
-        for (BasicBatchModel sourceProductBatch : actualProducts) {
-            ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
-            BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
-            productBatchModel.setBatchType(BatchType.ACTUAL_PRODUCT);
-            productBatchModel.setStoicTransactionOrder(stoicOrder);
-            productBatches.addBatch(productBatchModel);
-            productBatchesList.add(productBatches);
-            stoicOrder++;
+        if (actualProducts != null) {
+            for (BasicBatchModel sourceProductBatch : actualProducts) {
+                ProductBatchModel productBatchModel = createProductBatchModelForCalculation(sourceProductBatch);
+                BatchesList<ProductBatchModel> productBatches = new BatchesList<>();
+                productBatchModel.setBatchType(BatchType.ACTUAL_PRODUCT);
+                productBatchModel.setStoicTransactionOrder(stoicOrder);
+                productBatches.addBatch(productBatchModel);
+                productBatchesList.add(productBatches);
+                stoicOrder++;
+            }
         }
         return productBatchesList;
     }

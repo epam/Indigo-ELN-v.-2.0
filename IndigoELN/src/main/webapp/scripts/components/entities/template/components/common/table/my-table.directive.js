@@ -42,10 +42,16 @@ angular.module('indigoeln')
                     return _.isNull(obj) || _.isUndefined(obj) || obj === 0 ||
                         (_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0));
                 };
-                $scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
-                var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
-                $scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
-                    'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
+                if ($scope.myColumn.hasPopover) {
+                    $scope.$watch(function () {
+                        return $scope.myRow[$scope.myColumn.id];
+                    }, function () {
+                        $scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
+                        var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
+                        $scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
+                            'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
+                    });
+                }
                 $scope.unitParsers = [function (viewValue) {
                     return $u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
                 }];
