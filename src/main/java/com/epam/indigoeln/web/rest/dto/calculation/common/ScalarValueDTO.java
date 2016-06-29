@@ -4,13 +4,15 @@ public class ScalarValueDTO {
 
     private double value;
     private boolean entered;
+    private boolean readonly;
 
     public ScalarValueDTO() {
     }
 
-    public ScalarValueDTO(double value, boolean entered) {
+    public ScalarValueDTO(double value, boolean entered, boolean readonly) {
         this.value = value;
         this.entered = entered;
+        this.readonly = readonly;
     }
 
     public double getValue() {
@@ -27,5 +29,13 @@ public class ScalarValueDTO {
 
     public void setEntered(boolean entered) {
         this.entered = entered;
+    }
+
+    public boolean isReadonly() {
+        return readonly;
+    }
+
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
     }
 }

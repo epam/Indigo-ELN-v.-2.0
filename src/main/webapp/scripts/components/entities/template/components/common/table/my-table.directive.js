@@ -13,6 +13,7 @@ angular.module('indigoeln')
                 myRowIndex: '='
             },
             link: function ($scope, iElement, iAttrs, myTableCtrl) {
+                var oldVal;
                 $scope.toggleEditable = function () {
                     return myTableCtrl.toggleEditable($scope.myColumn.id, $scope.myRowIndex);
                 };
@@ -24,11 +25,19 @@ angular.module('indigoeln')
                         $scope.myColumn.onClose({
                             model: $scope.myRow[$scope.myColumn.id],
                             row: $scope.myRow,
-                            column: $scope.myColumn.id
+                            column: $scope.myColumn.id,
+                            oldVal: oldVal
                         });
                     }
                     return myTableCtrl.toggleEditable(null, null, null);
                 };
+                if ($scope.myColumn.needOldVal) {
+                    $scope.$watch(function () {
+                        return $scope.myRow[$scope.myColumn.id];
+                    }, function (newVal, prevVal) {
+                        oldVal = prevVal;
+                    });
+                }
                 $scope.isEmpty = function (obj) {
                     return _.isNull(obj) || _.isUndefined(obj) || obj === 0 ||
                         (_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0));

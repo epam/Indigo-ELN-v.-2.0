@@ -5,14 +5,16 @@ public class UnitValueDTO {
     private double value;
     private String unit;
     private boolean entered;
+    private boolean readonly;
 
     public UnitValueDTO() {
     }
 
-    public UnitValueDTO(double value, String unit, boolean entered) {
+    public UnitValueDTO(double value, String unit, boolean entered, boolean readonly) {
         this.value = value;
         this.unit = unit;
         this.entered = entered;
+        this.readonly = readonly;
     }
 
     public double getValue() {
@@ -37,5 +39,13 @@ public class UnitValueDTO {
 
     public void setEntered(boolean entered) {
         this.entered = entered;
+    }
+
+    public boolean isReadonly() {
+        return readonly;
+    }
+
+    public void setReadonly(boolean readonly) {
+        this.readonly = readonly;
     }
 }

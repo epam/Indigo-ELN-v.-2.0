@@ -117,6 +117,7 @@ angular.module('indigoeln')
                         id: 'rxnRole',
                         name: 'Rxn Role',
                         type: 'select',
+                        needOldVal: true,
                         values: function () {
                             return rxnValues;
                         }
@@ -234,6 +235,16 @@ angular.module('indigoeln')
                             onClose: function (data) {
                                 CalculationService.setEntered(data);
                                 data = initDataForCalculation(data);
+                                if (column.id === 'rxnRole') {
+                                    if (data.model.name === 'SOLVENT') {
+                                        var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
+                                        CalculationService.resetValuesToDefault(valuesToDefault, data.row);
+                                        CalculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
+                                    } else if (data.model.name !== 'SOLVENT' && data.oldVal.name === 'SOLVENT') {
+                                        CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
+                                        CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
+                                    }
+                                }
                                 console.log(data);
                                 CalculationService.recalculateStoichBasedOnBatch(data, false);
                             }
