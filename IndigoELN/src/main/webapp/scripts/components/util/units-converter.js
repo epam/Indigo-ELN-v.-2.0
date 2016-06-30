@@ -21,10 +21,10 @@
 
     unitConverter.prototype.val = function () {
         if (!this.currentUnit && this.targetUnit && table[this.targetUnit]) {
-            this.currentUnit = table[this.targetUnit].base;
+            this.currentUnit = table[this.targetUnit].indigoBase;
         }
         if (!this.targetUnit && this.currentUnit && table[this.currentUnit]) {
-            this.targetUnit = table[this.currentUnit].base;
+            this.targetUnit = table[this.currentUnit].indigoBase;
         }
         if (!this.currentUnit || !this.targetUnit) {
             return this.value;
@@ -44,19 +44,24 @@
     unitConverter.prototype.debug = function () {
         return this.value + ' ' + this.currentUnit + ' is ' + this.val() + ' ' + this.targetUnit;
     };
-    unitConverter.addUnit = function (baseUnit, actualUnit, multiplier) {
-        table[actualUnit] = {base: baseUnit, actual: actualUnit, multiplier: multiplier};
+    unitConverter.addUnit = function (baseUnit, actualUnit, multiplier, indigoBase) {
+        table[actualUnit] = {base: baseUnit, actual: actualUnit, multiplier: multiplier, indigoBase: indigoBase};
     };
 
     var prefixes = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y'];
     var factors = [24, 21, 18, 15, 12, 9, 6, 3, 2, 1, 0, -1, -2, -3, -6, -9, -12, -15, -18, -21, -24];
     // SI units only, that follow the mg/kg/dg/cg type of format
-    var units = ['g', 'b', 'l', 'm', 'mol', 'M'];
+    var units = [
+        {si: 'g', indigoBase: 'mg'}, {si: 'b', indigoBase: 'b'}, {si: 'l', indigoBase: 'ml'}, {
+            si: 'm',
+            indigoBase: 'm'
+        }, {si: 'mol', indigoBase: 'mmol'}, {si: 'M', indigoBase: 'M'}];
 
     for (var j = 0; j < units.length; j++) {
-        var base = units[j];
+        var base = units[j].si;
+        var indigoBase = units[j].indigoBase;
         for (var i = 0; i < prefixes.length; i++) {
-            unitConverter.addUnit(base, prefixes[i] + base, Math.pow(10, factors[i]));
+            unitConverter.addUnit(base, prefixes[i] + base, Math.pow(10, factors[i]), indigoBase);
         }
     }
 
@@ -67,7 +72,10 @@
     unitConverter.addUnit('g', 'pound', 453.59237);
     unitConverter.addUnit('g', 'lb', 453.59237);
 
-
+    unitConverter.prototype.toBase = function (unit) {
+        return table[unit] ? table[unit].base : unit;
+    };
+    
     window.$u = function (value, unit) {
         return new window.unitConverter(value, unit);
     };

@@ -174,39 +174,43 @@ public class StoicCalculationService {
         return myBatches;
     }
 
-    private MonomerBatchModel createMonomerBatchModel(BasicBatchModel sourceBatch) {
-        return new MonomerBatchModel(new AmountModel(MASS, sourceBatch.getMolWeight().getValue(), !sourceBatch.getMolWeight().isEntered()),
-                new AmountModel(MOLES, sourceBatch.getMol().getValue(), !sourceBatch.getMol().isEntered()),
-                new AmountModel(MASS, sourceBatch.getWeight().getValue(), !sourceBatch.getWeight().isEntered()),
-                new AmountModel(VOLUME, sourceBatch.getVolume().getValue(), !sourceBatch.getVolume().isEntered()),
-                new AmountModel(DENSITY, sourceBatch.getDensity().getValue(), !sourceBatch.getDensity().isEntered()),
-                new AmountModel(MOLAR, sourceBatch.getMolarity().getValue(), !sourceBatch.getMolarity().isEntered()),
-                new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(), !sourceBatch.getStoicPurity().isEntered()),
-                new AmountModel(SCALAR, sourceBatch.getEq().getValue(), !sourceBatch.getEq().isEntered()),
-                sourceBatch.isLimiting(),
-                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()),
-                new AmountModel(VOLUME, sourceBatch.getTotalVolume().getValue(), !sourceBatch.getTotalVolume().isEntered()),
-                new AmountModel(MASS, sourceBatch.getTotalWeight().getValue(), !sourceBatch.getTotalWeight().isEntered()),
-                new AmountModel(MOLES, sourceBatch.getTotalMoles().getValue(), !sourceBatch.getTotalMoles().isEntered()));
+    private MonomerBatchModel createMonomerBatchModel(BasicBatchModel rawBatch) {
+        MonomerBatchModel batch = new MonomerBatchModel(new AmountModel(MASS, rawBatch.getMolWeight().getValue(), !rawBatch.getMolWeight().isEntered()),
+                new AmountModel(MOLES, rawBatch.getMol().getValue(), !rawBatch.getMol().isEntered()),
+                new AmountModel(MASS, rawBatch.getWeight().getValue(), !rawBatch.getWeight().isEntered()),
+                new AmountModel(VOLUME, rawBatch.getVolume().getValue(), !rawBatch.getVolume().isEntered()),
+                new AmountModel(DENSITY, rawBatch.getDensity().getValue(), !rawBatch.getDensity().isEntered()),
+                new AmountModel(MOLAR, rawBatch.getMolarity().getValue(), !rawBatch.getMolarity().isEntered()),
+                new AmountModel(SCALAR, rawBatch.getStoicPurity().getValue(), !rawBatch.getStoicPurity().isEntered()),
+                new AmountModel(SCALAR, rawBatch.getEq().getValue(), !rawBatch.getEq().isEntered()),
+                rawBatch.isLimiting(),
+                BatchTypeFactory.getBatchType(rawBatch.getRxnRole().getName()),
+                new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered()),
+                new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered()),
+                new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTotalMoles().isEntered()));
+        batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
+        return batch;
     }
 
-    private ProductBatchModel createProductBatchModelForCalculation(BasicBatchModel sourceBatch) {
-        return new ProductBatchModel(new AmountModel(MASS, sourceBatch.getMolWeight().getValue(), !sourceBatch.getMolWeight().isEntered()),
-                new AmountModel(MOLES, sourceBatch.getMol().getValue(), !sourceBatch.getMol().isEntered()),
-                new AmountModel(MASS, sourceBatch.getWeight().getValue(), !sourceBatch.getWeight().isEntered()),
-                new AmountModel(VOLUME, sourceBatch.getVolume().getValue(), !sourceBatch.getVolume().isEntered()),
-                new AmountModel(DENSITY, sourceBatch.getDensity().getValue(), !sourceBatch.getDensity().isEntered()),
-                new AmountModel(MOLAR, sourceBatch.getMolarity().getValue(), !sourceBatch.getMolarity().isEntered()),
-                new AmountModel(SCALAR, sourceBatch.getStoicPurity().getValue(), !sourceBatch.getStoicPurity().isEntered()),
-                new AmountModel(SCALAR, sourceBatch.getEq().getValue(), !sourceBatch.getEq().isEntered()),
-                sourceBatch.isLimiting(),
-                BatchTypeFactory.getBatchType(sourceBatch.getRxnRole().getName()),
-                new AmountModel(VOLUME, sourceBatch.getTotalVolume().getValue(), !sourceBatch.getTotalVolume().isEntered()),
-                new AmountModel(MASS, sourceBatch.getTotalWeight().getValue(), !sourceBatch.getTotalWeight().isEntered()),
-                new AmountModel(MOLES, sourceBatch.getTotalMoles().getValue(), !sourceBatch.getTotalMoles().isEntered()),
-                new AmountModel(SCALAR, sourceBatch.getYield()),
-                new AmountModel(MASS, sourceBatch.getTheoWeight().getValue(), !sourceBatch.getTheoWeight().isEntered()),
-                new AmountModel(MOLES, sourceBatch.getTheoMoles().getValue(), !sourceBatch.getTheoMoles().isEntered()));
+    private ProductBatchModel createProductBatchModelForCalculation(BasicBatchModel rawBatch) {
+        ProductBatchModel batch = new ProductBatchModel(new AmountModel(MASS, rawBatch.getMolWeight().getValue(), !rawBatch.getMolWeight().isEntered()),
+                new AmountModel(MOLES, rawBatch.getMol().getValue(), !rawBatch.getMol().isEntered()),
+                new AmountModel(MASS, rawBatch.getWeight().getValue(), !rawBatch.getWeight().isEntered()),
+                new AmountModel(VOLUME, rawBatch.getVolume().getValue(), !rawBatch.getVolume().isEntered()),
+                new AmountModel(DENSITY, rawBatch.getDensity().getValue(), !rawBatch.getDensity().isEntered()),
+                new AmountModel(MOLAR, rawBatch.getMolarity().getValue(), !rawBatch.getMolarity().isEntered()),
+                new AmountModel(SCALAR, rawBatch.getStoicPurity().getValue(), !rawBatch.getStoicPurity().isEntered()),
+                new AmountModel(SCALAR, rawBatch.getEq().getValue(), !rawBatch.getEq().isEntered()),
+                rawBatch.isLimiting(),
+                BatchTypeFactory.getBatchType(rawBatch.getRxnRole().getName()),
+                new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered()),
+                new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered()),
+                new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTotalMoles().isEntered()),
+                new AmountModel(SCALAR, rawBatch.getYield()),
+                new AmountModel(MASS, rawBatch.getTheoWeight().getValue(), !rawBatch.getTheoWeight().isEntered()),
+                new AmountModel(MOLES, rawBatch.getTheoMoles().getValue(), !rawBatch.getTheoMoles().isEntered()));
+        batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
+        return batch;
     }
 
     private BasicBatchModel createBatchModelForResponse(BatchModel sourceBatch, BasicBatchModel rawBatch) {
@@ -227,7 +231,54 @@ public class StoicCalculationService {
             rawBatch.setTheoMoles(new UnitValueDTO(sourceBatch.getTheoreticalMoleAmount().doubleValue(), rawBatch.getTheoMoles().getUnit(), !sourceBatch.getTheoreticalMoleAmount().isCalculated(), rawBatch.getTheoMoles().isReadonly()));
             rawBatch.setTheoWeight(new UnitValueDTO(sourceBatch.getTheoreticalWeightAmount().doubleValue(), rawBatch.getTheoWeight().getUnit(), !sourceBatch.getTheoreticalWeightAmount().isCalculated(), rawBatch.getTheoWeight().isReadonly()));
         }
+        rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(sourceBatch.getLastUpdatedType()));
         return rawBatch;
+    }
+
+    private int getLastUpdatedType(BasicBatchModel rawBatch) {
+        int lastUpdatedType = 0;
+        if (rawBatch.getLastUpdatedType() != null) {
+            switch (rawBatch.getLastUpdatedType()) {
+                case "mol":
+                    lastUpdatedType = BatchModel.UPDATE_TYPE_MOLES;
+                    break;
+                case "weight":
+                    lastUpdatedType = BatchModel.UPDATE_TYPE_WEIGHT;
+                    break;
+                case "volume":
+                    lastUpdatedType = BatchModel.UPDATE_TYPE_VOLUME;
+                    break;
+                case "totalWeight":
+                    lastUpdatedType = BatchModel.UPDATE_TYPE_TOTAL_WEIGHT;
+                    break;
+                case "totalVolume":
+                    lastUpdatedType = BatchModel.UPDATE_TYPE_TOTAL_VOLUME;
+                    break;
+            }
+        }
+        return lastUpdatedType;
+    }
+
+    private String convertLastUpdatedTypeForResponse(int lastUpdatedType) {
+        String result = "";
+        switch (lastUpdatedType) {
+            case BatchModel.UPDATE_TYPE_MOLES:
+                result = "mol";
+                break;
+            case BatchModel.UPDATE_TYPE_WEIGHT:
+                result = "weight";
+                break;
+            case BatchModel.UPDATE_TYPE_VOLUME:
+                result = "volume";
+                break;
+            case BatchModel.UPDATE_TYPE_TOTAL_WEIGHT:
+                result = "totalWeight";
+                break;
+            case BatchModel.UPDATE_TYPE_TOTAL_VOLUME:
+                result = "totalVolume";
+                break;
+        }
+        return result;
     }
 
     public BasicBatchModel calculateProductBatch(ProductTableDTO productTableDTO) {

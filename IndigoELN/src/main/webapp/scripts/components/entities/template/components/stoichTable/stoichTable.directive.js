@@ -268,6 +268,7 @@ angular.module('indigoeln')
                             delete $scope.selectedRow[key];
                         }
                     }
+                    $scope.selectedRow.rxnRole = {name: 'REACTANT'};
                 };
                 $scope.appendRow = function () {
                     var reactant = CalculationService.createBatch($scope.model.stoichTable);

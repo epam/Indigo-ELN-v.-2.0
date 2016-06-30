@@ -1,10 +1,10 @@
 angular.module('indigoeln')
     .factory('AppValues', function () {
         var grams = ['mg', 'g', 'kg'];
-        var liters = ['ul', 'ml', 'l'];
-        var moles = ['umol', 'mmol', 'mol'];
+        var liters = ['ml', 'ul', 'l'];
+        var moles = ['mmol', 'umol', 'mol'];
         var density = ['g/mL'];
-        var molarity = ['mM', 'M'];
+        var molarity = ['M', 'mM'];
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
         var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
         var sourceValues = [{name: 'Internal'}, {name: 'External'}];

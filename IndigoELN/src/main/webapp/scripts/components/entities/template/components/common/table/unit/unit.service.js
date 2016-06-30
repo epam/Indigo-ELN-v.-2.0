@@ -58,6 +58,11 @@ angular.module('indigoeln')
             processColumns: function (columns, rows) {
                 _.each(columns, function (column) {
                     if (column.type === 'unit') {
+                        // uncomment this when needed si on the first place by default
+                        // var $uInst = $u();
+                        // column.unitItems = _.sortBy(column.unitItems, function (i, index) {
+                        //     return $uInst.toBase(i) === i ? -1 : index;
+                        // });
                         column.units = _.map(column.unitItems, toUnitNameAction);
                         var setValueAction = [];
                         if (!column.hideSetValue) {

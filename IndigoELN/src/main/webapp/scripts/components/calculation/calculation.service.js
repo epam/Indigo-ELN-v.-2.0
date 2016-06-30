@@ -85,9 +85,7 @@ angular.module('indigoeln')
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
-                actualProducts: setDefaultValues(data.actualProducts),
-                changedBatchRowNumber: null,
-                changedField: null
+                actualProducts: setDefaultValues(data.actualProducts)
             };
             return $http.put('api/calculations/stoich/calculate', requestData).then(function (result) {
                 $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);

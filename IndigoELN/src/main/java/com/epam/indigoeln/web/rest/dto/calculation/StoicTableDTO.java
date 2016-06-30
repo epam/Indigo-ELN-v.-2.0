@@ -9,6 +9,7 @@ public class StoicTableDTO {
     private List<BasicBatchModel> actualProducts;
     private int changedBatchRowNumber;
     private String changedField;
+    private String lastUpdatedType;
 
     public StoicTableDTO() {
     }
@@ -57,5 +58,13 @@ public class StoicTableDTO {
 
     public void setChangedField(String changedField) {
         this.changedField = changedField;
+    }
+
+    public String getLastUpdatedType() {
+        return lastUpdatedType;
+    }
+
+    public void setLastUpdatedType(String lastUpdatedType) {
+        this.lastUpdatedType = lastUpdatedType;
     }
 }
