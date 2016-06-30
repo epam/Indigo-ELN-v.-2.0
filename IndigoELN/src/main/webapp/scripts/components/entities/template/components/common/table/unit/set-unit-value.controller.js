@@ -8,24 +8,11 @@ angular.module('indigoeln')
             $scope.unit = unit;
         };
         $scope.unitNames = unitNames;
-        $scope.$watch('unit', function (val) {
-            if (val) {
-                $scope.value = null;
-            }
-        });
         $scope.save = function () {
-            $uibModalInstance.close({value: $scope.value, unit: $scope.unit});
+            $uibModalInstance.close({value: $u($scope.value, $scope.unit).val(), unit: $scope.unit});
         };
 
         $scope.clear = function () {
             $uibModalInstance.dismiss('cancel');
         };
-
-        $scope.unitParsers = [function (viewValue) {
-            return $u(viewValue, $scope.unit).val();
-        }];
-        $scope.unitFormatters = [function (modelValue) {
-            return $u(modelValue).as($scope.unit).val();
-        }];
-
     });
