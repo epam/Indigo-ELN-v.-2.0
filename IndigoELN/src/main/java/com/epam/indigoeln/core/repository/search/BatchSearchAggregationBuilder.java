@@ -2,6 +2,8 @@ package com.epam.indigoeln.core.repository.search;
 
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchCriteria;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -27,14 +29,11 @@ import static java.util.stream.Collectors.toList;
  */
 public final class BatchSearchAggregationBuilder {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchSearchAggregationBuilder.class);
+
     private static final String CONTENT_PREFIX = "content.batches.";
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("nbkBatch", "molFormula", "molWeight",
             "chemicalName", "externalNumber", "compoundState", "comments", "hazardComments", "casNumber");
-
-    public static BatchSearchAggregationBuilder getInstance() {
-        return new BatchSearchAggregationBuilder();
-    }
-
     private List<AggregationOperation> aggregationOperations;
 
     private BatchSearchAggregationBuilder() {
@@ -42,6 +41,58 @@ public final class BatchSearchAggregationBuilder {
         aggregationOperations.add(Aggregation.match(Criteria.where("name").is("productBatchSummary"))); // filter by type
         aggregationOperations.add(Aggregation.project("content"));
         aggregationOperations.add(Aggregation.unwind("content.batches")); // unwind (flat array of batches)
+    }
+
+    public static BatchSearchAggregationBuilder getInstance() {
+        return new BatchSearchAggregationBuilder();
+    }
+
+    private static Criteria convertCriteria(BatchSearchCriteria dto) {
+        Criteria criteria = Criteria.where(CONTENT_PREFIX + dto.getField());
+        Object value = dto.getValue();
+        switch (dto.getCondition()) {
+            case "contains":
+                criteria.regex(".*" + value + ".*");
+                break;
+            case "starts with":
+                criteria.regex(value + ".*");
+                break;
+            case "ends with":
+                criteria.regex(".*" + value);
+                break;
+            case ">":
+                criteria.gt(convertToInt(value));
+                break;
+            case ">=":
+                criteria.gte(convertToInt(value));
+                break;
+            case "<":
+                criteria.lt(convertToInt(value));
+                break;
+            case "<=":
+                criteria.lte(convertToInt(value));
+                break;
+            default:
+                criteria.is(value);
+        }
+        return criteria;
+    }
+
+    private static Object convertToInt(Object obj) {
+        if (obj == null) {
+            return null;
+        }
+        final Integer result = getInt(obj.toString());
+        return result == null ? obj : result;
+    }
+
+    private static Integer getInt(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Unable to convert value " + str + " to integer.");
+        }
+        return null;
     }
 
     public BatchSearchAggregationBuilder withSearchQuery(String searchQuery) {
@@ -72,30 +123,6 @@ public final class BatchSearchAggregationBuilder {
 
     public Aggregation build() {
         return Aggregation.newAggregation(aggregationOperations);
-    }
-
-    private static Criteria convertCriteria(BatchSearchCriteria dto) {
-        Criteria criteria = Criteria.where(CONTENT_PREFIX + dto.getField());
-        Object value = dto.getValue();
-        switch (dto.getCondition()) {
-            case "contains" :
-                criteria.regex(".*" + value + ".*"); break;
-            case "starts with" :
-                criteria.regex(value + ".*"); break;
-            case "ends with" :
-                criteria.regex(".*" + value); break;
-            case ">" :
-                criteria.gt(value); break;
-            case ">=" :
-                criteria.gte(value); break;
-            case "<" :
-                criteria.lt(value); break;
-            case "<=" :
-                criteria.lte(value); break;
-            default:
-                criteria.is(value);
-        }
-        return criteria;
     }
 
 }
