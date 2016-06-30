@@ -7,6 +7,10 @@ public class AmountModel extends Amount2 {
 
     public static final long serialVersionUID = 7526472295622776147L;
 
+    //This is a wrong constructor to use. Initialize with Unit Type.
+    public AmountModel() {
+    }
+
     public AmountModel(UnitType unitType) {
         super(unitType);
     }

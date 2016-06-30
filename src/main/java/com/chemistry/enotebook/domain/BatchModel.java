@@ -80,6 +80,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         this.totalMolarity = totalMolarity;
     }
 
+    public int getLastUpdatedType() {
+        return lastUpdatedType;
+    }
+
+    public void setLastUpdatedType(int lastUpdatedType) {
+        this.lastUpdatedType = lastUpdatedType;
+    }
+
     private ParentCompoundModel getCompound() {
         return compound;
     }

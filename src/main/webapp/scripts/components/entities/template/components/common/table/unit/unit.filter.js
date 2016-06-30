@@ -4,8 +4,8 @@
 angular.module('indigoeln')
     .filter('unit', function () {
         return function (value, to) {
-            if (!value || !to) {
-                return;
+            if (!value) {
+                return value;
             }
             return $u(value).as(to).val();
         };
