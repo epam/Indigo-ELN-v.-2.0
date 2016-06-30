@@ -7,10 +7,14 @@ angular.module('indigoeln').controller('SearchReagentsController',
             advancedSearch: {
                 fullNbkBatch: {name: 'NBK batch #', field: 'fullNbkBatch', condition: {name: 'contains'}},
                 molFormula: {name: 'Molecular Formula', field: 'molFormula', condition: {name: 'contains'}},
-                molWeight: {name: 'Molecular Weight', field: 'molWeight', condition: {name: '>'}},
+                molWeight: {name: 'Molecular Weight', field: 'molWeight.value', condition: {name: '>'}},
                 chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}},
                 externalNumber: {name: 'External #', field: 'externalNumber', condition: {name: 'contains'}},
-                compoundState: {name: 'Compound State', field: 'compoundState'},
+                compoundState: {
+                    name: 'Compound State', field: 'compoundState.name', getValue: function (val) {
+                        return val.name;
+                    }
+                },
                 comments: {name: 'Batch Comment', field: 'comments', condition: {name: 'contains'}},
                 hazardComments: {name: 'Batch Hazard Comment', field: 'hazardComments', condition: {name: 'contains'}},
                 casNumber: {name: 'CAS Number', field: 'casNumber', condition: {name: 'contains'}}
@@ -102,7 +106,14 @@ angular.module('indigoeln').controller('SearchReagentsController',
             _.each(advancedSearch, function (restriction) {
                 if (restriction.value) {
                     var restrictionCopy = angular.copy(restriction);
-                    restrictionCopy.condition = restrictionCopy.condition.name;
+                    if (restrictionCopy.condition) {
+                        restrictionCopy.condition = restrictionCopy.condition.name;
+                    } else {
+                        restrictionCopy.condition = '';
+                    }
+                    if (restrictionCopy.getValue) {
+                        restrictionCopy.value = restrictionCopy.getValue(restrictionCopy.value);
+                    }
                     advancedSummary.push(restrictionCopy);
                 }
             });
