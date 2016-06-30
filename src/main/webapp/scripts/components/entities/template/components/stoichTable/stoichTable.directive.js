@@ -118,7 +118,6 @@ angular.module('indigoeln')
                         id: 'rxnRole',
                         name: 'Rxn Role',
                         type: 'select',
-                        needOldVal: true,
                         values: function () {
                             return rxnValues;
                         }
@@ -226,6 +225,17 @@ angular.module('indigoeln')
                         type: 'scalar'
                     }
                 ];
+                function onRxnRoleChange(data) {
+                    if (data.model.name === 'SOLVENT') {
+                        var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
+                        CalculationService.resetValuesToDefault(valuesToDefault, data.row);
+                        CalculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
+                    } else if (data.model.name !== 'SOLVENT' && data.oldVal === 'SOLVENT') {
+                        CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
+                        CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
+                    }
+                }
+
                 _.each($scope.reactantsColumns, function (column, i) {
                     var columnsToRecalculateStoic = ['molWeight', 'weight', 'volume', 'density', 'mol', 'eq',
                         'rxnRole', 'molarity', 'stoicPurity', 'loadFactor'];
@@ -237,14 +247,7 @@ angular.module('indigoeln')
                                 CalculationService.setEntered(data);
                                 data = initDataForCalculation(data);
                                 if (column.id === 'rxnRole') {
-                                    if (data.model.name === 'SOLVENT') {
-                                        var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
-                                        CalculationService.resetValuesToDefault(valuesToDefault, data.row);
-                                        CalculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
-                                    } else if (data.model.name !== 'SOLVENT' && data.oldVal.name === 'SOLVENT') {
-                                        CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
-                                        CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
-                                    }
+                                    onRxnRoleChange(data);
                                 }
                                 console.log(data);
                                 CalculationService.recalculateStoichBasedOnBatch(data, false);
