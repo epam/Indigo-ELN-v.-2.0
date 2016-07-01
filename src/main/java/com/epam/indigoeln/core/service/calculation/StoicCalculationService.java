@@ -156,7 +156,7 @@ public class StoicCalculationService {
         List<BasicBatchModel> myBatches = new ArrayList<>();
         int index = 0;
         for (ProductBatchModel sourceBatch : sourceBatches) {
-            BasicBatchModel converdedBatch = createBatchModelForResponse(sourceBatch, rawBatches.get(index));
+            BasicBatchModel converdedBatch = prepareBatchModelForResponse(sourceBatch, rawBatches.get(index));
             converdedBatch.setYield(sourceBatch.getTheoreticalYieldPercentAmount().doubleValue());
             myBatches.add(converdedBatch);
             index++;
@@ -168,7 +168,7 @@ public class StoicCalculationService {
         List<BasicBatchModel> myBatches = new ArrayList<>();
         int index = 0;
         for (MonomerBatchModel sourceBatch : sourceBatches) {
-            myBatches.add(createBatchModelForResponse(sourceBatch, rawBatches.get(index)));
+            myBatches.add(prepareBatchModelForResponse(sourceBatch, rawBatches.get(index)));
             index++;
         }
         return myBatches;
@@ -189,6 +189,7 @@ public class StoicCalculationService {
                 new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered()),
                 new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTotalMoles().isEntered()));
         batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
+        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(), !rawBatch.getPrevMolarAmount().isEntered()));
         return batch;
     }
 
@@ -210,10 +211,11 @@ public class StoicCalculationService {
                 new AmountModel(MASS, rawBatch.getTheoWeight().getValue(), !rawBatch.getTheoWeight().isEntered()),
                 new AmountModel(MOLES, rawBatch.getTheoMoles().getValue(), !rawBatch.getTheoMoles().isEntered()));
         batch.setLastUpdatedType(getLastUpdatedType(rawBatch));
+        batch.setPreviousMolarAmount(new AmountModel(MOLAR, rawBatch.getPrevMolarAmount().getValue(), !rawBatch.getPrevMolarAmount().isEntered()));
         return batch;
     }
 
-    private BasicBatchModel createBatchModelForResponse(BatchModel sourceBatch, BasicBatchModel rawBatch) {
+    private BasicBatchModel prepareBatchModelForResponse(BatchModel sourceBatch, BasicBatchModel rawBatch) {
         rawBatch.setMolWeight(new ScalarValueDTO(sourceBatch.getMolecularWeightAmount().doubleValue(), !sourceBatch.getMolecularWeightAmount().isCalculated(), rawBatch.getMolWeight().isReadonly())); //todo check unit type for mW (g/mol)
         rawBatch.setMol(new UnitValueDTO(sourceBatch.getMoleAmount().doubleValue(), rawBatch.getMol().getUnit(), !sourceBatch.getMoleAmount().isCalculated(), rawBatch.getMol().isReadonly())); // todo check, should be mass to volume?
         rawBatch.setMolarity(new UnitValueDTO(sourceBatch.getMolarAmount().doubleValue(), rawBatch.getMolarity().getUnit(), !sourceBatch.getMolarAmount().isCalculated(), rawBatch.getMolarity().isReadonly()));
@@ -232,6 +234,7 @@ public class StoicCalculationService {
             rawBatch.setTheoWeight(new UnitValueDTO(sourceBatch.getTheoreticalWeightAmount().doubleValue(), rawBatch.getTheoWeight().getUnit(), !sourceBatch.getTheoreticalWeightAmount().isCalculated(), rawBatch.getTheoWeight().isReadonly()));
         }
         rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(sourceBatch.getLastUpdatedType()));
+        rawBatch.setPrevMolarAmount(new UnitValueDTO(sourceBatch.getPreviousMolarAmount().doubleValue(), rawBatch.getPrevMolarAmount().getUnit(), !sourceBatch.getPreviousMolarAmount().isCalculated(), rawBatch.getPrevMolarAmount().isReadonly()));
         return rawBatch;
     }
 
@@ -288,7 +291,7 @@ public class StoicCalculationService {
         String changedField = productTableDTO.getChangedField();
         productCalculator.calculateProductBatch(productBatch, rawBatch, changedField);
 
-        BasicBatchModel convertedBatch = createBatchModelForResponse(productBatch, rawBatch);
+        BasicBatchModel convertedBatch = prepareBatchModelForResponse(productBatch, rawBatch);
         convertedBatch.setYield(productBatch.getTheoreticalYieldPercentAmount().doubleValue());
         return convertedBatch;
     }

@@ -52,7 +52,8 @@ angular.module('indigoeln')
             stoicPurity: {value: 100, entered: false},
             saltEq: {value: 0, entered: false},
             eq: {value: 1, entered: false},
-            yield: 0
+            yield: 0,
+            prevMolarAmount: {value: 0, unit: '', entered: false}
         };
 
         return {

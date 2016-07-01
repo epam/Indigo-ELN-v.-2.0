@@ -27,6 +27,7 @@ public class BasicBatchModel {
     private ScalarValueDTO eq; // rxnEq
     private double yield; // theoreticalYieldPercentAmount; - product
     private String lastUpdatedType; // weight, volume, mol, totalWeight, totalVolume
+    private UnitValueDTO prevMolarAmount; // needed for solvent
 
     public boolean isLimiting() {
         return limiting;
@@ -186,5 +187,13 @@ public class BasicBatchModel {
 
     public void setLastUpdatedType(String lastUpdatedType) {
         this.lastUpdatedType = lastUpdatedType;
+    }
+
+    public UnitValueDTO getPrevMolarAmount() {
+        return prevMolarAmount;
+    }
+
+    public void setPrevMolarAmount(UnitValueDTO prevMolarAmount) {
+        this.prevMolarAmount = prevMolarAmount;
     }
 }
