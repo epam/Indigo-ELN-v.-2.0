@@ -20,7 +20,9 @@
                     <div class="col-md-5">
                         <div class="btn-toolbar pull-right" role="toolbar">
                             <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-info" disabled>Sync with Intended Products
+                                <button type="button" class="btn btn-info"
+                                        ng-disabled="myReadonly || isIntendedSynced()"
+                                        ng-click="syncWithIntendedProducts()">Sync with Intended Products
                                 </button>
                                 <button type="button" class="btn btn-info" disabled>VnV</button>
                                 <button type="button" class="btn btn-info" ng-disabled="myReadonly"

@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-    function ($scope, $rootScope, $uibModal, $http, $stateParams, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -63,6 +63,26 @@ angular.module('indigoeln')
             $scope.$watch('share.stoichTable', function (table) {
                 stoichTable = table;
             }, true);
+
+            $scope.syncWithIntendedProducts = function () {
+                if (stoichTable) {
+                    var intendedProducts = stoichTable.products.length;
+                    var alreadyInTable = 0;
+                    _.each(stoichTable.products, function (intendedItem) {
+                        var isUnique = _.every($scope.model.productBatchSummary.batches, function (productItem) {
+                            return !angular.equals(intendedItem, productItem);
+                        });
+                        if (isUnique) {
+                            $scope.model.productBatchSummary.batches.push(intendedItem);
+                        } else {
+                            alreadyInTable = alreadyInTable + 1;
+                        }
+                    });
+                    if (!stoichTable.products.length || intendedProducts === alreadyInTable) {
+                        AlertModal.info('Product Batch Summary is synchronized', 'sm');
+                    }
+                }
+            };
 
             $scope.columns = [
                 {
@@ -281,9 +301,9 @@ angular.module('indigoeln')
                 _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
             });
-        RegistrationService.info({}, function (info) {
-            $scope.isHasRegService = _.isArray(info) && info.length > 0;
-        });
+            RegistrationService.info({}, function (info) {
+                $scope.isHasRegService = _.isArray(info) && info.length > 0;
+            });
 
             $scope.registerBatches = function () {
                 var emptyFields = [];
@@ -308,20 +328,20 @@ angular.module('indigoeln')
                 }
 
             };
-        $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
-            _.each(statuses, function (status, fullNbkMatch) {
-                var batch = _.find($scope.model.productBatchSummary.batches, function (batch) {
-                    return batch.fullNbkMatch = fullNbkMatch;
+            $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
+                _.each(statuses, function (status, fullNbkMatch) {
+                    var batch = _.find($scope.model.productBatchSummary.batches, function (batch) {
+                        return batch.fullNbkMatch = fullNbkMatch;
+                    });
+                    if (batch) {
+                        batch.registrationStatus = status;
+                    }
                 });
-                if (batch) {
-                    batch.registrationStatus = status;
-                }
             });
-        });
 
             function requestNbkBatchNumber(latest, batchToDuplicate) {
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                        '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
+                    '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
                         var batchNumber = result.data.batchNumber;
                         EntitiesBrowser.resolveFromCache({
@@ -338,7 +358,7 @@ angular.module('indigoeln')
                                     nbkBatch: batchNumber, fullNbkBatch: fullNbkBatch,
                                     fullNbkImmutablePart: fullNbkImmutablePart, $$selected: true
                                 });
-                            if(batchToDuplicate) {
+                            if (batchToDuplicate) {
                                 batch = _.extend(batchToDuplicate, batch);
                             }
                             $scope.model.productBatchSummary.batches.push(batch);

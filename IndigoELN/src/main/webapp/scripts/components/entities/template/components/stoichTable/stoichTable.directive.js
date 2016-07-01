@@ -370,10 +370,6 @@ angular.module('indigoeln')
                     onStoicTableRecalculated();
                 });
 
-                var isMoleculesEqual = function (molecule1, molecule2) {
-                    return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
-                };
-
                 var getMissingReactionReactantsInStoic = function (callback) {
                     var batchesToSearch = [];
                     var stoicReactants = [];
@@ -387,7 +383,7 @@ angular.module('indigoeln')
                     _.each(reactionReactants, function (reactionReactant) {
                         var stoicAndReactionReactantsEqualityPromises = [];
                         _.each(stoicReactants, function (stoicReactant) {
-                            stoicAndReactionReactantsEqualityPromises.push(isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
+                            stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
                         });
                         allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function () {
                             if (stoicAndReactionReactantsEqualityPromises.length) {

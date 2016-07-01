@@ -146,11 +146,16 @@ angular.module('indigoeln')
                 batch[value].readonly = false;
             });
         };
+
+        var isMoleculesEqual = function (molecule1, molecule2) {
+            return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
+        };
         
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
             setEntered: setEntered,
+            isMoleculesEqual: isMoleculesEqual,
             resetValuesToDefault: resetValuesToDefault,
             setValuesReadonly: setValuesReadonly,
             setValuesEditable: setValuesEditable,
