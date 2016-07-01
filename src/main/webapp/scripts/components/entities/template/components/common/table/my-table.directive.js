@@ -41,7 +41,7 @@ angular.module('indigoeln')
                         return _.isObject($scope.myRow[$scope.myColumn.id]) ? $scope.myRow[$scope.myColumn.id].value || $scope.myRow[$scope.myColumn.id].name : $scope.myRow[$scope.myColumn.id];
                     }, function (newVal, prevVal) {
                         oldVal = prevVal;
-                        isChanged = !angular.equals(newVal, prevVal);
+                        isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
                     }, true);
                 }
                 if ($scope.myColumn.hasPopover) {
