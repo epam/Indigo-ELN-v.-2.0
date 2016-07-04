@@ -215,26 +215,26 @@ public class StoicCalculationService {
         return batch;
     }
 
-    private BasicBatchModel prepareBatchModelForResponse(BatchModel sourceBatch, BasicBatchModel rawBatch) {
-        rawBatch.setMolWeight(new ScalarValueDTO(sourceBatch.getMolecularWeightAmount().doubleValue(), !sourceBatch.getMolecularWeightAmount().isCalculated(), rawBatch.getMolWeight().isReadonly())); //todo check unit type for mW (g/mol)
-        rawBatch.setMol(new UnitValueDTO(sourceBatch.getMoleAmount().doubleValue(), rawBatch.getMol().getUnit(), !sourceBatch.getMoleAmount().isCalculated(), rawBatch.getMol().isReadonly())); // todo check, should be mass to volume?
-        rawBatch.setMolarity(new UnitValueDTO(sourceBatch.getMolarAmount().doubleValue(), rawBatch.getMolarity().getUnit(), !sourceBatch.getMolarAmount().isCalculated(), rawBatch.getMolarity().isReadonly()));
-        rawBatch.setStoicPurity(new ScalarValueDTO(sourceBatch.getPurityAmount().doubleValue(), !sourceBatch.getPurityAmount().isCalculated(), rawBatch.getStoicPurity().isReadonly()));
-        rawBatch.setWeight(new UnitValueDTO(sourceBatch.getWeightAmount().doubleValue(), rawBatch.getWeight().getUnit(), !sourceBatch.getWeightAmount().isCalculated(), rawBatch.getWeight().isReadonly()));
-        rawBatch.setVolume(new UnitValueDTO(sourceBatch.getVolumeAmount().doubleValue(), rawBatch.getVolume().getUnit(), !sourceBatch.getVolumeAmount().isCalculated(), rawBatch.getVolume().isReadonly()));
-        rawBatch.setDensity(new UnitValueDTO(sourceBatch.getDensityAmount().doubleValue(), rawBatch.getDensity().getUnit(), !sourceBatch.getDensityAmount().isCalculated(), rawBatch.getDensity().isReadonly()));
-        rawBatch.setRxnRole(new StringValueDTO(sourceBatch.getBatchType().toString(), false, false));
-        rawBatch.setEq(new ScalarValueDTO(sourceBatch.getRxnEquivsAmount().doubleValue(), !sourceBatch.getRxnEquivsAmount().isCalculated(), rawBatch.getEq().isReadonly()));
-        rawBatch.setLimiting(sourceBatch.isLimiting());
-        rawBatch.setTotalWeight(new UnitValueDTO(sourceBatch.getTotalWeight().doubleValue(), rawBatch.getTotalWeight().getUnit(), !sourceBatch.getTotalWeight().isCalculated(), rawBatch.getTotalWeight().isReadonly()));
-        rawBatch.setTotalVolume(new UnitValueDTO(sourceBatch.getTotalVolume().doubleValue(), rawBatch.getTotalVolume().getUnit(), !sourceBatch.getTotalVolume().isCalculated(), rawBatch.getTotalVolume().isReadonly()));
-        rawBatch.setTotalMoles(new UnitValueDTO(sourceBatch.getTotalMolarity().doubleValue(), rawBatch.getTotalMoles().getUnit(), !sourceBatch.getTotalMolarity().isCalculated(), rawBatch.getTotalMoles().isReadonly())); // todo check, should be mass to volume?
-        if (sourceBatch instanceof ProductBatchModel) {
-            rawBatch.setTheoMoles(new UnitValueDTO(sourceBatch.getTheoreticalMoleAmount().doubleValue(), rawBatch.getTheoMoles().getUnit(), !sourceBatch.getTheoreticalMoleAmount().isCalculated(), rawBatch.getTheoMoles().isReadonly()));
-            rawBatch.setTheoWeight(new UnitValueDTO(sourceBatch.getTheoreticalWeightAmount().doubleValue(), rawBatch.getTheoWeight().getUnit(), !sourceBatch.getTheoreticalWeightAmount().isCalculated(), rawBatch.getTheoWeight().isReadonly()));
+    private BasicBatchModel prepareBatchModelForResponse(BatchModel calculatedBatch, BasicBatchModel rawBatch) {
+        rawBatch.setMolWeight(new ScalarValueDTO(calculatedBatch.getMolecularWeightAmount().doubleValue(), calculatedBatch.getMolecularWeightAmount().GetValueForDisplay(), !calculatedBatch.getMolecularWeightAmount().isCalculated(), rawBatch.getMolWeight().isReadonly())); //todo check unit type for mW (g/mol)
+        rawBatch.setMol(new UnitValueDTO(calculatedBatch.getMoleAmount().doubleValue(), calculatedBatch.getMoleAmount().GetValueForDisplay(), rawBatch.getMol().getUnit(), !calculatedBatch.getMoleAmount().isCalculated(), rawBatch.getMol().isReadonly())); // todo check, should be mass to volume?
+        rawBatch.setMolarity(new UnitValueDTO(calculatedBatch.getMolarAmount().doubleValue(), calculatedBatch.getMolarAmount().GetValueForDisplay(), rawBatch.getMolarity().getUnit(), !calculatedBatch.getMolarAmount().isCalculated(), rawBatch.getMolarity().isReadonly()));
+        rawBatch.setStoicPurity(new ScalarValueDTO(calculatedBatch.getPurityAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), !calculatedBatch.getPurityAmount().isCalculated(), rawBatch.getStoicPurity().isReadonly()));
+        rawBatch.setWeight(new UnitValueDTO(calculatedBatch.getWeightAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getWeight().getUnit(), !calculatedBatch.getWeightAmount().isCalculated(), rawBatch.getWeight().isReadonly()));
+        rawBatch.setVolume(new UnitValueDTO(calculatedBatch.getVolumeAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getVolume().getUnit(), !calculatedBatch.getVolumeAmount().isCalculated(), rawBatch.getVolume().isReadonly()));
+        rawBatch.setDensity(new UnitValueDTO(calculatedBatch.getDensityAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getDensity().getUnit(), !calculatedBatch.getDensityAmount().isCalculated(), rawBatch.getDensity().isReadonly()));
+        rawBatch.setRxnRole(new StringValueDTO(calculatedBatch.getBatchType().toString(), calculatedBatch.getPurityAmount().GetValueForDisplay(), false, false));
+        rawBatch.setEq(new ScalarValueDTO(calculatedBatch.getRxnEquivsAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), !calculatedBatch.getRxnEquivsAmount().isCalculated(), rawBatch.getEq().isReadonly()));
+        rawBatch.setLimiting(calculatedBatch.isLimiting());
+        rawBatch.setTotalWeight(new UnitValueDTO(calculatedBatch.getTotalWeight().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getTotalWeight().getUnit(), !calculatedBatch.getTotalWeight().isCalculated(), rawBatch.getTotalWeight().isReadonly()));
+        rawBatch.setTotalVolume(new UnitValueDTO(calculatedBatch.getTotalVolume().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getTotalVolume().getUnit(), !calculatedBatch.getTotalVolume().isCalculated(), rawBatch.getTotalVolume().isReadonly()));
+        rawBatch.setTotalMoles(new UnitValueDTO(calculatedBatch.getTotalMolarity().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getTotalMoles().getUnit(), !calculatedBatch.getTotalMolarity().isCalculated(), rawBatch.getTotalMoles().isReadonly())); // todo check, should be mass to volume?
+        if (calculatedBatch instanceof ProductBatchModel) {
+            rawBatch.setTheoMoles(new UnitValueDTO(calculatedBatch.getTheoreticalMoleAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getTheoMoles().getUnit(), !calculatedBatch.getTheoreticalMoleAmount().isCalculated(), rawBatch.getTheoMoles().isReadonly()));
+            rawBatch.setTheoWeight(new UnitValueDTO(calculatedBatch.getTheoreticalWeightAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getTheoWeight().getUnit(), !calculatedBatch.getTheoreticalWeightAmount().isCalculated(), rawBatch.getTheoWeight().isReadonly()));
         }
-        rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(sourceBatch.getLastUpdatedType()));
-        rawBatch.setPrevMolarAmount(new UnitValueDTO(sourceBatch.getPreviousMolarAmount().doubleValue(), rawBatch.getPrevMolarAmount().getUnit(), !sourceBatch.getPreviousMolarAmount().isCalculated(), rawBatch.getPrevMolarAmount().isReadonly()));
+        rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(calculatedBatch.getLastUpdatedType()));
+        rawBatch.setPrevMolarAmount(new UnitValueDTO(calculatedBatch.getPreviousMolarAmount().doubleValue(), calculatedBatch.getPurityAmount().GetValueForDisplay(), rawBatch.getPrevMolarAmount().getUnit(), !calculatedBatch.getPreviousMolarAmount().isCalculated(), rawBatch.getPrevMolarAmount().isReadonly()));
         return rawBatch;
     }
 
