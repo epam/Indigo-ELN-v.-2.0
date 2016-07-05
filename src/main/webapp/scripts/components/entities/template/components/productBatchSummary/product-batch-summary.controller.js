@@ -195,7 +195,7 @@ angular.module('indigoeln')
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt', type: 'scalar'},
                 {id: 'molFormula', name: 'Mol Formula'},
-                {id: 'conversationalBatch', name: 'Conversational Batch #'},
+                {id: 'conversationalBatchNumber', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
                 {
                     id: 'stereoisomer', name: 'Stereoisomer',
@@ -297,7 +297,7 @@ angular.module('indigoeln')
             });
 
             $scope.$watch('isHasRegService', function (val) {
-                _.findWhere($scope.columns, {id: 'conversationalBatch'}).isVisible = val;
+                _.findWhere($scope.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
             });
