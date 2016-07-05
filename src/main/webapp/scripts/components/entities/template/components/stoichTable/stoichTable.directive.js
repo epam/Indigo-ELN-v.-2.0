@@ -96,12 +96,14 @@ angular.module('indigoeln')
                         id: 'mol',
                         name: 'Mol',
                         type: 'unit',
-                        unitItems: moles
+                        unitItems: moles,
+                        sigDigits: 2
                     },
                     {
                         id: 'eq',
                         name: 'EQ',
-                        type: 'scalar'
+                        type: 'scalar',
+                        sigDigits: 2
                     },
                     {
                         id: 'limiting',
