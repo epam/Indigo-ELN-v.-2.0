@@ -60,17 +60,20 @@ public final class BatchSearchAggregationBuilder {
             case "ends with":
                 criteria.regex(".*" + value);
                 break;
+            case "=":
+                criteria.is(convertToDouble(value));
+                break;
             case ">":
-                criteria.gt(convertToInt(value));
+                criteria.gt(convertToDouble(value));
                 break;
             case ">=":
-                criteria.gte(convertToInt(value));
+                criteria.gte(convertToDouble(value));
                 break;
             case "<":
-                criteria.lt(convertToInt(value));
+                criteria.lt(convertToDouble(value));
                 break;
             case "<=":
-                criteria.lte(convertToInt(value));
+                criteria.lte(convertToDouble(value));
                 break;
             default:
                 criteria.is(value);
@@ -78,19 +81,19 @@ public final class BatchSearchAggregationBuilder {
         return criteria;
     }
 
-    private static Object convertToInt(Object obj) {
+    private static Object convertToDouble(Object obj) {
         if (obj == null) {
             return null;
         }
-        final Integer result = getInt(obj.toString());
+        final Double result = getDouble(obj.toString());
         return result == null ? obj : result;
     }
 
-    private static Integer getInt(String str) {
+    private static Double getDouble(String str) {
         try {
-            return Integer.parseInt(str);
+            return Double.parseDouble(str);
         } catch (NumberFormatException e) {
-            LOGGER.warn("Unable to convert value " + str + " to integer.");
+            LOGGER.warn("Unable to convert value " + str + " to double.");
         }
         return null;
     }
