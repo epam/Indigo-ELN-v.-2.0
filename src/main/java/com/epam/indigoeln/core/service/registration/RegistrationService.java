@@ -149,9 +149,7 @@ public class RegistrationService {
     private Compound convert(BasicDBObject batch) {
         Compound result = new Compound();
         //TODO: replace FIELD with real values
-        result.setChemicalName(batch.getString("chemicalName"));
         result.setBatchNo(batch.getString("fullNbkBatch"));
-        result.setCasNo(batch.getString("casNumber"));
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setMolFormula(batch.getString("molFormula"));
         result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
@@ -165,8 +163,8 @@ public class RegistrationService {
             }
         }
         result.setComment(batch.getString("structureComments"));
-        result.setHazardComment(batch.getString("hazards"));
-        result.setStorageComment(batch.getString("FIELD"));
+        result.setHazardComment(batch.getString("healthHazards"));
+        result.setStorageComment(batch.getString("storageInstructions"));
 
         return result;
     }
