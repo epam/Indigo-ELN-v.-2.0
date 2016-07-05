@@ -51,14 +51,14 @@ public class BatchRegisterStatusCheckingJob {
                     final String registrationStatus = b.getString(BATCH_REGISTRATION_STATUS_FIELD);
                     return RegistrationStatus.Status.IN_PROGRESS.toString().equals(registrationStatus);
                 }).collect(Collectors.toList());
-        Map<String, RegistrationStatus.Status> updatedBatchesStatuses = new HashMap<>();
+        Map<String, RegistrationStatus> updatedBatchesStatuses = new HashMap<>();
         for (BasicDBObject batch : batchesOnRegistration) {
             final String repositoryId = batch.getString(BATCH_REGISTRATION_REPOSITORY_ID_FIELD);
             final long jobId = batch.getLong(BATCH_REGISTRATION_JOB_ID_FIELD);
             try {
                 final RegistrationStatus status = registrationService.getStatus(repositoryId, jobId);
                 if (!status.getStatus().equals(RegistrationStatus.Status.IN_PROGRESS)) {
-                    updatedBatchesStatuses.put(batch.getString(BATCH_FULL_NBK_BATCH_FIELD), status.getStatus());
+                    updatedBatchesStatuses.put(batch.getString(BATCH_FULL_NBK_BATCH_FIELD), status);
                 }
             } catch (RegistrationException e) {
                 if (LOGGER.isErrorEnabled()) {

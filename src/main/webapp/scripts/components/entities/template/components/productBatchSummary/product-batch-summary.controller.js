@@ -334,7 +334,13 @@ angular.module('indigoeln')
                         return batch.fullNbkMatch = fullNbkMatch;
                     });
                     if (batch) {
-                        batch.registrationStatus = status;
+                        batch.registrationStatus = status.status;
+                        if (status.compoundNumbers) {
+                            batch.compoundId = status.compoundNumbers[fullNbkMatch];
+                        }
+                        if (status.conversationalBatchNumbers) {
+                            batch.conversationalBatchNumber = status.conversationalBatchNumbers[fullNbkMatch];
+                        }
                     }
                 });
             });

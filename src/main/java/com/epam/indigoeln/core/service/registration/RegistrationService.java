@@ -93,7 +93,7 @@ public class RegistrationService {
 
         componentRepository.save(new HashSet<>(batches.values()));
 
-        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.Status.IN_PROGRESS)));
+        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
 
         return jobId;
     }
@@ -114,8 +114,8 @@ public class RegistrationService {
                         b.setRegistrationStatus(registrationStatus.getStatus().toString());
                         if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
                             b.setRegistrationDate(new Date());
-                            b.setCompoundId(registrationStatus.getCompoundNumber(b.getFullNbkBatch()));
-                            b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumber(b.getFullNbkBatch()));
+                            b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
+                            b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                         }
                     }
             );
@@ -148,7 +148,6 @@ public class RegistrationService {
 
     private Compound convert(BasicDBObject batch) {
         Compound result = new Compound();
-        //TODO: replace FIELD with real values
         result.setBatchNo(batch.getString("fullNbkBatch"));
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setMolFormula(batch.getString("molFormula"));
