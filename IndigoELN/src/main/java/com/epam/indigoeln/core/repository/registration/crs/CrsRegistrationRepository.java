@@ -64,8 +64,8 @@ public class CrsRegistrationRepository implements RegistrationRepository {
             if (RegistrationStatus.Status.PASSED.equals(result.getStatus())) {
                 final List<FullCompoundInfo> compounds = search.getCompoundByJobId(String.valueOf(jobId));
                 compounds.forEach(c -> {
-                    result.addCompoundNumber(c.getBatchNumber(), c.getCompoundNumber());
-                    result.addConversationalBatchNumber(c.getBatchNumber(), c.getConversationalBatchNumber());
+                    result.getCompoundNumbers().put(c.getBatchNumber(), c.getCompoundNumber());
+                    result.getConversationalBatchNumbers().put(c.getBatchNumber(), c.getConversationalBatchNumber());
                 });
             }
             return result;

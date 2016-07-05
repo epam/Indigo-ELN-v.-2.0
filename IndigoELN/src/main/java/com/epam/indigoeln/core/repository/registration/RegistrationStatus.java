@@ -9,15 +9,15 @@ public class RegistrationStatus {
 
     private String message;
 
-    private Map<String, String> compoundNumberMap;
+    private Map<String, String> compoundNumbers;
 
-    private Map<String, String> conversationalBatchNumberMap;
+    private Map<String, String> conversationalBatchNumbers;
 
     private RegistrationStatus(Status status, String message) {
         this.status = status;
         this.message = message;
-        compoundNumberMap = new HashMap<>();
-        conversationalBatchNumberMap = new HashMap<>();
+        compoundNumbers = new HashMap<>();
+        conversationalBatchNumbers = new HashMap<>();
     }
 
     private RegistrationStatus(Status status) {
@@ -48,20 +48,20 @@ public class RegistrationStatus {
         return message;
     }
 
-    public void addCompoundNumber(String batchNumber, String compoundNumber) {
-        compoundNumberMap.put(batchNumber, compoundNumber);
+    public Map<String, String> getCompoundNumbers() {
+        return compoundNumbers;
     }
 
-    public void addConversationalBatchNumber(String batchNumber, String conversationalBatchNumber) {
-        conversationalBatchNumberMap.put(batchNumber, conversationalBatchNumber);
+    public void setCompoundNumbers(Map<String, String> compoundNumbers) {
+        this.compoundNumbers = compoundNumbers;
     }
 
-    public String getCompoundNumber(String batchNumber) {
-        return compoundNumberMap.get(batchNumber);
+    public Map<String, String> getConversationalBatchNumbers() {
+        return conversationalBatchNumbers;
     }
 
-    public String getConversationalBatchNumber(String batchNumber) {
-        return conversationalBatchNumberMap.get(batchNumber);
+    public void setConversationalBatchNumbers(Map<String, String> conversationalBatchNumbers) {
+        this.conversationalBatchNumbers = conversationalBatchNumbers;
     }
 
     public enum Status {
