@@ -55,10 +55,10 @@ angular.module('indigoeln')
                     });
                 }
                 $scope.unitParsers = [function (viewValue) {
-                    return $u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
+                    return +$u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
                 }];
                 $scope.unitFormatters = [function (modelValue) {
-                    return roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].entered);
+                    return +roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].entered, $scope.myRow[$scope.myColumn.id].sigDigits);
                 }];
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
