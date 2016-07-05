@@ -333,14 +333,14 @@ angular.module('indigoeln')
             return data.digits.toString();
         };
 
-        return function (value, isEntered) {
+        return function (value, isEntered, sigDigits) {
             if (isEntered) {
                 return value;
             }
             var data = {
                 original: value,
                 number: value,
-                significantFigures: 3,
+                significantFigures: sigDigits || 3,
                 digits: '',
                 mantissa: -1,
                 sign: true,
@@ -348,6 +348,6 @@ angular.module('indigoeln')
             };
             parse(data);
             setNumberSignificantFigures(data);
-            return toDisplayResult(data);
+            return +toDisplayResult(data);
         };
     });

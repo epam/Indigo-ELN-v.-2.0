@@ -7,7 +7,7 @@ var useminAutoprefixer = {
         if (block.src.length === 0) {
             return {};
         } else {
-            return require('grunt-usemin/lib/config/cssmin').createConfig(context, block) // Reuse cssmins createConfig
+            return require('grunt-usemin/lib/config/cssmin').createConfig(context, block); // Reuse cssmins createConfig
         }
     }
 };
@@ -55,7 +55,7 @@ module.exports = function (grunt) {
             },
             options: {
                 watchTask: true,
-                proxy: "localhost:8080"
+                proxy: 'localhost:8080'
             }
         },
         clean: {
@@ -239,6 +239,22 @@ module.exports = function (grunt) {
                 src: 'src/main/less/indigo-bootstrap.less',
                 dest: 'src/main/webapp/assets/styles/indigo-bootstrap.css'
             }
+        },
+        babel: {
+            options: {
+                presets: ['es2015'], // npm install babel-preset-es2015
+                compact: false
+            },
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: '.tmp/concat/scripts',
+                        src: 'app.js',
+                        dest: '.tmp/concat/scripts'
+                    }
+                ]
+            }
         }
     });
 
@@ -263,6 +279,7 @@ module.exports = function (grunt) {
         'imagemin',
         'svgmin',
         'concat',
+        'babel:dist',
         'copy:fonts',
         'copy:dist',
         'ngAnnotate',

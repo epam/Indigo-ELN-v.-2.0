@@ -7,6 +7,6 @@ angular.module('indigoeln')
             if (!value) {
                 return value;
             }
-            return $u(value).as(to).val();
+            return +$u(value).as(to).val();
         };
     });
