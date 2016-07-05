@@ -49,7 +49,7 @@
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-parsers="unitParsers" my-formatters="unitFormatters">
+                      my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number">
                 <div class="btn-group-sm" uib-dropdown dropdown-append-to-body
                      ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">
                     <button type="button" class="btn btn-info"
@@ -67,9 +67,11 @@
         </div>
         <div ng-if="myColumn.type == 'scalar'">
             <my-input my-model="myRow[myColumn.id].value"
+                      my-type="number"
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})">
+                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
+                      my-parsers="unitParsers" my-formatters="unitFormatters">
             </my-input>
         </div>
         <div ng-if="myColumn.type == 'select'">
@@ -80,6 +82,7 @@
         </div>
         <div ng-if="myColumn.type == 'input'">
             <my-input my-model="myRow[myColumn.id]" my-classes="form-group-sm"
+                      my-type="number"
                       my-click="myColumn.onClick(myRow[myColumn.id])"
                       my-change="myColumn.onChange(myRow[myColumn.id])"></my-input>
         </div>

@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/1/2016.
  */
 angular.module('indigoeln')
-    .directive('myTableVal', function ($sce) {
+    .directive('myTableVal', function ($sce, roundFilter) {
         return {
             restrict: 'E',
             replace: true,
@@ -58,7 +58,7 @@ angular.module('indigoeln')
                     return $u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
                 }];
                 $scope.unitFormatters = [function (modelValue) {
-                    return $u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val();
+                    return roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].entered);
                 }];
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
