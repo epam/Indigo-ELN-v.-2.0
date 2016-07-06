@@ -64,6 +64,19 @@
                             <div class="reagent-search-container">
                                 <div class="row reagent-search-row">
                                     <div class="col-xs-3"><p>
+                                        {{model.restrictions.advancedSearch.compoundId.name}}:</p>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.compoundId.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.compoundId.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row reagent-search-row">
+                                    <div class="col-xs-3"><p>
                                         {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</p>
                                     </div>
                                     <div class="col-xs-3">
@@ -244,6 +257,18 @@
                                 <div class="col-xs-12">
                                     <div>
                                         <div class="reagent-search-container">
+                                            <div class="row reagent-search-row">
+                                                <div class="col-xs-3"><p>
+                                                    {{model.restrictions.advancedSearch.compoundId.name}}:</p></div>
+                                                <div class="col-xs-3">
+                                                    <my-select my-items="conditionText"
+                                                               my-model="model.restrictions.advancedSearch.compoundId.condition"></my-select>
+                                                </div>
+                                                <div class="col-xs-3">
+                                                    <my-input
+                                                            my-model="model.restrictions.advancedSearch.compoundId.value"></my-input>
+                                                </div>
+                                            </div>
                                             <div class="row reagent-search-row">
                                                 <div class="col-xs-3"><p>
                                                     {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</p></div>
