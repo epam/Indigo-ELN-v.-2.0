@@ -161,9 +161,9 @@ public class RegistrationService {
                 LOGGER.warn("Unable to parse Salt Eq");
             }
         }
-        result.setComment(batch.getString("structureComments"));
-        result.setHazardComment(batch.getString("healthHazards"));
-        result.setStorageComment(batch.getString("storageInstructions"));
+        result.setComment(batch.getString("comments"));
+        result.setHazardComment(((BasicDBObject) batch.get("healthHazards")).getString("asString"));
+        result.setStorageComment(((BasicDBObject) batch.get("storageInstructions")).getString("asString"));
 
         return result;
     }
