@@ -361,13 +361,18 @@ angular.module('indigoeln')
                             });
                             var batch = angular.copy(CalculationService.createBatch(stoichTable, true),
                                 {
-                                    nbkBatch: batchNumber, fullNbkBatch: fullNbkBatch,
-                                    fullNbkImmutablePart: fullNbkImmutablePart, $$selected: true
+                                    nbkBatch: batchNumber,
+                                    fullNbkBatch: fullNbkBatch,
+                                    fullNbkImmutablePart: fullNbkImmutablePart,
+                                    $$selected: true
                                 });
                             if (duplicatedBatch) {
                                 duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
                                 duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
                                 duplicatedBatch.nbkBatch = batch.nbkBatch;
+                                duplicatedBatch.conversationalBatchNumber = null;
+                                duplicatedBatch.registrationDate = null;
+                                duplicatedBatch.registrationStatus = null;
                                 batch = duplicatedBatch;
                             }
                             $scope.model.productBatchSummary.batches.push(batch);
