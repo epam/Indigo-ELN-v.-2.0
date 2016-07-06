@@ -1,14 +1,23 @@
 package com.epam.indigoeln.core.repository.registration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RegistrationStatus {
 
     private Status status;
 
     private String message;
 
+    private Map<String, String> compoundNumbers;
+
+    private Map<String, String> conversationalBatchNumbers;
+
     private RegistrationStatus(Status status, String message) {
         this.status = status;
         this.message = message;
+        compoundNumbers = new HashMap<>();
+        conversationalBatchNumbers = new HashMap<>();
     }
 
     private RegistrationStatus(Status status) {
@@ -37,6 +46,22 @@ public class RegistrationStatus {
 
     public String getMessage() {
         return message;
+    }
+
+    public Map<String, String> getCompoundNumbers() {
+        return compoundNumbers;
+    }
+
+    public void setCompoundNumbers(Map<String, String> compoundNumbers) {
+        this.compoundNumbers = compoundNumbers;
+    }
+
+    public Map<String, String> getConversationalBatchNumbers() {
+        return conversationalBatchNumbers;
+    }
+
+    public void setConversationalBatchNumbers(Map<String, String> conversationalBatchNumbers) {
+        this.conversationalBatchNumbers = conversationalBatchNumbers;
     }
 
     public enum Status {
