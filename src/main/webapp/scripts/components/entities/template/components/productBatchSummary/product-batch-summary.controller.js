@@ -73,7 +73,7 @@ angular.module('indigoeln')
                             return !angular.equals(intendedItem, productItem);
                         });
                         if (isUnique) {
-                            $scope.model.productBatchSummary.batches.push(intendedItem);
+                            $scope.model.productBatchSummary.batches.push(angular.copy(intendedItem));
                         } else {
                             alreadyInTable = alreadyInTable + 1;
                         }
@@ -345,7 +345,7 @@ angular.module('indigoeln')
                 });
             });
 
-            function requestNbkBatchNumber(latest, batchToDuplicate) {
+            function requestNbkBatchNumber(latest, duplicatedBatch) {
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                     '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
@@ -364,8 +364,11 @@ angular.module('indigoeln')
                                     nbkBatch: batchNumber, fullNbkBatch: fullNbkBatch,
                                     fullNbkImmutablePart: fullNbkImmutablePart, $$selected: true
                                 });
-                            if (batchToDuplicate) {
-                                batch = _.extend(batchToDuplicate, batch);
+                            if (duplicatedBatch) {
+                                duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
+                                duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
+                                duplicatedBatch.nbkBatch = batch.nbkBatch;
+                                batch = duplicatedBatch;
                             }
                             $scope.model.productBatchSummary.batches.push(batch);
                             $scope.onRowSelected(batch);
