@@ -21,11 +21,13 @@ public class ProductCalculator {
     private static final int VOLUME_AMOUNT = 2;
     private static final int MOLES_AMOUNT = 3;
 
-    private static void setTotalAmountMadeWeight(ProductBatchModel batch, AmountModel amount) {
+    private static void setTotalAmountMadeWeight(ProductBatchModel batch, AmountModel amount, boolean isQuitly) {
         batch.setTotalWeightAmountQuitly(new AmountModel(MASS, 0));
         batch.setTotalWeightAmount(amount);
-        batch.getTotalWeight().setCalculated(false);
         batch.recalcAmounts();
+        if (!isQuitly) {
+            batch.getTotalWeight().setCalculated(false);
+        }
         //Sync all units
         ArrayList objectList = new ArrayList();
         objectList.add(batch);
@@ -48,8 +50,9 @@ public class ProductCalculator {
         AmountModel newTotalWeightAmountModel = new AmountModel(MASS, totalWeightInStdUnits);
         newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles. Total wt unit takes precedence.
         newTotalWeightAmountModel.setSigDigits(batch.getTotalWeight().getSigDigits());
-        setTotalAmountMadeWeight((ProductBatchModel) batch, newTotalWeightAmountModel);
+        setTotalAmountMadeWeight((ProductBatchModel) batch, newTotalWeightAmountModel, true);
         batch.getTheoreticalMoleAmount().setUnit(totalMolesAmountModel.getUnit());
+        batch.getMoleAmount().setCalculated(false);
     }
 
     private static void syncUnitsAndSigDigits(ArrayList objectList, AmountModel amount, int property) {
@@ -101,7 +104,7 @@ public class ProductCalculator {
         switch (changedField) {
             case "totalWeight":
                 amount = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered());
-                setTotalAmountMadeWeight(batch, amount);
+                setTotalAmountMadeWeight(batch, amount, false);
                 break;
             case "totalVolume":
                 amount = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered());
