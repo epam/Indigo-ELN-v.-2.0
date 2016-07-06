@@ -60,7 +60,15 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     public RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException {
         try {
             CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), jobId);
-            return convert(status);
+            final RegistrationStatus result = convert(status);
+            if (RegistrationStatus.Status.PASSED.equals(result.getStatus())) {
+                final List<FullCompoundInfo> compounds = search.getCompoundByJobId(String.valueOf(jobId));
+                compounds.forEach(c -> {
+                    result.getCompoundNumbers().put(c.getBatchNumber(), c.getCompoundNumber());
+                    result.getConversationalBatchNumbers().put(c.getBatchNumber(), c.getConversationalBatchNumber());
+                });
+            }
+            return result;
         } catch (CRSException e) {
             throw new RegistrationException(e);
         }

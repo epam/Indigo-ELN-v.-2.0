@@ -10,6 +10,8 @@ import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class RegistrationService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationService.class);
 
     private static final String DEFAULT_SIMILARITY = "tanimoto";
 
@@ -89,7 +93,7 @@ public class RegistrationService {
 
         componentRepository.save(new HashSet<>(batches.values()));
 
-        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.Status.IN_PROGRESS)));
+        template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
 
         return jobId;
     }
@@ -110,6 +114,8 @@ public class RegistrationService {
                         b.setRegistrationStatus(registrationStatus.getStatus().toString());
                         if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
                             b.setRegistrationDate(new Date());
+                            b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
+                            b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                         }
                     }
             );
@@ -142,23 +148,22 @@ public class RegistrationService {
 
     private Compound convert(BasicDBObject batch) {
         Compound result = new Compound();
-        //TODO: replace FIELD with real values
-        result.setChemicalName(batch.getString("FIELD"));
-        result.setCompoundNo(batch.getString("virtualCompoundId"));
-        result.setConversationalBatchNo(batch.getString("conversationalBatch"));
         result.setBatchNo(batch.getString("fullNbkBatch"));
-        result.setCasNo(batch.getString("FIELD"));
-        result.setStructure(batch.getString("molfile"));
+        result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setMolFormula(batch.getString("molFormula"));
-        result.setStereoisomerCode(batch.getString("stereoisomer"));
-        result.setSaltCode(batch.getString("FIELD"));
-        if (batch.containsField("FIELD")) {
-            result.setSaltEquivs(batch.getDouble("FIELD"));
+        result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
+        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("name"));
+        final String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
+        if (saltEq != null) {
+            try {
+                result.setSaltEquivs(Double.parseDouble(saltEq));
+            } catch (NumberFormatException e) {
+                LOGGER.warn("Unable to parse Salt Eq");
+            }
         }
         result.setComment(batch.getString("structureComments"));
-        result.setHazardComment(batch.getString("hazards"));
-        result.setStorageComment(batch.getString("FIELD"));
-        result.setRegistrationStatus(batch.getString("registrationStatus"));
+        result.setHazardComment(batch.getString("healthHazards"));
+        result.setStorageComment(batch.getString("storageInstructions"));
 
         return result;
     }
@@ -202,6 +207,14 @@ public class RegistrationService {
 
         public void setRegistrationDate(Date registrationDate) {
             delegate.put("registrationDate", registrationDate);
+        }
+
+        public void setCompoundId(String compoundId) {
+            delegate.put("compoundId", compoundId);
+        }
+
+        public void setСonversationalBatchNumber(String conversationalBatchNumber) {
+            delegate.put("conversationalBatchNumber", conversationalBatchNumber);
         }
 
     }
