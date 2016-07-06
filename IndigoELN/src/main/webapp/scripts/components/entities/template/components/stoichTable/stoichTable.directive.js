@@ -57,7 +57,8 @@ angular.module('indigoeln')
                     },
                     {
                         id: 'casNumber',
-                        name: 'CAS Number'
+                        name: 'CAS Number',
+                        type: 'input'
                     },
                     {
                         id: 'chemicalName',
@@ -188,7 +189,8 @@ angular.module('indigoeln')
                     },
                     {
                         id: 'exactMass',
-                        name: 'Exact Mass'
+                        name: 'Exact Mass',
+                        type: 'primitive'
                     },
                     {
                         id: 'weight',
