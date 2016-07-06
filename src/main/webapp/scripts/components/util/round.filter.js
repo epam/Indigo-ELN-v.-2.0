@@ -334,7 +334,7 @@ angular.module('indigoeln')
         };
 
         return function (value, isEntered, sigDigits) {
-            if (isEntered) {
+            if (isEntered || !value) {
                 return value;
             }
             var data = {
