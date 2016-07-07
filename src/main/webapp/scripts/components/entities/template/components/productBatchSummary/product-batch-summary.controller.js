@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-    function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -253,9 +253,36 @@ angular.module('indigoeln')
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
             };
-            $scope.isEditable = function (row) {
-                return !(row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS');
+            $scope.isEditable = function (row, columnId) {
+                var rowResult = !(row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS');
+                if (rowResult) {
+                    if (columnId === 'precursors') {
+                        if ($scope.share.stoichTable) {
+                            return false;
+                        }
+                    }
+                }
+                return rowResult;
             };
+
+            function updatePrecursor() {
+                if (!$scope.share.stoichTable) {
+                    return;
+                }
+                _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
+                var precursors = _.filter(_.map($scope.share.stoichTable.reactants, function (item) {
+                    return item.compoundId || item.fullNbkBatch;
+                }), function (val) {
+                    return !!val;
+                }).join(', ');
+                _.each($scope.model.productBatchSummary.batches, function (batch) {
+                    batch.precursors = precursors;
+                });
+
+            }
+
+            $scope.$watch('share.stoichTable', updatePrecursor, true);
+            $scope.$watch('model.productBatchSummary.batches', updatePrecursor, true);
 
             $scope.share.selectedRow = _.findWhere($scope.model.productBatchSummary.batches, {$$selected: true});
 
@@ -264,17 +291,17 @@ angular.module('indigoeln')
                     return item.select;
                 });
             };
-        var getSelectedNonEditableBatches = function () {
-            return _.chain($scope.model.productBatchSummary.batches).filter(function (item) {
+            var getSelectedNonEditableBatches = function () {
+                return _.chain($scope.model.productBatchSummary.batches).filter(function (item) {
                     return item.select;
                 }).filter(function (item) {
                     return item.registrationStatus === 'PASSED' || item.registrationStatus === 'IN_PROGRESS';
                 }).map(function (item) {
                     return item.fullNbkBatch;
                 }).value();
-        };
-        $scope.deleteBatches = function () {
-            var nonEditableBatches = getSelectedNonEditableBatches();
+            };
+            $scope.deleteBatches = function () {
+                var nonEditableBatches = getSelectedNonEditableBatches();
                 if (nonEditableBatches && nonEditableBatches.length > 0) {
                     AlertModal.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
                     return;
@@ -306,11 +333,11 @@ angular.module('indigoeln')
                 $scope.isHasRegService = _.isArray(info) && info.length > 0;
             });
 
-        var registerBatches = function (excludes) {
+            var registerBatches = function (excludes) {
                 var batches = _.filter($scope.model.productBatchSummary.batches, function (row) {
                     return row.select && !_.contains(excludes, row.fullNbkBatch);
                 });
-            var emptyFields = [];
+                var emptyFields = [];
                 _.each($scope.columns, function (column) {
                     if (column.type && !column.readonly && column.name !== 'Select') {
                         _.each(batches, function (row) {
@@ -329,15 +356,15 @@ angular.module('indigoeln')
                     });
                     RegistrationService.register({}, batchNumbers);
                 }
-        };
-        $scope.registerBatches = function () {
-            var nonEditableBatches = getSelectedNonEditableBatches();
-            if (nonEditableBatches && nonEditableBatches.length > 0) {
-                AlertModal.info('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
-                    registerBatches(nonEditableBatches)
-                });
-            } else {
-                registerBatches([]);
+            };
+            $scope.registerBatches = function () {
+                var nonEditableBatches = getSelectedNonEditableBatches();
+                if (nonEditableBatches && nonEditableBatches.length > 0) {
+                    AlertModal.info('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
+                        registerBatches(nonEditableBatches);
+                    });
+                } else {
+                    registerBatches([]);
                 }
 
             };
@@ -372,7 +399,10 @@ angular.module('indigoeln')
                             _.each($scope.model.productBatchSummary.batches, function (row) {
                                 row.$$selected = false;
                             });
-                            var batch = angular.copy(CalculationService.createBatch(stoichTable, true));
+                            var batch = {};
+                            if (stoichTable) {
+                                batch = angular.copy(CalculationService.createBatch(stoichTable, true));
+                            }
                             batch.nbkBatch = batchNumber;
                             batch.fullNbkBatch = fullNbkBatch;
                             batch.fullNbkImmutablePart = fullNbkImmutablePart;
