@@ -237,7 +237,7 @@ angular.module('indigoeln')
                     id: 'structureComments', name: 'Structure Comments',
                     type: 'input'
                 },
-                {id: 'registrationDate', name: 'Registration Date'},
+                {id: 'registrationDate', name: 'Registration Date', type: 'date'},
                 {id: 'registrationStatus', name: 'Registration Status'}
             ];
 
