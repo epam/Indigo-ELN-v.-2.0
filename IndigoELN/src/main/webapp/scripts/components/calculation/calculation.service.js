@@ -58,6 +58,16 @@ angular.module('indigoeln')
             }
         };
 
+        var getImageForStructure = function (molfile, type, callback) {
+            $http({
+                url: 'api/renderer/' + type + '/image',
+                method: 'POST',
+                data: molfile
+            }).success(function (result) {
+                callback(result.image);
+            });
+        };
+
         function findLimiting(stoichTable) {
             return _.findWhere(stoichTable.reactants, {limiting: true});
         }
@@ -150,10 +160,12 @@ angular.module('indigoeln')
         var isMoleculesEqual = function (molecule1, molecule2) {
             return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
         };
-        
+
+
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
+            getImageForStructure: getImageForStructure,
             setEntered: setEntered,
             isMoleculesEqual: isMoleculesEqual,
             resetValuesToDefault: resetValuesToDefault,
