@@ -150,7 +150,7 @@ public class RegistrationService {
         Compound result = new Compound();
         result.setBatchNo(batch.getString("fullNbkBatch"));
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
-        result.setMolFormula(batch.getString("molFormula"));
+        result.setFormula(batch.getString("formula"));
         result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
         result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("name"));
         final String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");

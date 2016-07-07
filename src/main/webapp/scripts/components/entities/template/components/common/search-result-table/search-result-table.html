@@ -31,7 +31,7 @@
                     my-model="item.$$isSelected"></my-checkbox>
         </td>
         <td>{{item.molWeight.value}}</td>
-        <td>{{item.molFormula}}</td>
+        <td>{{item.formula}}</td>
         <td>{{item.chemicalName}}</td>
         <td>{{item.compoundId}}</td>
         <td>{{item.database}}</td>
@@ -89,8 +89,8 @@
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-input ng-if="isEditMode"
                                           my-readonly="true"
-                                          my-model="item.molFormula"></my-input>
-                                <p ng-if="!isEditMode">{{item.molFormula}}</p>
+                                          my-model="item.formula"></my-input>
+                                <p ng-if="!isEditMode">{{item.formula}}</p>
                             </div>
                         </div>
                         <div class="row reagent-search-row">

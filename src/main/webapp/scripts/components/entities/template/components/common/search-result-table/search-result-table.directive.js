@@ -33,7 +33,7 @@ angular.module('indigoeln')
                 $scope.selectSingleItemtPerTab = function (tab, reactant, tabIndex, reactantIndex, isDeselected) {
                     if (!isDeselected) {
                         // only one reactant can be selected from each tab
-                        var reactantToReplaceIndex = _.findIndex($scope.mySelectedItemsPerTab, {molFormula: reactant.molFormula});
+                        var reactantToReplaceIndex = _.findIndex($scope.mySelectedItemsPerTab, {formula: reactant.formula});
                         if (reactantToReplaceIndex > -1) {
                             _.each(tab.searchResult, function (item, index) {
                                 if (index !== reactantIndex) {
