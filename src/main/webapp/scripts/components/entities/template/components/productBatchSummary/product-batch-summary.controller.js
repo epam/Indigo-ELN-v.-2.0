@@ -408,7 +408,9 @@ angular.module('indigoeln')
             };
 
             $scope.syncWithIntendedProducts = function () {
-                if (stoichTable && stoichTable.products.length) {
+                var syncingIntendedProducts = $q.defer();
+                $scope.syncingIntendedProducts = syncingIntendedProducts.promise;
+                if (stoichTable && stoichTable.products && stoichTable.products.length) {
                     var intendedProducts = stoichTable.products.length;
                     var alreadyInTable = 0;
                     _.each(stoichTable.products, function (intendedItem) {
@@ -422,9 +424,11 @@ angular.module('indigoeln')
                         }
                     });
                     if (!stoichTable.products.length || intendedProducts === alreadyInTable) {
+                        syncingIntendedProducts.resolve();
                         AlertModal.info('Product Batch Summary is synchronized', 'sm');
                     }
                 }
+                syncingIntendedProducts.resolve();
             };
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
