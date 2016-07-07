@@ -313,6 +313,14 @@ angular.module('indigoeln')
                     });
                 }
 
+                function getStructureImagesForIntendedProducts() {
+                    _.each($scope.model.stoichTable.products, function (item) {
+                        CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
+                            item.structure.image = image;
+                        });
+                    });
+                }
+
                 function getReactionProductsAndReactants(molFile) {
                     $http.put('api/calculations/reaction/extract', molFile).then(function (reactionProperties) {
                         if (reactionProperties.data.products && reactionProperties.data.products.length) {
@@ -320,6 +328,8 @@ angular.module('indigoeln')
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
                                 $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
+                                getStructureImagesForIntendedProducts();
+                                CalculationService.recalculateStoich(initDataForCalculation());
                             });
                             $q.all(reactantPromises).then(function (results) {
                                 reactionReactants = moleculeInfoResponseCallback(results);
