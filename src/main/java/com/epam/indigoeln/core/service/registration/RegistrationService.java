@@ -162,8 +162,10 @@ public class RegistrationService {
             }
         }
         result.setComment(batch.getString("comments"));
-        result.setHazardComment(((BasicDBObject) batch.get("healthHazards")).getString("asString"));
-        result.setStorageComment(((BasicDBObject) batch.get("storageInstructions")).getString("asString"));
+        final BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
+        result.setHazardComment(Optional.ofNullable(healthHazards).map(hh -> hh.getString("asString")).orElse(null));
+        final BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
+        result.setStorageComment(Optional.ofNullable(storageInstructions).map(hh -> hh.getString("asString")).orElse(null));
 
         return result;
     }
