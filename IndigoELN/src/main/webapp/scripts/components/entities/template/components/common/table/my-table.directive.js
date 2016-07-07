@@ -74,6 +74,7 @@ angular.module('indigoeln')
                 myColumns: '=',
                 myRows: '=',
                 myReadonly: '=',
+                myEditable: '=',
                 myOnRowSelected: '=',
                 myDraggableRows: '=',
                 myDraggableColumns: '='
@@ -125,6 +126,13 @@ angular.module('indigoeln')
                     editableCell = columnId + '-' + rowIndex;
                 };
                 that.isEditable = function (columnId, rowIndex) {
+                    if ($scope.myEditable) {
+                        var row = $scope.myRows[rowIndex];
+                        var editable = $scope.myEditable(row);
+                        if (!editable) {
+                            return false;
+                        }
+                    }
                     if (columnId === null || rowIndex === null) {
                         return false;
                     }
