@@ -64,26 +64,6 @@ angular.module('indigoeln')
                 stoichTable = table;
             }, true);
 
-            $scope.syncWithIntendedProducts = function () {
-                if (stoichTable) {
-                    var intendedProducts = stoichTable.products.length;
-                    var alreadyInTable = 0;
-                    _.each(stoichTable.products, function (intendedItem) {
-                        var isUnique = _.every($scope.model.productBatchSummary.batches, function (productItem) {
-                            return !angular.equals(intendedItem, productItem);
-                        });
-                        if (isUnique) {
-                            $scope.model.productBatchSummary.batches.push(angular.copy(intendedItem));
-                        } else {
-                            alreadyInTable = alreadyInTable + 1;
-                        }
-                    });
-                    if (!stoichTable.products.length || intendedProducts === alreadyInTable) {
-                        AlertModal.info('Product Batch Summary is synchronized', 'sm');
-                    }
-                }
-            };
-
             $scope.columns = [
                 {
                     id: 'structure',
@@ -359,13 +339,11 @@ angular.module('indigoeln')
                             _.each($scope.model.productBatchSummary.batches, function (row) {
                                 row.$$selected = false;
                             });
-                            var batch = angular.copy(CalculationService.createBatch(stoichTable, true),
-                                {
-                                    nbkBatch: batchNumber,
-                                    fullNbkBatch: fullNbkBatch,
-                                    fullNbkImmutablePart: fullNbkImmutablePart,
-                                    $$selected: true
-                                });
+                            var batch = angular.copy(CalculationService.createBatch(stoichTable, true));
+                            batch.nbkBatch = batchNumber;
+                            batch.fullNbkBatch = fullNbkBatch;
+                            batch.fullNbkImmutablePart = fullNbkImmutablePart;
+                            batch.$$selected = true;
                             if (duplicatedBatch) {
                                 duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
                                 duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
@@ -389,11 +367,31 @@ angular.module('indigoeln')
                 requestNbkBatchNumber(latest);
             };
 
-            $scope.duplicateBatch = function () {
-                var batchToDuplicate = angular.copy($scope.share.selectedRow);
+            $scope.duplicateBatch = function (batchToCopy) {
+                var batchToDuplicate = angular.copy(batchToCopy || $scope.share.selectedRow);
                 var batches = $scope.model.productBatchSummary.batches;
-                var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
-                requestNbkBatchNumber(latest, batchToDuplicate);
+                var latestNbkBatch = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
+                requestNbkBatchNumber(latestNbkBatch, batchToDuplicate);
+            };
+
+            $scope.syncWithIntendedProducts = function () {
+                if (stoichTable && stoichTable.products.length) {
+                    var intendedProducts = stoichTable.products.length;
+                    var alreadyInTable = 0;
+                    _.each(stoichTable.products, function (intendedItem) {
+                        var isUnique = _.every($scope.model.productBatchSummary.batches, function (productItem) {
+                            return !angular.equals(intendedItem, productItem);
+                        });
+                        if (isUnique) {
+                            $scope.duplicateBatch(intendedItem);
+                        } else {
+                            alreadyInTable = alreadyInTable + 1;
+                        }
+                    });
+                    if (!stoichTable.products.length || intendedProducts === alreadyInTable) {
+                        AlertModal.info('Product Batch Summary is synchronized', 'sm');
+                    }
+                }
             };
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {

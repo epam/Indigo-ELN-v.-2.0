@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, $rootScope) {
-        // molecule, reaction
+        // structure types: molecule, reaction
         var type = $attrs.myStructureType;
         $scope.structureType = type;
         $scope.myTitle = $attrs.myTitle;

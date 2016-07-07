@@ -302,7 +302,7 @@ angular.module('indigoeln')
                             molWeight: {value: result.data.molecularWeight},
                             exactMass: result.data.exactMolecularWeight,
                             saltEq: {value: result.data.saltEq},
-                            molecule: result.data.molecule
+                            structure: {image: result.data.image, molfile: result.data.molecule}
                         };
                     });
                 }
@@ -387,7 +387,7 @@ angular.module('indigoeln')
                     _.each(reactionReactants, function (reactionReactant) {
                         var stoicAndReactionReactantsEqualityPromises = [];
                         _.each(stoicReactants, function (stoicReactant) {
-                            stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
+                            stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
                         });
                         allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function () {
                             if (stoicAndReactionReactantsEqualityPromises.length) {
