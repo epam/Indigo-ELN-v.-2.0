@@ -34,8 +34,8 @@ angular.module('indigoeln')
             warning: function (msg, size) {
                 alertModal('Warning', msg, size);
             },
-            info: function (msg, size) {
-                alertModal('Info', msg, size);
+            info: function (msg, size, callback) {
+                alertModal('Info', msg, size, callback);
             },
             confirm: function (msg, size, callback) {
                 alertModal('Confirm', msg, size, callback);

@@ -264,14 +264,17 @@ angular.module('indigoeln')
                     return item.select;
                 });
             };
-            $scope.deleteBatches = function () {
-                var nonEditableBatches = _.chain($scope.model.productBatchSummary.batches).filter(function (item) {
+        var getSelectedNonEditableBatches = function () {
+            return _.chain($scope.model.productBatchSummary.batches).filter(function (item) {
                     return item.select;
                 }).filter(function (item) {
                     return item.registrationStatus === 'PASSED' || item.registrationStatus === 'IN_PROGRESS';
                 }).map(function (item) {
                     return item.fullNbkBatch;
                 }).value();
+        };
+        $scope.deleteBatches = function () {
+            var nonEditableBatches = getSelectedNonEditableBatches();
                 if (nonEditableBatches && nonEditableBatches.length > 0) {
                     AlertModal.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
                     return;
@@ -303,11 +306,11 @@ angular.module('indigoeln')
                 $scope.isHasRegService = _.isArray(info) && info.length > 0;
             });
 
-            $scope.registerBatches = function () {
-                var emptyFields = [];
+        var registerBatches = function (excludes) {
                 var batches = _.filter($scope.model.productBatchSummary.batches, function (row) {
-                    return row.select;
+                    return row.select && !_.contains(excludes, row.fullNbkBatch);
                 });
+            var emptyFields = [];
                 _.each($scope.columns, function (column) {
                     if (column.type && !column.readonly && column.name !== 'Select') {
                         _.each(batches, function (row) {
@@ -319,27 +322,37 @@ angular.module('indigoeln')
                     }
                 });
                 if (emptyFields.length) {
-                    AlertModal.error('This fields is required: ' + _.uniq(emptyFields).join(', '));
+                    AlertModal.error('This fields are required: ' + _.uniq(emptyFields).join(', '));
                 } else {
                     var batchNumbers = _.map(batches, function (batch) {
                         return batch.fullNbkBatch;
                     });
                     RegistrationService.register({}, batchNumbers);
                 }
+        };
+        $scope.registerBatches = function () {
+            var nonEditableBatches = getSelectedNonEditableBatches();
+            if (nonEditableBatches && nonEditableBatches.length > 0) {
+                AlertModal.info('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
+                    registerBatches(nonEditableBatches)
+                });
+            } else {
+                registerBatches([]);
+                }
 
             };
             $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
-                _.each(statuses, function (status, fullNbkMatch) {
+                _.each(statuses, function (status, fullNbkBatch) {
                     var batch = _.find($scope.model.productBatchSummary.batches, function (batch) {
-                        return batch.fullNbkMatch = fullNbkMatch;
+                        return batch.fullNbkBatch === fullNbkBatch;
                     });
                     if (batch) {
                         batch.registrationStatus = status.status;
                         if (status.compoundNumbers) {
-                            batch.compoundId = status.compoundNumbers[fullNbkMatch];
+                            batch.compoundId = status.compoundNumbers[fullNbkBatch];
                         }
                         if (status.conversationalBatchNumbers) {
-                            batch.conversationalBatchNumber = status.conversationalBatchNumbers[fullNbkMatch];
+                            batch.conversationalBatchNumber = status.conversationalBatchNumbers[fullNbkBatch];
                         }
                     }
                 });
