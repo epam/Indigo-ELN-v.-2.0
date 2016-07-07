@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
+    function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -237,7 +237,11 @@ angular.module('indigoeln')
                     id: 'structureComments', name: 'Structure Comments',
                     type: 'input'
                 },
-                {id: 'registrationDate', name: 'Registration Date', type: 'date'},
+                {
+                    id: 'registrationDate', name: 'Registration Date', format: function (val) {
+                    return $filter('date')(val, 'MMM dd yyyy');
+                }
+                },
                 {id: 'registrationStatus', name: 'Registration Status'}
             ];
 
