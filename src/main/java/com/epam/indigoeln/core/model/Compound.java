@@ -18,7 +18,7 @@ public class Compound implements Serializable {
 
     private String structure;
 
-    private String molFormula;
+    private String formula;
 
     private String stereoisomerCode;
 
@@ -50,12 +50,12 @@ public class Compound implements Serializable {
         this.compoundNo = compoundNo;
     }
 
-    public void setConversationalBatchNo(String conversationalBatchNo) {
-        this.conversationalBatchNo = conversationalBatchNo;
-    }
-
     public String getConversationalBatchNo() {
         return conversationalBatchNo;
+    }
+
+    public void setConversationalBatchNo(String conversationalBatchNo) {
+        this.conversationalBatchNo = conversationalBatchNo;
     }
 
     public String getBatchNo() {
@@ -82,12 +82,12 @@ public class Compound implements Serializable {
         this.structure = structure;
     }
 
-    public String getMolFormula() {
-        return molFormula;
+    public String getFormula() {
+        return formula;
     }
 
-    public void setMolFormula(String molFormula) {
-        this.molFormula = molFormula;
+    public void setFormula(String formula) {
+        this.formula = formula;
     }
 
     public String getStereoisomerCode() {
