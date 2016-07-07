@@ -152,13 +152,14 @@ public class StoicCalculationService {
         return new StoicTableDTO(stoicBatches, intendedProducts, actualProducts);
     }
 
-    private List<BasicBatchModel> convertProductBatchesListForResponse(List<ProductBatchModel> sourceBatches, List<BasicBatchModel> rawBatches) {
+    private List<BasicBatchModel> convertProductBatchesListForResponse(List<ProductBatchModel> calculatedBatches, List<BasicBatchModel> rawBatches) {
         List<BasicBatchModel> myBatches = new ArrayList<>();
         int index = 0;
-        for (ProductBatchModel sourceBatch : sourceBatches) {
-            BasicBatchModel converdedBatch = prepareBatchModelForResponse(sourceBatch, rawBatches.get(index));
-            converdedBatch.setYield(sourceBatch.getTheoreticalYieldPercentAmount().doubleValue());
-            myBatches.add(converdedBatch);
+        for (ProductBatchModel calculatedBatch : calculatedBatches) {
+
+            BasicBatchModel convertedBatch = prepareBatchModelForResponse(calculatedBatch, rawBatches.get(index));
+            convertedBatch.setYield(calculatedBatch.getTheoreticalYieldPercentAmount().doubleValue());
+            myBatches.add(convertedBatch);
             index++;
         }
         return myBatches;
@@ -229,9 +230,13 @@ public class StoicCalculationService {
         rawBatch.setTotalWeight(new UnitValueDTO(calculatedBatch.getTotalWeight().doubleValue(), calculatedBatch.getTotalWeight().GetValueForDisplay(), rawBatch.getTotalWeight().getUnit(), !calculatedBatch.getTotalWeight().isCalculated(), rawBatch.getTotalWeight().isReadonly()));
         rawBatch.setTotalVolume(new UnitValueDTO(calculatedBatch.getTotalVolume().doubleValue(), calculatedBatch.getTotalVolume().GetValueForDisplay(), rawBatch.getTotalVolume().getUnit(), !calculatedBatch.getTotalVolume().isCalculated(), rawBatch.getTotalVolume().isReadonly()));
         rawBatch.setTotalMoles(new UnitValueDTO(calculatedBatch.getTotalMolarity().doubleValue(), calculatedBatch.getTotalMolarity().GetValueForDisplay(), rawBatch.getTotalMoles().getUnit(), !calculatedBatch.getTotalMolarity().isCalculated(), rawBatch.getTotalMoles().isReadonly())); // todo check, should be mass to volume?
-        if (calculatedBatch instanceof ProductBatchModel) {
+        if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType().equals(BatchType.ACTUAL_PRODUCT)) {
             rawBatch.setTheoMoles(new UnitValueDTO(calculatedBatch.getTheoreticalMoleAmount().doubleValue(), calculatedBatch.getTheoreticalMoleAmount().GetValueForDisplay(), rawBatch.getTheoMoles().getUnit(), !calculatedBatch.getTheoreticalMoleAmount().isCalculated(), rawBatch.getTheoMoles().isReadonly()));
             rawBatch.setTheoWeight(new UnitValueDTO(calculatedBatch.getTheoreticalWeightAmount().doubleValue(), calculatedBatch.getTheoreticalWeightAmount().GetValueForDisplay(), rawBatch.getTheoWeight().getUnit(), !calculatedBatch.getTheoreticalWeightAmount().isCalculated(), rawBatch.getTheoWeight().isReadonly()));
+        } else if (calculatedBatch instanceof ProductBatchModel && calculatedBatch.getBatchType().equals(BatchType.INTENDED_PRODUCT)) {
+            // to sync intended products with actual products
+            rawBatch.setTheoMoles(new UnitValueDTO(calculatedBatch.getMoleAmount().doubleValue(), calculatedBatch.getMoleAmount().GetValueForDisplay(), rawBatch.getMol().getUnit(), !calculatedBatch.getMoleAmount().isCalculated(), rawBatch.getMol().isReadonly()));
+            rawBatch.setTheoWeight(new UnitValueDTO(calculatedBatch.getWeightAmount().doubleValue(), calculatedBatch.getWeightAmount().GetValueForDisplay(), rawBatch.getWeight().getUnit(), !calculatedBatch.getWeightAmount().isCalculated(), rawBatch.getWeight().isReadonly()));
         }
         rawBatch.setLastUpdatedType(convertLastUpdatedTypeForResponse(calculatedBatch.getLastUpdatedType()));
         rawBatch.setPrevMolarAmount(new UnitValueDTO(calculatedBatch.getPreviousMolarAmount().doubleValue(), calculatedBatch.getPreviousMolarAmount().GetValueForDisplay(), rawBatch.getPrevMolarAmount().getUnit(), !calculatedBatch.getPreviousMolarAmount().isCalculated(), rawBatch.getPrevMolarAmount().isReadonly()));

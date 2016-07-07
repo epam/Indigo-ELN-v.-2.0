@@ -26,80 +26,6 @@ public class BingoService {
 
     /* Molecule */
 
-    public Optional<String> getMolecule(Integer id) {
-        return moleculeRepository
-                .getById(id)
-                .map(indigoObject -> Optional.ofNullable(indigoObject.molfile()))
-                .orElse(Optional.empty());
-    }
-
-    public Optional<Integer> insertMolecule(String molecule) {
-        return moleculeRepository.insert(indigo.loadMolecule(molecule));
-    }
-
-    public void updateMolecule(Integer id, String molecule) {
-        moleculeRepository.update(indigo.loadMolecule(molecule), id);
-    }
-
-    public void deleteMolecule(Integer id) {
-        moleculeRepository.delete(id);
-    }
-
-    public List<Integer> searchMoleculeExact(String molecule, String options) {
-        return processSearchExact(moleculeRepository, indigo.loadMolecule(molecule), options);
-    }
-
-    public List<Integer> searchMoleculeSub(String molecule, String options) {
-        return processSearchSub(moleculeRepository, indigo.loadQueryMolecule(molecule), options);
-    }
-
-    public List<Integer> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
-        return processSearchSim(moleculeRepository, indigo.loadMolecule(molecule), min, max, metric);
-    }
-
-    public List<Integer> searchMoleculeMolFormula(String molFormula, String options) {
-        return processSearchMolFormula(moleculeRepository, molFormula, options);
-    }
-
-    /* Reaction */
-
-    public Optional<String> getReaction(Integer id) {
-        return reactionRepository
-                .getById(id)
-                .map(indigoObject -> Optional.ofNullable(indigoObject.rxnfile()))
-                .orElse(Optional.empty());
-    }
-
-    public Optional<Integer> insertReaction(String reaction) {
-        return reactionRepository.insert(indigo.loadReaction(reaction));
-    }
-
-    public void updateReaction(Integer id, String reaction) {
-        reactionRepository.update(indigo.loadReaction(reaction), id);
-    }
-
-    public void deleteReaction(Integer id) {
-        reactionRepository.delete(id);
-    }
-
-    public List<Integer> searchReactionExact(String reaction, String options) {
-        return processSearchExact(reactionRepository, indigo.loadReaction(reaction), options);
-    }
-
-    public List<Integer> searchReactionSub(String reaction, String options) {
-        return processSearchSub(reactionRepository, indigo.loadQueryReaction(reaction), options);
-    }
-
-    public List<Integer> searchReactionSim(String reaction, Float min, Float max, String metric) {
-        return processSearchSim(reactionRepository, indigo.loadReaction(reaction), min, max, metric);
-    }
-
-    public List<Integer> searchReactionMolFormula(String molFormula, String options) {
-        return processSearchMolFormula(reactionRepository, molFormula, options);
-    }
-
-    /* Common */
-
     private static List<Integer> processSearchExact(BingoRepository repository, IndigoObject query, String options) {
         BingoObject searchResult;
 
@@ -156,5 +82,79 @@ public class BingoService {
         }
 
         return result;
+    }
+
+    public Optional<String> getMolecule(Integer id) {
+        return moleculeRepository
+                .getById(id)
+                .map(indigoObject -> Optional.ofNullable(indigoObject.molfile()))
+                .orElse(Optional.empty());
+    }
+
+    public Optional<Integer> insertMolecule(String molecule) {
+        return moleculeRepository.insert(indigo.loadMolecule(molecule));
+    }
+
+    public void updateMolecule(Integer id, String molecule) {
+        moleculeRepository.update(indigo.loadMolecule(molecule), id);
+    }
+
+    /* Reaction */
+
+    public void deleteMolecule(Integer id) {
+        moleculeRepository.delete(id);
+    }
+
+    public List<Integer> searchMoleculeExact(String molecule, String options) {
+        return processSearchExact(moleculeRepository, indigo.loadMolecule(molecule), options);
+    }
+
+    public List<Integer> searchMoleculeSub(String molecule, String options) {
+        return processSearchSub(moleculeRepository, indigo.loadQueryMolecule(molecule), options);
+    }
+
+    public List<Integer> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
+        return processSearchSim(moleculeRepository, indigo.loadMolecule(molecule), min, max, metric);
+    }
+
+    public List<Integer> searchMoleculeMolFormula(String formula, String options) {
+        return processSearchMolFormula(moleculeRepository, formula, options);
+    }
+
+    public Optional<String> getReaction(Integer id) {
+        return reactionRepository
+                .getById(id)
+                .map(indigoObject -> Optional.ofNullable(indigoObject.rxnfile()))
+                .orElse(Optional.empty());
+    }
+
+    public Optional<Integer> insertReaction(String reaction) {
+        return reactionRepository.insert(indigo.loadReaction(reaction));
+    }
+
+    public void updateReaction(Integer id, String reaction) {
+        reactionRepository.update(indigo.loadReaction(reaction), id);
+    }
+
+    /* Common */
+
+    public void deleteReaction(Integer id) {
+        reactionRepository.delete(id);
+    }
+
+    public List<Integer> searchReactionExact(String reaction, String options) {
+        return processSearchExact(reactionRepository, indigo.loadReaction(reaction), options);
+    }
+
+    public List<Integer> searchReactionSub(String reaction, String options) {
+        return processSearchSub(reactionRepository, indigo.loadQueryReaction(reaction), options);
+    }
+
+    public List<Integer> searchReactionSim(String reaction, Float min, Float max, String metric) {
+        return processSearchSim(reactionRepository, indigo.loadReaction(reaction), min, max, metric);
+    }
+
+    public List<Integer> searchReactionMolFormula(String formula, String options) {
+        return processSearchMolFormula(reactionRepository, formula, options);
     }
 }

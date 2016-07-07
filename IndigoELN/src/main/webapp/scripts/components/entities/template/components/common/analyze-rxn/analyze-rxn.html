@@ -40,7 +40,7 @@
             </button>
         </div>
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
-            <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.molFormula}}
+            <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.formula}}
             </div>
         </div>
         <uib-tabset active="activeForm">

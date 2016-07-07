@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.repository.search;
 
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchCriteria;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -23,7 +22,7 @@ import static java.util.stream.Collectors.toList;
  *      {$match: {'name' :'productBatchSummary'}},
  *      {$project: {$content}},
  *      {$unwind : "$content.batches"},
- *      {$match: {"content.batches.molFormula" : "C6 H6"}}
+ *      {$match: {"content.batches.formula" : "C6 H6"}}
  * )
  *
  */
@@ -32,7 +31,7 @@ public final class BatchSearchAggregationBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchSearchAggregationBuilder.class);
 
     private static final String CONTENT_PREFIX = "content.batches.";
-    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("nbkBatch", "molFormula", "molWeight",
+    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("nbkBatch", "formula", "molWeight",
             "chemicalName", "externalNumber", "compoundState", "comments", "hazardComments", "casNumber");
     private List<AggregationOperation> aggregationOperations;
 

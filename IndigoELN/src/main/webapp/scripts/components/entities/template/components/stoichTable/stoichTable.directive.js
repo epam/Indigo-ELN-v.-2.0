@@ -66,17 +66,6 @@ angular.module('indigoeln')
                         type: 'input'
                     },
                     {
-                        id: 'molWeight',
-                        name: 'Mol Weight',
-                        type: 'scalar'
-                    },
-                    {
-                        id: 'weight',
-                        name: 'Weight',
-                        type: 'unit',
-                        unitItems: grams
-                    },
-                    {
                         id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
                         type: 'input',
@@ -86,6 +75,17 @@ angular.module('indigoeln')
                             var nbkBatch = data.model;
                             fetchBatchByNbkNumber(nbkBatch, row);
                         }
+                    },
+                    {
+                        id: 'molWeight',
+                        name: 'Mol Weight',
+                        type: 'scalar'
+                    },
+                    {
+                        id: 'weight',
+                        name: 'Weight',
+                        type: 'unit',
+                        unitItems: grams
                     },
                     {
                         id: 'volume',
@@ -143,7 +143,7 @@ angular.module('indigoeln')
                         type: 'scalar'
                     },
                     {
-                        id: 'molFormula',
+                        id: 'formula',
                         name: 'Mol Formula',
                         type: 'input'
                     },
@@ -302,7 +302,7 @@ angular.module('indigoeln')
                             molWeight: {value: result.data.molecularWeight},
                             exactMass: result.data.exactMolecularWeight,
                             saltEq: {value: result.data.saltEq},
-                            molecule: result.data.molecule
+                            structure: {image: result.data.image, molfile: result.data.molecule}
                         };
                     });
                 }
@@ -320,10 +320,10 @@ angular.module('indigoeln')
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
                                 $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
-
                             });
                             $q.all(reactantPromises).then(function (results) {
                                 reactionReactants = moleculeInfoResponseCallback(results);
+                                CalculationService.recalculateStoich(initDataForCalculation());
                             });
                             }
                         }
@@ -387,7 +387,7 @@ angular.module('indigoeln')
                     _.each(reactionReactants, function (reactionReactant) {
                         var stoicAndReactionReactantsEqualityPromises = [];
                         _.each(stoicReactants, function (stoicReactant) {
-                            stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.molecule));
+                            stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
                         });
                         allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function () {
                             if (stoicAndReactionReactantsEqualityPromises.length) {
