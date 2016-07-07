@@ -261,6 +261,17 @@ angular.module('indigoeln')
                 });
             };
             $scope.deleteBatches = function () {
+                var nonEditableBatches = _.chain($scope.model.productBatchSummary.batches).filter(function (item) {
+                    return item.select;
+                }).filter(function (item) {
+                    return item.registrationStatus === 'PASSED' || item.registrationStatus === 'IN_PROGRESS';
+                }).map(function (item) {
+                    return item.fullNbkBatch;
+                }).value();
+                if (nonEditableBatches && nonEditableBatches.length > 0) {
+                    AlertModal.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
+                    return;
+                }
                 $scope.model.productBatchSummary.batches = _.filter($scope.model.productBatchSummary.batches, function (item) {
                     return !item.select;
                 });
