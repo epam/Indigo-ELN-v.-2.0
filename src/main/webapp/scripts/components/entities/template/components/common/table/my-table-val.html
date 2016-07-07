@@ -1,13 +1,15 @@
 <div>
     <div ng-if="!isEditable()" ng-style="">
         <span ng-if="!myColumn.type">
+            <span ng-if="!myColumn.format">
             {{myRow[myColumn.id]}}
+            </span>
+            <span ng-if="myColumn.format">
+            {{myColumn.format(myRow[myColumn.id])}}
+            </span>
         </span>
         <span ng-if="myColumn.type === 'primitive'">
             {{myRow[myColumn.id] | round:false:myColumn.sigDigits}}
-        </span>
-        <span ng-if="myColumn.type === 'date'">
-            {{myRow[myColumn.id] | date:'MMM dd yyyy'}}
         </span>
         <a ng-if="isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
            ng-click="toggleEditable()">&mdash;</a>
