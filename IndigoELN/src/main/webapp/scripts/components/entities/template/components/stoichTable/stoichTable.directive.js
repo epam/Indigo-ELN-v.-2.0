@@ -324,6 +324,7 @@ angular.module('indigoeln')
                             });
                             $q.all(reactantPromises).then(function (results) {
                                 reactionReactants = moleculeInfoResponseCallback(results);
+                                CalculationService.recalculateStoich(initDataForCalculation());
                             });
                             }
                         }
