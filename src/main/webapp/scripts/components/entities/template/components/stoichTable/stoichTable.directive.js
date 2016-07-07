@@ -66,17 +66,6 @@ angular.module('indigoeln')
                         type: 'input'
                     },
                     {
-                        id: 'molWeight',
-                        name: 'Mol Weight',
-                        type: 'scalar'
-                    },
-                    {
-                        id: 'weight',
-                        name: 'Weight',
-                        type: 'unit',
-                        unitItems: grams
-                    },
-                    {
                         id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
                         type: 'input',
@@ -86,6 +75,17 @@ angular.module('indigoeln')
                             var nbkBatch = data.model;
                             fetchBatchByNbkNumber(nbkBatch, row);
                         }
+                    },
+                    {
+                        id: 'molWeight',
+                        name: 'Mol Weight',
+                        type: 'scalar'
+                    },
+                    {
+                        id: 'weight',
+                        name: 'Weight',
+                        type: 'unit',
+                        unitItems: grams
                     },
                     {
                         id: 'volume',
