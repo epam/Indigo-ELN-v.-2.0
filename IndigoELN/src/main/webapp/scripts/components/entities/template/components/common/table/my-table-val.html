@@ -1,6 +1,6 @@
 <div>
     <div ng-if="!isEditable()" ng-style="">
-        <span ng-if="!myColumn.type">
+        <span ng-if="!myColumn.type || (myColumn.type==='input' && myColumn.readonly)">
             <span ng-if="!myColumn.format">
             {{myRow[myColumn.id]}}
             </span>
@@ -11,11 +11,11 @@
         <span ng-if="myColumn.type === 'primitive'">
             {{myRow[myColumn.id] | round:false:myColumn.sigDigits}}
         </span>
-        <a ng-if="isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
+        <a ng-if="isEmpty(myRow[myColumn.id]) && !myColumn.readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
            ng-click="toggleEditable()">&mdash;</a>
-        <a ng-if="isEmpty(myRow[myColumn.id]) && myRow[myColumn.id].readonly" class="not-editable"
+        <a ng-if="isEmpty(myRow[myColumn.id]) && myColumn.readonly" class="not-editable"
         ></a>
-        <a ng-if="!isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
+        <a ng-if="!isEmpty(myRow[myColumn.id]) && !myColumn.readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
            ng-click="toggleEditable()">
             <span ng-if="myColumn.type == 'input' && !myColumn.hasPopover"
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id]}}</span>
@@ -54,7 +54,7 @@
         </div>
         <div ng-if="myColumn.type == 'unit'">
             <my-input my-model="myRow[myColumn.id].value" my-input-group="append" my-input-size="sm"
-                      my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
+                      my-readonly="myColumn.readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number">
@@ -76,7 +76,7 @@
         <div ng-if="myColumn.type == 'scalar'">
             <my-input my-model="myRow[myColumn.id].value"
                       my-type="number"
-                      my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
+                      my-readonly="myColumn.readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-parsers="unitParsers" my-formatters="unitFormatters">

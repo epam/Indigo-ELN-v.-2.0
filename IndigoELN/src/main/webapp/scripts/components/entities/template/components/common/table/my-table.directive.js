@@ -128,7 +128,7 @@ angular.module('indigoeln')
                 that.isEditable = function (columnId, rowIndex) {
                     if ($scope.myEditable) {
                         var row = $scope.myRows[rowIndex];
-                        var editable = $scope.myEditable(row);
+                        var editable = $scope.myEditable(row, columnId);
                         if (!editable) {
                             return false;
                         }

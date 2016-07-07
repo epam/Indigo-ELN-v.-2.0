@@ -74,6 +74,15 @@ angular.module('indigoeln')
                 $scope.registerBatch = function () {
                     AlertModal.info('not implemented yet');
                 };
+                $scope.$watch('share.stoichTable', function (stoichTable) {
+                    if (stoichTable && stoichTable.reactants) {
+                        $scope.model.productBatchDetails.precursors = _.filter(_.map(stoichTable.reactants, function (item) {
+                            return item.compoundId || item.fullNbkBatch;
+                        }), function (val) {
+                            return !!val;
+                        }).join(', ');
+                    }
+                }, true);
             }
         };
     });
