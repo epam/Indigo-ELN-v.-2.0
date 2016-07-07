@@ -143,7 +143,7 @@ angular.module('indigoeln')
                         type: 'scalar'
                     },
                     {
-                        id: 'molFormula',
+                        id: 'formula',
                         name: 'Mol Formula',
                         type: 'input'
                     },
@@ -320,7 +320,6 @@ angular.module('indigoeln')
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
                                 $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
-
                             });
                             $q.all(reactantPromises).then(function (results) {
                                 reactionReactants = moleculeInfoResponseCallback(results);

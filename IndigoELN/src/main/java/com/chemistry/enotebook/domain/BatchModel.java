@@ -29,7 +29,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     boolean inCalculation = false; // Do not disturb. Batch is in process of calculating values
     // used to dynamically set the column names when used in a table
 //    private String[] propertyNames;
-    private ParentCompoundModel compound; // Holds structure molFormula wgt and other info.
+    private ParentCompoundModel compound; // Holds structure formula wgt and other info.
     private AmountModel molecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
     private AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
     // number of molecules we have
@@ -646,7 +646,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (ab != null) {
             result = this.getBatchType().compareTo(ab.getBatchType());
             // Precedence should be batchNumber if Product otherwise (Transaction Step Number) for now: Compound Number then batch
-            // then molFormula
+            // then formula
             if (result == 0) {
                 if (getCompound() != null)
                     if (ab.getCompound() != null)

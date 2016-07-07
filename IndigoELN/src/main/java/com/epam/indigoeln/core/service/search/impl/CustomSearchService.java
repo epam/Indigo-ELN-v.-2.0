@@ -5,7 +5,6 @@ import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
-
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,7 @@ public class CustomSearchService implements SearchServiceAPI {
     private List<Integer> searchByBingoDb(BatchSearchStructure structure) {
         List<Integer> bingoIds;
         String molFile = structure.getMolfile();
-        String molFormula = structure.getFormula();
+        String formula = structure.getFormula();
 
         switch (structure.getSearchMode()) {
             case CHEMISTRY_SEARCH_SUBSTRUCTURE:
@@ -58,7 +57,7 @@ public class CustomSearchService implements SearchServiceAPI {
                 break;
 
             case CHEMISTRY_SEARCH_MOLFORMULA:
-                bingoIds = bingoService.searchMoleculeMolFormula(molFormula, StringUtils.EMPTY);
+                bingoIds = bingoService.searchMoleculeMolFormula(formula, StringUtils.EMPTY);
                 break;
 
             default:

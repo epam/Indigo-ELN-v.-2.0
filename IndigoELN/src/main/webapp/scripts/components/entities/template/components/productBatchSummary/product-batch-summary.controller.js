@@ -194,7 +194,7 @@ angular.module('indigoeln')
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt', type: 'scalar'},
-                {id: 'molFormula', name: 'Mol Formula'},
+                {id: 'formula', name: 'Mol Formula'},
                 {id: 'conversationalBatchNumber', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
                 {
@@ -398,11 +398,11 @@ angular.module('indigoeln')
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
                 var resetMolInfo = function () {
-                    row.molFormula = null;
+                    row.formula = null;
                     row.molWeight = null;
                 };
                 var getInfoCallback = function (molInfo) {
-                    row.molFormula = molInfo.data.molecularFormula;
+                    row.formula = molInfo.data.molecularFormula;
                     row.molWeight = row.molWeight || {};
                     row.molWeight.value = molInfo.data.molecularWeight;
                     CalculationService.calculateProductBatch({row: row, column: ''});

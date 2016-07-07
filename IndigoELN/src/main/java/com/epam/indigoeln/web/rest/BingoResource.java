@@ -214,10 +214,10 @@ public class BingoResource {
     @ApiOperation(value = "Searches for molecule by formula.", produces = "application/json")
     @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<Integer>> searchMoleculeByMolFormula(
-            @ApiParam("Molecule formula to search for.") @RequestBody String molFormula,
+            @ApiParam("Molecule formula to search for.") @RequestBody String formula,
             @ApiParam("Search options.") @RequestParam(required = false) String options
         ) {
-        return ResponseEntity.ok(bingoService.searchMoleculeMolFormula(molFormula, options));
+        return ResponseEntity.ok(bingoService.searchMoleculeMolFormula(formula, options));
     }
 
     /**
@@ -263,8 +263,8 @@ public class BingoResource {
     @ApiOperation(value = "Searches for reaction by formula.", produces = "application/json")
     @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST)
     public ResponseEntity<List<Integer>> searchReactionByMolFormula(
-            @ApiParam("Reaction formula to search for.") @RequestBody String molFormula,
+            @ApiParam("Reaction formula to search for.") @RequestBody String formula,
             @ApiParam("Search options.") @RequestParam(required = false) String options) {
-        return ResponseEntity.ok(bingoService.searchReactionMolFormula(molFormula, options));
+        return ResponseEntity.ok(bingoService.searchReactionMolFormula(formula, options));
     }
 }
