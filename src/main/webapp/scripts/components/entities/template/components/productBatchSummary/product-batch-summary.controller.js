@@ -249,6 +249,9 @@ angular.module('indigoeln')
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
             };
+            $scope.isEditable = function (row) {
+                return !(row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS');
+            };
 
             $scope.share.selectedRow = _.findWhere($scope.model.productBatchSummary.batches, {$$selected: true});
 
@@ -287,9 +290,12 @@ angular.module('indigoeln')
 
             $scope.registerBatches = function () {
                 var emptyFields = [];
+                var batches = _.filter($scope.model.productBatchSummary.batches, function (row) {
+                    return row.select;
+                });
                 _.each($scope.columns, function (column) {
                     if (column.type && !column.readonly && column.name !== 'Select') {
-                        _.each($scope.model.productBatchSummary.batches, function (row) {
+                        _.each(batches, function (row) {
                             var val = row[column.id];
                             if (!val) {
                                 emptyFields.push(column.name);
@@ -300,7 +306,6 @@ angular.module('indigoeln')
                 if (emptyFields.length) {
                     AlertModal.error('This fields is required: ' + _.uniq(emptyFields).join(', '));
                 } else {
-                    var batches = $scope.model.productBatchSummary.batches;
                     var batchNumbers = _.map(batches, function (batch) {
                         return batch.fullNbkBatch;
                     });
