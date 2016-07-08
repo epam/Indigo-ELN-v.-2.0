@@ -338,7 +338,7 @@ angular.module('indigoeln')
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
                                 $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
-                                getStructureImagesForIntendedProducts();
+                                // getStructureImagesForIntendedProducts();
                                 CalculationService.recalculateStoich(initDataForCalculation());
                             });
                             $q.all(reactantPromises).then(function (results) {
