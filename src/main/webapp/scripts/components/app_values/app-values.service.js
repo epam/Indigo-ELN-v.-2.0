@@ -100,7 +100,7 @@ angular.module('indigoeln')
                 return loadFactorUnits;
             },
             getDefaultBatch: function () {
-                return defaultBatch;
+                return angular.copy(defaultBatch);
             }
         };
     });

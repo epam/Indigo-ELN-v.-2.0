@@ -51,9 +51,11 @@ angular.module('indigoeln')
 
 
                 $scope.recalculateSalt = function (reagent) {
-                    function callback(reagent, result) {
+                    function callback(result) {
                         reagent.molWeight = reagent.molWeight || {};
-                        reagent.molWeight.value = result.data.molecularWeight;
+                        var data = result.data;
+                        reagent.molWeight.value = data.molecularWeight;
+                        reagent.formula = data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
                     }
 
                     CalculationService.recalculateSalt(reagent, callback);
