@@ -84,11 +84,13 @@ angular.module('indigoeln')
         };
 
         var recalculateSalt = function (reagent, callback) {
-            var config = getSaltConfig(reagent);
-            $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
-                .then(function (result) {
-                    callback(result);
-                });
+            if (reagent.structure && reagent.structure.molfile) {
+                var config = getSaltConfig(reagent);
+                $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
+                    .then(function (result) {
+                        callback(result);
+                    });
+            }
         };
 
         var recalculateStoich = function (data) {
