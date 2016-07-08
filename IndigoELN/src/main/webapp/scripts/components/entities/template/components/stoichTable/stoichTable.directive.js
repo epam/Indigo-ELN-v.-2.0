@@ -212,12 +212,20 @@ angular.module('indigoeln')
                         type: 'select',
                         values: function () {
                             return saltCodeValues;
+                        },
+                        onClose: function (data) {
+                            CalculationService.setEntered(data);
+                            $scope.recalculateSalt(data.row);
                         }
                     },
                     {
                         id: 'saltEq',
                         name: 'Salt EQ',
-                        type: 'scalar'
+                        type: 'scalar',
+                        onClose: function (data) {
+                            CalculationService.setEntered(data);
+                            $scope.recalculateSalt(data.row);
+                        }
                     },
                     {
                         id: 'hazardComments',
@@ -266,6 +274,7 @@ angular.module('indigoeln')
                         });
                     }
                 });
+
                 $scope.clear = function () {
                     for (var key in $scope.selectedRow) {
                         if ($scope.selectedRow.hasOwnProperty(key) && !_.contains(['$$hashKey', 'selected'], key)) {
@@ -288,22 +297,23 @@ angular.module('indigoeln')
                 };
                 $scope.recalculateSalt = function (reagent) {
                     function callback(result) {
+                        var data = result.data;
                         reagent.molWeight = reagent.molWeight || {};
-                        reagent.molWeight.value = result.data.molecularWeight;
+                        reagent.molWeight.value = data.molecularWeight;
+                        reagent.formula = data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
                     }
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
                 function moleculeInfoResponseCallback(results) {
                     return _.map(results, function (result) {
-                        return {
-                            chemicalName: result.data.name,
-                            formula: result.data.molecularFormula,
-                            molWeight: {value: result.data.molecularWeight},
-                            exactMass: result.data.exactMolecularWeight,
-                            saltEq: {value: result.data.saltEq},
-                            structure: {image: result.data.image, molfile: result.data.molecule}
-                        };
+                        var batch = AppValues.getDefaultBatch();
+                        batch.chemicalName = result.data.name;
+                        batch.formula = result.data.molecularFormula;
+                        batch.molWeight = result.data.molecularWeight;
+                        batch.exactMass = result.data.exactMolecularWeight;
+                        batch.structure = {image: result.data.image, molfile: result.data.molecule};
+                        return batch;
                     });
                 }
 
