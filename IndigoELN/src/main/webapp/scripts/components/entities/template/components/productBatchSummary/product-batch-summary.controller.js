@@ -186,7 +186,7 @@ angular.module('indigoeln')
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt', type: 'scalar'},
-                {id: 'formula', name: 'Mol Formula'},
+                {id: 'formula', name: 'Mol Formula', type: 'input', readonly: true},
                 {id: 'conversationalBatchNumber', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
                 {
