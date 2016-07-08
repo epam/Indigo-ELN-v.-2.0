@@ -215,7 +215,7 @@ angular.module('indigoeln')
                         },
                         onClose: function (data) {
                             CalculationService.setEntered(data);
-                            $scope.recalculateSalt(data.row);
+                            recalculateSalt(data.row);
                         }
                     },
                     {
@@ -224,7 +224,7 @@ angular.module('indigoeln')
                         type: 'scalar',
                         onClose: function (data) {
                             CalculationService.setEntered(data);
-                            $scope.recalculateSalt(data.row);
+                            recalculateSalt(data.row);
                         }
                     },
                     {
@@ -295,7 +295,7 @@ angular.module('indigoeln')
                     $scope.selectedRow = row || null;
                     $log.log(row);
                 };
-                $scope.recalculateSalt = function (reagent) {
+                var recalculateSalt = function (reagent) {
                     function callback(result) {
                         var data = result.data;
                         reagent.molWeight = reagent.molWeight || {};
