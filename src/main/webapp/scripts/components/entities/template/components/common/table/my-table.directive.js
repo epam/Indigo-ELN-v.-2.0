@@ -82,6 +82,7 @@ angular.module('indigoeln')
             },
             controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
                 var that = this;
+                $scope.myColumns.push({id: 'show-hide-columns'});
                 Principal.identity()
                     .then(function (user) {
                         $scope.saveInLocalStorage = function () {
