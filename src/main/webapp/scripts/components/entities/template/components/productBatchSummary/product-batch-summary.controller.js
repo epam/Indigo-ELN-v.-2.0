@@ -164,17 +164,29 @@ angular.module('indigoeln')
                 },
                 {
                     id: 'saltCode',
-                    name: 'Salt Code & Name',
+                    name: 'Salt Code',
                     type: 'select',
                     values: function () {
                         return saltCodeValues;
+                    },
+                    onClose: function (data) {
+                        CalculationService.setEntered(data);
+                        recalculateSalt(data.row);
                     }
                 },
-                {id: 'saltEq', name: 'Salt Equivalent', type: 'scalar'},
+                {
+                    id: 'saltEq',
+                    name: 'Salt EQ',
+                    type: 'scalar',
+                    onClose: function (data) {
+                        CalculationService.setEntered(data);
+                        recalculateSalt(data.row);
+                    }
+                },
                 {id: '$$purity', name: 'Purity'},
                 {id: '$$meltingPoint', name: 'Melting Point'},
                 {id: 'molWeight', name: 'Mol Wgt', type: 'scalar'},
-                {id: 'formula', name: 'Mol Formula'},
+                {id: 'formula', name: 'Mol Formula', type: 'input', readonly: true},
                 {id: 'conversationalBatchNumber', name: 'Conversational Batch #'},
                 {id: 'virtualCompoundId', name: 'Virtual Compound Id'},
                 {
@@ -263,6 +275,17 @@ angular.module('indigoeln')
                     }
                 }
                 return rowResult;
+            };
+
+            var recalculateSalt = function (reagent) {
+                function callback(result) {
+                    var data = result.data;
+                    reagent.molWeight = reagent.molWeight || {};
+                    reagent.molWeight.value = data.molecularWeight;
+                    reagent.formula = data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
+                }
+
+                CalculationService.recalculateSalt(reagent, callback);
             };
 
             function updatePrecursor() {
