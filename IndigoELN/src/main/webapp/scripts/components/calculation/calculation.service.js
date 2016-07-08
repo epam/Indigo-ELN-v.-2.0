@@ -73,7 +73,7 @@ angular.module('indigoeln')
         }
 
         var createBatch = function (stoichTable, isProduct) {
-            var batch = angular.copy(AppValues.getDefaultBatch());
+            var batch = AppValues.getDefaultBatch();
             var limiting = findLimiting(stoichTable);
             var property = isProduct ? 'theoMoles' : 'mol';
             if (limiting) {
