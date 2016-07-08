@@ -20,10 +20,8 @@ public class BasicBatchModel {
     private UnitValueDTO totalWeight; // totalWeight
     private UnitValueDTO totalMoles; //totalMolarity
     private StringValueDTO rxnRole; // batchType
-    private StringValueDTO saltCode;
     private ScalarValueDTO molWeight; // molecularWeightAmount
     private ScalarValueDTO stoicPurity;
-    private ScalarValueDTO saltEq;
     private ScalarValueDTO eq; // rxnEq
     private double yield; // theoreticalYieldPercentAmount; - product
     private String lastUpdatedType; // weight, volume, mol, totalWeight, totalVolume
@@ -108,15 +106,6 @@ public class BasicBatchModel {
     public void setRxnRole(StringValueDTO rxnRole) {
         this.rxnRole = rxnRole;
     }
-
-    public StringValueDTO getSaltCode() {
-        return saltCode;
-    }
-
-    public void setSaltCode(StringValueDTO saltCode) {
-        this.saltCode = saltCode;
-    }
-
     public ScalarValueDTO getMolWeight() {
         return molWeight;
     }
@@ -131,14 +120,6 @@ public class BasicBatchModel {
 
     public void setStoicPurity(ScalarValueDTO stoicPurity) {
         this.stoicPurity = stoicPurity;
-    }
-
-    public ScalarValueDTO getSaltEq() {
-        return saltEq;
-    }
-
-    public void setSaltEq(ScalarValueDTO saltEq) {
-        this.saltEq = saltEq;
     }
 
     public ScalarValueDTO getEq() {

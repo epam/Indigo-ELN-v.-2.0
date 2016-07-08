@@ -385,7 +385,14 @@ angular.module('indigoeln')
                 });
             });
 
-            function requestNbkBatchNumber(latest, duplicatedBatch) {
+            function getLatestNbkBatch() {
+                var batches = $scope.model.productBatchSummary.batches;
+                return batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
+            }
+
+            function requestNbkBatchNumberAndAddToTable(duplicatedBatch) {
+                var latest = getLatestNbkBatch();
+                var deferred = $q.defer();
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                     '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
@@ -418,44 +425,51 @@ angular.module('indigoeln')
                             }
                             $scope.model.productBatchSummary.batches.push(batch);
                             $scope.onRowSelected(batch);
+                            deferred.resolve();
                         });
 
                     });
+                return deferred.promise;
             }
 
             $scope.addNewBatch = function () {
-                var batches = $scope.model.productBatchSummary.batches;
-                var latest = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
-
-                requestNbkBatchNumber(latest);
+                requestNbkBatchNumberAndAddToTable();
             };
 
-            $scope.duplicateBatch = function (batchToCopy) {
-                var batchToDuplicate = angular.copy(batchToCopy || $scope.share.selectedRow);
-                var batches = $scope.model.productBatchSummary.batches;
-                var latestNbkBatch = batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
-                requestNbkBatchNumber(latestNbkBatch, batchToDuplicate);
+            $scope.duplicateBatches = function (batchesQueueToAdd, i) {
+                if (!batchesQueueToAdd[i]) {
+                    return;
+                }
+                var batchToCopy = batchesQueueToAdd[i];
+                var batchToDuplicate = angular.copy(batchToCopy);
+                requestNbkBatchNumberAndAddToTable(batchToDuplicate).then(function () {
+                    $scope.duplicateBatches(batchesQueueToAdd, i + 1);
+                });
+            };
+
+            $scope.duplicateBatch = function () {
+                var batchToDuplicate = angular.copy($scope.share.selectedRow);
+                return requestNbkBatchNumberAndAddToTable(batchToDuplicate);
             };
 
             $scope.syncWithIntendedProducts = function () {
                 var syncingIntendedProducts = $q.defer();
+                var batchesQueueToAdd = [];
                 $scope.syncingIntendedProducts = syncingIntendedProducts.promise;
                 if (stoichTable && stoichTable.products && stoichTable.products.length) {
-                    var intendedProducts = stoichTable.products.length;
-                    var alreadyInTable = 0;
                     _.each(stoichTable.products, function (intendedItem) {
                         var isUnique = _.every($scope.model.productBatchSummary.batches, function (productItem) {
                             return !angular.equals(intendedItem, productItem);
                         });
                         if (isUnique) {
-                            $scope.duplicateBatch(intendedItem);
-                        } else {
-                            alreadyInTable = alreadyInTable + 1;
+                            batchesQueueToAdd.push(intendedItem);
                         }
                     });
-                    if (!stoichTable.products.length || intendedProducts === alreadyInTable) {
+                    if (!batchesQueueToAdd.length) {
                         syncingIntendedProducts.resolve();
                         AlertModal.info('Product Batch Summary is synchronized', 'sm');
+                    } else {
+                        $scope.duplicateBatches(batchesQueueToAdd, 0);
                     }
                 }
                 syncingIntendedProducts.resolve();
