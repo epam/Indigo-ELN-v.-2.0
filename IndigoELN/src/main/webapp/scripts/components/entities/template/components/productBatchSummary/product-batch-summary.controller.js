@@ -50,6 +50,10 @@ angular.module('indigoeln')
                 }
             };
 
+            _.each($scope.model.productBatchSummary.batches, function (batch) {
+                batch.$$selected = false;
+            });
+
             $scope.$watch('model.productBatchSummary.batches', function (batches) {
                 _.each(batches, function (batch) {
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
