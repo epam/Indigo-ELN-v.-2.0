@@ -15,8 +15,8 @@ angular.module('indigoeln')
 
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
-                var density = AppValues.getDensity();
                 var moles = AppValues.getMoles();
+                var density = AppValues.getDensity();
                 var molarity = AppValues.getMolarity();
                 var rxnValues = AppValues.getRxnValues();
                 var saltCodeValues = AppValues.getSaltCodeValues();
