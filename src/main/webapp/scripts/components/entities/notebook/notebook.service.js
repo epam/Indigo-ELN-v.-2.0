@@ -13,7 +13,10 @@ angular
                 }
             },
             'save': {method: 'POST'},
-            'update': {method: 'PUT'},
+            'update': {
+                method: 'PUT',
+                url: 'api/projects/:projectId/notebooks'
+            },
             'delete': {method: 'DELETE'}
         });
     });

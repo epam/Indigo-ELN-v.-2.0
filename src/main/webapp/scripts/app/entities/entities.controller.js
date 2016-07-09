@@ -30,13 +30,13 @@ angular.module('indigoeln')
                         projectId: params.projectId,
                         notebookId: params.notebookId
                     }).then(function (notebook) {
-                        item.title = notebook.name ? notebook.name + '-' + item.name : item.name;
+                        item.$$title = notebook.name ? notebook.name + '-' + item.name : item.name;
                         if (item.experimentVersion > 1 || !item.lastVersion) {
-                            item.title += ' v' + item.experimentVersion;
+                            item.$$title += ' v' + item.experimentVersion;
                         }
                     });
                 } else {
-                    item.title = item.name;
+                    item.$$title = item.name;
                 }
             });
         });
@@ -49,6 +49,9 @@ angular.module('indigoeln')
         }
 
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+            updateTabs(toParams);
+        });
+        $rootScope.$on('updateTabs', function (event, toParams) {
             updateTabs(toParams);
         });
 
