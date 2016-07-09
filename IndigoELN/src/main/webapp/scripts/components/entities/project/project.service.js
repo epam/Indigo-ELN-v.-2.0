@@ -1,7 +1,7 @@
 angular.module('indigoeln')
-    .factory('Project', function($resource) {
+    .factory('Project', function ($resource) {
         return $resource('api/projects/:projectId', {}, {
-            'query': { method: 'GET', isArray: true},
+            'query': {method: 'GET', isArray: true},
             'get': {
                 method: 'GET',
                 transformResponse: function (data) {
@@ -10,7 +10,10 @@ angular.module('indigoeln')
                 }
             },
             'save': {method: 'POST'},
-            'update': {method: 'PUT'},
+            'update': {
+                method: 'PUT',
+                url: 'api/projects'
+            },
             'delete': {method: 'DELETE'}
         });
     });

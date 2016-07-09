@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/17/2016.
  */
 angular.module('indigoeln')
-    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal) {
+    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal, AlertModal) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -26,7 +26,7 @@ angular.module('indigoeln')
             }
         };
 
-        var getUserId = function() {
+        var getUserId = function () {
             var id = Principal.getIdentity().id;
             tabs[id] = tabs[id] || {};
             cache[id] = cache[id] || {};
@@ -138,30 +138,57 @@ angular.module('indigoeln')
                 kindConf[this.getKind(params)].go(params);
             },
             close: function (fullId, current) {
+                var that = this;
                 var userId = getUserId();
-                var keys = _.keys(tabs[userId]);
-                if (keys.length > 1) {
-                    var positionForClose = _.indexOf(keys, fullId);
-                    var curPosition = _.indexOf(keys, current);
-                    var nextKey;
-                    if (curPosition === positionForClose) {
-                        nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
+                var deferred = $q.defer();
+                var promise = deferred.promise;
+                var params = that.expandIds(fullId);
+                tabs[userId][fullId].then(function (entity) {
+                    if (entity.$$original !== that.toComparableJson(entity)) {
+                        AlertModal.save('Do you want to save the changes?', null, function (isSave) {
+                            if (isSave) {
+                                kindConf[that.getKind(params)].service.update(params, entity).$promise.then(
+                                    function () {
+                                        deferred.resolve();
+                                    });
+                            } else {
+                                deferred.resolve();
+                            }
+                        });
                     } else {
-                        nextKey = keys[curPosition];
+                        deferred.resolve();
                     }
-                    delete tabs[userId][fullId];
-                    delete cache[userId][fullId];
-                    this.goToTab(nextKey);
-                }
+                });
+                promise.then(function () {
+                    var keys = _.keys(tabs[userId]);
+                    if (keys.length > 1) {
+                        var positionForClose = _.indexOf(keys, fullId);
+                        var curPosition = _.indexOf(keys, current);
+                        var nextKey;
+                        if (curPosition === positionForClose) {
+                            nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
+                        } else {
+                            nextKey = keys[curPosition];
+                        }
+                        delete tabs[userId][fullId];
+                        delete cache[userId][fullId];
+                        if (current === nextKey) {
+                            $rootScope.$broadcast('updateTabs', that.expandIds(current));
+                        } else {
+                            that.goToTab(nextKey);
+                        }
+                    }
+                });
+
             },
             resolveFromCache: function (params) {
                 params = extractParams(params);
                 var that = this;
-                return resolvePrincipal( function () {
+                return resolvePrincipal(function () {
                     var userId = getUserId();
                     var entitiyId = that.compactIds(params);
                     if (!cache[userId][entitiyId]) {
-                        cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
+                        cache[userId][entitiyId] = that.loadEntity(that, params);
                     }
                     cache[userId][entitiyId].catch(function () {
                         delete cache[userId][entitiyId];
@@ -170,19 +197,46 @@ angular.module('indigoeln')
                     return cache[userId][entitiyId];
                 });
             },
+            //this analog for angular.toJson with additional conditions
+            toComparableJson: function (entity) {
+                return JSON.stringify(entity,
+                    function toJsonReplacer(key, value) {
+                        var val = value;
+                        if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+                            val = undefined;
+                        } else if (value && value.window === value) {
+                            val = '$WINDOW';
+                        } else if (value && window.document === value) {
+                            val = '$DOCUMENT';
+                        } else if (value && value.$evalAsync && value.$watch) {
+                            val = '$SCOPE';
+                        } else if (_.isEmpty(val)) {
+                            val = undefined;
+                        }
+
+                        return val;
+                    }, false);
+            },
+            loadEntity: function (that, params) {
+                var $promise = kindConf[that.getKind(params)].service.get(params).$promise;
+                $promise.then(function (entity) {
+                    entity.$$original = that.toComparableJson(entity);
+                });
+                return $promise;
+            },
             updateCacheAndTab: function (params) {
                 params = extractParams(params);
                 var that = this;
-                return resolvePrincipal( function () {
+                return resolvePrincipal(function () {
                     var userId = getUserId();
                     var entitiyId = that.compactIds(params);
-                    cache[userId][entitiyId] = kindConf[that.getKind(params)].service.get(params).$promise;
+                    cache[userId][entitiyId] = that.loadEntity(that, params);
                     tabs[userId][entitiyId] = cache[userId][entitiyId];
                     return tabs[userId][entitiyId];
                 });
             },
             getTabs: function () {
-                return resolvePrincipal(function() {
+                return resolvePrincipal(function () {
                     var userId = getUserId();
                     return $q.all(_.values(tabs[userId]));
                 });

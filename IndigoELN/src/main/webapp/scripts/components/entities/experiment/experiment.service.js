@@ -49,6 +49,7 @@ angular.module('indigoeln')
                     url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
                 },
                 'update': {method: 'PUT',
+                    url: 'api/projects/:projectId/notebooks/:notebookId/experiments',
                     transformRequest: function (data) {
                         data.components = toComponents(data.components);
                         return angular.toJson(data);
