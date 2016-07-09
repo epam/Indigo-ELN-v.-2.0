@@ -82,44 +82,58 @@ angular.module('indigoeln')
             },
             controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
                 var that = this;
-                $scope.myColumns.push({id: 'show-hide-columns'});
+                $scope.myColumns.unshift({id: 'show-hide-columns'});
+
+                function getColumnsProps(myColumns) {
+                    return _.map(myColumns, function (column) {
+                        column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
+                        return {id: column.id, isVisible: column.isVisible};
+                    });
+                }
+
+                var originalColumnIdsAndFlags = getColumnsProps($scope.myColumns);
+
+                function updateColumns(user) {
+                    var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
+                    if (!columnIdsAndFlags) {
+                        $scope.saveInLocalStorage();
+                    }
+                    columnIdsAndFlags = columnIdsAndFlags || originalColumnIdsAndFlags;
+
+                    $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
+                            return _.findIndex(columnIdsAndFlags, function (item) {
+                                return item.id === column.id;
+                            });
+                        }
+                    );
+
+                    $scope.myColumns = _.map($scope.myColumns, function (column) {
+                        var index = _.findIndex(columnIdsAndFlags, function (item) {
+                            return item.id === column.id;
+                        });
+                        if (index > -1) {
+                            column.isVisible = columnIdsAndFlags[index].isVisible;
+                        }
+                        return column;
+                    });
+                }
+
                 Principal.identity()
                     .then(function (user) {
                         $scope.saveInLocalStorage = function () {
-                            localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(
-                                _.map($scope.myColumns, function (column) {
-                                    column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
-                                    return {id: column.id, isVisible: column.isVisible};
-                                })
-                            ));
+                            localStorageService.set(user.id + '.' + $scope.myId + '.columns', JSON.stringify(getColumnsProps($scope.myColumns)));
                         };
-
-                        var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + $scope.myId + '.columns'));
-                        if (!columnIdsAndFlags) {
-                            $scope.saveInLocalStorage();
-                        }
-                        $scope.myColumns = _.sortBy($scope.myColumns, function (column) {
-                                return _.findIndex(columnIdsAndFlags, function (item) {
-                                    return item.id === column.id;
-                                });
-                            }
-                        );
-
-                        $scope.myColumns = _.map($scope.myColumns, function (column) {
-                            var index = _.findIndex(columnIdsAndFlags, function (item) {
-                                return item.id === column.id;
-                            });
-                            if (index > -1) {
-                                column.isVisible = columnIdsAndFlags[index].isVisible;
-                            }
-                            return column;
-                        });
+                        updateColumns(user);
 
                         if ($attrs.myDraggableColumns) {
                             $scope.$watch(function () {
                                 return _.map($scope.myColumns, _.iteratee('id')).join('-');
                             }, $scope.saveInLocalStorage);
                         }
+                        $scope.resetColumns = function () {
+                            localStorageService.remove(user.id + '.' + $scope.myId + '.columns');
+                            updateColumns(user);
+                        };
                     });
 
                 var editableCell = null;

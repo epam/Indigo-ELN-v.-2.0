@@ -39,6 +39,12 @@
                                 <ul uib-dropdown-menu role="menu" aria-labelledby="show-hide-button"
                                     my-scroller="y"
                                     my-scroller-theme="indigo-thick" class="show-hide-columns">
+                                    <li role="menuitem"
+                                        ng-click="$event.stopPropagation();">
+                                        <button type="button" class="btn btn-primary btn-block"
+                                                ng-click="resetColumns()">Set default columns set
+                                        </button>
+                                    </li>
                                     <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
                                         role="menuitem"
                                         ng-click="$event.stopPropagation();">
