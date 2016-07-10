@@ -27,7 +27,10 @@
                         <td><my-select my-items="operatorSelect"
                                        my-readonly="isDisabled()"
                                        my-model="purity.data[$index].operator"></my-select></td>
-                        <td><my-input my-model="purity.data[$index].value" my-readonly="isDisabled()"></my-input></td>
+                        <td>
+                            <my-input my-model="purity.data[$index].value" my-readonly="isDisabled()"
+                                      my-type="number"></my-input>
+                        </td>
                         <td><my-input my-model="purity.data[$index].comments" my-readonly="isDisabled()"></my-input></td>
                     </tr>
                 </tbody>

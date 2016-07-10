@@ -20,7 +20,9 @@
                         <td>
                             <my-select my-dictionary="Solvent name"
                                        my-model="solvents.data[$index].name"></my-select></td>
-                        <td><my-input my-model="solvents.data[$index].eq"></my-input></td>
+                        <td>
+                            <my-input my-model="solvents.data[$index].eq" my-type="number"></my-input>
+                        </td>
                         <td><my-input my-model="solvents.data[$index].comment"></my-input></td>
                         <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
                     </tr>
