@@ -9,7 +9,8 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html',
             controller: function ($scope, $uibModal, AlertModal) {
                 $scope.model = $scope.model || {};
-                $scope.model.productBatchDetails = [{}];
+                $scope.model.productBatchDetails = {};
+                $scope.detailTable = [];
 
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
@@ -75,10 +76,12 @@ angular.module('indigoeln')
                 ];
 
                 var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, row) {
-                    $scope.model.productBatchDetails[0] = row;
+                    $scope.model.productBatchDetails = row;
+                    $scope.detailTable[0] = row;
                 });
                 var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
-                    $scope.model.productBatchDetails[0] = {};
+                    $scope.model.productBatchDetails = {};
+                    $scope.detailTable[0] = {};
                 });
                 $scope.$on('$destroy', function () {
                     onBatchSummaryRowSelectedEvent();
@@ -87,51 +90,51 @@ angular.module('indigoeln')
 
                 $scope.editSolubility = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].solubility = result;
+                        $scope.model.productBatchDetails.solubility = result;
                     };
-                    InfoEditor.editSolubility($scope.model.productBatchDetails[0].solubility, callback);
+                    InfoEditor.editSolubility($scope.model.productBatchDetails.solubility, callback);
                 };
                 $scope.editResidualSolvents = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].residualSolvents = result;
+                        $scope.model.productBatchDetails.residualSolvents = result;
                     };
-                    InfoEditor.editResidualSolvents($scope.model.productBatchDetails[0].residualSolvents, callback);
+                    InfoEditor.editResidualSolvents($scope.model.productBatchDetails.residualSolvents, callback);
                 };
                 $scope.editExternalSupplier = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].externalSupplier = result;
+                        $scope.model.productBatchDetails.externalSupplier = result;
                     };
-                    InfoEditor.editExternalSupplier($scope.model.productBatchDetails[0].externalSupplier, callback);
+                    InfoEditor.editExternalSupplier($scope.model.productBatchDetails.externalSupplier, callback);
                 };
                 $scope.editMeltingPoint = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].meltingPoint = result;
+                        $scope.model.productBatchDetails.meltingPoint = result;
                     };
-                    InfoEditor.editMeltingPoint($scope.model.productBatchDetails[0].meltingPoint, callback);
+                    InfoEditor.editMeltingPoint($scope.model.productBatchDetails.meltingPoint, callback);
                 };
                 $scope.editPurity = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].purity = result;
+                        $scope.model.productBatchDetails.purity = result;
                     };
-                    InfoEditor.editPurity($scope.model.productBatchDetails[0].purity, callback);
+                    InfoEditor.editPurity($scope.model.productBatchDetails.purity, callback);
                 };
                 $scope.editHealthHazards = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].healthHazards = result;
+                        $scope.model.productBatchDetails.healthHazards = result;
                     };
-                    InfoEditor.editHealthHazards($scope.model.productBatchDetails[0].healthHazards, callback);
+                    InfoEditor.editHealthHazards($scope.model.productBatchDetails.healthHazards, callback);
                 };
                 $scope.editHandlingPrecautions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].handlingPrecautions = result;
+                        $scope.model.productBatchDetails.handlingPrecautions = result;
                     };
-                    InfoEditor.editHandlingPrecautions($scope.model.productBatchDetails[0].handlingPrecautions, callback);
+                    InfoEditor.editHandlingPrecautions($scope.model.productBatchDetails.handlingPrecautions, callback);
                 };
                 $scope.editStorageInstructions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails[0].storageInstructions = result;
+                        $scope.model.productBatchDetails.storageInstructions = result;
                     };
-                    InfoEditor.editStorageInstructions($scope.model.productBatchDetails[0].storageInstructions, callback);
+                    InfoEditor.editStorageInstructions($scope.model.productBatchDetails.storageInstructions, callback);
                 };
                 $scope.registerBatch = function () {
                     AlertModal.info('not implemented yet');
@@ -148,7 +151,7 @@ angular.module('indigoeln')
                 };
                 $scope.$watch('share.stoichTable', function (stoichTable) {
                     if (stoichTable && stoichTable.reactants) {
-                        $scope.model.productBatchDetails[0].precursors = _.filter(_.map(stoichTable.reactants, function (item) {
+                        $scope.model.productBatchDetails.precursors = _.filter(_.map(stoichTable.reactants, function (item) {
                             return item.compoundId || item.fullNbkBatch;
                         }), function (val) {
                             return !!val;
