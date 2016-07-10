@@ -300,7 +300,7 @@ angular.module('indigoeln')
                         var data = result.data;
                         reagent.molWeight = reagent.molWeight || {};
                         reagent.molWeight.value = data.molecularWeight;
-                        reagent.formula = data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
+                        reagent.formula = CalculationService.getSaltFormula(data);
                     }
                     CalculationService.recalculateSalt(reagent, callback);
                 };
