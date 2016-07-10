@@ -9,10 +9,10 @@
                 <div style="position:relative">
                     <div class="col-xs-4">
                         <label>Notebook Batch #: </label>
-                        <span>{{model.productBatchDetails[0].fullNbkImmutablePart}}</span>
+                        <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span>
                     </div>
                     <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
-                        <my-input my-model="model.productBatchDetails[0].nbkBatch"
+                        <my-input my-model="model.productBatchDetails.nbkBatch"
                                   my-readonly="myReadonly"
                         ></my-input>
                     </div>
@@ -20,7 +20,7 @@
                         <my-two-toggle my-label=""
                                        my-first="Intermediate"
                                        my-second="Test Compound"
-                                       my-model="model.productBatchDetails[0].batchType"
+                                       my-model="model.productBatchDetails.batchType"
                                        my-readonly="myReadonly"
                         ></my-two-toggle>
                     </div>
@@ -34,33 +34,33 @@
                 </div>
             </div>
             <my-table my-id="product-detail-table" my-columns="productTableColumns"
-                      my-rows="model.productBatchDetails" my-readonly="myReadonly"></my-table>
+                      my-rows="detailTable" my-readonly="myReadonly"></my-table>
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-lg-4">
                     <my-select my-label="Status"
                                my-label-vertical="true"
-                               my-model="model.productBatchDetails[0].regStatus"
+                               my-model="model.productBatchDetails.regStatus"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-input my-label="Conversational Batch number"
-                              my-model="model.productBatchDetails[0].conversationalBatchNumber"
+                              my-model="model.productBatchDetails.conversationalBatchNumber"
                               my-label-vertical="true"
                               my-readonly="true"
                     ></my-input>
                     <my-input my-label="Virtual Compound Id"
-                              my-model="model.productBatchDetails[0].virtualCompoundId"
+                              my-model="model.productBatchDetails.virtualCompoundId"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
                     ></my-input>
                     <my-select my-label="Source"
                                my-label-vertical="true"
-                               my-model="model.productBatchDetails[0].source"
+                               my-model="model.productBatchDetails.source"
                                my-dictionary="Source"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-select my-label="Source Detail"
                                my-label-vertical="true"
-                               my-model="model.productBatchDetails[0].sourceDetail"
+                               my-model="model.productBatchDetails.sourceDetail"
                                my-dictionary="Source Details"
                                my-readonly="myReadonly"
                     ></my-select>
@@ -68,32 +68,33 @@
                                my-label-vertical="true"
                                my-dictionary="Stereoisomer Code"
                                my-dictionary-full="true"
-                               my-model="model.productBatchDetails[0].stereoisomer"
+                               my-model="model.productBatchDetails.stereoisomer"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-simple-text my-label="Calculated Batch MW"
-                                    my-model="model.productBatchDetails[0].molWeight.value"
+                                    my-model="model.productBatchDetails.molWeight.value"
                                     my-empty-text="none"
                     ></my-simple-text>
                     <my-simple-text my-label="Calculated Batch MF"
-                                    my-model="model.productBatchDetails[0].formula"
+                                    my-model="model.productBatchDetails.formula"
                                     my-empty-text="none">
                     </my-simple-text>
                     <my-select my-label="Salt Code & Name"
                                my-label-vertical="true"
                                my-items="saltCodeValues"
-                               my-model="model.productBatchDetails[0].saltCode"
-                               ng-keyup="recalculateSalt(model.productBatchDetails[0])"
+                               my-model="model.productBatchDetails.saltCode"
+                               ng-keyup="recalculateSalt(model.productBatchDetails)"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-input my-label="Salt Equivalent"
-                              my-model="model.productBatchDetails[0].saltEq.value"
-                              ng-keyup="recalculateSalt(model.productBatchDetails[0])"
+                              my-model="model.productBatchDetails.saltEq.value"
+                              ng-keyup="recalculateSalt(model.productBatchDetails)"
+                              my-type="number"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
                     ></my-input>
                     <my-text-area my-label="Structure comments"
-                                  my-model="model.productBatchDetails[0].structureComments"
+                                  my-model="model.productBatchDetails.structureComments"
                                   my-label-vertical="true"
                                   my-readonly="myReadonly"
                     ></my-text-area>
@@ -102,16 +103,16 @@
                     <my-select my-label="Compound State"
                                my-label-vertical="true"
                                my-dictionary="Compound State"
-                               my-model="model.productBatchDetails[0].compoundState"
+                               my-model="model.productBatchDetails.compoundState"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-input my-label="Precursor/Reactant IDs"
-                              my-model="model.productBatchDetails[0].precursors"
+                              my-model="model.productBatchDetails.precursors"
                               my-label-vertical="true"
                               my-readonly="myReadonly || share.stoichTable"
                     ></my-input>
                     <my-text-area my-label="Purity"
-                                  my-model="model.productBatchDetails[0].purity.asString"
+                                  my-model="model.productBatchDetails.purity.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true">
@@ -120,7 +121,7 @@
                         </button>
                     </my-text-area>
                     <my-text-area my-label="Melting Point"
-                                  my-model="model.productBatchDetails[0].meltingPoint.asString"
+                                  my-model="model.productBatchDetails.meltingPoint.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -130,7 +131,7 @@
                         </button>
                     </my-text-area>
                     <my-input my-label="Residual Solvents"
-                              my-model="model.productBatchDetails[0].residualSolvents.asString"
+                              my-model="model.productBatchDetails.residualSolvents.asString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
@@ -140,7 +141,7 @@
                         </button>
                     </my-input>
                     <my-input my-label="Solubility in Solvents"
-                              my-model="model.productBatchDetails[0].solubility.asString"
+                              my-model="model.productBatchDetails.solubility.asString"
                               my-label-vertical="true"
                               my-input-group="append"
                               my-readonly="true"
@@ -150,7 +151,7 @@
                         </button>
                     </my-input>
                     <my-text-area my-label="External Supplier"
-                                  my-model="model.productBatchDetails[0].externalSupplier.asString"
+                                  my-model="model.productBatchDetails.externalSupplier.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -162,13 +163,13 @@
                 </div>
                 <div class="col-xs-12 col-sm-6 col-lg-4">
                     <my-select my-label="Compound Protection"
-                               my-model="model.productBatchDetails[0].compoundProtection"
+                               my-model="model.productBatchDetails.compoundProtection"
                                my-label-vertical="true"
                                my-dictionary="Compound Protection"
                                my-readonly="myReadonly"
                     ></my-select>
                     <my-text-area my-label="Health Hazards"
-                                  my-model="model.productBatchDetails[0].healthHazards.asString"
+                                  my-model="model.productBatchDetails.healthHazards.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -178,7 +179,7 @@
                         </button>
                     </my-text-area>
                     <my-text-area my-label="Handling Precautions"
-                                  my-model="model.productBatchDetails[0].handlingPrecautions.asString"
+                                  my-model="model.productBatchDetails.handlingPrecautions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -188,7 +189,7 @@
                         </button>
                     </my-text-area>
                     <my-text-area my-label="Storage Instructions"
-                                  my-model="model.productBatchDetails[0].storageInstructions.asString"
+                                  my-model="model.productBatchDetails.storageInstructions.asString"
                                   my-label-vertical="true"
                                   my-input-group="append"
                                   my-readonly="true"
@@ -198,7 +199,7 @@
                         </button>
                     </my-text-area>
                     <my-text-area my-label="Batch Comments"
-                                  my-model="model.productBatchDetails[0].comments"
+                                  my-model="model.productBatchDetails.comments"
                                   my-label-vertical="true"
                                   my-readonly="myReadonly"
                     ></my-text-area>
