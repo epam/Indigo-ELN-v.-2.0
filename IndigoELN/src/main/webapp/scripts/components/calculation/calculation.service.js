@@ -105,7 +105,6 @@ angular.module('indigoeln')
             });
         };
 
-
         var recalculateStoichBasedOnBatch = function (data) {
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
@@ -163,11 +162,16 @@ angular.module('indigoeln')
             return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
         };
 
+        var getSaltFormula = function (data) {
+            return data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
+        };
+
 
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
             getImageForStructure: getImageForStructure,
+            getSaltFormula: getSaltFormula,
             setEntered: setEntered,
             isMoleculesEqual: isMoleculesEqual,
             resetValuesToDefault: resetValuesToDefault,

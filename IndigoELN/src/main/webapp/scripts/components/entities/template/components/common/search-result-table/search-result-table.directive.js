@@ -49,15 +49,13 @@ angular.module('indigoeln')
                     }
                 };
 
-
                 $scope.recalculateSalt = function (reagent) {
                     function callback(result) {
                         reagent.molWeight = reagent.molWeight || {};
                         var data = result.data;
                         reagent.molWeight.value = data.molecularWeight;
-                        reagent.formula = data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
+                        reagent.formula = CalculationService.getSaltFormula(data);
                     }
-
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
