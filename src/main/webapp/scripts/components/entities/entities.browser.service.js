@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/17/2016.
  */
 angular.module('indigoeln')
-    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal, AlertModal) {
+    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal, AlertModal, $timeout) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -144,7 +144,8 @@ angular.module('indigoeln')
                 var promise = deferred.promise;
                 var params = that.expandIds(fullId);
                 tabs[userId][fullId].then(function (entity) {
-                    if (entity.$$original !== that.toComparableJson(entity)) {
+                    var currentEntityStr = angular.toJson(entity);
+                    if (entity.$$original !== currentEntityStr) {
                         AlertModal.save('Do you want to save the changes?', null, function (isSave) {
                             if (isSave) {
                                 kindConf[that.getKind(params)].service.update(params, entity).$promise.then(
@@ -197,30 +198,12 @@ angular.module('indigoeln')
                     return cache[userId][entitiyId];
                 });
             },
-            //this analog for angular.toJson with additional conditions
-            toComparableJson: function (entity) {
-                return JSON.stringify(entity,
-                    function toJsonReplacer(key, value) {
-                        var val = value;
-                        if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
-                            val = undefined;
-                        } else if (value && value.window === value) {
-                            val = '$WINDOW';
-                        } else if (value && window.document === value) {
-                            val = '$DOCUMENT';
-                        } else if (value && value.$evalAsync && value.$watch) {
-                            val = '$SCOPE';
-                        } else if (_.isEmpty(val)) {
-                            val = undefined;
-                        }
-
-                        return val;
-                    }, false);
-            },
             loadEntity: function (that, params) {
                 var $promise = kindConf[that.getKind(params)].service.get(params).$promise;
                 $promise.then(function (entity) {
-                    entity.$$original = that.toComparableJson(entity);
+                    $timeout(function () { //bad practice: wait 1 second for ui initialization
+                        entity.$$original = angular.toJson(entity);
+                    }, 1000, false);
                 });
                 return $promise;
             },
