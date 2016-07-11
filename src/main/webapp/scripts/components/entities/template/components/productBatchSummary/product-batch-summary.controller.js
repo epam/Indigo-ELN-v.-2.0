@@ -391,7 +391,7 @@ angular.module('indigoeln')
                 },
                 {
                     id: 'registrationDate', name: 'Registration Date', format: function (val) {
-                    return $filter('date')(val, 'MMM dd yyyy HH:mm');
+                    return $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z');
                 }
                 },
                 {id: 'registrationStatus', name: 'Registration Status'}
