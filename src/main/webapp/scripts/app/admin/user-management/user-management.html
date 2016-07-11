@@ -142,10 +142,13 @@
             </td>
             <td>{{user.email}}</td>
             <td>
-                    <span class="label label-danger" ng-click="setActive(user, true)" ng-show="!user.activated"
+                    <span class="label label-danger" ng-click="setActive(user, true)"
+                          ng-show="!user.system && !user.activated"
                           style="cursor: pointer;">Deactivated</span>
-                    <span class="label label-success" ng-click="setActive(user, false)" ng-show="user.activated"
+                    <span class="label label-success" ng-click="setActive(user, false)"
+                          ng-show="!user.system && user.activated"
                           style="cursor: pointer;">Activated</span>
+                <span class="label label-success" ng-show="user.system">Activated</span>
             </td>
             <td class="text-right">
                 <button type="submit"
