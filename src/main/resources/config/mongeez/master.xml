@@ -1,5 +1,7 @@
 <changeFiles>
-    <file path="dropdb.xml"/>
+    <file path="init.xml"/>
+    <file path="init_dictionaries.xml"/>
+    <!--<file path="dropdb.xml"/>
     <file path="authorities.xml"/>
     <file path="users.xml"/>
     <file path="authorities_for_entity_operations.xml"/>
@@ -18,5 +20,5 @@
     <file path="dictionaries_2.xml"/>
     <file path="file_temporary.xml"/>
     <file path="dictionaries_3.xml"/>
-    <file path="experiment_status.xml"/>
+    <file path="experiment_status.xml"/>-->
 </changeFiles>
