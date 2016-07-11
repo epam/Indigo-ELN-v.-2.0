@@ -22,6 +22,7 @@ angular.module('indigoeln')
                 var getIntendedProducts = function () {
                     return $scope.model.stoichTable.products;
                 };
+
                 var setStoicReactants = function (reactants) {
                     $scope.model.stoichTable.reactants = reactants;
                 };
@@ -382,6 +383,11 @@ angular.module('indigoeln')
                 }, true);
 
                 $scope.$watch('model.stoichTable', function (stoichTable) {
+                    _.each(stoichTable.products, function (item) {
+                        if (!item.$$batchHash) {
+                            item.$$batchHash = +new Date() + Math.random();
+                        }
+                    });
                     $scope.share.stoichTable = stoichTable;
                 }, true);
 
