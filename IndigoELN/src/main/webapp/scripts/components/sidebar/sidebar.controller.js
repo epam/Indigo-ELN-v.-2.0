@@ -202,9 +202,11 @@ angular
                 // --------------promises----------------
                 var promiseToggleProject = function (agent, parent, file) {
                     return agent.query({}, function (result) {
-                        parent.projects = result;
-                        var data = {id: result[0].id, isOpen: true};
-                        localStorageService.set(file, JSON.stringify(data));
+                        if (result.length) {
+                            parent.projects = result;
+                            var data = {id: result[0].id, isOpen: true};
+                            localStorageService.set(file, JSON.stringify(data));
+                        }
                     });
                 };
 
