@@ -18,6 +18,7 @@ angular.module('indigoeln')
             var sourceDetailInternal = AppValues.getSourceDetailInternal();
             var compoundProtectionValues = AppValues.getCompoundProtectionValues();
             var stoichTable;
+            var unbinds = [];
             var setSelectSourceValueAction = {
                 action: function () {
                     var that = this;
@@ -50,7 +51,7 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.$watch('model.productBatchSummary.batches', function (batches) {
+            unbinds.push($scope.$watch('model.productBatchSummary.batches', function (batches) {
                 _.each(batches, function (batch) {
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
                     batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
@@ -58,11 +59,11 @@ angular.module('indigoeln')
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
                 $scope.share.actualProducts = batches;
-            }, true);
+            }, true));
 
-            $scope.$watch('share.stoichTable', function (table) {
+            unbinds.push($scope.$watch('share.stoichTable', function (table) {
                 stoichTable = table;
-            }, true);
+            }, true));
 
             $scope.columns = [
                 {
@@ -357,8 +358,8 @@ angular.module('indigoeln')
                 });
             }
 
-            $scope.$watch('share.stoichTable', updatePrecursor, true);
-            $scope.$watch('model.productBatchSummary.batches', updatePrecursor, true);
+            unbinds.push($scope.$watch('share.stoichTable', updatePrecursor, true));
+            unbinds.push($scope.$watch('model.productBatchSummary.batches', updatePrecursor, true));
 
             $scope.isHasCheckedRows = function () {
                 return !!_.find($scope.model.productBatchSummary.batches, function (item) {
@@ -384,25 +385,25 @@ angular.module('indigoeln')
                     return !item.select;
                 });
             };
-            $scope.$watch('showStructures', function (showStructures) {
+            unbinds.push($scope.$watch('showStructures', function (showStructures) {
                 var structureColumn = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
                 });
                 structureColumn.isVisible = showStructures;
-            });
+            }));
 
-            $scope.$watch('structureSize', function (newVal) {
+            unbinds.push($scope.$watch('structureSize', function (newVal) {
                 var column = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
                 });
                 column.width = 300 * newVal + 'px';
-            });
+            }));
 
-            $scope.$watch('isHasRegService', function (val) {
+            unbinds.push($scope.$watch('isHasRegService', function (val) {
                 _.findWhere($scope.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
                 _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
-            });
+            }));
             RegistrationService.info({}, function (info) {
                 $scope.isHasRegService = _.isArray(info) && info.length > 0;
             });
@@ -627,5 +628,10 @@ angular.module('indigoeln')
                 };
                 InfoEditor.editStorageInstructions($scope.model.productBatchDetails.storageInstructions, callback);
             };
+            $scope.$on('$destroy', function () {
+                _.each(unbinds, function (unbind) {
+                    unbind();
+                });
+            });
         }
     );

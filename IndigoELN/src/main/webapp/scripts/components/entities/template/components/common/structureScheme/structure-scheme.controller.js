@@ -15,8 +15,10 @@ angular.module('indigoeln')
                 $scope.share[type] = $scope.model[type].structureMolfile;
             }
         };
-        $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
-
+        var unsubscribe = $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
+        $scope.$on('$destroy', function () {
+            unsubscribe();
+        });
         if (type === 'molecule') {
             $scope.$on('batch-summary-row-selected', function (event, row) {
                 if (row && row.structure && row.structure.structureType === type) {

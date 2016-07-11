@@ -65,8 +65,11 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.$watch('experiment.status', function () {
+            var unsubscribe = $scope.$watch('experiment.status', function () {
                 $scope.isEditAllowed = $scope.isStatusOpen();
+            });
+            $scope.$on('$destroy', function () {
+                unsubscribe();
             });
 
             var onChangeStatusSuccess = function (result, status) {
