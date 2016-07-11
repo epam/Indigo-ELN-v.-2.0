@@ -350,7 +350,8 @@ angular.module('indigoeln')
                     );
                 }
 
-                $scope.$watch('share.reaction', function (newMolFile) {
+                var unbinds = [];
+                unbinds.push($scope.$watch('share.reaction', function (newMolFile) {
                     var resetMolInfo = function () {
                         $scope.model.stoichTable.products = null;
                     };
@@ -360,15 +361,21 @@ angular.module('indigoeln')
                     } else {
                         resetMolInfo();
                     }
-                });
-                $scope.$watch('share.actualProducts', function (products) {
+                }));
+                unbinds.push($scope.$watch('share.actualProducts', function (products) {
                     actualProducts = products;
-                }, true);
+                }, true));
 
-                $scope.$watch('model.stoichTable', function (stoichTable) {
+                unbinds.push($scope.$watch('model.stoichTable', function (stoichTable) {
                     $scope.share.stoichTable = stoichTable;
-                }, true);
+                }, true));
 
+                $scope.$on('$destroy', function () {
+                    _.each(unbinds, function (unbind) {
+                        unbind();
+                    });
+                });
+                
                 var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {
                     if (data) {
                         $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);

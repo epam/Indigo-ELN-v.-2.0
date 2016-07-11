@@ -16,16 +16,19 @@ angular.module('indigoeln')
                         return $($window).height() - $panelBody.offset().top - $footer.outerHeight();
                     }
 
-                    scope.$watch(function () {
+                    var unsubscribe = scope.$watch(function () {
                         return calcHeight();
                     }, function (val) {
                         $panelBody.css('height', val + 'px');
+                    });
+                    scope.$on('$destroy', function () {
+                        unsubscribe();
                     });
                     angular.element($window).bind('resize', function () {
                         $panelBody.css('height', calcHeight() + 'px');
                     });
 
-                });
+                }, false);
             }
         };
     });
