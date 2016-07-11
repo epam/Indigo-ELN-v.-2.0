@@ -368,7 +368,7 @@ angular.module('indigoeln')
 
                 $scope.$watch('share.reaction', function (newMolFile) {
                     var resetMolInfo = function () {
-                        setStoicReactants = null;
+                        setStoicReactants(null);
                     };
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
