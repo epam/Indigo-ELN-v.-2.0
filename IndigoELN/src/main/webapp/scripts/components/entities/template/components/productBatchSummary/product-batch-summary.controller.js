@@ -597,6 +597,20 @@ angular.module('indigoeln')
                 return deferred.promise;
             }
 
+            var getIntendedNotInActual = function () {
+                if (stoichTable) {
+                    var intended = stoichTable.products;
+                    var actual = getProductBatches();
+                    var actualHashes = _.compact(_.pluck(actual, '$$batchHash'));
+                    return _.filter(intended, function (batch) {
+                        return !_.contains(actualHashes, batch.$$batchHash);
+                    });
+                }
+            };
+            $scope.isIntendedSynced = function () {
+                return !getIntendedNotInActual().length;
+            };
+
             $scope.addNewBatch = function () {
                 requestNbkBatchNumberAndAddToTable();
             };
@@ -619,17 +633,10 @@ angular.module('indigoeln')
 
             $scope.syncWithIntendedProducts = function () {
                 var syncingIntendedProducts = $q.defer();
-                var batchesQueueToAdd = [];
+                var batchesQueueToAdd = getIntendedNotInActual();
+
                 $scope.syncingIntendedProducts = syncingIntendedProducts.promise;
                 if (stoichTable && stoichTable.products && stoichTable.products.length) {
-                    _.each(stoichTable.products, function (intendedItem) {
-                        var isUnique = _.every(getProductBatches(), function (productItem) {
-                            return !angular.equals(intendedItem, productItem);
-                        });
-                        if (isUnique) {
-                            batchesQueueToAdd.push(intendedItem);
-                        }
-                    });
                     if (!batchesQueueToAdd.length) {
                         syncingIntendedProducts.resolve();
                         AlertModal.info('Product Batch Summary is synchronized', 'sm');
