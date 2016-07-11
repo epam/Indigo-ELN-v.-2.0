@@ -28,6 +28,8 @@ public class ManagedUserDTO extends UserDTO {
 
     private String group;
 
+    private boolean system;
+
     private Set<Role> roles;
 
     public ManagedUserDTO() {
@@ -40,6 +42,7 @@ public class ManagedUserDTO extends UserDTO {
         this.authorities = null;
         this.roles = user.getRoles();
         this.group = user.getGroup();
+        this.system = user.isSystem();
     }
 
     @Override
@@ -92,6 +95,14 @@ public class ManagedUserDTO extends UserDTO {
     @Override
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     @Override
