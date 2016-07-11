@@ -391,7 +391,7 @@ angular.module('indigoeln')
                 },
                 {
                     id: 'registrationDate', name: 'Registration Date', format: function (val) {
-                    return $filter('date')(val, 'MMM dd yyyy');
+                    return $filter('date')(val, 'MMM dd yyyy HH:mm');
                 }
                 },
                 {id: 'registrationStatus', name: 'Registration Status'}
@@ -538,6 +538,7 @@ angular.module('indigoeln')
                     });
                     if (batch) {
                         batch.registrationStatus = status.status;
+                        batch.registrationDate = status.date;
                         if (status.compoundNumbers) {
                             batch.compoundId = status.compoundNumbers[fullNbkBatch];
                         }

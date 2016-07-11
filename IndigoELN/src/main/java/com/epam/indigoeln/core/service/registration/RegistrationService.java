@@ -113,7 +113,7 @@ public class RegistrationService {
                     b -> {
                         b.setRegistrationStatus(registrationStatus.getStatus().toString());
                         if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
-                            b.setRegistrationDate(new Date());
+                            b.setRegistrationDate(registrationStatus.getDate());
                             b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
                             b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                         }
