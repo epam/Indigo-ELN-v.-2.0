@@ -18,6 +18,8 @@ public class Role implements Serializable {
 
     private String name;
 
+    private boolean system;
+
     @JsonIgnore
     private HashSet<Authority> authorities = new HashSet<>();
 
@@ -35,6 +37,14 @@ public class Role implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isSystem() {
+        return system;
+    }
+
+    public void setSystem(boolean system) {
+        this.system = system;
     }
 
     public Set<Authority> getAuthorities() {
