@@ -152,7 +152,7 @@ public class RegistrationService {
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setFormula(batch.getString("formula"));
         result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
-        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("name"));
+        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("value"));
         final String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
         if (saltEq != null) {
             try {
