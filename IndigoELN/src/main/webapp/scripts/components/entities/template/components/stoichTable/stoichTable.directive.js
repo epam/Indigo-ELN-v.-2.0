@@ -13,6 +13,22 @@ angular.module('indigoeln')
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
                 $scope.model.stoichTable.products = $scope.model.stoichTable.products || [];
 
+                var getStoicTable = function () {
+                    return $scope.model.stoichTable;
+                };
+                var getStoicReactants = function () {
+                    return $scope.model.stoichTable.reactants;
+                };
+                var getIntendedProducts = function () {
+                    return $scope.model.stoichTable.products;
+                };
+                var setStoicReactants = function (reactants) {
+                    $scope.model.stoichTable.reactants = reactants;
+                };
+                var setIntendedProducts = function (products) {
+                    $scope.model.stoichTable.products = products;
+                };
+
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
                 var moles = AppValues.getMoles();
@@ -25,7 +41,7 @@ angular.module('indigoeln')
 
                 function initDataForCalculation(data) {
                     var calcData = data || {};
-                    calcData.stoichTable = $scope.model.stoichTable;
+                    calcData.stoichTable = getStoicTable();
                     calcData.actualProducts = actualProducts;
                     return calcData;
                 }
@@ -113,7 +129,7 @@ angular.module('indigoeln')
                         onClick: function (data) {
                             CalculationService.setEntered(data);
                             data = initDataForCalculation(data);
-                            console.log(data);
+                            $log.log(data);
                             CalculationService.recalculateStoichBasedOnBatch(data, false);
                         }
                     },
@@ -261,7 +277,7 @@ angular.module('indigoeln')
                                 if (column.id === 'rxnRole') {
                                     onRxnRoleChange(data);
                                 }
-                                console.log(data);
+                                $log.log(data);
                                 CalculationService.recalculateStoichBasedOnBatch(data, false);
                             }
                         });
@@ -269,7 +285,7 @@ angular.module('indigoeln')
                         $scope.reactantsColumns[i] = _.extend(column, {
                             onClose: function (data) {
                                 CalculationService.setEntered(data);
-                                $scope.recalculateSalt(data.row);
+                                recalculateSalt(data.row);
                             }
                         });
                     }
@@ -284,11 +300,11 @@ angular.module('indigoeln')
                     $scope.selectedRow.rxnRole = {name: 'REACTANT'};
                 };
                 $scope.appendRow = function () {
-                    var reactant = CalculationService.createBatch($scope.model.stoichTable);
-                    $scope.model.stoichTable.reactants.push(reactant);
+                    var reactant = CalculationService.createBatch(getStoicTable());
+                    getStoicReactants().push(reactant);
                 };
                 $scope.removeRow = function () {
-                    $scope.model.stoichTable.reactants = _.without($scope.model.stoichTable.reactants, $scope.selectedRow);
+                    setStoicReactants(_.without(getStoicReactants(), $scope.selectedRow));
                     $rootScope.$broadcast('stoich-rows-changed');
                 };
                 $scope.onRowSelected = function (row) {
@@ -324,7 +340,7 @@ angular.module('indigoeln')
                 }
 
                 function getStructureImagesForIntendedProducts() {
-                    _.each($scope.model.stoichTable.products, function (item) {
+                    _.each(getIntendedProducts(), function (item) {
                         CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
                             item.structure.image = image;
                         });
@@ -337,7 +353,7 @@ angular.module('indigoeln')
                             var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
-                                $scope.model.stoichTable.products = moleculeInfoResponseCallback(results);
+                                setIntendedProducts(moleculeInfoResponseCallback(results));
                                 // getStructureImagesForIntendedProducts();
                                 CalculationService.recalculateStoich(initDataForCalculation());
                             });
@@ -352,7 +368,7 @@ angular.module('indigoeln')
 
                 $scope.$watch('share.reaction', function (newMolFile) {
                     var resetMolInfo = function () {
-                        $scope.model.stoichTable.products = null;
+                        setStoicReactants = null;
                     };
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
@@ -371,20 +387,20 @@ angular.module('indigoeln')
 
                 var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {
                     if (data) {
-                        $scope.model.stoichTable.reactants = _.union($scope.model.stoichTable.reactants, data);
+                        setStoicReactants(_.union(getStoicReactants(), data));
                     }
                     CalculationService.recalculateStoich(initDataForCalculation());
                 });
                 var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
                     var newReactants = data.stoicBatches;
                     var newProducts = data.intendedProducts;
-                    if ($scope.model.stoichTable.reactants && newReactants.length === $scope.model.stoichTable.reactants.length) {
-                        _.each($scope.model.stoichTable.reactants, function (reactant, i) {
+                    if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
+                        _.each(getStoicReactants(), function (reactant, i) {
                             _.extend(reactant, newReactants[i]);
                         });
                     }
-                    if ($scope.model.stoichTable.products && newProducts.length === $scope.model.stoichTable.products.length) {
-                        _.each($scope.model.stoichTable.products, function (product, i) {
+                    if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
+                        _.each(getIntendedProducts(), function (product, i) {
                             _.extend(product, newProducts[i]);
                         });
                     }
@@ -397,7 +413,7 @@ angular.module('indigoeln')
                 var getMissingReactionReactantsInStoic = function (callback) {
                     var batchesToSearch = [];
                     var stoicReactants = [];
-                    _.each($scope.model.stoichTable.reactants, function (item) {
+                    _.each(getStoicReactants(), function (item) {
                         if (_.findWhere(item, {name: 'REACTANT'}) && item.structure) {
                             stoicReactants.push(item);
                         }
