@@ -126,7 +126,6 @@ angular.module('indigoeln')
             };
             return $http.put('api/calculations/product/calculate/batch', requestData).then(function (result) {
                 _.extend(data.row, result.data);
-                $log.log(result);
             });
         };
 
@@ -165,7 +164,6 @@ angular.module('indigoeln')
         var getSaltFormula = function (data) {
             return data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
         };
-
 
         return {
             createBatch: createBatch,
