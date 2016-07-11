@@ -113,7 +113,7 @@ public class RegistrationService {
                     b -> {
                         b.setRegistrationStatus(registrationStatus.getStatus().toString());
                         if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
-                            b.setRegistrationDate(new Date());
+                            b.setRegistrationDate(registrationStatus.getDate());
                             b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
                             b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                         }
@@ -152,7 +152,7 @@ public class RegistrationService {
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setFormula(batch.getString("formula"));
         result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
-        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("name"));
+        result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("value"));
         final String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
         if (saltEq != null) {
             try {

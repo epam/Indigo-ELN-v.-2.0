@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +61,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     public RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException {
         try {
             CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), jobId);
-            final RegistrationStatus result = convert(status);
+            final RegistrationStatus result = convert(status, new Date());
             if (RegistrationStatus.Status.PASSED.equals(result.getStatus())) {
                 final List<FullCompoundInfo> compounds = search.getCompoundByJobId(String.valueOf(jobId));
                 compounds.forEach(c -> {
@@ -172,10 +173,10 @@ public class CrsRegistrationRepository implements RegistrationRepository {
         return INFO;
     }
 
-    private RegistrationStatus convert(CompoundRegistrationStatus status) {
+    private RegistrationStatus convert(CompoundRegistrationStatus status, Date date) {
         switch (status) {
             case SUCCESSFUL:
-                return RegistrationStatus.passed();
+                return RegistrationStatus.passed(date);
             case WRONG_TOKEN_DURING_REGISTRATION:
             case WRONG_TOKEN_DURING_CHECK:
                 return RegistrationStatus.failed("Wrong token");

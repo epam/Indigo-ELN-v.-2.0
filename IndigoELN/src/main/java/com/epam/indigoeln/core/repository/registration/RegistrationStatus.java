@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.repository.registration;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,23 +10,26 @@ public class RegistrationStatus {
 
     private String message;
 
+    private Date date;
+
     private Map<String, String> compoundNumbers;
 
     private Map<String, String> conversationalBatchNumbers;
 
-    private RegistrationStatus(Status status, String message) {
+    private RegistrationStatus(Status status, String message, Date date) {
         this.status = status;
         this.message = message;
+        this.date = date;
         compoundNumbers = new HashMap<>();
         conversationalBatchNumbers = new HashMap<>();
     }
 
     private RegistrationStatus(Status status) {
-        this(status, null);
+        this(status, null, null);
     }
 
-    public static RegistrationStatus passed() {
-        return new RegistrationStatus(Status.PASSED);
+    public static RegistrationStatus passed(Date date) {
+        return new RegistrationStatus(Status.PASSED, null, date);
     }
 
     public static RegistrationStatus inProgress() {
@@ -37,7 +41,7 @@ public class RegistrationStatus {
     }
 
     public static RegistrationStatus failed(String message) {
-        return new RegistrationStatus(Status.FAILED, message);
+        return new RegistrationStatus(Status.FAILED, message, null);
     }
 
     public Status getStatus() {
@@ -46,6 +50,10 @@ public class RegistrationStatus {
 
     public String getMessage() {
         return message;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     public Map<String, String> getCompoundNumbers() {
