@@ -18,7 +18,8 @@ angular.module('indigoeln')
         $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
 
         if (type === 'molecule') {
-            $scope.$on('batch-summary-row-selected', function (event, row) {
+            $scope.$on('batch-summary-row-selected', function (event, data) {
+                var row = data.row;
                 if (row && row.structure && row.structure.structureType === type) {
                     $scope.model[type].image = $scope.share.selectedRow.structure.image;
                     $scope.model[type].structureMolfile = $scope.share.selectedRow.structure.molfile;

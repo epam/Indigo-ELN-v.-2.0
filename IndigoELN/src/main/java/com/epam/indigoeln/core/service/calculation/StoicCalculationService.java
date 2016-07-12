@@ -104,11 +104,13 @@ public class StoicCalculationService {
     private BatchesList<MonomerBatchModel> prepareStoicBatchesList(List<BasicBatchModel> stoicBatches) {
         BatchesList<MonomerBatchModel> stoicBatchesList = new BatchesList<>();
         int order = 0;
-        for (BasicBatchModel sourceMonomerBatch : stoicBatches) {
-            MonomerBatchModel monomer = createMonomerBatchModel(sourceMonomerBatch);
-            monomer.setStoicTransactionOrder(order);
-            stoicBatchesList.addBatch(monomer);
-            order++;
+        if (stoicBatches != null) {
+            for (BasicBatchModel sourceMonomerBatch : stoicBatches) {
+                MonomerBatchModel monomer = createMonomerBatchModel(sourceMonomerBatch);
+                monomer.setStoicTransactionOrder(order);
+                stoicBatchesList.addBatch(monomer);
+                order++;
+            }
         }
         return stoicBatchesList;
     }

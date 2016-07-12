@@ -314,9 +314,11 @@ angular.module('indigoeln')
                 var recalculateSalt = function (reagent) {
                     function callback(result) {
                         var data = result.data;
+                        data.saltEq = reagent.saltEq;
                         reagent.molWeight = reagent.molWeight || {};
                         reagent.molWeight.value = data.molecularWeight;
                         reagent.formula = CalculationService.getSaltFormula(data);
+                        CalculationService.recalculateStoich(initDataForCalculation());
                     }
                     CalculationService.recalculateSalt(reagent, callback);
                 };

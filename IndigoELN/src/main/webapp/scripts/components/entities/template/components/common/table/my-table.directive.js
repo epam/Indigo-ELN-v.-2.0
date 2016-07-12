@@ -21,8 +21,8 @@ angular.module('indigoeln')
                     return myTableCtrl.isEditable($scope.myColumn.id, $scope.myRowIndex);
                 };
                 $scope.isEmpty = function (obj) {
-                    return _.isNull(obj) || _.isUndefined(obj) || obj === 0 ||
-                        (_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0));
+                    return obj === 0 || _.isNull(obj) || _.isUndefined(obj) ||
+                        (_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0) || obj.value === '0');
                 };
                 $scope.closeThis = function () {
                     if ($scope.myColumn.onClose && isChanged) {

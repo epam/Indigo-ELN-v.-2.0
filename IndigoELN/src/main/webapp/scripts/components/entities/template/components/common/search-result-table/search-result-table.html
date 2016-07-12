@@ -138,7 +138,7 @@
                                 Salt EQ:</p></div>
                             <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
                                 <my-input ng-if="isEditMode"
-                                          ng-keyup="recalculateSalt(item)"
+                                          my-change="recalculateSalt(item)"
                                           my-model="item.saltEq.value"></my-input>
                                 <p ng-if="!isEditMode">{{item.saltEq.value}}</p>
                             </div>
