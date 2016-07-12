@@ -8,7 +8,7 @@
             {{myColumn.format(myRow[myColumn.id])}}
             </span>
         </span>
-        <span ng-if="myColumn.type === 'primitive'">
+        <span ng-if="myColumn.type === 'primitive' && !isEmpty(myRow[myColumn.id])">
             {{myRow[myColumn.id] | round:false:myColumn.sigDigits}}
         </span>
         <a ng-if="!myRow[myColumn.id].readonly && myColumn.type === 'string'"
@@ -29,7 +29,8 @@
                   popover-placement="top-right"
                   popover-append-to-body="true"
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id]}}</span>
-            <span ng-if="myColumn.type == 'select'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].name}}</span>
+            <span ng-if="myColumn.type == 'select' && !isEmpty(myRow[myColumn.id])"
+                  ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].name}}</span>
             <span ng-if="myColumn.type == 'unit'" ng-class="{'entered-value': myRow[myColumn.id].entered}"
                   ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">{{myRow[myColumn.id].value | unit:myRow[myColumn.id].unit | round:myRow[myColumn.id].entered:myColumn.sigDigits}} {{myRow[myColumn.id].unit}}</span>
             <span ng-if="myColumn.type == 'scalar'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | round:myRow[myColumn.id].entered:myColumn.sigDigits}}</span>
