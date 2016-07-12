@@ -162,7 +162,7 @@ angular.module('indigoeln')
         };
 
         var getSaltFormula = function (data) {
-            return data.molecularFormula + '*' + data.saltCode + '(' + data.saltDesc.toLowerCase() + ')';
+            return data.molecularFormula + '*' + data.saltEq.value + '(' + data.saltDesc.toLowerCase() + ')';
         };
 
         return {
