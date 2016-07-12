@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('AnalyzeRxnController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, reactants) {
+    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, reactants, $q, SearchService) {
         $scope.model = {};
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
@@ -37,23 +37,19 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
             });
         }
 
-        function getSearchResult(formula) {
+        function getSearchResult(formula, callback) {
             var databases = prepareDatabases();
             var searchRequest = {
                 databases: databases,
                 structure: {formula: formula, searchMode: 'molformula'}
             };
-            return $http({
-                url: 'api/search/batch',
-                method: 'POST',
-                data: searchRequest
-            });
+            SearchService.search(searchRequest, callback);
         }
 
         $scope.search = function () {
             _.each($scope.tabs, function (tab) {
-                getSearchResult(tab.formula).then(function (searchResult) {
-                    tab.searchResult = responseCallback(searchResult.data);
+                getSearchResult(tab.formula, function (searchResult) {
+                    tab.searchResult = responseCallback(searchResult);
                 });
             });
             $scope.isSearchCompleted = true;
