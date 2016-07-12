@@ -7,7 +7,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, CalculationService) {
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, CalculationService, SearchService) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -54,15 +54,14 @@ angular.module('indigoeln')
                         }],
                         databases: ['Indigo ELN']
                     };
-                    $http.post('api/search/batch', searchRequest)
-                        .then(function (result) {
-                            var source = result.data[0];
-                            if (source) {
-                                _.extend(row, source.details);
-                                row.rxnRole = row.rxnRole || {name: 'REACTANT'};
-                                CalculationService.recalculateStoich(initDataForCalculation());
-                            }
-                        });
+                    SearchService.search(searchRequest, function (result) {
+                        var source = result[0];
+                        if (source) {
+                            _.extend(row, source.details);
+                            row.rxnRole = row.rxnRole || {name: 'REACTANT'};
+                            CalculationService.recalculateStoich(initDataForCalculation());
+                        }
+                    });
                 }
 
                 $scope.reactantsColumns = [

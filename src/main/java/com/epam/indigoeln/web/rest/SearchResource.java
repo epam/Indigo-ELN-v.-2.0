@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
+import com.epam.indigoeln.core.service.search.SearchServiceFacade;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import io.swagger.annotations.Api;
@@ -26,8 +27,20 @@ import java.util.Collection;
 public class SearchResource {
 
     @Autowired
-    @Qualifier("commonSearchService")
-    private SearchServiceAPI searchService;
+    private SearchServiceFacade searchService;
+
+    /**
+     * GET /catalogue -> returns a list of search catalogues
+     */
+    @ApiOperation(value = "Returns a list of search catalogues.", produces = "application/json")
+    @RequestMapping(
+            value = "/catalogue",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Collection<SearchServiceAPI.Info>> getCatalogues() {
+        Collection<SearchServiceAPI.Info> catalogues = searchService.getCatalogues();
+        return ResponseEntity.ok(catalogues);
+    }
 
     /**
      * POST /batch -> find batch Components by specified criteria

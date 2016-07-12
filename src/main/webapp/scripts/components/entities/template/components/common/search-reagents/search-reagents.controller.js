@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $http, Alert, activeTab, UserReagents) {
+    function ($scope, $rootScope, $uibModalInstance, $http, Alert, activeTab, UserReagents, SearchService) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -40,11 +40,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
 
         $scope.isActiveTab0 = activeTab === 0;
         $scope.isActiveTab1 = activeTab === 1;
-        $scope.model.databases = [
-            { key: 1, value: 'Indigo ELN', isChecked: true },
-            { key: 2, value: 'Custom Catalog 1' },
-            { key: 3, value: 'Custom Catalog 2' }
-        ];
+        $scope.model.databases = SearchService.getCatalogues();
 
         UserReagents.get({}, function (reagents) {
             $scope.myReagentList = _.map(reagents, function (reagent) {
@@ -165,11 +161,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
 
         $scope.search = function () {
             var searchRequest = prepareSearchRequest();
-            $http({
-                url: 'api/search/batch',
-                method: 'POST',
-                data: searchRequest
-            }).success(function (result) {
+            SearchService.search(searchRequest, function (result) {
                 responseCallback(result);
             });
             $scope.isSearchResultFound = true;
