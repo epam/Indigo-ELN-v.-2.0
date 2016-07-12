@@ -75,12 +75,39 @@ angular.module('indigoeln')
                     {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2}
                 ];
 
-                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, row) {
-                    $scope.model.productBatchDetails = row;
-                    $scope.detailTable[0] = row;
+                function getProductBatchDetails() {
+                    return $scope.model.productBatchDetails;
+                }
+
+                function setProductBatchDetails(batch) {
+                    $scope.model.productBatchDetails = batch;
+                }
+
+                var stoichTable, productBatches;
+
+                function getStoicTable() {
+                    return stoichTable;
+                }
+
+                function setStoicTable(table) {
+                    stoichTable = table;
+                }
+
+                var getProductBatches = function () {
+                    return productBatches;
+                };
+                var setProductBatches = function (batches) {
+                    productBatches = batches;
+                };
+
+                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
+                    setProductBatchDetails(data.row);
+                    setStoicTable(data.stoichTable);
+                    setProductBatches(data.actualProducts);
+                    $scope.detailTable[0] = data.row;
                 });
                 var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
-                    $scope.model.productBatchDetails = {};
+                    setProductBatchDetails({});
                     $scope.detailTable[0] = {};
                 });
                 $scope.$on('$destroy', function () {
@@ -90,68 +117,75 @@ angular.module('indigoeln')
 
                 $scope.editSolubility = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.solubility = result;
+                        getProductBatchDetails().solubility = result;
                     };
-                    InfoEditor.editSolubility($scope.model.productBatchDetails.solubility, callback);
+                    InfoEditor.editSolubility(getProductBatchDetails().solubility, callback);
                 };
                 $scope.editResidualSolvents = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.residualSolvents = result;
+                        getProductBatchDetails().residualSolvents = result;
                     };
-                    InfoEditor.editResidualSolvents($scope.model.productBatchDetails.residualSolvents, callback);
+                    InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents, callback);
                 };
                 $scope.editExternalSupplier = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.externalSupplier = result;
+                        getProductBatchDetails().externalSupplier = result;
                     };
-                    InfoEditor.editExternalSupplier($scope.model.productBatchDetails.externalSupplier, callback);
+                    InfoEditor.editExternalSupplier(getProductBatchDetails().externalSupplier, callback);
                 };
                 $scope.editMeltingPoint = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.meltingPoint = result;
+                        getProductBatchDetails().meltingPoint = result;
                     };
-                    InfoEditor.editMeltingPoint($scope.model.productBatchDetails.meltingPoint, callback);
+                    InfoEditor.editMeltingPoint(getProductBatchDetails().meltingPoint, callback);
                 };
                 $scope.editPurity = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.purity = result;
+                        getProductBatchDetails().purity = result;
                     };
-                    InfoEditor.editPurity($scope.model.productBatchDetails.purity, callback);
+                    InfoEditor.editPurity(getProductBatchDetails().purity, callback);
                 };
                 $scope.editHealthHazards = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.healthHazards = result;
+                        getProductBatchDetails().healthHazards = result;
                     };
-                    InfoEditor.editHealthHazards($scope.model.productBatchDetails.healthHazards, callback);
+                    InfoEditor.editHealthHazards(getProductBatchDetails().healthHazards, callback);
                 };
                 $scope.editHandlingPrecautions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.handlingPrecautions = result;
+                        getProductBatchDetails().handlingPrecautions = result;
                     };
-                    InfoEditor.editHandlingPrecautions($scope.model.productBatchDetails.handlingPrecautions, callback);
+                    InfoEditor.editHandlingPrecautions(getProductBatchDetails().handlingPrecautions, callback);
                 };
                 $scope.editStorageInstructions = function () {
                     var callback = function (result) {
-                        $scope.model.productBatchDetails.storageInstructions = result;
+                        getProductBatchDetails().storageInstructions = result;
                     };
-                    InfoEditor.editStorageInstructions($scope.model.productBatchDetails.storageInstructions, callback);
+                    InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
                 };
                 $scope.registerBatch = function () {
                     AlertModal.info('not implemented yet');
                 };
+                function initDataForCalculation(data) {
+                    var calcData = data || {};
+                    calcData.stoichTable = getStoicTable();
+                    calcData.actualProducts = getProductBatches();
+                    return calcData;
+                }
                 $scope.recalculateSalt = function (reagent) {
                     function callback(result) {
                         var data = result.data;
+                        data.saltEq = reagent.saltEq;
                         reagent.molWeight = reagent.molWeight || {};
                         reagent.molWeight.value = data.molecularWeight;
                         reagent.formula = CalculationService.getSaltFormula(data);
+                        CalculationService.recalculateStoich(initDataForCalculation());
                     }
-
                     CalculationService.recalculateSalt(reagent, callback);
                 };
                 $scope.$watch('share.stoichTable', function (stoichTable) {
                     if (stoichTable && stoichTable.reactants) {
-                        $scope.model.productBatchDetails.precursors = _.filter(_.map(stoichTable.reactants, function (item) {
+                        getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function (item) {
                             return item.compoundId || item.fullNbkBatch;
                         }), function (val) {
                             return !!val;

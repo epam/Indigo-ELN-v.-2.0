@@ -19,6 +19,13 @@ angular.module('indigoeln')
             var compoundProtectionValues = AppValues.getCompoundProtectionValues();
             var stoichTable;
 
+            function getStoicTable() {
+                return stoichTable;
+            }
+
+            function setStoicTable(table) {
+                stoichTable = table;
+            }
             var getProductBatches = function () {
                 return $scope.model.productBatchSummary.batches;
             };
@@ -68,8 +75,26 @@ angular.module('indigoeln')
                 $scope.share.actualProducts = batches;
             }, true);
 
+            function updatePrecursor() {
+                if (!getStoicTable()) {
+                    return;
+                }
+                _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
+                var precursors = _.filter(_.map($scope.share.stoichTable.reactants, function (item) {
+                    return item.compoundId || item.fullNbkBatch;
+                }), function (val) {
+                    return !!val;
+                }).join(', ');
+                _.each(getProductBatches(), function (batch) {
+                    batch.precursors = precursors;
+                });
+            }
+
+            $scope.$watch('model.productBatchSummary.batches', updatePrecursor, true);
+
             $scope.$watch('share.stoichTable', function (table) {
-                stoichTable = table;
+                setStoicTable(table);
+                updatePrecursor();
             }, true);
 
             function editMeltingPoint(row) {
@@ -400,7 +425,9 @@ angular.module('indigoeln')
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row || null;
                 if (row) {
-                    $rootScope.$broadcast('batch-summary-row-selected', row);
+                    var data = initDataForCalculation();
+                    data.row = row;
+                    $rootScope.$broadcast('batch-summary-row-selected', data);
                 } else {
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
@@ -420,34 +447,24 @@ angular.module('indigoeln')
                 return rowResult;
             };
 
+            function initDataForCalculation(data) {
+                var calcData = data || {};
+                calcData.stoichTable = getStoicTable();
+                calcData.actualProducts = getProductBatches();
+                return calcData;
+            }
+
             var recalculateSalt = function (reagent) {
                 function callback(result) {
                     var data = result.data;
+                    data.saltEq = reagent.saltEq;
                     reagent.molWeight = reagent.molWeight || {};
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = CalculationService.getSaltFormula(data);
+                    CalculationService.recalculateStoich(initDataForCalculation());
                 }
-
                 CalculationService.recalculateSalt(reagent, callback);
             };
-
-            function updatePrecursor() {
-                if (!$scope.share.stoichTable) {
-                    return;
-                }
-                _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
-                var precursors = _.filter(_.map($scope.share.stoichTable.reactants, function (item) {
-                    return item.compoundId || item.fullNbkBatch;
-                }), function (val) {
-                    return !!val;
-                }).join(', ');
-                _.each(getProductBatches(), function (batch) {
-                    batch.precursors = precursors;
-                });
-            }
-
-            $scope.$watch('share.stoichTable', updatePrecursor, true);
-            $scope.$watch('model.productBatchSummary.batches', updatePrecursor, true);
 
             $scope.isHasCheckedRows = function () {
                 return !!_.find(getProductBatches(), function (item) {
@@ -608,7 +625,7 @@ angular.module('indigoeln')
                 }
             };
             $scope.isIntendedSynced = function () {
-                return !getIntendedNotInActual().length;
+                return getIntendedNotInActual() ? !getIntendedNotInActual().length : true;
             };
 
             $scope.addNewBatch = function () {
