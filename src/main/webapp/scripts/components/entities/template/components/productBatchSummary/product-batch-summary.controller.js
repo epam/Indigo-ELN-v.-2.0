@@ -416,7 +416,7 @@ angular.module('indigoeln')
                 },
                 {
                     id: 'registrationDate', name: 'Registration Date', format: function (val) {
-                    return $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z');
+                    return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
                 }
                 },
                 {id: 'registrationStatus', name: 'Registration Status'}
