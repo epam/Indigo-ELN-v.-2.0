@@ -26,7 +26,6 @@ angular.module('indigoeln')
                         unitItems: grams,
                         onClose: function (data) {
                             CalculationService.setEntered(data);
-                            console.log(data);
                             CalculationService.calculateProductBatch(data);
                         }
                     },
@@ -38,7 +37,6 @@ angular.module('indigoeln')
                         unitItems: liters,
                         onClose: function (data) {
                             CalculationService.setEntered(data);
-                            console.log(data);
                             CalculationService.calculateProductBatch(data);
                         }
                     },
@@ -50,7 +48,6 @@ angular.module('indigoeln')
                         unitItems: moles,
                         onClose: function (data) {
                             CalculationService.setEntered(data);
-                            console.log(data);
                             CalculationService.calculateProductBatch(data);
                         }
                     },

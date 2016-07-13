@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('errorHandlerInterceptor', function ($q, $log, $injector, $rootScope, Alert) {
+    .factory('errorHandlerInterceptor', function ($q, $injector, $rootScope, Alert) {
         return {
             'responseError': function (httpResponse) {
                 var i;

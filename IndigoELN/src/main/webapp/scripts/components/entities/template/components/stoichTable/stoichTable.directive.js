@@ -156,9 +156,7 @@ angular.module('indigoeln')
                         type: 'boolean',
                         onClick: function (data) {
                             CalculationService.setEntered(data);
-                            data = initDataForCalculation(data);
-                            $log.log(data);
-                            CalculationService.recalculateStoichBasedOnBatch(data, false);
+                            CalculationService.recalculateStoichBasedOnBatch(initDataForCalculation(data), false);
                         }
                     },
                     {
@@ -305,7 +303,6 @@ angular.module('indigoeln')
                                 if (column.id === 'rxnRole') {
                                     onRxnRoleChange(data);
                                 }
-                                $log.log(data);
                                 CalculationService.recalculateStoichBasedOnBatch(data, false);
                             }
                         });
@@ -337,7 +334,7 @@ angular.module('indigoeln')
                 };
                 $scope.onRowSelected = function (row) {
                     $scope.selectedRow = row || null;
-                    $log.log(row);
+                    $log.debug(row);
                 };
                 var recalculateSalt = function (reagent) {
                     function callback(result) {
