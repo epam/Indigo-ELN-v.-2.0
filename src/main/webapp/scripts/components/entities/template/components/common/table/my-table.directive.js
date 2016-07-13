@@ -78,8 +78,10 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
+            transclude: true,
             scope: {
                 myId: '@',
+                myLabel: '@',
                 myColumns: '=',
                 myRows: '=',
                 myReadonly: '=',
@@ -91,8 +93,6 @@ angular.module('indigoeln')
             },
             controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
                 var that = this;
-                $scope.myColumns.unshift({id: 'show-hide-columns'});
-
                 function getColumnsProps(myColumns) {
                     return _.map(myColumns, function (column) {
                         column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
@@ -210,6 +210,11 @@ angular.module('indigoeln')
                     $tr.attr('dragula', '\'my-table-columns\'');
                     $tr.attr('dragula-model', 'myColumns');
                 }
+                return {
+                    post: function (scope, element, attrs, ctrl, transclude) {
+                        element.find('.transclude').replaceWith(transclude());
+                    }
+                };
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table.html'
         };

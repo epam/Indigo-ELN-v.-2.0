@@ -778,10 +778,11 @@ html {
 
 .show-hide-columns li {
     margin-left:10px;
+    margin-right: 10px;
 }
 
 .show-hide-columns.dropdown-menu {
-    height: 230px;
+    max-height: 230px;
     overflow: auto;
 }
 

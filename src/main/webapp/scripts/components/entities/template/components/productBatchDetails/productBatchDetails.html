@@ -2,39 +2,50 @@
     <div class="panel-heading">
         Product Batch Details
     </div>
-    <div class="panel-body">
-        <div class="form-horizontal">
-            <br>
-            <div class="row">
-                <div style="position:relative">
-                    <div class="col-xs-4">
-                        <label>Notebook Batch #: </label>
-                        <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span>
-                    </div>
-                    <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
-                        <my-input my-model="model.productBatchDetails.nbkBatch"
-                                  my-readonly="myReadonly"
-                        ></my-input>
-                    </div>
-                    <div class="col-xs-3 text-right">
-                        <my-two-toggle my-label=""
-                                       my-first="Intermediate"
-                                       my-second="Test Compound"
-                                       my-model="model.productBatchDetails.batchType"
-                                       my-readonly="myReadonly"
-                        ></my-two-toggle>
-                    </div>
-                    <div class="col-xs-3">
-                        <button class="btn btn-info pull-left"
-                                type="button"
-                                ng-click="registerBatch()">
-                            <span class="glyphicon glyphicon-plus"></span> Register Batch
-                        </button>
+    <div class="collapsible">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="row">
+                    <div style="position:relative">
+                        <div class="col-xs-4">
+                            <label>Notebook Batch #: </label>
+                            <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span>
+                        </div>
+                        <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
+                            <my-input my-model="model.productBatchDetails.nbkBatch"
+                                      my-readonly="myReadonly"
+                            ></my-input>
+                        </div>
                     </div>
                 </div>
             </div>
-            <my-table my-id="product-detail-table" my-columns="productTableColumns"
-                      my-rows="detailTable" my-readonly="myReadonly"></my-table>
+        </div>
+        <my-table my-id="product-detail-table" my-columns="productTableColumns"
+                  my-rows="detailTable" my-readonly="myReadonly">
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-info"
+                        ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
+                        type="button"
+                        ng-click="model.productBatchDetails.batchType = 'Intermediate'">
+                    Intermediate
+                </button>
+                <button class="btn btn-info"
+                        ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
+                        type="button"
+                        ng-click="model.productBatchDetails.batchType = 'Test Compound'">
+                    Test Compound
+                </button>
+            </div>
+            <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-info"
+                        type="button"
+                        ng-click="registerBatch()">
+                    <span class="glyphicon glyphicon-plus"></span> Register Batch
+                </button>
+            </div>
+
+        </my-table>
+        <div class="panel-body">
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-lg-4">
                     <my-select my-label="Status"
