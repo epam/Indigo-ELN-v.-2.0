@@ -196,7 +196,6 @@ angular.module('indigoeln')
                     unitItems: grams,
                     onClose: function (data) {
                         CalculationService.setEntered(data);
-                        $log.log(data);
                         CalculationService.calculateProductBatch(data);
                     }
                 },
@@ -208,7 +207,6 @@ angular.module('indigoeln')
                     unitItems: liters,
                     onClose: function (data) {
                         CalculationService.setEntered(data);
-                        $log.log(data);
                         CalculationService.calculateProductBatch(data);
                     }
                 },
@@ -220,7 +218,6 @@ angular.module('indigoeln')
                     unitItems: moles,
                     onClose: function (data) {
                         CalculationService.setEntered(data);
-                        $log.log(data);
                         CalculationService.calculateProductBatch(data);
                     }
                 },
@@ -260,7 +257,6 @@ angular.module('indigoeln')
                     },
                     onClose: function (data) {
                         CalculationService.setEntered(data);
-                        $log.log(data);
                         recalculateSalt(data.row);
                     }
                 },
@@ -431,7 +427,7 @@ angular.module('indigoeln')
                 } else {
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
-                $log.log(row);
+                $log.debug(row);
             };
 
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
@@ -606,7 +602,7 @@ angular.module('indigoeln')
                                 batch = duplicatedBatch;
                             }
                             getProductBatches().push(batch);
-                            $log.log(batch);
+                            $log.debug(batch);
                             $scope.onRowSelected(batch);
                             deferred.resolve();
                         });
