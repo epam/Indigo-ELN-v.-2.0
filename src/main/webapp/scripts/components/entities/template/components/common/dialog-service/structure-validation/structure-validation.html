@@ -1,0 +1,103 @@
+<div class="modal-header">
+    <h5 class="modal-title">Structure Validation</h5>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <strong>Search Query is:</strong> {{searchQuery}}
+    </div>
+    <br/>
+    <div class="row long-content-popup">
+        <div class="col-xs-12">
+            <table class="table" id="search-result-table">
+                <thead class="search-table-head">
+                <tr>
+                    <th>Compound ID</th>
+                    <th>Nbk Batch #</th>
+                    <th>Mol. Wt.</th>
+                    <th>Mol. Formula</th>
+                </tr>
+                </thead>
+                <tbody ng-repeat="item in batches track by $index">
+                <tr class=" clickable" ng-class="{'search-table-row-highlight':item.$$isSelected}"
+                    ng-click="selectBatch(item)">
+                    <td>{{item.compoundId}}</td>
+                    <td>{{item.fullNbkBatch}}</td>
+                    <td>{{item.molWeight.value | round}}</td>
+                    <td>{{item.formula}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row  well well-sm">
+        <div class="col-xs-6">
+            <div ng-if="selectedBatch">
+                <div style="height: 100%;margin-top:20px;">
+                    <img class="img-responsive center-block"
+                         ng-src="data:image/svg+xml;base64,{{selectedBatch.structure.image}}"
+                         alt="Image is unavailable.">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <p>Chemical Name:</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.chemicalName}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <p>Compound ID:</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.compoundId}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <p>Conv. Batch #:</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.conversationalBatchNumber}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <p>Batch Mol. Wt. (calc'd):</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.molWeight.value | round}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <p>Molecular Formula (calc'd):</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.formula}}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6"><p>
+                        Salt Code:</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.saltCode.name === '00 - Parent Structure' ? '00' :
+                            selectedBatch.saltCode.name }}</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6"><p>
+                        Salt EQ:</p></div>
+                    <div class="col-xs-6">
+                        <p>{{selectedBatch.saltEq.value}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer text-right">
+    <button class="btn btn-info" type="button" ng-disabled="!selectedBatch" ng-click="save()">Use this structure
+    </button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>
