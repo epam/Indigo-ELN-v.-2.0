@@ -5,11 +5,7 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         $scope.model.selectedReactants = [];
         $scope.isSearchResultFound = false;
 
-        $scope.model.databases = [
-            {key: 1, value: 'Indigo ELN', isChecked: true},
-            {key: 2, value: 'Custom Catalog 1'},
-            {key: 3, value: 'Custom Catalog 2'}
-        ];
+        $scope.model.databases = SearchService.getCatalogues();
 
         $scope.tabs = _.map($scope.model.reactants, function (reactant) {
             return {formula: reactant, searchResult: [], selectedReactant: null};
