@@ -159,7 +159,7 @@
                                                          ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
                                                          alt="Image is unavailable."></div>
                                                 <p>{{reactant.fullNbkBatch}}</p></td>
-                                            <td>{{reactant.molWeight}}</td>
+                                            <td>{{reactant.molWeight.value | round}}</td>
                                             <td>{{reactant.weight.value + ' ' + reactant.weight.unit}}</td>
                                             <td>{{reactant.mol.value + ' ' + reactant.mol.unit}}</td>
                                             <td>{{reactant.volume.value + ' ' + reactant.volume.unit}}</td>
@@ -239,7 +239,7 @@
                                                 <table class="print-table-inner">
                                                     <tr>
                                                         <td style="width:40%">Mol Wgt:</td>
-                                                        <td>{{batch.molWeight}}</td>
+                                                        <td>{{batch.molWeight.value | round}}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Exact Mass:</td>
