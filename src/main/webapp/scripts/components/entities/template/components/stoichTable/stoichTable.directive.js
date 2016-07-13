@@ -393,26 +393,33 @@ angular.module('indigoeln')
                     );
                 }
 
-                $scope.$watch('share.reaction', function (newMolFile) {
+                var unbinds = [];
+                unbinds.push($scope.$watch('share.reaction', function (newMolFile) {
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
                         CalculationService.recalculateStoich(initDataForCalculation());
                     } else {
                         setIntendedProducts(null);
                     }
-                });
-                $scope.$watch('share.actualProducts', function (products) {
+                }));
+                unbinds.push($scope.$watch('share.actualProducts', function (products) {
                     actualProducts = products;
-                }, true);
+                }, true));
 
-                $scope.$watch('model.stoichTable', function (stoichTable) {
+                unbinds.push($scope.$watch('model.stoichTable', function (stoichTable) {
                     _.each(stoichTable.products, function (item) {
                         if (!item.$$batchHash) {
                             item.$$batchHash = +new Date() + Math.random();
                         }
                     });
                     $scope.share.stoichTable = stoichTable;
-                }, true);
+                }, true));
+
+                $scope.$on('$destroy', function () {
+                    _.each(unbinds, function (unbind) {
+                        unbind();
+                    });
+                });
 
                 var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {
                     if (data) {

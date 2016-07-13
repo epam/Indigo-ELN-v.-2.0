@@ -60,11 +60,14 @@ angular.module('indigoeln')
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
-                $scope.$watch('myTableContent', function (newVal) {
+                var unsubscribe = $scope.$watch('myTableContent', function (newVal) {
                     _.each(newVal, function (item) {
                         item.$$popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
                             'src="data:image/svg+xml;base64,' + item.structure.image + '" alt="Image is unavailable."></div>');
                     });
+                });
+                $scope.$on('$destroy', function () {
+                    unsubscribe();
                 });
             }
         };

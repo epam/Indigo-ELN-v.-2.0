@@ -22,12 +22,12 @@ angular.module('indigoeln')
                 );
 
                 var newContent = '';
-
-                scope.$watch('myModel', function (value) {
+                var unbinds = [];
+                unbinds.push(scope.$watch('myModel', function (value) {
                     if (typeof value !== 'undefined' && value !== newContent) {
                         editor.setValue(value);
                     }
-                });
+                }));
 
                 editor.on('valuechanged', function () {
                     if (scope.myModel !== editor.getValue()) {
@@ -40,8 +40,11 @@ angular.module('indigoeln')
                 if (scope.myReadonly === true) {
                     editor.body.attr('contenteditable', false);
                 }
-                scope.$watch('myReadonly', function(newValue) {
+                unbinds.push(scope.$watch('myReadonly', function (newValue) {
                     editor.body.attr('contenteditable', !newValue);
+                }));
+                _.each(unbinds, function (unbind) {
+                    unbind();
                 });
             }
         };
