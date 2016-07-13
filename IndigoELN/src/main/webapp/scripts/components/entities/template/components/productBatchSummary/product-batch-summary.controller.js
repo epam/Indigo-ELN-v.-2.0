@@ -431,6 +431,7 @@ angular.module('indigoeln')
                 } else {
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
+                $log.log(row);
             };
 
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});

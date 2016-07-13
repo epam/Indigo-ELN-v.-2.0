@@ -94,7 +94,7 @@ angular.module('indigoeln')
         };
 
         var recalculateStoich = function (data) {
-            if (!data.stoicTable) {
+            if (!data.stoichTable) {
                 return;
             }
             var requestData = {
