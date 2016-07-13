@@ -14,7 +14,7 @@ angular.module('indigoeln')
             return rounded.toFixed(Math.max(sigDigits - numDigits, 0));
         }
 
-        return function (value, isEntered, sigDigits) {
+        return function (value, sigDigits, isEntered) {
             if (isEntered || !value) {
                 return value;
             }
