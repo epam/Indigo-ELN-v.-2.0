@@ -94,6 +94,9 @@ angular.module('indigoeln')
         };
 
         var recalculateStoich = function (data) {
+            if (!data.stoicTable) {
+                return;
+            }
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
