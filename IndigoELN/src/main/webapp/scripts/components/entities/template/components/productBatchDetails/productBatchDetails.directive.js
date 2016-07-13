@@ -180,7 +180,7 @@ angular.module('indigoeln')
                     }
                     CalculationService.recalculateSalt(reagent, callback);
                 };
-                $scope.$watch('share.stoichTable', function (stoichTable) {
+                var unsubscribe = $scope.$watch('share.stoichTable', function (stoichTable) {
                     if (stoichTable && stoichTable.reactants) {
                         getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function (item) {
                             return item.compoundId || item.fullNbkBatch;
@@ -189,6 +189,9 @@ angular.module('indigoeln')
                         }).join(', ');
                     }
                 }, true);
+                $scope.$on('$destroy', function () {
+                    unsubscribe();
+                });
             }
         };
     });

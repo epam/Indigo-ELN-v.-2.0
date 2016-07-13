@@ -21,7 +21,7 @@ angular.module('indigoeln')
 
         $scope.loadAllDictionaries();
 
-        $scope.$watch('selectedDictionaryId', function () {
+        var unsubscribe = $scope.$watch('selectedDictionaryId', function () {
             if ($scope.selectedDictionaryId) {
                 $scope.isCollapsed = false;
                 $scope.selectedDictionary = _.find($scope.dictionaries, function (dict) {
@@ -31,7 +31,9 @@ angular.module('indigoeln')
                 $scope.selectedDictionary.words.sort(function(a,b){ return a.rank > b.rank;});
             }
         });
-
+        $scope.$on('$destroy', function () {
+            unsubscribe();
+        });
         var onSaveSuccess = function () {
             $scope.isSaving = false;
             $scope.isWordSaving = false;

@@ -11,8 +11,11 @@ angular.module('indigoeln')
             $scope.users = _.filter(users, function(user) {
                 return user.id !== $scope.author.id;
             });
-            $scope.$watch('selectedMembers', function (user) {
+            var unsubscribe = $scope.$watch('selectedMembers', function (user) {
                 $scope.addMember(user);
+            });
+            $scope.$on('$destroy', function () {
+                unsubscribe();
             });
 
             $scope.addMember = function(member) {
