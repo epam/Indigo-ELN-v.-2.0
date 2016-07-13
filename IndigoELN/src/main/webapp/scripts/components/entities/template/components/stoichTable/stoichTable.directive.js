@@ -369,14 +369,11 @@ angular.module('indigoeln')
                 }
 
                 $scope.$watch('share.reaction', function (newMolFile) {
-                    var resetMolInfo = function () {
-                        setStoicReactants(null);
-                    };
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
                         CalculationService.recalculateStoich(initDataForCalculation());
                     } else {
-                        resetMolInfo();
+                        setIntendedProducts(null);
                     }
                 });
                 $scope.$watch('share.actualProducts', function (products) {
