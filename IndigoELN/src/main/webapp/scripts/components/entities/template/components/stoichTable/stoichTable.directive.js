@@ -7,7 +7,8 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, CalculationService, SearchService) {
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal,
+                                  CalculationService, SearchService, DialogService) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -47,6 +48,12 @@ angular.module('indigoeln')
                     return calcData;
                 }
 
+                var populateFetchedBatch = function (row, source) {
+                    _.extend(row, source);
+                    row.rxnRole = row.rxnRole || {name: 'REACTANT'};
+                    CalculationService.recalculateStoich(initDataForCalculation());
+                };
+
                 function fetchBatchByNbkNumber(nbkBatch, row) {
                     var searchRequest = {
                         advancedSearch: [{
@@ -55,11 +62,27 @@ angular.module('indigoeln')
                         databases: ['Indigo ELN']
                     };
                     SearchService.search(searchRequest, function (result) {
-                        var source = result[0];
-                        if (source) {
-                            _.extend(row, source.details);
-                            row.rxnRole = row.rxnRole || {name: 'REACTANT'};
-                            CalculationService.recalculateStoich(initDataForCalculation());
+                        if (result[0]) {
+                            populateFetchedBatch(row, result[0].details);
+                        }
+                    });
+                }
+
+                function fetchBatchByCompoundId(compoundId, row) {
+                    var searchRequest = {
+                        advancedSearch: [{
+                            condition: 'contains', field: 'compoundId', name: 'Compound ID', value: compoundId
+                        }],
+                        databases: ['Indigo ELN']
+                    };
+                    SearchService.search(searchRequest, function (result) {
+                        if (result.length === 1) {
+                            populateFetchedBatch(row, result[0].details);
+                        } else if (result.length > 1) {
+                            var fetchedBatches = _.pluck(result, 'details');
+                            DialogService.structureValidation(fetchedBatches, compoundId, function (selectedBatch) {
+                                populateFetchedBatch(row, selectedBatch);
+                            });
                         }
                     });
                 }
@@ -69,7 +92,12 @@ angular.module('indigoeln')
                         id: 'compoundId',
                         name: 'Compound ID',
                         type: 'input',
-                        hasPopover: true
+                        hasPopover: true,
+                        onClose: function (data) {
+                            var row = data.row;
+                            var compoundId = data.model;
+                            fetchBatchByCompoundId(compoundId, row);
+                        }
                     },
                     {
                         id: 'casNumber',
