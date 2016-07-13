@@ -4,14 +4,16 @@ angular.module('indigoeln').controller('EditPurityController',
         $scope.purity.data = $scope.purity.data || [];
         $scope.dictionary = dictionary;
 
-        $scope.isDisabled = function () {
-            return $scope.purity.property === 'Purity Unknown';
-        };
         $scope.operatorSelect = [
             {name: '>'},
             {name: '<'},
             {name: '='},
             {name: '~'}];
+
+        $scope.unknownPurity = 'Purity Unknown';
+        $scope.isInknownPurity = function () {
+            return $scope.purity.property === $scope.unknownPurity;
+        };
 
         var resultToString = function () {
             var purityStrings = _.map($scope.purity.data, function(purity) {
@@ -29,7 +31,12 @@ angular.module('indigoeln').controller('EditPurityController',
         };
 
         $scope.save = function () {
-            $scope.purity.asString = resultToString();
+            if ($scope.isInknownPurity()) {
+                $scope.purity = {};
+                $scope.purity.asString = $scope.unknownPurity;
+            } else {
+                $scope.purity.asString = resultToString();
+            }
             $uibModalInstance.close($scope.purity);
         };
 
