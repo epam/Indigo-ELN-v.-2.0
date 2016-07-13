@@ -5,7 +5,7 @@
     <div class="row">
         <my-two-toggle my-label="Purity % Information"
                        my-first="Purity Available"
-                       my-second="Purity Unknown"
+                       my-second="{{unknownPurity}}"
                        my-model="purity.property"
         ></my-two-toggle>
     </div>
@@ -25,13 +25,16 @@
                     <tr ng-repeat="item in dictionary.words track by item.name" ng-init="purity.data[$index].determinedBy = item.name">
                         <td>{{purity.data[$index].determinedBy}}</td>
                         <td><my-select my-items="operatorSelect"
-                                       my-readonly="isDisabled()"
+                                       my-readonly="isInknownPurity()"
                                        my-model="purity.data[$index].operator"></my-select></td>
                         <td>
-                            <my-input my-model="purity.data[$index].value" my-readonly="isDisabled()"
+                            <my-input my-model="purity.data[$index].value" my-readonly="isInknownPurity()"
                                       my-type="number"></my-input>
                         </td>
-                        <td><my-input my-model="purity.data[$index].comments" my-readonly="isDisabled()"></my-input></td>
+                        <td>
+                            <my-input my-model="purity.data[$index].comments"
+                                      my-readonly="isInknownPurity()"></my-input>
+                        </td>
                     </tr>
                 </tbody>
             </table>
