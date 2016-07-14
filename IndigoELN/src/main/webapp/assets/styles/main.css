@@ -261,7 +261,7 @@ body {
     animation: none;
 }
 
-.experiment-tab-name:first-letter {
+.capitalized:first-letter {
     text-transform: capitalize;
 }
 
