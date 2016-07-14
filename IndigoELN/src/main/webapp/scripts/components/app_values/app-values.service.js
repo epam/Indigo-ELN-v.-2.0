@@ -13,16 +13,16 @@ angular.module('indigoeln')
         var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
         var loadFactorUnits = ['mmol/g'];
         var saltCodeValues = [
-            {name: '00 - Parent Structure', value: '0'},
-            {name: '01 - HYDROCHLORIDE', value: '1'},
-            {name: '02 - SODIUM', value: '2'},
-            {name: '03 - HYDRATE', value: '3'},
-            {name: '04 - HYDROBROMIDE', value: '4'},
-            {name: '05 - HYDROIODIDE', value: '5'},
-            {name: '06 - POTASSIUM', value: '6'},
-            {name: '07 - CALCIUM', value: '7'},
-            {name: '08 - SULFATE', value: '8'},
-            {name: '09 - PHOSPHATE', value: '9'},
+            {name: '00 - Parent Structure', value: '00'},
+            {name: '01 - HYDROCHLORIDE', value: '01'},
+            {name: '02 - SODIUM', value: '02'},
+            {name: '03 - HYDRATE', value: '03'},
+            {name: '04 - HYDROBROMIDE', value: '04'},
+            {name: '05 - HYDROIODIDE', value: '05'},
+            {name: '06 - POTASSIUM', value: '06'},
+            {name: '07 - CALCIUM', value: '07'},
+            {name: '08 - SULFATE', value: '08'},
+            {name: '09 - PHOSPHATE', value: '09'},
             {name: '10 - CITRATE', value: '10'}];
         var stereoisomerValues = [
             {name: 'NOSTC - Achiral - No Stereo Centers'},

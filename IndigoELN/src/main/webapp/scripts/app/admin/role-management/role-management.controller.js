@@ -27,8 +27,11 @@ angular.module('indigoeln')
             });
         }
 
-        $scope.$watch('role', function (role) {
+        var unsubscribe = $scope.$watch('role', function (role) {
             initAuthorities(role);
+        });
+        $scope.$on('$destroy', function () {
+            unsubscribe();
         });
         function isLastRoleWithRoleEditor() {
             var roleEditorCount = 0;

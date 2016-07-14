@@ -24,8 +24,8 @@ angular.module('indigoeln')
                                 scrollInertia: 100
                             });
                         });
-                    });
-                });
+                    }, false);
+                }, false);
             }
         };
     })

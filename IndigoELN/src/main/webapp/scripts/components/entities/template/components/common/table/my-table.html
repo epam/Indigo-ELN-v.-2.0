@@ -1,4 +1,40 @@
 <div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-xs-3">
+                {{myLabel}}
+            </div>
+            <div class="col-xs-9">
+                <div class="btn-toolbar pull-right" role="toolbar">
+                    <span class="transclude"></span>
+                    <div class="btn-group" uib-dropdown>
+                        <div id="show-hide-button" class="btn btn-info btn-sm"
+                             uib-dropdown-toggle
+                             ng-disabled="disabled">
+                            <span class="glyphicon glyphicon-menu-hamburger no-draggable"></span>
+                        </div>
+                        <ul uib-dropdown-menu role="menu"
+                            my-scroller="y"
+                            my-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
+                            <li role="menuitem"
+                                style="height: 26px"
+                                ng-click="$event.stopPropagation();">
+                                <button type="button" class="btn btn-primary btn-block"
+                                        ng-click="resetColumns()">Set default columns set
+                                </button>
+                            </li>
+                            <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
+                                role="menuitem"
+                                ng-click="$event.stopPropagation();">
+                                <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
+                                             my-change="saveInLocalStorage();"></my-checkbox>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="my-table table-responsive" my-scroller="x">
             <table class="table table-striped table-hover product">
@@ -25,40 +61,10 @@
                                 </li>
                             </ul>
                         </div>
-                        <div class="show-hide-columns" ng-if="column.id==='show-hide-columns'" style="width:56px;">
-                            <div class="btn-group" uib-dropdown dropdown-append-to-body>
-                                <button id="show-hide-button" type="button" class="btn btn-info btn-sm no-draggable"
-                                        uib-dropdown-toggle
-                                        uib-tooltip="Show / hide columns"
-                                        tooltip-append-to-body="true"
-                                        tooltip-placement="top-right"
-                                        tooltip-class="header-tooltip"
-                                        ng-disabled="disabled">
-                                    <span class="glyphicon glyphicon-menu-hamburger no-draggable"></span>
-                                </button>
-                                <ul uib-dropdown-menu role="menu" aria-labelledby="show-hide-button"
-                                    my-scroller="y"
-                                    my-scroller-theme="indigo-thick" class="show-hide-columns">
-                                    <li role="menuitem"
-                                        ng-click="$event.stopPropagation();">
-                                        <button type="button" class="btn btn-primary btn-block"
-                                                ng-click="resetColumns()">Set default columns set
-                                        </button>
-                                    </li>
-                                    <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
-                                        role="menuitem"
-                                        ng-click="$event.stopPropagation();">
-                                        <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
-                                                     my-change="saveInLocalStorage();"></my-checkbox>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr></tr>
                 <tr ng-if="myRows.length" ng-repeat="row in myRows track by $index"
                     ng-class="{'success':row.$$selected}">
                     <td ng-repeat="column in myColumns track by $index" class="text-center"

@@ -32,27 +32,33 @@ angular.module('indigoeln')
                             scope.ngModelCtrl = ngModelCtrl;
                             var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
                             if ($inputs.length > 0) {
+                                var unbinds = [];
                                 $inputs.each(function () {
-                                    scope.$watch(function () {
+                                    unbinds.push(scope.$watch(function () {
                                         return ngModelCtrl.$invalid && (ngModelCtrl.$dirty || formCtrl.$submitted);
                                     }, function (isInvalid) {
                                         $formGroup.toggleClass('has-error', isInvalid);
+                                    }));
+                                });
+                                scope.$on('$destroy', function () {
+                                    _.each(unbinds, function (unbind) {
+                                        unbind();
                                     });
                                 });
                             }
                         }
                     }
-                });
+                }, false);
             },
             addOnChange: function (scope) {
                 if (scope.myChange) {
                     scope.myChangeAsync = function () {
-                        $timeout(scope.myChange);
+                        $timeout(scope.myChange, false);
                     };
                 }
                 if (scope.myClick) {
                     scope.myClickAsync = function () {
-                        $timeout(scope.myClick);
+                        $timeout(scope.myClick, false);
                     };
                 }
                 
@@ -357,8 +363,11 @@ angular.module('indigoeln')
                     if (scope.myModel) {
                         scope.ctrl = {};
                         scope.ctrl.model = moment(scope.myModel);
-                        scope.$watch('ctrl.model', function (date) {
+                        var unsubscribe = scope.$watch('ctrl.model', function (date) {
                             scope.myModel = date ? date.toISOString() : null;
+                        });
+                        scope.$on('$destroy', function () {
+                            unsubscribe();
                         });
                     }
                     formUtils.showValidation(iElement, scope, formCtrl);

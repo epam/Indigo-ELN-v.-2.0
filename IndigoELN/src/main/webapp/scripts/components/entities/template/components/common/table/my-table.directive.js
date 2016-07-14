@@ -36,8 +36,9 @@ angular.module('indigoeln')
                     }
                     return myTableCtrl.toggleEditable(null, null, null);
                 };
+                var unbinds = [];
                 if ($scope.myColumn.onClose) {
-                    $scope.$watch(function () {
+                    unbinds.push($scope.$watch(function () {
                         return _.isObject($scope.myRow[$scope.myColumn.id]) ? $scope.myRow[$scope.myColumn.id].value || $scope.myRow[$scope.myColumn.id].name : $scope.myRow[$scope.myColumn.id];
                     }, function (newVal, prevVal) {
                         if (_.isObject($scope.myRow[$scope.myColumn.id])) {
@@ -45,18 +46,23 @@ angular.module('indigoeln')
                         }
                         oldVal = prevVal;
                         isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
-                    }, true);
+                    }, true));
                 }
                 if ($scope.myColumn.hasPopover) {
-                    $scope.$watch(function () {
+                    unbinds.push($scope.$watch(function () {
                         return $scope.myRow[$scope.myColumn.id];
                     }, function () {
                         $scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
                         var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
                         $scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
                             'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
-                    });
+                    }));
                 }
+                $scope.$on('$destroy', function () {
+                    _.each(unbinds, function (unbind) {
+                        unbind();
+                    });
+                });
                 $scope.unitParsers = [function (viewValue) {
                     return +$u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
                 }];
@@ -72,8 +78,10 @@ angular.module('indigoeln')
         return {
             restrict: 'E',
             replace: true,
+            transclude: true,
             scope: {
                 myId: '@',
+                myLabel: '@',
                 myColumns: '=',
                 myRows: '=',
                 myReadonly: '=',
@@ -85,8 +93,6 @@ angular.module('indigoeln')
             },
             controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
                 var that = this;
-                $scope.myColumns.unshift({id: 'show-hide-columns'});
-
                 function getColumnsProps(myColumns) {
                     return _.map(myColumns, function (column) {
                         column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
@@ -129,9 +135,12 @@ angular.module('indigoeln')
                         updateColumns(user);
 
                         if ($attrs.myDraggableColumns) {
-                            $scope.$watch(function () {
+                            var unsubscribe = $scope.$watch(function () {
                                 return _.map($scope.myColumns, _.iteratee('id')).join('-');
                             }, $scope.saveInLocalStorage);
+                            $scope.$on('$destroy', function () {
+                                unsubscribe();
+                            });
                         }
                         $scope.resetColumns = function () {
                             localStorageService.remove(user.id + '.' + $scope.myId + '.columns');
@@ -201,6 +210,11 @@ angular.module('indigoeln')
                     $tr.attr('dragula', '\'my-table-columns\'');
                     $tr.attr('dragula-model', 'myColumns');
                 }
+                return {
+                    post: function (scope, element, attrs, ctrl, transclude) {
+                        element.find('.transclude').replaceWith(transclude());
+                    }
+                };
             },
             templateUrl: 'scripts/components/entities/template/components/common/table/my-table.html'
         };
