@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $http, Alert, activeTab, UserReagents, SearchService) {
+    function ($scope, $rootScope, $uibModalInstance, $http, Alert, AppValues, activeTab, UserReagents, SearchService) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -46,8 +46,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
             $scope.myReagentList = _.map(reagents, function (reagent) {
                 reagent.$$isSelected = false;
                 reagent.$$isCollapsed = true;
-                reagent.rxnRole = reagent.rxnRole || {name: 'REACTANT'};
-                reagent.saltCode = reagent.saltCode || {name: '00 - Parent Structure', value: '0'};
+                reagent.rxnRole = reagent.rxnRole || AppValues.getRxnRoleReactant();
+                reagent.saltCode = reagent.saltCode || AppValues.getDefaultSaltCode();
                 return reagent;
             });
         });
@@ -153,8 +153,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 batchDetails.$$isSelected = false;
                 batchDetails.nbkBatch = item.notebookBatchNumber;
                 batchDetails.database = $scope.databases.join(', ');
-                batchDetails.rxnRole = batchDetails.rxnRole || {name: 'REACTANT'};
-                batchDetails.saltCode = batchDetails.saltCode || {name: '00 - Parent Structure', value: '0'};
+                batchDetails.rxnRole = batchDetails.rxnRole || AppValues.getRxnRoleReactant();
+                batchDetails.saltCode = batchDetails.saltCode || AppValues.getDefaultSaltCode();
                 return batchDetails;
             });
         }

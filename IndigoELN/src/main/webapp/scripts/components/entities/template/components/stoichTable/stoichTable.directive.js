@@ -50,7 +50,7 @@ angular.module('indigoeln')
 
                 var populateFetchedBatch = function (row, source) {
                     _.extend(row, source);
-                    row.rxnRole = row.rxnRole || {name: 'REACTANT'};
+                    row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
                     CalculationService.recalculateStoich(initDataForCalculation());
                 };
 
@@ -279,12 +279,14 @@ angular.module('indigoeln')
                         type: 'scalar'
                     }
                 ];
+
                 function onRxnRoleChange(data) {
-                    if (data.model.name === 'SOLVENT') {
+                    var SOLVENT = AppValues.getRxnRoleSolvent().name;
+                    if (data.model.name === SOLVENT) {
                         var valuesToDefault = ['weight', 'mol', 'eq', 'density', 'stoicPurity'];
                         CalculationService.resetValuesToDefault(valuesToDefault, data.row);
                         CalculationService.setValuesReadonly(['weight', 'mol', 'eq', 'density'], data.row);
-                    } else if (data.model.name !== 'SOLVENT' && data.oldVal === 'SOLVENT') {
+                    } else if (data.model.name !== SOLVENT && data.oldVal === SOLVENT) {
                         CalculationService.resetValuesToDefault(['volume', 'molarity'], data.row);
                         CalculationService.setValuesEditable(['weight', 'mol', 'eq', 'density'], data.row);
                     }
@@ -322,7 +324,7 @@ angular.module('indigoeln')
                             delete $scope.selectedRow[key];
                         }
                     }
-                    $scope.selectedRow.rxnRole = {name: 'REACTANT'};
+                    $scope.selectedRow.rxnRole = AppValues.getRxnRoleReactant();
                 };
                 $scope.appendRow = function () {
                     var reactant = CalculationService.createBatch(getStoicTable());
@@ -450,7 +452,7 @@ angular.module('indigoeln')
                     var batchesToSearch = [];
                     var stoicReactants = [];
                     _.each(getStoicReactants(), function (item) {
-                        if (_.findWhere(item, {name: 'REACTANT'}) && item.structure) {
+                        if (_.findWhere(item, AppValues.getRxnRoleReactant()) && item.structure) {
                             stoicReactants.push(item);
                         }
                     });
