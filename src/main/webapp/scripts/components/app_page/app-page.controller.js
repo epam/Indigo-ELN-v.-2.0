@@ -13,7 +13,7 @@ angular
             return $window.innerWidth;
         };
 
-        $scope.$watch($scope.getWidth, function (newValue) {
+        var unsubscribe = $scope.$watch($scope.getWidth, function (newValue) {
             if (newValue >= mobileView) {
                 if (angular.isDefined($cookieStore.get('toggle'))) {
                     $scope.toggle = !$cookieStore.get('toggle') ? false : true;
@@ -24,6 +24,10 @@ angular
                 $scope.toggle = false;
             }
 
+        });
+
+        $scope.$on('$destroy', function () {
+            unsubscribe();
         });
 
         Config.load({}, function(config) {

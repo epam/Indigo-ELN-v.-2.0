@@ -6,7 +6,7 @@ angular.module('indigoeln')
         $scope.rememberMe = true;
         $timeout(function () {
             angular.element('[ng-model="username"]').focus();
-        });
+        }, false);
         $scope.login = function (event) {
             event.preventDefault();
             Auth.login({

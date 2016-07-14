@@ -19,7 +19,7 @@ angular.module('indigoeln')
         $scope.getKind = function (fullId) {
             return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
         };
-        $scope.$watch(function () {
+        var unsubscribe = $scope.$watch(function () {
             return _.map($scope.entities, _.iteratee('name')).join('-');
         }, function () {
             _.each($scope.entities, function (item) {
@@ -39,6 +39,10 @@ angular.module('indigoeln')
                     item.$$title = item.name;
                 }
             });
+        });
+
+        $scope.$on('$destroy', function () {
+            unsubscribe();
         });
 
         function updateTabs(toParams) {
