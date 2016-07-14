@@ -18,6 +18,21 @@ angular.module('indigoeln')
                 }).result.then(function (result) {
                     callback(result);
                 });
+            },
+            selectEntitiesToSave: function (data, callback) {
+                $uibModal.open({
+                    animation: true,
+                    size: 'md',
+                    controller: 'EntitiesToSaveController',
+                    templateUrl: 'scripts/components/entities/template/components/common/dialog-service/entities-to-save/entities-to-save.html',
+                    resolve: {
+                        data: function () {
+                            return data;
+                        }
+                    }
+                }).result.then(function (result) {
+                    callback(result);
+                });
             }
         };
     });

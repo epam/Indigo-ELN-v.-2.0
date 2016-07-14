@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('CalculationService', function ($rootScope, NumberUtil, $http, AppValues, $log) {
+    .factory('CalculationService', function ($rootScope, NumberUtil, $http, AppValues, capitalizeFilter) {
         var defaultBatch = AppValues.getDefaultBatch();
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
 
@@ -165,7 +165,7 @@ angular.module('indigoeln')
         };
 
         var getSaltFormula = function (data) {
-            return data.molecularFormula + '*' + data.saltEq.value + '(' + data.saltDesc.toLowerCase() + ')';
+            return data.molecularFormula + '*' + data.saltEq.value + '(' + capitalizeFilter(data.saltDesc) + ')';
         };
 
         return {
