@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('AnalyzeRxnController',
-    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, reactants, $q, SearchService) {
+    function ($scope, $rootScope, $uibModalInstance, $timeout, $http, reactants, $q, SearchService, AppValues) {
         $scope.model = {};
         $scope.model.reactants = reactants;
         $scope.model.selectedReactants = [];
@@ -27,8 +27,8 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
                 batchDetails.$$isSelected = false;
                 batchDetails.nbkBatch = item.notebookBatchNumber;
                 batchDetails.database = databases.join(', ');
-                batchDetails.rxnRole = batchDetails.rxnRole || {name: 'REACTANT'};
-                batchDetails.saltCode = batchDetails.saltCode || {name: '00 - Parent Structure', value: '0'};
+                batchDetails.rxnRole = batchDetails.rxnRole || AppValues.getRxnRoleReactant();
+                batchDetails.saltCode = batchDetails.saltCode || AppValues.getDefaultSaltCode();
                 return batchDetails;
             });
         }

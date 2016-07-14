@@ -6,12 +6,15 @@ angular.module('indigoeln')
         var density = ['g/mL'];
         var molarity = ['M', 'mM'];
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
+        var rxnRoleReactant = {name: 'REACTANT'};
+        var rxnRoleSolvent = {name: 'SOLVENT'};
         var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
         var sourceValues = [{name: 'Internal'}, {name: 'External'}];
         var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
         var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
         var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
         var loadFactorUnits = ['mmol/g'];
+        var defaultSaltCode = {name: '00 - Parent Structure', value: '00'};
         var saltCodeValues = [
             {name: '00 - Parent Structure', value: '00'},
             {name: '01 - HYDROCHLORIDE', value: '01'},
@@ -72,11 +75,20 @@ angular.module('indigoeln')
             getMolarity: function () {
                 return molarity;
             },
+            getRxnRoleReactant: function () {
+                return rxnRoleReactant;
+            },
+            getRxnRoleSolvent: function () {
+                return rxnRoleSolvent;
+            },
             getRxnValues: function () {
                 return rxnValues;
             },
             getCompoundValues: function () {
                 return compoundValues;
+            },
+            getDefaultSaltCode: function () {
+                return defaultSaltCode;
             },
             getSaltCodeValues: function () {
                 return saltCodeValues;

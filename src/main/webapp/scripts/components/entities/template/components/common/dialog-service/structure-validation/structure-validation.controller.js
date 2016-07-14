@@ -1,8 +1,9 @@
 angular.module('indigoeln').controller('StructureValidationController',
-    function ($scope, $uibModalInstance, batches, searchQuery) {
+    function ($scope, $uibModalInstance, batches, searchQuery, AppValues) {
         $scope.batches = batches;
         $scope.searchQuery = searchQuery;
         $scope.selectedBatch = null;
+        $scope.defaultSaltCodeName = AppValues.getDefaultSaltCode().name;
 
         $scope.selectBatch = function (batch) {
             batch.$$isSelected = !batch.$$isSelected;
