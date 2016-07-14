@@ -2,11 +2,27 @@ angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q, $location) {
         var initParams = $location.path().match(/\d+/g);
 
+        function updateTabs(toParams) {
+            resolveTabs(toParams).then(function (data) {
+                $scope.entities = data.entities;
+                $scope.entityId = EntitiesBrowser.compactIds(toParams);
+                $rootScope.$broadcast('entities-updated', {entities: $scope.entities, entityId: $scope.entityId});
+            });
+        }
+
         updateTabs({
             projectId: initParams[0],
             notebookId: initParams[1],
             experimentId: initParams[2]
         });
+
+        $scope.$on('entity-clicked', function (event, fullId) {
+            $scope.onTabClick(fullId);
+        });
+        $scope.$on('entity-closing', function (event, data) {
+            $scope.onCloseTabClick(data.fullId, data.entityId);
+        });
+
         $scope.onCloseTabClick = function (fullId, entityId) {
             EntitiesBrowser.close(fullId, entityId);
             EntitiesBrowser.getTabs().then(function (tabs) {
@@ -44,13 +60,6 @@ angular.module('indigoeln')
         $scope.$on('$destroy', function () {
             unsubscribe();
         });
-
-        function updateTabs(toParams) {
-            resolveTabs(toParams).then(function (data) {
-                $scope.entities = data.entities;
-                $scope.entityId = EntitiesBrowser.compactIds(toParams);
-            });
-        }
 
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
             updateTabs(toParams);

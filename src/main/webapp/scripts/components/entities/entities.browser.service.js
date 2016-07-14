@@ -2,7 +2,8 @@
  * Created by Stepan_Litvinov on 2/17/2016.
  */
 angular.module('indigoeln')
-    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state, Principal, AlertModal, $timeout) {
+    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
+                                          Principal, AlertModal, DialogService, $timeout) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -76,6 +77,60 @@ angular.module('indigoeln')
                 experimentId: obj.experimentId
             };
         };
+
+        var isEntityChanged = function (entity) {
+            var currentEntityStr = angular.toJson(entity);
+            return entity.$$original !== currentEntityStr;
+        };
+
+        var getAllEntities = function (userId) {
+            var entityPromises = _.map(tabs[userId], function (tab, fullId) {
+                return tabs[userId][fullId];
+            });
+            return $q.all(entityPromises);
+        };
+
+        var getChangedEntities = function (userId) {
+            var deferred = $q.defer();
+            var promise = deferred.promise;
+            var changedEntities = [];
+            getAllEntities(userId).then(function (entities) {
+                _.each(entities, function (entity) {
+                    if (isEntityChanged(entity)) {
+                        changedEntities.push(entity);
+                    }
+                });
+                deferred.resolve(changedEntities);
+            });
+            return promise;
+        };
+
+        function deleteClosedTabAndGoToActive(userId, fullId, current, that) {
+            if (!current) {
+                current = that.getCurrentEntity($state.params);
+            }
+            var keys = _.keys(tabs[userId]);
+            var positionForClose = _.indexOf(keys, fullId);
+            var curPosition = _.indexOf(keys, current);
+            var nextKey;
+            if (curPosition === positionForClose) {
+                nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
+            } else {
+                nextKey = keys[curPosition];
+            }
+            delete tabs[userId][fullId];
+            delete cache[userId][fullId];
+            if (current === nextKey) {
+                $rootScope.$broadcast('updateTabs', that.expandIds(current));
+            } else {
+                if (keys.length > 1) {
+                    that.goToTab(nextKey);
+                } else if (keys.length === 1) {
+                    $state.go('experiment');
+                }
+            }
+        }
+
         return {
             compactIds: function (params) {
                 params = extractParams(params);
@@ -137,47 +192,79 @@ angular.module('indigoeln')
                 var params = this.expandIds(fullId);
                 kindConf[this.getKind(params)].go(params);
             },
-            close: function (fullId, current) {
+            saveEntity: function (fullId) {
                 var that = this;
                 var userId = getUserId();
                 var deferred = $q.defer();
                 var promise = deferred.promise;
-                var params = that.expandIds(fullId);
+                var params = this.expandIds(fullId);
                 tabs[userId][fullId].then(function (entity) {
-                    var currentEntityStr = angular.toJson(entity);
-                    if (entity.$$original !== currentEntityStr) {
-                        AlertModal.save('Do you want to save the changes?', null, function (isSave) {
-                            if (isSave) {
-                                kindConf[that.getKind(params)].service.update(params, entity).$promise.then(
-                                    function () {
+                    kindConf[that.getKind(params)].service.update(params, entity).$promise
+                        .then(function () {
+                            deferred.resolve();
+                        });
+                });
+                return promise;
+            },
+            close: function (fullId, current, forced) {
+                var that = this;
+                var userId = getUserId();
+                var deferred = $q.defer();
+                var promise = deferred.promise;
+                tabs[userId][fullId].then(function (entity) {
+                    if (forced) {
+                        deferred.resolve();
+                    } else {
+                        if (isEntityChanged(entity)) {
+                            AlertModal.save('Do you want to save the changes?', null, function (isSave) {
+                                if (isSave) {
+                                    that.saveEntity(fullId).then(function () {
                                         deferred.resolve();
                                     });
-                            } else {
-                                deferred.resolve();
+                                } else {
+                                    deferred.resolve();
+                                }
+                            });
+                        } else {
+                            deferred.resolve();
+                        }
+                    }
+                });
+                return promise.then(function () {
+                    deleteClosedTabAndGoToActive(userId, fullId, current, that);
+                });
+            },
+            closeAllForced: function (allEntities, i) {
+                var that = this;
+                if (!allEntities[i]) {
+                    return;
+                }
+                that.close(allEntities[i].fullId, allEntities[i].fullId, true).then(function () {
+                    that.closeAllForced(allEntities, i + 1);
+                });
+            },
+            closeAll: function () {
+                var that = this;
+                var userId = getUserId();
+                var saveEntityPromises = [];
+                getChangedEntities(userId).then(function (changedEntities) {
+                    if (changedEntities.length) {
+                        DialogService.selectEntitiesToSave(changedEntities, function (entitiesToSave) {
+                            if (entitiesToSave.length) {
+                                _.each(entitiesToSave, function (entityToSave) {
+                                    saveEntityPromises.push(that.saveEntity(entityToSave.fullId));
+                                });
+                                $q.all(saveEntityPromises).then(function () {
+                                    getAllEntities(userId).then(function (allEntities) {
+                                        that.closeAllForced(allEntities, 0);
+                                    });
+                                });
                             }
                         });
                     } else {
-                        deferred.resolve();
-                    }
-                });
-                promise.then(function () {
-                    var keys = _.keys(tabs[userId]);
-                    if (keys.length > 1) {
-                        var positionForClose = _.indexOf(keys, fullId);
-                        var curPosition = _.indexOf(keys, current);
-                        var nextKey;
-                        if (curPosition === positionForClose) {
-                            nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
-                        } else {
-                            nextKey = keys[curPosition];
-                        }
-                        delete tabs[userId][fullId];
-                        delete cache[userId][fullId];
-                        if (current === nextKey) {
-                            $rootScope.$broadcast('updateTabs', that.expandIds(current));
-                        } else {
-                            that.goToTab(nextKey);
-                        }
+                        getAllEntities(userId).then(function (allEntities) {
+                            that.closeAllForced(allEntities, 0);
+                        });
                     }
                 });
 
