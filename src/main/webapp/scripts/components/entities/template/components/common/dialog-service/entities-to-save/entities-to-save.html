@@ -1,0 +1,22 @@
+<div class="modal-header">
+    <h5 class="modal-title">Select Experiments To Save:</h5>
+</div>
+<div class="modal-body">
+    <div class="long-content-popup">
+        <div class="row select-from-dictionary" ng-repeat="entity in entities track by entity.fullId">
+            <div class="col-xs-12">
+                <my-checkbox
+                        my-model="entity.$$saveEntity"
+                        my-label="{{getKind(entity.fullId) | capitalize}} {{entity.$$title}}"
+                ></my-checkbox>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+<div class="modal-footer text-right">
+    <button class="btn btn-info" type="button" ng-click="save()">Save Selected</button>
+    <button class="btn btn-info" type="button" ng-click="discardAll()">Discard All</button>
+    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+</div>
