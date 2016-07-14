@@ -129,7 +129,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -181,7 +181,7 @@ angular.module('indigoeln')
         },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-click="myClickAsync()" ng-change="myChangeAsync()"></checkbox> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-disabled="myDisabled" ng-click="myClickAsync()" ng-change="myChangeAsync()"></checkbox> ' +
         '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="myModel = !myModel; myChangeAsync();">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '
@@ -249,7 +249,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" append-to-body="true">' +
+        '<ui-select ng-model-options="{ debounce: 150 }" ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" append-to-body="true">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +
@@ -280,8 +280,8 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<div class="btn-group">' +
-        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +
-        '<label class="btn btn-info" ng-model="myModel" uib-btn-radio="mySecond" uncheckable ng-disabled="myReadonly">{{mySecond}}</label>' +
+        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +
+        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="mySecond" uncheckable ng-disabled="myReadonly">{{mySecond}}</label>' +
         '</div>' +
         '</div> ' +
         '</div> '
@@ -318,7 +318,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
         '<div class="col-xs-10">' +
-        '<textarea class="form-control" rows="1" ng-model="myModel" ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
+        '<textarea class="form-control" rows="1" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
         '</div> ' +
         '</div> '
     };
@@ -377,7 +377,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model="ctrl.model" date-time view="date" ' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model-options="{ debounce: 150 }" ng-model="ctrl.model" date-time view="date" ' +
         'format="MMM DD, YYYY HH:mm:ss z" ng-disabled="myReadonly" ng-required="myValidationRequired"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-show="ngModelCtrl.$error.required"> This field is required. </p>' +
@@ -411,7 +411,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        ' <tags-input ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" on-tag-adding="myOnAdding($tag)" placeholder="{{myPlaceholder}}"' +
+        ' <tags-input ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" on-tag-adding="myOnAdding($tag)" placeholder="{{myPlaceholder}}"' +
         'max-tags="{{myMaxTags}}" replace-spaces-with-dashes="false"></tags-input>' +
         '</div>' +
         '</div>'
