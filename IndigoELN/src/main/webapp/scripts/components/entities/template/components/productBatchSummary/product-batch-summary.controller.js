@@ -568,7 +568,7 @@ angular.module('indigoeln')
                 return batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
             }
 
-            function requestNbkBatchNumberAndAddToTable(duplicatedBatch) {
+            function requestNbkBatchNumberAndAddToTable(duplicatedBatch, isSyncWithIntended) {
                 var latest = getLatestNbkBatch();
                 var deferred = $q.defer();
                 $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
@@ -599,6 +599,10 @@ angular.module('indigoeln')
                                 duplicatedBatch.conversationalBatchNumber = null;
                                 duplicatedBatch.registrationDate = null;
                                 duplicatedBatch.registrationStatus = null;
+                                if (isSyncWithIntended) {
+                                    // Total Moles can be calculated when total weight or total Volume are added, or manually
+                                    duplicatedBatch.mol = null;
+                                }
                                 batch = duplicatedBatch;
                             }
                             getProductBatches().push(batch);
@@ -611,38 +615,51 @@ angular.module('indigoeln')
                 return deferred.promise;
             }
 
-            var getIntendedNotInActual = function () {
-                if (stoichTable) {
-                    var intended = stoichTable.products;
-                    var actual = getProductBatches();
-                    var actualHashes = _.compact(_.pluck(actual, '$$batchHash'));
-                    return _.filter(intended, function (batch) {
-                        return !_.contains(actualHashes, batch.$$batchHash);
-                    });
-                }
-            };
-            $scope.isIntendedSynced = function () {
-                return getIntendedNotInActual() ? !getIntendedNotInActual().length : true;
-            };
-
             $scope.addNewBatch = function () {
                 requestNbkBatchNumberAndAddToTable();
             };
 
-            $scope.duplicateBatches = function (batchesQueueToAdd, i) {
+            $scope.duplicateBatches = function (batchesQueueToAdd, i, isSyncWithIntended) {
                 if (!batchesQueueToAdd[i]) {
                     return;
                 }
                 var batchToCopy = batchesQueueToAdd[i];
                 var batchToDuplicate = angular.copy(batchToCopy);
-                requestNbkBatchNumberAndAddToTable(batchToDuplicate).then(function () {
-                    $scope.duplicateBatches(batchesQueueToAdd, i + 1);
+                requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended).then(function () {
+                    $scope.duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
                 });
             };
 
             $scope.duplicateBatch = function () {
                 var batchToDuplicate = angular.copy($scope.share.selectedRow);
                 return requestNbkBatchNumberAndAddToTable(batchToDuplicate);
+            };
+
+            function removeItemFromBothArrays(item, array1, array2, i) {
+                if (_.contains(array1, item)) {
+                    array2[i] = null;
+                    array1[_.indexOf(array1, item)] = null;
+                }
+            }
+
+            var getIntendedNotInActual = function () {
+                if (stoichTable) {
+                    var intended = stoichTable.products;
+                    var intendedCandidateHashes = _.pluck(intended, '$$batchHash');
+                    var actual = getProductBatches();
+                    var actualHashes = _.compact(_.pluck(actual, '$$batchHash'));
+                    _.each(intendedCandidateHashes, function (intendedCandidateHash, i) {
+                        removeItemFromBothArrays(intendedCandidateHash, actualHashes, intendedCandidateHashes, i);
+                    });
+                    var hashesToAdd = _.compact(intendedCandidateHashes);
+                    return _.map(hashesToAdd, function (hash) {
+                        return _.findWhere(intended, {$$batchHash: hash});
+                    });
+                }
+            };
+
+            $scope.isIntendedSynced = function () {
+                return getIntendedNotInActual() ? !getIntendedNotInActual().length : true;
             };
 
             $scope.syncWithIntendedProducts = function () {
@@ -655,7 +672,7 @@ angular.module('indigoeln')
                         syncingIntendedProducts.resolve();
                         AlertModal.info('Product Batch Summary is synchronized', 'sm');
                     } else {
-                        $scope.duplicateBatches(batchesQueueToAdd, 0);
+                        $scope.duplicateBatches(batchesQueueToAdd, 0, true);
                     }
                 }
                 syncingIntendedProducts.resolve();
@@ -670,7 +687,7 @@ angular.module('indigoeln')
                     row.formula = molInfo.data.molecularFormula;
                     row.molWeight = row.molWeight || {};
                     row.molWeight.value = molInfo.data.molecularWeight;
-                    CalculationService.calculateProductBatch({row: row, column: ''});
+                    CalculationService.recalculateStoich(initDataForCalculation());
                 };
                 if (row.structure && row.structure.molfile) {
                     CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
