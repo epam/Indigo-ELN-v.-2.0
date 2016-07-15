@@ -26,15 +26,8 @@ angular.module('indigoeln')
         $scope.onCloseEntityClick = function (fullId, entityId) {
             $rootScope.$broadcast('entity-closing', {fullId: fullId, entityId: entityId});
         };
-
         $scope.onCloseAllClick = function () {
-            EntitiesBrowser.closeAll();
-        };
-        $scope.onCloseTabClick = function (fullId, entityId) {
-            EntitiesBrowser.close(fullId, entityId);
-            EntitiesBrowser.getTabs().then(function (tabs) {
-                $scope.entities = tabs;
-            });
+            $rootScope.$broadcast('entity-close-all');
         };
 
         $scope.logout = function () {

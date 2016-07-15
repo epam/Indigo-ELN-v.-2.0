@@ -5,10 +5,17 @@ angular.module('indigoeln').controller('EntitiesToSaveController',
             return entity;
         });
 
+        $scope.isSelected = function () {
+            return _.any($scope.entities, function (entity) {
+                return entity.$$saveEntity;
+            });
+        };
+
         $scope.discardAll = function () {
             _.each($scope.entities, function (entity) {
                 entity.$$saveEntity = false;
             });
+            $uibModalInstance.close([]);
         };
 
         $scope.getKind = function (fullId) {

@@ -261,7 +261,7 @@ body {
     animation: none;
 }
 
-.capitalized:first-letter {
+.capitalized {
     text-transform: capitalize;
 }
 
@@ -802,4 +802,16 @@ html {
     text-decoration: none;
     color: black;
     cursor: default;
+}
+
+.my-dropdown-list li a {
+    padding: 8px;
+}
+
+ul.opened-entities {
+    min-width: 250px;
+}
+
+ul.my-dropdown-list {
+    padding: 5px;
 }

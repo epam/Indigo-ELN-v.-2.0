@@ -16,12 +16,14 @@ import com.epam.indigoeln.web.rest.dto.ExperimentTreeNodeDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.google.common.util.concurrent.Striped;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,6 +45,8 @@ public class ExperimentService {
     private UserRepository userRepository;
     @Autowired
     private SequenceIdService sequenceIdService;
+
+    private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
         return experiments == null ? new ArrayList<>() :
@@ -221,59 +225,65 @@ public class ExperimentService {
     }
 
     public ExperimentDTO updateExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user) {
-        Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
+        Lock lock = locks.get(projectId);
+        ExperimentDTO result;
+        try {
+            lock.lock();
+            Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
+                    orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
-        // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
-        // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
-        if (!PermissionUtil.isContentEditor(user)) {
-            Notebook notebook = notebookRepository.findByExperimentId(experimentFromDB.getId());
-            if (notebook == null) {
-                throw EntityNotFoundException.createWithNotebookChildId(experimentFromDB.getId());
+            // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
+            // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
+            if (!PermissionUtil.isContentEditor(user)) {
+                Notebook notebook = notebookRepository.findByExperimentId(experimentFromDB.getId());
+                if (notebook == null) {
+                    throw EntityNotFoundException.createWithNotebookChildId(experimentFromDB.getId());
+                }
+
+                if (!PermissionUtil.hasPermissions(user.getId(),
+                        notebook.getAccessList(), UserPermission.READ_ENTITY,
+                        experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
+                    throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
+                }
             }
 
-            if (!PermissionUtil.hasPermissions(user.getId(),
-                    notebook.getAccessList(), UserPermission.READ_ENTITY,
-                    experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
+            Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
+            if (experimentDTO.getTemplate() != null) {
+                Template template = new Template();
+                template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+                experimentForSave.setTemplate(template);
             }
+
+            // check of user permissions's correctness in access control list
+            PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
+
+            experimentFromDB.setTemplate(experimentForSave.getTemplate());
+            experimentFromDB.setAccessList(experimentForSave.getAccessList());
+            experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
+            experimentFromDB.setComments(experimentForSave.getComments());
+            experimentFromDB.setStatus(experimentForSave.getStatus());
+            experimentFromDB.setWitness(experimentForSave.getWitness());
+            experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
+            experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
+
+            experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
+
+            result = new ExperimentDTO(experimentRepository.save(experimentFromDB));
+
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+            Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
+                    orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
+            // add all users as VIEWER to project
+            experimentDTO.getAccessList().forEach(up -> {
+                PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+            });
+            notebookRepository.save(notebook);
+            projectRepository.save(project);
+        } finally {
+            lock.unlock();
         }
-
-        Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
-        if (experimentDTO.getTemplate() != null) {
-            Template template = new Template();
-            template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
-            experimentForSave.setTemplate(template);
-        }
-
-        // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, experimentForSave.getAccessList());
-
-        experimentFromDB.setTemplate(experimentForSave.getTemplate());
-        experimentFromDB.setAccessList(experimentForSave.getAccessList());
-        experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
-        experimentFromDB.setComments(experimentForSave.getComments());
-        experimentFromDB.setStatus(experimentForSave.getStatus());
-        experimentFromDB.setWitness(experimentForSave.getWitness());
-        experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
-        experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
-
-        experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
-
-        ExperimentDTO result = new ExperimentDTO(experimentRepository.save(experimentFromDB));
-
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
-        Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
-        // add all users as VIEWER to project
-        experimentDTO.getAccessList().forEach(up -> {
-            PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-        });
-        notebookRepository.save(notebook);
-        projectRepository.save(project);
-
         return result;
     }
 
