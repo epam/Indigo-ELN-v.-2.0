@@ -261,7 +261,7 @@ body {
     animation: none;
 }
 
-.capitalized:first-letter {
+.capitalized {
     text-transform: capitalize;
 }
 
@@ -804,6 +804,17 @@ html {
     cursor: default;
 }
 
+.my-dropdown-list li a {
+    padding: 8px;
+}
+
+ul.opened-entities {
+    min-width: 250px;
+}
+
+ul.my-dropdown-list {
+    padding: 5px;
+}
 .my-table .row.ng-leave {
     animation: fadeOutUp 0.3s;
 }

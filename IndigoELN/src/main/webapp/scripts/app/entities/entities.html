@@ -4,10 +4,8 @@
             ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
             <a class="capitalized" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
                 {{getKind(entity.fullId)}} {{entity.$$title}} <em
-                    class="glyphicon glyphicon-remove text-muted pull-right experiment-tab-close"
-                    ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"
-                    style="cursor: pointer"
-                    ng-if="entities.length>1"></em>
+                    class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
+                    ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"></em>
             </a>
         </li>
     </ul>
