@@ -803,3 +803,11 @@ html {
     color: black;
     cursor: default;
 }
+
+.my-table .row.ng-leave {
+    animation: fadeOutUp 0.3s;
+}
+
+.my-table .row.ng-enter {
+    animation: fadeInDown 0.3s;
+}
