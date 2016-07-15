@@ -43,8 +43,10 @@ angular.module('indigoeln')
                 unbinds.push(scope.$watch('myReadonly', function (newValue) {
                     editor.body.attr('contenteditable', !newValue);
                 }));
-                _.each(unbinds, function (unbind) {
-                    unbind();
+                scope.$on('$destroy', function () {
+                    _.each(unbinds, function (unbind) {
+                        unbind();
+                    });
                 });
             }
         };
