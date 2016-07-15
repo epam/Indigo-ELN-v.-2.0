@@ -16,7 +16,7 @@
 
 </div>
 <div class="modal-footer text-right">
-    <button class="btn btn-info" type="button" ng-click="save()">Save Selected</button>
+    <button class="btn btn-info" type="button" ng-click="save()" ng-disabled="!isSelected()">Save Selected</button>
     <button class="btn btn-info" type="button" ng-click="discardAll()">Discard All</button>
     <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
 </div>
