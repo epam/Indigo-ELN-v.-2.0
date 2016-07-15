@@ -409,9 +409,9 @@ angular.module('indigoeln')
                 }, true));
 
                 unbinds.push($scope.$watch('model.stoichTable', function (stoichTable) {
-                    _.each(stoichTable.products, function (item) {
-                        if (!item.$$batchHash) {
-                            item.$$batchHash = +new Date() + Math.random();
+                    _.each(stoichTable.products, function (batch) {
+                        if (!batch.$$batchHash) {
+                            batch.$$batchHash = batch.formula + batch.exactMass;
                         }
                     });
                     $scope.share.stoichTable = stoichTable;
