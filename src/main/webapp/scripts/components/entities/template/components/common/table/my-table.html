@@ -1,10 +1,10 @@
 <div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-xs-3">
+            <div class="col-xs-3" ng-if="myLabel">
                 {{myLabel}}
             </div>
-            <div class="col-xs-9">
+            <div ng-class="{'col-xs-9':myLabel, 'col-xs-12':!myLabel}">
                 <div class="btn-toolbar pull-right" role="toolbar">
                     <span class="transclude"></span>
                     <div class="btn-group" uib-dropdown>
