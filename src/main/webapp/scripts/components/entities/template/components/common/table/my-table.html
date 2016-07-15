@@ -66,7 +66,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr class="row animated" ng-if="myRows.length" ng-repeat="row in rowsForDisplay track by $index"
+                <tr class="animated" ng-if="myRows.length" ng-repeat="row in rowsForDisplay track by $index"
                     ng-class="{'success':row.$$selected}">
                     <td ng-repeat="column in myColumns track by $index" class="text-center"
                         ng-click="onRowSelect($event, row)"
