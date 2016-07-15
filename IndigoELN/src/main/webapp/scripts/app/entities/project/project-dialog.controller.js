@@ -46,10 +46,6 @@ angular.module('indigoeln')
             angular.forEach($scope.project.tags, function(tag) {
                 $scope.tags.push({ text: tag});
             });
-            $scope.keywords = '';
-            if ($scope.project.keywords) {
-                $scope.keywords = $scope.project.keywords.join(', ');
-            }
 
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
@@ -70,12 +66,6 @@ angular.module('indigoeln')
                 if ($scope.tags) {
                     angular.forEach($scope.tags, function (tag) {
                         $scope.project.tags.push(tag.text);
-                    });
-                }
-                $scope.project.keywords = [];
-                if ($scope.keywords) {
-                    angular.forEach($scope.keywords.split(','), function(ref) {
-                        $scope.project.keywords.push(ref.trim());
                     });
                 }
                 $scope.project.accessList = PermissionManagement.expandPermission($scope.project.accessList);
