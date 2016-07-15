@@ -22,7 +22,13 @@ angular.module('indigoeln')
         $scope.$on('entity-closing', function (event, data) {
             $scope.onCloseTabClick(data.fullId, data.entityId);
         });
-
+        $scope.$on('entity-close-all', function () {
+            EntitiesBrowser.closeAll().then(function () {
+                EntitiesBrowser.getTabs().then(function (tabs) {
+                    $scope.entities = tabs;
+                });
+            });
+        });
         $scope.onCloseTabClick = function (fullId, entityId) {
             EntitiesBrowser.close(fullId, entityId);
             EntitiesBrowser.getTabs().then(function (tabs) {
