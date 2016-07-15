@@ -815,3 +815,11 @@ ul.opened-entities {
 ul.my-dropdown-list {
     padding: 5px;
 }
+
+.my-table tr.ng-leave {
+    animation: fadeOutUp 0.3s;
+}
+
+.my-table tr.ng-enter {
+    animation: fadeInDown 0.3s;
+}
