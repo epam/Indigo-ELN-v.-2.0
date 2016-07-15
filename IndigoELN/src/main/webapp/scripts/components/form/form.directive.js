@@ -249,7 +249,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<ui-select ng-model-options="{ debounce: 150 }" ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" append-to-body="true">' +
+        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" append-to-body="true">' +
         '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +

@@ -488,18 +488,11 @@ angular.module('indigoeln')
                     return !item.select;
                 }));
             };
-            var showStructuresColumn = _.find($scope.columns, function (item) {
+            $scope.showStructuresColumn = _.find($scope.columns, function (item) {
                 return item.id === 'structure';
             });
-            $scope.showStructures = showStructuresColumn && showStructuresColumn.isVisible;
-            unbinds.push($scope.$watch('showStructures', function (showStructures) {
-                var structureColumn = _.find($scope.columns, function (item) {
-                    return item.id === 'structure';
-                });
-                structureColumn.isVisible = showStructures;
-            }));
             $scope.toggleShowStructures = function () {
-                $scope.showStructures = !$scope.showStructures;
+                $scope.showStructuresColumn.isVisible = !$scope.showStructuresColumn.isVisible;
             };
             unbinds.push($scope.$watch('structureSize', function (newVal) {
                 var column = _.find($scope.columns, function (item) {
