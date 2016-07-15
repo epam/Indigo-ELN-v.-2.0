@@ -17,7 +17,7 @@ public class Project extends BasicModelObject {
     private static final long serialVersionUID = 4070038027286241064L;
 
     private List<String> tags;
-    private List<String> keywords;
+    private String keywords;
     private String references;
     private String description;
 
@@ -29,11 +29,11 @@ public class Project extends BasicModelObject {
     @JsonIgnore
     private Set<String> fileIds = new HashSet<>();
 
-    public List<String> getKeywords() {
+    public String getKeywords() {
         return keywords;
     }
 
-    public void setKeywords(List<String> keywords) {
+    public void setKeywords(String keywords) {
         this.keywords = keywords;
     }
 

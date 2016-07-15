@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ProjectDTO extends BasicDTO {
 
     private List<String> tags;
-    private List<String> keywords;
+    private String keywords;
     private String references;
     private String description;
     private List<NotebookDTO> notebooks;
@@ -54,11 +54,11 @@ public class ProjectDTO extends BasicDTO {
         this.fileIds = fileIds;
     }
 
-    public List<String> getKeywords() {
+    public String getKeywords() {
         return keywords;
     }
 
-    public void setKeywords(List<String> keywords) {
+    public void setKeywords(String keywords) {
         this.keywords = keywords;
     }
 
