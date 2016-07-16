@@ -43,7 +43,7 @@
     "ui-router-extras": "~0.1.2",
     "sockjs-client": "1.0.3",
     "stomp-websocket": "2.3.4",
-    "malihu-custom-scrollbar-plugin": "^3.1.3"
+    "malihu-custom-scrollbar-plugin": "3.1.5"
   },
   "overrides": {
     "bootstrap": {
@@ -58,6 +58,12 @@
       "main": [
         "jquery-ui.js",
         "themes/base/jquery-ui.css"
+      ]
+    },
+    "ui-select": {
+      "main": [
+        "../../vendors/ui-select/select.js",
+        "dist/select.css"
       ]
     }
   },
