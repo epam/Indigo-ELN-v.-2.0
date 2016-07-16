@@ -26,6 +26,7 @@
                     <td style="position:relative">
                         <div class="row"
                              style="position:absolute;top:3px"
+                             ng-init="solubility.data[$index].value.unit=unitSelect[0];solubility.data[$index].value.operator=operatorSelect[0]"
                              ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Quantitative'">
                             <my-select my-items="operatorSelect"
                                        style="padding:0;min-width: 40px;"

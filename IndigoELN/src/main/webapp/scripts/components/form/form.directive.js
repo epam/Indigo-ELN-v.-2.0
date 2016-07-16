@@ -89,7 +89,8 @@ angular.module('indigoeln')
             myValidationPatternText: '@',
             myClasses: '@',
             myParsers: '=',
-            myFormatters: '='
+            myFormatters: '=',
+            myTooltip: '='
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
@@ -129,7 +130,9 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
+        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ' +
+        'uib-popover="{{myTooltip}}" popover-trigger="mouseenter" popover-placement="bottom"' +
+        'ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -298,7 +301,8 @@ angular.module('indigoeln')
             myClasses: '@',
             myInputGroup: '@',
             myReadonly: '=',
-            myRowsNum: '='
+            myRowsNum: '=',
+            myTooltip: '='
         },
         compile: function (tElement, tAttrs) {
             if (tAttrs.myInputGroup) {
@@ -318,7 +322,9 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
         '<div class="col-xs-10">' +
-        '<textarea class="form-control" rows="1" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
+        '<textarea class="form-control" rows="1" ng-model-options="{ debounce: 150 }" ng-model="myModel" ' +
+        'uib-popover="{{myTooltip}}" popover-trigger="mouseenter" popover-placement="bottom"' +
+        'ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
         '</div> ' +
         '</div> '
     };
