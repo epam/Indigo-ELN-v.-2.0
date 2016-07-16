@@ -12,23 +12,17 @@ angular.module('indigoeln')
                     $panelBody.css('overflow-y', 'auto');
                     var $footer = $panelBody.next();
 
-                    function calcHeight() {
-                        return $($window).height() - $panelBody.offset().top - $footer.outerHeight();
-                    }
+                    var $$window = $($window);
+                    var updateHeight = _.debounce(function () {
+                        var height = $$window.height() - $panelBody.offset().top - $footer.outerHeight();
+                        $panelBody.css('height', height + 'px');
+                    }, 300);
 
-                    var unsubscribe = scope.$watch(function () {
-                        return calcHeight();
-                    }, function (val) {
-                        $panelBody.css('height', val + 'px');
-                    });
-                    scope.$on('$destroy', function () {
-                        unsubscribe();
-                    });
                     angular.element($window).bind('resize', function () {
-                        $panelBody.css('height', calcHeight() + 'px');
+                        updateHeight();
                     });
-
-                }, false);
+                    updateHeight();
+                }, 0, false);
             }
         };
     });
