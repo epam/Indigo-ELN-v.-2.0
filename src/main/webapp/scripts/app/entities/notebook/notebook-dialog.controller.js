@@ -55,8 +55,6 @@ angular.module('indigoeln')
 
             $scope.save = function () {
                 $scope.isSaving = true;
-                $scope.notebook.accessList = PermissionManagement.expandPermission($scope.notebook.accessList);
-
                 if ($scope.notebook.id) {
                     Notebook.update({
                         projectId: $scope.projectId
