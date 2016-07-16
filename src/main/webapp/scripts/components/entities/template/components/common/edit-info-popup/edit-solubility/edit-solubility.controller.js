@@ -35,14 +35,19 @@ angular.module('indigoeln').controller('EditSolubilityController',
 
         var resultToString = function () {
             var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
-                if (solubility.value.operator && solubility.value.value && solubility.value.unit) {
-                    return solubility.value.operator.name + ' ' + solubility.value.value + ' ' +
-                        solubility.value.unit.name + ' in ' + solubility.solventName.name;
-                } else if (solubility.value.value && solubility.value.value.name) {
-                    return solubility.value.value.name + ' in ' + solubility.solventName.name;
-                } else {
+                let solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
+                let type = solubility.type && solubility.type.name ? solubility.type.name : null;
+                let value = solubility.value && solubility.value.value ? solubility.value : null;
+                if (!type || !value || !solvent) {
                     return '';
                 }
+                let result = '';
+                if (type === 'Quantitative') {
+                    result = value.operator.name + ' ' + value.value + ' ' + value.unit.name; // > 5 g/mL
+                } else {
+                    result = value.value.name; // Unsoluble
+                }
+                return result + ' in ' + solvent; // in Acetic acid
             });
             return _.compact(solubilityStrings).join(', ');
         };
