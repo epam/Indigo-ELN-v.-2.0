@@ -48,20 +48,20 @@ angular.module('indigoeln')
                             }
                         }
                     }
-                }, false);
+                }, 0, false);
             },
             addOnChange: function (scope) {
                 if (scope.myChange) {
                     scope.myChangeAsync = function () {
-                        $timeout(scope.myChange, false);
+                        $timeout(scope.myChange, 0, false);
                     };
                 }
                 if (scope.myClick) {
                     scope.myClickAsync = function () {
-                        $timeout(scope.myClick, false);
+                        $timeout(scope.myClick, 0, false);
                     };
                 }
-                
+
             }
         };
     }).directive('myInput', function (formUtils) {

@@ -22,7 +22,7 @@ angular.module('indigoeln')
                         updateHeight();
                     });
                     updateHeight();
-                }, false);
+                }, 0, false);
             }
         };
     });
