@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('Experiment', function ($resource) {
+    .factory('Experiment', function ($resource, PermissionManagement) {
         function toModel(experiment) {
             var components = experiment.components;
             if (_.isArray(components)) {
@@ -16,6 +16,12 @@ angular.module('indigoeln')
                 return {name: key, content: val};
             });
         }
+
+        function transformRequest(data) {
+            data.components = toComponents(data.components);
+            data.accessList = PermissionManagement.expandPermission(data.accessList);
+        }
+
         return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
             {
                 projectId: '@projectId',
@@ -40,7 +46,7 @@ angular.module('indigoeln')
                 },
                 'save': {method: 'POST',
                     transformRequest: function (data) {
-                        data.components = toComponents(data.components);
+                        transformRequest(data);
                         return angular.toJson(data);
                     }
                 },
@@ -51,7 +57,7 @@ angular.module('indigoeln')
                 'update': {method: 'PUT',
                     url: 'api/projects/:projectId/notebooks/:notebookId/experiments',
                     transformRequest: function (data) {
-                        data.components = toComponents(data.components);
+                        transformRequest(data);
                         return angular.toJson(data);
                     }
                 },

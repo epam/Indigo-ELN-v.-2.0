@@ -53,7 +53,6 @@ angular.module('indigoeln')
 
             $scope.save = function (experiment) {
                 $scope.isSaving = true;
-                experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
                 var experimentForSave = _.extend({}, experiment);
                 if (experiment.template !== null) {
                     $scope.loading = Experiment.update({

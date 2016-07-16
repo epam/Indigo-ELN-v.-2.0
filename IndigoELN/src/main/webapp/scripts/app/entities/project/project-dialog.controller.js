@@ -42,11 +42,6 @@ angular.module('indigoeln')
                 }
             };
 
-            $scope.tags = [];
-            angular.forEach($scope.project.tags, function(tag) {
-                $scope.tags.push({ text: tag});
-            });
-
             var onSaveSuccess = function (result) {
                 $scope.isSaving = false;
                 Alert.success('Project successfully saved');
@@ -61,15 +56,6 @@ angular.module('indigoeln')
 
             $scope.save = function () {
                 $scope.isSaving = true;
-                $scope.project.tags = [];
-                $scope.project.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
-                if ($scope.tags) {
-                    angular.forEach($scope.tags, function (tag) {
-                        $scope.project.tags.push(tag.text);
-                    });
-                }
-                $scope.project.accessList = PermissionManagement.expandPermission($scope.project.accessList);
-
                 if ($scope.project.id) {
                     Project.update($scope.project, onSaveSuccess, onSaveError);
                 } else {
