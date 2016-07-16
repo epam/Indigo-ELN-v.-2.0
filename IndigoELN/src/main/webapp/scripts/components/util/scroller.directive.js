@@ -23,9 +23,9 @@ angular.module('indigoeln')
                             $element.mCustomScrollbar('scrollTo', '.active', {
                                 scrollInertia: 100
                             });
-                        });
-                    }, false);
-                }, false);
+                        }, 0, false);
+                    });
+                }, 0, false);
             }
         };
     })

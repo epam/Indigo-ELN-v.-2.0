@@ -9,28 +9,24 @@ angular
          */
         var mobileView = 992;
 
-        $scope.getWidth = function () {
-            return $window.innerWidth;
-        };
-
-        var unsubscribe = $scope.$watch($scope.getWidth, function (newValue) {
-            if (newValue >= mobileView) {
+        var updateToggle = _.debounce(function () {
+            var initState = $scope.toggle;
+            if ($($window).width() >= mobileView) {
                 if (angular.isDefined($cookieStore.get('toggle'))) {
-                    $scope.toggle = !$cookieStore.get('toggle') ? false : true;
+                    $scope.toggle = $cookieStore.get('toggle');
                 } else {
                     $scope.toggle = true;
                 }
             } else {
                 $scope.toggle = false;
             }
-
+            if ($scope.toggle !== initState) {
+                $scope.$apply();
+            }
         });
+        updateToggle();
 
-        $scope.$on('$destroy', function () {
-            unsubscribe();
-        });
-
-        Config.load({}, function(config) {
+        Config.load({}, function (config) {
             $rootScope.$broadcast('config-loaded', config);
         });
 
@@ -39,9 +35,7 @@ angular
             $cookieStore.put('toggle', $scope.toggle);
         };
 
-        $window.onresize = function () {
-            $scope.$apply();
-        };
+        angular.element($window).bind('resize', updateToggle);
 
         $scope.$on('$destroy', experimentStatusSubscriber.unSubscribe);
         $scope.$on('$destroy', batchStatusSubscriber.unSubscribe);
