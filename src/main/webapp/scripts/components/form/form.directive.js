@@ -455,7 +455,7 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, $tagInput);
             if (tAttrs.myOnClick) {
-                $tagInput.attr('ng-on-tag-clicked', 'myOnClick($tag)');
+                $tagInput.attr('on-tag-clicked', 'myOnClick($tag)');
             }
             if (tAttrs.myOnAdding) {
                 $tagInput.attr('on-tag-adding', 'myOnAdding($tag)');
