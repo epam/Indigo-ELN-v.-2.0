@@ -210,7 +210,11 @@ angular.module('indigoeln')
         },
         compile: function (tElement, tAttrs) {
             formUtils.clearLabel(tAttrs, tElement);
-            formUtils.addDirectivesByAttrs(tAttrs, tElement.find('checkbox'));
+            var $checkbox = tElement.find('checkbox');
+            formUtils.addDirectivesByAttrs(tAttrs, $checkbox);
+            if (tAttrs.myModel) {
+                $checkbox.removeAttr('ng-model-options');
+            }
             return {
                 post: function (scope) {
                     formUtils.addOnChange(scope);
