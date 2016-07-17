@@ -62,6 +62,52 @@ angular.module('indigoeln')
                     };
                 }
 
+            },
+            addDirectivesByAttrs: function (tAttrs, $element) {
+                if (tAttrs.myValidationMinlength) {
+                    $element.attr('ng-minlength', tAttrs.myValidationMinlength);
+                }
+                if (tAttrs.myValidationMaxlength) {
+                    $element.attr('ng-maxlength', tAttrs.myValidationMaxlength);
+                }
+                if (tAttrs.myValidationPattern) {
+                    $element.attr('ng-pattern', tAttrs.myValidationPattern);
+                }
+                if (tAttrs.myValidationRequired) {
+                    $element.attr('ng-required', tAttrs.myValidationRequired);
+                }
+                if (tAttrs.myChange) {
+                    $element.attr('ng-change', 'myChangeAsync()');
+                }
+                if (tAttrs.myClick) {
+                    $element.attr('ng-click', 'myClickAsync()');
+                }
+                if (tAttrs.myTooltip) {
+                    $element.attr('uib-popover', '{{myTooltip}}')
+                        .attr('popover-trigger', 'mouseenter')
+                        .attr('popover-placement', 'bottom');
+                }
+                if (tAttrs.myModel) {
+                    $element.attr('ng-model', 'myModel')
+                        .attr('ng-model-options', '{ debounce: 150 }');
+                }
+                if (tAttrs.myParsers || tAttrs.myFormatters) {
+                    $element.attr('my-parsers-formatters', '{myParsers: myParsers, myFormatters: myFormatters}');
+                }
+
+                if (tAttrs.myReadonly) {
+                    $element.attr('ng-readonly', 'myReadonly');
+                }
+                if (tAttrs.myName) {
+                    $element.attr('name', '{{myName}}');
+                }
+                if (tAttrs.myType) {
+                    $element.attr('type', '{{myType}}');
+                }
+                if (tAttrs.myDisabled) {
+                    $element.attr('ng-disabled', 'myDisabled');
+                }
+
             }
         };
     }).directive('myInput', function (formUtils) {
@@ -94,12 +140,13 @@ angular.module('indigoeln')
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
+            var $input = tElement.find('input');
             if (tAttrs.myInputGroup) {
                 var elementIg = $('<div class="input-group"/>');
                 if (tAttrs.myInputSize) {
                     elementIg.addClass('input-group-' + tAttrs.myInputSize);
                 }
-                var inputGroup = tElement.find('input').wrap(elementIg).parent();
+                var inputGroup = $input.wrap(elementIg).parent();
                 if (tAttrs.myInputGroup === 'append') {
                     inputGroup.append('<div class="input-group-btn" ng-transclude/>');
                 } else if (tAttrs.myInputGroup === 'prepend') {
@@ -108,18 +155,7 @@ angular.module('indigoeln')
             }
             formUtils.clearLabel(tAttrs, tElement);
             formUtils.setLabelColumns(tAttrs, tElement);
-            if (tAttrs.myValidationMinlength) {
-                tElement.find('input').attr('ng-minlength', tAttrs.myValidationMinlength);
-            }
-            if (tAttrs.myValidationMaxlength) {
-                tElement.find('input').attr('ng-maxlength', tAttrs.myValidationMaxlength);
-            }
-            if (tAttrs.myValidationPattern) {
-                tElement.find('input').attr('ng-pattern', tAttrs.myValidationPattern);
-            }
-            if (tAttrs.myValidationRequired) {
-                tElement.find('input').attr('ng-required', tAttrs.myValidationRequired);
-            }
+            formUtils.addDirectivesByAttrs(tAttrs, $input);
             return {
                 post: function (scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);
@@ -130,9 +166,7 @@ angular.module('indigoeln')
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-change="myChangeAsync()" ng-click="myClickAsync()" ' +
-        'uib-popover="{{myTooltip}}" popover-trigger="mouseenter" popover-placement="bottom"' +
-        'ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-readonly="myReadonly" my-parsers-formatters="{myParsers: myParsers, myFormatters: myFormatters}"/>' +
+        '<input class="form-control"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
@@ -176,6 +210,7 @@ angular.module('indigoeln')
         },
         compile: function (tElement, tAttrs) {
             formUtils.clearLabel(tAttrs, tElement);
+            formUtils.addDirectivesByAttrs(tAttrs, tElement.find('checkbox'));
             return {
                 post: function (scope) {
                     formUtils.addOnChange(scope);
@@ -184,7 +219,7 @@ angular.module('indigoeln')
         },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox" ng-model="myModel" ng-disabled="myDisabled" ng-click="myClickAsync()" ng-change="myChangeAsync()"></checkbox> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox"></checkbox> ' +
         '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="myModel = !myModel; myChangeAsync();">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '
@@ -318,13 +353,12 @@ angular.module('indigoeln')
                 tElement.find('textarea').attr('rows', tAttrs.myRowsNum);
             }
             formUtils.doVertical(tAttrs, tElement);
+            formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
         '<div class="col-xs-10">' +
-        '<textarea class="form-control" rows="1" ng-model-options="{ debounce: 150 }" ng-model="myModel" ' +
-        'uib-popover="{{myTooltip}}" popover-trigger="mouseenter" popover-placement="bottom"' +
-        'ng-readonly="myReadonly" msd-elastic style="resize: none;"></textarea>' +
+        '<textarea class="form-control" rows="1" msd-elastic style="resize: none;"></textarea>' +
         '</div> ' +
         '</div> '
     };
@@ -409,16 +443,30 @@ angular.module('indigoeln')
         },
         compile: function (tElement, tAttrs) {
             formUtils.doVertical(tAttrs, tElement);
+            var $tagInput = tElement.find('tags-input');
             if (tAttrs.mySource) {
                 var autoComplete = '<auto-complete min-length="1" source="mySource($query)">';
-                tElement.find('tags-input').append(autoComplete);
+                $tagInput.append(autoComplete);
+            }
+            formUtils.doVertical(tAttrs, tElement);
+            formUtils.addDirectivesByAttrs(tAttrs, $tagInput);
+            if (tAttrs.myOnClick) {
+                $tagInput.attr('ng-on-tag-clicked', 'myOnClick($tag)');
+            }
+            if (tAttrs.myOnAdding) {
+                $tagInput.attr('on-tag-adding', 'myOnAdding($tag)');
+            }
+            if (tAttrs.myMaxTags) {
+                $tagInput.attr('max-tags', '{{myMaxTags}}');
+            }
+            if (tAttrs.myMaxTags) {
+                $tagInput.attr('placeholder', '{{myPlaceholder}}');
             }
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
-        ' <tags-input ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-disabled="myReadonly" on-tag-clicked="myOnClick($tag)" on-tag-adding="myOnAdding($tag)" placeholder="{{myPlaceholder}}"' +
-        'max-tags="{{myMaxTags}}" replace-spaces-with-dashes="false"></tags-input>' +
+        ' <tags-input replace-spaces-with-dashes="false"></tags-input>' +
         '</div>' +
         '</div>'
     };
