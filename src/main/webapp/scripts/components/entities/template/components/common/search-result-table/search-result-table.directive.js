@@ -53,7 +53,8 @@ angular.module('indigoeln')
                     function callback(result) {
                         reagent.molWeight = reagent.molWeight || {};
                         var data = result.data;
-                        data.saltEq = reagent.saltEq;
+                        data.mySaltEq = reagent.saltEq;
+                        data.mySaltCode = reagent.saltCode;
                         reagent.molWeight.value = data.molecularWeight;
                         reagent.formula = CalculationService.getSaltFormula(data);
                     }
