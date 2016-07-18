@@ -14,9 +14,9 @@ angular.module('indigoeln')
         var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
         var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
         var loadFactorUnits = ['mmol/g'];
-        var defaultSaltCode = {name: '00 - Parent Structure', value: '00'};
+        var defaultSaltCode = {name: '00 - Parent Structure', value: '0', regValue: '00'};
         var saltCodeValues = [
-            {name: '00 - Parent Structure', value: '00', regValue: '00'},
+            {name: '00 - Parent Structure', value: '0', regValue: '00'},
             {name: '01 - HYDROCHLORIDE', value: '1', regValue: '01'},
             {name: '02 - SODIUM', value: '2', regValue: '02'},
             {name: '03 - HYDRATE', value: '3', regValue: '03'},
@@ -50,7 +50,7 @@ angular.module('indigoeln')
             totalWeight: {value: 0, unit: '', entered: false},
             totalMoles: {value: 0, unit: '', entered: false},
             rxnRole: {name: 'REACTANT', entered: false},
-            saltCode: {name: '00 - Parent Structure', value: '00', regValue: '00', entered: false},
+            saltCode: {name: '00 - Parent Structure', value: '0', regValue: '00', entered: false},
             molWeight: {value: 0, entered: false},
             stoicPurity: {value: 100, entered: false},
             saltEq: {value: 0, entered: false},
