@@ -165,7 +165,21 @@ angular.module('indigoeln')
         };
 
         var getSaltFormula = function (data) {
-            return data.molecularFormula + '*' + data.saltEq.value + '(' + capitalizeFilter(data.saltDesc) + ')';
+            var saltEqPart = '';
+            var descriptionPart = '';
+            var formulaPart = data.molecularFormula;
+            if (data.mySaltEq && data.mySaltEq.value) {
+                saltEqPart = '*' + data.mySaltEq.value;
+            } else if (!data.mySaltEq || data.mySaltEq.value === 0) {
+                return formulaPart;
+            }
+            if (data.mySaltCode && data.mySaltCode.name !== AppValues.getDefaultSaltCode().name) {
+                var saltName = data.mySaltCode.name.split('-')[1] || data.mySaltCode.name;
+                descriptionPart = '(' + capitalizeFilter(saltName.trim()) + ')';
+            } else if (data.mySaltCode && data.mySaltCode.name === AppValues.getDefaultSaltCode().name) {
+                return formulaPart;
+            }
+            return formulaPart + saltEqPart + descriptionPart;
         };
 
         return {

@@ -455,7 +455,8 @@ angular.module('indigoeln')
             var recalculateSalt = function (reagent) {
                 function callback(result) {
                     var data = result.data;
-                    data.saltEq = reagent.saltEq;
+                    data.mySaltEq = reagent.saltEq;
+                    data.mySaltCode = reagent.saltCode;
                     reagent.molWeight = reagent.molWeight || {};
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = CalculationService.getSaltFormula(data);
