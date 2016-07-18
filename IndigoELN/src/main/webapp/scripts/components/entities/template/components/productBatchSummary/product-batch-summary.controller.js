@@ -632,8 +632,13 @@ angular.module('indigoeln')
             };
 
             $scope.duplicateBatch = function () {
-                var batchToDuplicate = angular.copy($scope.share.selectedRow);
-                return requestNbkBatchNumberAndAddToTable(batchToDuplicate);
+                var productBatches = getProductBatches();
+                _.chain(productBatches).filter(function (item) {
+                    return item.select;
+                }).each(function (batch) {
+                    var batchToDuplicate = angular.copy(batch);
+                    requestNbkBatchNumberAndAddToTable(batchToDuplicate);
+                });
             };
 
             function removeItemFromBothArrays(item, array1, array2, i) {
