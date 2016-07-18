@@ -50,7 +50,7 @@ angular.module('indigoeln')
             totalWeight: {value: 0, unit: '', entered: false},
             totalMoles: {value: 0, unit: '', entered: false},
             rxnRole: {name: 'REACTANT', entered: false},
-            saltCode: {name: '00 - Parent Structure', value: '0', entered: false},
+            saltCode: {name: '00 - Parent Structure', value: '00', entered: false},
             molWeight: {value: 0, entered: false},
             stoicPurity: {value: 100, entered: false},
             saltEq: {value: 0, entered: false},
