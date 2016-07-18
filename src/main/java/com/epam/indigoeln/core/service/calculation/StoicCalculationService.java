@@ -45,7 +45,10 @@ public class StoicCalculationService {
         BasicBatchModel sourceBatch = stoicTableDTO.getStoicBatches().get(stoicTableDTO.getChangedBatchRowNumber());
         MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
         callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
-
+        //Force to reacalc Amounts like Weight etc when MWT changes
+        if (stoicTableDTO.getChangedField().equals("molWeight")) {
+            batchModel.recalcAmounts();
+        }
         StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
         stoichCalculator.recalculateStoichBasedOnBatch(batchModel, false);
 
@@ -54,6 +57,9 @@ public class StoicCalculationService {
 
     // mimic changes on the field by resetting value and calling setter
     private void callRecalculatingSetterForChangedField(BasicBatchModel sourceBatch, MonomerBatchModel batchModel, String changedField) {
+        if (changedField == null) {
+            return;
+        }
         switch (changedField) {
             case "weight":
                 batchModel.setWeightAmountQuitly(new AmountModel(MASS, 0));
