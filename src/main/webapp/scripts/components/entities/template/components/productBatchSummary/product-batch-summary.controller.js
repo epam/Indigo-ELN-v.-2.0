@@ -635,12 +635,10 @@ angular.module('indigoeln')
 
             $scope.duplicateBatch = function () {
                 var productBatches = getProductBatches();
-                _.chain(productBatches).filter(function (item) {
+                var batchesToDuplicate = _.filter(productBatches, function (item) {
                     return item.select;
-                }).each(function (batch) {
-                    var batchToDuplicate = angular.copy(batch);
-                    requestNbkBatchNumberAndAddToTable(batchToDuplicate);
                 });
+                $scope.duplicateBatches(batchesToDuplicate, 0);
             };
 
             function removeItemFromBothArrays(item, array1, array2, i) {
