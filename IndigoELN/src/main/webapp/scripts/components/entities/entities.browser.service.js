@@ -202,6 +202,7 @@ angular.module('indigoeln')
                 tabs[userId][fullId].then(function (entity) {
                     kindConf[that.getKind(params)].service.update(params, entity).$promise
                         .then(function () {
+                            entity.$$form.$setPristine();
                             deferred.resolve();
                         });
                 });

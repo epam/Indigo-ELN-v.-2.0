@@ -45,24 +45,12 @@ angular.module('indigoeln')
                 onExperimentStatusChangedEvent();
             });
 
-            var onSaveSuccess = function () {
-                $scope.isSaving = false;
-            };
-
-            var onSaveError = function () {
-                $scope.isSaving = false;
-            };
-
             $scope.save = function (experiment) {
-                $scope.isSaving = true;
                 var experimentForSave = _.extend({}, experiment);
                 if (experiment.template !== null) {
-                    $scope.loading = Experiment.update({
-                        notebookId: notebookId,
-                        projectId: projectId
-                    }, experimentForSave, onSaveSuccess, onSaveError).$promise;
+                    $scope.loading = EntitiesBrowser.saveEntity(experiment.fullId);
                 } else {
-                    $scope.loading = Experiment.save(experimentForSave, onSaveSuccess, onSaveError).$promise;
+                    $scope.loading = Experiment.save(experimentForSave).$promise;
                 }
             };
 
@@ -74,7 +62,6 @@ angular.module('indigoeln')
             });
 
             var onChangeStatusSuccess = function (result, status) {
-                onSaveSuccess(result);
                 var statuses = {};
                 statuses[result.fullId] = status;
                 $rootScope.$broadcast('experiment-status-changed', statuses);
@@ -107,7 +94,6 @@ angular.module('indigoeln')
 
             $scope.completeExperiment = function () {
                 openCompleteConfirmationModal().result.then(function () {
-                    $scope.isSaving = true;
                     $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
                     var experimentForSave = _.extend({}, $scope.experiment, {status: 'Completed'});
                     $scope.loading = Experiment.update({
@@ -115,7 +101,7 @@ angular.module('indigoeln')
                         notebookId: notebookId
                     }, experimentForSave, function(result) {
                         onChangeStatusSuccess(result, 'Completed');
-                    }, onSaveError).$promise;
+                    }).$promise;
                 });
             };
 
@@ -131,7 +117,6 @@ angular.module('indigoeln')
             };
 
             $scope.reopenExperiment = function () {
-                $scope.isSaving = true;
                 $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
                 var experimentForSave = _.extend({}, $scope.experiment, {status: 'Open'});
                 $scope.loading = Experiment.update({
@@ -139,11 +124,10 @@ angular.module('indigoeln')
                     notebookId: notebookId
                 }, experimentForSave, function(result) {
                     onChangeStatusSuccess(result, 'Open');
-                }, onSaveError).$promise;
+                }).$promise;
             };
 
             $scope.repeatExperiment = function () {
-                $scope.isSaving = true;
                 $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
                 var experimentForSave = {
                     accessList: $scope.experiment.accessList,
@@ -160,7 +144,6 @@ angular.module('indigoeln')
                     projectId: projectId,
                     notebookId: notebookId
                 }, experimentForSave, function (result) {
-                    onSaveSuccess(result);
                     $state.go('entities.experiment-detail', {
                         experimentId: result.id,
                         notebookId: notebookId,
@@ -171,16 +154,14 @@ angular.module('indigoeln')
                         notebookId: notebookId,
                         id: result.id
                     });
-                }, onSaveError).$promise;
+                }).$promise;
             };
 
             $scope.versionExperiment = function () {
-                $scope.isSaving = true;
                 $scope.loading = Experiment.version({
                     projectId: projectId,
                     notebookId: notebookId
                 }, $scope.experiment.name, function (result) {
-                    onSaveSuccess(result);
                     $state.go('entities.experiment-detail', {
                         experimentId: result.id,
                         notebookId: notebookId,
@@ -196,7 +177,7 @@ angular.module('indigoeln')
                         notebookId: notebookId,
                         name: result.name
                     });
-                }, onSaveError).$promise;
+                }).$promise;
             };
 
             $scope.isStatusOpen = function () {

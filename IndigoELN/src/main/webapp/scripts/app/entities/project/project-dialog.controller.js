@@ -46,23 +46,19 @@ angular.module('indigoeln')
             };
 
             var onSaveSuccess = function (result) {
-                $scope.isSaving = false;
-                Alert.success('Project successfully saved');
                 $rootScope.$broadcast('project-created', {id: result.id});
                 $state.go('entities.project-detail', {projectId: result.id});
             };
 
             var onSaveError = function (result) {
-                $scope.isSaving = false;
                 Alert.error('Error saving project: ' + result);
             };
 
             $scope.save = function () {
-                $scope.isSaving = true;
                 if ($scope.project.id) {
-                    Project.update($scope.project, onSaveSuccess, onSaveError);
+                    $scope.loading = EntitiesBrowser.saveEntity($scope.project.fullId).then(onSaveSuccess.bind(null, {id: $scope.project.id}));
                 } else {
-                    Project.save($scope.project, onSaveSuccess, onSaveError);
+                    $scope.loading = Project.save($scope.project, onSaveSuccess, onSaveError).$promise;
                 }
             };
 
