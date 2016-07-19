@@ -460,8 +460,7 @@ angular.module('indigoeln')
                     reagent.molWeight = reagent.molWeight || {};
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = CalculationService.getSaltFormula(data);
-                    // this hack is just observation for old indigo behaviour
-                    reagent.lastUpdatedType = 'weight';
+                    reagent.lastUpdatedType = 'weight'; // is it?
                     CalculationService.recalculateAmounts({row: reagent});
                 }
                 CalculationService.recalculateSalt(reagent, callback);
@@ -603,7 +602,10 @@ angular.module('indigoeln')
                                 duplicatedBatch.registrationDate = null;
                                 duplicatedBatch.registrationStatus = null;
                                 if (isSyncWithIntended) {
-                                    // Total Moles can be calculated when total weight or total Volume are added, or manually
+                                    // to sync mapping of intended products with actual poducts
+                                    duplicatedBatch.theoMoles = duplicatedBatch.mol;
+                                    duplicatedBatch.theoWeight = duplicatedBatch.weight;
+                                    // total moles can be calculated when total weight or total Volume are added, or manually
                                     duplicatedBatch.mol = null;
                                 }
                                 batch = duplicatedBatch;
