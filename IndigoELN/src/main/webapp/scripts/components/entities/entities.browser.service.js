@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
-                                          Principal, AlertModal, DialogService) {
+                                          Principal, AlertModal, DialogService, $log) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -324,12 +324,30 @@ angular.module('indigoeln')
                 var projectParams = {projectId: params.projectId};
                 return this.resolveFromCache(projectParams);
             },
-            updateEntityForm(form){
-                this.getCurrentEntity($state.params).then(function (entity) {
+            onEntityChanged: function (entity) {
+                var that = this;
+                var kind = that.getKind((that.expandIds(entity.fullId)));
+                if (kind === 'experiment') {
+                    $log.info('please save me to localStorage'); //please write 'restore' logic in the 'loadEntity' method tnx;
+                }
+            },
+            trackEntityChanges(form, $scope){
+                var that = this;
+                var kind = that.getKind($state.params);
+                that.getCurrentEntity($state.params).then(function (entity) {
                     if (entity.$$form && entity.$$form.$dirty) {
                         form.$setDirty();
                     }
                     entity.$$form = form;
+                    var onChange = _.debounce(function (entity) {
+                        if (entity.$$form && entity.$$form.$dirty) {
+                            that.onEntityChanged(entity);
+                        }
+                    }, 300);
+                    var unbind = $scope.$watch(kind, onChange, true);
+                    $scope.$on('$destroy', function () {
+                        unbind();
+                    });
                 });
             }
         };

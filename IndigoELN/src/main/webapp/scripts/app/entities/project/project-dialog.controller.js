@@ -7,7 +7,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $timeout(function () {
-                EntitiesBrowser.updateEntityForm($scope.createProjectForm);
+                EntitiesBrowser.trackEntityChanges($scope.createProjectForm, $scope);
             }, 0, false);
             $scope.project = project;
             $scope.newProject = _.isUndefined($scope.project.id) || _.isNull($scope.project.id);
