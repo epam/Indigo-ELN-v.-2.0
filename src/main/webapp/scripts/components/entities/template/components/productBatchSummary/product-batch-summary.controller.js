@@ -687,6 +687,17 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
+            $scope.importSDFile = function () {
+                $uibModal.open({
+                    animation: true,
+                    size: 'lg',
+                    templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
+                    controller: 'SingleFileUploaderController'
+                }).result.then(function (result) {
+                    $log.debug(result);
+                });
+            };
+
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
                 var resetMolInfo = function () {
                     row.formula = null;
