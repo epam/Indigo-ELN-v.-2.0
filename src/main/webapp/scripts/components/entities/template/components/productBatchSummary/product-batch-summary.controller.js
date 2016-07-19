@@ -460,10 +460,9 @@ angular.module('indigoeln')
                     reagent.molWeight = reagent.molWeight || {};
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = CalculationService.getSaltFormula(data);
-                    var stoicData = initDataForCalculation();
-                    stoicData.row = reagent;
-                    stoicData.changedField = 'molWeight';
-                    CalculationService.recalculateStoichBasedOnBatch(stoicData);
+                    // this hack is just observation for old indigo behaviour
+                    reagent.lastUpdatedType = 'weight';
+                    CalculationService.recalculateAmounts({row: reagent});
                 }
                 CalculationService.recalculateSalt(reagent, callback);
             };
@@ -707,6 +706,7 @@ angular.module('indigoeln')
                     row.formula = molInfo.data.molecularFormula;
                     row.molWeight = row.molWeight || {};
                     row.molWeight.value = molInfo.data.molecularWeight;
+                    // todo replace with recalcAmounts?
                     CalculationService.recalculateStoich(initDataForCalculation());
                 };
                 if (row.structure && row.structure.molfile) {

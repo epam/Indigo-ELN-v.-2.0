@@ -309,4 +309,13 @@ public class StoicCalculationService {
         return convertedBatch;
     }
 
+    public BasicBatchModel recalculateBatchAmounts(ProductTableDTO productTableDTO) {
+        BasicBatchModel rawBatch = productTableDTO.getProductBatch();
+        ProductBatchModel productBatch = createProductBatchModelForCalculation(rawBatch);
+        productBatch.recalcAmounts();
+
+        BasicBatchModel convertedBatch = prepareBatchModelForResponse(productBatch, rawBatch);
+        convertedBatch.setYield(productBatch.getTheoreticalYieldPercentAmount().doubleValue());
+        return convertedBatch;
+    }
 }

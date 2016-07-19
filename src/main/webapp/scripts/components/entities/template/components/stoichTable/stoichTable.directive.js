@@ -346,10 +346,7 @@ angular.module('indigoeln')
                         reagent.molWeight = reagent.molWeight || {};
                         reagent.molWeight.value = data.molecularWeight;
                         reagent.formula = CalculationService.getSaltFormula(data);
-                        var stoicData = initDataForCalculation();
-                        stoicData.changedField = 'molWeight';
-                        stoicData.row = reagent;
-                        CalculationService.recalculateStoichBasedOnBatch(stoicData);
+                        CalculationService.recalculateAmounts({row: reagent});
                     }
                     CalculationService.recalculateSalt(reagent, callback);
                 };
