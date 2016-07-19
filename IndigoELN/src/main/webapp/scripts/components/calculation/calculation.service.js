@@ -123,12 +123,16 @@ angular.module('indigoeln')
             });
         };
 
-        var recalculateAmounts = function (data) {
+        var recalculateAmounts = function (data, callback) {
             var requestData = {
                 productBatch: setDefaultValues(data.row)
             };
             return $http.put('api/calculations/product/calculate/batch/amounts', requestData).then(function (result) {
-                _.extend(data.row, result.data);
+                if (callback) {
+                    callback(result);
+                } else {
+                    _.extend(data.row, result.data);
+                }                
             });
         };
 
