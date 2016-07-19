@@ -1,11 +1,14 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash, pageInfo) {
+        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout) {
             var identity = pageInfo.identity;
             var project = pageInfo.project;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+            $timeout(function () {
+                EntitiesBrowser.updateEntityForm($scope.createProjectForm);
+            }, 0, false);
             $scope.project = project;
             $scope.newProject = _.isUndefined($scope.project.id) || _.isNull($scope.project.id);
             $scope.project.author = $scope.project.author || identity;

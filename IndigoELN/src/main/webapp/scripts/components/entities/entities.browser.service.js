@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
-                                          Principal, AlertModal, DialogService, $timeout) {
+                                          Principal, AlertModal, DialogService) {
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -79,8 +79,7 @@ angular.module('indigoeln')
         };
 
         var isEntityChanged = function (entity) {
-            var currentEntityStr = angular.toJson(entity);
-            return entity.$$original !== currentEntityStr;
+            return entity.$$form.$dirty;
         };
 
         var getAllEntities = function (userId) {
@@ -296,13 +295,7 @@ angular.module('indigoeln')
                 });
             },
             loadEntity: function (that, params) {
-                var $promise = kindConf[that.getKind(params)].service.get(params).$promise;
-                $promise.then(function (entity) {
-                    $timeout(function () { //bad practice: wait 1 second for ui initialization
-                        entity.$$original = angular.toJson(entity);
-                    }, 1000, false);
-                });
-                return $promise;
+                return kindConf[that.getKind(params)].service.get(params).$promise;
             },
             updateCacheAndTab: function (params) {
                 params = extractParams(params);
@@ -330,6 +323,14 @@ angular.module('indigoeln')
                 params = extractParams(params);
                 var projectParams = {projectId: params.projectId};
                 return this.resolveFromCache(projectParams);
+            },
+            updateEntityForm(form){
+                this.getCurrentEntity($state.params).then(function (entity) {
+                    if (entity.$$form && entity.$$form.$dirty) {
+                        form.$setDirty();
+                    }
+                    entity.$$form = form;
+                });
             }
         };
     });

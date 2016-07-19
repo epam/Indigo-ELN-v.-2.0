@@ -1,9 +1,11 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal) {
+        function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
+            $timeout(function () {
+                EntitiesBrowser.updateEntityForm($scope.experimentForm);
+            }, 0, false);
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
-
             $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
 
             $scope.experiment = pageInfo.experiment;

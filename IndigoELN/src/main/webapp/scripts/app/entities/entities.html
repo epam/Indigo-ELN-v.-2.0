@@ -6,6 +6,7 @@
                 {{getKind(entity.fullId)}} {{entity.$$title}} <em
                     class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
                     ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"></em>
+                <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="entity.$$form.$dirty"></i>
             </a>
         </li>
     </ul>

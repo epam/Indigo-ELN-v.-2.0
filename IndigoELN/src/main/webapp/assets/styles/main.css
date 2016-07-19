@@ -823,3 +823,11 @@ ul.my-dropdown-list {
 .my-table tr.ng-enter {
     animation: fadeInDown 0.3s;
 }
+
+.entity-changed {
+    top: 2px;
+    right: 4px;
+    position: absolute;
+    font-size: 10px;
+    color: #23aabb;
+}

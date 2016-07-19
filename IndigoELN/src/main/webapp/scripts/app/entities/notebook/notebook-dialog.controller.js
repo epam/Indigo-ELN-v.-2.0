@@ -1,11 +1,14 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, pageInfo) {
+        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, pageInfo, EntitiesBrowser, $timeout) {
 
             var identity = pageInfo.identity;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+            $timeout(function () {
+                EntitiesBrowser.updateEntityForm($scope.createNotebookForm);
+            }, 0, false);
             $scope.notebook = pageInfo.notebook;
             $scope.newNotebook = _.isUndefined($scope.notebook.id) || _.isNull($scope.notebook.id);
             $scope.notebook.author = $scope.notebook.author || identity;
