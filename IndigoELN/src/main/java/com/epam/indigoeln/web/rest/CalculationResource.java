@@ -177,5 +177,14 @@ public class CalculationResource {
         return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
     }
 
+    /**
+     * PUT /product/calculate/batch/amounts -> calcalate batch batch amounts
+     */
+    @RequestMapping(value = "/product/calculate/batch/amounts",
+            method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<BasicBatchModel> recalculateBatchAmounts(@RequestBody ProductTableDTO productTableDTO) {
+        return ResponseEntity.ok(stoicCalculationService.recalculateBatchAmounts(productTableDTO));
+    }
 
 }

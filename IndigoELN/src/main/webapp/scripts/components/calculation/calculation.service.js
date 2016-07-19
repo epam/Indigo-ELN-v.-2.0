@@ -123,6 +123,15 @@ angular.module('indigoeln')
             });
         };
 
+        var recalculateAmounts = function (data) {
+            var requestData = {
+                productBatch: setDefaultValues(data.row)
+            };
+            return $http.put('api/calculations/product/calculate/batch/amounts', requestData).then(function (result) {
+                _.extend(data.row, result.data);
+            });
+        };
+
         var calculateProductBatch = function (data) {
             var requestData = {
                 productBatch: setDefaultValues(data.row),
@@ -195,6 +204,7 @@ angular.module('indigoeln')
             setValuesEditable: setValuesEditable,
             calculateProductBatch: calculateProductBatch,
             recalculateSalt: recalculateSalt,
+            recalculateAmounts: recalculateAmounts,
             recalculateStoich: recalculateStoich,
             recalculateStoichBasedOnBatch: recalculateStoichBasedOnBatch
         };
