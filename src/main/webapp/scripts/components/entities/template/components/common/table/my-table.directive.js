@@ -69,6 +69,10 @@ angular.module('indigoeln')
 			$scope.unitFormatters = [function (modelValue) {
 				return +roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].sigDigits, $scope.myRow[$scope.myColumn.id].entered);
 			}];
+			// init unit
+			if ($scope.myColumn.type === 'unit' && !$scope.myRow[$scope.myColumn.id].unit) {
+				$scope.myRow[$scope.myColumn.id].unit = $scope.myColumn.units[0].name;
+			}
 		},
 		templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
 	};
