@@ -1,9 +1,11 @@
 angular.module('indigoeln')
     .factory('Project', function ($resource, FileUploaderCash, PermissionManagement) {
         function transformRequest(data) {
+            data = _.extend({}, data);
             data.tags = _.pluck(data.tags, 'text');
             data.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
             data.accessList = PermissionManagement.expandPermission(data.accessList);
+            return data;
         }
 
         function transformResponse(data) {
@@ -25,7 +27,7 @@ angular.module('indigoeln')
             'save': {
                 method: 'POST',
                 transformRequest: function (data) {
-                    transformRequest(data);
+                    data = transformRequest(data);
                     return angular.toJson(data);
                 }
             },
@@ -33,7 +35,7 @@ angular.module('indigoeln')
                 method: 'PUT',
                 url: 'api/projects',
                 transformRequest: function (data) {
-                    transformRequest(data);
+                    data = transformRequest(data);
                     return angular.toJson(data);
                 }
             },
