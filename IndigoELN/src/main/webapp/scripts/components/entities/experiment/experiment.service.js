@@ -18,8 +18,10 @@ angular.module('indigoeln')
         }
 
         function transformRequest(data) {
+            data = _.extend({}, data);
             data.components = toComponents(data.components);
             data.accessList = PermissionManagement.expandPermission(data.accessList);
+            return data;
         }
 
         return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
@@ -46,7 +48,7 @@ angular.module('indigoeln')
                 },
                 'save': {method: 'POST',
                     transformRequest: function (data) {
-                        transformRequest(data);
+                        data = transformRequest(data);
                         return angular.toJson(data);
                     }
                 },
@@ -57,7 +59,7 @@ angular.module('indigoeln')
                 'update': {method: 'PUT',
                     url: 'api/projects/:projectId/notebooks/:notebookId/experiments',
                     transformRequest: function (data) {
-                        transformRequest(data);
+                        data = transformRequest(data);
                         return angular.toJson(data);
                     }
                 },

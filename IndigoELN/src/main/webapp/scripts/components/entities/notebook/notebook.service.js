@@ -2,7 +2,9 @@ angular
     .module('indigoeln')
     .factory('Notebook', function ($resource, PermissionManagement) {
         function transformRequest(data) {
+            data = _.extend({}, data);
             data.accessList = PermissionManagement.expandPermission(data.accessList);
+            return data;
         }
 
         return $resource('api/projects/:projectId/notebooks/:notebookId', {
@@ -19,7 +21,7 @@ angular
             'save': {
                 method: 'POST',
                 transformRequest: function (data) {
-                    transformRequest(data);
+                    data = transformRequest(data);
                     return angular.toJson(data);
                 }
             },
@@ -27,7 +29,7 @@ angular
                 method: 'PUT',
                 url: 'api/projects/:projectId/notebooks',
                 transformRequest: function (data) {
-                    transformRequest(data);
+                    data = transformRequest(data);
                     return angular.toJson(data);
                 }
             },
