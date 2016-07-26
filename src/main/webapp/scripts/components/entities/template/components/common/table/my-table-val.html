@@ -61,8 +61,7 @@
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number">
-                <div class="btn-group-sm" uib-dropdown dropdown-append-to-body
-                     ng-init="myRow[myColumn.id].unit?return:myRow[myColumn.id].unit = myColumn.units[0].name">
+                <div class="btn-group-sm" uib-dropdown dropdown-append-to-body>
                     <button type="button" class="btn btn-info"
                             aria-haspopup="true"
                             aria-expanded="false"
