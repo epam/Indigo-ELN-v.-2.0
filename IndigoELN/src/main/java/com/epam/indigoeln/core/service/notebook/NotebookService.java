@@ -1,7 +1,9 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.*;
-
+import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
@@ -16,16 +18,11 @@ import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -178,6 +175,7 @@ public class NotebookService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
         notebookFromDB.setName(notebookDTO.getName());
+        notebookFromDB.setDescription(notebookDTO.getDescription());
         notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
         NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
 
