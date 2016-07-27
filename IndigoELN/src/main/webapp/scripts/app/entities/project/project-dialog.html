@@ -59,7 +59,9 @@
                         <my-input my-label="Literature" my-label-vertical="true" my-readonly="!isEditAllowed"
                                   my-model="project.references"></my-input>
                         <label class="control-label">Project Description</label>
-                        <my-text-editor my-model="project.description" my-readonly="!isEditAllowed"></my-text-editor>
+                        <my-text-editor my-model="project.description"
+                                        my-name="projectDescription"
+                                        my-readonly="!isEditAllowed"></my-text-editor>
                         <my-file-uploader entityid="project.id"
                                                  my-readonly="!isEditAllowed"></my-file-uploader>
                     </div>
