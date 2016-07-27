@@ -9,13 +9,15 @@ angular.module('indigoeln')
     .directive('myTextEditor', function ($timeout, textEditorConfig) {
         return {
             scope: {
+                myName: '@',
                 myModel: '=',
                 myReadonly: '='
             },
+            require: '^form',
             restrict: 'E',
-            template: '<textarea data-autosave="editor-content" autofocus></textarea>',
+            template: '<textarea name={{myName}} ng-model="myModel" data-autosave="editor-content" autofocus></textarea>',
             replace: true,
-            link: function (scope, elem) {
+            link: function (scope, elem, iAttrs, formCtrl) {
                 Simditor.locale = 'en_EN';
                 var editor = new Simditor(
                     angular.extend({textarea: elem}, textEditorConfig)
@@ -23,10 +25,15 @@ angular.module('indigoeln')
 
                 var newContent = '';
                 var unbinds = [];
+                var isInit = false;
                 unbinds.push(scope.$watch('myModel', function (value) {
                     if (typeof value !== 'undefined' && value !== newContent) {
                         editor.setValue(value);
                     }
+                    if (isInit) {
+                        formCtrl[scope.myName].$setDirty();
+                    }
+                    isInit = true;
                 }));
 
                 editor.on('valuechanged', function () {
