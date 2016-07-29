@@ -48,7 +48,7 @@
                                 <h3 class="no-draggable text-muted">Please add tabs</h3>
                             </div>
                             <div class="panel panel-info tab animated"
-                                 ng-repeat="tab in template.templateContent track by $index">
+                                 ng-repeat="tab in template.templateContent">
                                 <div class="panel-heading">
                                         <span editable-text="tab.name"
                                               e-form="tabName"
@@ -71,7 +71,7 @@
                                             </div>
                                         </div>
                                         <a class="list-group-item draggable-component component animated"
-                                           ng-repeat="component in tab.components track by $index">
+                                           ng-repeat="component in tab.components">
                                             <h5 class="list-group-item-heading draggable-component">
                                                 {{component.name}} <em class="fa fa-remove pull-right text-muted"
                                                                        style="cursor: pointer" title="Remove"
