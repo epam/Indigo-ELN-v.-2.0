@@ -31,6 +31,10 @@ angular.module('indigoeln')
                     $scope.model.stoichTable.products = products;
                 };
 
+                var addStoicReactant = function (reactant) {
+                    $scope.model.stoichTable.reactants.push(reactant);
+                };
+
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
                 var moles = AppValues.getMoles();
@@ -328,7 +332,7 @@ angular.module('indigoeln')
                 };
                 $scope.appendRow = function () {
                     var reactant = CalculationService.createBatch(getStoicTable());
-                    getStoicReactants().push(reactant);
+                    addStoicReactant(reactant);
                 };
                 $scope.removeRow = function () {
                     setStoicReactants(_.without(getStoicReactants(), $scope.selectedRow));

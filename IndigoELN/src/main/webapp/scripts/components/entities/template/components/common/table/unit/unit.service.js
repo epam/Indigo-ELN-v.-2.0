@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/15/2016.
  */
 angular.module('indigoeln')
-    .factory('unitService', function ($uibModal) {
+    .factory('unitService', function ($uibModal, CalculationService) {
 
         var setUnit = function (name, item) {
             item.unit = name;
@@ -46,6 +46,8 @@ angular.module('indigoeln')
                         item[id] = item[id] || {};
                         item[id].value = result.value;
                         item[id].unit = result.unit;
+                        item[id].entered = true;
+                        CalculationService.calculateProductBatch({row: item, column: id});
                     });
                 }, function () {
 
