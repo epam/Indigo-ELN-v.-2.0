@@ -33,6 +33,9 @@ angular.module('indigoeln')
             var setProductBatches = function (batches) {
                 $scope.model.productBatchSummary.batches = batches;
             };
+            var addProductBatch = function (batch) {
+                $scope.model.productBatchSummary.batches.push(batch);
+            };
 
             var setSelectSourceValueAction = {
                 action: function () {
@@ -610,7 +613,7 @@ angular.module('indigoeln')
                                 }
                                 batch = duplicatedBatch;
                             }
-                            getProductBatches().push(batch);
+                            addProductBatch(batch);
                             $log.debug(batch);
                             $scope.onRowSelected(batch);
                             deferred.resolve();
