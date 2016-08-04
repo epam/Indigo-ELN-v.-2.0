@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.model;
 import com.google.common.base.Objects;
 import com.mongodb.BasicDBObject;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -21,6 +22,9 @@ public class Component implements Serializable {
     private String id;
     private String name;
     private BasicDBObject content;
+
+    @Version
+    private Long version;
 
     public String getId() {
         return id;
@@ -45,6 +49,14 @@ public class Component implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
