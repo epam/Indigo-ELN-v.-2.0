@@ -45,11 +45,12 @@ public class BatchRegisterStatusCheckingJob {
         LOGGER.debug("Batch registration status checking job started");
         final List<Experiment> experiments = experimentRepository.findAll();
         final List<BasicDBObject> batchesOnRegistration = experiments.stream()
-                .map(e -> new ExperimentDTO(e))
+                .map(ExperimentDTO::new)
                 .flatMap(e -> BatchComponentUtil.retrieveBatches(e.getComponents()).stream())
                 .filter(b -> {
                     final String registrationStatus = b.getString(BATCH_REGISTRATION_STATUS_FIELD);
-                    return RegistrationStatus.Status.IN_PROGRESS.toString().equals(registrationStatus);
+                    Object jobId = b.get(BATCH_REGISTRATION_JOB_ID_FIELD);
+                    return RegistrationStatus.Status.IN_PROGRESS.toString().equals(registrationStatus) && jobId != null;
                 }).collect(Collectors.toList());
         Map<String, RegistrationStatus> updatedBatchesStatuses = new HashMap<>();
         for (BasicDBObject batch : batchesOnRegistration) {
