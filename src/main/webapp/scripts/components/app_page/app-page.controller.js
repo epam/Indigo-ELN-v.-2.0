@@ -3,7 +3,7 @@
  */
 angular
     .module('indigoeln')
-    .controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, batchStatusSubscriber, Config) {
+.controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, batchStatusSubscriber) {
         /**
          * Sidebar Toggle & Cookie Control
          */
@@ -26,9 +26,6 @@ angular
         });
         updateToggle();
 
-        Config.load({}, function (config) {
-            $rootScope.$broadcast('config-loaded', config);
-        });
 
         $scope.toggleSidebar = function () {
             $scope.toggle = !$scope.toggle;

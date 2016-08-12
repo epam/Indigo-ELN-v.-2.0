@@ -3,7 +3,8 @@ angular.module('indigoeln',
     ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle', 'ct.ui.router.extras',
         'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
-        'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside'])
+        'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside',
+        'config'])
     .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, TabManager) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
