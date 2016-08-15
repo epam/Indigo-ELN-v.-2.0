@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .factory('AlertModal', function ($uibModal) {
-        var alertModal = function (title, message, size, okCallback, noCallback, okText) {
+        var alertModal = function (title, message, size, okCallback, noCallback, okText, hideCancel) {
             $uibModal.open({
                 size: size || 'md',
                 template: '<div class="modal-header">' +
@@ -12,11 +12,16 @@ angular.module('indigoeln')
                     '<div class="modal-footer text-right">' +
                 '<button class="btn btn-info" type="button" ng-click="ok()">{{okText}}</button>' +
                 '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">No</button>' +
-                '<button class="btn btn-default" type="button" ng-if="hasOkCallback || hasNoCallback" ng-click="cancel()">Cancel</button>' +
+                '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()">Cancel</button>' +
                     '</div>',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.hasOkCallback = !!okCallback;
                     $scope.hasNoCallback = !!noCallback;
+                    if (hideCancel) {
+                        $scope.cancelVisible = false;
+                    } else {
+                        $scope.cancelVisible = $scope.hasOkCallback || $scope.hasNoCallback;
+                    }
                     $scope.okText = okText || 'Ok';
                     $scope.cancel = function () {
                         $uibModalInstance.dismiss('cancel');
@@ -52,6 +57,9 @@ angular.module('indigoeln')
             },
             save: function (msg, size, callback) {
                 alertModal('Save', msg, size, callback.bind(null, true), callback.bind(null, false), 'Yes');
+            },
+            autorecover: function (msg, size, okCallback, noCallback) {
+                alertModal('Info', msg, size, okCallback, noCallback, 'Yes', true);
             }
         };
 
