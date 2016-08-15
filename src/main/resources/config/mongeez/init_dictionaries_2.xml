@@ -1,0 +1,157 @@
+<mongoChangeLog>
+    <changeSet changeId="ChangeSet-3">
+        <script>
+            db.dictionary.update(
+            {"_id" : "stereoisomerCode"},
+            {
+            $set: {
+            "words" : [
+            {
+            "_id" : null,
+            "description" : "Achiral - No Stereo Centers",
+            "enable" : true,
+            "rank" : 0,
+            "name" : "NOSTC",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Achiral - Meso Stereomers",
+            "enable" : true,
+            "rank" : 1,
+            "name" : "AMESO",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Achiral - Cis/Trans Stereomers",
+            "enable" : true,
+            "rank" : 2,
+            "name" : "CISTR",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Single Enantiomer (chirality known)",
+            "enable" : true,
+            "rank" : 3,
+            "name" : "SNENK",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Racemic (stereochemistry known)",
+            "enable" : true,
+            "rank" : 4,
+            "name" : "RMCMX",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Enantio-Enriched (chirality known)",
+            "enable" : true,
+            "rank" : 5,
+            "name" : "ENENK",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Diastereomers (stereochemistry known)",
+            "enable" : true,
+            "rank" : 6,
+            "name" : "DSTRK",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Single Enantiomer (chirality unknown)",
+            "enable" : true,
+            "rank" : 7,
+            "name" : "SNENU",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Racemic (relative stereochemistry unknown)",
+            "enable" : true,
+            "rank" : 8,
+            "name" : "LRCMX",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Enantio-Enriched (chirality unknown)",
+            "enable" : true,
+            "rank" : 9,
+            "name" : "ENENU",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Diastereomers (relative stereochemistry unknown)",
+            "enable" : true,
+            "rank" : 10,
+            "name" : "DSTRU",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Other - Unknown Stereomer/Mixture",
+            "enable" : true,
+            "rank" : 11,
+            "name" : "UNKWN",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "Flag for automatic stereoisomer code assignment for multi-registration",
+            "enable" : true,
+            "rank" : 12,
+            "name" : "HSREG",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "ACHIRAL",
+            "enable" : true,
+            "rank" : 13,
+            "name" : "ACHIR",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "HOMO-CHIRAL",
+            "enable" : true,
+            "rank" : 14,
+            "name" : "HOMO",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "MESO",
+            "enable" : true,
+            "rank" : 15,
+            "name" : "MESO",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "RACEMIC",
+            "enable" : true,
+            "rank" : 16,
+            "name" : "RACEM",
+            "accessList" : []
+            },
+            {
+            "_id" : null,
+            "description" : "SCALEMIC",
+            "enable" : true,
+            "rank" : 17,
+            "name" : "SCALE",
+            "accessList" : []
+            }
+            ]
+            }});
+        </script>
+    </changeSet>
+</mongoChangeLog>

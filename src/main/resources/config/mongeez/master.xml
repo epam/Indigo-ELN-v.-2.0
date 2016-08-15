@@ -1,6 +1,7 @@
 <changeFiles>
     <file path="init.xml"/>
     <file path="init_dictionaries.xml"/>
+    <file path="init_dictionaries_2.xml"/>
     <!--<file path="dropdb.xml"/>
     <file path="authorities.xml"/>
     <file path="users.xml"/>
