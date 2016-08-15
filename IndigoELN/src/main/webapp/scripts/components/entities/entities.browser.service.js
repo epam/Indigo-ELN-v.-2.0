@@ -3,7 +3,10 @@
  */
 angular.module('indigoeln')
     .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
-                                          Principal, AlertModal, DialogService, $log) {
+                                          Principal, AlertModal, DialogService, AutosaveService, $log) {
+
+        var delay = 5000;
+
         var tabs = {};
         var cache = {};
         var kindConf = {
@@ -296,7 +299,29 @@ angular.module('indigoeln')
                 });
             },
             loadEntity: function (that, params) {
-                return kindConf[that.getKind(params)].service.get(params).$promise;
+                var fullId = that.compactIds(params);
+                var deferred = $q.defer();
+                var loadOrigin = function () {
+                    kindConf[that.getKind(params)].service.get(params, function (entity) {
+                        deferred.resolve(entity);
+                    });
+                };
+                AutosaveService.get({id: fullId}, function (entity) {
+                    if (entity.fullId) {
+                        AlertModal.autorecover('Auto-Recover file(s) found for ' + entity.name + '. Do you want to recover from this files?', null, function () {
+                            AutosaveService.delete({id: fullId}, function () {
+                                deferred.resolve(entity);
+                            });
+                        }, function () {
+                            AutosaveService.delete({id: fullId}, function () {
+                                loadOrigin();
+                            });
+                        });
+                    } else {
+                        loadOrigin();
+                    }
+                });
+                return deferred.promise;
             },
             updateCacheAndTab: function (params) {
                 params = extractParams(params);
@@ -326,13 +351,9 @@ angular.module('indigoeln')
                 return this.resolveFromCache(projectParams);
             },
             onEntityChanged: function (entity) {
-                var that = this;
-                var kind = that.getKind((that.expandIds(entity.fullId)));
-                if (kind === 'experiment') {
-                    $log.info('please save me to localStorage'); //please write 'restore' logic in the 'loadEntity' method tnx;
-                }
+                AutosaveService.save({id: entity.fullId}, angular.toJson(entity));
             },
-            trackEntityChanges(form, $scope){
+            trackEntityChanges: function (form, $scope) {
                 var that = this;
                 var kind = that.getKind($state.params);
                 that.getCurrentEntity($state.params).then(function (entity) {
@@ -344,7 +365,7 @@ angular.module('indigoeln')
                         if (entity.$$form && entity.$$form.$dirty) {
                             that.onEntityChanged(entity);
                         }
-                    }, 300);
+                    }, delay);
                     var unbind = $scope.$watch(kind, onChange, true);
                     $scope.$on('$destroy', function () {
                         unbind();
