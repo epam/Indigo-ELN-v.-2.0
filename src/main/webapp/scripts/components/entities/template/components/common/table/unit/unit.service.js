@@ -42,12 +42,14 @@ angular.module('indigoeln')
                         }
                     }
                 }).result.then(function (result) {
-                    _.each(that.rows, function (item) {
-                        item[id] = item[id] || {};
-                        item[id].value = result.value;
-                        item[id].unit = result.unit;
-                        item[id].entered = true;
-                        CalculationService.calculateProductBatch({row: item, column: id});
+                    _.each(that.rows, function (row) {
+                        if (row.registrationStatus !== 'PASSED' || row.registrationStatus !== 'IN_PROGRESS') {
+                            row[id] = row[id] || {};
+                            row[id].value = result.value;
+                            row[id].unit = result.unit;
+                            row[id].entered = true;
+                            CalculationService.calculateProductBatch({row: row, column: id});
+                        }
                     });
                 }, function () {
 

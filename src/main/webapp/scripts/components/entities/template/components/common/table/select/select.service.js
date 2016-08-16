@@ -19,9 +19,11 @@ angular.module('indigoeln')
                         }
                     }
                 }).result.then(function (result) {
-                    _.each(that.rows, function (item) {
-                        item[id] = item[id] || {};
-                        item[id].name = result.name;
+                    _.each(that.rows, function (row) {
+                        if (row.registrationStatus !== 'PASSED' || row.registrationStatus !== 'IN_PROGRESS') {
+                            row[id] = row[id] || {};
+                            row[id].name = result.name;
+                        }
                     });
                 }, function () {
 
