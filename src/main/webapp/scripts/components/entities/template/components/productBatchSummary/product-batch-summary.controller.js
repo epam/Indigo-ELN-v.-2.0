@@ -110,7 +110,9 @@ angular.module('indigoeln')
             function editMeltingPointForAllRows(rows) {
                 InfoEditor.editMeltingPoint({}, function (result) {
                     _.each(rows, function (row) {
-                        row.meltingPoint = angular.copy(result);
+                        if (!isRegistered(row)) {
+                            row.meltingPoint = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -124,7 +126,9 @@ angular.module('indigoeln')
             function editPurityForAllRows(rows) {
                 InfoEditor.editPurity({}, function (result) {
                     _.each(rows, function (row) {
-                        row.purity = angular.copy(result);
+                        if (!isRegistered(row)) {
+                            row.purity = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -138,7 +142,9 @@ angular.module('indigoeln')
             function editExternalSupplierForAllRows(rows) {
                 InfoEditor.editExternalSupplier({}, function (result) {
                     _.each(rows, function (row) {
-                        row.externalSupplier = angular.copy(result);
+                        if (!isRegistered(row)) {
+                            row.externalSupplier = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -152,7 +158,9 @@ angular.module('indigoeln')
             function editHealthHazardsForAllRows(rows) {
                 InfoEditor.editHealthHazards({}, function (result) {
                     _.each(rows, function (row) {
-                        row.healthHazards = angular.copy(result);
+                        if (!isRegistered(row)) {
+                            row.healthHazards = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -436,8 +444,12 @@ angular.module('indigoeln')
 
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
 
+            function isRegistered(row) {
+                return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
+            }
+
             $scope.isEditable = function (row, columnId) {
-                var rowResult = !(row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS');
+                var rowResult = !(isRegistered(row));
                 if (rowResult) {
                     if (columnId === 'precursors') {
                         if ($scope.share.stoichTable) {
@@ -478,7 +490,7 @@ angular.module('indigoeln')
                 return _.chain(getProductBatches()).filter(function (item) {
                     return item.select;
                 }).filter(function (item) {
-                    return item.registrationStatus === 'PASSED' || item.registrationStatus === 'IN_PROGRESS';
+                    return isRegistered(item);
                 }).map(function (item) {
                     return item.fullNbkBatch;
                 }).value();
