@@ -41,9 +41,6 @@ angular.module('indigoeln')
 				unbinds.push($scope.$watch(function () {
 					return _.isObject($scope.myRow[$scope.myColumn.id]) ? $scope.myRow[$scope.myColumn.id].value || $scope.myRow[$scope.myColumn.id].name : $scope.myRow[$scope.myColumn.id];
 				}, function (newVal, prevVal) {
-					if (_.isObject($scope.myRow[$scope.myColumn.id])) {
-						$scope.myRow[$scope.myColumn.id].displayValue = +roundFilter(newVal, $scope.myRow[$scope.myColumn.id].sigDigits, $scope.myRow[$scope.myColumn.id].entered);
-					}
 					oldVal = prevVal;
 					isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
 				}, true));
@@ -67,7 +64,7 @@ angular.module('indigoeln')
 				return +$u(viewValue, $scope.myRow[$scope.myColumn.id].unit).val();
 			}];
 			$scope.unitFormatters = [function (modelValue) {
-				return +roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].sigDigits, $scope.myRow[$scope.myColumn.id].entered);
+                return +roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].sigDigits, $scope.myColumn, $scope.myRow);
 			}];
 		},
 		templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'

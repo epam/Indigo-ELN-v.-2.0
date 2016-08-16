@@ -9,7 +9,7 @@
             </span>
         </span>
         <span ng-if="myColumn.type === 'primitive' && !isEmpty(myRow[myColumn.id])">
-            {{myRow[myColumn.id] | round:myColumn.sigDigits}}
+            {{myRow[myColumn.id] | round:myColumn.sigDigits:myColumn:myRow}}
         </span>
         <a ng-if="!myRow[myColumn.id].readonly && myColumn.type === 'string'"
            ng-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})">
@@ -31,8 +31,8 @@
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id]}}</span>
             <span ng-if="myColumn.type == 'select' && !isEmpty(myRow[myColumn.id])"
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].name}}</span>
-            <span ng-if="myColumn.type == 'unit'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | unit:myRow[myColumn.id].unit | round:myColumn.sigDigits:myRow[myColumn.id].entered}} {{myRow[myColumn.id].unit}}</span>
-            <span ng-if="myColumn.type == 'scalar'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | round:myColumn.sigDigits:myRow[myColumn.id].entered}}</span>
+            <span ng-if="myColumn.type == 'unit'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | unit:myRow[myColumn.id].unit | round:myColumn.sigDigits:myColumn:myRow}} {{myRow[myColumn.id].unit}}</span>
+            <span ng-if="myColumn.type == 'scalar'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | round:myColumn.sigDigits:myColumn:myRow}}</span>
         </a>
         <div ng-if="myColumn.type == 'image' && myRow[myColumn.id].image">
             <img class="img-fill" style="padding: 10px; background-color: white"

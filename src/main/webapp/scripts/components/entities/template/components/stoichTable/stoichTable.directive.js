@@ -145,8 +145,7 @@ angular.module('indigoeln')
                         id: 'mol',
                         name: 'Mol',
                         type: 'unit',
-                        unitItems: moles,
-                        sigDigits: 2
+                        unitItems: moles
                     },
                     {
                         id: 'eq',
