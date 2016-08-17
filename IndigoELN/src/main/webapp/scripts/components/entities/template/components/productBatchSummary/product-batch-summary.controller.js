@@ -662,7 +662,7 @@ angular.module('indigoeln')
                             addProductBatch(batch);
                             $log.debug(batch);
                             $scope.onRowSelected(batch);
-                            deferred.resolve();
+                            deferred.resolve(batch);
                         });
 
                     });
@@ -735,14 +735,57 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
+            $scope.importBatches = function (sdUnitsToImport, i) {
+                if (!sdUnitsToImport[i]) {
+                    return;
+                }
+                var sdUnitToImport = sdUnitsToImport[i];
+                $http({
+                    url: 'api/bingodb/molecule/',
+                    method: 'POST',
+                    data: sdUnitToImport.mol
+                }).success(function (structureId) {
+                    $http({
+                        url: 'api/renderer/molecule/image',
+                        method: 'POST',
+                        data: sdUnitToImport.mol
+                    }).success(function (result) {
+                        var batchToImport = {};
+                        batchToImport.structure = batchToImport.structure || {};
+                        batchToImport.structure.image = result.image;
+                        batchToImport.structure.structureType = 'molecule';
+                        batchToImport.structure.molfile = sdUnitToImport.mol;
+                        batchToImport.structure.structureId = structureId;
+
+                        if (sdUnitToImport.properties) {
+                            var stereoisomerCode = sdUnitToImport.properties.STEREOISOMER_CODE;
+                            if (stereoisomerCode) {
+                                //TODO: set stereoisomer code
+                            }
+                        }
+                        requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
+                            $rootScope.$broadcast('product-batch-structure-changed', batch);
+                            $scope.importBatches(sdUnitsToImport, i + 1);
+                        });
+                    });
+                }).error(function () {
+                    console.info('Cannot save the structure.');
+                });
+            };
+
             $scope.importSDFile = function () {
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
                     templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
-                    controller: 'SingleFileUploaderController'
+                    controller: 'SingleFileUploaderController',
+                    resolve: {
+                        url: function () {
+                            return '/api/sd/import';
+                        }
+                    }
                 }).result.then(function (result) {
-                    $log.debug(result);
+                        $scope.importBatches(result, 0);
                 });
             };
 
