@@ -26,6 +26,10 @@ angular.module('indigoeln')
             };
         };
 
+        var isRegistered = function (row) {
+            return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
+        };
+
         var setUnitValueAction = {
             action: function (id) {
                 var that = this;
@@ -43,7 +47,7 @@ angular.module('indigoeln')
                     }
                 }).result.then(function (result) {
                     _.each(that.rows, function (row) {
-                        if (row.registrationStatus !== 'PASSED' || row.registrationStatus !== 'IN_PROGRESS') {
+                        if (!isRegistered(row)) {
                             row[id] = row[id] || {};
                             row[id].value = result.value;
                             row[id].unit = result.unit;

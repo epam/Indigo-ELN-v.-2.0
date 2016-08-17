@@ -64,8 +64,10 @@ angular.module('indigoeln')
                         }
                     }).result.then(function (result) {
                         _.each(getProductBatches(), function (row) {
-                            row.source = result.source;
-                            row.sourceDetail = result.sourceDetail;
+                            if (!isRegistered(row)) {
+                                row.source = result.source;
+                                row.sourceDetail = result.sourceDetail;
+                            }
                         });
                     }, function () {
 
