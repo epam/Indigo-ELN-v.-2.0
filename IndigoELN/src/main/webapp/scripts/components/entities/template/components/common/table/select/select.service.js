@@ -3,6 +3,9 @@
  */
 angular.module('indigoeln')
     .factory('selectService', function ($uibModal) {
+        var isRegistered = function (row) {
+            return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
+        };
         var setSelectValueAction = {
             action: function (id) {
                 var that = this;
@@ -20,9 +23,8 @@ angular.module('indigoeln')
                     }
                 }).result.then(function (result) {
                     _.each(that.rows, function (row) {
-                        if (row.registrationStatus !== 'PASSED' || row.registrationStatus !== 'IN_PROGRESS') {
-                            row[id] = row[id] || {};
-                            row[id].name = result.name;
+                        if (!isRegistered(row)) {
+                            row[id] = result;
                         }
                     });
                 }, function () {
