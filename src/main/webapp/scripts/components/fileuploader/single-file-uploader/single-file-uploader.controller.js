@@ -1,7 +1,7 @@
 angular.module('indigoeln')
-    .controller('SingleFileUploaderController', function ($scope, $uibModalInstance, $cookies, $log, FileUploader) {
+    .controller('SingleFileUploaderController', function ($scope, $uibModalInstance, $cookies, $log, FileUploader, url) {
         var uploader = $scope.uploader = new FileUploader({
-            url: 'api/project_files', // FIXME
+            url: url,
             alias: 'file',
             headers: {
                 'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
@@ -18,15 +18,12 @@ angular.module('indigoeln')
             fileItem.upload();
         };
         uploader.onSuccessItem = function (fileItem, response) {
-            $log.debug(fileItem, response);
+            $uibModalInstance.close(response);
         };
         $scope.cancel = function () {
             if (uploader.queue.length === 1 && !uploader.queue[0].isUploading) {
                 uploader.queue[0].cancel();
             }
-            $uibModalInstance.close();
-        };
-        $scope.ok = function () {
-            $uibModalInstance.close();
+            $uibModalInstance.dismiss();
         };
     });
