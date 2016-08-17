@@ -3,7 +3,7 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser, AlertModal, Alert, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -36,6 +36,10 @@ angular.module('indigoeln')
             var addProductBatch = function (batch) {
                 $scope.model.productBatchSummary.batches.push(batch);
             };
+
+            function isRegistered(row) {
+                return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
+            }
 
             var setSelectSourceValueAction = {
                 action: function () {
@@ -444,10 +448,6 @@ angular.module('indigoeln')
 
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
 
-            function isRegistered(row) {
-                return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
-            }
-
             $scope.isEditable = function (row, columnId) {
                 var rowResult = !(isRegistered(row));
                 if (rowResult) {
@@ -527,40 +527,72 @@ angular.module('indigoeln')
                 $scope.isHasRegService = _.isArray(info) && info.length > 0;
             });
 
-            var registerBatches = function (excludes) {
-                var batches = _.filter(getProductBatches(), function (row) {
-                    return row.select && !_.contains(excludes, row.fullNbkBatch);
+            var isStereoisomerNeedComment = function (stereoisomer) {
+                var stereocodesWithComment = ['SNENU', 'LRCMX', 'ENENU', 'DSTRU', 'UNKWN', 'HSREG'];
+                return _.some(stereocodesWithComment, function (stereocode) {
+                    return stereoisomer.indexOf(stereocode) > -1;
                 });
-                var emptyFields = [];
-                _.each($scope.columns, function (column) {
-                    if (column.type && !column.readonly && column.name !== 'Select') {
-                        _.each(batches, function (row) {
-                            var val = row[column.id];
-                            if (!val) {
-                                emptyFields.push(column.name);
-                            }
-                        });
+            };
+
+            function getNotFullForRegistrationBatches(batches) {
+                var notFullBatches = [];
+                _.each(batches, function (batch) {
+                    var notFullBatch = {nbkBatch: batch.fullNbkBatch, emptyFields: []};
+                    if (!batch.totalWeight.value && !batch.totalVolume.value) {
+                        notFullBatch.emptyFields.push('Total Weight or Volume should be grater then zero');
+                    }
+                    if (!batch.source || !batch.source.name) {
+                        notFullBatch.emptyFields.push('Compound Source is required');
+                    }
+                    if (!batch.sourceDetail || !batch.sourceDetail.name) {
+                        notFullBatch.emptyFields.push('Source Detail is required');
+                    }
+                    if (!batch.stereoisomer || !batch.stereoisomer.name) {
+                        notFullBatch.emptyFields.push('Stereocode is required');
+                    }
+                    if (batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !batch.saltEq) {
+                        notFullBatch.emptyFields.push('Salt EQ is required and must be grater then zero');
+                    }
+                    if (batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments) {
+                        notFullBatch.emptyFields.push('Structure comments is required');
+                    }
+                    if (notFullBatch.emptyFields.length) {
+                        notFullBatches.push(notFullBatch);
                     }
                 });
-                if (emptyFields.length) {
-                    AlertModal.error('This fields are required: ' + _.uniq(emptyFields).join(', '));
-                } else {
-                    var batchNumbers = _.map(batches, function (batch) {
-                        return batch.fullNbkBatch;
+                return notFullBatches;
+            }
+
+            var registerBatches = function (excludes) {
+                EntitiesBrowser.saveCurrentEntity().then(function () {
+                    var batches = _.filter(getProductBatches(), function (row) {
+                        return row.select && !_.contains(excludes, row.fullNbkBatch);
                     });
-                    RegistrationService.register({}, batchNumbers);
-                }
+                    var message = '';
+                    var notFullBatches = getNotFullForRegistrationBatches(batches);
+                    if (notFullBatches.length) {
+                        _.each(notFullBatches, function (notFullBatch) {
+                            message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
+                        });
+                        AlertModal.error(message);
+                    } else {
+                        var batchNumbers = _.map(batches, function (batch) {
+                            return batch.fullNbkBatch;
+                        });
+                        Alert.success('Selected Batches successfully sent to Registration');
+                        RegistrationService.register({}, batchNumbers);
+                    }
+                });
             };
             $scope.registerBatches = function () {
                 var nonEditableBatches = getSelectedNonEditableBatches();
                 if (nonEditableBatches && nonEditableBatches.length > 0) {
-                    AlertModal.info('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
+                    AlertModal.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
                         registerBatches(nonEditableBatches);
                     });
                 } else {
                     registerBatches([]);
                 }
-
             };
             $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
                 _.each(statuses, function (status, fullNbkBatch) {

@@ -172,14 +172,9 @@ angular.module('indigoeln')
                     return $q.all(_.values(tabs[userId]));
                 });
             },
-            getCurrentEntity: function (params) {
-                params = extractParams(params);
-                var that = this;
-                return resolvePrincipal(function () {
-                    var userId = getUserId();
-                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
-                    return tabs[userId][that.compactIds(params)];
-                });
+            goToTab: function (fullId) {
+                var params = this.expandIds(fullId);
+                kindConf[this.getKind(params)].go(params);
             },
             getIdByVal: function (entity) {
                 return resolvePrincipal(function () {
@@ -189,9 +184,30 @@ angular.module('indigoeln')
                     })[0];
                 });
             },
-            goToTab: function (fullId) {
-                var params = this.expandIds(fullId);
-                kindConf[this.getKind(params)].go(params);
+            getCurrentEntity: function (params) {
+                params = extractParams(params);
+                var that = this;
+                return resolvePrincipal(function () {
+                    var userId = getUserId();
+                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    return tabs[userId][that.compactIds(params)];
+                });
+            },
+            saveCurrentEntity: function () {
+                var that = this;
+                var params = extractParams($state.params);
+                var fullId = that.compactIds(params);
+                var userId = getUserId();
+                var deferred = $q.defer();
+                var promise = deferred.promise;
+                tabs[userId][fullId].then(function (entity) {
+                    kindConf[that.getKind(params)].service.update(params, entity).$promise
+                        .then(function () {
+                            entity.$$form.$setPristine();
+                            deferred.resolve();
+                        });
+                });
+                return promise;
             },
             saveEntity: function (fullId) {
                 var that = this;
