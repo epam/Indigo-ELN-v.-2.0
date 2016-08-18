@@ -2,10 +2,8 @@
  * Created by Stepan_Litvinov on 3/15/2016.
  */
 angular.module('indigoeln')
-    .factory('selectService', function ($uibModal) {
-        var isRegistered = function (row) {
-            return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
-        };
+    .factory('selectService', function ($uibModal, RegistrationUtil) {
+
         var setSelectValueAction = {
             action: function (id) {
                 var that = this;
@@ -26,7 +24,7 @@ angular.module('indigoeln')
                     }
                 }).result.then(function (result) {
                     _.each(that.rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row[id] = result;
                         }
                     });
