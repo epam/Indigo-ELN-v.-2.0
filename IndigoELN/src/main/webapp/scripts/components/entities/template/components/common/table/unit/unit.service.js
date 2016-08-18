@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/15/2016.
  */
 angular.module('indigoeln')
-    .factory('unitService', function ($uibModal, CalculationService) {
+    .factory('unitService', function ($uibModal, CalculationService, RegistrationUtil) {
 
         var setUnit = function (name, item) {
             item.unit = name;
@@ -26,10 +26,6 @@ angular.module('indigoeln')
             };
         };
 
-        var isRegistered = function (row) {
-            return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
-        };
-
         var setUnitValueAction = {
             action: function (id) {
                 var that = this;
@@ -47,7 +43,7 @@ angular.module('indigoeln')
                     }
                 }).result.then(function (result) {
                     _.each(that.rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row[id] = row[id] || {};
                             row[id].value = result.value;
                             row[id].unit = result.unit;
