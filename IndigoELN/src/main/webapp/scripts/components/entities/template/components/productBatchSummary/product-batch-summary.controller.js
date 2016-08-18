@@ -3,16 +3,15 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser, AlertModal, Alert, AppValues, CalculationService, RegistrationService) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser,
+                  AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
             var liters = AppValues.getLiters();
             var moles = AppValues.getMoles();
-            var compoundValues = AppValues.getCompoundValues();
             var saltCodeValues = AppValues.getSaltCodeValues();
-            var stereoisomerValues = AppValues.getStereoisomerValues();
             var sourceValues = AppValues.getSourceValues();
             var sourceDetailExternal = AppValues.getSourceDetailExternal();
             var sourceDetailInternal = AppValues.getSourceDetailInternal();
@@ -37,10 +36,6 @@ angular.module('indigoeln')
                 $scope.model.productBatchSummary.batches.push(batch);
             };
 
-            function isRegistered(row) {
-                return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
-            }
-
             var setSelectSourceValueAction = {
                 action: function () {
                     var that = this;
@@ -64,7 +59,7 @@ angular.module('indigoeln')
                         }
                     }).result.then(function (result) {
                         _.each(getProductBatches(), function (row) {
-                            if (!isRegistered(row)) {
+                            if (!RegistrationUtil.isRegistered(row)) {
                                 row.source = result.source;
                                 row.sourceDetail = result.sourceDetail;
                             }
@@ -116,7 +111,7 @@ angular.module('indigoeln')
             function editMeltingPointForAllRows(rows) {
                 InfoEditor.editMeltingPoint({}, function (result) {
                     _.each(rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row.meltingPoint = angular.copy(result);
                         }
                     });
@@ -132,7 +127,7 @@ angular.module('indigoeln')
             function editPurityForAllRows(rows) {
                 InfoEditor.editPurity({}, function (result) {
                     _.each(rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row.purity = angular.copy(result);
                         }
                     });
@@ -148,7 +143,7 @@ angular.module('indigoeln')
             function editExternalSupplierForAllRows(rows) {
                 InfoEditor.editExternalSupplier({}, function (result) {
                     _.each(rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row.externalSupplier = angular.copy(result);
                         }
                     });
@@ -164,7 +159,7 @@ angular.module('indigoeln')
             function editHealthHazardsForAllRows(rows) {
                 InfoEditor.editHealthHazards({}, function (result) {
                     _.each(rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row.healthHazards = angular.copy(result);
                         }
                     });
@@ -262,8 +257,9 @@ angular.module('indigoeln')
                     id: 'compoundState',
                     name: 'Compound State',
                     type: 'select',
+                    dictionary: 'Compound State',
                     values: function () {
-                        return compoundValues;
+                        return null;
                     }
                 },
                 {
@@ -336,8 +332,9 @@ angular.module('indigoeln')
                 {
                     id: 'stereoisomer', name: 'Stereoisomer',
                     type: 'select',
+                    dictionary: 'Stereoisomer Code',
                     values: function () {
-                        return stereoisomerValues;
+                        return null;
                     },
                     width: '350px'
                 },
@@ -451,7 +448,7 @@ angular.module('indigoeln')
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
 
             $scope.isEditable = function (row, columnId) {
-                var rowResult = !(isRegistered(row));
+                var rowResult = !(RegistrationUtil.isRegistered(row));
                 if (rowResult) {
                     if (columnId === 'precursors') {
                         if ($scope.share.stoichTable) {
@@ -492,7 +489,7 @@ angular.module('indigoeln')
                 return _.chain(getProductBatches()).filter(function (item) {
                     return item.select;
                 }).filter(function (item) {
-                    return isRegistered(item);
+                    return RegistrationUtil.isRegistered(item);
                 }).map(function (item) {
                     return item.fullNbkBatch;
                 }).value();
@@ -529,49 +526,13 @@ angular.module('indigoeln')
                 $scope.isHasRegService = _.isArray(info) && info.length > 0;
             });
 
-            var isStereoisomerNeedComment = function (stereoisomer) {
-                var stereocodesWithComment = ['SNENU', 'LRCMX', 'ENENU', 'DSTRU', 'UNKWN', 'HSREG'];
-                return _.some(stereocodesWithComment, function (stereocode) {
-                    return stereoisomer.indexOf(stereocode) > -1;
-                });
-            };
-
-            function getNotFullForRegistrationBatches(batches) {
-                var notFullBatches = [];
-                _.each(batches, function (batch) {
-                    var notFullBatch = {nbkBatch: batch.fullNbkBatch, emptyFields: []};
-                    if (!batch.totalWeight.value && !batch.totalVolume.value) {
-                        notFullBatch.emptyFields.push('Total Weight or Volume should be grater then zero');
-                    }
-                    if (!batch.source || !batch.source.name) {
-                        notFullBatch.emptyFields.push('Compound Source is required');
-                    }
-                    if (!batch.sourceDetail || !batch.sourceDetail.name) {
-                        notFullBatch.emptyFields.push('Source Detail is required');
-                    }
-                    if (!batch.stereoisomer || !batch.stereoisomer.name) {
-                        notFullBatch.emptyFields.push('Stereocode is required');
-                    }
-                    if (batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !batch.saltEq) {
-                        notFullBatch.emptyFields.push('Salt EQ is required and must be grater then zero');
-                    }
-                    if (batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments) {
-                        notFullBatch.emptyFields.push('Structure comments is required');
-                    }
-                    if (notFullBatch.emptyFields.length) {
-                        notFullBatches.push(notFullBatch);
-                    }
-                });
-                return notFullBatches;
-            }
-
             var registerBatches = function (excludes) {
                 EntitiesBrowser.saveCurrentEntity().then(function () {
                     var batches = _.filter(getProductBatches(), function (row) {
                         return row.select && !_.contains(excludes, row.fullNbkBatch);
                     });
                     var message = '';
-                    var notFullBatches = getNotFullForRegistrationBatches(batches);
+                    var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
                     if (notFullBatches.length) {
                         _.each(notFullBatches, function (notFullBatch) {
                             message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');

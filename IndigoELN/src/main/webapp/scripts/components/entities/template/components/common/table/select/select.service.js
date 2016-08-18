@@ -2,10 +2,8 @@
  * Created by Stepan_Litvinov on 3/15/2016.
  */
 angular.module('indigoeln')
-    .factory('selectService', function ($uibModal) {
-        var isRegistered = function (row) {
-            return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
-        };
+    .factory('selectService', function ($uibModal, RegistrationUtil) {
+
         var setSelectValueAction = {
             action: function (id) {
                 var that = this;
@@ -19,11 +17,14 @@ angular.module('indigoeln')
                         },
                         values: function () {
                             return that.values;
+                        },
+                        dictionary: function () {
+                            return that.dictionary;
                         }
                     }
                 }).result.then(function (result) {
                     _.each(that.rows, function (row) {
-                        if (!isRegistered(row)) {
+                        if (!RegistrationUtil.isRegistered(row)) {
                             row[id] = result;
                         }
                     });
@@ -42,7 +43,8 @@ angular.module('indigoeln')
                                 name: 'Set value for ' + column.name,
                                 title: column.name,
                                 values: column.values(),
-                                rows: rows
+                                rows: rows,
+                                dictionary: column.dictionary
                             })]);
                     }
                 });
