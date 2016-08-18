@@ -7,7 +7,8 @@
         <div class="form-horizontal">
             <div class="row">
                 <div class="col-xs-12" style="margin-bottom: 0">
-                    <my-select my-items="values" my-model="value"></my-select>
+                    <my-select ng-if="!dictionary" my-items="values" my-model="wrapper.value"></my-select>
+                    <my-select ng-if="dictionary" my-dictionary="{{dictionary}}" my-model="wrapper.value"></my-select>
                 </div>
             </div>
         </div>

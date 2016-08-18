@@ -19,6 +19,9 @@ angular.module('indigoeln')
                         },
                         values: function () {
                             return that.values;
+                        },
+                        dictionary: function () {
+                            return that.dictionary;
                         }
                     }
                 }).result.then(function (result) {
@@ -42,7 +45,8 @@ angular.module('indigoeln')
                                 name: 'Set value for ' + column.name,
                                 title: column.name,
                                 values: column.values(),
-                                rows: rows
+                                rows: rows,
+                                dictionary: column.dictionary
                             })]);
                     }
                 });
