@@ -3,16 +3,15 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser, AlertModal, Alert, AppValues, CalculationService, RegistrationService) {
+        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser,
+                  AlertModal, Alert, AppValues, CalculationService, RegistrationService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
             var liters = AppValues.getLiters();
             var moles = AppValues.getMoles();
-            var compoundValues = AppValues.getCompoundValues();
             var saltCodeValues = AppValues.getSaltCodeValues();
-            var stereoisomerValues = AppValues.getStereoisomerValues();
             var sourceValues = AppValues.getSourceValues();
             var sourceDetailExternal = AppValues.getSourceDetailExternal();
             var sourceDetailInternal = AppValues.getSourceDetailInternal();
@@ -262,8 +261,9 @@ angular.module('indigoeln')
                     id: 'compoundState',
                     name: 'Compound State',
                     type: 'select',
+                    dictionary: 'Compound State',
                     values: function () {
-                        return compoundValues;
+                        return null;
                     }
                 },
                 {
@@ -336,8 +336,9 @@ angular.module('indigoeln')
                 {
                     id: 'stereoisomer', name: 'Stereoisomer',
                     type: 'select',
+                    dictionary: 'Stereoisomer Code',
                     values: function () {
-                        return stereoisomerValues;
+                        return null;
                     },
                     width: '350px'
                 },

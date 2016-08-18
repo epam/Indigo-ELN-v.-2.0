@@ -30,7 +30,7 @@
                   popover-append-to-body="true"
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id]}}</span>
             <span ng-if="myColumn.type == 'select' && !isEmpty(myRow[myColumn.id])"
-                  ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].name}}</span>
+                  ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].description ?  myRow[myColumn.id].name + ' - ' +  myRow[myColumn.id].description : myRow[myColumn.id].name}}</span>
             <span ng-if="myColumn.type == 'unit'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | unit:myRow[myColumn.id].unit | round:myColumn.sigDigits:myColumn:myRow}} {{myRow[myColumn.id].unit}}</span>
             <span ng-if="myColumn.type == 'scalar'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | round:myColumn.sigDigits:myColumn:myRow}}</span>
         </a>
@@ -84,11 +84,17 @@
                       my-parsers="unitParsers" my-formatters="unitFormatters">
             </my-input>
         </div>
-        <div ng-if="myColumn.type == 'select'">
+        <div ng-if="myColumn.type == 'select' && !myColumn.dictionary">
             <my-select my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id,})"
                        my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                        my-model="myRow[myColumn.id]"
                        my-items="myColumn.values(myRow)" my-classes="form-group-sm"></my-select>
+        </div>
+        <div ng-if="myColumn.type == 'select' && myColumn.dictionary">
+            <my-select my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id,})"
+                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
+                       my-model="myRow[myColumn.id]"
+                       my-dictionary="{{myColumn.dictionary}}" my-classes="form-group-sm"></my-select>
         </div>
         <div ng-if="myColumn.type == 'input'">
             <my-input my-model="myRow[myColumn.id]" my-classes="form-group-sm"

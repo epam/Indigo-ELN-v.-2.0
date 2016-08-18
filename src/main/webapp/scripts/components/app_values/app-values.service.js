@@ -8,7 +8,6 @@ angular.module('indigoeln')
         var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
         var rxnRoleReactant = {name: 'REACTANT'};
         var rxnRoleSolvent = {name: 'SOLVENT'};
-        var compoundValues = [{name: 'Solid'}, {name: 'Glass'}, {name: 'Gum'}, {name: 'Mix'}, {name: 'Liquid/Oil'}, {name: 'Solution'}];
         var sourceValues = [{name: 'Internal'}, {name: 'External'}];
         var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
         var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
@@ -27,15 +26,6 @@ angular.module('indigoeln')
             {name: '08 - SULFATE', value: '8', regValue: '08'},
             {name: '09 - PHOSPHATE', value: '9', regValue: '09'},
             {name: '10 - CITRATE', value: '10', regValue: '10'}];
-        var stereoisomerValues = [
-            {name: 'NOSTC - Achiral - No Stereo Centers'},
-            {name: 'AMESO - Achiral - Meso Stereomers'},
-            {name: 'CISTR - Achiral - Cis/Trans Stereomers'},
-            {name: 'SNENK - Single Enantiomer (chirality known)'},
-            {name: 'RMCMX - Racemic (stereochemistry known)'},
-            {name: 'ENENK - Enantio-Enriched (chirality known)'},
-            {name: 'DSTRK - Diastereomers (stereochemistry known)'},
-            {name: 'SNENU - Other - Single Enantiomer (chirality unknown)'}];
         var defaultBatch = {
             limiting: false,
             weight: {value: 0, unit: '', entered: false},
@@ -84,17 +74,11 @@ angular.module('indigoeln')
             getRxnValues: function () {
                 return rxnValues;
             },
-            getCompoundValues: function () {
-                return compoundValues;
-            },
             getDefaultSaltCode: function () {
                 return defaultSaltCode;
             },
             getSaltCodeValues: function () {
                 return saltCodeValues;
-            },
-            getStereoisomerValues: function () {
-                return stereoisomerValues;
             },
             getSourceValues: function () {
                 return sourceValues;
