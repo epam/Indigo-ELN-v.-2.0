@@ -95,8 +95,10 @@ public class SDService {
                 throw new Exception("Compound structure is emtpy. Cannot prepare SD.");
             }
 
-            //TODO:
-//            sDunit.setValue("STEREOISOMER_CODE", "");
+            final BasicDBObject stereoisomer = (BasicDBObject) batch.get("stereoisomer");
+            if (stereoisomer != null) {
+                sDunit.setValue("STEREOISOMER_CODE", stereoisomer.getString("name"));
+            }
 
             return sDunit.toString();
         } catch (Exception e) {

@@ -4,7 +4,7 @@
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
-                  AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil) {
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -696,7 +696,18 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
-            $scope.importBatches = function (sdUnitsToImport, i) {
+        $scope.getWord = function (dicts, dictDescription, wordName) {
+            var dict = _.find(dicts, function (dict) {
+                return dict.description === dictDescription;
+            });
+            if (dict) {
+                return _.find(dict.words, function (word) {
+                    return word.name === wordName;
+                });
+            }
+        };
+
+        $scope.importBatches = function (sdUnitsToImport, dicts, i) {
                 if (!sdUnitsToImport[i]) {
                     return;
                 }
@@ -721,7 +732,7 @@ angular.module('indigoeln')
                         if (sdUnitToImport.properties) {
                             var stereoisomerCode = sdUnitToImport.properties.STEREOISOMER_CODE;
                             if (stereoisomerCode) {
-                                //TODO: set stereoisomer code
+                                batchToImport.stereoisomer = $scope.getWord(dicts, 'Stereoisomer Code', stereoisomerCode);
                             }
                         }
                         requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
@@ -746,7 +757,9 @@ angular.module('indigoeln')
                         }
                     }
                 }).result.then(function (result) {
-                        $scope.importBatches(result, 0);
+                        Dictionary.all({}, function (dicts) {
+                            $scope.importBatches(result, dicts, 0);
+                        });
                 });
             };
 
