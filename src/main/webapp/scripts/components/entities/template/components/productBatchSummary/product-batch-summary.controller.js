@@ -4,7 +4,7 @@
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
-              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary) {
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -764,15 +764,15 @@ angular.module('indigoeln')
             };
 
         $scope.exportSDFile = function () {
-            var selectedBatches = _.chain(getProductBatches()).filter(function (item) {
+            var selectedBatchNumbers = _.chain(getProductBatches()).filter(function (item) {
                 return item.select;
             }).map(function (batch) {
                 return batch.fullNbkBatch;
-            }).reduce(function (memo, num, i) {
-                return memo + (i === 0 ? '' : ',') + num;
-            }, '').value();
-            $window.open('api/sd/export?batches=' + selectedBatches);
-            };
+            }).value();
+            SdService.export({}, selectedBatchNumbers, function (data) {
+                $window.open('api/sd/download?fileName=' + data.fileName);
+            });
+        };
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
                 var resetMolInfo = function () {
