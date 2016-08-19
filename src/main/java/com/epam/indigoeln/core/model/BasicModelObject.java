@@ -49,62 +49,65 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public ZonedDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public ZonedDateTime getLastEditDate() {
-        return lastEditDate;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public User getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public Set<UserPermission> getAccessList() {
-        return accessList;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public ZonedDateTime getCreationDate() {
+        return creationDate;
+    }
+
     public void setCreationDate(ZonedDateTime creationDate) {
         this.creationDate = creationDate;
+    }
+
+    public ZonedDateTime getLastEditDate() {
+        return lastEditDate;
     }
 
     public void setLastEditDate(ZonedDateTime lastEditDate) {
         this.lastEditDate = lastEditDate;
     }
 
+    public User getAuthor() {
+        return author;
+    }
+
     public void setAuthor(User author) {
         this.author = author;
+    }
+
+    public User getLastModifiedBy() {
+        return lastModifiedBy;
     }
 
     public void setLastModifiedBy(User lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    public Set<UserPermission> getAccessList() {
+        return accessList;
+    }
+
     public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = new HashSet<>(accessList);
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 
     @Override
     public boolean equals(Object o) {

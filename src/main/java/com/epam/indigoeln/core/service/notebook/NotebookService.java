@@ -7,10 +7,7 @@ import com.epam.indigoeln.core.model.UserPermission;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.exception.ChildReferenceException;
-import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
-import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
-import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
@@ -20,6 +17,7 @@ import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -177,6 +175,7 @@ public class NotebookService {
         notebookFromDB.setName(notebookDTO.getName());
         notebookFromDB.setDescription(notebookDTO.getDescription());
         notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+        notebookFromDB.setVersion(notebook.getVersion());
         NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
 
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
@@ -233,6 +232,8 @@ public class NotebookService {
             return notebookRepository.save(notebook);
         } catch (DuplicateKeyException e) {
             throw DuplicateFieldException.createWithNotebookName(notebook.getName(), e);
+        } catch (OptimisticLockingFailureException e) {
+            throw ConcurrencyException.createWithNotebookName(notebook.getName(), e);
         }
     }
 }
