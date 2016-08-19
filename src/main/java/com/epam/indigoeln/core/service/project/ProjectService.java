@@ -6,10 +6,7 @@ import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
-import com.epam.indigoeln.core.service.exception.ChildReferenceException;
-import com.epam.indigoeln.core.service.exception.DuplicateFieldException;
-import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
-import com.epam.indigoeln.core.service.exception.OperationDeniedException;
+import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
@@ -19,6 +16,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -131,6 +129,7 @@ public class ProjectService {
         projectFromDb.setKeywords(project.getKeywords());
         projectFromDb.setReferences(project.getReferences());
         projectFromDb.setAccessList(project.getAccessList());
+        projectFromDb.setVersion(project.getVersion());
 
         project = saveProjectAndHandleError(projectFromDb);
         return new ProjectDTO(project);
@@ -182,6 +181,8 @@ public class ProjectService {
             return projectRepository.save(project);
         } catch (DuplicateKeyException e) {
             throw DuplicateFieldException.createWithProjectName(project.getName(), e);
+        } catch (OptimisticLockingFailureException e) {
+            throw ConcurrencyException.createWithProjectName(project.getName(), e);
         }
     }
 }
