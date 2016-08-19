@@ -17,11 +17,9 @@ import java.io.IOException;
 
 public interface SdfileIterator {
 
-    public abstract SdUnit getNext()
-            throws IOException;
+    SdUnit getNext() throws IOException;
 
-    public abstract int getCurrentIndex();
+    int getCurrentIndex();
 
-    public abstract void close()
-            throws IOException;
+    void close() throws IOException;
 }

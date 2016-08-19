@@ -17,6 +17,9 @@ import java.io.*;
 import java.util.*;
 
 public class SdfProcessor {
+
+    private static final String M_END = "M  END";
+
     public static String STRUCT_KEY = "molStructure";
     protected List sduStringList;
     protected List maplist;
@@ -318,7 +321,7 @@ public class SdfProcessor {
         String molArray[] = new String[listSize];
         for (int i = 0; i < listSize; i++) {
             String sduStringList_i = (String) sduStringList.get(i);
-            molArray[i] = sduStringList_i.substring(0, sduStringList_i.indexOf(Mol2000.M_END) + Mol2000.M_END.length());
+            molArray[i] = sduStringList_i.substring(0, sduStringList_i.indexOf(M_END) + M_END.length());
         }
 
         return molArray;

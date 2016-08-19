@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.dictionary;
 
 import com.epam.indigoeln.core.model.*;
+import com.epam.indigoeln.core.model.Dictionary;
 import com.epam.indigoeln.core.repository.dictionary.DictionaryRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
@@ -14,10 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -62,6 +60,10 @@ public class DictionaryService {
 
     public void deleteDictionary(String dictionaryId) {
         dictionaryRepository.delete(dictionaryId);
+    }
+
+    public List<DictionaryDTO> getAllDictionaries() {
+        return dictionaryRepository.findAll().stream().map(DictionaryDTO::new).collect(Collectors.toList());
     }
 
     public Page<DictionaryDTO> getAllDictionaries(Pageable pageable, String search) {

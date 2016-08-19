@@ -50,13 +50,4 @@ public class SdfileIteratorFactory {
         return new IteratorAll(is, allKeysToUpperCase);
     }
 
-	/*
-    public static SdfileIterator getPartialIterator(File input, File temp, int indexes[], boolean allKeysToUpperCase) throws IOException {
-		return new IteratorSome(input, temp, indexes, allKeysToUpperCase);
-	}
-
-	public static IteratorIterator getIteratorIterator(String key, File input, File tempfile, boolean allKeysToUpperCase) throws IOException {
-		return new IteratorIterator(key, input, tempfile, allKeysToUpperCase);
-	}
-	*/
 }

@@ -227,7 +227,7 @@ public class SdUnit implements Serializable, Externalizable {
 
     public void setValue(String key, String value) {
         if (valid)
-            if (value == null || value.trim().equals("")) {
+            if (value == null || "".equals(value.trim())) {
                 removeKey(key);
                 infoPortion.remove(key.toUpperCase());
             } else {
@@ -280,12 +280,16 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public void setMol(String mol) {
-        if (mol.indexOf("M  END") > 0)
-            mol = mol.substring(0, mol.indexOf("M  END") + "M  END".length())
+        String mol1;
+        if (mol.contains("M  END")) {
+            mol1 = mol.substring(0, mol.indexOf("M  END") + "M  END".length())
                     + "\n";
-        String tmp = validateDetail(mol);
+        } else {
+            mol1 = mol;
+        }
+        String tmp = validateDetail(mol1);
         if (tmp.startsWith("OK")) {
-            if (tmp.indexOf("3D") > 0)
+            if (tmp.contains("3D"))
                 is3D = true;
             String num = tmp.substring(tmp.lastIndexOf(" ") + 1).trim();
             try {
@@ -295,7 +299,7 @@ public class SdUnit implements Serializable, Externalizable {
             }
             tmp = "OK";
         }
-        if (!tmp.equals("OK"))
+        if (!"OK".equals(tmp))
             if (validString.startsWith("OK"))
                 validString = tmp;
             else
@@ -316,8 +320,8 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public String[] getKeys() {
-        Object o[] = keyList.toArray();
-        String out[] = new String[o.length];
+        Object[] o = keyList.toArray();
+        String[] out = new String[o.length];
         for (int x = 0; x <= o.length - 1; x++)
             out[x] = (String) o[x];
 
@@ -325,7 +329,7 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     public String getUnit() {
-        String keys[] = getKeys();
+        String[] keys = getKeys();
         StringBuilder out = new StringBuilder();
         for (int x = 0; x <= keys.length - 1; x++) {
             String value = getValue(keys[x]);
@@ -336,8 +340,9 @@ public class SdUnit implements Serializable, Externalizable {
             out.append("\n\n");
         }
 
-        if (keys.length == 0)
+        if (keys.length == 0) {
             out.append("\n");
+        }
         out.append("$$$$\n");
         out.insert(0, molPortion);
         return out.toString();
@@ -363,19 +368,19 @@ public class SdUnit implements Serializable, Externalizable {
                 thisName = thisName.toUpperCase();
                 attrPortion = attrPortion.substring(attrPortion.indexOf("\n"))
                         .trim();
-                if (attrPortion.indexOf(">") > 0)
+                if (attrPortion.contains(">"))
                     thisValue = attrPortion.substring(0,
                             attrPortion.indexOf("\n>")).trim();
                 else if (attrPortion.trim().indexOf(">") == 0
-                        && attrPortion.indexOf("<") > 0)
+                        && attrPortion.contains("<"))
                     thisValue = "";
                 else
                     thisValue = attrPortion.substring(0,
                             attrPortion.indexOf("$$$$")).trim();
-                if (!thisValue.trim().equals(""))
+                if (!"".equals(thisValue.trim())) {
                     if (out.containsKey(thisName)) {
                         String tmp = out.get(thisName);
-                        if (tmp != null && !tmp.equals("")) {
+                        if (tmp != null && !"".equals(tmp)) {
                             out.put(thisName, tmp + "\n" + thisValue);
                         } else {
                             out.put(thisName, thisValue);
@@ -385,19 +390,20 @@ public class SdUnit implements Serializable, Externalizable {
                         out.put(thisName, thisValue);
                         origNames.add(thisOrigName);
                     }
+                }
                 if (attrPortion.indexOf(">  <") != 0
                         && attrPortion.indexOf("> <") != 0
-                        && attrPortion.indexOf("\n>") > 0)
+                        && attrPortion.contains("\n>"))
                     attrPortion = attrPortion.substring(attrPortion
                             .indexOf("\n>") + 1);
             } while (true);
         } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Error parsing sdFile attributes");
+            throw new IllegalArgumentException("Error parsing sdFile attributes", e);
         }
         return out;
     }
 
+    @Override
     public String toString() {
         return getUnit();
     }

@@ -14,17 +14,14 @@
 package com.chemistry.enotebook.utils.sdf;
 
 import java.io.*;
-import java.util.ArrayList;
 
-class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
+class IteratorAll implements SdfileIterator {
+
+    private static final String M_END = "M  END";
 
     BufferedReader buffer;
     int index;
     boolean toUpper;
-
-    IteratorAll(File f) throws FileNotFoundException {
-        this(f, false);
-    }
 
     IteratorAll(File f, boolean allKeysToUpperCase)
             throws FileNotFoundException {
@@ -36,10 +33,6 @@ class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
         init(fis);
     }
 
-    IteratorAll(String filename) throws FileNotFoundException {
-        this(filename, false);
-    }
-
     IteratorAll(String filename, boolean allKeysToUpperCase)
             throws FileNotFoundException {
         buffer = null;
@@ -48,10 +41,6 @@ class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
         toUpper = allKeysToUpperCase;
         FileInputStream fis = new FileInputStream(filename);
         init(fis);
-    }
-
-    IteratorAll(InputStream is) {
-        this(is, false);
     }
 
     IteratorAll(InputStream is, boolean allKeysToUpperCase) {
@@ -69,10 +58,12 @@ class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
         init(r);
     }
 
+    @Override
     public void close() throws IOException {
         buffer.close();
     }
 
+    @Override
     public int getCurrentIndex() {
         return index;
     }
@@ -86,23 +77,23 @@ class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
         buffer = new BufferedReader(r);
     }
 
+    @Override
     public SdUnit getNext() throws IOException {
-        String line = "";
-        StringBuffer out = new StringBuffer();
+        String line;
+        String out = "";
         boolean hasMEND = false;
         int lineCount = 0;
         while ((line = buffer.readLine()) != null) {
             lineCount++;
-            out.append(line);
-            out.append("\n");
-            if (line.trim().equals("M  END"))
+            out += line + "\n";
+            if (M_END.equals(line.trim()))
                 hasMEND = true;
             if (lineCount > 4000 && !hasMEND)
                 throw new IOException(
                         "\"M  END\" was never encountered and the maximum length of a mol file was reached");
-            if (line.trim().equals("$$$$")) {
+            if ("$$$$".equals(line.trim())) {
                 index++;
-                return new SdUnit(out.toString(), toUpper, false);
+                return new SdUnit(out, toUpper, false);
             }
         }
         if (hasMEND) {
@@ -114,30 +105,4 @@ class IteratorAll implements SdfileIterator {//, StreamBasedIterator {
         }
     }
 
-    public SdUnit getNthNext(int n) throws IOException {
-        if (n <= 0)
-            n = 1;
-        SdUnit current = null;
-        for (; n > 0; n--)
-            current = getNext();
-
-        return current;
-    }
-
-    public SdUnit[] getNNext(int n) throws IOException {
-        if (n < 0)
-            n = 0;
-        ArrayList al = new ArrayList();
-        for (; n > 0; n--) {
-            SdUnit current = getNext();
-            if (current != null)
-                al.add(current);
-        }
-
-        SdUnit result[] = new SdUnit[al.size()];
-        for (int x = 0; x <= result.length - 1; x++)
-            result[x] = (SdUnit) al.get(x);
-
-        return result;
-    }
 }
