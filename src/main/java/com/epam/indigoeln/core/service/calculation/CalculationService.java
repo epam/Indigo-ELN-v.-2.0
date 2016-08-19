@@ -152,7 +152,7 @@ public class CalculationService {
         }
 
         //add products to the structure
-        for (String product : reactionDTO.getReactants()) {
+        for (String product : reactionDTO.getProducts()) {
             handle.addProduct(indigo.loadMolecule(product));
         }
 
