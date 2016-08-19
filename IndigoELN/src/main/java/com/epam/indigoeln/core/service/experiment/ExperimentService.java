@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.service.exception.ConcurrencyException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
@@ -19,6 +20,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.google.common.util.concurrent.Striped;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -265,10 +267,17 @@ public class ExperimentService {
             experimentFromDB.setWitness(experimentForSave.getWitness());
             experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
             experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
+            experimentFromDB.setVersion(experimentForSave.getVersion());
 
             experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
 
-            result = new ExperimentDTO(experimentRepository.save(experimentFromDB));
+            Experiment savedExperiment;
+            try {
+                savedExperiment = experimentRepository.save(experimentFromDB);
+            } catch (OptimisticLockingFailureException e) {
+                throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
+            }
+            result = new ExperimentDTO(savedExperiment);
 
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));

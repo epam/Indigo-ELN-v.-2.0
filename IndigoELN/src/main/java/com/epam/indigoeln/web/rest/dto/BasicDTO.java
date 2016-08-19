@@ -29,6 +29,8 @@ public abstract class BasicDTO {
 
     private ZonedDateTime creationDate;
 
+    private Long version;
+
     public BasicDTO() {
     }
 
@@ -44,6 +46,7 @@ public abstract class BasicDTO {
         if (modelObject.getAccessList() != null) {
             this.accessList.addAll(modelObject.getAccessList().stream().map(UserPermissionDTO::new).collect(Collectors.toList()));
         }
+        this.version = modelObject.getVersion();
     }
 
     public String getId() {
@@ -62,8 +65,16 @@ public abstract class BasicDTO {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Set<UserPermissionDTO> getAccessList() {
         return accessList;
+    }
+
+    public void setAccessList(Set<UserPermissionDTO> accessList) {
+        this.accessList = accessList;
     }
 
     public UserDTO getAuthor() {
@@ -82,12 +93,12 @@ public abstract class BasicDTO {
         return creationDate;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public Long getVersion() {
+        return version;
     }
 
-    public void setAccessList(Set<UserPermissionDTO> accessList) {
-        this.accessList = accessList;
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override
