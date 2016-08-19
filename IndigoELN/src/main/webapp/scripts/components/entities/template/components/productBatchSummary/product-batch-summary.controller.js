@@ -3,8 +3,8 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser,
-                  AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil) {
+    function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -623,7 +623,7 @@ angular.module('indigoeln')
                             addProductBatch(batch);
                             $log.debug(batch);
                             $scope.onRowSelected(batch);
-                            deferred.resolve();
+                            deferred.resolve(batch);
                         });
 
                     });
@@ -696,16 +696,83 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
+        $scope.getWord = function (dicts, dictDescription, wordName) {
+            var dict = _.find(dicts, function (dict) {
+                return dict.description === dictDescription;
+            });
+            if (dict) {
+                return _.find(dict.words, function (word) {
+                    return word.name === wordName;
+                });
+            }
+        };
+
+        $scope.importBatches = function (sdUnitsToImport, dicts, i) {
+                if (!sdUnitsToImport[i]) {
+                    return;
+                }
+                var sdUnitToImport = sdUnitsToImport[i];
+                $http({
+                    url: 'api/bingodb/molecule/',
+                    method: 'POST',
+                    data: sdUnitToImport.mol
+                }).success(function (structureId) {
+                    $http({
+                        url: 'api/renderer/molecule/image',
+                        method: 'POST',
+                        data: sdUnitToImport.mol
+                    }).success(function (result) {
+                        var batchToImport = {};
+                        batchToImport.structure = batchToImport.structure || {};
+                        batchToImport.structure.image = result.image;
+                        batchToImport.structure.structureType = 'molecule';
+                        batchToImport.structure.molfile = sdUnitToImport.mol;
+                        batchToImport.structure.structureId = structureId;
+
+                        if (sdUnitToImport.properties) {
+                            var stereoisomerCode = sdUnitToImport.properties.STEREOISOMER_CODE;
+                            if (stereoisomerCode) {
+                                batchToImport.stereoisomer = $scope.getWord(dicts, 'Stereoisomer Code', stereoisomerCode);
+                            }
+                        }
+                        requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
+                            $rootScope.$broadcast('product-batch-structure-changed', batch);
+                            $scope.importBatches(sdUnitsToImport, i + 1);
+                        });
+                    });
+                }).error(function () {
+                    console.info('Cannot save the structure.');
+                });
+            };
+
             $scope.importSDFile = function () {
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
                     templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
-                    controller: 'SingleFileUploaderController'
+                    controller: 'SingleFileUploaderController',
+                    resolve: {
+                        url: function () {
+                            return '/api/sd/import';
+                        }
+                    }
                 }).result.then(function (result) {
-                    $log.debug(result);
+                        Dictionary.all({}, function (dicts) {
+                            $scope.importBatches(result, dicts, 0);
+                        });
                 });
             };
+
+        $scope.exportSDFile = function () {
+            var selectedBatchNumbers = _.chain(getProductBatches()).filter(function (item) {
+                return item.select;
+            }).map(function (batch) {
+                return batch.fullNbkBatch;
+            }).value();
+            SdService.export({}, selectedBatchNumbers, function (data) {
+                $window.open('api/sd/download?fileName=' + data.fileName);
+            });
+        };
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
                 var resetMolInfo = function () {

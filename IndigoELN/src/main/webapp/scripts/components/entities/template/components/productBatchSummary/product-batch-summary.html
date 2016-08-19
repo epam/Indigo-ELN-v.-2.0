@@ -46,6 +46,10 @@
                 <button type="button" class="btn btn-info" ng-click="importSDFile()" ng-disabled="myReadonly">Import SD
                     File
                 </button>
+                <button type="button" class="btn btn-info" ng-click="exportSDFile()"
+                        ng-disabled="myReadonly || !isHasCheckedRows()">Create SD
+                    File
+                </button>
                 <button type="button" class="btn btn-info" ng-show="isHasRegService"
                         ng-click="registerBatches()">Register Batch(es)
                 </button>
