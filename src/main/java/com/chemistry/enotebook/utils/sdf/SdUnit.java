@@ -32,6 +32,10 @@ public class SdUnit implements Serializable, Externalizable {
     private boolean valid;
     private String validString;
 
+    public SdUnit(String molecule, boolean molFilePortionOnly) {
+        this(molecule, true, molFilePortionOnly);
+    }
+
     public SdUnit(String molecule, boolean allKeysToUpperCase,
                   boolean molFilePortionOnly) {
         molPortion = "";
