@@ -503,11 +503,13 @@ angular.module('indigoeln')
                                 templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                                 resolve: {
                                     reactants: function () {
-                                        return _.each(batchesToSearch, function (item) {
+                                        return batchesToSearch;
+                                        // Uncomment this after resolving https://jirapct.epam.com/jira/browse/EPMLSOPELN-279 JVM crash because of Indigo.loadMolecule
+                                        /*return _.each(batchesToSearch, function (item) {
                                             CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
                                                 item.structure.image = image;
                                             });
-                                        });
+                                         });*/
                                     }
                                 }
                             });
