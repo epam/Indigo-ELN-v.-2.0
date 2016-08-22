@@ -206,6 +206,8 @@ angular.module('indigoeln')
                             entity.version = result.version;
                             entity.$$form.$setPristine();
                             deferred.resolve();
+                        }, function () {
+                            deferred.reject();
                         });
                 });
                 return promise;
@@ -222,6 +224,8 @@ angular.module('indigoeln')
                             entity.version = result.version;
                             entity.$$form.$setPristine();
                             deferred.resolve();
+                        }, function () {
+                            deferred.reject();
                         });
                 });
                 return promise;
