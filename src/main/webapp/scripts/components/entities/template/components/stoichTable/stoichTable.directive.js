@@ -503,7 +503,11 @@ angular.module('indigoeln')
                                 templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                                 resolve: {
                                     reactants: function () {
-                                        return _.pluck(batchesToSearch, 'formula');
+                                        return _.each(batchesToSearch, function (item) {
+                                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
+                                                item.structure.image = image;
+                                            });
+                                        });
                                     }
                                 }
                             });
