@@ -202,7 +202,8 @@ angular.module('indigoeln')
                 var promise = deferred.promise;
                 tabs[userId][fullId].then(function (entity) {
                     kindConf[that.getKind(params)].service.update(params, entity).$promise
-                        .then(function () {
+                        .then(function (result) {
+                            entity.version = result.version;
                             entity.$$form.$setPristine();
                             deferred.resolve();
                         });
@@ -217,7 +218,8 @@ angular.module('indigoeln')
                 var params = this.expandIds(fullId);
                 tabs[userId][fullId].then(function (entity) {
                     kindConf[that.getKind(params)].service.update(params, entity).$promise
-                        .then(function () {
+                        .then(function (result) {
+                            entity.version = result.version;
                             entity.$$form.$setPristine();
                             deferred.resolve();
                         });
