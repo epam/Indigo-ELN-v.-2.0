@@ -348,23 +348,21 @@ angular.module('indigoeln')
                     $log.info('please save me to localStorage'); //please write 'restore' logic in the 'loadEntity' method tnx;
                 }
             },
-            trackEntityChanges(form, $scope){
+            trackEntityChanges(form, $scope, entity){
                 var that = this;
                 var kind = that.getKind($state.params);
-                that.getCurrentEntity($state.params).then(function (entity) {
+                if (entity.$$form && entity.$$form.$dirty) {
+                    form.$setDirty();
+                }
+                entity.$$form = form;
+                var onChange = _.debounce(function (entity) {
                     if (entity.$$form && entity.$$form.$dirty) {
-                        form.$setDirty();
+                        that.onEntityChanged(entity);
                     }
-                    entity.$$form = form;
-                    var onChange = _.debounce(function (entity) {
-                        if (entity.$$form && entity.$$form.$dirty) {
-                            that.onEntityChanged(entity);
-                        }
-                    }, 300);
-                    var unbind = $scope.$watch(kind, onChange, true);
-                    $scope.$on('$destroy', function () {
-                        unbind();
-                    });
+                }, 300);
+                var unbind = $scope.$watch(kind, onChange, true);
+                $scope.$on('$destroy', function () {
+                    unbind();
                 });
             }
         };

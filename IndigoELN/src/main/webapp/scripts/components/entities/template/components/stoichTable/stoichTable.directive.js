@@ -485,6 +485,14 @@ angular.module('indigoeln')
                     });
                 };
 
+                $scope.noReactantsInStoic = function () {
+                    var REACTANT = AppValues.getRxnRoleReactant().name;
+                    var rxnRoleReactant = _.filter(getStoicReactants(), function (batch) {
+                        return batch.rxnRole.name === REACTANT && batch.structure.molfile;
+                    });
+                    return rxnRoleReactant.length === 0;
+                };
+
                 $scope.analyzeRxn = function () {
                     getMissingReactionReactantsInStoic(function (batchesToSearch) {
                         if (batchesToSearch.length) {
@@ -502,6 +510,24 @@ angular.module('indigoeln')
                         } else {
                             AlertModal.info('Stoichiometry is synchronized', 'sm');
                         }
+                    });
+                };
+
+                $scope.createRxn = function () {
+                    var REACTANT = AppValues.getRxnRoleReactant().name;
+                    var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function (batch) {
+                        return batch.rxnRole.name === REACTANT && batch.structure.molfile;
+                    }));
+                    var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function (batch) {
+                        return batch.structure.molfile;
+                    }));
+                    CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles).then(function (result) {
+                        CalculationService.getImageForStructure(result.data.structure, 'reaction', function (image) {
+                            $rootScope.$broadcast('new-reaction-scheme', {
+                                image: image,
+                                molfile: result.data.structure
+                            });
+                        });
                     });
                 };
 

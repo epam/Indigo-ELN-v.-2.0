@@ -38,7 +38,12 @@ angular.module('indigoeln')
                 }
             });
         }
-
+        if (type === 'reaction') {
+            $scope.$on('new-reaction-scheme', function (event, data) {
+                $scope.model[type].image = data.image;
+                $scope.model[type].structureMolfile = data.molfile;
+            });
+        }
         // HTTP POST to save new structure into Bingo DB and get its id
         var saveNewStructure = function (structure, type) {
             $http({

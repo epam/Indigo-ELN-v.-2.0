@@ -20,7 +20,9 @@
                         ng-disabled="myReadonly || !model.stoichTable.products"
                         class="btn btn-info ellipsis">Analyze Rxn
                 </button>
-                <button type="button" class="btn btn-info ellipsis" disabled>Create Rxn</button>
+                <button type="button" class="btn btn-info ellipsis" ng-click="createRxn()"
+                        ng-disabled="myReadonly || noReactantsInStoic()">Create Rxn
+                </button>
             </div>
             <div class="btn-group btn-group-sm" role="group">
                 <button type="button" class="btn btn-info ellipsis"
