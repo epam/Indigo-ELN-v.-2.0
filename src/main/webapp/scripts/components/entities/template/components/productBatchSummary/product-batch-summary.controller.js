@@ -753,7 +753,7 @@ angular.module('indigoeln')
                     controller: 'SingleFileUploaderController',
                     resolve: {
                         url: function () {
-                            return '/api/sd/import';
+                            return 'api/sd/import';
                         }
                     }
                 }).result.then(function (result) {
