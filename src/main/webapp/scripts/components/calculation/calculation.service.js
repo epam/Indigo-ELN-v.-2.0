@@ -201,7 +201,7 @@ angular.module('indigoeln')
                 reactants: reactants,
                 products: products
             };
-            return $http.put('/api/calculations/reaction/combine', requestData);
+            return $http.put('api/calculations/reaction/combine', requestData);
         };
 
         return {
