@@ -9,7 +9,7 @@
             <div class="col-xs-12">
                 <div>
                     <label>Reactants: </label>
-                    <span ng-repeat="reactant in model.reactants track by $index">{{reactant}}<span
+                    <span ng-repeat="reactant in model.reactants track by $index">{{reactant.formula}}<span
                             ng-if="!$last">, </span></span>
                 </div>
             </div>
@@ -37,6 +37,11 @@
                     ng-click="addToStoichTable(searchResult)"
                     ng-disabled="!model.selectedReactants.length">
                 <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
+            </button>
+            <button class="col-xs-2 btn btn-info btn-sm search-button"
+                    type="button"
+                    ng-click="updateStoicAndExit(searchResult)">
+                <span></span> Update Stoich and Exit
             </button>
         </div>
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
