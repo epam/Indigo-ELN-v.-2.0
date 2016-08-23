@@ -5,20 +5,50 @@ angular.module('indigoeln')
         $scope.roles = pageInfo.roles;
         $scope.accountRoles = pageInfo.accountRoles;
         $scope.authorities = [
-            {name: 'USER_EDITOR', description: 'User editor', tooltip: 'Write some tooltip'},
-            {name: 'ROLE_EDITOR', description: 'Role editor', tooltip: 'Write some tooltip'},
-            {name: 'CONTENT_EDITOR', description: 'Content editor', tooltip: 'Write some tooltip'},
-            {name: 'TEMPLATE_EDITOR', description: 'Template editor', tooltip: 'Write some tooltip'},
-            {name: 'DICTIONARY_EDITOR', description: 'Dictionary editor', tooltip: 'Write some tooltip'},
-            {name: 'PROJECT_READER', description: 'Project reader', tooltip: 'This is required minimal authority for each Role, which cannot be removed', readonly: true, checked: true},
-            {name: 'PROJECT_CREATOR', description: 'Project creator', tooltip: 'Write some tooltip'},
-            {name: 'PROJECT_REMOVER', description: 'Project remover', tooltip: 'Write some tooltip'},
-            {name: 'NOTEBOOK_READER', description: 'Notebook reader', tooltip: 'Write some tooltip'},
-            {name: 'NOTEBOOK_CREATOR', description: 'Notebook creator', tooltip: 'Write some tooltip'},
-            {name: 'NOTEBOOK_REMOVER', description: 'Notebook remover', tooltip: 'Write some tooltip'},
-            {name: 'EXPERIMENT_READER', description: 'Experiment reader', tooltip: 'Write some tooltip'},
-            {name: 'EXPERIMENT_CREATOR', description: 'Experiment creator', tooltip: 'Write some tooltip'},
-            {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Write some tooltip'}
+            {
+                name: 'USER_EDITOR',
+                description: 'User editor',
+                tooltip: 'Allow to read / create / update / remove users'
+            },
+            {
+                name: 'ROLE_EDITOR',
+                description: 'Role editor',
+                tooltip: 'Allow to read / create / update / remove roles'
+            },
+            {
+                name: 'CONTENT_EDITOR',
+                description: 'Content editor',
+                tooltip: 'Allow to read / create / update / remove entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity'
+            },
+            {
+                name: 'TEMPLATE_EDITOR',
+                description: 'Template editor',
+                tooltip: 'Allow to read / create / update / remove template'
+            },
+            {
+                name: 'DICTIONARY_EDITOR',
+                description: 'Dictionary editor',
+                tooltip: 'Allow to read / create / update / remove dictionary'
+            },
+            {
+                name: 'PROJECT_READER',
+                description: 'Project reader',
+                tooltip: 'Allow to read Project. This is required minimal authority for each Role, which cannot be removed',
+                readonly: true,
+                checked: true
+            },
+            {name: 'PROJECT_CREATOR', description: 'Project creator', tooltip: 'Allow to create / update Project'},
+            {name: 'PROJECT_REMOVER', description: 'Project remover', tooltip: 'Allow to remove Project'},
+            {name: 'NOTEBOOK_READER', description: 'Notebook reader', tooltip: 'Allow to read Notebook'},
+            {name: 'NOTEBOOK_CREATOR', description: 'Notebook creator', tooltip: 'Allow to create / update Notebook'},
+            {name: 'NOTEBOOK_REMOVER', description: 'Notebook remover', tooltip: 'Allow to remove Notebook'},
+            {name: 'EXPERIMENT_READER', description: 'Experiment reader', tooltip: 'Allow to read Experiment'},
+            {
+                name: 'EXPERIMENT_CREATOR',
+                description: 'Experiment creator',
+                tooltip: 'Allow to create / update Experiment'
+            },
+            {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Allow to remove Experiment'}
         ];
 
         function initAuthorities(role) {
@@ -77,7 +107,7 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.updateAuthoritySelection = function ($event, authority) {
+        $scope.updateAuthoritySelection = function (authority) {
             var action = (authority.checked ? 'add' : 'remove');
             updateAuthorities(action, authority);
         };

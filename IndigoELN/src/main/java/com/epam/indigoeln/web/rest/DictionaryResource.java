@@ -82,6 +82,16 @@ public class DictionaryResource {
     }
 
     /**
+     * GET /dictionaries -> get all dictionaries
+     */
+    @ApiOperation(value = "Returns all dictionaries.", produces = "application/json")
+    @RequestMapping(value = "/all", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<DictionaryDTO>> getDictionaries() {
+        LOGGER.debug("REST request to get all dictionaries");
+        return new ResponseEntity<>(dictionaryService.getAllDictionaries(), HttpStatus.OK);
+    }
+
+    /**
      * GET /dictionaries/:id -> get dictionary by id
      */
     @ApiOperation(value = "Returns dictionary by it's id.", produces = "application/json")

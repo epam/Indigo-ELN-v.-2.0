@@ -7,7 +7,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $timeout(function () {
-                EntitiesBrowser.trackEntityChanges($scope.createNotebookForm, $scope);
+                EntitiesBrowser.trackEntityChanges($scope.createNotebookForm, $scope, pageInfo.notebook);
             }, 0, false);
             $scope.notebook = pageInfo.notebook;
             $scope.newNotebook = _.isUndefined($scope.notebook.id) || _.isNull($scope.notebook.id);

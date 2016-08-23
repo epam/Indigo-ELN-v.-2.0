@@ -1,24 +1,5 @@
 <changeFiles>
     <file path="init.xml"/>
     <file path="init_dictionaries.xml"/>
-    <!--<file path="dropdb.xml"/>
-    <file path="authorities.xml"/>
-    <file path="users.xml"/>
-    <file path="authorities_for_entity_operations.xml"/>
-    <file path="new_role_authority_schema.xml"/>
-    <file path="index_improvements.xml"/>
-    <file path="sequences.xml"/>
-    <file path="sequence_improvements.xml"/>
-    <file path="remove_entities_for_creation_date.xml"/>
-    <file path="index_improvements_2.xml"/>
-    <file path="sequence_improvements_2_cleanup.xml"/>
-    <file path="project_name_unique_index.xml"/>
-    <file path="entities_title_cleanup_database.xml"/>
-    <file path="experiment_status.xml"/>
-    <file path="dictionaries.xml"/>
-    <file path="dictionaries_1.xml"/>
-    <file path="dictionaries_2.xml"/>
-    <file path="file_temporary.xml"/>
-    <file path="dictionaries_3.xml"/>
-    <file path="experiment_status.xml"/>-->
+    <file path="init_dictionaries_2.xml"/>
 </changeFiles>
