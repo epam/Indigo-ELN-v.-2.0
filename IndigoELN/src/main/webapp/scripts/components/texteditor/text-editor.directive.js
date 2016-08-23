@@ -27,7 +27,7 @@ angular.module('indigoeln')
                 var unbinds = [];
                 var isInit = false;
                 unbinds.push(scope.$watch('myModel', function (value) {
-                    if (typeof value !== 'undefined' && value !== newContent) {
+                    if (value && value !== newContent) {
                         editor.setValue(value);
                     }
                     if (isInit) {
