@@ -18,7 +18,11 @@ angular.module('indigoeln')
             $scope.page = page;
             $scope.loadAll();
         };
-        $scope.loadAll();
+        $scope.$watch('entityid', function (entityid) {
+            if (entityid) {
+                $scope.loadAll();
+            }
+        });
         $scope.upload = function () {
             $uibModal.open({
                 animation: true,
