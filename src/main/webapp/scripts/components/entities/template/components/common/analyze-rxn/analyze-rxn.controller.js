@@ -8,11 +8,16 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         $scope.model.databases = SearchService.getCatalogues();
 
         $scope.tabs = _.map($scope.model.reactants, function (reactant) {
-            return {formula: reactant, searchResult: [], selectedReactant: null};
+            return {formula: reactant.formula, searchResult: [], selectedReactant: null};
         });
 
         $scope.addToStoichTable = function () {
             $rootScope.$broadcast('stoich-rows-changed', $scope.model.selectedReactants);
+        };
+
+        $scope.updateStoicAndExit = function () {
+            $rootScope.$broadcast('stoich-rows-changed', $scope.model.reactants);
+            $uibModalInstance.close({});
         };
 
         var prepareDatabases = function () {

@@ -2,7 +2,7 @@ angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
             $timeout(function () {
-                EntitiesBrowser.trackEntityChanges($scope.experimentForm, $scope);
+                EntitiesBrowser.trackEntityChanges($scope.experimentForm, $scope, pageInfo.experiment);
             }, 0, false);
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.

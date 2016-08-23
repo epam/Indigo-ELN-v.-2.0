@@ -3,16 +3,15 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-        function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, InfoEditor, EntitiesBrowser, AlertModal, AppValues, CalculationService, RegistrationService) {
+    function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService) {
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
             var liters = AppValues.getLiters();
             var moles = AppValues.getMoles();
-            var compoundValues = AppValues.getCompoundValues();
             var saltCodeValues = AppValues.getSaltCodeValues();
-            var stereoisomerValues = AppValues.getStereoisomerValues();
             var sourceValues = AppValues.getSourceValues();
             var sourceDetailExternal = AppValues.getSourceDetailExternal();
             var sourceDetailInternal = AppValues.getSourceDetailInternal();
@@ -60,8 +59,10 @@ angular.module('indigoeln')
                         }
                     }).result.then(function (result) {
                         _.each(getProductBatches(), function (row) {
-                            row.source = result.source;
-                            row.sourceDetail = result.sourceDetail;
+                            if (!RegistrationUtil.isRegistered(row)) {
+                                row.source = result.source;
+                                row.sourceDetail = result.sourceDetail;
+                            }
                         });
                     }, function () {
 
@@ -110,7 +111,9 @@ angular.module('indigoeln')
             function editMeltingPointForAllRows(rows) {
                 InfoEditor.editMeltingPoint({}, function (result) {
                     _.each(rows, function (row) {
-                        row.meltingPoint = angular.copy(result);
+                        if (!RegistrationUtil.isRegistered(row)) {
+                            row.meltingPoint = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -124,7 +127,9 @@ angular.module('indigoeln')
             function editPurityForAllRows(rows) {
                 InfoEditor.editPurity({}, function (result) {
                     _.each(rows, function (row) {
-                        row.purity = angular.copy(result);
+                        if (!RegistrationUtil.isRegistered(row)) {
+                            row.purity = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -138,7 +143,9 @@ angular.module('indigoeln')
             function editExternalSupplierForAllRows(rows) {
                 InfoEditor.editExternalSupplier({}, function (result) {
                     _.each(rows, function (row) {
-                        row.externalSupplier = angular.copy(result);
+                        if (!RegistrationUtil.isRegistered(row)) {
+                            row.externalSupplier = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -152,7 +159,9 @@ angular.module('indigoeln')
             function editHealthHazardsForAllRows(rows) {
                 InfoEditor.editHealthHazards({}, function (result) {
                     _.each(rows, function (row) {
-                        row.healthHazards = angular.copy(result);
+                        if (!RegistrationUtil.isRegistered(row)) {
+                            row.healthHazards = angular.copy(result);
+                        }
                     });
                 });
             }
@@ -248,8 +257,9 @@ angular.module('indigoeln')
                     id: 'compoundState',
                     name: 'Compound State',
                     type: 'select',
+                    dictionary: 'Compound State',
                     values: function () {
-                        return compoundValues;
+                        return null;
                     }
                 },
                 {
@@ -322,8 +332,9 @@ angular.module('indigoeln')
                 {
                     id: 'stereoisomer', name: 'Stereoisomer',
                     type: 'select',
+                    dictionary: 'Stereoisomer Code',
                     values: function () {
-                        return stereoisomerValues;
+                        return null;
                     },
                     width: '350px'
                 },
@@ -437,7 +448,7 @@ angular.module('indigoeln')
             $scope.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
 
             $scope.isEditable = function (row, columnId) {
-                var rowResult = !(row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS');
+                var rowResult = !(RegistrationUtil.isRegistered(row));
                 if (rowResult) {
                     if (columnId === 'precursors') {
                         if ($scope.share.stoichTable) {
@@ -478,7 +489,7 @@ angular.module('indigoeln')
                 return _.chain(getProductBatches()).filter(function (item) {
                     return item.select;
                 }).filter(function (item) {
-                    return item.registrationStatus === 'PASSED' || item.registrationStatus === 'IN_PROGRESS';
+                    return RegistrationUtil.isRegistered(item);
                 }).map(function (item) {
                     return item.fullNbkBatch;
                 }).value();
@@ -516,39 +527,39 @@ angular.module('indigoeln')
             });
 
             var registerBatches = function (excludes) {
-                var batches = _.filter(getProductBatches(), function (row) {
-                    return row.select && !_.contains(excludes, row.fullNbkBatch);
-                });
-                var emptyFields = [];
-                _.each($scope.columns, function (column) {
-                    if (column.type && !column.readonly && column.name !== 'Select') {
-                        _.each(batches, function (row) {
-                            var val = row[column.id];
-                            if (!val) {
-                                emptyFields.push(column.name);
-                            }
+                EntitiesBrowser.saveCurrentEntity().then(function () {
+                    var batches = _.filter(getProductBatches(), function (row) {
+                        return row.select && !_.contains(excludes, row.fullNbkBatch);
+                    });
+                    var message = '';
+                    var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
+                    if (notFullBatches.length) {
+                        _.each(notFullBatches, function (notFullBatch) {
+                            message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
                         });
+                        AlertModal.error(message);
+                    } else {
+                        var batchNumbers = _.map(batches, function (batch) {
+                            return batch.fullNbkBatch;
+                        });
+                        if (batchNumbers.length) {
+                            Alert.success('Selected Batches successfully sent to Registration');
+                            RegistrationService.register({}, batchNumbers);
+                        } else {
+                            Alert.warning('No Batches was selected for Registration');
+                        }
                     }
                 });
-                if (emptyFields.length) {
-                    AlertModal.error('This fields are required: ' + _.uniq(emptyFields).join(', '));
-                } else {
-                    var batchNumbers = _.map(batches, function (batch) {
-                        return batch.fullNbkBatch;
-                    });
-                    RegistrationService.register({}, batchNumbers);
-                }
             };
             $scope.registerBatches = function () {
                 var nonEditableBatches = getSelectedNonEditableBatches();
                 if (nonEditableBatches && nonEditableBatches.length > 0) {
-                    AlertModal.info('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
+                    AlertModal.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.', null, function () {
                         registerBatches(nonEditableBatches);
                     });
                 } else {
                     registerBatches([]);
                 }
-
             };
             $rootScope.$on('batch-registration-status-changed', function (event, statuses) {
                 _.each(statuses, function (status, fullNbkBatch) {
@@ -616,7 +627,7 @@ angular.module('indigoeln')
                             addProductBatch(batch);
                             $log.debug(batch);
                             $scope.onRowSelected(batch);
-                            deferred.resolve();
+                            deferred.resolve(batch);
                         });
 
                     });
@@ -689,16 +700,83 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
+        $scope.getWord = function (dicts, dictDescription, wordName) {
+            var dict = _.find(dicts, function (dict) {
+                return dict.description === dictDescription;
+            });
+            if (dict) {
+                return _.find(dict.words, function (word) {
+                    return word.name === wordName;
+                });
+            }
+        };
+
+        $scope.importBatches = function (sdUnitsToImport, dicts, i) {
+                if (!sdUnitsToImport[i]) {
+                    return;
+                }
+                var sdUnitToImport = sdUnitsToImport[i];
+                $http({
+                    url: 'api/bingodb/molecule/',
+                    method: 'POST',
+                    data: sdUnitToImport.mol
+                }).success(function (structureId) {
+                    $http({
+                        url: 'api/renderer/molecule/image',
+                        method: 'POST',
+                        data: sdUnitToImport.mol
+                    }).success(function (result) {
+                        var batchToImport = {};
+                        batchToImport.structure = batchToImport.structure || {};
+                        batchToImport.structure.image = result.image;
+                        batchToImport.structure.structureType = 'molecule';
+                        batchToImport.structure.molfile = sdUnitToImport.mol;
+                        batchToImport.structure.structureId = structureId;
+
+                        if (sdUnitToImport.properties) {
+                            var stereoisomerCode = sdUnitToImport.properties.STEREOISOMER_CODE;
+                            if (stereoisomerCode) {
+                                batchToImport.stereoisomer = $scope.getWord(dicts, 'Stereoisomer Code', stereoisomerCode);
+                            }
+                        }
+                        requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
+                            $rootScope.$broadcast('product-batch-structure-changed', batch);
+                            $scope.importBatches(sdUnitsToImport, dicts, i + 1);
+                        });
+                    });
+                }).error(function () {
+                    console.info('Cannot save the structure.');
+                });
+            };
+
             $scope.importSDFile = function () {
                 $uibModal.open({
                     animation: true,
                     size: 'lg',
                     templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
-                    controller: 'SingleFileUploaderController'
+                    controller: 'SingleFileUploaderController',
+                    resolve: {
+                        url: function () {
+                            return 'api/sd/import';
+                        }
+                    }
                 }).result.then(function (result) {
-                    $log.debug(result);
+                        Dictionary.all({}, function (dicts) {
+                            $scope.importBatches(result, dicts, 0);
+                        });
                 });
             };
+
+        $scope.exportSDFile = function () {
+            var selectedBatchNumbers = _.chain(getProductBatches()).filter(function (item) {
+                return item.select;
+            }).map(function (batch) {
+                return batch.fullNbkBatch;
+            }).value();
+            SdService.export({}, selectedBatchNumbers, function (data) {
+                $window.open('api/sd/download?fileName=' + data.fileName);
+            });
+        };
 
             var onProductBatchStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
                 var resetMolInfo = function () {

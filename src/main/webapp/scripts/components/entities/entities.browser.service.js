@@ -175,14 +175,9 @@ angular.module('indigoeln')
                     return $q.all(_.values(tabs[userId]));
                 });
             },
-            getCurrentEntity: function (params) {
-                params = extractParams(params);
-                var that = this;
-                return resolvePrincipal(function () {
-                    var userId = getUserId();
-                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
-                    return tabs[userId][that.compactIds(params)];
-                });
+            goToTab: function (fullId) {
+                var params = this.expandIds(fullId);
+                kindConf[this.getKind(params)].go(params);
             },
             getIdByVal: function (entity) {
                 return resolvePrincipal(function () {
@@ -192,9 +187,33 @@ angular.module('indigoeln')
                     })[0];
                 });
             },
-            goToTab: function (fullId) {
-                var params = this.expandIds(fullId);
-                kindConf[this.getKind(params)].go(params);
+            getCurrentEntity: function (params) {
+                params = extractParams(params);
+                var that = this;
+                return resolvePrincipal(function () {
+                    var userId = getUserId();
+                    tabs[userId][that.compactIds(params)] = that.resolveFromCache(params);
+                    return tabs[userId][that.compactIds(params)];
+                });
+            },
+            saveCurrentEntity: function () {
+                var that = this;
+                var params = extractParams($state.params);
+                var fullId = that.compactIds(params);
+                var userId = getUserId();
+                var deferred = $q.defer();
+                var promise = deferred.promise;
+                tabs[userId][fullId].then(function (entity) {
+                    kindConf[that.getKind(params)].service.update(params, entity).$promise
+                        .then(function (result) {
+                            entity.version = result.version;
+                            entity.$$form.$setPristine();
+                            deferred.resolve();
+                        }, function () {
+                            deferred.reject();
+                        });
+                });
+                return promise;
             },
             saveEntity: function (fullId) {
                 var that = this;
@@ -204,9 +223,12 @@ angular.module('indigoeln')
                 var params = this.expandIds(fullId);
                 tabs[userId][fullId].then(function (entity) {
                     kindConf[that.getKind(params)].service.update(params, entity).$promise
-                        .then(function () {
+                        .then(function (result) {
+                            entity.version = result.version;
                             entity.$$form.$setPristine();
                             deferred.resolve();
+                        }, function () {
+                            deferred.reject();
                         });
                 });
                 return promise;
@@ -353,12 +375,16 @@ angular.module('indigoeln')
             onEntityChanged: function (entity) {
                 AutosaveService.save({id: entity.fullId}, angular.toJson(entity));
             },
-            trackEntityChanges: function (form, $scope) {
+            trackEntityChanges: function(form, $scope, entity){
                 var that = this;
                 var kind = that.getKind($state.params);
-                that.getCurrentEntity($state.params).then(function (entity) {
+                if (entity.$$form && entity.$$form.$dirty) {
+                    form.$setDirty();
+                }
+                entity.$$form = form;
+                var onChange = _.debounce(function (entity) {
                     if (entity.$$form && entity.$$form.$dirty) {
-                        form.$setDirty();
+                        that.onEntityChanged(entity);
                     }
                     entity.$$form = form;
                     var onChange = _.debounce(function (entity) {

@@ -55,6 +55,8 @@ angular.module('indigoeln')
                 var populateFetchedBatch = function (row, source) {
                     _.extend(row, source);
                     row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
+                    row.weight = null;
+                    row.volume = null;
                     CalculationService.recalculateStoich(initDataForCalculation());
                 };
 
@@ -96,7 +98,7 @@ angular.module('indigoeln')
                         id: 'compoundId',
                         name: 'Compound ID',
                         type: 'input',
-                        hasPopover: true,
+                        hasStructurePopover: true,
                         onClose: function (data) {
                             var row = data.row;
                             var compoundId = data.model;
@@ -117,7 +119,7 @@ angular.module('indigoeln')
                         id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
                         type: 'input',
-                        hasPopover: true,
+                        hasStructurePopover: true,
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
@@ -145,8 +147,7 @@ angular.module('indigoeln')
                         id: 'mol',
                         name: 'Mol',
                         type: 'unit',
-                        unitItems: moles,
-                        sigDigits: 2
+                        unitItems: moles
                     },
                     {
                         id: 'eq',
@@ -225,7 +226,7 @@ angular.module('indigoeln')
                 ];
                 $scope.productsColumns = [
                     {
-                        id: 'chemicalName', name: 'Chemical Name'
+                        id: 'chemicalName', name: 'Chemical Name', type: 'input', hasStructurePopover: true
                     },
                     {
                         id: 'formula', name: 'Formula'
@@ -355,10 +356,14 @@ angular.module('indigoeln')
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
-                function moleculeInfoResponseCallback(results) {
-                    return _.map(results, function (result) {
+                function getDefaultChemicalName(index) {
+                    return 'P' + index;
+                }
+
+                function moleculeInfoResponseCallback(results, isIntended) {
+                    return _.map(results, function (result, index) {
                         var batch = AppValues.getDefaultBatch();
-                        batch.chemicalName = result.data.name;
+                        batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.data.name;
                         batch.formula = result.data.molecularFormula;
                         batch.molWeight = result.data.molecularWeight;
                         batch.exactMass = result.data.exactMolecularWeight;
@@ -387,7 +392,7 @@ angular.module('indigoeln')
                             var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
-                                setIntendedProducts(moleculeInfoResponseCallback(results));
+                                setIntendedProducts(moleculeInfoResponseCallback(results, true));
                                 // getStructureImagesForIntendedProducts();
                                 CalculationService.recalculateStoich(initDataForCalculation());
                             });
@@ -486,6 +491,14 @@ angular.module('indigoeln')
                     });
                 };
 
+                $scope.noReactantsInStoic = function () {
+                    var REACTANT = AppValues.getRxnRoleReactant().name;
+                    var rxnRoleReactant = _.filter(getStoicReactants(), function (batch) {
+                        return batch.rxnRole.name === REACTANT && batch.structure && batch.structure.molfile;
+                    });
+                    return rxnRoleReactant.length === 0;
+                };
+
                 $scope.analyzeRxn = function () {
                     getMissingReactionReactantsInStoic(function (batchesToSearch) {
                         if (batchesToSearch.length) {
@@ -496,13 +509,41 @@ angular.module('indigoeln')
                                 templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                                 resolve: {
                                     reactants: function () {
-                                        return _.pluck(batchesToSearch, 'formula');
+                                        return _.map(batchesToSearch, function (batch) {
+                                            return angular.copy(batch);
+                                        });
+                                        // Uncomment this after resolving https://jirapct.epam.com/jira/browse/EPMLSOPELN-279 JVM crash because of Indigo.loadMolecule
+                                        /*return _.map(batchesToSearch, function (batch) {
+                                         var batchCopy = angular.copy(batch);
+                                         CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function (image) {
+                                         batchCopy.structure.image = image;
+                                            });
+                                         return batchCopy;
+                                         });*/
                                     }
                                 }
                             });
                         } else {
                             AlertModal.info('Stoichiometry is synchronized', 'sm');
                         }
+                    });
+                };
+
+                $scope.createRxn = function () {
+                    var REACTANT = AppValues.getRxnRoleReactant().name;
+                    var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function (batch) {
+                        return batch.rxnRole.name === REACTANT && batch.structure.molfile;
+                    }));
+                    var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function (batch) {
+                        return batch.structure.molfile;
+                    }));
+                    CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles).then(function (result) {
+                        CalculationService.getImageForStructure(result.data.structure, 'reaction', function (image) {
+                            $rootScope.$broadcast('new-reaction-scheme', {
+                                image: image,
+                                molfile: result.data.structure
+                            });
+                        });
                     });
                 };
 

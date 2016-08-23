@@ -196,6 +196,14 @@ angular.module('indigoeln')
             return formulaPart + saltEqPart + descriptionPart;
         };
 
+        var combineReactionComponents = function (reactants, products) {
+            var requestData = {
+                reactants: reactants,
+                products: products
+            };
+            return $http.put('api/calculations/reaction/combine', requestData);
+        };
+
         return {
             createBatch: createBatch,
             getMoleculeInfo: getMoleculeInfo,
@@ -203,6 +211,7 @@ angular.module('indigoeln')
             getSaltFormula: getSaltFormula,
             setEntered: setEntered,
             isMoleculesEqual: isMoleculesEqual,
+            combineReactionComponents: combineReactionComponents,
             resetValuesToDefault: resetValuesToDefault,
             setValuesReadonly: setValuesReadonly,
             setValuesEditable: setValuesEditable,
