@@ -98,7 +98,7 @@ angular.module('indigoeln')
                         id: 'compoundId',
                         name: 'Compound ID',
                         type: 'input',
-                        hasPopover: true,
+                        hasStructurePopover: true,
                         onClose: function (data) {
                             var row = data.row;
                             var compoundId = data.model;
@@ -119,7 +119,7 @@ angular.module('indigoeln')
                         id: 'fullNbkBatch',
                         name: 'Nbk Batch #',
                         type: 'input',
-                        hasPopover: true,
+                        hasStructurePopover: true,
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
@@ -226,7 +226,7 @@ angular.module('indigoeln')
                 ];
                 $scope.productsColumns = [
                     {
-                        id: 'chemicalName', name: 'Chemical Name'
+                        id: 'chemicalName', name: 'Chemical Name', type: 'input', hasStructurePopover: true
                     },
                     {
                         id: 'formula', name: 'Formula'
@@ -356,10 +356,14 @@ angular.module('indigoeln')
                     CalculationService.recalculateSalt(reagent, callback);
                 };
 
-                function moleculeInfoResponseCallback(results) {
-                    return _.map(results, function (result) {
+                function getDefaultChemicalName(index) {
+                    return 'P' + index;
+                }
+
+                function moleculeInfoResponseCallback(results, isIntended) {
+                    return _.map(results, function (result, index) {
                         var batch = AppValues.getDefaultBatch();
-                        batch.chemicalName = result.data.name;
+                        batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.data.name;
                         batch.formula = result.data.molecularFormula;
                         batch.molWeight = result.data.molecularWeight;
                         batch.exactMass = result.data.exactMolecularWeight;
@@ -388,7 +392,7 @@ angular.module('indigoeln')
                             var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
-                                setIntendedProducts(moleculeInfoResponseCallback(results));
+                                setIntendedProducts(moleculeInfoResponseCallback(results, true));
                                 // getStructureImagesForIntendedProducts();
                                 CalculationService.recalculateStoich(initDataForCalculation());
                             });

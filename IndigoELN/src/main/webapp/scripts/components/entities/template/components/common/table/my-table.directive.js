@@ -45,7 +45,7 @@ angular.module('indigoeln')
 					isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
 				}, true));
 			}
-			if ($scope.myColumn.hasPopover) {
+            if ($scope.myColumn.hasStructurePopover) {
 				unbinds.push($scope.$watch(function () {
 					return $scope.myRow[$scope.myColumn.id];
 				}, function () {
