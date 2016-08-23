@@ -332,6 +332,7 @@ angular.module('indigoeln')
                     if (entity.fullId) {
                         AlertModal.autorecover('Auto-Recover file(s) found for ' + entity.name + '. Do you want to recover from this files?', null, function () {
                             AutosaveService.delete({id: fullId}, function () {
+                                entity.$$form = {$dirty: true};
                                 deferred.resolve(entity);
                             });
                         }, function () {
@@ -386,16 +387,10 @@ angular.module('indigoeln')
                     if (entity.$$form && entity.$$form.$dirty) {
                         that.onEntityChanged(entity);
                     }
-                    entity.$$form = form;
-                    var onChange = _.debounce(function (entity) {
-                        if (entity.$$form && entity.$$form.$dirty) {
-                            that.onEntityChanged(entity);
-                        }
-                    }, delay);
-                    var unbind = $scope.$watch(kind, onChange, true);
-                    $scope.$on('$destroy', function () {
-                        unbind();
-                    });
+                }, delay);
+                var unbind = $scope.$watch(kind, onChange, true);
+                $scope.$on('$destroy', function () {
+                    unbind();
                 });
             }
         };
