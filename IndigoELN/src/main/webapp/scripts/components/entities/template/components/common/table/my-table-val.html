@@ -20,9 +20,9 @@
         ></a>
         <a ng-if="!isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
            ng-click="toggleEditable()">
-            <span ng-if="myColumn.type == 'input' && !myColumn.hasPopover"
+            <span ng-if="myColumn.type == 'input' && !myColumn.hasStructurePopover"
                   ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id]}}</span>
-            <span ng-if="myColumn.type == 'input' && myColumn.hasPopover"
+            <span ng-if="myColumn.type == 'input' && myColumn.hasStructurePopover"
                   uib-popover-html="popoverTemplate"
                   popover-title="{{popoverTitle}}"
                   popover-trigger="mouseenter"
