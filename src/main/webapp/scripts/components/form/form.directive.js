@@ -224,7 +224,7 @@ angular.module('indigoeln')
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
         '<checkbox id="{{myName}}" class="btn-info my-checkbox"></checkbox> ' +
-        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="myModel = !myModel; myChangeAsync();">{{myLabel}}</label>' +
+        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="!myDisabled ? myModel = !myModel : return; myChangeAsync();">{{myLabel}}</label>' +
         '</div> ' +
         '</div> '
     };
