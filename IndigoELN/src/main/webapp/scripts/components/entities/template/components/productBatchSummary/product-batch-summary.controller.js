@@ -741,7 +741,7 @@ angular.module('indigoeln')
                         }
                         requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
                             $rootScope.$broadcast('product-batch-structure-changed', batch);
-                            $scope.importBatches(sdUnitsToImport, i + 1);
+                            $scope.importBatches(sdUnitsToImport, dicts, i + 1);
                         });
                     });
                 }).error(function () {
