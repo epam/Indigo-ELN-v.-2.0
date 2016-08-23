@@ -542,8 +542,12 @@ angular.module('indigoeln')
                         var batchNumbers = _.map(batches, function (batch) {
                             return batch.fullNbkBatch;
                         });
-                        Alert.success('Selected Batches successfully sent to Registration');
-                        RegistrationService.register({}, batchNumbers);
+                        if (batchNumbers.length) {
+                            Alert.success('Selected Batches successfully sent to Registration');
+                            RegistrationService.register({}, batchNumbers);
+                        } else {
+                            Alert.warning('No Batches was selected for Registration');
+                        }
                     }
                 });
             };

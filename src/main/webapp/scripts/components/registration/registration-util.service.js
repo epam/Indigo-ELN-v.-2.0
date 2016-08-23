@@ -26,7 +26,7 @@ angular.module('indigoeln')
                 if (!batch.stereoisomer || !batch.stereoisomer.name) {
                     notFullBatch.emptyFields.push('Stereocode is required');
                 }
-                if (batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !batch.saltEq) {
+                if (batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !(batch.saltEq && batch.saltEq.value)) {
                     notFullBatch.emptyFields.push('Salt EQ is required and must be grater then zero');
                 }
                 if (batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments) {
