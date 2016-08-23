@@ -107,7 +107,7 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.updateAuthoritySelection = function ($event, authority) {
+        $scope.updateAuthoritySelection = function (authority) {
             var action = (authority.checked ? 'add' : 'remove');
             updateAuthorities(action, authority);
         };
