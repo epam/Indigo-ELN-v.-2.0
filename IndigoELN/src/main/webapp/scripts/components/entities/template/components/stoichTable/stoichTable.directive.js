@@ -55,6 +55,8 @@ angular.module('indigoeln')
                 var populateFetchedBatch = function (row, source) {
                     _.extend(row, source);
                     row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
+                    row.weight = null;
+                    row.volume = null;
                     CalculationService.recalculateStoich(initDataForCalculation());
                 };
 
@@ -488,7 +490,7 @@ angular.module('indigoeln')
                 $scope.noReactantsInStoic = function () {
                     var REACTANT = AppValues.getRxnRoleReactant().name;
                     var rxnRoleReactant = _.filter(getStoicReactants(), function (batch) {
-                        return batch.rxnRole.name === REACTANT && batch.structure.molfile;
+                        return batch.rxnRole.name === REACTANT && batch.structure && batch.structure.molfile;
                     });
                     return rxnRoleReactant.length === 0;
                 };
