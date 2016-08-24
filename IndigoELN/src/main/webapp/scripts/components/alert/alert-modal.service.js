@@ -6,7 +6,7 @@ angular.module('indigoeln')
                 template: '<div class="modal-header">' +
                 '<h5 class="modal-title">' + title + '</h5>' +
                     '</div>' +
-                    '<div class="modal-body">' +
+                '<div class="modal-body long-content-popup">' +
                     '<p>' + message + '</p>' +
                     '</div>' +
                     '<div class="modal-footer text-right">' +
