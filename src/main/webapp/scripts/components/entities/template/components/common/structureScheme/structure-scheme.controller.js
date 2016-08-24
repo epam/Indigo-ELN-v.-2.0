@@ -58,16 +58,13 @@ angular.module('indigoeln')
                 }).success(function (result) {
                     $scope.model[type].image = result.image;
                     $scope.share = $scope.share || {};
-                    if ($scope.share.selectedRow) {
+                    if ($scope.share.selectedRow && type === 'molecule') {
                         $scope.share.selectedRow.structure = $scope.share.selectedRow.structure || {};
                         $scope.share.selectedRow.structure.image = result.image;
                         $scope.share.selectedRow.structure.structureType = type;
                         $scope.share.selectedRow.structure.molfile = structure;
                         $scope.share.selectedRow.structure.structureId = structureId;
-
-                        if (type === 'molecule' && result.image) {
-                            $rootScope.$broadcast('product-batch-structure-changed', $scope.share.selectedRow);
-                        }
+                        $rootScope.$broadcast('product-batch-structure-changed', $scope.share.selectedRow);
                     } else {
                         $scope.model[type].image = result.image;
                         // case of search by molecule
