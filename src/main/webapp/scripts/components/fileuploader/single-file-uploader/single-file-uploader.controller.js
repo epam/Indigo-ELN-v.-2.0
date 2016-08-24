@@ -17,6 +17,9 @@ angular.module('indigoeln')
         uploader.onAfterAddingFile = function (fileItem) {
             fileItem.upload();
         };
+        uploader.onErrorItem = function () {
+            $uibModalInstance.dismiss();
+        };
         uploader.onSuccessItem = function (fileItem, response) {
             $uibModalInstance.close(response);
         };
