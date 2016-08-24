@@ -764,7 +764,9 @@ angular.module('indigoeln')
                         Dictionary.all({}, function (dicts) {
                             $scope.importBatches(result, dicts, 0);
                         });
-                });
+                    }, function () {
+                        AlertModal.error('This file cannot be imported. Error occurred.');
+                    });
             };
 
         $scope.exportSDFile = function () {
