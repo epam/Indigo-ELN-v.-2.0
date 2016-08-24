@@ -88,7 +88,7 @@ angular.module('indigoeln')
 			myDraggableColumns: '='
 
 		},
-		controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, Principal) {
+        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, Principal) {
 			var that = this;
 
 			function getColumnsProps(myColumns) {
@@ -195,6 +195,7 @@ angular.module('indigoeln')
 
 			unitService.processColumns($scope.myColumns, $scope.myRows);
 			selectService.processColumns($scope.myColumns, $scope.myRows);
+            inputService.processColumns($scope.myColumns, $scope.myRows);
 			$scope.pagination = {
 				page: 1,
 				pageSize: 10

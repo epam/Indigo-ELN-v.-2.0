@@ -423,7 +423,7 @@ angular.module('indigoeln')
                 },
                 {
                     id: 'structureComments', name: 'Structure Comments',
-                    type: 'input'
+                    type: 'input', bulkAssignment: true
                 },
                 {
                     id: 'registrationDate', name: 'Registration Date', format: function (val) {
