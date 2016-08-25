@@ -210,6 +210,7 @@ angular.module('indigoeln')
             getImageForStructure: getImageForStructure,
             getSaltFormula: getSaltFormula,
             setEntered: setEntered,
+            findLimiting: findLimiting,
             isMoleculesEqual: isMoleculesEqual,
             combineReactionComponents: combineReactionComponents,
             resetValuesToDefault: resetValuesToDefault,

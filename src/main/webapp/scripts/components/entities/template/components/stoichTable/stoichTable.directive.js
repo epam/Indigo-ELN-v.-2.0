@@ -8,7 +8,7 @@ angular.module('indigoeln')
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
             controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal,
-                                  CalculationService, SearchService, DialogService) {
+                                  CalculationService, SearchService, DialogService, StoichTableCache) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -251,6 +251,7 @@ angular.module('indigoeln')
                         name: 'Theo. Moles',
                         type: 'unit',
                         unitItems: moles,
+                        isIntended: true,
                         readonly: true
                     },
                     {
@@ -425,6 +426,7 @@ angular.module('indigoeln')
                         }
                     });
                     $scope.share.stoichTable = stoichTable;
+                    StoichTableCache.setStoicTable(stoichTable);
                 }, true));
 
                 $scope.$on('$destroy', function () {
