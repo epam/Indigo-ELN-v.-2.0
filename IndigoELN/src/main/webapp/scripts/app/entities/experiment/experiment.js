@@ -168,9 +168,9 @@ angular.module('indigoeln')
                     {id: 'OWNER', name: 'OWNER (read and update experiment)'}
                 ]
             }))
-            .state('entities.experiment-detail.preview-print', {
-                parent: 'entities.experiment-detail',
-                url: '/preview-print',
+            .state('experiment-print', {
+                parent: 'entity',
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/experiment-print',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
                     pageTitle: 'indigoeln'

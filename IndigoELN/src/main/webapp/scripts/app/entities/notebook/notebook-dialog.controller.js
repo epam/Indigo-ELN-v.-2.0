@@ -1,11 +1,12 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, pageInfo, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, ExperimentUtil, pageInfo, EntitiesBrowser, $timeout) {
 
             var identity = pageInfo.identity;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+            $scope.experiments = pageInfo.experiments;
             $timeout(function () {
                 EntitiesBrowser.trackEntityChanges($scope.createNotebookForm, $scope, pageInfo.notebook);
             }, 0, false);
@@ -42,6 +43,10 @@ angular.module('indigoeln')
                 if ($scope.isEditAllowed) {
                     form.$show();
                 }
+            };
+
+            $scope.repeatExperiment = function (experiment, params) {
+                ExperimentUtil.repeatExperiment(experiment, params);
             };
 
             var onSaveSuccess = function (result) {
