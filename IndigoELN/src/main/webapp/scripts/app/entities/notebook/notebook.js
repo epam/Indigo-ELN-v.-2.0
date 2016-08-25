@@ -19,17 +19,13 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln'
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal, NotebookSummaryExperiments) {
+                    pageInfo: function ($q, $stateParams, Principal) {
                         var deferred = $q.defer();
                         $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-                            NotebookSummaryExperiments.query({
-                                notebookId: $stateParams.notebookId,
-                                projectId: $stateParams.projectId
-                            }).$promise
+                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function(results){
                             deferred.resolve({
                                 notebook: {},
@@ -37,7 +33,7 @@ angular.module('indigoeln')
                                 isContentEditor: results[1],
                                 hasEditAuthority: results[2],
                                 hasCreateChildAuthority: results[3],
-                                experiments: results[4],
+                                experiments: {},
                                 projectId: $stateParams.projectId
                             });
                         });
