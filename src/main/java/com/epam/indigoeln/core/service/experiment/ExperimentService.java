@@ -65,6 +65,11 @@ public class ExperimentService {
         return experiments.stream().map(ExperimentTreeNodeDTO::new).sorted(TreeNodeDTO.NAME_COMPARATOR).collect(Collectors.toList());
     }
 
+    public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
+        return experiments.stream().map(ExperimentDTO::new).collect(Collectors.toList());
+    }
+
     /**
      * If user is null, then retrieve experiments without checking for UserPermissions
      * Otherwise, use checking for UserPermissions

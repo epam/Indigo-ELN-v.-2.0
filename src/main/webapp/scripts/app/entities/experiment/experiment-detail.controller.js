@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $state, Experiment, PermissionManagement, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
             $timeout(function () {
                 EntitiesBrowser.trackEntityChanges($scope.experimentForm, $scope, pageInfo.experiment);
             }, 0, false);
@@ -11,8 +11,9 @@ angular.module('indigoeln')
             $scope.experiment = pageInfo.experiment;
             $scope.notebook = pageInfo.notebook;
             var experimentId = pageInfo.experimentId;
-            var notebookId = pageInfo.notebookId;
             var projectId = pageInfo.projectId;
+            var notebookId = pageInfo.notebookId;
+            var params = {projectId: projectId, notebookId: notebookId, experimentId: experimentId};
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
 
@@ -61,123 +62,28 @@ angular.module('indigoeln')
                 unsubscribe();
             });
 
-            var onChangeStatusSuccess = function (result, status) {
-                var statuses = {};
-                statuses[result.fullId] = status;
-                $rootScope.$broadcast('experiment-status-changed', statuses);
-            };
-
-            var openCompleteConfirmationModal = function () {
-                return $uibModal.open({
-                    animation: true,
-                    templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
-                    resolve: {
-                        fullExperimentName: function () {
-                            var fullName = $scope.notebook.name + '-' + $scope.experiment.name;
-                            if ($scope.experiment.experimentVersion > 1 || !$scope.experiment.lastVersion) {
-                                fullName += ' v' + $scope.experiment.experimentVersion;
-                            }
-                            return fullName;
-                        }
-                    },
-                    controller: function ($scope, $uibModalInstance, fullExperimentName) {
-                        $scope.fullExperimentName = fullExperimentName;
-                        $scope.dismiss = function () {
-                            $uibModalInstance.dismiss('cancel');
-                        };
-                        $scope.confirmCompletion = function () {
-                            $uibModalInstance.close(true);
-                        };
-                    }
-                });
-            };
-
             $scope.completeExperiment = function () {
-                openCompleteConfirmationModal().result.then(function () {
-                    $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
-                    var experimentForSave = _.extend({}, $scope.experiment, {status: 'Completed'});
-                    $scope.loading = Experiment.update({
-                        projectId: projectId,
-                        notebookId: notebookId
-                    }, experimentForSave, function(result) {
-                        onChangeStatusSuccess(result, 'Completed');
-                    }).$promise;
-                });
+                $scope.loading = ExperimentUtil.completeExperiment($scope.experiment, params, $scope.notebook.name);
             };
 
             $scope.completeExperimentAndSign = function () {
-                openCompleteConfirmationModal().result.then(function () {
-                    // show PDF preview
-                    $state.go('experiment-preview-submit', {
-                        experimentId: experimentId,
-                        notebookId: notebookId,
-                        projectId: projectId
-                        });
-                });
+                ExperimentUtil.completeExperimentAndSign($scope.experiment, params, $scope.notebook.name);
             };
 
             $scope.reopenExperiment = function () {
-                $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
-                var experimentForSave = _.extend({}, $scope.experiment, {status: 'Open'});
-                $scope.loading = Experiment.update({
-                    projectId: projectId,
-                    notebookId: notebookId
-                }, experimentForSave, function(result) {
-                    onChangeStatusSuccess(result, 'Open');
-                }).$promise;
+                $scope.loading = ExperimentUtil.reopenExperiment($scope.experiment, params);
             };
 
             $scope.repeatExperiment = function () {
-                $scope.experiment.accessList = PermissionManagement.expandPermission($scope.experiment.accessList);
-                var experimentForSave = {
-                    accessList: $scope.experiment.accessList,
-                    components: $scope.experiment.components,
-                    name: $scope.experiment.name,
-                    status: 'Open',
-                    template: $scope.experiment.template
-                };
-                var productBatchSummary = experimentForSave.components.productBatchSummary;
-                if (productBatchSummary) {
-                    productBatchSummary.batches = [];
-                }
-                $scope.loading = Experiment.save({
-                    projectId: projectId,
-                    notebookId: notebookId
-                }, experimentForSave, function (result) {
-                    $state.go('entities.experiment-detail', {
-                        experimentId: result.id,
-                        notebookId: notebookId,
-                        projectId: projectId
-                    });
-                    $rootScope.$broadcast('experiment-created', {
-                        projectId: projectId,
-                        notebookId: notebookId,
-                        id: result.id
-                    });
-                }).$promise;
+                $scope.loading = ExperimentUtil.repeatExperiment($scope.experiment, params);
             };
 
             $scope.versionExperiment = function () {
-                $scope.loading = Experiment.version({
-                    projectId: projectId,
-                    notebookId: notebookId
-                }, $scope.experiment.name, function (result) {
-                    $state.go('entities.experiment-detail', {
-                        experimentId: result.id,
-                        notebookId: notebookId,
-                        projectId: projectId
-                    });
-                    $rootScope.$broadcast('experiment-created', {
-                        projectId: projectId,
-                        notebookId: notebookId,
-                        id: result.id
-                    });
-                    $rootScope.$broadcast('experiment-version-created', {
-                        projectId: projectId,
-                        notebookId: notebookId,
-                        name: result.name
-                    });
-                }).$promise;
+                $scope.loading = ExperimentUtil.versionExperiment($scope.experiment, params);
+            };
+
+            $scope.printExperiment = function () {
+                ExperimentUtil.printExperiment(params);
             };
 
             $scope.isStatusOpen = function () {

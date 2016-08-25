@@ -61,6 +61,45 @@
                                     my-readonly="!isEditAllowed"></my-text-editor>
                 </div>
             </div>
+            <div class="panel panel-default" style="margin:8px;">
+                <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
+                <table class="main-table table table-striped table-condensed">
+                    <thead class="main-table__header">
+                    <tr class="table-list">
+                        <th style="width:15%" class="table-list__item table-list__item_header">Notebook - Experiment
+                        </th>
+                        <th style="width:35%" class="table-list__item table-list__item_header">Experiment Details</th>
+                        <th style="width:35%" class="table-list__item table-list__item_header">Reaction Scheme</th>
+                        <th style="width:15%" class="table-list__item table-list__item_header">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="main-table__body">
+                    <tr class="table-list" ng-repeat="exp in experiments track by $index">
+                        <!--<td class="table-list__item">-->
+                        <!--<a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>-->
+                        <!--</td>-->
+                        <td class="table-list__item">{{notebook.name + '-' + exp.name}}</td>
+                        <td class="table-list__item">
+                            <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
+                            <p>Subject/Title: {{exp.reactionDetails.title || exp.conceptDetails.title}}</p>
+                            <p>Author: {{exp.author.firstName + ' ' + exp.author.lastName}}</p>
+                            <p>Experiment Status: {{exp.status}}</p>
+                        </td>
+                        <td class="table-list__item">
+                            <img style="padding: 10px; background-color: white; "
+                                 class="img-responsive center-block"
+                                 ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
+                                 alt="Image is unavailable.">
+                        </td>
+                        <td class="table-list__item">
+                            <a ui-sref="entities.experiment-detail({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">OPEN</a><span>, </span>
+                            <a ui-sref="experiment-print({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">PRINT</a><span>, </span>
+                            <a ng-click="repeatExperiment(exp, {projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">REPEAT</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </form>
     </div>
     <div class="panel-footer text-right">

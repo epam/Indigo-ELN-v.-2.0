@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +75,27 @@ public class ExperimentResource {
             List<TreeNodeDTO> result = experimentService.getAllExperimentTreeNodes(projectId, notebookId, user);
             return ResponseEntity.ok(result);
         }
+    }
+
+    /**
+     * GET  /notebooks/:notebookId/experiments -> Returns all experiments, which author is current User<br/> ?????????
+     * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
+     * for tree representation according to his User permissions
+     */
+    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.", produces = "application/json")
+    @RequestMapping(value = "/notebook-summary", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity getAllExperimentsForNotebookSummary(
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+    ) {
+        User user = userService.getUserWithAuthorities();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("REST request to get all experiments of notebook: {} " +
+                    "according to user permissions", notebookId);
+        }
+        List<ExperimentDTO> result = experimentService.getAllExperimentNotebookSummary(projectId, notebookId, user);
+        return ResponseEntity.ok(result);
     }
 
     /**
