@@ -1,5 +1,7 @@
 angular.module('indigoeln')
-    .filter('round', function () {
+    .filter('round', function (StoichTableCache, CalculationService) {
+        var DEFAULT_SIG_DIGITS = 3;
+
         function getNumberSignificantFigures(digits) {
             var sigFigNumber = getSigFigsFromNumberString(digits.toString());
             return sigFigNumber.length;
@@ -45,12 +47,15 @@ angular.module('indigoeln')
             return rounded.toFixed(Math.max(sigDigits - numDigits, 0));
         }
 
-
         function getSigDigitsForMol(column, row) {
-            var sigDigitsForMol;
-            var weightOrVolume = row.weight || row.volume;
+            var sigDigitsForMol = DEFAULT_SIG_DIGITS;
+            var sourceBatch = row;
             // round for mol depends on entered weight/volume precision
-            if (column.id === 'mol' && weightOrVolume && weightOrVolume.value && weightOrVolume.entered) {
+            if (column.id === 'mol' && column.isIntended) {
+                sourceBatch = CalculationService.findLimiting(StoichTableCache.getStoicTable());
+            }
+            var weightOrVolume = angular.copy(sourceBatch.weight || sourceBatch.volume);
+            if (weightOrVolume && weightOrVolume.value && weightOrVolume.entered) {
                 sigDigitsForMol = getNumberSignificantFigures(weightOrVolume.value);
             }
             return sigDigitsForMol;
@@ -66,6 +71,6 @@ angular.module('indigoeln')
             if (isEntered || !value) {
                 return value;
             }
-            return +toStringWithSignificantDigits(+value, significantDigits || 3);
+            return +toStringWithSignificantDigits(+value, significantDigits || DEFAULT_SIG_DIGITS);
         };
     });
