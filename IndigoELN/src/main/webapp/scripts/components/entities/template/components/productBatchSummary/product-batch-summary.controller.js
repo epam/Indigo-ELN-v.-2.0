@@ -278,6 +278,7 @@ angular.module('indigoeln')
                     id: 'saltEq',
                     name: 'Salt EQ',
                     type: 'scalar',
+                    bulkAssignment: true,
                     onClose: function (data) {
                         CalculationService.setEntered(data);
                         recalculateSalt(data.row);
