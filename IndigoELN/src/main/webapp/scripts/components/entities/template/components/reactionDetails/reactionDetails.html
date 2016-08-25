@@ -29,7 +29,9 @@
                                my-model="model.reactionDetails.coAuthors"
                                my-multiple="true"
                     ></my-select>
-                    <my-select my-label="Experiment Creator (Author)"
+                    <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if -->
+                    <my-select ng-if="false"
+                               my-label="Experiment Creator (Author)"
                                my-label-vertical="true"
                                my-model="model.reactionDetails.experimentCreator"
                                my-readonly="myReadonly"
