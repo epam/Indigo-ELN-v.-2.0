@@ -6,9 +6,8 @@ angular.module('indigoeln')
             controller: 'FileUploaderController',
             templateUrl: 'scripts/components/fileuploader/file-uploader.html',
             scope: {
-                entityid: '=',
-                myReadonly: '=',
-                files: '='
+                uploadUrl: '@',
+                myReadonly: '='
             }
         };
     });
