@@ -16,9 +16,11 @@ public class ComponentDTO {
     }
 
     public ComponentDTO(Component component) {
-        this.id = component.getId();
-        this.content = component.getContent();
-        this.name = component.getName();
+        if (component != null) {
+            this.id = component.getId();
+            this.content = component.getContent();
+            this.name = component.getName();
+        }
     }
 
     public String getId() {
