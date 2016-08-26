@@ -121,7 +121,7 @@ public class ProjectResource {
         ) throws URISyntaxException {
         LOGGER.debug("REST request to create project: {}", project);
         ProjectDTO createdProject = projectService.createProject(project);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdProject.getId());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdProject.getName());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + createdProject.getId()))
                 .headers(headers).body(createdProject);
     }
@@ -139,7 +139,7 @@ public class ProjectResource {
         LOGGER.debug("REST request to update project: {}", project);
         User user = userService.getUserWithAuthorities();
         ProjectDTO updatedProject = projectService.updateProject(project, user);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedProject.getId());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedProject.getName());
         return ResponseEntity.ok().headers(headers).body(updatedProject);
     }
 
@@ -153,7 +153,7 @@ public class ProjectResource {
         ) {
         LOGGER.debug("REST request to remove project: {}", id);
         projectService.deleteProject(id);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
 }
