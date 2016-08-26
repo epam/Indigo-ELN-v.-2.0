@@ -168,7 +168,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to create experiment: {} for notebook: {}", experimentDTO, notebookId);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO savedExperimentDTO = experimentService.createExperiment(experimentDTO, projectId, notebookId, user);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, savedExperimentDTO.getId());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, null);
         return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + experimentDTO.getId()))
                 .headers(headers).body(savedExperimentDTO);
     }
@@ -191,7 +191,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to create a version of an experiment: {} for notebook: {}", experimentName, notebookId);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO createdExperimentDTO = experimentService.versionExperiment(experimentName, projectId, notebookId, user);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdExperimentDTO.getId());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, null);
         return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + notebookId + "/experiments" + createdExperimentDTO.getId()))
                 .headers(headers).body(createdExperimentDTO);
     }
@@ -212,7 +212,7 @@ public class ExperimentResource {
         LOGGER.debug("REST request to update experiment: {}", experimentDTO);
         User user = userService.getUserWithAuthorities();
         ExperimentDTO updatedExperimentDTO = experimentService.updateExperiment(projectId, notebookId, experimentDTO, user);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedExperimentDTO.getId());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
     }
 
@@ -228,7 +228,7 @@ public class ExperimentResource {
         ) {
         LOGGER.debug("REST request to remove experiment: {}", id);
         experimentService.deleteExperiment(id, projectId, notebookId);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
 

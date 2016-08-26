@@ -150,7 +150,8 @@ public class DictionaryResource {
             throws URISyntaxException {
         LOGGER.debug("REST request to create new dictionary: {}", dictionaryDTO);
         DictionaryDTO result = dictionaryService.createDictionary(dictionaryDTO);
-        return ResponseEntity.ok(result);
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, dictionaryDTO.getName());
+        return ResponseEntity.ok().headers(headers).body(result);
     }
 
     /**
@@ -165,7 +166,7 @@ public class DictionaryResource {
     ) {
         LOGGER.debug("REST request to update dictionary: {}", dictionaryDTO);
         DictionaryDTO updatedDictDTO = dictionaryService.updateDictionary(dictionaryDTO);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedDictDTO.getId());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedDictDTO.getName());
         return ResponseEntity.ok().headers(headers).body(updatedDictDTO);
     }
 
@@ -179,7 +180,7 @@ public class DictionaryResource {
     ) {
         LOGGER.debug("REST request to delete dictionary: {}", id);
         dictionaryService.deleteDictionary(id);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
 
