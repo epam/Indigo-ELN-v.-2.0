@@ -40,7 +40,6 @@ public class HeaderUtil {
     private static HttpHeaders createAlert(String type, String message, String params) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(type, message);
-        headers.add(ALERT_PARAMS, params);
         return headers;
     }
 
@@ -51,14 +50,32 @@ public class HeaderUtil {
     }
 
     public static HttpHeaders createEntityCreateAlert(String entityName, String param) {
-        return createSuccessAlert("New " + entityName + " is created with identifier " + param, param);
+        String message;
+        if (param != null) {
+            message = "The " + entityName + " \"" + param + "\"" + " is created";
+        } else {
+            message = "The " + entityName + " is successfully created";
+        }
+        return createSuccessAlert(message, param);
     }
 
     public static HttpHeaders createEntityDeleteAlert(String entityName, String param) {
-        return createSuccessAlert("The " + entityName + " is deleted with identifier " + param, param);
+        String message;
+        if (param != null) {
+            message = "The " + entityName + " \"" + param + "\"" + " is deleted";
+        } else {
+            message = "The " + entityName + " is successfully deleted";
+        }
+        return createSuccessAlert(message, param);
     }
 
     public static HttpHeaders createEntityUpdateAlert(String entityName, String param) {
-        return createSuccessAlert("The " + entityName + " is updated with identifier " + param, param);
+        String message;
+        if (param != null) {
+            message = "The " + entityName + " \"" + param + "\"" + " is updated";
+        } else {
+            message = "The " + entityName + " is successfully updated";
+        }
+        return createSuccessAlert(message, param);
     }
 }

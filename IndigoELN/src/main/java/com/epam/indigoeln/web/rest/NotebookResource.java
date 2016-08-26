@@ -139,7 +139,7 @@ public class NotebookResource {
         LOGGER.debug("REST request to create notebook: {} for project: {}", notebook, projectId);
         User user = userService.getUserWithAuthorities();
         NotebookDTO createdNotebook = notebookService.createNotebook(notebook, projectId, user);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdNotebook.getId());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, createdNotebook.getName());
         return ResponseEntity.created(new URI("/api/projects/" + projectId + "/notebooks/" + createdNotebook.getId()))
                 .headers(headers).body(createdNotebook);
     }
@@ -158,7 +158,7 @@ public class NotebookResource {
         LOGGER.debug("REST request to update notebook: {}", notebook);
         User user = userService.getUserWithAuthorities();
         NotebookDTO updatedNotebook = notebookService.updateNotebook(notebook, projectId, user);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedNotebook.getId());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, updatedNotebook.getName());
         return ResponseEntity.ok().headers(headers).body(updatedNotebook) ;
     }
 
@@ -172,7 +172,7 @@ public class NotebookResource {
             @ApiParam("Notebook id") @PathVariable String id) {
         LOGGER.debug("REST request to remove notebook: {}", id);
         notebookService.deleteNotebook(projectId, id);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
 

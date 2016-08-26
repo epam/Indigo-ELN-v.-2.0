@@ -1,7 +1,6 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.bingo.BingoService;
-import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -58,7 +57,6 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .created(new URI(BINGODB_MOLECULE_PATH + result.get()))
-                    .headers(HeaderUtil.createEntityCreateAlert(BINGODB_MOLECULE, result.get().toString()))
                     .body(result.get().toString());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -82,7 +80,6 @@ public class BingoResource {
 
         return ResponseEntity
                 .ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_MOLECULE, id.toString()))
                 .body(id.toString());
     }
 
@@ -97,7 +94,6 @@ public class BingoResource {
         bingoService.deleteMolecule(id);
         return ResponseEntity
                 .ok()
-                .headers(HeaderUtil.createEntityDeleteAlert(BINGODB_MOLECULE, id.toString()))
                 .build();
     }
 
@@ -128,7 +124,6 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .created(new URI(BINGODB_REACTION_PATH + result.get()))
-                    .headers(HeaderUtil.createEntityCreateAlert(BINGODB_REACTION, result.get().toString()))
                     .body(result.get().toString());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -152,7 +147,6 @@ public class BingoResource {
 
         return ResponseEntity
                 .ok()
-                .headers(HeaderUtil.createEntityUpdateAlert(BINGODB_REACTION, id.toString()))
                 .body(id.toString());
     }
 
@@ -167,7 +161,6 @@ public class BingoResource {
         bingoService.deleteReaction(id);
         return ResponseEntity
                 .ok()
-                .headers(HeaderUtil.createEntityDeleteAlert(BINGODB_REACTION, id.toString()))
                 .build();
     }
 

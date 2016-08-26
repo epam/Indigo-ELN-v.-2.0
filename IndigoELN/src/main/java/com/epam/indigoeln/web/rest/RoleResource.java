@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -37,12 +33,10 @@ public class RoleResource {
     private static final String ENTITY_NAME = "Role";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RoleResource.class);
-
-    @Autowired
-    private RoleService roleService;
-
     @Autowired
     CustomDtoMapper dtoMapper;
+    @Autowired
+    private RoleService roleService;
 
     /**
      * GET  /roles -> Returns all roles
@@ -87,7 +81,7 @@ public class RoleResource {
         LOGGER.debug("REST request to create role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.createRole(role);
-        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, role.getId());
+        HttpHeaders headers = HeaderUtil.createEntityCreateAlert(ENTITY_NAME, role.getName());
         return ResponseEntity.created(new URI(URL_MAPPING + "/" + role.getId()))
                 .headers(headers).body(dtoMapper.convertToDTO(role));
     }
@@ -105,7 +99,7 @@ public class RoleResource {
         LOGGER.debug("REST request to update role: {}", roleDTO);
         Role role = dtoMapper.convertFromDTO(roleDTO);
         role = roleService.updateRole(role);
-        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, role.getId());
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, role.getName());
         return ResponseEntity.ok().headers(headers).body(dtoMapper.convertToDTO(role));
     }
 
@@ -119,7 +113,7 @@ public class RoleResource {
         ) {
         LOGGER.debug("REST request to delete role: {}", id);
         roleService.deleteRole(id);
-        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, id);
+        HttpHeaders headers = HeaderUtil.createEntityDeleteAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).build();
     }
 
