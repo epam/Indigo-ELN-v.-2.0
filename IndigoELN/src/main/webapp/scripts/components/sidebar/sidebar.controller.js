@@ -476,8 +476,11 @@ angular
                     $state.go('entities.experiment-detail', {
                         experimentId: experimentId,
                         notebookId: notebookId,
-                        projectId: projectId
+                        projectId: projectId,
+                        type: 'experiment'
                     });
+
+                    //EntitiesBrowser.goToTab(fullId);
                 };
 
                 //check administration tab status from localstorage
@@ -494,20 +497,46 @@ angular
                 };
 
                 $scope.toggleUsersAndRoles = function () {
-                    $state.go('user-management');
+                    $state.go('entities.user-management');
                 };
 
                 $scope.toggleAuthorities = function () {
-                    $state.go('role-management');
+                    $state.go('entities.role-management');
                 };
 
                 $scope.toggleTemplates = function () {
-                    $state.go('template');
+                    $state.go('entities.template');
                 };
 
                 $scope.toggleDictionaries = function () {
-                    $state.go('dictionary-management');
+                    $state.go('entities.dictionary-management');
                 };
+
+
+                var extractParams = function (obj) {
+                    return {
+                        projectId: obj.projectId,
+                        notebookId: obj.notebookId,
+                        experimentId: obj.experimentId
+                    };
+                };
+
+
+                function compactIds(params) {
+                    params = extractParams(params);
+                    var paramsArr = [];
+                    if (params.projectId) {
+                        paramsArr.push(params.projectId);
+                    }
+                    if (params.notebookId) {
+                        paramsArr.push(params.notebookId);
+                    }
+                    if (params.experimentId) {
+                        paramsArr.push(params.experimentId);
+                    }
+                    return paramsArr.join('-');
+                }
+
 
                 //if nothing was in localstorage
                 var restoreTabsByDefault = function () {
@@ -525,10 +554,10 @@ angular
                 };
                 restoreTabsByDefault();
 
-                $scope.activeMenuItem = EntitiesBrowser.compactIds($state.params);
+                $scope.activeMenuItem = compactIds($state.params);
 
                 $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
-                    $scope.activeMenuItem = EntitiesBrowser.compactIds(toParams);
+                    $scope.activeMenuItem = compactIds(toParams);
                 });
             });
     });

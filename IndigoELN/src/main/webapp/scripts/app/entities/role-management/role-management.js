@@ -1,8 +1,7 @@
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('role-management', {
-                parent: 'tab',
+            .state('entities.role-management', {
                 url: '/role-management',
                 data: {
                     authorities: ['ROLE_EDITOR'],
@@ -10,12 +9,13 @@ angular.module('indigoeln')
                     tab: {
                         name: 'Roles',
                         kind: 'management',
-                        state: 'role-management'
+                        state: 'entities.role-management',
+                        type:'entity'
                     }
                 },
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/admin/role-management/role-management.html',
+                        templateUrl: 'scripts/app/entities/role-management/role-management.html',
                         controller: 'RoleManagementController'
                     }
                 },
@@ -35,15 +35,18 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('role-management.delete', {
-                parent: 'role-management',
+            .state('entities.role-management.delete', {
+                parent: 'entities.role-management',
                 url: '/role/{id}/delete',
                 data: {
-                    authorities: ['ROLE_EDITOR']
+                    authorities: ['ROLE_EDITOR'],
+                    tab: {
+                        type:''
+                    }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/admin/role-management/role-management-delete-dialog.html',
+                        templateUrl: 'scripts/app/entities/role-management/role-management-delete-dialog.html',
                         controller: 'role-managementDeleteController',
                         size: 'md',
                         resolve: {
@@ -52,9 +55,9 @@ angular.module('indigoeln')
                             }]
                         }
                     }).result.then(function () {
-                            $state.go('role-management', null, {reload: true});
+                            $state.go('entities.role-management', null, {reload: true});
                         }, function () {
-                            $state.go('^');
+                            $state.go('entities.role-management');
                         });
                 }]
             });

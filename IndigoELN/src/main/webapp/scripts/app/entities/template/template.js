@@ -1,8 +1,8 @@
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('template', {
-                parent: 'tab',
+            .state('entities.template', {
+                parent: 'entities',
                 url: '/templates',
                 data: {
                     authorities: ['TEMPLATE_EDITOR'],
@@ -10,7 +10,8 @@ angular.module('indigoeln')
                     tab: {
                         name: 'Templates',
                         kind: 'management',
-                        state: 'template'
+                        state: 'entities.template',
+                        type:'entity'
                     }
                 },
                 views: {
@@ -21,15 +22,16 @@ angular.module('indigoeln')
                 },
                 resolve: {}
             })
-            .state('template.new', {
-                parent: 'tab',
+            .state('entities.template-new', {
+                parent: 'entities',
                 url: '/template/new',
                 data: {
                     authorities: ['TEMPLATE_EDITOR'],
                     tab: {
                         name: 'New Template',
                         kind: 'management',
-                        state: 'template.new'
+                        state: 'entities.template-new',
+                        type:'entity'
                     }
                 },
                 views: {
@@ -52,8 +54,8 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('template.detail', {
-                parent: 'tab',
+            .state('entities.template-detail', {
+                parent: 'entities',
                 url: '/template/{id}',
                 data: {
                     authorities: ['TEMPLATE_EDITOR'],
@@ -62,6 +64,7 @@ angular.module('indigoeln')
                         name: 'Templates',
                         kind: 'management',
                         state: 'template.detail',
+                        type:'',
                         id: null,
                         cache: true,
                         service: 'Template',
@@ -89,15 +92,16 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('template.edit', {
-                parent: 'tab',
+            .state('entities.template-edit', {
+                parent: 'entities',
                 url: '/template/{id}/edit',
                 data: {
                     authorities: ['TEMPLATE_EDITOR'],
                     tab: {
                         name: 'Edit Template',
                         kind: 'management',
-                        state: 'template.edit'
+                        type:'entity',
+                        state: 'entities.template-edit'
                     }
                 },
                 views: {
@@ -120,11 +124,15 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('template.delete', {
-                parent: 'template',
+            .state('entities.template.delete', {
+                parent: 'entities.template',
                 url: '/{id}/delete',
                 data: {
-                    authorities: ['TEMPLATE_EDITOR']
+                    authorities: ['TEMPLATE_EDITOR'],
+                    tab: {
+                        //override parent type
+                        type:''
+                    }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
@@ -132,7 +140,7 @@ angular.module('indigoeln')
                         controller: 'TemplateDeleteController',
                         size: 'md'
                     }).result.then(function () {
-                            $state.go('template', null, {reload: true});
+                            $state.go('entities.template', null, {reload: true});
                         }, function () {
                             $state.go('^');
                         });

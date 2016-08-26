@@ -1,8 +1,7 @@
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('dictionary-management', {
-                parent: 'tab',
+            .state('entities.dictionary-management', {
                 url: '/dictionary-management',
                 data: {
                     authorities: ['DICTIONARY_EDITOR'],
@@ -10,25 +9,28 @@ angular.module('indigoeln')
                     tab: {
                         name: 'Dictionaries',
                         kind: 'management',
-                        state: 'dictionary-management'
+                        state: 'entities.dictionary-management',
+                        type:'entity'
                     }
                 },
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/admin/dictionary-management/dictionary-management.html',
+                        templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management.html',
                         controller: 'DictionaryManagementController'
                     }
                 }
             })
-            .state('dictionary-management.delete', {
-                parent: 'dictionary-management',
+            .state('entities.dictionary-management.delete', {
                 url: '/dictionary/{id}/delete',
                 data: {
-                    authorities: ['DICTIONARY_EDITOR']
+                    authorities: ['DICTIONARY_EDITOR'],
+                    tab: {
+                        type:''
+                    }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/admin/dictionary-management/dictionary-management-delete-dialog.html',
+                        templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management-delete-dialog.html',
                         controller: 'DictionaryManagementDeleteController',
                         size: 'md',
                         resolve: {
@@ -37,9 +39,9 @@ angular.module('indigoeln')
                             }
                         }
                     }).result.then(function () {
-                        $state.go('dictionary-management', null, {reload: true});
+                        $state.go('entities.dictionary-management', null, {reload: true});
                     }, function () {
-                        $state.go('^');
+                        $state.go('entities.dictionary-management');
                     });
                 }]
             });

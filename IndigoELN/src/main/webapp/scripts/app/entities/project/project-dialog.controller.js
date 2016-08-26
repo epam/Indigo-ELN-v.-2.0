@@ -1,13 +1,28 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
-        function ($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Project, Alert,
+                  PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine) {
+            var self = this;
+            EntitiesBrowser.setCurrentTabTitle(pageInfo.project.name, $stateParams);
             var identity = pageInfo.identity;
             var project = pageInfo.project;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $timeout(function () {
-                EntitiesBrowser.trackEntityChanges($scope.createProjectForm, $scope, project);
+
+                var tabKind = $state.$current.data.tab.kind;
+
+                self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
+                    if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
+                        EntitiesBrowser.changeDirtyTab($stateParams, true);
+                    }else{
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
+                    }
+                }, true);
+
+                AutoSaveEntitiesEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
+
             }, 0, false);
             $scope.project = project;
             $scope.newProject = _.isUndefined($scope.project.id) || _.isNull($scope.project.id);
@@ -28,6 +43,7 @@ angular.module('indigoeln')
             });
             $scope.$on('$destroy', function() {
                 onAccessListChangedEvent();
+                self.dirtyListener();
             });
 
             // isEditAllowed
@@ -56,7 +72,14 @@ angular.module('indigoeln')
 
             $scope.save = function () {
                 if ($scope.project.id) {
-                    $scope.loading = EntitiesBrowser.saveEntity($scope.project.fullId).then(onSaveSuccess.bind(null, {id: $scope.project.id}));
+                    $scope.loading = Project.update($stateParams, $scope.project).$promise
+                                 .then(function (result) {
+                                     $scope.project.version = result.version;
+                                     $scope.createProjectForm.$setPristine();
+                                     onSaveSuccess({id: $scope.project.id});
+                                 }, function () {
+                                     onSaveError($scope.project.id);
+                                 });
                 } else {
                     $scope.loading = Project.save($scope.project, onSaveSuccess, onSaveError).$promise;
                 }

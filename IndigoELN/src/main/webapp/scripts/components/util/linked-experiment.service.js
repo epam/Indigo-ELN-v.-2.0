@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 5/11/2016.
  */
 angular.module('indigoeln')
-    .factory('LinkedExperimentUtils', function (EntitiesBrowser, AllNotebooks, AllExperiments, Alert, $state) {
+    .factory('LinkedExperimentUtils', function (EntitiesBrowser, AllNotebooks, AllExperiments, Alert, $state, Project) {
         return {
             onLinkedExperimentClick: function (tag) {
                 var names = tag.text.split('-');
@@ -13,7 +13,7 @@ angular.module('indigoeln')
                     Alert.error('Wrong experiment name: ' + tag.text);
                     return;
                 }
-                var currentProject = EntitiesBrowser.getProjectFromCache($state.params);
+                var currentProject = Project.get($state.params);
                 currentProject.then(function (project) {
                     AllNotebooks.query({projectId: project.id}, function (notebooks) {
                         var notebook = _.findWhere(notebooks, {name: notebookName});

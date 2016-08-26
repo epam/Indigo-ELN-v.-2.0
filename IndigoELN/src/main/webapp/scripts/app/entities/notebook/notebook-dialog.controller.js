@@ -1,14 +1,26 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
-        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, ExperimentUtil, pageInfo, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
+                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine) {
 
+            EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
             var identity = pageInfo.identity;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.experiments = pageInfo.experiments;
             $timeout(function () {
-                EntitiesBrowser.trackEntityChanges($scope.createNotebookForm, $scope, pageInfo.notebook);
+
+                var tabKind = $state.$current.data.tab.kind;
+
+                self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
+                    if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
+                        EntitiesBrowser.changeDirtyTab($stateParams, true);
+                    }
+                }, true);
+
+                AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
+
             }, 0, false);
             $scope.notebook = pageInfo.notebook;
             $scope.newNotebook = _.isUndefined($scope.notebook.id) || _.isNull($scope.notebook.id);
@@ -28,6 +40,7 @@ angular.module('indigoeln')
             });
             $scope.$on('$destroy', function() {
                 onAccessListChangedEvent();
+                self.dirtyListener();
             });
 
             // isEditAllowed
@@ -60,7 +73,14 @@ angular.module('indigoeln')
 
             $scope.save = function () {
                 if ($scope.notebook.id) {
-                    $scope.loading = EntitiesBrowser.saveEntity($scope.notebook.fullId).then(onSaveSuccess.bind(null, {id: $scope.notebook.id}));
+                    $scope.loading = Notebook.update($stateParams, $scope.notebook).$promise
+                        .then(function (result) {
+                            $scope.notebook.version = result.version;
+                            $scope.createNotebookForm.$setPristine();
+                        }, function () {
+                            onSaveError($scope.notebook.id);
+                        });
+
                 } else {
                     $scope.loading = Notebook.save({
                         projectId: $scope.projectId

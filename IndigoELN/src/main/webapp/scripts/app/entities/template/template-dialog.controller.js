@@ -1,17 +1,15 @@
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, TabManager) {
+    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
+
+        //var tab = $state.$current.data.tab.name;
+
         $scope.components = Components;
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
 
         var onSaveSuccess = function () {
-            $state.go('template');
             $scope.isSaving = false;
-            if (!$scope.template.id) {
-                TabManager.closeTab('New Template');
-            } else {
-                TabManager.closeTab('Edit Template');
-            }
+            $scope.close();
         };
 
         var onSaveError = function () {
@@ -27,12 +25,13 @@ angular.module('indigoeln').controller('TemplateDialogController',
             }
         };
 
-        $scope.cancel = function () {
-            $state.go('template');
+        $scope.close = function () {
             if (!$scope.template.id) {
-                TabManager.closeTab('New Template');
+                var tabName = $state.$current.data.tab.name;
+                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
             } else {
-                TabManager.closeTab('Edit Template');
+                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
+
             }
         };
 

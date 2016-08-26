@@ -9,8 +9,8 @@
           type='text/css'>
     <!-- build:css assets/styles/vendor.css -->
     <!--IMPORTANT!!! DO NOT MODIFY THIS SECTION MANUALLY, use bower.json and grunt wiredep for this-->
-    <!-- bower:css -->
     <link rel="stylesheet" href="assets/styles/indigo-bootstrap.css" />
+    <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css" />
     <link rel="stylesheet" href="bower_components/angular-busy/dist/angular-busy.css" />
     <link rel="stylesheet" href="bower_components/angular-datepicker/dist/angular-datepicker.css" />
@@ -91,6 +91,7 @@
 <script src="bower_components/stomp-websocket/lib/stomp.min.js"></script>
 <script src="bower_components/jquery-mousewheel/jquery.mousewheel.js"></script>
 <script src="bower_components/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.js"></script>
+<script src="bower_components/angular-cache/dist/angular-cache.js"></script>
 <!-- endbower -->
 <script src="vendors/jstz/jstz.js"></script>
 <!-- endbuild -->
@@ -106,6 +107,7 @@
 <script src="scripts/components/entities/project/project.service.js"></script>
 <script src="scripts/app/entities/entity.js"></script>
 <script src="scripts/components/util/dateutil.service.js"></script>
+<script src="scripts/components/util/tab-key.service.js"></script>
 <script src="scripts/components/navbar/navbar.controller.js"></script>
 <script src="scripts/components/navbar/navbar.service.js"></script>
 <script src="scripts/components/sidebar/sidebar.controller.js"></script>
@@ -120,6 +122,27 @@
 <script src="scripts/components/entities/notebook/notebook.service.js"></script>
 <script src="scripts/app/entities/notebook/notebook-select-parent.controller.js"></script>
 <script src="scripts/app/entities/notebook/notebook-dialog.controller.js"></script>
+
+
+
+<script src="scripts/app/entities/search/search.js"></script>
+<script src="scripts/components/entities/search-panel/search-panel.service.js"></script>
+<script src="scripts/app/entities/search/search-panel.controller.js"></script>
+
+<script src="scripts/app/entities/dictionary-management/dictionary-management.controller.js"></script>
+<script src="scripts/app/entities/dictionary-management/dictionary-management.js"></script>
+<script src="scripts/app/entities/dictionary-management/dictionary-management-delete-dialog.controller.js"></script>
+
+<script src="scripts/app/entities/role-management/role-management.controller.js"></script>
+<script src="scripts/app/entities/role-management/role-management.js"></script>
+<script src="scripts/app/entities/role-management/role-management-save-dialog.controller.js"></script>
+<script src="scripts/app/entities/role-management/role-management-delete-dialog.controller.js"></script>
+
+<script src="scripts/app/entities/user-management/user-management.controller.js"></script>
+<script src="scripts/app/entities/user-management/user-management.js"></script>
+<script src="scripts/app/entities/user-management/user-management-delete-dialog.controller.js"></script>
+
+
 <script src="scripts/components/auth/provider/auth.session.service.js"></script>
 <script src="scripts/components/auth/services/account.service.js"></script>
 <script src="scripts/components/auth/services/account-role.service.js"></script>
@@ -127,18 +150,11 @@
 <script src="scripts/components/auth/principal.service.js"></script>
 <script src="scripts/app/entities/project/project.js"></script>
 <script src="scripts/app/admin/admin.js"></script>
-<script src="scripts/app/admin/user-management/user-management.controller.js"></script>
-<script src="scripts/app/admin/user-management/user-management.js"></script>
-<script src="scripts/app/admin/user-management/user-management-delete-dialog.controller.js"></script>
+
 <script src="scripts/components/user/user.service.js"></script>
 <script src="scripts/components/user_reagents/user-reagents.service.js"></script>
-<script src="scripts/app/admin/role-management/role-management.controller.js"></script>
-<script src="scripts/app/admin/role-management/role-management.js"></script>
-<script src="scripts/app/admin/role-management/role-management-save-dialog.controller.js"></script>
-<script src="scripts/app/admin/role-management/role-management-delete-dialog.controller.js"></script>
-<script src="scripts/app/admin/dictionary-management/dictionary-management.controller.js"></script>
-<script src="scripts/app/admin/dictionary-management/dictionary-management.js"></script>
-<script src="scripts/app/admin/dictionary-management/dictionary-management-delete-dialog.controller.js"></script>
+
+
 <script src="scripts/components/role/role.service.js"></script>
 <script src="scripts/components/dictionary/dictionary.service.js"></script>
 <script src="scripts/components/util/parse-links.service.js"></script>
@@ -185,6 +201,8 @@
 <script src="scripts/components/permissions/permission-management.controller.js"></script>
 <script src="scripts/components/permissions/permission-management.service.js"></script>
 <script src="scripts/components/util/date.filter.js"></script>
+<script src="scripts/components/entities/entities.cache.service.js"></script>
+<script src="scripts/components/entities/entities.autosave.service.js"></script>
 <script src="scripts/components/entities/entities.browser.service.js"></script>
 <script src="scripts/app/entities/entities.js"></script>
 <script src="scripts/app/entities/entities.controller.js"></script>
@@ -203,8 +221,6 @@
 <script src="scripts/components/util/resizable.directive.js"></script>
 <script src="scripts/components/entities/template/components/stoichTable/stoichTable.directive.js"></script>
 <script src="scripts/components/entities/template/components/common/table/select/select.service.js"></script>
-<script src="scripts/app/tabs/tab-manager.controller.js"></script>
-<script src="scripts/app/tabs/tab-manager.js"></script>
 <script src="scripts/components/tabs/tab-manager.service.js"></script>
 <script src="scripts/components/entities/template/components/common/search-reagents/search-reagents.controller.js"></script>
 <script src="scripts/components/signature/signature.service.js"></script>

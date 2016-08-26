@@ -6,6 +6,32 @@ angular.module('indigoeln')
         return {
             restrict: 'A',
             link: function (scope, iElement) {
+
+                var extractParams = function (obj) {
+                    return {
+                        projectId: obj.projectId,
+                        notebookId: obj.notebookId,
+                        experimentId: obj.experimentId
+                    };
+                };
+
+
+                function compactIds(params) {
+                    params = extractParams(params);
+                    var paramsArr = [];
+                    if (params.projectId) {
+                        paramsArr.push(params.projectId);
+                    }
+                    if (params.notebookId) {
+                        paramsArr.push(params.notebookId);
+                    }
+                    if (params.experimentId) {
+                        paramsArr.push(params.experimentId);
+                    }
+                    return paramsArr.join('-');
+                }
+
+
                 Principal.identity()
                     .then(function (user) {
                         var isCollapsed = false;
@@ -13,7 +39,7 @@ angular.module('indigoeln')
                         var $heading = $element.find('.panel-heading:first');
                         var componentId = $element.parents('.my-component:first').attr('my-component');
                         var collapsedComponents = JSON.parse(localStorageService.get(user.id + '.collapsed-components'));
-                        var entityId = EntitiesBrowser.compactIds($state.params);
+                        var entityId = compactIds($state.params);
                         if (collapsedComponents && collapsedComponents[entityId]) {
                             isCollapsed = collapsedComponents[entityId][componentId];
                         }

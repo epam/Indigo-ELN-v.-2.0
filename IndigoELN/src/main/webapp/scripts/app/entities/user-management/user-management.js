@@ -1,8 +1,7 @@
 angular.module('indigoeln')
     .config(function ($stateProvider) {
         $stateProvider
-            .state('user-management', {
-                parent: 'tab',
+            .state('entities.user-management', {
                 url: '/user-management',
                 data: {
                     authorities: ['USER_EDITOR'],
@@ -10,12 +9,13 @@ angular.module('indigoeln')
                     tab: {
                         name: 'Users',
                         kind: 'management',
-                        state: 'user-management'
+                        state: 'entities.user-management',
+                        type:'entity'
                     }
                 },
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/admin/user-management/user-management.html',
+                        templateUrl: 'scripts/app/entities/user-management/user-management.html',
                         controller: 'UserManagementController'
                     }
                 },
@@ -33,15 +33,18 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('user-management.delete', {
-                parent: 'user-management',
+            .state('entities.user-management.delete', {
+                parent: 'entities.user-management',
                 url: '/{login}/delete',
                 data: {
-                    authorities: ['USER_EDITOR']
+                    authorities: ['USER_EDITOR'],
+                    tab: {
+                        type:''
+                    }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/admin/user-management/user-management-delete-dialog.html',
+                        templateUrl: 'scripts/app/entities/user-management/user-management-delete-dialog.html',
                         controller: 'user-managementDeleteController',
                         size: 'md',
                         resolve: {
@@ -50,7 +53,8 @@ angular.module('indigoeln')
                             }]
                         }
                     }).result.then(function () {
-                            $state.go('user-management', null, {reload: true});
+                            //$state.go('entities.user-management', null, {reload: true});
+                            $state.reload('entities.user-management');
                         }, function () {
                             $state.go('^');
                         });

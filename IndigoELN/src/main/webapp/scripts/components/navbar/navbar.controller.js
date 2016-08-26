@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('NavbarController', function ($scope, $state, $rootScope, $q, Principal, Auth, EntitiesBrowser) {
+    .controller('NavbarController', function ($scope, $state, $rootScope, $q, Principal, Auth, EntitiesBrowser, EntitiesCache) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.PROJECT_CREATOR = 'PROJECT_CREATOR';
         $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
@@ -10,30 +10,44 @@ angular.module('indigoeln')
         $scope.ENTITY_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR, $scope.NOTEBOOK_CREATOR, $scope.EXPERIMENT_CREATOR].join(',');
 
         $scope.Principal = Principal;
-        EntitiesBrowser.getTabs().then(function (entities) {
-            $scope.entities = entities;
-        });
-        $scope.$on('entities-updated', function (event, data) {
-            $scope.entities = data.entities;
-            $scope.entityId = data.entityId;
-        });
-        $scope.getKind = function (fullId) {
-            return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
+
+        var userId =  Principal.getIdentity().id;
+        $scope.entities = EntitiesBrowser.tabs[userId];
+        $scope.activeTab = EntitiesBrowser.activeTab;
+
+
+        $scope.onEntityClick = function (entity) {
+            $rootScope.$broadcast('entity-clicked', entity);
         };
-        $scope.onEntityClick = function (fullId) {
-            $rootScope.$broadcast('entity-clicked', fullId);
-        };
-        $scope.onCloseEntityClick = function (fullId, entityId) {
-            $rootScope.$broadcast('entity-closing', {fullId: fullId, entityId: entityId});
+        $scope.onCloseEntityClick = function (entity) {
+            $rootScope.$broadcast('entity-closing', entity);
         };
         $scope.onCloseAllClick = function () {
             $rootScope.$broadcast('entity-close-all');
+
+        };
+
+        $scope.openSearch = function () {
+            $state.go('entities.search-panel')
         };
 
         $scope.logout = function () {
             var userId = Principal.getIdentity().id;
             Auth.logout();
+            EntitiesCache.destroyAll();
             $rootScope.$broadcast('user-logout', {id: userId});
             $state.go('login');
         };
+
+
+        var unsubscribe = $scope.$watch(function () {
+            return EntitiesBrowser.activeTab;
+        }, function (value) {
+            $scope.activeTab = value;
+        });
+
+        $scope.$on('$destroy', function () {
+            unsubscribe();
+        });
+
     });

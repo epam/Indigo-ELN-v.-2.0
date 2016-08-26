@@ -1,8 +1,26 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement, FileUploaderCash, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement,
+                  FileUploaderCash, AutoSaveEntitiesEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams) {
+
+
+            var self = this;
+            var tabName = pageInfo.notebook.name ? pageInfo.notebook.name + '-' + pageInfo.experiment.name : pageInfo.experiment.name;
+            if (pageInfo.experiment.experimentVersion > 1 || !pageInfo.experiment.lastVersion) {
+                tabName += ' v' + pageInfo.experiment.experimentVersion;
+            }
+
+            EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
+
+
             $timeout(function () {
-                EntitiesBrowser.trackEntityChanges($scope.experimentForm, $scope, pageInfo.experiment);
+                var tabKind = $state.$current.data.tab.kind;
+                self.dirtyListener = $scope.$watch(tabKind, function(){
+                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
+                }, true);
+
+                AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
+
             }, 0, false);
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
@@ -45,12 +63,18 @@ angular.module('indigoeln')
             $scope.$on('$destroy', function () {
                 onAccessListChangedEvent();
                 onExperimentStatusChangedEvent();
+                self.dirtyListener();
             });
 
             $scope.save = function (experiment) {
                 var experimentForSave = _.extend({}, experiment);
                 if (experiment.template !== null) {
-                    $scope.loading = EntitiesBrowser.saveEntity(experiment.fullId);
+                    $scope.loading = Experiment.update($stateParams, $scope.experiment).$promise
+                        .then(function (result) {
+                            $scope.experiment.version = result.version;
+                            $scope.experimentForm.$setPristine();
+                        }, function () {
+                        });
                 } else {
                     $scope.loading = Experiment.save(experimentForSave).$promise;
                 }

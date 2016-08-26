@@ -19,7 +19,8 @@ angular.module('indigoeln').controller('EntitiesToSaveController',
         };
 
         $scope.getKind = function (fullId) {
-            return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
+            //return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
+            return "";
         };
 
         $scope.save = function () {

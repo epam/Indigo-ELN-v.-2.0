@@ -20,11 +20,11 @@
             <hr style="margin-top:0;margin-bottom:0">
             <li class="head-controls-list-submenu__item" ng-repeat="entity in entities">
                 <a style="position:relative;">
-                    <span class="capitalized" ng-click="onEntityClick(entity.fullId)"
-                       ng-class="{'active' : entity.fullId===entityId}">
-                        {{getKind(entity.fullId)}} {{entity.$$title}}&nbsp;
+                    <span class="capitalized" ng-click="onEntityClick(entity)"
+                       ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
+                        {{entity.name}} {{entity.$$title}}&nbsp;
                         <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
-                            ng-click="onCloseEntityClick(entity.fullId, entityId);"
+                            ng-click="onCloseEntityClick(entity, activeTab.tabKey);"
                             style="position:absolute;top:10px;right:10px;"></em>
                     </span></a>
             </li>
@@ -73,9 +73,9 @@
         <em class="icon-header-control-list fa fa-print"></em>
         <span class="tooltip-icon-header">Print</span>
     </li>
-    <li class="head-controls-list__item">
+    <li class="head-controls-list__item" ng-click="openSearch()">
         <em class="icon-header-control-list fa fa-search"></em>
-        <span class="tooltip-icon-header">Search</span>
+        <span class="tooltip-icon-header"  >Search</span>
     </li>
 </ul>
 <ul class="head-controls-list head-controls-list_right">

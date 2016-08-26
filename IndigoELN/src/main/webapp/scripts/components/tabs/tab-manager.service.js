@@ -20,32 +20,6 @@ angular.module('indigoeln')
             setActiveTab: function (tab) {
                 _activeTab = tab;
             },
-            compactIds: function (params) {
-                var paramsArr = [];
-                if (params.projectId) {
-                    paramsArr.push(params.projectId);
-                }
-                if (params.notebookId) {
-                    paramsArr.push(params.notebookId);
-                }
-                if (params.experimentId) {
-                    paramsArr.push(params.experimentId);
-                }
-                return paramsArr.join('-');
-            },
-            getFullEntityId: function (tabName) {
-                var id = this.compactIds(_tabs[tabName].params);
-                _tabs[tabName].id = id;
-                _cache[tabName].id = id;
-                return id;
-            },
-            setPageInfo: function (tabName, pageInfo) {
-                _tabs[tabName].pageInfo = pageInfo;
-                _cache[tabName].pageInfo = pageInfo;
-                if (_tabs[tabName].kind === 'entity') {
-                    this.getFullEntityId(tabName);
-                }
-            },
             getPageInfoFromCache: function (tabName) {
                 return _cache[tabName].pageInfo;
             },

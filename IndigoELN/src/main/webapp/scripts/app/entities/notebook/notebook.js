@@ -50,13 +50,24 @@ angular.module('indigoeln')
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_READER', 'NOTEBOOK_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'Notebook',
+                        service:'Notebook',
+                        kind: 'notebook',
+                        type:'entity',
+                        state: 'entities.notebook-detail'
+                    }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, EntitiesBrowser, Principal, NotebookSummaryExperiments) {
+                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
+                                       AutoSaveEntitiesEngine) {
                         var deferred = $q.defer();
+                        if(!EntitiesCache.get($stateParams)){
+                            EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
+                        }
                         $q.all([
-                            EntitiesBrowser.getCurrentEntity($stateParams),
+                            EntitiesCache.get($stateParams),
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
