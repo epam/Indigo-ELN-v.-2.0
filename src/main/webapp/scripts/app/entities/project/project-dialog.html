@@ -62,8 +62,8 @@
                         <my-text-editor my-model="project.description"
                                         my-name="projectDescription"
                                         my-readonly="!isEditAllowed"></my-text-editor>
-                        <my-file-uploader entityid="project.id"
-                                                 my-readonly="!isEditAllowed"></my-file-uploader>
+                        <my-file-uploader upload-url="api/project_files"
+                                          my-readonly="!isEditAllowed"></my-file-uploader>
                     </div>
                 </div>
             </form>

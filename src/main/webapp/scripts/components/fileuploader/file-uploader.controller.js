@@ -1,11 +1,15 @@
 angular.module('indigoeln')
-    .controller('FileUploaderController', function ($scope, FileUploaderService, FileUploaderCash, FileUploader,
-                                                    $cookies, ParseLinks, Alert, $uibModal, $filter) {
+    .controller('FileUploaderController', function ($scope, FileUploaderCash, FileUploader,
+                                                    $cookies, $stateParams, ParseLinks, Alert, $uibModal, $filter,
+                                                    ProjectFileUploaderService, ExperimentFileUploaderService) {
+        var params = $stateParams;
+        var uploadUrl = $scope.uploadUrl;
+        var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
         $scope.page = 1;
-        var entityid = $scope.entityid;
         $scope.loadAll = function () {
-            FileUploaderService.query({
-                projectId: entityid,
+            UploaderService.query({
+                projectId: params.projectId,
+                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId,
                 page: $scope.page - 1,
                 size: 20
             }, function (result, headers) {
@@ -18,11 +22,9 @@ angular.module('indigoeln')
             $scope.page = page;
             $scope.loadAll();
         };
-        $scope.$watch('entityid', function (entityid) {
-            if (entityid) {
-                $scope.loadAll();
-            }
-        });
+        if (params.projectId) {
+            $scope.loadAll();
+        }
         $scope.upload = function () {
             $uibModal.open({
                 animation: true,
@@ -31,11 +33,13 @@ angular.module('indigoeln')
                 controller: function ($scope, $uibModalInstance) {
                     $scope.files = [];
                     var formData = [];
-                    if (entityid) {
-                        formData.push({projectId: entityid});
-                    }
+                    var paramsForUpload = {
+                        projectId: params.projectId,
+                        experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId
+                    };
+                    formData.push(paramsForUpload);
                     var uploader = $scope.uploader = new FileUploader({
-                        url: 'api/project_files',
+                        url: uploadUrl,
                         alias: 'file',
                         headers: {
                             'X-CSRF-TOKEN': $cookies.get('CSRF-TOKEN')
@@ -71,8 +75,8 @@ angular.module('indigoeln')
                 templateUrl: 'scripts/components/fileuploader/file-delete-dialog.html',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.delete = function () {
-                        if (entityid) {
-                            FileUploaderService.delete({id: file.id}).$promise.then(
+                        if (params.projectId) {
+                            UploaderService.delete({id: file.id}).$promise.then(
                                 function () {
                                     $uibModalInstance.close(file);
                                 },
@@ -96,8 +100,9 @@ angular.module('indigoeln')
             });
         };
         $scope.search = function () {
-            FileUploaderService.query({
-                projectId: entityid,
+            UploaderService.query({
+                projectId: params.projectId,
+                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId,
                 page: $scope.page - 1,
                 size: 5
             }, function (result, headers) {

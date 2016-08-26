@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
-        function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
+        function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement, FileUploaderCash, pageInfo, $uibModal, EntitiesBrowser, $timeout) {
             $timeout(function () {
                 EntitiesBrowser.trackEntityChanges($scope.experimentForm, $scope, pageInfo.experiment);
             }, 0, false);
@@ -20,6 +20,7 @@ angular.module('indigoeln')
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
+            FileUploaderCash.setFiles([]);
 
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
                 $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;

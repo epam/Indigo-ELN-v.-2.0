@@ -42,6 +42,11 @@ angular.module('indigoeln')
             name: 'Experiment Description',
             id: 'experiment-description',
             desc: 'Contains text editor with possibility to text formatting, insert pictures and table'
+        },
+        {
+            name: 'Attachments',
+            id: 'attachments',
+            desc: 'Allows to manage attachment of any kind of file related to  this experiment'
         }
     ])
     .directive('myComponent', function () {
@@ -75,6 +80,7 @@ angular.module('indigoeln')
             '<div ng-switch-when="batch-structure"><batch-structure /></div>' +
             '<div ng-switch-when="stoich-table"><stoich-table /></div>' +
             '<div ng-switch-when="experiment-description"><experiment-description /></div>' +
+            '<div ng-switch-when="attachments"><attachments /></div>' +
             '</div>'
         };
     }).directive('myComponents', function () {
