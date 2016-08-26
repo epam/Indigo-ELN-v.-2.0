@@ -5,7 +5,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-4">
-                <button class="btn btn-info" ui-sref="template.new">
+                <button class="btn btn-info" ui-sref="entities.template-new">
                     <span class="glyphicon glyphicon-flash"></span> <span>Create a new Template</span>
                 </button>
             </div>
@@ -31,17 +31,17 @@
             <td>{{template.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
             <td>
                 <button type="submit"
-                        ui-sref="template.detail({id:template.id})"
+                        ui-sref="entities.template-detail({id:template.id})"
                         class="btn btn-info btn-sm">
                     <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View</span>
                 </button>
                 <button type="submit"
-                        ui-sref="template.edit({id:template.id})"
+                        ui-sref="entities.template-edit({id:template.id})"
                         class="btn btn-info btn-sm">
                     <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
                 </button>
                 <button type="submit"
-                        ui-sref="template.delete({id:template.id})"
+                        ui-sref="entities.template.delete({id:template.id})"
                         class="btn btn-danger btn-sm">
                     <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span> Delete</span>
                 </button>

@@ -58,7 +58,14 @@ angular.module('indigoeln')
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}',
                 data: {
                     authorities: ['EXPERIMENT_READER', 'EXPERIMENT_CREATOR', 'CONTENT_EDITOR'],
-                    pageTitle: 'Experiment'
+                    pageTitle: 'Experiment',
+                    tab: {
+                        name: 'Experiment',
+                        service:'Experiment',
+                        kind: 'experiment',
+                        type:'entity',
+                        state: 'entities.experiment-detail'
+                    }
                 },
                 views: {
                     'tabContent': {
@@ -70,19 +77,35 @@ angular.module('indigoeln')
                     statusChanged: false
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal, EntitiesBrowser) {
+                    pageInfo: function ($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
+                                        AutoSaveEntitiesEngine) {
+
                         var deferred = $q.defer();
                         var params = {
                             projectId: $stateParams.projectId,
                             notebookId: $stateParams.notebookId,
                             experimentId: $stateParams.experimentId
                         };
+
+                        if(!EntitiesCache.get(params)){
+                            EntitiesCache.put(params, AutoSaveEntitiesEngine.autoRecover(Experiment, params));
+                        }
+
+                        var notebookParams = {
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        };
+
+                        if(!EntitiesCache.get(notebookParams)){
+                            EntitiesCache.put(notebookParams,  Notebook.get(notebookParams).$promise);
+                        }
+
                         if ($stateParams.statusChanged) {
-                            EntitiesBrowser.updateCacheAndTab($stateParams);
+                            //EntitiesBrowser.updateCacheAndTab($stateParams);
                         }
                         $q.all([
-                            EntitiesBrowser.getCurrentEntity(params),
-                            EntitiesBrowser.getNotebookFromCache(params),
+                            EntitiesCache.get(params),
+                            EntitiesCache.get(notebookParams),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function (results) {
@@ -182,12 +205,18 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, EntitiesBrowser) {
+                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
                         var deferred = $q.defer();
                         $q.all([
-                            EntitiesBrowser.getCurrentEntity($stateParams),
-                            EntitiesBrowser.getNotebookFromCache($stateParams),
-                            EntitiesBrowser.getProjectFromCache($stateParams)
+                            //EntitiesBrowser.getCurrentEntity($stateParams),
+                            //EntitiesBrowser.getNotebookFromCache($stateParams),
+                            //EntitiesBrowser.getProjectFromCache($stateParams)
+
+                            Experiment.get($stateParams).$promise,
+                            Notebook.get($stateParams).$promise,
+                            Project.get($stateParams).$promise
+
+
                         ]).then(function(results){
                             deferred.resolve({
                                 experiment: results[0],
@@ -213,12 +242,15 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, EntitiesBrowser) {
+                    pageInfo: function ($q, $stateParams, Experiment, Notebook, Project) {
                         var deferred = $q.defer();
                         $q.all([
-                            EntitiesBrowser.getCurrentEntity($stateParams),
-                            EntitiesBrowser.getNotebookFromCache($stateParams),
-                            EntitiesBrowser.getProjectFromCache($stateParams)
+                            //EntitiesBrowser.getCurrentEntity($stateParams),
+                            //EntitiesBrowser.getNotebookFromCache($stateParams),
+                            //EntitiesBrowser.getProjectFromCache($stateParams)
+                            Experiment.get($stateParams).$promise,
+                            Notebook.get($stateParams).$promise,
+                            Project.get($stateParams).$promise
                         ]).then(function (results) {
                             deferred.resolve({
                                 experiment: results[0],

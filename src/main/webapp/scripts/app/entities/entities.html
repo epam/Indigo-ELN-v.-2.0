@@ -1,18 +1,19 @@
 <div my-tab-scroller class="experiment-tabs">
     <ul class="nav nav-pills">
-        <li role="presentation" ng-class="{'active' : entity.fullId===entityId}"
-            ng-repeat="entity in entities track by entity.fullId" class="experiment-tab">
-            <a class="capitalized" ng-click="$event.stopPropagation(); onTabClick(entity.fullId)">
-                {{getKind(entity.fullId)}} {{entity.$$title}} <em
+        <li role="presentation"  ng-class="{'active' : tab.tabKey === activeTab.tabKey}"
+            ng-repeat="tab in tabs  track by tab.tabKey" class="experiment-tab">
+            <a class="capitalized" ng-click="$event.stopPropagation(); onTabClick(tab)">
+               {{tab.name}} {{tab.$$title}}<em
                     class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
-                    ng-click="$event.stopPropagation(); onCloseTabClick(entity.fullId, entityId);"></em>
-                <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="entity.$$form.$dirty"></i>
+                    ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></em>
+                <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></i>
             </a>
         </li>
     </ul>
 </div>
-<div class="tab-content animated">
+<div class="entities-content tab-content animated">
     <div class="tab-pane active">
-        <div ui-view="tabContent" class="tab-content animated" my-tab-content></div>
+        <div ui-view="tabContent" class="tab-content animated"></div>
     </div>
 </div>
+

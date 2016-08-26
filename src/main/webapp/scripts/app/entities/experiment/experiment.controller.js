@@ -1,6 +1,5 @@
 angular.module('indigoeln')
-.controller('ExperimentController', function ($rootScope, $scope, $state, Dashboard, CONFIG) {
-
+    .controller('ExperimentController', function ($rootScope, $scope, $state, Dashboard, CONFIG) {
         $scope.experiments = [];
         $scope.predicate = 'id';
         $scope.reverse = true;
@@ -16,7 +15,7 @@ angular.module('indigoeln')
         };
         $scope.loadAll();
 
-    $scope.signatureServiceUrl = CONFIG['client.signatureservice.url'];
+        $scope.signatureServiceUrl = CONFIG['client.signatureservice.url'];
 
         $scope.refresh = function () {
             $scope.loadAll();

@@ -1,0 +1,164 @@
+<div class="panel panel-info">
+    <div class="panel-heading">
+        Query & Search
+    </div>
+    <div class="panel-body">
+        <div class="reagent-search-tab">
+            <div class="reagent-search-container" ng-show="!isSearchResultFound">
+                <div class="row well well-sm" ng-init="$$isCollapsed=true" style="margin-top:3px;">
+                    <my-input class="col-xs-9" my-model="model.restrictions.searchQuery"
+                              my-label="Type in your search query"
+                              my-label-vertical="true"></my-input>
+                    <div class="reagent-search-advanced"><a ng-click="$$isCollapsed = !$$isCollapsed">
+                                                <span ng-class="{'glyphicon glyphicon-triangle-right':$$isCollapsed,
+                                                                     'glyphicon glyphicon-triangle-bottom':!$$isCollapsed}"></span>
+                        Advanced search</a></div>
+                    <div class="col-xs-12 reagent-search-hint">
+                    </div>
+
+                    <div uib-collapse="$$isCollapsed">
+                        <div class="col-xs-12">
+
+                            <div ng-show="!isSearchResultFound">
+                                <div class="reagent-search-container">
+                                    <strong>Field Search Criteria</strong>
+                                    <div class="row reagent-search-row" ng-repeat="(key, obj) in model.restrictions.advancedSearch">
+                                        <div class="col-xs-3"><p ng-bind="::obj.name"></p>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <my-select my-items="obj.conditionList"
+                                                       my-model="obj.condition">
+                                            </my-select>
+                                        </div>
+                                        <div class="col-xs-3">
+                                            <my-input my-model="obj.value"></my-input>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="reagent-search-container">
+                                    <strong>Entity Type Criteria</strong>
+                                    <div class="row reagent-search-row" style="margin-top:10px">
+                                        <div class="col-xs-2">
+                                            <label class="radio-inline">
+                                                <input checked="checked" data-val="true" data-val-required="The IsSmallBusiness field is required." name="entity" type="radio" value="False">
+                                                <span style="line-height: 1.5;">Project</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <label class="radio-inline">
+                                                <input  name="entity" type="radio" value="True">
+                                                <span style="line-height: 1.5;">Notebook</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <label class="radio-inline">
+                                                <input  name="entity" type="radio" value="True">
+                                                <span style="line-height: 1.5;">Experiment</span>
+                                            </label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="reagent-search-container">
+                                    <strong>Entity Searching Domain</strong>
+                                    <div class="row reagent-search-row" style="margin-top:10px">
+                                        <div class="col-xs-2">
+                                            <label class="radio-inline">
+                                                <input checked="checked" data-val="true" data-val-required="The IsSmallBusiness field is required." name="entity" type="radio" value="False">
+                                                <span style="line-height: 1.5;">In My Own Entity</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-xs-10">
+                                            <div style=display:flex;">
+                                            <label class="radio-inline">
+                                                <input  name="entity" type="radio" value="True">
+                                                <span style="line-height: 1.5;">In Entities of These Users</span>
+                                            </label>
+                                            <my-select my-items="users" style="margin-top:-8px;width:300px;"
+                                                       my-model="model.restrictions.advancedSearch.user"></my-select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="reagent-search-container">
+                                    <strong>Experiment Status Criteria</strong>
+                                    <div class="row reagent-search-row" style="margin-top:10px">
+
+                                        <div class="col-xs-2">
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Open"></my-checkbox>
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Signing"></my-checkbox>
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Completed"></my-checkbox>
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Submit Fail"></my-checkbox>
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Submitted"></my-checkbox>
+                                            <my-checkbox my-model="allItemsSelected"
+                                                         my-change="selectAll()" my-label="Archived"></my-checkbox>
+                                        </div>
+
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="well well-sm" style="margin-top:-10px;">
+                    <div class="reagent-search-well"><strong>Structure/Reaction search Query</strong>
+                        <div class="row reagent-search-row">
+                            <div class="col-xs-2"><p>Search</p></div>
+                            <div class="col-xs-4">
+                                <my-select my-items="structureTypes"
+                                           my-model="model.restrictions.structure.type"></my-select>
+                            </div>
+                        </div>
+                        <div class="row reagent-search-row">
+                            <div class="col-xs-2"><p>Similarity criteria</p></div>
+                            <div class="col-xs-4">
+                                <my-select my-items="conditionSimilarity"
+                                           my-model="model.restrictions.structure.similarityCriteria"></my-select>
+                            </div>
+                            <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
+                                <my-input class="col-xs-2" style="width:80px;"
+                                          my-name="similarityValue"
+                                          my-validation-pattern="/^\d{1,2}(?!\d)|100$/"
+                                          my-validation-max-length="3"
+                                          my-validation-required="true"
+                                          my-validation-pattern-text="Enter 1-100"
+                                          my-model="model.restrictions.structure.similarityValue"></my-input>
+                                <div style="position:relative">
+                                    <span style="position:absolute;top:7px;">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row reagent-search-row">
+                            <div class="col-xs-12">
+                                <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
+                                                  my-title="Structure or reaction" my-model="scheme"></structure-scheme>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn btn-info"
+                            type="button"
+                            ng-click="search()"
+                            ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
+                                                    !model.restrictions.searchQuery">Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-footer text-right">
+
+    </div>
+</div>

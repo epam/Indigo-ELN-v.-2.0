@@ -3,11 +3,11 @@
 </div>
 <div class="modal-body">
     <div class="long-content-popup">
-        <div class="row select-from-dictionary" ng-repeat="entity in entities track by entity.fullId">
+        <div class="row select-from-dictionary" ng-repeat="entity in entities track by entity.tabKey">
             <div class="col-xs-12">
                 <my-checkbox
                         my-model="entity.$$saveEntity"
-                        my-label="{{getKind(entity.fullId) | capitalize}} {{entity.$$title}}"
+                        my-label="{{entity.name | capitalize}} {{entity.$$title}}"
                 ></my-checkbox>
             </div>
         </div>

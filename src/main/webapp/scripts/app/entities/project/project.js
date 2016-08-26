@@ -49,13 +49,24 @@ angular.module('indigoeln')
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_READER', 'PROJECT_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'Project',
+                        service:'Project',
+                        kind: 'project',
+                        type:'entity',
+                        state: 'entities.project-detail'
+                    }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, EntitiesBrowser) {
+                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine) {
+
                         var deferred = $q.defer();
+                        if(!EntitiesCache.get($stateParams)){
+                            EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Project, $stateParams));
+                        }
                         $q.all([
-                            EntitiesBrowser.getCurrentEntity($stateParams),
+                            EntitiesCache.get($stateParams),
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),

@@ -154,6 +154,25 @@ body {
     animation: none;
 }
 
+.entities-content{
+    height: calc(100vh - 108px);
+    overflow-y: auto;
+
+}
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+    background: #c0c0c0;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
 .tab-content.ng-enter {
     animation: fadeIn 0.7s;
 }

@@ -4,11 +4,12 @@ angular.module('indigoeln',
         'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside',
-        'config'])
-    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, TabManager) {
+        'config', 'angular-cache'])
+    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null, idleTime = 30, countdown = 30;
+
 
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
@@ -17,15 +18,16 @@ angular.module('indigoeln',
             if (Principal.isIdentityResolved()) {
                 Auth.authorize();
             }
-            var tab = toState.data.tab;
+            var tab = angular.copy(toState.data.tab);
+
             if (tab) {
                 tab.params = toStateParams;
-                if (tab.kind === 'entity') {
-                    tab.id = TabManager.compactIds(toStateParams);
+                if (tab.type && tab.type === 'entity') {
+                    EntitiesBrowser.addTab(tab);
                 }
-                TabManager.addTab(tab);
             }
         });
+
         $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
             var titleKey = 'indigoeln';
 

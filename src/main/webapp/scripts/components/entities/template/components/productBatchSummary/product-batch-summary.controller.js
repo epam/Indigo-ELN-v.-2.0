@@ -4,8 +4,11 @@
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
-              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService) {
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService, Notebook) {
             $scope.model = $scope.model || {};
+
+        console.log('ProductBatchSummaryController');
+
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
@@ -592,10 +595,15 @@ angular.module('indigoeln')
                     '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
                     .then(function (result) {
                         var batchNumber = result.data.batchNumber;
-                        EntitiesBrowser.resolveFromCache({
+
+                        Notebook.get({
                             projectId: $stateParams.projectId,
                             notebookId: $stateParams.notebookId
-                        }).then(function (notebook) {
+                        })
+                       /* EntitiesBrowser.resolveFromCache({
+                            projectId: $stateParams.projectId,
+                            notebookId: $stateParams.notebookId
+                        })*/.then(function (notebook) {
                             var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
                             var fullNbkImmutablePart = notebook.name + '-' + $scope.experiment.name + '-';
                             _.each(getProductBatches(), function (row) {

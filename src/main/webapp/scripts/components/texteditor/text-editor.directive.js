@@ -23,7 +23,7 @@ angular.module('indigoeln')
                     angular.extend({textarea: elem}, textEditorConfig)
                 );
 
-                var newContent = '';
+                var newContent = null;
                 var unbinds = [];
                 var isInit = false;
                 unbinds.push(scope.$watch('myModel', function (value) {
