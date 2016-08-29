@@ -603,7 +603,7 @@ angular.module('indigoeln')
                        /* EntitiesBrowser.resolveFromCache({
                             projectId: $stateParams.projectId,
                             notebookId: $stateParams.notebookId
-                        })*/.then(function (notebook) {
+                        })*/.$promise.then(function (notebook) {
                             var fullNbkBatch = notebook.name + '-' + $scope.experiment.name + '-' + batchNumber;
                             var fullNbkImmutablePart = notebook.name + '-' + $scope.experiment.name + '-';
                             _.each(getProductBatches(), function (row) {
