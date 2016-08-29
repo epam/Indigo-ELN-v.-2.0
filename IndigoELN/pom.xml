@@ -107,9 +107,6 @@
             <groupId>com.epam.indigo</groupId>
             <artifactId>bingo-nosql</artifactId>
             <version>${bingo.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/com/epam/indigo/bingo-nosql/1.2.2beta-r37/bingo-nosql-1.2.2beta-r37.jar
-            </systemPath>
         </dependency>
 
         <!-- Indigo -->
@@ -118,9 +115,6 @@
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo</artifactId>
             <version>${bingo.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/com/epam/indigo/indigo/1.2.2beta-r37/indigo-1.2.2beta-r37.jar
-            </systemPath>
         </dependency>
 
         <!-- Indigo-renderer -->
@@ -129,10 +123,6 @@
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo-renderer</artifactId>
             <version>${bingo.version}</version>
-            <scope>system</scope>
-            <systemPath>
-                ${project.basedir}/lib/com/epam/indigo/indigo-renderer/1.2.2beta-r37/indigo-renderer-1.2.2beta-r37.jar
-            </systemPath>
         </dependency>
 
         <!-- CRS -->
