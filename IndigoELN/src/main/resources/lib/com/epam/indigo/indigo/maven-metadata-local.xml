@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
     <groupId>com.epam.indigo</groupId>
-    <artifactId>bingo-nosql</artifactId>
+    <artifactId>indigo</artifactId>
     <versioning>
         <release>1.2.2beta-r37</release>
         <versions>
             <version>1.2.2beta-r37</version>
         </versions>
+        <lastUpdated>20160829121712</lastUpdated>
     </versioning>
 </metadata>

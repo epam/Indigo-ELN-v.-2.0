@@ -34,7 +34,7 @@ angular.module('indigoeln')
         $scope.logout = function () {
             var userId = Principal.getIdentity().id;
             Auth.logout();
-            EntitiesCache.destroyAll();
+            EntitiesCache.clearAll();
             $rootScope.$broadcast('user-logout', {id: userId});
             $state.go('login');
         };

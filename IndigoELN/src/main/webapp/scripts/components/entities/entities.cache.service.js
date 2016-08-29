@@ -19,8 +19,8 @@ angular.module('indigoeln')
                 entitiesCache.remove(key);
             },
 
-            destroyAll: function () {
-                CacheFactory.destroy('entitiesCache');
+            clearAll: function () {
+                CacheFactory.clearAll();
             }
         }
     });
