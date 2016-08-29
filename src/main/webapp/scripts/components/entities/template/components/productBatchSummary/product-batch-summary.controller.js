@@ -442,9 +442,7 @@ angular.module('indigoeln')
             $scope.onRowSelected = function (row) {
                 $scope.share.selectedRow = row || null;
                 if (row) {
-                    var data = initDataForCalculation();
-                    data.row = row;
-                    $rootScope.$broadcast('batch-summary-row-selected', data);
+                    $rootScope.$broadcast('batch-summary-row-selected', {row: row});
                 } else {
                     $rootScope.$broadcast('batch-summary-row-deselected');
                 }
@@ -465,25 +463,10 @@ angular.module('indigoeln')
                 return rowResult;
             };
 
-            function initDataForCalculation(data) {
-                var calcData = data || {};
-                calcData.stoichTable = getStoicTable();
-                calcData.actualProducts = getProductBatches();
-                return calcData;
-            }
-
             var recalculateSalt = function (reagent) {
-                function callback(result) {
-                    var data = result.data;
-                    data.mySaltEq = reagent.saltEq;
-                    data.mySaltCode = reagent.saltCode;
-                    reagent.molWeight = reagent.molWeight || {};
-                    reagent.molWeight.value = data.molecularWeight;
-                    reagent.formula = CalculationService.getSaltFormula(data);
-                    reagent.lastUpdatedType = 'weight'; // is it?
-                    CalculationService.recalculateStoich(initDataForCalculation());
-                }
-                CalculationService.recalculateSalt(reagent, callback);
+                CalculationService.recalculateSalt(reagent).then(function () {
+                    CalculationService.recalculateStoich();
+                });
             };
 
             $scope.isHasCheckedRows = function () {
@@ -800,8 +783,7 @@ angular.module('indigoeln')
                     row.formula = molInfo.data.molecularFormula;
                     row.molWeight = row.molWeight || {};
                     row.molWeight.value = molInfo.data.molecularWeight;
-                    // todo replace with recalcAmounts?
-                    CalculationService.recalculateStoich(initDataForCalculation());
+                    CalculationService.recalculateStoich();
                 };
                 if (row.structure && row.structure.molfile) {
                     CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
