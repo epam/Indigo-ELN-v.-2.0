@@ -4,7 +4,8 @@
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
-              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService, Notebook) {
+              AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary,
+              ProductBatchSummaryCache, SdService, Notebook) {
             $scope.model = $scope.model || {};
 
         console.log('ProductBatchSummaryController');
@@ -81,6 +82,7 @@ angular.module('indigoeln')
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                 });
                 $scope.share.actualProducts = batches;
+                ProductBatchSummaryCache.setProductBatchSummary(batches);
             }, true));
 
             function updatePrecursor() {
