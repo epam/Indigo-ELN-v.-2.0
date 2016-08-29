@@ -479,7 +479,7 @@ angular.module('indigoeln')
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = CalculationService.getSaltFormula(data);
                     reagent.lastUpdatedType = 'weight'; // is it?
-                    CalculationService.recalculateAmounts({row: reagent});
+                    CalculationService.recalculateStoich(initDataForCalculation());
                 }
                 CalculationService.recalculateSalt(reagent, callback);
             };
