@@ -112,12 +112,27 @@
             </systemPath>
         </dependency>
 
+        <!-- Indigo -->
+
+        <dependency>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo</artifactId>
+            <version>${bingo.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/com/epam/indigo/indigo/1.2.2beta-r37/indigo-1.2.2beta-r37.jar
+            </systemPath>
+        </dependency>
+
         <!-- Indigo-renderer -->
 
         <dependency>
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo-renderer</artifactId>
             <version>${bingo.version}</version>
+            <scope>system</scope>
+            <systemPath>
+                ${project.basedir}/lib/com/epam/indigo/indigo-renderer/1.2.2beta-r37/indigo-renderer-1.2.2beta-r37.jar
+            </systemPath>
         </dependency>
 
         <!-- CRS -->
