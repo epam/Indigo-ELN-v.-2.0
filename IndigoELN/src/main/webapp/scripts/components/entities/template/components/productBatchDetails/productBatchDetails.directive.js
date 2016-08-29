@@ -163,23 +163,10 @@ angular.module('indigoeln')
                 $scope.registerBatch = function () {
                     AlertModal.info('not implemented yet');
                 };
-                function initDataForCalculation(data) {
-                    var calcData = data || {};
-                    calcData.stoichTable = getStoicTable();
-                    calcData.actualProducts = getProductBatches();
-                    return calcData;
-                }
                 $scope.recalculateSalt = function (reagent) {
-                    function callback(result) {
-                        var data = result.data;
-                        data.mySaltEq = reagent.saltEq;
-                        data.mySaltCode = reagent.saltCode;                        
-                        reagent.molWeight = reagent.molWeight || {};
-                        reagent.molWeight.value = data.molecularWeight;
-                        reagent.formula = CalculationService.getSaltFormula(data);
-                        CalculationService.recalculateStoich(initDataForCalculation());
-                    }
-                    CalculationService.recalculateSalt(reagent, callback);
+                    CalculationService.recalculateSalt(reagent).then(function () {
+                        CalculationService.recalculateStoich();
+                    });
                 };
                 var unsubscribe = $scope.$watch('share.stoichTable', function (stoichTable) {
                     if (stoichTable && stoichTable.reactants) {

@@ -1,23 +1,10 @@
 angular.module('indigoeln')
-    .factory('scalarService', function ($uibModal, RegistrationUtil, CalculationService, StoichTableCache, ProductBatchSummaryCache) {
-        function initDataForCalculation(data) {
-            var calcData = data || {};
-            calcData.stoichTable = StoichTableCache.getStoicTable();
-            calcData.actualProducts = ProductBatchSummaryCache.getProductBatchSummary();
-            return calcData;
-        }
+    .factory('scalarService', function ($uibModal, RegistrationUtil, CalculationService) {
+
         var recalculateSalt = function (reagent) {
-            function callback(result) {
-                var data = result.data;
-                data.mySaltEq = reagent.saltEq;
-                data.mySaltCode = reagent.saltCode;
-                reagent.molWeight = reagent.molWeight || {};
-                reagent.molWeight.value = data.molecularWeight;
-                reagent.formula = CalculationService.getSaltFormula(data);
-                reagent.lastUpdatedType = 'weight';
-                CalculationService.recalculateStoich(initDataForCalculation());
-            }
-            CalculationService.recalculateSalt(reagent, callback);
+            CalculationService.recalculateSalt(reagent).then(function () {
+                CalculationService.recalculateStoich();
+            });
         };
         var setScalarValueAction = {
 
