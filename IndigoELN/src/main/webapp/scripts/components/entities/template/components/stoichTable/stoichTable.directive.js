@@ -45,19 +45,12 @@ angular.module('indigoeln')
                 var loadFactorUnits = AppValues.getLoadFactorUnits();
                 var reactionReactants, actualProducts;
 
-                function initDataForCalculation(data) {
-                    var calcData = data || {};
-                    calcData.stoichTable = getStoicTable();
-                    calcData.actualProducts = actualProducts;
-                    return calcData;
-                }
-
                 var populateFetchedBatch = function (row, source) {
                     _.extend(row, source);
                     row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
                     row.weight = null;
                     row.volume = null;
-                    CalculationService.recalculateStoich(initDataForCalculation());
+                    CalculationService.recalculateStoich();
                 };
 
                 function fetchBatchByNbkNumber(nbkBatch, row) {
@@ -161,7 +154,7 @@ angular.module('indigoeln')
                         type: 'boolean',
                         onClick: function (data) {
                             CalculationService.setEntered(data);
-                            CalculationService.recalculateStoichBasedOnBatch(initDataForCalculation(data), false);
+                            CalculationService.recalculateStoichBasedOnBatch(data);
                         }
                     },
                     {
@@ -307,11 +300,10 @@ angular.module('indigoeln')
                         $scope.reactantsColumns[i] = _.extend(column, {
                             onClose: function (data) {
                                 CalculationService.setEntered(data);
-                                data = initDataForCalculation(data);
                                 if (column.id === 'rxnRole') {
                                     onRxnRoleChange(data);
                                 }
-                                CalculationService.recalculateStoichBasedOnBatch(data, false);
+                                CalculationService.recalculateStoichBasedOnBatch(data);
                             }
                         });
                     } else if (_.contains(columnsToRecalculateSalt, column.id)) {
@@ -345,16 +337,9 @@ angular.module('indigoeln')
                     $log.debug(row);
                 };
                 var recalculateSalt = function (reagent) {
-                    function callback(result) {
-                        var data = result.data;
-                        data.mySaltEq = reagent.saltEq;
-                        data.mySaltCode = reagent.saltCode;
-                        reagent.molWeight = reagent.molWeight || {};
-                        reagent.molWeight.value = data.molecularWeight;
-                        reagent.formula = CalculationService.getSaltFormula(data);
+                    CalculationService.recalculateSalt(reagent).then(function () {
                         CalculationService.recalculateAmounts({row: reagent});
-                    }
-                    CalculationService.recalculateSalt(reagent, callback);
+                    });
                 };
 
                 function getDefaultChemicalName(index) {
@@ -395,11 +380,11 @@ angular.module('indigoeln')
                             $q.all(productPromises).then(function (results) {
                                 setIntendedProducts(moleculeInfoResponseCallback(results, true));
                                 // getStructureImagesForIntendedProducts();
-                                CalculationService.recalculateStoich(initDataForCalculation());
+                                CalculationService.recalculateStoich();
                             });
                             $q.all(reactantPromises).then(function (results) {
                                 reactionReactants = moleculeInfoResponseCallback(results);
-                                CalculationService.recalculateStoich(initDataForCalculation());
+                                CalculationService.recalculateStoich();
                             });
                             }
                         }
@@ -410,7 +395,7 @@ angular.module('indigoeln')
                 unbinds.push($scope.$watch('share.reaction', function (newMolFile) {
                     if (newMolFile) {
                         getReactionProductsAndReactants(newMolFile);
-                        CalculationService.recalculateStoich(initDataForCalculation());
+                        CalculationService.recalculateStoich();
                     } else {
                         setIntendedProducts(null);
                     }
@@ -439,7 +424,7 @@ angular.module('indigoeln')
                     if (data) {
                         setStoicReactants(_.union(getStoicReactants(), data));
                     }
-                    CalculationService.recalculateStoich(initDataForCalculation());
+                    CalculationService.recalculateStoich();
                 });
                 var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
                     var newReactants = data.stoicBatches;

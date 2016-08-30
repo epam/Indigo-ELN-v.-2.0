@@ -9,8 +9,6 @@ import com.chemistry.enotebook.experiment.common.units.UnitFactory2;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.math.BigDecimal;
 
@@ -36,9 +34,8 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      */
     private static final long serialVersionUID = 8301635693659209778L;
     private transient static final double DELTA_FIGS = 0.0000001;
-    private static final Log log = LogFactory.getLog(Amount2.class);
     private transient final int MAX_FIGS = 10;
-    private final transient int roundingPreference = BigDecimal.ROUND_HALF_UP; // TODO: Part of preference in future
+    private final transient int roundingPreference = BigDecimal.ROUND_HALF_UP;
     private StringBuffer value = new StringBuffer("0");
     // holds the defaultvalue
     private BigDecimal defaultValue = new BigDecimal("0");
@@ -56,7 +53,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
 
     //////
 
-    public Amount2() {
+    protected Amount2() {
     }
 
     public Amount2(UnitType unitType) {
@@ -70,7 +67,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         unit = UnitFactory2.createUnitOfType(unitType);
     }
 
-    public Amount2(String val, Unit2 toUnit) {
+    private Amount2(String val, Unit2 toUnit) {
         this();
         setValue(val);
         unit.deepCopy(toUnit);
@@ -81,7 +78,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         setDefaultValue(defaultVal);
     }
 
-    public Amount2(double val, Unit2 toUnit) {
+    private Amount2(double val, Unit2 toUnit) {
         this();
         setValue(val);
         unit.deepCopy(toUnit);
@@ -224,6 +221,20 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
 		 */
     }
 
+    /**
+     * WARNING: using this will set the scale visible to users.
+     */
+    public void setValue(Double val) {
+        if (!(val.isInfinite() && val.isNaN())) {
+            BigDecimal bg = new BigDecimal(val);
+            if (!isCalculated())
+                setFixedFigs(bg.scale());
+            setValue(bg);
+        } else {
+            setValue(defaultValue);
+        }
+    }
+
     public void setValue(BigDecimal val) {
         // value = new BigDecimal(val.unscaledValue(), val.scale()); // this is an effective copy of BigDecimal
         setValue(val.doubleValue()); // this is an effective copy of BigDecimal
@@ -232,7 +243,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         setModelChanged(true);
     }
 
-    public String GetValueForDisplay() {
+    protected String GetValueForDisplay() {
         if (!isCanBeDisplayed) {
             return "";
         }
@@ -293,7 +304,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             Double tstVal = new Double(val);
             if (!(tstVal.isInfinite() || tstVal.isNaN())) {
                 value.setLength(0);
-                if (tstVal.doubleValue() != 0.0) {
+                if (tstVal != 0.0) {
                     // The value should be un-adulterated, so directly appending the val
                     // to value string buffer.
                     value.append(val);
@@ -327,25 +338,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         setValue(Double.toString(val), isCalc);
     }
 
-    /**
-     * WARNING: using this will set the scale visible to users.
-     *
-     * @param val
-     */
-    public void setValue(Double val) {
-        if (!(val.isInfinite() && val.isNaN())) {
-            BigDecimal bg = new BigDecimal(val.doubleValue());
-            if (!isCalculated())
-                setFixedFigs(bg.scale());
-            setValue(bg);
-        } else {
-            setValue(defaultValue);
-        }
-    }
-
     public void setValue(Double val, boolean isCalculated) {
         if (!(val.isInfinite() && val.isNaN())) {
-            BigDecimal bg = new BigDecimal(val.doubleValue());
+            BigDecimal bg = new BigDecimal(val);
             setValue(bg, isCalculated);
         } else {
             setValue(defaultValue, true);
@@ -418,9 +413,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default.
+     *            value to be used as default. Must be a number.
      */
-    public void setDefaultValue(double val) {
+    public void setDefaultValue(String val) {
         defaultValue = new BigDecimal(val);
     }
 
@@ -429,9 +424,9 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
      * as the null string indicates the defaults are to be imposed.
      *
      * @param val -
-     *            value to be used as default. Must be a number.
+     *            value to be used as default.
      */
-    public void setDefaultValue(String val) {
+    public void setDefaultValue(double val) {
         defaultValue = new BigDecimal(val);
     }
 

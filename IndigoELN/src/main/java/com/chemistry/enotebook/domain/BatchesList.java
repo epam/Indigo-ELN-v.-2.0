@@ -2,6 +2,7 @@ package com.chemistry.enotebook.domain;
 
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
+import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 
 import java.util.ArrayList;
@@ -310,7 +311,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     public void applyLatestSigDigits(int defaultSigs) {
         List<AmountModel> amts = getCalculatedAmounts();
-        amts.stream().filter(amt -> amt.isCalculated()).forEach(amt -> {
+        amts.stream().filter(Amount2::isCalculated).forEach(amt -> {
             amt.setSigDigits(defaultSigs);
         });
     }
@@ -551,7 +552,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
             return false;
         if (!listPreviousMolarAmount.equals(that.listPreviousMolarAmount))
             return false;
-        return batchModels != null ? batchModels.equals(that.batchModels) : that.batchModels == null && (position != null ? position.equals(that.position) : that.position == null);
+        return batchModels.equals(that.batchModels);
 
     }
 

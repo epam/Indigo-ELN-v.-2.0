@@ -1,16 +1,24 @@
 angular.module('indigoeln')
-    .factory('CalculationService', function ($rootScope, NumberUtil, $http, AppValues, capitalizeFilter) {
+    .factory('CalculationService', function ($rootScope, NumberUtil, $http, $q, AppValues,
+                                             StoichTableCache, ProductBatchSummaryCache, capitalizeFilter) {
         var defaultBatch = AppValues.getDefaultBatch();
-        var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
+
+        function initDataForStoichCalculation(data) {
+            var calcData = data || {};
+            calcData.stoichTable = StoichTableCache.getStoicTable();
+            calcData.actualProducts = ProductBatchSummaryCache.getProductBatchSummary();
+            return calcData;
+        }
 
         var setDefaultValues = function (batches) {
+            var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
+
             if (_.isArray(batches)) {
                 return _.map(batches, function (batch) {
                     _.each(batch, function (value, key) {
                         if (_.isObject(value)) {
                             value.entered = value.entered || false;
                         } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
-                            // TODO this can be deleted after database drop
                             batch[key] = {value: value, entered: false};
                         } else if (_.isNull(value)) {
                             batch[key] = undefined; // because _.defaults omits nulls
@@ -23,7 +31,6 @@ angular.module('indigoeln')
                     if (_.isObject(value)) {
                         value.entered = value.entered || false;
                     } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
-                        // TODO this can be deleted after database drop
                         batches[key] = {value: value, entered: false};
                     } else if (_.isNull(value)) {
                         batches[key] = undefined; // because _.defaults omits nulls
@@ -83,20 +90,27 @@ angular.module('indigoeln')
             return batch;
         };
 
-        var recalculateSalt = function (reagent, callback) {
+        var recalculateSalt = function (reagent) {
+            var deferred = $q.defer();
             if (reagent.structure && reagent.structure.molfile) {
                 var config = getSaltConfig(reagent);
                 $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
                     .then(function (result) {
-                        callback(result);
+                        var data = result.data;
+                        data.mySaltEq = reagent.saltEq;
+                        data.mySaltCode = reagent.saltCode;
+                        reagent.molWeight = reagent.molWeight || {};
+                        reagent.molWeight.value = data.molecularWeight;
+                        reagent.formula = getSaltFormula(data);
+                        reagent.lastUpdatedType = 'weight'; // for product batch summary
+                        deferred.resolve();
                     });
+                return deferred.promise;
             }
         };
 
-        var recalculateStoich = function (data) {
-            if (!data.stoichTable) {
-                return;
-            }
+        var recalculateStoich = function (calcData) {
+            var data = initDataForStoichCalculation(calcData);
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
@@ -108,7 +122,8 @@ angular.module('indigoeln')
             });
         };
 
-        var recalculateStoichBasedOnBatch = function (data) {
+        var recalculateStoichBasedOnBatch = function (calcData) {
+            var data = initDataForStoichCalculation(calcData);
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),

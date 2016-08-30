@@ -77,11 +77,8 @@ public class ProductBatchModel extends BatchModel {
      * For product batches this also recalculates TheoreticalYieldPercent
      */
     public void recalcAmounts() {
-        // TODO: needs to be tested: Added isEditable() to prevent updates
-        // unnecessarily.
-        // The test needs to be such that there were items that used to be
-        // calculated
-        // on the fly.
+        // needs to be tested: Added isEditable() to prevent updates unnecessarily.
+        // The test needs to be such that there were items that used to be calculated on the fly.
         if (autoCalcOn && !inCalculation) {
             //As per 1.1 calc and also trigger weight,volume amounts calc
             super.recalcAmounts();
@@ -166,7 +163,7 @@ public class ProductBatchModel extends BatchModel {
         return theoreticalYieldPercentAmount;
     }
 
-    public AmountModel getTotalMolarAmount() {
+    private AmountModel getTotalMolarAmount() {
         return super.getTotalMolarity();
     }
 
@@ -317,9 +314,6 @@ public class ProductBatchModel extends BatchModel {
      * rules to be applied, which checks for any user edits on Measured Amounts
      * (Weight,Volume). else any other edit would lead to Default SigFig
      * application on the Amount.
-     *
-     * @param amt
-     * @param amts
      */
     public void applySigFigRules(Amount2 amt, List<AmountModel> amts) {
         if (shouldApplySigFigRules()) {

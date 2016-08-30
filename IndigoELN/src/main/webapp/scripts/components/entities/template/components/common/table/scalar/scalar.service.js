@@ -1,18 +1,10 @@
 angular.module('indigoeln')
     .factory('scalarService', function ($uibModal, RegistrationUtil, CalculationService) {
-        var recalculateSalt = function (reagent) {
-            function callback(result) {
-                var data = result.data;
-                data.mySaltEq = reagent.saltEq;
-                data.mySaltCode = reagent.saltCode;
-                reagent.molWeight = reagent.molWeight || {};
-                reagent.molWeight.value = data.molecularWeight;
-                reagent.formula = CalculationService.getSaltFormula(data);
-                reagent.lastUpdatedType = 'weight';
-                CalculationService.recalculateAmounts({row: reagent});
-            }
 
-            CalculationService.recalculateSalt(reagent, callback);
+        var recalculateSalt = function (reagent) {
+            CalculationService.recalculateSalt(reagent).then(function () {
+                CalculationService.recalculateStoich();
+            });
         };
         var setScalarValueAction = {
 
