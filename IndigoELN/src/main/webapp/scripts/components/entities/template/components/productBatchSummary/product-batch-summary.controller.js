@@ -6,9 +6,6 @@ angular.module('indigoeln')
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
               AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary, SdService, Notebook) {
             $scope.model = $scope.model || {};
-
-        console.log('ProductBatchSummaryController');
-
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
