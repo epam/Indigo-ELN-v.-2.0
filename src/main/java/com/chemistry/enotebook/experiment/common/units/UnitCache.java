@@ -6,7 +6,7 @@ import java.util.TreeMap;
 /**
  * Unit types are based on (T)ime, (M)ass, (L)ength, (W)eight, (D)ensity
  */
-public class UnitCache {
+class UnitCache {
     private static UnitCache instance;
     private TreeMap unitsByType = null;
     private TreeMap<Object, Unit> units = null; // Cached by code

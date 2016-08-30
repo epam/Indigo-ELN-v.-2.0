@@ -88,17 +88,13 @@ public class GUIDUtil {
         tmpBuffer.append(extraSeedHashCode);
 
         long timeNow = System.currentTimeMillis();
-        int timeLow = (int) timeNow & 0xFFFFFFFF;
-        // TODO:  Should figure out if we want to synchronize access to the seeder to prevent
+        int timeLow = (int) timeNow;
         int node = seeder.nextInt();
 
-        StringBuffer guid = new StringBuffer(32);
-        guid.append(hexFormat(timeLow, 8));
-        guid.append(tmpBuffer.toString());
-        guid.append(hexFormat(node, 8));
-
         // //System.out.println("generateGUID.guid = " + guid.toString());
-        return guid.toString();
+        return hexFormat(timeLow, 8) +
+                tmpBuffer.toString() +
+                hexFormat(node, 8);
     }
 
     private static int getInt(byte[] bytes) {

@@ -29,8 +29,8 @@ public class UnitType implements Serializable, Comparable<UnitType> {
     static final int LOADING_ORDINAL = 6;
     public static final UnitType LOADING = new UnitType("LOADING", LOADING_ORDINAL);
     static final int TEMP_ORDINAL = 8;
-    public static final UnitType TEMP = new UnitType("TEMPERATURE", TEMP_ORDINAL);
     static final long serialVersionUID = 2577491617825018196L;
+    private static final UnitType TEMP = new UnitType("TEMPERATURE", TEMP_ORDINAL);
     private static final int HASH_PRIME = 10093;
     private static final int TIME_ORDINAL = 7;
     private static final int MASS_PERCENT_ORDINAL = 9;
@@ -47,7 +47,7 @@ public class UnitType implements Serializable, Comparable<UnitType> {
     /**
      * Calling this will initialize the values in this order if the type hasn't been called previously
      */
-    public static final List<UnitType> VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
+    static final List<UnitType> VALUES = Collections.unmodifiableList(Arrays.asList(PRIVATE_VALUES));
     private final String type;
     // Assign an ordinal to this suit
     private final int ordinal;

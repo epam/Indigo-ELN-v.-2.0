@@ -26,8 +26,8 @@ public class Unit extends GenericCode implements Comparable {
         this.ordinal = nextOrdinal++;
     }
 
-    public Unit(String code, UnitType type, String displayValue, String description, String stdCode, double stdConversionFactor,
-                int stdDisplayFigs) {
+    Unit(String code, UnitType type, String displayValue, String description, String stdCode, double stdConversionFactor,
+         int stdDisplayFigs) {
         super();
         this.code = code;
         this.type = type;
