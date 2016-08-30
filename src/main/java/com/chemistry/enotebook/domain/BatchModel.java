@@ -20,7 +20,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public static final int UPDATE_TYPE_TOTAL_WEIGHT = 3; // vb 2/2
     public static final int UPDATE_TYPE_TOTAL_VOLUME = 4;
-    public static final int UPDATE_TYPE_TOTAL_MOLARITY = 5;
+    static final int UPDATE_TYPE_TOTAL_MOLARITY = 5;
     // Describes concentration of batch before updating with latests Amount
     private final AmountModel previousMolarAmount = new AmountModel(UnitType.MOLAR);
     boolean autoCalcOn = true;
@@ -253,8 +253,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             rxnEquivsAmount.deepCopy(equiv);
             updateCalcFlags(rxnEquivsAmount);
             setModified(true);
-        } else if (equiv == null) {
-            this.rxnEquivsAmount.setValue("1.00");
         }
     }
 

@@ -50,15 +50,7 @@ angular.module('indigoeln')
                 };
 
                 $scope.recalculateSalt = function (reagent) {
-                    function callback(result) {
-                        reagent.molWeight = reagent.molWeight || {};
-                        var data = result.data;
-                        data.mySaltEq = reagent.saltEq;
-                        data.mySaltCode = reagent.saltCode;
-                        reagent.molWeight.value = data.molecularWeight;
-                        reagent.formula = CalculationService.getSaltFormula(data);
-                    }
-                    CalculationService.recalculateSalt(reagent, callback);
+                    CalculationService.recalculateSalt(reagent);
                 };
 
                 var unsubscribe = $scope.$watch('myTableContent', function (newVal) {
