@@ -1,8 +1,6 @@
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
 
-        //var tab = $state.$current.data.tab.name;
-
         $scope.components = Components;
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
