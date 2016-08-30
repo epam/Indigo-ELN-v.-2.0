@@ -20,7 +20,7 @@ import java.util.TreeMap;
  * <p>
  * 1 Liter = 1 L = 1000 milliliters 1 milliliter = 1 mL = 1000 microliters 1 microliter = 1 uL = 1000 nanoliters
  */
-public class UnitFactory {
+class UnitFactory {
     private static final int STD_DISPLAY_FIGS = 3;
 
     public static Unit createUnitOfType(UnitType ut) {

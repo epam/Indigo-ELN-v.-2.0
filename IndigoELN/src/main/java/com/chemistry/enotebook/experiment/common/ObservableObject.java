@@ -28,7 +28,7 @@ class ObservableObject extends Observable implements Observer, java.io.Serializa
     /**
      * Method to determine if this object is currently being loaded.
      */
-    public boolean isLoading() {
+    boolean isLoading() {
         return false;
     }
 

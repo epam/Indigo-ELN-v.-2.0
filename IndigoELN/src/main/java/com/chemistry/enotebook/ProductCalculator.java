@@ -6,16 +6,12 @@ import com.chemistry.enotebook.domain.MonomerBatchModel;
 import com.chemistry.enotebook.domain.ProductBatchModel;
 import com.chemistry.enotebook.experiment.common.units.Unit2;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 
 import static com.chemistry.enotebook.experiment.common.units.UnitType.*;
 
 public class ProductCalculator {
-
-    private static final Log log = LogFactory.getLog(ProductCalculator.class);
 
     private static final int WEIGHT_AMOUNT = 1;
     private static final int VOLUME_AMOUNT = 2;

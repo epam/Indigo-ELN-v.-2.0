@@ -10,7 +10,7 @@ class ParentCompoundModel extends CeNAbstractModel {
 
     private double molWgt; // Equivalent to parent molecular weight
 
-    double getMolWgt() {
+    private double getMolWgt() {
         return molWgt;
     }
 

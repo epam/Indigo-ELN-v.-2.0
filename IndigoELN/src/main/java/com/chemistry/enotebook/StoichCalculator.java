@@ -265,8 +265,7 @@ public class StoichCalculator {
      * unset.
      */
     private void clearLimitingReagentFlags(StoicModelInterface exceptForThisReagent) {
-        // todo check, guid key equality was deleted
-        rxnStepModel.getStoicElementListInTransactionOrder().stream().filter(b -> !b.equals(exceptForThisReagent)).forEach(b -> { // todo check, guid key equality was deleted
+        rxnStepModel.getStoicElementListInTransactionOrder().stream().filter(b -> !b.equals(exceptForThisReagent)).forEach(b -> {
             b.setStoicLimiting(false);
         });
     }
