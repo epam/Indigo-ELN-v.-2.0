@@ -4,6 +4,8 @@ angular.module('indigoeln')
         var type = $attrs.myStructureType;
         $scope.structureType = type;
         $scope.myTitle = $attrs.myTitle;
+        var batchSummarySelected;
+        var newReactionScheme;
 
         if (!$scope.model) {
             return;
@@ -18,9 +20,15 @@ angular.module('indigoeln')
         var unsubscribe = $scope.$watch('model.' + type + '.structureId', onStructureIdChange);
         $scope.$on('$destroy', function () {
             unsubscribe();
+            if(batchSummarySelected){
+                batchSummarySelected();
+            }
+            if(newReactionScheme){
+                newReactionScheme();
+            }
         });
         if (type === 'molecule') {
-            $scope.$on('batch-summary-row-selected', function (event, data) {
+            batchSummarySelected = $scope.$on('batch-summary-row-selected', function (event, data) {
                 var row = data.row;
                 if (row && row.structure && row.structure.structureType === type) {
                     $scope.model[type].image = $scope.share.selectedRow.structure.image;
@@ -39,7 +47,7 @@ angular.module('indigoeln')
             });
         }
         if (type === 'reaction') {
-            $scope.$on('new-reaction-scheme', function (event, data) {
+            newReactionScheme = $scope.$on('new-reaction-scheme', function (event, data) {
                 $scope.model[type].image = data.image;
                 $scope.model[type].structureMolfile = data.molfile;
             });

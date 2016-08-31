@@ -338,6 +338,7 @@ angular.module('indigoeln')
             myModel: '=',
             myLabelVertical: '=',
             myClasses: '@',
+            myNoElastic: '=',
             myInputGroup: '@',
             myReadonly: '=',
             myRowsNum: '=',
@@ -358,11 +359,17 @@ angular.module('indigoeln')
             }
             formUtils.doVertical(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
+
+
+            if (tAttrs.myNoElastic){
+                tElement.find('textarea').removeAttr('msd-elastic');
+            }
+
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
         '<div class="col-xs-10">' +
-        '<textarea class="form-control" rows="1" msd-elastic style="resize: none;"></textarea>' +
+        '<textarea class="form-control" rows="1" msd-elastic  style="resize: none;"></textarea>' +
         '</div> ' +
         '</div> '
     };

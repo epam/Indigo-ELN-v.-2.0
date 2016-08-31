@@ -289,6 +289,15 @@ body {
     color: #337ab7
 }
 
+.compound-component div.col-xs-12.text-left div {
+    width: 170px!important;
+}
+
+.compound-component .structure-preview-wrapper{
+    display: flex;
+    justify-content: center;
+}
+
 .dictionary-col-width {
     max-width: 200px;
 }

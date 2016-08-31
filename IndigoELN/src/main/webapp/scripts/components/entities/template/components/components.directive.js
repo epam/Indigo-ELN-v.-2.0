@@ -47,6 +47,16 @@ angular.module('indigoeln')
             name: 'Attachments',
             id: 'attachments',
             desc: 'Allows to manage attachment of any kind of file related to  this experiment'
+        },
+        {
+            name: 'Preferred Compounds Summary',
+            id: 'preferred-compounds-summary',
+            desc: 'Allows user to review, create and edit compounds details: Stereoisomer code, Comments, ect. Virtual Compound Registration (if it is allowed) is also executed here.'
+        },
+        {
+            name: 'Preferred Compound  Details',
+            id: 'preferred-compound-details',
+            desc: 'Provides details for the individual compound. Allows user to review, create and edit batch details: Stereoisomer code, Comments, ect. Virtual Compound Registration (if it is allowed) is also executed here.'
         }
     ])
     .directive('myComponent', function () {
@@ -76,6 +86,8 @@ angular.module('indigoeln')
             '<div ng-switch-when="reaction-details"><reaction-details /></div>' +
             '<div ng-switch-when="product-batch-details"><product-batch-details /></div>' +
             '<div ng-switch-when="product-batch-summary"><product-batch-summary /></div>' +
+            '<div ng-switch-when="preferred-compounds-summary"><preferred-compounds-summary /></div>' +
+            '<div ng-switch-when="preferred-compound-details"><preferred-compound-details /></div>' +
             '<div ng-switch-when="reaction-scheme"><reaction-scheme /></div>' +
             '<div ng-switch-when="batch-structure"><batch-structure /></div>' +
             '<div ng-switch-when="stoich-table"><stoich-table /></div>' +

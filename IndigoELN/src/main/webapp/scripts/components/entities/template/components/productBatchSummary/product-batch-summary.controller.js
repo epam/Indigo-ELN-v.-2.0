@@ -7,9 +7,6 @@ angular.module('indigoeln')
               AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary,
               ProductBatchSummaryCache, SdService, Notebook) {
             $scope.model = $scope.model || {};
-
-        console.log('ProductBatchSummaryController');
-
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
             var grams = AppValues.getGrams();
