@@ -27,8 +27,8 @@
 
     <repositories>
         <repository>
-            <id>local</id>
-            <url>file://${project.basedir}/src/main/resources/lib</url>
+            <id>crs-client</id>
+            <url>file://${project.basedir}/lib</url>
         </repository>
     </repositories>
 
@@ -106,14 +106,6 @@
         <dependency>
             <groupId>com.epam.indigo</groupId>
             <artifactId>bingo-nosql</artifactId>
-            <version>${bingo.version}</version>
-        </dependency>
-
-        <!-- Indigo -->
-
-        <dependency>
-            <groupId>com.epam.indigo</groupId>
-            <artifactId>indigo</artifactId>
             <version>${bingo.version}</version>
         </dependency>
 
