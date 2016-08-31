@@ -1,9 +1,12 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.service.search.EntitySearchService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.core.service.search.SearchServiceFacade;
+import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
+import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * REST Controller for Custom Search Implementation
@@ -28,6 +32,9 @@ public class SearchResource {
 
     @Autowired
     private SearchServiceFacade searchService;
+
+    @Autowired
+    private EntitySearchService entitySearchService;
 
     /**
      * GET /catalogue -> returns a list of search catalogues
@@ -54,6 +61,20 @@ public class SearchResource {
             @ApiParam("Search params.") @RequestBody BatchSearchRequest searchRequest
         )  {
         Collection<ProductBatchDetailsDTO> batchDetails = searchService.findBatches(searchRequest);
+        return ResponseEntity.ok(batchDetails);
+    }
+
+    /**
+     * POST / -> find entities by specified criteria
+     */
+    @ApiOperation(value = "Searches for entities by specified criteria.", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<EntitySearchResultDTO>> search(
+            @ApiParam("Search params.") @RequestBody EntitySearchRequest searchRequest
+    ) {
+        List<EntitySearchResultDTO> batchDetails = entitySearchService.find(searchRequest);
         return ResponseEntity.ok(batchDetails);
     }
 }
