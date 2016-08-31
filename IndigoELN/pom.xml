@@ -109,8 +109,13 @@
             <version>${bingo.version}</version>
         </dependency>
 
-        <!-- Indigo-renderer -->
+        <!-- Indigo -->
 
+        <dependency>
+            <groupId>com.epam.indigo</groupId>
+            <artifactId>indigo</artifactId>
+            <version>${bingo.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.epam.indigo</groupId>
             <artifactId>indigo-renderer</artifactId>
