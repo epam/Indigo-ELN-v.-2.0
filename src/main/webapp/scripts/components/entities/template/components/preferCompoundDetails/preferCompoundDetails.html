@@ -1,0 +1,80 @@
+<div class="compound-component panel panel-info component " my-collapsible-component>
+    <div class="panel-heading">
+        Preferred Compound Details
+    </div>
+    <div class="collapsible">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="row">
+                    <div style="position:relative">
+                        <div class="col-xs-4">
+                            <label>Notebook ID #: </label>
+                            <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span>
+                        </div>
+                        <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
+                            <my-input my-model="model.preferCompoundDetails.nbkBatch"
+                                      my-readonly="myReadonly">
+                            </my-input>
+                        </div>
+
+                        <div class="col-xs-2" style="position:absolute;top:-7px;left:325px;">
+                            <my-checkbox
+                                    my-model="showStructure"
+                                    my-label="Show Structure"
+                            ></my-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row" ng-if="showStructure">
+                <div class="col-xs-12 col-sm-12 col-lg-12">
+                    <div class="structure-preview-wrapper">
+                            <img style="padding:10px;"
+                                 ng-src="data:image/svg+xml;base64,{{structureImage}}"
+                                 alt="Image is unavailable.">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-lg-4">
+                    <my-input my-label="Virtual Compound Id"
+                              my-model="model.preferCompoundDetails.virtualCompoundId"
+                              my-label-vertical="true"
+                              my-readonly="myReadonly">
+                    </my-input>
+                    <my-select my-label="Sterioisomer Code"
+                               my-label-vertical="true"
+                               my-dictionary="Stereoisomer Code"
+                               my-dictionary-full="true"
+                               my-model="model.preferCompoundDetails.stereoisomer"
+                               my-readonly="myReadonly">
+                    </my-select>
+                    <my-simple-text my-label="Calculated Compound MW"
+                                    my-model="model.preferCompoundDetails.molWeight.value | round"
+                                    my-empty-text="none">
+                    </my-simple-text>
+                    <my-simple-text my-label="Calculated Compound MF"
+                                    my-model="model.preferCompoundDetails.formula"
+                                    my-empty-text="none">
+                    </my-simple-text>
+
+                    <my-text-area my-label="Comments"
+                                  my-model="model.preferCompoundDetails.comments"
+                                  my-label-vertical="true"
+                                  my-readonly="myReadonly">
+                    </my-text-area>
+
+                </div>
+                <div class="col-xs-12 col-sm-6 col-lg-4">
+                    <my-text-area my-label="Structure comments"
+                                  my-model="model.preferCompoundDetails.structureComments"
+                                  my-label-vertical="true"
+                                  my-readonly="myReadonly">
+                    </my-text-area>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
