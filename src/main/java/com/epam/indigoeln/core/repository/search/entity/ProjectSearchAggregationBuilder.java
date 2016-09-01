@@ -1,19 +1,18 @@
-package com.epam.indigoeln.core.repository.search;
+package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.repository.search.AbstractSearchAggregationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 public class ProjectSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 
-    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("description", "name");
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("creationDate", "description", "name");
+    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("description", "name", "keywords", "references");
+    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name", "keywords", "references");
 
     private ProjectSearchAggregationBuilder() {
-        aggregationOperations = new ArrayList<>();
         setSearchQueryFields(SEARCH_QUERY_FIELDS);
         setAvailableFields(AVAILABLE_FIELDS);
     }

@@ -1,7 +1,7 @@
-package com.epam.indigoeln.core.repository.search;
+package com.epam.indigoeln.core.repository.search.component;
 
+import com.epam.indigoeln.core.repository.search.AbstractSearchAggregationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Arrays;
