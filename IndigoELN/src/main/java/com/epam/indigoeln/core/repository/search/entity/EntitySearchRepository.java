@@ -1,22 +1,25 @@
-package com.epam.indigoeln.core.repository.search;
+package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.repository.search.component.SearchComponentsRepository;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.mongodb.DBObject;
+import com.mongodb.DBRef;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,7 @@ public class EntitySearchRepository {
     private static final String KIND_PROJECT = "Project";
     private static final String KIND_NOTEBOOK = "Notebook";
     private static final String KIND_EXPERIMENT = "Experiment";
+
     private static Function<DBObject, EntitySearchResultDTO> CONVERT_PROJECT = dbObject -> {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_PROJECT);
@@ -126,13 +130,32 @@ public class EntitySearchRepository {
             return Optional.empty();
         }
         ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if (!request.getAdvancedSearch().isEmpty()) {
+        if (request.getSearchQuery().isPresent()) {
+            builder.withQuerySearch(request.getSearchQuery().get());
+        } else if (!request.getAdvancedSearch().isEmpty()) {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
-        return builder.build();
+        List<AggregationOperation> result = new ArrayList<>();
+        builder.getExperimentAggregationOperations().ifPresent(result::addAll);
+        getComponentsAggregationOperations(builder.getComponentsAggregations()).ifPresent(result::addAll);
+
+        return Optional.ofNullable(result.isEmpty() ? null : Aggregation.newAggregation(result));
+    }
+
+    private Optional<List<AggregationOperation>> getComponentsAggregationOperations(Optional<Collection<Aggregation>> componentsAggregations) {
+        return getDBRefs(componentsAggregations).map(dbRefs -> {
+            final ArrayList<AggregationOperation> result = new ArrayList<>();
+            result.add(Aggregation.unwind("components"));
+            result.add(Aggregation.match(Criteria.where("components").in(dbRefs)));
+            return result;
+        });
+    }
+
+    private Optional<Set<DBRef>> getDBRefs(Optional<Collection<Aggregation>> componentsAggregations) {
+        return componentsAggregations.map(aggregations -> aggregations.stream()
+                .flatMap(aggregation -> mongoTemplate.aggregate(aggregation, Component.class, Component.class).getMappedResults().stream())
+                .map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()));
     }
 
 }

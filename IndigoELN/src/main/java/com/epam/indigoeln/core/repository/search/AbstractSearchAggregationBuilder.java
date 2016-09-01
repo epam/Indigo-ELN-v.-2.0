@@ -33,20 +33,15 @@ public class AbstractSearchAggregationBuilder {
         return this;
     }
 
-    public AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> batchCriteriaList) {
-        List<Criteria> fieldCriteriaList = batchCriteriaList.stream()
+    public AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
+        List<Criteria> fieldCriteriaList = criteria.stream()
                 .filter(c -> availableFields == null || availableFields.contains(c.getField()))
-                .map(this::convertCriteria).collect(toList());
+                .map(criterion -> AggregationUtils.createCriterion(criterion, contextPrefix))
+                .collect(toList());
         Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
         aggregationOperations.add(Aggregation.match(andCriteria));
         return this;
-    }
-
-    private Criteria convertCriteria(SearchCriterion dto) {
-        Criteria criteria = Criteria.where(contextPrefix + dto.getField());
-        AggregationUtils.fillCriteria(criteria, dto);
-        return criteria;
     }
 
     public void setContextPrefix(String contextPrefix) {

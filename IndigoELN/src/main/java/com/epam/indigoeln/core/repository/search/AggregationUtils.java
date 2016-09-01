@@ -5,11 +5,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+
 public final class AggregationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationUtils.class);
 
-    public static void fillCriteria(Criteria criteria, SearchCriterion searchCriterion) {
+    public static Criteria createCriteria(Collection<SearchCriterion> criteria) {
+        return createCriteria(criteria, "");
+    }
+
+    public static Criteria createCriteria(Collection<SearchCriterion> criteria, String prefix) {
+        List<Criteria> stageCriteria = criteria.stream()
+                .map(c -> createCriterion(c, prefix))
+                .collect(toList());
+        Criteria[] mongoCriteriaList = stageCriteria.toArray(new Criteria[stageCriteria.size()]);
+        return new Criteria().andOperator(mongoCriteriaList);
+    }
+
+    public static Criteria createCriterion(SearchCriterion searchCriterion) {
+        return createCriterion(searchCriterion, "");
+    }
+
+    public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
+        final Criteria criteria = Criteria.where(prefix + searchCriterion.getField());
         Object value = searchCriterion.getValue();
         switch (searchCriterion.getCondition()) {
             case "contains":
@@ -20,6 +44,9 @@ public final class AggregationUtils {
                 break;
             case "ends with":
                 criteria.regex(".*" + value);
+                break;
+            case "in":
+                criteria.in(convertToCollection(value));
                 break;
             case "=":
                 criteria.is(convertToDouble(value));
@@ -39,6 +66,14 @@ public final class AggregationUtils {
             default:
                 criteria.is(value);
         }
+        return criteria;
+    }
+
+    private static Collection<String> convertToCollection(Object obj) {
+        if (obj == null) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(obj.toString().split(";"));
     }
 
     private static Object convertToDouble(Object obj) {
