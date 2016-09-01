@@ -10,7 +10,6 @@ angular.module('indigoeln')
                     }
                 },
                 data: {
-                    authorities: ['CONTENT_EDITOR'],
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'Search',
@@ -18,9 +17,19 @@ angular.module('indigoeln')
                         type:'entity',
                         state: 'entities.search-panel'
                     }
-                }/*,
+                },
                 resolve: {
-
-                }*/
+                    pageInfo: function($q, Principal) {
+                        var deferred = $q.defer();
+                        $q.all([
+                            Principal.identity()
+                        ]).then(function(results){
+                            deferred.resolve({
+                                identity: results[0]
+                            });
+                        });
+                        return deferred.promise;
+                    }
+                }
             });
     });

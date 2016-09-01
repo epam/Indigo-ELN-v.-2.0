@@ -5,7 +5,8 @@
     <div class="panel-body">
         <div class="reagent-search-tab">
             <div class="reagent-search-container" ng-show="!isSearchResultFound">
-                <div class="row well well-sm" ng-init="$$isCollapsed=true" style="margin-top:3px;">
+                <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
+                <div class="row well well-sm" ng-init="$$isCollapsed=false" style="margin-top:3px;">
                     <my-input class="col-xs-9" my-model="model.restrictions.searchQuery"
                               my-label="Type in your search query"
                               my-label-vertical="true"></my-input>
@@ -23,10 +24,11 @@
                                 <div class="reagent-search-container">
                                     <strong>Field Search Criteria</strong>
                                     <div class="row reagent-search-row" ng-repeat="(key, obj) in model.restrictions.advancedSearch">
+                                       <div ng-if="!obj.$$skipList">
                                         <div class="col-xs-3"><p ng-bind="::obj.name"></p>
                                         </div>
                                         <div class="col-xs-3">
-                                            <my-select my-items="obj.conditionList"
+                                            <my-select my-items="obj.$$conditionList"
                                                        my-model="obj.condition">
                                             </my-select>
                                         </div>
@@ -34,25 +36,26 @@
                                             <my-input my-model="obj.value"></my-input>
                                         </div>
                                     </div>
+                                    </div>
                                 </div>
                                 <div class="reagent-search-container">
                                     <strong>Entity Type Criteria</strong>
                                     <div class="row reagent-search-row" style="margin-top:10px">
                                         <div class="col-xs-2">
                                             <label class="radio-inline">
-                                                <input checked="checked" data-val="true" data-val-required="The IsSmallBusiness field is required." name="entity" type="radio" value="False">
+                                                <input checked="checked" name="entity"  type="radio"  ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value"  value="Project">
                                                 <span style="line-height: 1.5;">Project</span>
                                             </label>
                                         </div>
                                         <div class="col-xs-2">
                                             <label class="radio-inline">
-                                                <input  name="entity" type="radio" value="True">
+                                                <input  name="entity" type="radio" ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value" value="Notebook">
                                                 <span style="line-height: 1.5;">Notebook</span>
                                             </label>
                                         </div>
                                         <div class="col-xs-2">
                                             <label class="radio-inline">
-                                                <input  name="entity" type="radio" value="True">
+                                                <input  name="entity" type="radio"  ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value" value="Experiment">
                                                 <span style="line-height: 1.5;">Experiment</span>
                                             </label>
                                         </div>
@@ -64,18 +67,24 @@
                                     <div class="row reagent-search-row" style="margin-top:10px">
                                         <div class="col-xs-2">
                                             <label class="radio-inline">
-                                                <input checked="checked" data-val="true" data-val-required="The IsSmallBusiness field is required." name="entity" type="radio" value="False">
+                                                <input checked="checked" name="domain" type="radio" value="{{identity.id}}"  ng-model="model.restrictions.advancedSearch.entityDomain.value">
                                                 <span style="line-height: 1.5;">In My Own Entity</span>
                                             </label>
                                         </div>
                                         <div class="col-xs-10">
                                             <div style=display:flex;">
                                             <label class="radio-inline">
-                                                <input  name="entity" type="radio" value="True">
+                                                <input  name="domain" type="radio" value="True">
                                                 <span style="line-height: 1.5;">In Entities of These Users</span>
                                             </label>
-                                            <my-select my-items="users" style="margin-top:-8px;width:300px;"
-                                                       my-model="model.restrictions.advancedSearch.user"></my-select>
+                                                <my-select style="margin-top:-8px;"
+                                                           my-label-vertical="true"
+                                                           my-readonly="myReadonly"
+                                                           my-items="users"
+                                                           my-model="model.batchOwner"
+                                                           my-multiple="true">
+                                                </my-select>
+
                                             </div>
                                         </div>
                                     </div>
@@ -85,26 +94,23 @@
                                     <div class="row reagent-search-row" style="margin-top:10px">
 
                                         <div class="col-xs-2">
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Open"></my-checkbox>
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Signing"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['Open']"  my-change="selectItem('Open')" my-label="Open"></my-checkbox>
+
+                                            <my-checkbox  my-model="selectedItemsFlags['Signing']"     my-change="selectItem('Signing')" my-label="Signing"></my-checkbox>
+
                                         </div>
                                         <div class="col-xs-2">
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Completed"></my-checkbox>
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Submit Fail"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['Completed']"   my-change="selectItem('Completed')" my-label="Completed"></my-checkbox>
+
+                                            <my-checkbox  my-model="selectedItemsFlags['Submit Fail']"    my-change="selectItem('Submit Fail')"  my-label="Submit Fail"></my-checkbox>
+
                                         </div>
                                         <div class="col-xs-2">
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Submitted"></my-checkbox>
-                                            <my-checkbox my-model="allItemsSelected"
-                                                         my-change="selectAll()" my-label="Archived"></my-checkbox>
+                                            <my-checkbox  my-model="selectedItemsFlags['Submitted']"   my-change="selectItem('Submitted')" my-label="Submitted"></my-checkbox>
+
+                                            <my-checkbox my-model="selectedItemsFlags['Archived']" my-change="selectItem('Archived')" my-label="Archived"></my-checkbox>
+
                                         </div>
-
-
-
                                     </div>
                                 </div>
                             </div>
@@ -155,6 +161,12 @@
                                                     !model.restrictions.searchQuery">Search
                     </button>
                 </div>
+
+                <my-table my-id="search-result-table" my-columns="columns" my-rows="searchResults"
+                          my-draggable-columns="false"
+                          my-readonly="true" >
+                </my-table>
+
             </div>
         </div>
     </div>
