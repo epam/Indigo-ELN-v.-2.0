@@ -162,7 +162,7 @@ angular.module('indigoeln')
                 }).map(function (batch) {
                     return batch.fullNbkBatch;
                 }).value();
-                SdService.export({}, selectedBatchNumbers, function (data) {
+                SdService.export({"component": "compound"}, selectedBatchNumbers, function (data) {
                     $window.open('api/sd/download?fileName=' + data.fileName);
                 });
             };
