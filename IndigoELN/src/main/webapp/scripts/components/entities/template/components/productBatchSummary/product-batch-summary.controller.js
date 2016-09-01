@@ -796,11 +796,10 @@ angular.module('indigoeln')
                     });
                 }
             });
+
             $scope.$on('$destroy', function () {
                 onProductBatchSummaryRecalculated();
                 onProductBatchStructureChanged();
-            });
-            $scope.$on('$destroy', function () {
                 _.each(unbinds, function (unbind) {
                     unbind();
                 });
