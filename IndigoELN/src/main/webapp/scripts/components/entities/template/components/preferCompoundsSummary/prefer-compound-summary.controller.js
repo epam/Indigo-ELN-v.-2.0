@@ -181,4 +181,25 @@ angular.module('indigoeln')
                 $scope.showStructuresColumn.isVisible = !$scope.showStructuresColumn.isVisible;
             };
 
+            var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function (event, row) {
+                var resetMolInfo = function () {
+                    row.formula = null;
+                    row.molWeight = null;
+                };
+                var getInfoCallback = function (molInfo) {
+                    row.formula = molInfo.data.molecularFormula;
+                    row.molWeight = row.molWeight || {};
+                    row.molWeight.value = molInfo.data.molecularWeight;
+                };
+                if (row.structure && row.structure.molfile) {
+                    CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
+                } else {
+                    resetMolInfo();
+                }
+            });
+
+            $scope.$on('$destroy', function () {
+                onCompoundStructureChanged();
+            });
+
         });
