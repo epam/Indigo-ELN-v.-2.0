@@ -1,5 +1,6 @@
-package com.epam.indigoeln.core.repository.search;
+package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.core.repository.search.AbstractSearchAggregationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.Optional;
 public class NotebookSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("description", "name");
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("creationDate", "description", "name");
+    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name");
 
     private NotebookSearchAggregationBuilder() {
         aggregationOperations = new ArrayList<>();

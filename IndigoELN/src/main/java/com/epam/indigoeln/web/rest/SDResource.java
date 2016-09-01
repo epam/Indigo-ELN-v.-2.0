@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/sd")
 public class SDResource {
+
+    private static final String EXPORT_COMPONENT_BATCH = "batch";
+    private static final String EXPORT_COMPONENT_COMPOUND = "compound";
 
     private static final String EXPORT_FILE_NAME = "export.sdf";
 
@@ -71,25 +75,37 @@ public class SDResource {
 
     @RequestMapping(value = "/export", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> exportFile(@RequestBody List<String> fullNbkBatchNumbers) throws IOException {
+    public ResponseEntity<Map> exportFile(@RequestParam("component") String component, @RequestBody List<String> fullNbkBatchNumbers) throws IOException {
 
-        final List<Component> components = componentRepository.findBatchSummariesByFullBatchNumbers(fullNbkBatchNumbers);
-        final List<BasicDBObject> batches = components.stream().map(Component::getContent)
-                .map(c -> (BasicDBList) c.get("batches"))
-                .flatMap(List::stream)
-                .map(o -> (BasicDBObject) o)
-                .filter(b -> fullNbkBatchNumbers.contains(b.getString("fullNbkBatch")))
-                .collect(Collectors.toList());
+        List<BasicDBObject> sdItems = null;
+        if (EXPORT_COMPONENT_BATCH.equals(component)) {
+            List<Component> components = componentRepository.findBatchSummariesByFullBatchNumbers(fullNbkBatchNumbers);
+            sdItems = components.stream().map(Component::getContent)
+                    .map(c -> (BasicDBList) c.get("batches"))
+                    .flatMap(List::stream)
+                    .map(o -> (BasicDBObject) o)
+                    .filter(b -> fullNbkBatchNumbers.contains(b.getString("fullNbkBatch")))
+                    .collect(Collectors.toList());
+        } else if (EXPORT_COMPONENT_COMPOUND.equals(component)) {
+            List<Component> components = componentRepository.findPreferredCompoundSummariesByFullBatchNumbers(fullNbkBatchNumbers);
+            sdItems = components.stream().map(Component::getContent)
+                    .map(c -> (BasicDBList) c.get("compounds"))
+                    .flatMap(List::stream)
+                    .map(o -> (BasicDBObject) o)
+                    .filter(b -> fullNbkBatchNumbers.contains(b.getString("fullNbkBatch")))
+                    .collect(Collectors.toList());
+        }
 
         SDFileInfo sdFileInfo;
         try {
-            sdFileInfo = sdService.create(batches);
+            sdFileInfo = sdService.create(sdItems);
         } catch (Exception e) {
             throw new IndigoRuntimeException("Error occurred while creating SD file.", e);
         }
         final User user = userService.getUserWithAuthorities();
         String fileName = user.getLogin() + "_" + System.currentTimeMillis() + ".sdf";
-        final File file = TempFileUtil.saveToTempDirectory(sdFileInfo.getSdfileStr().getBytes(), fileName);
+        final String sdfileStr = sdFileInfo.getSdfileStr();
+        final File file = TempFileUtil.saveToTempDirectory(sdfileStr == null ? new byte[]{} : sdfileStr.getBytes(), fileName);
         return ResponseEntity.ok(ImmutableMap.of("fileName", file.getName()));
     }
 

@@ -1,9 +1,8 @@
 package com.epam.indigoeln.core.service.search.impl;
 
-import com.epam.indigoeln.core.repository.search.SearchComponentsRepository;
+import com.epam.indigoeln.core.repository.search.component.SearchComponentsRepository;
 import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
-import com.epam.indigoeln.core.service.search.SearchServiceConstants;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
