@@ -56,15 +56,15 @@ public class SDService {
         return result;
     }
 
-    public SDFileInfo create(Collection<BasicDBObject> batches) throws Exception {
+    public SDFileInfo create(Collection<BasicDBObject> sdItems) throws Exception {
         SDFileInfo info = new SDFileInfo();
-        if (batches != null && !batches.isEmpty()) {
+        if (sdItems != null && !sdItems.isEmpty()) {
             StringBuilder str = new StringBuilder();
-            int size = batches.size();
+            int size = sdItems.size();
             int[] fileOffsets = new int[size];
             int i = 0;
-            for (BasicDBObject batch : batches) {
-                String sdStr = create(batch);
+            for (BasicDBObject sdItem : sdItems) {
+                String sdStr = create(sdItem);
                 fileOffsets[i] = (i + 1);
                 i++;
                 str.append(sdStr);
@@ -73,15 +73,16 @@ public class SDService {
             info.setSdunitOffsets(fileOffsets);
             LOGGER.debug("SDFile prepared is:\n" + info.getSdfileStr());
             return info;
-        } else
+        } else {
             return info;
+        }
     }
 
-    public String create(BasicDBObject batch) throws Exception {
+    public String create(BasicDBObject sdItem) throws Exception {
         SdUnit sDunit;
 
         try {
-            final BasicDBObject structure = (BasicDBObject) batch.get("structure");
+            final BasicDBObject structure = (BasicDBObject) sdItem.get("structure");
             final String molfile = structure.getString("molfile");
             if (molfile != null) {
                 // Check if it is not mol format already
@@ -95,14 +96,14 @@ public class SDService {
                 throw new Exception("Compound structure is emtpy. Cannot prepare SD.");
             }
 
-            final BasicDBObject stereoisomer = (BasicDBObject) batch.get("stereoisomer");
+            final BasicDBObject stereoisomer = (BasicDBObject) sdItem.get("stereoisomer");
             if (stereoisomer != null) {
                 sDunit.setValue("STEREOISOMER_CODE", stereoisomer.getString("name"));
             }
 
             return sDunit.toString();
         } catch (Exception e) {
-            LOGGER.error("Error occurred while creating SD unit for batch.", e);
+            LOGGER.error("Error occurred while creating SD unit for item.", e);
             throw e;
         }
 
