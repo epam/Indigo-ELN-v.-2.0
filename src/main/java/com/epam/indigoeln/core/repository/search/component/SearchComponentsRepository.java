@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.repository.search;
+package com.epam.indigoeln.core.repository.search.component;
 
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
@@ -26,7 +26,14 @@ import java.util.stream.Collectors;
 public class SearchComponentsRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchComponentsRepository.class);
+    @SuppressWarnings("unchecked")
+    private static Function<DBObject, ProductBatchDetailsDTO> convertResult = dbObject -> {
+        Map content = (Map) dbObject.toMap().getOrDefault("content", Collections.emptyMap());
+        Map map = (Map) content.getOrDefault("batches", Collections.emptyMap());
 
+        String fullBatchNumber = map.getOrDefault(BatchComponentUtil.COMPONENT_FIELD_NBK_BATCH, "").toString();
+        return new ProductBatchDetailsDTO(fullBatchNumber, map);
+    };
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -53,13 +60,4 @@ public class SearchComponentsRepository {
 
         return builder.build();
     }
-
-    @SuppressWarnings("unchecked")
-    private static Function<DBObject, ProductBatchDetailsDTO> convertResult = dbObject -> {
-        Map content = (Map) dbObject.toMap().getOrDefault("content", Collections.emptyMap());
-        Map map = (Map) content.getOrDefault("batches", Collections.emptyMap());
-
-        String fullBatchNumber = map.getOrDefault(BatchComponentUtil.COMPONENT_FIELD_NBK_BATCH, "").toString();
-        return new ProductBatchDetailsDTO(fullBatchNumber, map);
-    };
 }
