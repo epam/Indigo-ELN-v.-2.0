@@ -97,7 +97,9 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 batchDetails.$$isCollapsed = true;
                 batchDetails.$$isSelected = false;
                 batchDetails.nbkBatch = item.notebookBatchNumber;
-                batchDetails.database = $scope.databases.join(', ');
+                batchDetails.database = _.map($scope.model.databases, function (db) {
+                    return db.value;
+                }).join(', ');
                 batchDetails.rxnRole = batchDetails.rxnRole || AppValues.getRxnRoleReactant();
                 batchDetails.saltCode = batchDetails.saltCode || AppValues.getDefaultSaltCode();
                 return batchDetails;
