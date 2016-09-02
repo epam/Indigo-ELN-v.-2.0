@@ -159,6 +159,29 @@ angular.module('indigoeln').controller('SearchReagentsController',
             });
         }
 
+        $scope.myReagentsSearchQuery = '';
+        $scope.filterMyReagents = function (reagent) {
+            var query = $scope.myReagentsSearchQuery;
+            if (_.isUndefined(query) || _.isNull(query) || query.trim().length === 0) {
+                return true;
+            }
+            var regexp = new RegExp('.*' + query + '.*', 'i');
+            if (reagent.compoundId && regexp.test(reagent.compoundId)) {
+                return true;
+            }
+            if (reagent.chemicalName && regexp.test(reagent.chemicalName)) {
+                return true;
+            }
+            if (reagent.formula && regexp.test(reagent.formula)) {
+                return true;
+            }
+            return false;
+        };
+
+        $scope.searchMyReagents = function (query) {
+            $scope.myReagentsSearchQuery = query;
+        };
+
         $scope.search = function () {
             var searchRequest = prepareSearchRequest();
             SearchService.search(searchRequest, function (result) {

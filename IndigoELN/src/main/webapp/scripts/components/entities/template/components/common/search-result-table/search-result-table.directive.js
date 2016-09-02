@@ -6,6 +6,7 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/common/search-result-table/search-result-table.html',
             scope: {
                 myTableContent: '=',
+                myTableFilter: '=',
                 myEditableInfo: '=',
                 mySingleItemPerTab: '=',
                 myTab: '=',
