@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('SearchReagentsController',
-    function ($scope, $rootScope, $uibModalInstance, $http, Alert, AppValues, activeTab, UserReagents, SearchService) {
+    function ($scope, $rootScope, $uibModalInstance, $http, Alert, AppValues, activeTab, UserReagents, SearchService, SearchUtilService) {
         $scope.model = {};
         $scope.isSearchResultFound = false;
         $scope.model.restrictions = {
@@ -88,63 +88,8 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.isAdvancedSearchFilled = function () {
-            return !!_.compact(_.map($scope.model.restrictions.advancedSearch, function (restriction) {
-                return restriction.value;
-            })).length;
+            return SearchUtilService.isAdvancedSearchFilled($scope.model.restrictions.advancedSearch);
         };
-
-        function prepareDatabases() {
-            return _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
-        }
-
-        function prepareAdvancedSearch() {
-            var advancedSearch = $scope.model.restrictions.advancedSearch;
-            var advancedSummary = $scope.model.restrictions.advancedSummary = [];
-            _.each(advancedSearch, function (restriction) {
-                if (restriction.value) {
-                    var restrictionCopy = angular.copy(restriction);
-                    if (restrictionCopy.condition) {
-                        restrictionCopy.condition = restrictionCopy.condition.name;
-                    } else {
-                        restrictionCopy.condition = '';
-                    }
-                    if (restrictionCopy.getValue) {
-                        restrictionCopy.value = restrictionCopy.getValue(restrictionCopy.value);
-                    }
-                    advancedSummary.push(restrictionCopy);
-                }
-            });
-            return advancedSummary.length ? advancedSummary : null;
-        }
-
-        function prepareStructure() {
-            if (!$scope.model.restrictions.structure.molfile) {
-                return null;
-            }
-            var structure = $scope.model.restrictions.structure;
-            var searchMode = $scope.model.restrictions.structure.similarityCriteria.name;
-            if (searchMode === 'equal') {
-                searchMode = 'exact';
-            }
-            structure.searchMode = searchMode;
-            structure.similarity = $scope.model.restrictions.structure.similarityValue / 100;
-            return structure;
-        }
-
-        function prepareSearchRequest() {
-            var searchRequest = {};
-            if ($scope.model.restrictions.searchQuery) {
-                searchRequest.searchQuery = $scope.model.restrictions.searchQuery;
-            }
-            if (prepareAdvancedSearch()) {
-                searchRequest.advancedSearch = prepareAdvancedSearch();
-            }
-            if (prepareStructure()) {
-                searchRequest.structure = prepareStructure();
-            }
-            searchRequest.databases = $scope.databases = prepareDatabases();
-            return searchRequest;
-        }
 
         function responseCallback(result) {
             $scope.searchResults = _.map(result, function (item) {
@@ -183,7 +128,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.search = function () {
-            var searchRequest = prepareSearchRequest();
+            var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions, $scope.model.databases);
             SearchService.search(searchRequest, function (result) {
                 responseCallback(result);
             });

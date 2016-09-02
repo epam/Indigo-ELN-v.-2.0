@@ -16,7 +16,12 @@ angular.module('indigoeln')
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'Project',
+                        service:'Project',
+                        kind: 'project'
+                    }
                 },
                 resolve: {
                     pageInfo: function($q,Principal) {
