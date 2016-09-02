@@ -10,10 +10,13 @@
                     <div class="row">
                         <div class="col-xs-10">
                             <div class="input-group">
-                                <input type="text" class="form-control">
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-info" ng-click="search()" type="button">Search
-                                                </button></span></div>
+                                <input type="text" class="form-control" ng-model="myReagentsSearchQuery"/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-info" ng-click="searchMyReagents(myReagentsSearchQuery)"
+                                            type="button">Search
+                                    </button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -36,7 +39,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-12">
-                        <search-result-table my-table-content="myReagentList"
+                        <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents"
                                              my-editable-info="true"></search-result-table>
                 </div>
             </div>

@@ -10,7 +10,7 @@
         <th style="width:18%">Structure</th>
     </tr>
     </thead>
-    <tbody ng-repeat="item in myTableContent track by $index">
+    <tbody ng-repeat="item in myTableContent | filter : myTableFilter track by $index">
     <tr ng-class="{'search-table-row-highlight':item.$$isSelected}">
         <td style="width:76px">
             <a ng-click="item.$$isCollapsed = !item.$$isCollapsed">
