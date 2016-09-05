@@ -100,9 +100,9 @@ public class EntitySearchRepository {
             return Optional.empty();
         }
         ProjectSearchAggregationBuilder builder = ProjectSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if (!request.getAdvancedSearch().isEmpty()) {
+        if (request.getSearchQuery().isPresent()) {
+            builder.withSearchQuery(request.getSearchQuery().get());
+        } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
@@ -115,9 +115,9 @@ public class EntitySearchRepository {
             return Optional.empty();
         }
         NotebookSearchAggregationBuilder builder = NotebookSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if (!request.getAdvancedSearch().isEmpty()) {
+        if (request.getSearchQuery().isPresent()) {
+            builder.withSearchQuery(request.getSearchQuery().get());
+        } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 

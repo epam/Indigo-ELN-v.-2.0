@@ -24,7 +24,7 @@ public class AbstractSearchAggregationBuilder {
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
         List<Criteria> fieldCriteriaList = searchQueryFields.stream().map(
-                field -> Criteria.where(contextPrefix + field).is(searchQuery)).
+                field -> Criteria.where(contextPrefix + field).regex(".*" + searchQuery + ".*")).
                 collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
@@ -38,9 +38,11 @@ public class AbstractSearchAggregationBuilder {
                 .filter(c -> availableFields == null || availableFields.contains(c.getField()))
                 .map(criterion -> AggregationUtils.createCriterion(criterion, contextPrefix))
                 .collect(toList());
-        Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-        Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
-        aggregationOperations.add(Aggregation.match(andCriteria));
+        if (!fieldCriteriaList.isEmpty()) {
+            Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
+            Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
+            aggregationOperations.add(Aggregation.match(andCriteria));
+        }
         return this;
     }
 
