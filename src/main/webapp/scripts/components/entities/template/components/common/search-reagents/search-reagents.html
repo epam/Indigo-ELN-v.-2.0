@@ -10,10 +10,13 @@
                     <div class="row">
                         <div class="col-xs-10">
                             <div class="input-group">
-                                <input type="text" class="form-control" ng-model="myReagentsSearchQuery"/>
+                                <input type="text" class="form-control" ng-model="myReagents.searchQuery"/>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-info" ng-click="searchMyReagents(myReagentsSearchQuery)"
+                                    <button class="btn btn-info" ng-click="searchMyReagents(myReagents.searchQuery)"
                                             type="button">Search
+                                    </button>
+                                    <button class="btn btn-info" ng-click="clearMyReagentsSearchQuery()"
+                                            type="button">Clear
                                     </button>
                                 </span>
                             </div>
