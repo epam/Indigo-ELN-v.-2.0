@@ -16,7 +16,11 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         };
 
         $scope.updateStoicAndExit = function () {
-            $rootScope.$broadcast('stoich-rows-changed', $scope.model.reactants);
+            var result = angular.copy($scope.model.reactants);
+            _.each($scope.model.selectedReactants, function(knownReactant){
+                _.extend(_.findWhere(result, { formula: knownReactant.formula }), knownReactant);
+            });
+            $rootScope.$broadcast('stoich-rows-changed',result);
             $uibModalInstance.close({});
         };
 
