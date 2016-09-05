@@ -11,6 +11,7 @@ angular
             $scope.TEMPLATE_EDITOR, $scope.DICTIONARY_EDITOR].join(',');
         $scope.myBookmarks = {};
         $scope.allProjects = {};
+        $scope.$state = $state;
 
         var updateProjectsStatuses = function (projects, statuses) {
             angular.forEach(projects, function (project) {
