@@ -172,6 +172,11 @@
   z-index: 100;
   text-align: left;
 }
+
+.unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li.activ > span {
+  color: #4dd0e1;
+  text-decoration: underline;
+}
 .unit-navigation-page .level-one > li .level-two > li .level-three > li ul.level-four li:after {
   background: #4dd0e1;
   border: none;

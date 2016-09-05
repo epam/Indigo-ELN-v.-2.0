@@ -78,19 +78,19 @@
     <ul class="level-one animated" has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
         <li ng-click="toggleAdministration()"><span>Administration</span>
             <ul class="level-two animated" ng-if="adminToggled">
-                <li has-authority="{{USER_EDITOR}}"
+                <li has-authority="{{USER_EDITOR}}" ng-class="{'activ': $state.includes('entities.user-management')}"
                     ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
-                    <span class="type-of-experiment">Users</span>
+                    <span class="type-of-experiment ">Users</span>
                 </li>
-                <li has-authority="{{ROLE_EDITOR}}"
+                <li has-authority="{{ROLE_EDITOR}}" ng-class="{'activ': $state.includes('entities.role-management')}"
                     ng-click="toggleAuthorities(); $event.stopPropagation();">
                     <span class="type-of-experiment">Roles</span>
                 </li>
-                <li has-authority="{{TEMPLATE_EDITOR}}"
+                <li has-authority="{{TEMPLATE_EDITOR}}" ng-class="{'activ': $state.includes('entities.template')}"
                     ng-click="toggleTemplates(); $event.stopPropagation();">
                     <span class="type-of-experiment">Templates</span>
                 </li>
-                <li has-authority="{{DICTIONARY_EDITOR}}"
+                <li has-authority="{{DICTIONARY_EDITOR}}" ng-class="{'activ': $state.includes('entities.dictionary-management')}"
                     ng-click="toggleDictionaries(); $event.stopPropagation();">
                     <span class="type-of-experiment">Dictionaries</span>
                 </li>
