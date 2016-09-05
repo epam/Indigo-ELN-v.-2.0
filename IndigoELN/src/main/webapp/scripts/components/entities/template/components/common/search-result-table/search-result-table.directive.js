@@ -48,6 +48,7 @@ angular.module('indigoeln')
                     } else {
                         $scope.mySelectedItemsPerTab = _.without($scope.mySelectedItemsPerTab, reactant);
                     }
+                    $scope.$apply();
                 };
 
                 $scope.recalculateSalt = function (reagent) {
