@@ -37,7 +37,8 @@ public class ExperimentSearchAggregationBuilder {
 
     public ExperimentSearchAggregationBuilder withQuerySearch(String querySearch) {
         //TODO:
-        return null;
+        componentsAggregations = Optional.empty();
+        return this;
     }
 
     public ExperimentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
@@ -48,9 +49,11 @@ public class ExperimentSearchAggregationBuilder {
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-        Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
-        aggregationOperations.add(Aggregation.match(andCriteria));
+        if (!fieldCriteriaList.isEmpty()) {
+            Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
+            Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
+            aggregationOperations.add(Aggregation.match(andCriteria));
+        }
         return this;
     }
 
