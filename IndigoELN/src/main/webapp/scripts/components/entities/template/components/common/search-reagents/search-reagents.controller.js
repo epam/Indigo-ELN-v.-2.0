@@ -106,6 +106,7 @@ angular.module('indigoeln').controller('SearchReagentsController',
             });
         }
 
+        $scope.myReagents = {};
         $scope.myReagentsSearchQuery = '';
         $scope.filterMyReagents = function (reagent) {
             var query = $scope.myReagentsSearchQuery;
@@ -123,6 +124,10 @@ angular.module('indigoeln').controller('SearchReagentsController',
                 return true;
             }
             return false;
+        };
+        $scope.clearMyReagentsSearchQuery = function () {
+            $scope.myReagents.searchQuery = '';
+            $scope.myReagentsSearchQuery = '';
         };
 
         $scope.searchMyReagents = function (query) {
