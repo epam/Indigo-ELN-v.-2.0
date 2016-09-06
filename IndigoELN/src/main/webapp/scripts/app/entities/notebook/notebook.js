@@ -5,18 +5,25 @@ angular.module('indigoeln')
                 abstract: true,
                 parent: 'entity'
             })
-            .state('notebook.new', {
-                parent: 'notebook',
-                url: '/project/{projectId}/notebook/new',
+            .state('entities.notebook-new', {
+                url: '/project/{parentId}/notebook/new',
                 views: {
-                    'content@app_page': {
+
+                    'tabContent': {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
                         controller: 'NotebookDialogController'
                     }
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    tab: {
+                        name: 'New Notebook',
+                        service:'Notebook',
+                        kind: 'notebook',
+                        type:'entity',
+                        state: 'entities.notebook-new'
+                    }
                 },
                 resolve: {
                     pageInfo: function ($q, $stateParams, Principal) {
@@ -34,7 +41,7 @@ angular.module('indigoeln')
                                 hasEditAuthority: results[2],
                                 hasCreateChildAuthority: results[3],
                                 experiments: {},
-                                projectId: $stateParams.projectId
+                                projectId: $stateParams.parentId
                             });
                         });
                         return deferred.promise;
@@ -91,8 +98,8 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('notebook.new.permissions', _.extend({}, PermissionManagementConfig, {
-                parent: 'notebook.new',
+            .state('entities.notebook-new.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.notebook-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
@@ -132,7 +139,7 @@ angular.module('indigoeln')
                             }
                         }
                     }).result.then(function (projectId) {
-                        $state.go('notebook.new', {projectId: projectId});
+                        $state.go('entities.notebook-new', {parentId: projectId});
                     }, function() {
                         $window.history.back();
                     });

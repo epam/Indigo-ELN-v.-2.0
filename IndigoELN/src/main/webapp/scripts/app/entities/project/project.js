@@ -5,11 +5,10 @@ angular.module('indigoeln')
                 abstract: true,
                 parent: 'entity'
             })
-            .state('project.new', {
-                parent: 'project',
+            .state('entities.project-new', {
                 url: '/project/new',
                 views: {
-                    'content@app_page': {
+                    'tabContent': {
                         templateUrl: 'scripts/app/entities/project/project-dialog.html',
                         controller: 'ProjectDialogController'
                     }
@@ -18,9 +17,11 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
                     pageTitle: 'indigoeln',
                     tab: {
-                        name: 'Project',
+                        name: 'New Project',
                         service:'Project',
-                        kind: 'project'
+                        kind: 'project',
+                        type:'entity',
+                        state: 'entities.project-new'
                     }
                 },
                 resolve: {
@@ -89,8 +90,8 @@ angular.module('indigoeln')
                     }
                 }
             })
-            .state('project.new.permissions', _.extend({}, PermissionManagementConfig, {
-                parent: 'project.new',
+            .state('entities.project-new.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.project-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },

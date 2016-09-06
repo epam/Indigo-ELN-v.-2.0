@@ -33,7 +33,7 @@ angular.module('indigoeln')
                 }
                 entity.$$form = form;
                 var onChange = _.debounce(function (entity) {
-                    if (entity.$$form && entity.$$form.$dirty) {
+                    if (entity.$$form && entity.$$form.$dirty && entity.fullId) {
                         AutosaveService.save({id: entity.fullId}, angular.toJson(entity));
                     }
                 }, delay);

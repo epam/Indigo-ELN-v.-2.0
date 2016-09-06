@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
         function ($scope, $rootScope, $state, Project, Alert,
-                  PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine) {
+                  PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils) {
             var self = this;
             EntitiesBrowser.setCurrentTabTitle(pageInfo.project.name, $stateParams);
             var identity = pageInfo.identity;
@@ -61,9 +61,19 @@ angular.module('indigoeln')
                 }
             };
 
-            var onSaveSuccess = function (result) {
+            var onUpdateSuccess = function (result) {
                 $rootScope.$broadcast('project-created', {id: result.id});
                 $state.go('entities.project-detail', {projectId: result.id});
+            };
+
+            var onSaveSuccess = function (result) {
+
+                var tabName = $state.$current.data.tab.name;
+                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
+                $timeout(function(){
+                    $rootScope.$broadcast('project-created', {id: result.id});
+                    $state.go('entities.project-detail', {projectId: result.id});
+                });
             };
 
             var onSaveError = function (result) {
@@ -76,7 +86,7 @@ angular.module('indigoeln')
                                  .then(function (result) {
                                      $scope.project.version = result.version;
                                      $scope.createProjectForm.$setPristine();
-                                     onSaveSuccess({id: $scope.project.id});
+                                     onUpdateSuccess({id: $scope.project.id});
                                  }, function () {
                                      onSaveError($scope.project.id);
                                  });
