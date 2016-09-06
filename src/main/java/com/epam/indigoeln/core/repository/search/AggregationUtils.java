@@ -16,16 +16,17 @@ public final class AggregationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationUtils.class);
 
-    public static Criteria createCriteria(Collection<SearchCriterion> criteria) {
+    private AggregationUtils() {
+    }
+
+    public static List<Criteria> createCriteria(Collection<SearchCriterion> criteria) {
         return createCriteria(criteria, "");
     }
 
-    public static Criteria createCriteria(Collection<SearchCriterion> criteria, String prefix) {
-        List<Criteria> stageCriteria = criteria.stream()
+    public static List<Criteria> createCriteria(Collection<SearchCriterion> criteria, String prefix) {
+        return criteria.stream()
                 .map(c -> createCriterion(c, prefix))
                 .collect(toList());
-        Criteria[] mongoCriteriaList = stageCriteria.toArray(new Criteria[stageCriteria.size()]);
-        return new Criteria().andOperator(mongoCriteriaList);
     }
 
     public static Criteria createCriterion(SearchCriterion searchCriterion) {
@@ -33,9 +34,12 @@ public final class AggregationUtils {
     }
 
     public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
-        final Criteria criteria = Criteria.where(prefix + searchCriterion.getField());
-        Object value = searchCriterion.getValue();
-        switch (searchCriterion.getCondition()) {
+        return createCriterion(searchCriterion.getField(), searchCriterion.getValue(), searchCriterion.getCondition(), prefix);
+    }
+
+    public static Criteria createCriterion(String field, Object value, String condition, String prefix) {
+        final Criteria criteria = Criteria.where(prefix + field);
+        switch (condition) {
             case "contains":
                 criteria.regex(".*" + value + ".*");
                 break;

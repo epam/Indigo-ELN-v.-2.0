@@ -24,8 +24,8 @@ public class AbstractSearchAggregationBuilder {
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
         List<Criteria> fieldCriteriaList = searchQueryFields.stream().map(
-                field -> Criteria.where(contextPrefix + field).regex(".*" + searchQuery + ".*")).
-                collect(toList());
+                field -> AggregationUtils.createCriterion(field, searchQuery, "contains", "")
+        ).collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
