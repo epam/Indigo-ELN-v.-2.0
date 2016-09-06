@@ -94,21 +94,32 @@
                                     <div class="row reagent-search-row" style="margin-top:10px">
 
                                         <div class="col-xs-2">
-                                            <my-checkbox my-model="selectedItemsFlags['Open']"  my-change="selectItem('Open')" my-label="Open"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['OPEN']"
+                                                         my-change="selectItem('OPEN')" my-label="Open"></my-checkbox>
 
-                                            <my-checkbox  my-model="selectedItemsFlags['Signing']"     my-change="selectItem('Signing')" my-label="Signing"></my-checkbox>
-
-                                        </div>
-                                        <div class="col-xs-2">
-                                            <my-checkbox my-model="selectedItemsFlags['Completed']"   my-change="selectItem('Completed')" my-label="Completed"></my-checkbox>
-
-                                            <my-checkbox  my-model="selectedItemsFlags['Submit Fail']"    my-change="selectItem('Submit Fail')"  my-label="Submit Fail"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['SINGING']"
+                                                         my-change="selectItem('SINGING')"
+                                                         my-label="Signing"></my-checkbox>
 
                                         </div>
                                         <div class="col-xs-2">
-                                            <my-checkbox  my-model="selectedItemsFlags['Submitted']"   my-change="selectItem('Submitted')" my-label="Submitted"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['COMPLETED']"
+                                                         my-change="selectItem('COMPLETED')"
+                                                         my-label="Completed"></my-checkbox>
 
-                                            <my-checkbox my-model="selectedItemsFlags['Archived']" my-change="selectItem('Archived')" my-label="Archived"></my-checkbox>
+                                            <my-checkbox my-model="selectedItemsFlags['SUBMIT_FAIL']"
+                                                         my-change="selectItem('SUBMIT_FAIL')"
+                                                         my-label="Submit Fail"></my-checkbox>
+
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <my-checkbox my-model="selectedItemsFlags['SUBMITTED']"
+                                                         my-change="selectItem('SUBMITTED')"
+                                                         my-label="Submitted"></my-checkbox>
+
+                                            <my-checkbox my-model="selectedItemsFlags['ARCHIVED']"
+                                                         my-change="selectItem('ARCHIVED')"
+                                                         my-label="Archived"></my-checkbox>
 
                                         </div>
                                     </div>
