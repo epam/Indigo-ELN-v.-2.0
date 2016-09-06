@@ -295,7 +295,9 @@ body {
 
 .compound-component .structure-preview-wrapper{
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    max-height: 150px;
+    padding-left: 155px;
 }
 
 .dictionary-col-width {
