@@ -37,7 +37,7 @@ public class ExperimentSearchAggregationBuilder {
     public ExperimentSearchAggregationBuilder withQuerySearch(String querySearch) {
 
         Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withQuerySearch(querySearch).build();
-        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(this::getDBRefs);
+        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, false));
 
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
@@ -56,7 +56,7 @@ public class ExperimentSearchAggregationBuilder {
     public ExperimentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
 
         Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withAdvancedCriteria(criteria).build();
-        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(this::getDBRefs);
+        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, true));
 
         List<Criteria> fieldCriteriaList = criteria.stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
@@ -77,10 +77,25 @@ public class ExperimentSearchAggregationBuilder {
         return Optional.ofNullable(aggregationOperations.isEmpty() ? null : Aggregation.newAggregation(aggregationOperations));
     }
 
-    private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations) {
-        return componentsAggregations.stream()
-                .flatMap(aggregation -> template.aggregate(aggregation, Component.class, Component.class).getMappedResults().stream())
-                .map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet());
+    private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations, boolean and) {
+        final List<Set<DBRef>> component = componentsAggregations.stream()
+                .map(aggregation ->
+                        template.aggregate(aggregation, Component.class, Component.class).getMappedResults()
+                                .stream().map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()))
+                .collect(Collectors.toList());
+        Set<DBRef> result = new HashSet<>();
+        if (component.isEmpty()) {
+            return result;
+        }
+        result.addAll(component.get(0));
+        for (int i = 1; i < component.size(); i++) {
+            if (and) {
+                result.retainAll(component.get(i));
+            } else {
+                result.addAll(component.get(i));
+            }
+        }
+        return result;
     }
 
 }
