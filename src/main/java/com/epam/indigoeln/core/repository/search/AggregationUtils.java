@@ -12,6 +12,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
+@SuppressWarnings("rawtypes")
 public final class AggregationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationUtils.class);
@@ -73,9 +74,12 @@ public final class AggregationUtils {
         return criteria;
     }
 
-    private static Collection<String> convertToCollection(Object obj) {
+    private static Collection<?> convertToCollection(Object obj) {
         if (obj == null) {
             return Collections.emptyList();
+        }
+        if (obj instanceof Collection) {
+            return (Collection) obj;
         }
         return Arrays.asList(obj.toString().split(";"));
     }
