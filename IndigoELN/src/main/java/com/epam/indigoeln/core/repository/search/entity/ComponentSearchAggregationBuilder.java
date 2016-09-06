@@ -12,10 +12,11 @@ import java.util.stream.Collectors;
 
 public class ComponentSearchAggregationBuilder {
 
+    public static final String FIELD_NAME = "name";
     public static final String FIELD_DESCRIPTION = "description";
     public static final String FIELD_THERAPEUTIC_AREA = "therapeuticArea";
-    public static final String FIELD_CODE_AND_NAME = "codeAndName";
-    public static final String FIELD_YIELD = "yield";
+    public static final String FIELD_CODE_AND_NAME = "projectCode";
+    public static final String FIELD_YIELD = "batchYield";
     public static final String FIELD_PURITY = "purity";
     public static final String FIELD_COMPOUND_ID = "compoundId";
     public static final String FIELD_CHEMICAL_NAME = "chemicalName";
@@ -28,9 +29,15 @@ public class ComponentSearchAggregationBuilder {
         aggregations = new ArrayList<>();
     }
 
+    public ComponentSearchAggregationBuilder withQuerySearch(String querySearch) {
+        //TODO:
+        return this;
+    }
+
     public ComponentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
         getBatchesAggregation(criteria).ifPresent(aggregations::add);
         getDescriptionAggregation(criteria).ifPresent(aggregations::add);
+        getConceptAggregation(criteria).ifPresent(aggregations::add);
         return this;
     }
 
@@ -53,6 +60,13 @@ public class ComponentSearchAggregationBuilder {
         return getBatchesAggregation(batchCriteria);
     }
 
+    private Optional<Aggregation> getConceptAggregation(List<SearchCriterion> criteria) {
+        if (criteria.isEmpty()) {
+            return Optional.empty();
+        }
+        return criteria.stream().filter(c -> FIELD_NAME.equals(c.getField())).findAny().map(this::getConceptAggregation);
+    }
+
     private Aggregation getDescriptionAggregation(SearchCriterion criterion) {
         List<AggregationOperation> result = new ArrayList<>();
         result.add(Aggregation.project("name", "content"));
@@ -69,15 +83,27 @@ public class ComponentSearchAggregationBuilder {
         result.add(Aggregation.project(Fields.from(Fields.field("batches", "content.batches"))));
         result.add(Aggregation.unwind("batches"));
         result.add(Aggregation.project(Fields.from(
-                Fields.field("therapeuticArea", "batches.therapeuticArea.name"),
-                Fields.field("codeAndName", "batches.codeAndName.name"),
-                Fields.field("yield", "batches.yield"),
-                Fields.field("purity", "batches.purity"),
-                Fields.field("compoundId", "batches.compoundId"),
-                Fields.field("chemicalName", "batches.chemicalName")
+                Fields.field(FIELD_THERAPEUTIC_AREA, "batches.therapeuticArea.name"),
+                Fields.field(FIELD_CODE_AND_NAME, "batches.codeAndName.name"),
+                Fields.field(FIELD_YIELD, "batches.yield"),
+                Fields.field(FIELD_PURITY, "batches.purity"),
+                Fields.field(FIELD_COMPOUND_ID, "batches.compoundId"),
+                Fields.field(FIELD_CHEMICAL_NAME, "batches.chemicalName")
         )));
 
         result.add(Aggregation.match(AggregationUtils.createCriteria(criteria)));
+
+        return Aggregation.newAggregation(result);
+
+    }
+
+    private Aggregation getConceptAggregation(SearchCriterion criterion) {
+        List<AggregationOperation> result = new ArrayList<>();
+        result.add(Aggregation.project("name", "content"));
+        result.add(Aggregation.match(Criteria.where("name").is("conceptDetails")));
+        result.add(Aggregation.project(Fields.from(Fields.field(FIELD_NAME, "content.title"))));
+
+        result.add(Aggregation.match(AggregationUtils.createCriterion(criterion)));
 
         return Aggregation.newAggregation(result);
 
