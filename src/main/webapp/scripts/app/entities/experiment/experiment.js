@@ -73,9 +73,6 @@ angular.module('indigoeln')
                         controller: 'ExperimentDetailController'
                     }
                 },
-                params: {
-                    statusChanged: false
-                },
                 resolve: {
                     pageInfo: function ($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
                                         AutoSaveEntitiesEngine) {
@@ -100,9 +97,6 @@ angular.module('indigoeln')
                             EntitiesCache.put(notebookParams,  Notebook.get(notebookParams).$promise);
                         }
 
-                        if ($stateParams.statusChanged) {
-                            //EntitiesBrowser.updateCacheAndTab($stateParams);
-                        }
                         $q.all([
                             EntitiesCache.get(params),
                             EntitiesCache.get(notebookParams),

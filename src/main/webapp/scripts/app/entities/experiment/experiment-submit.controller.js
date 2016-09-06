@@ -1,6 +1,6 @@
 angular.module('indigoeln').controller('ExperimentSubmitController',
     function ($scope, $rootScope, $state, pageInfo, experimentPdfCreator,
-              SignatureTemplates, $uibModal, SignatureDocument) {
+              SignatureTemplates, $uibModal, SignatureDocument, EntitiesCache) {
 
         $scope.fullPrint = true;
 
@@ -50,12 +50,16 @@ angular.module('indigoeln').controller('ExperimentSubmitController',
                             }, {},
                             function () {
                                 onCompleteSuccess('Submitted');
-                                $state.go('entities.experiment-detail', {
-                                    statusChanged: true,
-                                    experimentId: $scope.experiment.id,
+
+                                var params = {
+                                    projectId: $scope.project.id,
                                     notebookId: $scope.notebook.id,
-                                    projectId: $scope.project.id
-                                });
+                                    experimentId: $scope.experiment.id
+                                };
+
+                                //reload experiment
+                                EntitiesCache.removeByParams(params);
+                                $state.go('entities.experiment-detail', params);
                             });
                     }
                 });
