@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
         function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
-                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine) {
+                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils) {
 
             EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
             var identity = pageInfo.identity;
@@ -63,8 +63,13 @@ angular.module('indigoeln')
             };
 
             var onSaveSuccess = function (result) {
-                $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
-                $state.go('entities.notebook-detail', {projectId: $scope.projectId, notebookId: result.id});
+
+                EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
+
+                $timeout(function(){
+                    $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
+                    $state.go('entities.notebook-detail', {projectId: $scope.projectId, notebookId: result.id});
+                });
             };
 
             var onSaveError = function (result) {
