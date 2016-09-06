@@ -19,6 +19,10 @@ angular.module('indigoeln')
                 entitiesCache.remove(key);
             },
 
+            removeByParams: function (stateParams) {
+                entitiesCache.remove(TabKeyUtils.getTabKeyFromParams(stateParams));
+            },
+
             clearAll: function () {
                 CacheFactory.clearAll();
             }
