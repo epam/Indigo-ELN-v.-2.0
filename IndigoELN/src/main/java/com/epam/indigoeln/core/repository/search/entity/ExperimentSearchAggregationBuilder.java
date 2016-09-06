@@ -50,6 +50,8 @@ public class ExperimentSearchAggregationBuilder {
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
         aggregationOperations.add(Aggregation.match(orCriteria));
 
+        aggregationOperations.add(Aggregation.group("name", "creationDate"));
+
         return this;
     }
 
@@ -69,6 +71,9 @@ public class ExperimentSearchAggregationBuilder {
             Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
             Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
             aggregationOperations.add(Aggregation.match(andCriteria));
+
+            aggregationOperations.add(Aggregation.group("name", "creationDate"));
+
         }
         return this;
     }

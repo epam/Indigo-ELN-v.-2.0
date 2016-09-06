@@ -47,7 +47,7 @@ angular.module('indigoeln')
 
                 entityDomain: {name: 'Entity Searching Domain', $$skipList:true, field: 'entityDomain', condition: {name: 'equal'}, value: $scope.identity.id},
 
-                statusCriteria: {name: 'Status', $$skipList:true, field: 'status', condition: {name: 'equal'}, value: []}
+                statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
 
 
             },
