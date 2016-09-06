@@ -28,7 +28,8 @@ function searchUtilService() {
         var advancedSearch = restrictions.advancedSearch;
         var advancedSummary = restrictions.advancedSummary = [];
         _.each(advancedSearch, function (restriction) {
-            if (restriction.value) {
+            var value = _.isArray(restriction.value) && restriction.value.length === 0 ? null : restriction.value;
+            if (value) {
                 var restrictionCopy = angular.copy(restriction);
                 if (restrictionCopy.condition) {
                     restrictionCopy.condition = restrictionCopy.condition.name;

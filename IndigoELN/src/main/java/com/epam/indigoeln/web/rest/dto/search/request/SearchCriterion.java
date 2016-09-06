@@ -7,6 +7,16 @@ public class SearchCriterion {
     private String condition;
     private Object value;
 
+    public SearchCriterion() {
+    }
+
+    public SearchCriterion(String name, String field, String condition, Object value) {
+        this.name = name;
+        this.field = field;
+        this.condition = condition;
+        this.value = value;
+    }
+
     public String getName() {
         return name;
     }

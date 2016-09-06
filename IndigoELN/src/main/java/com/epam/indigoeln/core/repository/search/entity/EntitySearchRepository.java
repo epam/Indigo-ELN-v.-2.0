@@ -1,6 +1,5 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
-import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
@@ -8,18 +7,17 @@ import com.epam.indigoeln.core.repository.search.component.SearchComponentsRepos
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.mongodb.DBObject;
-import com.mongodb.DBRef;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -95,14 +93,13 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildProjectAggregation(EntitySearchRequest request) {
-        final Boolean sameKind = request.getSearchKind().map(KIND_PROJECT::equalsIgnoreCase).orElse(true);
-        if (!sameKind) {
+        if (!hasKind(request, KIND_PROJECT)) {
             return Optional.empty();
         }
         ProjectSearchAggregationBuilder builder = ProjectSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if (!request.getAdvancedSearch().isEmpty()) {
+        if (request.getSearchQuery().isPresent()) {
+            builder.withSearchQuery(request.getSearchQuery().get());
+        } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
@@ -110,14 +107,13 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request) {
-        final Boolean sameKind = request.getSearchKind().map(KIND_NOTEBOOK::equalsIgnoreCase).orElse(true);
-        if (!sameKind) {
+        if (!hasKind(request, KIND_NOTEBOOK)) {
             return Optional.empty();
         }
         NotebookSearchAggregationBuilder builder = NotebookSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if (!request.getAdvancedSearch().isEmpty()) {
+        if (request.getSearchQuery().isPresent()) {
+            builder.withSearchQuery(request.getSearchQuery().get());
+        } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
@@ -125,37 +121,23 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request) {
-        final Boolean sameKind = request.getSearchKind().map(KIND_EXPERIMENT::equalsIgnoreCase).orElse(true);
-        if (!sameKind) {
+        if (!hasKind(request, KIND_EXPERIMENT)) {
             return Optional.empty();
         }
-        ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance();
+        ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(mongoTemplate);
         if (request.getSearchQuery().isPresent()) {
             builder.withQuerySearch(request.getSearchQuery().get());
         } else if (!request.getAdvancedSearch().isEmpty()) {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
-        List<AggregationOperation> result = new ArrayList<>();
-        builder.getExperimentAggregationOperations().ifPresent(result::addAll);
-        getComponentsAggregationOperations(builder.getComponentsAggregations()).ifPresent(result::addAll);
-
-        return Optional.ofNullable(result.isEmpty() ? null : Aggregation.newAggregation(result));
+        return builder.build();
     }
 
-    private Optional<List<AggregationOperation>> getComponentsAggregationOperations(Optional<Collection<Aggregation>> componentsAggregations) {
-        return getDBRefs(componentsAggregations).map(dbRefs -> {
-            final ArrayList<AggregationOperation> result = new ArrayList<>();
-            result.add(Aggregation.unwind("components"));
-            result.add(Aggregation.match(Criteria.where("components").in(dbRefs)));
-            return result;
-        });
-    }
-
-    private Optional<Set<DBRef>> getDBRefs(Optional<Collection<Aggregation>> componentsAggregations) {
-        return componentsAggregations.map(aggregations -> aggregations.stream()
-                .flatMap(aggregation -> mongoTemplate.aggregate(aggregation, Component.class, Component.class).getMappedResults().stream())
-                .map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()));
+    private boolean hasKind(EntitySearchRequest request, String kind) {
+        return request.getSearchKinds().map(
+                searchKinds -> searchKinds.stream().filter(kind::equalsIgnoreCase).findAny().isPresent()
+        ).orElse(true);
     }
 
 }
