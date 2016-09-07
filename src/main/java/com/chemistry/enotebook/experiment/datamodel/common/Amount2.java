@@ -8,7 +8,7 @@ import com.chemistry.enotebook.experiment.common.units.UnitCache2;
 import com.chemistry.enotebook.experiment.common.units.UnitFactory2;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 
