@@ -42,22 +42,19 @@
                                     <strong>Entity Type Criteria</strong>
                                     <div class="row reagent-search-row" style="margin-top:10px">
                                         <div class="col-xs-2">
-                                            <label class="radio-inline">
-                                                <input checked="checked" name="entity"  type="radio"  ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value"  value="Project">
-                                                <span style="line-height: 1.5;">Project</span>
-                                            </label>
+                                            <my-checkbox my-model="selectedEntitiesFlags['Project']"
+                                                         my-change="selectEntity('Project')" my-label="Project"></my-checkbox>
+
                                         </div>
                                         <div class="col-xs-2">
-                                            <label class="radio-inline">
-                                                <input  name="entity" type="radio" ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value" value="Notebook">
-                                                <span style="line-height: 1.5;">Notebook</span>
-                                            </label>
+                                            <my-checkbox my-model="selectedEntitiesFlags['Notebook']"
+                                                         my-change="selectEntity('Notebook')" my-label="Notebook"></my-checkbox>
+
                                         </div>
                                         <div class="col-xs-2">
-                                            <label class="radio-inline">
-                                                <input  name="entity" type="radio"  ng-model="model.restrictions.advancedSearch.entityTypeCriteria.value" value="Experiment">
-                                                <span style="line-height: 1.5;">Experiment</span>
-                                            </label>
+                                            <my-checkbox my-model="selectedEntitiesFlags['Experiment']"
+                                                         my-change="selectEntity('Experiment')" my-label="Experiment"></my-checkbox>
+
                                         </div>
 
                                     </div>
@@ -67,21 +64,23 @@
                                     <div class="row reagent-search-row" style="margin-top:10px">
                                         <div class="col-xs-2">
                                             <label class="radio-inline">
-                                                <input checked="checked" name="domain" type="radio" value="{{identity.id}}"  ng-model="model.restrictions.advancedSearch.entityDomain.value">
+                                                <input checked="checked" name="domain" type="radio" value="OWN_ENTITY"  ng-change="changeDomain()" ng-model="domainModel">
                                                 <span style="line-height: 1.5;">In My Own Entity</span>
                                             </label>
                                         </div>
                                         <div class="col-xs-10">
                                             <div style=display:flex;">
                                             <label class="radio-inline">
-                                                <input  name="domain" type="radio" value="True">
+                                                <input  name="domain" type="radio" value="USERS_ENTITIES" ng-change="changeDomain()" ng-model="domainModel">
                                                 <span style="line-height: 1.5;">In Entities of These Users</span>
                                             </label>
                                                 <my-select style="margin-top:-8px;"
                                                            my-label-vertical="true"
                                                            my-readonly="myReadonly"
                                                            my-items="users"
-                                                           my-model="model.batchOwner"
+                                                           my-change = "selectedUsersChange()"
+                                                           my-remove = "selectedUsersChange()"
+                                                           my-model="selectedUsers"
                                                            my-multiple="true">
                                                 </my-select>
 

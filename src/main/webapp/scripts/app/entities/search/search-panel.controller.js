@@ -1,13 +1,16 @@
 angular.module('indigoeln')
-    .controller('SearchPanelController', function ($rootScope, $scope, SearchService, SearchUtilService, pageInfo, Dictionary, Principal) {
+    .controller('SearchPanelController', function ($rootScope, $scope, SearchService, SearchUtilService, pageInfo, Dictionary, UserWithAuthority) {
+
+        var OWN_ENTITY = 'OWN_ENTITY';
+        var USERS_ENTITIES = 'USERS_ENTITIES';
+
+
         $scope.model = {};
         $scope.model.databases = SearchService.getCatalogues();
         $scope.identity = pageInfo.identity;
-
-        Dictionary.get({id: 'users'}, function (dictionary) {
-            $scope.users = dictionary.words;
+        $scope.users = _.map(pageInfo.users, function (item) {
+            return {name: item.fullName, id: item.id};
         });
-
 
 
         $scope.model.restrictions = {
@@ -43,9 +46,9 @@ angular.module('indigoeln')
                 chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList : [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]},
-                entityTypeCriteria: {name: 'Entity Type Criteria', $$skipList:true, field: 'entityTypeCriteria', condition: {name: 'equal'}, value:'Project'},
+                entityTypeCriteria: {name: 'Entity Type Criteria', $$skipList:true, field: 'entityTypeCriteria', condition: {name: 'equal'},  value: []},
 
-                entityDomain: {name: 'Entity Searching Domain', $$skipList:true, field: 'entityDomain', condition: {name: 'equal'}, value: $scope.identity.id},
+                entityDomain: {name: 'Entity Searching Domain', $$skipList:true, field: 'entityDomain', condition: {name: 'equal'}, value: []},
 
                 statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
 
@@ -70,6 +73,21 @@ angular.module('indigoeln')
             return SearchUtilService.isAdvancedSearchFilled($scope.model.restrictions.advancedSearch);
         };
 
+        $scope.changeDomain = function () {
+            $scope.model.restrictions.advancedSearch.entityDomain.value = [];
+            if($scope.domainModel === OWN_ENTITY){
+                $scope.model.restrictions.advancedSearch.entityDomain.value.push($scope.identity.id);
+            }else if($scope.domainModel === USERS_ENTITIES){
+                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, _.clone);
+            }
+        };
+
+        $scope.selectedUsersChange = function () {
+            if($scope.domainModel === USERS_ENTITIES){
+                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, _.clone);
+            }
+        };
+
         $scope.selectedItemsFlags = {};
 
         $scope.selectItem = function (item) {
@@ -79,6 +97,19 @@ angular.module('indigoeln')
                 var index = _.indexOf($scope.model.restrictions.advancedSearch.statusCriteria.value, item);
                 if(index!= -1){
                     $scope.model.restrictions.advancedSearch.statusCriteria.value.splice(index, 1);
+                }
+            }
+        };
+
+        $scope.selectedEntitiesFlags = {};
+
+        $scope.selectEntity = function (item) {
+            if ($scope.selectedEntitiesFlags[item]) {
+                $scope.model.restrictions.advancedSearch.entityTypeCriteria.value.push(item)
+            } else {
+                var index = _.indexOf($scope.model.restrictions.advancedSearch.entityTypeCriteria.value, item);
+                if(index!= -1){
+                    $scope.model.restrictions.advancedSearch.entityTypeCriteria.value.splice(index, 1);
                 }
             }
         };
