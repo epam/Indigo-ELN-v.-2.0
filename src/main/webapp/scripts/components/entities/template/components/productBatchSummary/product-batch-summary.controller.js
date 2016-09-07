@@ -5,7 +5,8 @@ angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
     function ($scope, $rootScope, $uibModal, $http, $stateParams, $q, $filter, $log, $window, InfoEditor, EntitiesBrowser,
               AlertModal, Alert, AppValues, CalculationService, RegistrationService, RegistrationUtil, Dictionary,
-              ProductBatchSummaryCache, SdService, Notebook) {
+              ProductBatchSummaryCache, SdService, SdImportService, Notebook) {
+
             $scope.model = $scope.model || {};
             $scope.model.productBatchSummary = $scope.model.productBatchSummary || {};
             $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
@@ -691,73 +692,10 @@ angular.module('indigoeln')
                 syncingIntendedProducts.resolve();
             };
 
-        $scope.getWord = function (dicts, dictDescription, wordName) {
-            var dict = _.find(dicts, function (dict) {
-                return dict.description === dictDescription;
-            });
-            if (dict) {
-                return _.find(dict.words, function (word) {
-                    return word.name === wordName;
-                });
-            }
-        };
-
-        $scope.importBatches = function (sdUnitsToImport, dicts, i) {
-                if (!sdUnitsToImport[i]) {
-                    return;
-                }
-                var sdUnitToImport = sdUnitsToImport[i];
-                $http({
-                    url: 'api/bingodb/molecule/',
-                    method: 'POST',
-                    data: sdUnitToImport.mol
-                }).success(function (structureId) {
-                    $http({
-                        url: 'api/renderer/molecule/image',
-                        method: 'POST',
-                        data: sdUnitToImport.mol
-                    }).success(function (result) {
-                        var batchToImport = {};
-                        batchToImport.structure = batchToImport.structure || {};
-                        batchToImport.structure.image = result.image;
-                        batchToImport.structure.structureType = 'molecule';
-                        batchToImport.structure.molfile = sdUnitToImport.mol;
-                        batchToImport.structure.structureId = structureId;
-
-                        if (sdUnitToImport.properties) {
-                            var stereoisomerCode = sdUnitToImport.properties.STEREOISOMER_CODE;
-                            if (stereoisomerCode) {
-                                batchToImport.stereoisomer = $scope.getWord(dicts, 'Stereoisomer Code', stereoisomerCode);
-                            }
-                        }
-                        requestNbkBatchNumberAndAddToTable(batchToImport).then(function (batch) {
-                            $rootScope.$broadcast('product-batch-structure-changed', batch);
-                            $scope.importBatches(sdUnitsToImport, dicts, i + 1);
-                        });
-                    });
-                }).error(function () {
-                    console.info('Cannot save the structure.');
-                });
-            };
-
             $scope.importSDFile = function () {
-                $uibModal.open({
-                    animation: true,
-                    size: 'lg',
-                    templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
-                    controller: 'SingleFileUploaderController',
-                    resolve: {
-                        url: function () {
-                            return 'api/sd/import';
-                        }
-                    }
-                }).result.then(function (result) {
-                        Dictionary.all({}, function (dicts) {
-                            $scope.importBatches(result, dicts, 0);
-                        });
-                    }, function () {
-                        AlertModal.error('This file cannot be imported. Error occurred.');
-                    });
+                SdImportService.importFile(requestNbkBatchNumberAndAddToTable, function (batch) {
+                    $rootScope.$broadcast('product-batch-structure-changed', batch);
+                });
             };
 
         $scope.exportSDFile = function () {
@@ -766,7 +704,7 @@ angular.module('indigoeln')
             }).map(function (batch) {
                 return batch.fullNbkBatch;
             }).value();
-            SdService.export({component: "batch"}, selectedBatchNumbers, function (data) {
+            SdService.export({component: 'batch'}, selectedBatchNumbers, function (data) {
                 $window.open('api/sd/download?fileName=' + data.fileName);
             });
         };
