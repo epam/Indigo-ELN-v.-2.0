@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.core.service.indigo.IndigoProvider;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
