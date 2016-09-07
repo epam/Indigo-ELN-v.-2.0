@@ -4,11 +4,14 @@ import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
+import static org.springframework.data.mongodb.core.aggregation.Fields.*;
+import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 public class ComponentSearchAggregationBuilder {
 
@@ -20,9 +23,28 @@ public class ComponentSearchAggregationBuilder {
     public static final String FIELD_PURITY = "purity";
     public static final String FIELD_COMPOUND_ID = "compoundId";
     public static final String FIELD_CHEMICAL_NAME = "chemicalName";
+    public static final String FIELD_CONTENT = "content";
+    public static final String FIELD_BATCHES = "batches";
+    public static final String FIELD_TITLE = "title";
+
+    public static final String FIELD_CONTENT_DESCRIPTION = FIELD_CONTENT + ".description";
+    public static final String FIELD_CONTENT_TITLE = FIELD_CONTENT + ".title";
+    public static final String FIELD_CONTENT_BATCHES = FIELD_CONTENT + ".batches";
+
+    public static final String FIELD_BATCHES_CHEMICAL_NAME = FIELD_BATCHES + ".chemicalName";
+    public static final String FIELD_BATCHES_COMPOUND_ID = FIELD_BATCHES + ".compoundId";
+    public static final String FIELD_BATCHES_PURITY = FIELD_BATCHES + ".purity";
+    public static final String FIELD_BATCHES_YIELD = FIELD_BATCHES + ".yield";
+    public static final String FIELD_BATCHES_CODE_AND_NAME_NAME = FIELD_BATCHES + ".codeAndName.name";
+    public static final String FIELD_BATCHES_THERAPEUTIC_AREA_NAME = FIELD_BATCHES + ".therapeuticArea.name";
+
+    public static final String COMPONENT_NAME_EXPERIMENT_DESCRIPTION = "experimentDescription";
+    public static final String COMPONENT_NAME_PRODUCT_BATCH_SUMMARY = "productBatchSummary";
+    public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
+    public static final String CONDITION_CONTAINS = "contains";
+    public static final String CONDITION_EQUALS = "=";
     public static List<String> BATCH_FIELDS = Arrays.asList(FIELD_THERAPEUTIC_AREA, FIELD_CODE_AND_NAME, FIELD_YIELD,
             FIELD_PURITY, FIELD_COMPOUND_ID, FIELD_CHEMICAL_NAME);
-
     protected List<Aggregation> aggregations;
 
     public ComponentSearchAggregationBuilder() {
@@ -48,7 +70,7 @@ public class ComponentSearchAggregationBuilder {
     }
 
     private Aggregation getDescriptionAggregation(String querySearch) {
-        return getDescriptionAggregation(new SearchCriterion(FIELD_DESCRIPTION, FIELD_DESCRIPTION, "contains", querySearch));
+        return getDescriptionAggregation(new SearchCriterion(FIELD_DESCRIPTION, FIELD_DESCRIPTION, CONDITION_CONTAINS, querySearch));
     }
 
     private Optional<Aggregation> getDescriptionAggregation(List<SearchCriterion> criteria) {
@@ -60,12 +82,12 @@ public class ComponentSearchAggregationBuilder {
 
     private Aggregation getBatchesAggregation(String querySearch) {
         Collection<SearchCriterion> searchCriteria = new ArrayList<>();
-        searchCriteria.add(new SearchCriterion(FIELD_THERAPEUTIC_AREA, FIELD_THERAPEUTIC_AREA, "contains", querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_CODE_AND_NAME, FIELD_CODE_AND_NAME, "contains", querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_YIELD, FIELD_YIELD, "=", querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_PURITY, FIELD_PURITY, "=", querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_COMPOUND_ID, FIELD_COMPOUND_ID, "contains", querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_CHEMICAL_NAME, FIELD_CHEMICAL_NAME, "contains", querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_THERAPEUTIC_AREA, FIELD_THERAPEUTIC_AREA, CONDITION_CONTAINS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_CODE_AND_NAME, FIELD_CODE_AND_NAME, CONDITION_CONTAINS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_YIELD, FIELD_YIELD, CONDITION_EQUALS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_PURITY, FIELD_PURITY, CONDITION_EQUALS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_COMPOUND_ID, FIELD_COMPOUND_ID, CONDITION_CONTAINS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_CHEMICAL_NAME, FIELD_CHEMICAL_NAME, CONDITION_CONTAINS, querySearch));
         return getBatchesAggregation(searchCriteria, false);
     }
 
@@ -79,7 +101,7 @@ public class ComponentSearchAggregationBuilder {
     }
 
     private Aggregation getConceptAggregation(String querySearch) {
-        return getConceptAggregation(new SearchCriterion(FIELD_NAME, FIELD_NAME, "contains", querySearch));
+        return getConceptAggregation(new SearchCriterion(FIELD_NAME, FIELD_NAME, CONDITION_CONTAINS, querySearch));
     }
 
     private Optional<Aggregation> getConceptAggregation(List<SearchCriterion> criteria) {
@@ -91,26 +113,26 @@ public class ComponentSearchAggregationBuilder {
 
     private Aggregation getDescriptionAggregation(SearchCriterion criterion) {
         List<AggregationOperation> result = new ArrayList<>();
-        result.add(Aggregation.project("name", "content"));
-        result.add(Aggregation.match(Criteria.where("name").is("experimentDescription")));
-        result.add(Aggregation.project(Fields.from(Fields.field("description", "content.description"))));
-        result.add(Aggregation.match(AggregationUtils.createCriterion(criterion)));
-        return Aggregation.newAggregation(result);
+        result.add(project(FIELD_NAME, FIELD_CONTENT));
+        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_EXPERIMENT_DESCRIPTION)));
+        result.add(project(from(field(FIELD_DESCRIPTION, FIELD_CONTENT_DESCRIPTION))));
+        result.add(match(AggregationUtils.createCriterion(criterion)));
+        return newAggregation(result);
     }
 
     private Aggregation getBatchesAggregation(Collection<SearchCriterion> criteria, boolean and) {
         List<AggregationOperation> result = new ArrayList<>();
-        result.add(Aggregation.project("name", "content"));
-        result.add(Aggregation.match(Criteria.where("name").is("productBatchSummary")));
-        result.add(Aggregation.project(Fields.from(Fields.field("batches", "content.batches"))));
-        result.add(Aggregation.unwind("batches"));
-        result.add(Aggregation.project(Fields.from(
-                Fields.field(FIELD_THERAPEUTIC_AREA, "batches.therapeuticArea.name"),
-                Fields.field(FIELD_CODE_AND_NAME, "batches.codeAndName.name"),
-                Fields.field(FIELD_YIELD, "batches.yield"),
-                Fields.field(FIELD_PURITY, "batches.purity"),
-                Fields.field(FIELD_COMPOUND_ID, "batches.compoundId"),
-                Fields.field(FIELD_CHEMICAL_NAME, "batches.chemicalName")
+        result.add(project(FIELD_NAME, FIELD_CONTENT));
+        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_PRODUCT_BATCH_SUMMARY)));
+        result.add(project(from(field(FIELD_BATCHES, FIELD_CONTENT_BATCHES))));
+        result.add(unwind(FIELD_BATCHES));
+        result.add(project(from(
+                field(FIELD_THERAPEUTIC_AREA, FIELD_BATCHES_THERAPEUTIC_AREA_NAME),
+                field(FIELD_CODE_AND_NAME, FIELD_BATCHES_CODE_AND_NAME_NAME),
+                field(FIELD_YIELD, FIELD_BATCHES_YIELD),
+                field(FIELD_PURITY, FIELD_BATCHES_PURITY),
+                field(FIELD_COMPOUND_ID, FIELD_BATCHES_COMPOUND_ID),
+                field(FIELD_CHEMICAL_NAME, FIELD_BATCHES_CHEMICAL_NAME)
         )));
 
         Criteria matchCriteria;
@@ -119,21 +141,21 @@ public class ComponentSearchAggregationBuilder {
         } else {
             matchCriteria = new Criteria().orOperator(AggregationUtils.createCriteria(criteria).toArray(new Criteria[criteria.size()]));
         }
-        result.add(Aggregation.match(matchCriteria));
+        result.add(match(matchCriteria));
 
-        return Aggregation.newAggregation(result);
+        return newAggregation(result);
 
     }
 
     private Aggregation getConceptAggregation(SearchCriterion criterion) {
         List<AggregationOperation> result = new ArrayList<>();
-        result.add(Aggregation.project("name", "content"));
-        result.add(Aggregation.match(Criteria.where("name").is("conceptDetails")));
-        result.add(Aggregation.project(Fields.from(Fields.field(FIELD_NAME, "content.title"))));
+        result.add(project(FIELD_NAME, FIELD_CONTENT));
+        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_CONCEPT_DETAILS)));
+        result.add(project(from(field(FIELD_NAME, FIELD_CONTENT_TITLE))));
 
-        result.add(Aggregation.match(AggregationUtils.createCriterion(criterion)));
+        result.add(match(AggregationUtils.createCriterion(criterion)));
 
-        return Aggregation.newAggregation(result);
+        return newAggregation(result);
 
     }
 
