@@ -78,13 +78,17 @@ angular.module('indigoeln')
             if($scope.domainModel === OWN_ENTITY){
                 $scope.model.restrictions.advancedSearch.entityDomain.value.push($scope.identity.id);
             }else if($scope.domainModel === USERS_ENTITIES){
-                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, _.clone);
+                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, function(user){
+                    return user.id;
+                });
             }
         };
 
         $scope.selectedUsersChange = function () {
             if($scope.domainModel === USERS_ENTITIES){
-                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, _.clone);
+                $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, function(user){
+                    return user.id;
+                });
             }
         };
 
