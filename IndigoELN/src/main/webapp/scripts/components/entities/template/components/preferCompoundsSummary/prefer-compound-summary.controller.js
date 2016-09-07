@@ -1,6 +1,7 @@
 angular.module('indigoeln')
     .controller('PreferCompoundSummaryController',
-        function ($scope, $stateParams, Notebook, EntitiesCache, $http, SdService, $window, RegistrationUtil, AlertModal, $rootScope, $log, CalculationService) {
+    function ($scope, $stateParams, Notebook, EntitiesCache, $http, SdService, SdImportService, $window, RegistrationUtil, AlertModal, $rootScope, $log, CalculationService, Dictionary) {
+
             $scope.model = $scope.model || {};
             $scope.model.preferredCompoundSummary = $scope.model.preferredCompoundSummary || {};
             $scope.model.preferredCompoundSummary.compounds = $scope.model.preferredCompoundSummary.compounds || [];
@@ -85,7 +86,7 @@ angular.module('indigoeln')
             }
 
 
-            function requestNbkBatchNumberAndAddToTable() {
+        function requestNbkBatchNumberAndAddToTable(duplicatedCompound) {
                 var latest = getLatestNbkBatch();
                 return $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                         '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
@@ -100,7 +101,7 @@ angular.module('indigoeln')
                             _.each(getCompounds(), function (row) {
                                 row.$$selected = false;
                             });
-                            var compound = {};
+                             var compound = duplicatedCompound || {};
                              compound.nbkBatch = batchNumber;
                              compound.fullNbkBatch = fullNbkBatch;
                              compound.fullNbkImmutablePart = fullNbkImmutablePart;
@@ -156,13 +157,17 @@ angular.module('indigoeln')
                 $rootScope.$broadcast('batch-summary-row-deselected');
             };
 
+        $scope.importSDFile = function () {
+            SdImportService.importFile(requestNbkBatchNumberAndAddToTable);
+        };
+
             $scope.exportSDFile = function () {
                 var selectedBatchNumbers = _.chain(getCompounds()).filter(function (item) {
                     return item.select;
                 }).map(function (batch) {
                     return batch.fullNbkBatch;
                 }).value();
-                SdService.export({"component": "compound"}, selectedBatchNumbers, function (data) {
+                SdService.export({component: 'compound'}, selectedBatchNumbers, function (data) {
                     $window.open('api/sd/download?fileName=' + data.fileName);
                 });
             };
