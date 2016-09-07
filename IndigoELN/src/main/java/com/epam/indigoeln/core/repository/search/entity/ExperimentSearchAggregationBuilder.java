@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.DBRef;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -14,20 +15,38 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
 
 public class ExperimentSearchAggregationBuilder {
 
-    private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList("status");
-    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author._id");
+    public static final String FIELD_STATUS = "status";
+    public static final String FIELD_NAME = "name";
+    public static final String FIELD_COMPONENTS = "components";
+    public static final String FIELD_EXPERIMENT_VERSION = "experimentVersion";
+    public static final String FIELD_CREATION_DATE = "creationDate";
+    public static final String FIELD_AUTHOR = "author";
+    public static final String FIELD_ACCESS_LIST = "accessList";
+
+    private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList(FIELD_STATUS);
+    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_STATUS, "author._id");
 
     private MongoTemplate template;
 
-    private List<AggregationOperation> aggregationOperations;
+    private Collection<AggregationOperation> baseOperations;
+    private Optional<AggregationOperation> experimentFilter;
 
     private ExperimentSearchAggregationBuilder(MongoTemplate template) {
         this.template = template;
-        aggregationOperations = new ArrayList<>();
-        aggregationOperations.add(Aggregation.unwind("components"));
+        baseOperations = new ArrayList<>();
+        baseOperations.add(sort(Sort.Direction.ASC, FIELD_NAME, FIELD_EXPERIMENT_VERSION));
+        baseOperations.add(group(FIELD_NAME)
+                .last(FIELD_COMPONENTS).as(FIELD_COMPONENTS)
+                .last(FIELD_STATUS).as(FIELD_STATUS)
+                .last(FIELD_AUTHOR).as(FIELD_AUTHOR)
+                .last(FIELD_NAME).as(FIELD_NAME)
+                .last(FIELD_CREATION_DATE).as(FIELD_CREATION_DATE)
+                .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST));
+        baseOperations.add(unwind(FIELD_COMPONENTS));
     }
 
     public static ExperimentSearchAggregationBuilder getInstance(MongoTemplate template) {
@@ -42,14 +61,13 @@ public class ExperimentSearchAggregationBuilder {
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
                 collect(toList());
-        dbRefs.map(refs -> Criteria.where("components").in(refs)).ifPresent(fieldCriteriaList::add);
-
-        Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-        Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
-        aggregationOperations.add(Aggregation.match(orCriteria));
-
-        aggregationOperations.add(Aggregation.group("name", "creationDate"));
-
+        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(fieldCriteriaList::add);
+        if (fieldCriteriaList.isEmpty()) {
+            experimentFilter = Optional.empty();
+        } else {
+            Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
+            experimentFilter = Optional.of(match(new Criteria().orOperator(fieldCriteriaArr)));
+        }
         return this;
     }
 
@@ -62,20 +80,28 @@ public class ExperimentSearchAggregationBuilder {
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        dbRefs.map(refs -> Criteria.where("components").in(refs)).ifPresent(fieldCriteriaList::add);
-        if (!fieldCriteriaList.isEmpty()) {
-            Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-            Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
-            aggregationOperations.add(Aggregation.match(andCriteria));
-
-            aggregationOperations.add(Aggregation.group("name", "creationDate"));
-
+        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(fieldCriteriaList::add);
+        if (fieldCriteriaList.isEmpty()) {
+            experimentFilter = Optional.empty();
+        } else {
+            Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
+            experimentFilter = Optional.of(match(new Criteria().andOperator(fieldCriteriaArr)));
         }
         return this;
     }
 
     public Optional<Aggregation> build() {
-        return Optional.ofNullable(aggregationOperations.isEmpty() ? null : Aggregation.newAggregation(aggregationOperations));
+        return experimentFilter.map(ef -> {
+            List<AggregationOperation> operations = new ArrayList<>(baseOperations);
+            operations.add(ef);
+            operations.add(group(FIELD_NAME)
+                    .last(FIELD_STATUS).as(FIELD_STATUS)
+                    .last(FIELD_AUTHOR).as(FIELD_AUTHOR)
+                    .last(FIELD_NAME).as(FIELD_NAME)
+                    .last(FIELD_CREATION_DATE).as(FIELD_CREATION_DATE)
+                    .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST));
+            return Aggregation.newAggregation(operations);
+        });
     }
 
     private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations, boolean and) {
