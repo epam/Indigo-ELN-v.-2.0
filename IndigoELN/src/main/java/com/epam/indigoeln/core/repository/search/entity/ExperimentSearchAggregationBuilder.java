@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.toList;
 public class ExperimentSearchAggregationBuilder {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList("status");
-    private static final Collection<String> AVAILABLE_FIELDS = Collections.singletonList("status");
+    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author._id");
 
     private MongoTemplate template;
 
@@ -42,9 +42,7 @@ public class ExperimentSearchAggregationBuilder {
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
                 collect(toList());
-        dbRefs.ifPresent(refs -> {
-            fieldCriteriaList.add(Criteria.where("components").in(refs));
-        });
+        dbRefs.map(refs -> Criteria.where("components").in(refs)).ifPresent(fieldCriteriaList::add);
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
@@ -64,9 +62,7 @@ public class ExperimentSearchAggregationBuilder {
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        dbRefs.ifPresent(refs -> {
-            fieldCriteriaList.add(Criteria.where("components").in(refs));
-        });
+        dbRefs.map(refs -> Criteria.where("components").in(refs)).ifPresent(fieldCriteriaList::add);
         if (!fieldCriteriaList.isEmpty()) {
             Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
             Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
@@ -83,21 +79,24 @@ public class ExperimentSearchAggregationBuilder {
     }
 
     private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations, boolean and) {
-        final List<Set<DBRef>> component = componentsAggregations.stream()
+        return collect(componentsAggregations.stream()
                 .map(aggregation ->
                         template.aggregate(aggregation, Component.class, Component.class).getMappedResults()
                                 .stream().map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()), and);
+    }
+
+    private Set<DBRef> collect(List<Set<DBRef>> refs, boolean and) {
         Set<DBRef> result = new HashSet<>();
-        if (component.isEmpty()) {
+        if (refs.isEmpty()) {
             return result;
         }
-        result.addAll(component.get(0));
-        for (int i = 1; i < component.size(); i++) {
+        result.addAll(refs.get(0));
+        for (int i = 1; i < refs.size(); i++) {
             if (and) {
-                result.retainAll(component.get(i));
+                result.retainAll(refs.get(i));
             } else {
-                result.addAll(component.get(i));
+                result.addAll(refs.get(i));
             }
         }
         return result;
