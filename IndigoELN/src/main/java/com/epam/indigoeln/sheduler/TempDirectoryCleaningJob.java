@@ -2,7 +2,7 @@ package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

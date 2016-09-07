@@ -13,7 +13,7 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.service.sd;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import sun.misc.BASE64Decoder;
