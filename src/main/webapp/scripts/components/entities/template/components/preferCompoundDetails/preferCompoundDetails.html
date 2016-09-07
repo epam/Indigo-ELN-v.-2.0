@@ -17,18 +17,28 @@
                             </my-input>
                         </div>
 
-                        <div class="col-xs-2" style="position:absolute;top:-7px;left:325px;">
-                            <my-checkbox
-                                    my-model="showStructure"
-                                    my-label="Show Structure"
-                            ></my-checkbox>
-                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+
+        <indigo-compound-summary model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
+
         <div class="panel-body">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-lg-4">
+                    <div class="form-group ">
+                        <my-checkbox
+                                my-model="showStructure"
+                                my-label="Show Structure"
+                        ></my-checkbox>
+                    </div>
+
+                </div>
+            </div>
             <div class="row" ng-if="showStructure">
+
                     <div class="structure-preview-wrapper">
                             <img style="padding:10px;"
                                  ng-src="data:image/svg+xml;base64,{{structureImage}}"
