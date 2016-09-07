@@ -2,8 +2,9 @@ package com.epam.indigoeln.config.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoRenderer;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.service.indigo.IndigoProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,30 +17,11 @@ public class BingoConfiguration {
     @Value("${bingo.index-folder}")
     private String indexFolder;
 
+    @Autowired
+    private IndigoProvider indigoProvider;
+
     public BingoConfiguration() {
         System.setProperty("jna.nosys", "true");
-    }
-
-    @Bean
-    public Indigo indigo() {
-        Indigo indigo = new Indigo();
-        indigo.setOption("ignore-stereochemistry-errors", "true");
-
-        return indigo;
-    }
-
-    @Bean
-    public IndigoRenderer indigoRenderer() {
-        Indigo indigo = indigo();
-
-        IndigoRenderer renderer = new IndigoRenderer(indigo);
-
-        indigo.setOption("render-label-mode", "hetero");
-        indigo.setOption("render-output-format", "svg");
-        indigo.setOption("render-coloring", true);
-        indigo.setOption("render-margins", 0, 0);
-
-        return renderer;
     }
 
     @Bean
@@ -57,14 +39,16 @@ public class BingoConfiguration {
 
         File dir = new File(folder);
 
+        final Indigo indigo = indigoProvider.getIndigo();
+
         if (!dir.exists()) {
             if (dir.mkdirs()) {
-                bingo = Bingo.createDatabaseFile(indigo(), folder, type);
+                bingo = Bingo.createDatabaseFile(indigo, folder, type);
             } else {
                 throw new IndigoRuntimeException("Cannot create directory structure for Bingo: " + folder);
             }
         } else {
-            bingo = Bingo.loadDatabaseFile(indigo(), folder);
+            bingo = Bingo.loadDatabaseFile(indigo, folder);
         }
 
         bingo.optimize();

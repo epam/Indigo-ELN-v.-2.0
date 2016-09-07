@@ -379,7 +379,7 @@ angular.module('indigoeln')
                             var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
                             $q.all(productPromises).then(function (results) {
                                 setIntendedProducts(moleculeInfoResponseCallback(results, true));
-                                // getStructureImagesForIntendedProducts();
+                                getStructureImagesForIntendedProducts();
                                 CalculationService.recalculateStoich();
                             });
                             $q.all(reactantPromises).then(function (results) {
@@ -497,16 +497,12 @@ angular.module('indigoeln')
                                 resolve: {
                                     reactants: function () {
                                         return _.map(batchesToSearch, function (batch) {
-                                            return angular.copy(batch);
-                                        });
-                                        // Uncomment this after resolving https://jirapct.epam.com/jira/browse/EPMLSOPELN-279 JVM crash because of Indigo.loadMolecule
-                                        /*return _.map(batchesToSearch, function (batch) {
-                                         var batchCopy = angular.copy(batch);
-                                         CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function (image) {
-                                         batchCopy.structure.image = image;
+                                            var batchCopy = angular.copy(batch);
+                                            CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function (image) {
+                                                batchCopy.structure.image = image;
                                             });
-                                         return batchCopy;
-                                         });*/
+                                            return batchCopy;
+                                        });
                                     }
                                 }
                             });
