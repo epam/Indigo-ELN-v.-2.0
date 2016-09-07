@@ -1,9 +1,9 @@
 package com.epam.indigoeln.core.service.bingo;
 
 import com.epam.indigo.BingoObject;
-import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.core.repository.bingo.BingoRepository;
+import com.epam.indigoeln.core.service.indigo.IndigoProvider;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class BingoService {
 
     @Autowired
-    private Indigo indigo;
+    private IndigoProvider indigoProvider;
 
     @Autowired
     private BingoRepository moleculeRepository;
@@ -92,11 +92,11 @@ public class BingoService {
     }
 
     public Optional<Integer> insertMolecule(String molecule) {
-        return moleculeRepository.insert(indigo.loadMolecule(molecule));
+        return moleculeRepository.insert(indigoProvider.getIndigo().loadMolecule(molecule));
     }
 
     public void updateMolecule(Integer id, String molecule) {
-        moleculeRepository.update(indigo.loadMolecule(molecule), id);
+        moleculeRepository.update(indigoProvider.getIndigo().loadMolecule(molecule), id);
     }
 
     /* Reaction */
@@ -106,15 +106,15 @@ public class BingoService {
     }
 
     public List<Integer> searchMoleculeExact(String molecule, String options) {
-        return processSearchExact(moleculeRepository, indigo.loadMolecule(molecule), options);
+        return processSearchExact(moleculeRepository, indigoProvider.getIndigo().loadMolecule(molecule), options);
     }
 
     public List<Integer> searchMoleculeSub(String molecule, String options) {
-        return processSearchSub(moleculeRepository, indigo.loadQueryMolecule(molecule), options);
+        return processSearchSub(moleculeRepository, indigoProvider.getIndigo().loadQueryMolecule(molecule), options);
     }
 
     public List<Integer> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
-        return processSearchSim(moleculeRepository, indigo.loadMolecule(molecule), min, max, metric);
+        return processSearchSim(moleculeRepository, indigoProvider.getIndigo().loadMolecule(molecule), min, max, metric);
     }
 
     public List<Integer> searchMoleculeMolFormula(String formula, String options) {
@@ -129,11 +129,11 @@ public class BingoService {
     }
 
     public Optional<Integer> insertReaction(String reaction) {
-        return reactionRepository.insert(indigo.loadReaction(reaction));
+        return reactionRepository.insert(indigoProvider.getIndigo().loadReaction(reaction));
     }
 
     public void updateReaction(Integer id, String reaction) {
-        reactionRepository.update(indigo.loadReaction(reaction), id);
+        reactionRepository.update(indigoProvider.getIndigo().loadReaction(reaction), id);
     }
 
     /* Common */
@@ -143,15 +143,15 @@ public class BingoService {
     }
 
     public List<Integer> searchReactionExact(String reaction, String options) {
-        return processSearchExact(reactionRepository, indigo.loadReaction(reaction), options);
+        return processSearchExact(reactionRepository, indigoProvider.getIndigo().loadReaction(reaction), options);
     }
 
     public List<Integer> searchReactionSub(String reaction, String options) {
-        return processSearchSub(reactionRepository, indigo.loadQueryReaction(reaction), options);
+        return processSearchSub(reactionRepository, indigoProvider.getIndigo().loadQueryReaction(reaction), options);
     }
 
     public List<Integer> searchReactionSim(String reaction, Float min, Float max, String metric) {
-        return processSearchSim(reactionRepository, indigo.loadReaction(reaction), min, max, metric);
+        return processSearchSim(reactionRepository, indigoProvider.getIndigo().loadReaction(reaction), min, max, metric);
     }
 
     public List<Integer> searchReactionMolFormula(String formula, String options) {
