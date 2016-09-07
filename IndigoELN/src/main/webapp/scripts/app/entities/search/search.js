@@ -19,13 +19,15 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, Principal) {
+                    pageInfo: function($q, Principal, UserWithAuthority) {
                         var deferred = $q.defer();
                         $q.all([
+                            UserWithAuthority.query().$promise,
                             Principal.identity()
                         ]).then(function(results){
                             deferred.resolve({
-                                identity: results[0]
+                                users: results[0],
+                                identity: results[1]
                             });
                         });
                         return deferred.promise;
