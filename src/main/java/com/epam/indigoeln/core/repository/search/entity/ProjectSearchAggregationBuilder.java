@@ -10,7 +10,7 @@ import java.util.Optional;
 public class ProjectSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("description", "name", "keywords", "references");
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name", "keywords", "references");
+    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name", "keywords", "references", "author._id");
 
     private ProjectSearchAggregationBuilder() {
         setSearchQueryFields(SEARCH_QUERY_FIELDS);

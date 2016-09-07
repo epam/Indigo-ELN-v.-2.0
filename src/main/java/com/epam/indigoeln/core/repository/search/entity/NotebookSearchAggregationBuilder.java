@@ -11,7 +11,7 @@ import java.util.Optional;
 public class NotebookSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("description", "name");
-    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name");
+    private static final List<String> AVAILABLE_FIELDS = Arrays.asList("description", "name", "author._id");
 
     private NotebookSearchAggregationBuilder() {
         aggregationOperations = new ArrayList<>();
