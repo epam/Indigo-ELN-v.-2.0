@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.service.print;
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
