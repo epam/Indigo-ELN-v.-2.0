@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.search;
 
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.search.entity.EntitySearchRepository;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
@@ -14,8 +15,8 @@ public class EntitySearchService {
     @Autowired
     private EntitySearchRepository repository;
 
-    public List<EntitySearchResultDTO> find(EntitySearchRequest searchRequest) {
-        return repository.findEntities(searchRequest);
+    public List<EntitySearchResultDTO> find(User user, EntitySearchRequest searchRequest) {
+        return repository.findEntities(user, searchRequest);
     }
 
 }

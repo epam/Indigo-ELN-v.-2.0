@@ -1,12 +1,10 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.search.component.SearchComponentsRepository;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
-import com.mongodb.DBObject;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +13,8 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Repository
@@ -30,54 +26,39 @@ public class EntitySearchRepository {
     private static final String KIND_NOTEBOOK = "Notebook";
     private static final String KIND_EXPERIMENT = "Experiment";
 
-    private static Function<DBObject, EntitySearchResultDTO> CONVERT_PROJECT = dbObject -> {
-        EntitySearchResultDTO result = new EntitySearchResultDTO();
-        result.setKind(KIND_PROJECT);
-        result.setName((String) dbObject.get("name"));
-        result.setCreationDate((Date) dbObject.get("creationDate"));
-        return result;
-    };
-    private static Function<DBObject, EntitySearchResultDTO> CONVERT_NOTEBOOK = dbObject -> {
-        EntitySearchResultDTO result = new EntitySearchResultDTO();
-        result.setKind(KIND_NOTEBOOK);
-        result.setName((String) dbObject.get("name"));
-        result.setCreationDate((Date) dbObject.get("creationDate"));
-        return result;
-    };
-    private static Function<DBObject, EntitySearchResultDTO> CONVERT_EXPERIMENT = dbObject -> {
-        EntitySearchResultDTO result = new EntitySearchResultDTO();
-        result.setKind(KIND_EXPERIMENT);
-        result.setName((String) dbObject.get("name"));
-        result.setCreationDate((Date) dbObject.get("creationDate"));
-        return result;
-    };
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<EntitySearchResultDTO> findEntities(EntitySearchRequest searchRequest) {
+    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest) {
 
         Optional<Aggregation> aggregation = buildProjectAggregation(searchRequest);
         final Optional<List<EntitySearchResultDTO>> projectResult = aggregation.map(agg -> {
             LOGGER.debug("Perform project search query: " + agg.toString());
-            List<DBObject> mappedResults = mongoTemplate.aggregate(agg, Project.class, DBObject.class).getMappedResults();
+            List<Project> mappedResults = mongoTemplate.aggregate(agg, Project.class, Project.class).getMappedResults();
 
-            return mappedResults.stream().map(CONVERT_PROJECT).collect(Collectors.toList());
+            return mappedResults.stream().filter(
+                    p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
+            ).map(this::convert).collect(Collectors.toList());
         });
 
         aggregation = buildNotebookAggregation(searchRequest);
         final Optional<List<EntitySearchResultDTO>> notebookResult = aggregation.map(agg -> {
             LOGGER.debug("Perform notebook search query: " + agg.toString());
-            List<DBObject> mappedResults = mongoTemplate.aggregate(agg, Notebook.class, DBObject.class).getMappedResults();
+            List<Notebook> mappedResults = mongoTemplate.aggregate(agg, Notebook.class, Notebook.class).getMappedResults();
 
-            return mappedResults.stream().map(CONVERT_NOTEBOOK).collect(Collectors.toList());
+            return mappedResults.stream().filter(
+                    n -> PermissionUtil.hasPermissions(user.getId(), n.getAccessList(), UserPermission.READ_ENTITY)
+            ).map(this::convert).collect(Collectors.toList());
         });
 
         aggregation = buildExperimentAggregation(searchRequest);
         final Optional<List<EntitySearchResultDTO>> experimentResult = aggregation.map(agg -> {
             LOGGER.debug("Perform experiment search query: " + agg.toString());
-            List<DBObject> mappedResults = mongoTemplate.aggregate(agg, Experiment.class, DBObject.class).getMappedResults();
+            List<Experiment> mappedResults = mongoTemplate.aggregate(agg, Experiment.class, Experiment.class).getMappedResults();
 
-            return mappedResults.stream().map(CONVERT_EXPERIMENT).collect(Collectors.toList());
+            return mappedResults.stream().filter(
+                    p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
+            ).map(this::convert).collect(Collectors.toList());
         });
         return merge(projectResult, notebookResult, experimentResult);
 
@@ -106,6 +87,14 @@ public class EntitySearchRepository {
         return builder.build();
     }
 
+    private EntitySearchResultDTO convert(Project project) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind(KIND_PROJECT);
+        result.setName(project.getName());
+        result.setCreationDate(project.getCreationDate());
+        return result;
+    }
+
     private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request) {
         if (!hasKind(request, KIND_NOTEBOOK)) {
             return Optional.empty();
@@ -120,6 +109,14 @@ public class EntitySearchRepository {
         return builder.build();
     }
 
+    private EntitySearchResultDTO convert(Notebook notebook) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind(KIND_NOTEBOOK);
+        result.setName(notebook.getName());
+        result.setCreationDate(notebook.getCreationDate());
+        return result;
+    }
+
     private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request) {
         if (!hasKind(request, KIND_EXPERIMENT)) {
             return Optional.empty();
@@ -132,6 +129,14 @@ public class EntitySearchRepository {
         }
 
         return builder.build();
+    }
+
+    private EntitySearchResultDTO convert(Experiment experiment) {
+        EntitySearchResultDTO result = new EntitySearchResultDTO();
+        result.setKind(KIND_EXPERIMENT);
+        result.setName(experiment.getName());
+        result.setCreationDate(experiment.getCreationDate());
+        return result;
     }
 
     private boolean hasKind(EntitySearchRequest request, String kind) {

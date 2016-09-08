@@ -1,6 +1,6 @@
 package com.epam.indigoeln.web.rest.dto.search;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class EntitySearchResultDTO {
 
@@ -8,7 +8,7 @@ public class EntitySearchResultDTO {
 
     private String name;
 
-    private Date creationDate;
+    private ZonedDateTime creationDate;
 
     public String getKind() {
         return kind;
@@ -26,11 +26,11 @@ public class EntitySearchResultDTO {
         this.name = name;
     }
 
-    public Date getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(ZonedDateTime creationDate) {
         this.creationDate = creationDate;
     }
 }
