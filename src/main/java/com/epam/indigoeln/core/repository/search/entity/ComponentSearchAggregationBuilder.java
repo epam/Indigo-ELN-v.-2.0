@@ -8,10 +8,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-import static org.springframework.data.mongodb.core.aggregation.Fields.*;
-import static org.springframework.data.mongodb.core.query.Criteria.*;
+import static org.springframework.data.mongodb.core.aggregation.Fields.field;
+import static org.springframework.data.mongodb.core.aggregation.Fields.from;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class ComponentSearchAggregationBuilder {
 
@@ -23,9 +25,11 @@ public class ComponentSearchAggregationBuilder {
     public static final String FIELD_PURITY = "purity";
     public static final String FIELD_COMPOUND_ID = "compoundId";
     public static final String FIELD_CHEMICAL_NAME = "chemicalName";
+    public static final String FIELD_STRUCTURE = "structure";
     public static final String FIELD_CONTENT = "content";
     public static final String FIELD_BATCHES = "batches";
-    public static final String FIELD_TITLE = "title";
+
+    public static final String FIELD_STRUCTURE_STRUCTURE_ID = FIELD_STRUCTURE + ".structureId";
 
     public static final String FIELD_CONTENT_DESCRIPTION = FIELD_CONTENT + ".description";
     public static final String FIELD_CONTENT_TITLE = FIELD_CONTENT + ".title";
@@ -37,12 +41,14 @@ public class ComponentSearchAggregationBuilder {
     public static final String FIELD_BATCHES_YIELD = FIELD_BATCHES + ".yield";
     public static final String FIELD_BATCHES_CODE_AND_NAME_NAME = FIELD_BATCHES + ".codeAndName.name";
     public static final String FIELD_BATCHES_THERAPEUTIC_AREA_NAME = FIELD_BATCHES + ".therapeuticArea.name";
+    public static final String FIELD_BATCHES_STRUCTURE = FIELD_BATCHES + ".structure";
 
     public static final String COMPONENT_NAME_EXPERIMENT_DESCRIPTION = "experimentDescription";
     public static final String COMPONENT_NAME_PRODUCT_BATCH_SUMMARY = "productBatchSummary";
     public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
     public static final String CONDITION_CONTAINS = "contains";
     public static final String CONDITION_EQUALS = "=";
+    public static final String CONDITION_IN = "in";
     public static List<String> BATCH_FIELDS = Arrays.asList(FIELD_THERAPEUTIC_AREA, FIELD_CODE_AND_NAME, FIELD_YIELD,
             FIELD_PURITY, FIELD_COMPOUND_ID, FIELD_CHEMICAL_NAME);
     protected List<Aggregation> aggregations;
@@ -51,15 +57,25 @@ public class ComponentSearchAggregationBuilder {
         aggregations = new ArrayList<>();
     }
 
+    public ComponentSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
+        switch (type) {
+            case Product:
+                aggregations.add(getBatchesAggregationByBingoIds(bingoIds));
+                break;
+            case Reaction:
+        }
+        return this;
+    }
+
     public ComponentSearchAggregationBuilder withQuerySearch(String querySearch) {
-        aggregations.add(getBatchesAggregation(querySearch));
+        aggregations.add(getBatchesAggregationByQuerySearch(querySearch));
         aggregations.add(getDescriptionAggregation(querySearch));
         aggregations.add(getConceptAggregation(querySearch));
         return this;
     }
 
     public ComponentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
-        getBatchesAggregation(criteria).ifPresent(aggregations::add);
+        getBatchesAggregationByCriteria(criteria).ifPresent(aggregations::add);
         getDescriptionAggregation(criteria).ifPresent(aggregations::add);
         getConceptAggregation(criteria).ifPresent(aggregations::add);
         return this;
@@ -80,18 +96,24 @@ public class ComponentSearchAggregationBuilder {
         return criteria.stream().filter(c -> FIELD_DESCRIPTION.equals(c.getField())).findAny().map(this::getDescriptionAggregation);
     }
 
-    private Aggregation getBatchesAggregation(String querySearch) {
+    private Aggregation getBatchesAggregationByBingoIds(List<Integer> bingoIds) {
         Collection<SearchCriterion> searchCriteria = new ArrayList<>();
-        searchCriteria.add(new SearchCriterion(FIELD_THERAPEUTIC_AREA, FIELD_THERAPEUTIC_AREA, CONDITION_CONTAINS, querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_CODE_AND_NAME, FIELD_CODE_AND_NAME, CONDITION_CONTAINS, querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_YIELD, FIELD_YIELD, CONDITION_EQUALS, querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_PURITY, FIELD_PURITY, CONDITION_EQUALS, querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_COMPOUND_ID, FIELD_COMPOUND_ID, CONDITION_CONTAINS, querySearch));
-        searchCriteria.add(new SearchCriterion(FIELD_CHEMICAL_NAME, FIELD_CHEMICAL_NAME, CONDITION_CONTAINS, querySearch));
+        searchCriteria.add(new SearchCriterion(FIELD_STRUCTURE_STRUCTURE_ID, FIELD_STRUCTURE_STRUCTURE_ID, CONDITION_IN, bingoIds));
         return getBatchesAggregation(searchCriteria, false);
     }
 
-    private Optional<Aggregation> getBatchesAggregation(List<SearchCriterion> criteria) {
+    private Aggregation getBatchesAggregationByQuerySearch(String querySearch) {
+        Collection<SearchCriterion> searchCriteria = new ArrayList<>();
+        Stream.of(FIELD_THERAPEUTIC_AREA, FIELD_CODE_AND_NAME, FIELD_COMPOUND_ID, FIELD_CHEMICAL_NAME).map(
+                f -> new SearchCriterion(f, f, CONDITION_CONTAINS, querySearch)
+        ).forEach(searchCriteria::add);
+        Stream.of(FIELD_YIELD, FIELD_PURITY).map(
+                f -> new SearchCriterion(f, f, CONDITION_EQUALS, querySearch)
+        ).forEach(searchCriteria::add);
+        return getBatchesAggregation(searchCriteria, false);
+    }
+
+    private Optional<Aggregation> getBatchesAggregationByCriteria(List<SearchCriterion> criteria) {
         if (criteria.isEmpty()) {
             return Optional.empty();
         }
@@ -130,6 +152,7 @@ public class ComponentSearchAggregationBuilder {
                 field(FIELD_THERAPEUTIC_AREA, FIELD_BATCHES_THERAPEUTIC_AREA_NAME),
                 field(FIELD_CODE_AND_NAME, FIELD_BATCHES_CODE_AND_NAME_NAME),
                 field(FIELD_YIELD, FIELD_BATCHES_YIELD),
+                field(FIELD_STRUCTURE, FIELD_BATCHES_STRUCTURE),
                 field(FIELD_PURITY, FIELD_BATCHES_PURITY),
                 field(FIELD_COMPOUND_ID, FIELD_BATCHES_COMPOUND_ID),
                 field(FIELD_CHEMICAL_NAME, FIELD_BATCHES_CHEMICAL_NAME)
