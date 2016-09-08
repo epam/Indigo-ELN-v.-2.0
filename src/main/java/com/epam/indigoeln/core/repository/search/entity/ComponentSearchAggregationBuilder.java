@@ -26,12 +26,14 @@ public class ComponentSearchAggregationBuilder {
     public static final String FIELD_COMPOUND_ID = "compoundId";
     public static final String FIELD_CHEMICAL_NAME = "chemicalName";
     public static final String FIELD_STRUCTURE = "structure";
+    public static final String FIELD_STRUCTURE_ID = "structureId";
     public static final String FIELD_CONTENT = "content";
     public static final String FIELD_BATCHES = "batches";
 
     public static final String FIELD_STRUCTURE_STRUCTURE_ID = FIELD_STRUCTURE + ".structureId";
 
     public static final String FIELD_CONTENT_DESCRIPTION = FIELD_CONTENT + ".description";
+    public static final String FIELD_CONTENT_STRUCTURE_ID = FIELD_CONTENT + ".structureId";
     public static final String FIELD_CONTENT_TITLE = FIELD_CONTENT + ".title";
     public static final String FIELD_CONTENT_BATCHES = FIELD_CONTENT + ".batches";
 
@@ -46,6 +48,7 @@ public class ComponentSearchAggregationBuilder {
     public static final String COMPONENT_NAME_EXPERIMENT_DESCRIPTION = "experimentDescription";
     public static final String COMPONENT_NAME_PRODUCT_BATCH_SUMMARY = "productBatchSummary";
     public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
+    public static final String COMPONENT_NAME_REACTION = "reaction";
     public static final String CONDITION_CONTAINS = "contains";
     public static final String CONDITION_EQUALS = "=";
     public static final String CONDITION_IN = "in";
@@ -63,6 +66,7 @@ public class ComponentSearchAggregationBuilder {
                 aggregations.add(getBatchesAggregationByBingoIds(bingoIds));
                 break;
             case Reaction:
+                aggregations.add(getReactionAggregation(bingoIds));
         }
         return this;
     }
@@ -96,10 +100,14 @@ public class ComponentSearchAggregationBuilder {
         return criteria.stream().filter(c -> FIELD_DESCRIPTION.equals(c.getField())).findAny().map(this::getDescriptionAggregation);
     }
 
+    private Aggregation getReactionAggregation(List<Integer> bingoIds) {
+        return getReactionAggregation(new SearchCriterion(FIELD_STRUCTURE_ID, FIELD_STRUCTURE_ID, CONDITION_IN, bingoIds));
+    }
+
     private Aggregation getBatchesAggregationByBingoIds(List<Integer> bingoIds) {
         Collection<SearchCriterion> searchCriteria = new ArrayList<>();
         searchCriteria.add(new SearchCriterion(FIELD_STRUCTURE_STRUCTURE_ID, FIELD_STRUCTURE_STRUCTURE_ID, CONDITION_IN, bingoIds));
-        return getBatchesAggregation(searchCriteria, false);
+        return getBatchesAggregation(searchCriteria, true);
     }
 
     private Aggregation getBatchesAggregationByQuerySearch(String querySearch) {
@@ -138,6 +146,15 @@ public class ComponentSearchAggregationBuilder {
         result.add(project(FIELD_NAME, FIELD_CONTENT));
         result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_EXPERIMENT_DESCRIPTION)));
         result.add(project(from(field(FIELD_DESCRIPTION, FIELD_CONTENT_DESCRIPTION))));
+        result.add(match(AggregationUtils.createCriterion(criterion)));
+        return newAggregation(result);
+    }
+
+    private Aggregation getReactionAggregation(SearchCriterion criterion) {
+        List<AggregationOperation> result = new ArrayList<>();
+        result.add(project(FIELD_NAME, FIELD_CONTENT));
+        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_REACTION)));
+        result.add(project(from(field(FIELD_STRUCTURE_ID, FIELD_CONTENT_STRUCTURE_ID))));
         result.add(match(AggregationUtils.createCriterion(criterion)));
         return newAggregation(result);
     }

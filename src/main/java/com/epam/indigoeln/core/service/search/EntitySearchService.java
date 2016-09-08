@@ -32,6 +32,45 @@ public class EntitySearchService {
 
     @SuppressWarnings("unchecked")
     private List<Integer> searchByBingoDb(EntitySearchStructure structure) {
+        switch (structure.getType().getName()) {
+            case Product:
+                return searchMoleculeByBingoDb(structure);
+            case Reaction:
+                return searchReactionByBingoDb(structure);
+            default:
+                return Collections.emptyList();
+        }
+    }
+
+    private List<Integer> searchReactionByBingoDb(EntitySearchStructure structure) {
+        List<Integer> bingoIds;
+        String molFile = structure.getMolfile();
+        String formula = structure.getFormula();
+
+        switch (structure.getSearchMode()) {
+            case CHEMISTRY_SEARCH_SUBSTRUCTURE:
+                bingoIds = bingoService.searchReactionSub(molFile, StringUtils.EMPTY);
+                break;
+
+            case CHEMISTRY_SEARCH_EXACT:
+                bingoIds = bingoService.searchReactionExact(molFile, StringUtils.EMPTY);
+                break;
+
+            case CHEMISTRY_SEARCH_SIMILARITY:
+                bingoIds = bingoService.searchReactionSim(molFile, structure.getSimilarity(), 1f, StringUtils.EMPTY);
+                break;
+
+            case CHEMISTRY_SEARCH_MOLFORMULA:
+                bingoIds = bingoService.searchReactionMolFormula(formula, StringUtils.EMPTY);
+                break;
+
+            default:
+                bingoIds = Collections.emptyList();
+        }
+        return bingoIds;
+    }
+
+    private List<Integer> searchMoleculeByBingoDb(EntitySearchStructure structure) {
         List<Integer> bingoIds;
         String molFile = structure.getMolfile();
         String formula = structure.getFormula();
@@ -58,6 +97,5 @@ public class EntitySearchService {
         }
         return bingoIds;
     }
-
 
 }
