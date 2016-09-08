@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
 import com.epam.indigoeln.core.model.Component;
+import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.DBRef;
@@ -26,9 +27,12 @@ public class ExperimentSearchAggregationBuilder {
     public static final String FIELD_CREATION_DATE = "creationDate";
     public static final String FIELD_AUTHOR = "author";
     public static final String FIELD_ACCESS_LIST = "accessList";
+    public static final String FIELD_KIND = "kind";
+
+    public static final String FIELD_AUTHOR_ID = FIELD_AUTHOR + "._id";
 
     private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList(FIELD_STATUS);
-    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_STATUS, "author._id");
+    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_STATUS, FIELD_AUTHOR_ID, FIELD_KIND);
 
     private MongoTemplate template;
 
@@ -38,6 +42,13 @@ public class ExperimentSearchAggregationBuilder {
     private ExperimentSearchAggregationBuilder(MongoTemplate template) {
         this.template = template;
         baseOperations = new ArrayList<>();
+
+        final int packageLength = Experiment.class.getPackage().getName().length() + 1;
+        baseOperations.add(
+                Aggregation.project(FIELD_COMPONENTS, FIELD_STATUS, FIELD_AUTHOR, FIELD_NAME, FIELD_CREATION_DATE, FIELD_ACCESS_LIST, FIELD_EXPERIMENT_VERSION)
+                        .andExpression("substr(_class, " + packageLength + ", -1)").as(FIELD_KIND)
+        );
+
         baseOperations.add(sort(Sort.Direction.ASC, FIELD_NAME, FIELD_EXPERIMENT_VERSION));
         baseOperations.add(group(FIELD_NAME)
                 .last(FIELD_COMPONENTS).as(FIELD_COMPONENTS)
@@ -45,7 +56,8 @@ public class ExperimentSearchAggregationBuilder {
                 .last(FIELD_AUTHOR).as(FIELD_AUTHOR)
                 .last(FIELD_NAME).as(FIELD_NAME)
                 .last(FIELD_CREATION_DATE).as(FIELD_CREATION_DATE)
-                .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST));
+                .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST)
+                .last(FIELD_KIND).as(FIELD_KIND));
     }
 
     public static ExperimentSearchAggregationBuilder getInstance(MongoTemplate template) {

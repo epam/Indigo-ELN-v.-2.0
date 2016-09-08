@@ -4,12 +4,7 @@ import com.google.common.base.Objects;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
@@ -23,6 +18,9 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Id
     private String id;
+
+    @ReadOnlyProperty
+    private String _class;
 
     @NotEmpty
     private String name;

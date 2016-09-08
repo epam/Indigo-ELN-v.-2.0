@@ -74,9 +74,6 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildProjectAggregation(EntitySearchRequest request) {
-        if (!hasKind(request, KIND_PROJECT)) {
-            return Optional.empty();
-        }
         ProjectSearchAggregationBuilder builder = ProjectSearchAggregationBuilder.getInstance();
         if (request.getSearchQuery().isPresent()) {
             builder.withSearchQuery(request.getSearchQuery().get());
@@ -96,9 +93,6 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request) {
-        if (!hasKind(request, KIND_NOTEBOOK)) {
-            return Optional.empty();
-        }
         NotebookSearchAggregationBuilder builder = NotebookSearchAggregationBuilder.getInstance();
         if (request.getSearchQuery().isPresent()) {
             builder.withSearchQuery(request.getSearchQuery().get());
@@ -118,9 +112,6 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
-        if (!hasKind(request, KIND_EXPERIMENT)) {
-            return Optional.empty();
-        }
         ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(mongoTemplate);
         if (!bingoIds.isEmpty()) {
             final StructureSearchType type = request.getStructure().get().getType().getName();
@@ -140,12 +131,6 @@ public class EntitySearchRepository {
         result.setName(experiment.getName());
         result.setCreationDate(experiment.getCreationDate());
         return result;
-    }
-
-    private boolean hasKind(EntitySearchRequest request, String kind) {
-        return request.getSearchKinds().map(
-                searchKinds -> searchKinds.stream().filter(kind::equalsIgnoreCase).findAny().isPresent()
-        ).orElse(true);
     }
 
 }
