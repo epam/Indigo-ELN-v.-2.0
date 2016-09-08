@@ -1,6 +1,5 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -8,8 +7,6 @@ import java.util.Optional;
 public class EntitySearchRequest {
 
     private Optional<String> searchQuery = Optional.empty();
-
-    private Optional<Collection<String>> searchKinds = Optional.empty();
 
     private List<SearchCriterion> advancedSearch = Collections.emptyList();
 
@@ -21,14 +18,6 @@ public class EntitySearchRequest {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = Optional.ofNullable(searchQuery);
-    }
-
-    public Optional<Collection<String>> getSearchKinds() {
-        return searchKinds;
-    }
-
-    public void setSearchKinds(Collection<String> searchKinds) {
-        this.searchKinds = Optional.ofNullable(searchKinds);
     }
 
     public List<SearchCriterion> getAdvancedSearch() {

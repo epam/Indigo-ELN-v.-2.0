@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('SearchPanelController', function ($rootScope, $scope, SearchService, SearchUtilService, pageInfo, Dictionary, UserWithAuthority) {
+    .controller('SearchPanelController', function ($rootScope, $scope, SearchService, SearchUtilService, pageInfo) {
 
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
@@ -46,7 +46,13 @@ angular.module('indigoeln')
                 chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList : [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]},
-                entityTypeCriteria: {name: 'Entity Type Criteria', $$skipList:true, field: 'entityTypeCriteria', condition: {name: 'equal'},  value: []},
+                entityTypeCriteria: {
+                    name: 'Entity Type Criteria',
+                    $$skipList: true,
+                    field: 'kind',
+                    condition: {name: 'in'},
+                    value: []
+                },
 
                 entityDomain: {
                     name: 'Entity Searching Domain',
