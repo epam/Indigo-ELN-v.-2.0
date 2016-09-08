@@ -52,6 +52,25 @@ public class ExperimentSearchAggregationBuilder {
         return new ExperimentSearchAggregationBuilder(template);
     }
 
+    public ExperimentSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
+
+        Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withBingoIds(type, bingoIds).build();
+        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, false));
+
+        List<Criteria> fieldCriteriaList = new ArrayList<>();
+        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(cr -> {
+            baseOperations.add(unwind(FIELD_COMPONENTS));
+            fieldCriteriaList.add(cr);
+        });
+        if (fieldCriteriaList.isEmpty()) {
+            experimentFilter = Optional.empty();
+        } else {
+            Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
+            experimentFilter = Optional.of(match(new Criteria().orOperator(fieldCriteriaArr)));
+        }
+        return this;
+    }
+
     public ExperimentSearchAggregationBuilder withQuerySearch(String querySearch) {
 
         Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withQuerySearch(querySearch).build();
@@ -110,11 +129,12 @@ public class ExperimentSearchAggregationBuilder {
     }
 
     private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations, boolean and) {
-        return collect(componentsAggregations.stream()
+        final Set<DBRef> result = collect(componentsAggregations.stream()
                 .map(aggregation ->
                         template.aggregate(aggregation, Component.class, Component.class).getMappedResults()
                                 .stream().map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()))
                 .collect(Collectors.toList()), and);
+        return result.isEmpty() ? null : result;
     }
 
     private Set<DBRef> collect(List<Set<DBRef>> refs, boolean and) {

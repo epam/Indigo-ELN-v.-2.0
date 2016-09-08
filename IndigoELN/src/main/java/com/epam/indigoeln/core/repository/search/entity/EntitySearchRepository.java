@@ -29,7 +29,7 @@ public class EntitySearchRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest) {
+    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<Integer> bingoIds) {
 
         Optional<Aggregation> aggregation = buildProjectAggregation(searchRequest);
         final Optional<List<EntitySearchResultDTO>> projectResult = aggregation.map(agg -> {
@@ -51,7 +51,7 @@ public class EntitySearchRepository {
             ).map(this::convert).collect(Collectors.toList());
         });
 
-        aggregation = buildExperimentAggregation(searchRequest);
+        aggregation = buildExperimentAggregation(searchRequest, bingoIds);
         final Optional<List<EntitySearchResultDTO>> experimentResult = aggregation.map(agg -> {
             LOGGER.debug("Perform experiment search query: " + agg.toString());
             List<Experiment> mappedResults = mongoTemplate.aggregate(agg, Experiment.class, Experiment.class).getMappedResults();
@@ -117,14 +117,17 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request) {
+    private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
         if (!hasKind(request, KIND_EXPERIMENT)) {
             return Optional.empty();
         }
         ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(mongoTemplate);
-        if (request.getSearchQuery().isPresent()) {
+        if (!bingoIds.isEmpty()) {
+            final StructureSearchType type = request.getStructure().get().getType().getName();
+            builder.withBingoIds(type, bingoIds);
+        } else if (request.getSearchQuery().isPresent()) {
             builder.withQuerySearch(request.getSearchQuery().get());
-        } else if (!request.getAdvancedSearch().isEmpty()) {
+        } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
