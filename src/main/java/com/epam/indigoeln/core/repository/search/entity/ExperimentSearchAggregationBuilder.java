@@ -46,7 +46,6 @@ public class ExperimentSearchAggregationBuilder {
                 .last(FIELD_NAME).as(FIELD_NAME)
                 .last(FIELD_CREATION_DATE).as(FIELD_CREATION_DATE)
                 .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST));
-        baseOperations.add(unwind(FIELD_COMPONENTS));
     }
 
     public static ExperimentSearchAggregationBuilder getInstance(MongoTemplate template) {
@@ -61,7 +60,10 @@ public class ExperimentSearchAggregationBuilder {
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
                 collect(toList());
-        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(fieldCriteriaList::add);
+        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(cr -> {
+            baseOperations.add(unwind(FIELD_COMPONENTS));
+            fieldCriteriaList.add(cr);
+        });
         if (fieldCriteriaList.isEmpty()) {
             experimentFilter = Optional.empty();
         } else {
@@ -80,7 +82,10 @@ public class ExperimentSearchAggregationBuilder {
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(fieldCriteriaList::add);
+        dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(cr -> {
+            baseOperations.add(unwind(FIELD_COMPONENTS));
+            fieldCriteriaList.add(cr);
+        });
         if (fieldCriteriaList.isEmpty()) {
             experimentFilter = Optional.empty();
         } else {
