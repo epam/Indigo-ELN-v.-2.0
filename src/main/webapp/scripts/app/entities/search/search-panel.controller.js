@@ -48,7 +48,13 @@ angular.module('indigoeln')
                 ]},
                 entityTypeCriteria: {name: 'Entity Type Criteria', $$skipList:true, field: 'entityTypeCriteria', condition: {name: 'equal'},  value: []},
 
-                entityDomain: {name: 'Entity Searching Domain', $$skipList:true, field: 'entityDomain', condition: {name: 'equal'}, value: []},
+                entityDomain: {
+                    name: 'Entity Searching Domain',
+                    $$skipList: true,
+                    field: 'author._id',
+                    condition: {name: 'in'},
+                    value: []
+                },
 
                 statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
 
