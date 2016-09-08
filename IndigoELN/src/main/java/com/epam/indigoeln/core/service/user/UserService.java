@@ -55,6 +55,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encryptedPassword);
         user.setActivated(true);
+        user.setId(user.getLogin());
 
         // checking for roles existence
         user.setRoles(checkRolesExistenceAndGet(user.getRoles()));
