@@ -6,7 +6,6 @@ angular.module('indigoeln')
 
 
         $scope.model = {};
-        $scope.model.databases = SearchService.getCatalogues();
         $scope.identity = pageInfo.identity;
         $scope.users = _.map(pageInfo.users, function (item) {
             return {name: item.fullName, id: item.id};
@@ -154,7 +153,7 @@ angular.module('indigoeln')
 
 
         $scope.search = function () {
-            var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions, $scope.model.databases);
+            var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions);
             SearchService.searchAll(searchRequest, function (result) {
                 $scope.searchResults = result;
             });
