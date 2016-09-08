@@ -1,8 +1,10 @@
 package com.epam.indigoeln.web.rest;
 
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.search.EntitySearchService;
 import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.core.service.search.SearchServiceFacade;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
@@ -35,6 +37,9 @@ public class SearchResource {
 
     @Autowired
     private EntitySearchService entitySearchService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * GET /catalogue -> returns a list of search catalogues
@@ -74,7 +79,8 @@ public class SearchResource {
     public ResponseEntity<List<EntitySearchResultDTO>> search(
             @ApiParam("Search params.") @RequestBody EntitySearchRequest searchRequest
     ) {
-        List<EntitySearchResultDTO> batchDetails = entitySearchService.find(searchRequest);
+        final User user = userService.getUserWithAuthorities();
+        List<EntitySearchResultDTO> batchDetails = entitySearchService.find(user, searchRequest);
         return ResponseEntity.ok(batchDetails);
     }
 }
