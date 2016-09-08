@@ -82,7 +82,7 @@ angular.module('indigoeln')
                             $scope.model.restrictions.structure.molfile = structure;
                         }
                     }
-                    $scope.model[type].structureId = result;
+                    $scope.model[type].structureId = structureId;
                     // set the renewed value if it's fine with bingo
                     $scope.model[type].structureMolfile = structure;
                 });
