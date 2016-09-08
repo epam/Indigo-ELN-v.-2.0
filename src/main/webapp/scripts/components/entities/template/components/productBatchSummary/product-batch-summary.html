@@ -4,7 +4,7 @@
         Product Batch Summary
     </div>
     <div class="collapsible">
-        <div class="panel-body" ng-show="showStructuresColumn.isVisible">
+        <div class="panel-body" ng-show="isStructure">
             <div class="form-horizontal">
                 <div class="row">
                     <div class="col-xs-2">
@@ -17,43 +17,6 @@
                 </div>
             </div>
         </div>
-        <my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
-                  my-draggable-columns="true"
-                  my-readonly="myReadonly"
-                  my-editable="isEditable"
-                  my-on-row-selected="onRowSelected">
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-info"
-                        ng-disabled="myReadonly || isIntendedSynced()"
-                        ng-click="syncWithIntendedProducts()">Sync with Intended Products
-                </button>
-                <button type="button" class="btn btn-info" disabled>VnV</button>
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-info" ng-disabled="myReadonly"
-                        ng-click="addNewBatch()">Add New Batch
-                </button>
-                <button type="button" class="btn btn-info"
-                        ng-disabled="myReadonly || !isHasCheckedRows()"
-                        ng-click="duplicateBatch()">Duplicate Batch
-                </button>
-                <button type="button" class="btn btn-info"
-                        ng-disabled="myReadonly || !isHasCheckedRows()"
-                        ng-click="deleteBatches()">Delete Batch(es)
-                </button>
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-info" ng-click="importSDFile()" ng-disabled="myReadonly">Import SD
-                    File
-                </button>
-                <button type="button" class="btn btn-info" ng-click="exportSDFile()"
-                        ng-disabled="myReadonly || !isHasCheckedRows()">Create SD
-                    File
-                </button>
-                <button type="button" class="btn btn-info" ng-show="isHasRegService"
-                        ng-click="registerBatches()">Register Batch(es)
-                </button>
-            </div>
-        </my-table>
+        <indigo-batch-summary model="model" share="share" experiment-name="experiment.name" on-show-structure="showStructure(isVisible)" structure-size="structureSize"></indigo-batch-summary>
     </div>
 </div>

@@ -13,10 +13,10 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.service.sd;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import sun.misc.BASE64Decoder;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Inflater;
@@ -29,13 +29,11 @@ public class Decoder {
         String result = molRecord;
 
         if (StringUtils.isNotBlank(molRecord)) {
-            BASE64Decoder decoder = new BASE64Decoder();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             Inflater decompressor = new Inflater(true);
 
-            try {
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 byte[] buf = new byte[1024];
-                byte[] decoded = decoder.decodeBuffer(molRecord);
+                byte[] decoded = Base64.decodeBase64(molRecord);
 
                 decompressor.setInput(decoded);
 
@@ -53,7 +51,6 @@ public class Decoder {
             } catch (Exception e) {
                 log.debug("Unable to decode Mol String - may be it is already decoded: " + e);
             } finally {
-                bos.reset();
                 decompressor.reset();
             }
         }

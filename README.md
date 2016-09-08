@@ -20,6 +20,8 @@ Spring profiles are set by Maven, so we have a consistency between the two metho
 
 ### In default mode, IndigoEln will use the "dev" profile
 
+Create database in Mongo with special user (use role="readWrite"). Change connection settings in application-dev.properties
+
 If you run the application without Maven, launch the "Application" class (you can probably run it easily from your IDE by right-clicking on it).
 
 If you run the application with Maven, run mvn

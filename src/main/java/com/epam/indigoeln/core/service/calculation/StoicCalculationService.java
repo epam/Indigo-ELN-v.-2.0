@@ -11,7 +11,7 @@ import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.ScalarValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.StringValueDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.common.UnitValueDTO;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
