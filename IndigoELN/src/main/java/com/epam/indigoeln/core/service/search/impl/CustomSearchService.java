@@ -6,7 +6,7 @@ import com.epam.indigoeln.core.service.search.SearchServiceAPI;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

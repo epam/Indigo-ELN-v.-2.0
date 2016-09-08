@@ -85,7 +85,7 @@ public class SignatureRepository {
 
     public String getDocumentsInfo(Collection<String> documentIds) {
         if (CollectionUtils.isEmpty(documentIds)) {
-            return org.apache.commons.lang.StringUtils.EMPTY;
+            return org.apache.commons.lang3.StringUtils.EMPTY;
         }
 
 

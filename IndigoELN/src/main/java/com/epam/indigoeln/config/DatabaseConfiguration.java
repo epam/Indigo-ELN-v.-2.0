@@ -1,8 +1,8 @@
 package com.epam.indigoeln.config;
 
 import com.epam.indigoeln.core.util.JSR310DateConverters.*;
+import com.github.mongobee.Mongobee;
 import com.mongodb.Mongo;
-import org.mongeez.Mongeez;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.core.convert.CustomConversions;
@@ -28,8 +27,6 @@ import java.util.List;
 @EnableMongoRepositories("com.epam.indigoeln.core.repository")
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration extends AbstractMongoConfiguration {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseConfiguration.class);
 
     @Autowired
     private Mongo mongo;
@@ -58,14 +55,14 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
     }
 
     @Bean
-    public Mongeez mongeez() {
-        LOGGER.debug("Configuring Mongeez");
-        Mongeez mongeez = new Mongeez();
-        mongeez.setFile(new ClassPathResource("/config/mongeez/master.xml"));
-        mongeez.setMongo(mongo);
-        mongeez.setDbName(mongoProperties.getDatabase());
-        mongeez.process();
-        return mongeez;
+    public Mongobee mongobee() {
+        Mongobee runner = new Mongobee(mongo);
+
+        runner.setChangeLogsScanPackage("com.epam.indigoeln.config.dbchangelogs");
+        runner.setDbName(mongoProperties.getDatabase());
+        runner.setEnabled(true);
+
+        return runner;
     }
 
     @Bean

@@ -34,7 +34,7 @@
             <span ng-if="myColumn.type == 'unit'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | unit:myRow[myColumn.id].unit | round:myColumn.sigDigits:myColumn:myRow}} {{myRow[myColumn.id].unit}}</span>
             <span ng-if="myColumn.type == 'scalar'" ng-class="{'entered-value': myRow[myColumn.id].entered}">{{myRow[myColumn.id].value | round:myColumn.sigDigits:myColumn:myRow}}</span>
         </a>
-        <div ng-if="myColumn.type == 'image' && myRow[myColumn.id].image">
+        <div ng-if="myColumn.type == 'image' && myRow[myColumn.id].image" ng-style="{'width': myColumn.width}">
             <img class="img-fill" style="padding: 10px; background-color: white"
                  ng-src="data:image/svg+xml;base64,{{myRow[myColumn.id].image}}" alt="Image is unavailable.">
         </div>

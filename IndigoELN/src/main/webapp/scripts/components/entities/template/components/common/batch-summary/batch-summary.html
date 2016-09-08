@@ -1,0 +1,39 @@
+<my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
+          my-draggable-columns="true"
+          my-readonly="myReadonly"
+          my-editable="isEditable"
+          my-on-row-selected="onRowSelected"
+          my-hide-column-settings="isHideColumnSettings">
+    <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-info"
+                ng-disabled="myReadonly || isIntendedSynced()"
+                ng-click="syncWithIntendedProducts()">Sync with Intended Products
+        </button>
+        <button type="button" class="btn btn-info" disabled>VnV</button>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-info" ng-disabled="myReadonly"
+                ng-click="addNewBatch()">Add New Batch
+        </button>
+        <button type="button" class="btn btn-info"
+                ng-disabled="myReadonly || !isHasCheckedRows()"
+                ng-click="duplicateBatch()">Duplicate Batch
+        </button>
+        <button type="button" class="btn btn-info"
+                ng-disabled="myReadonly || !isHasCheckedRows()"
+                ng-click="deleteBatches()">Delete Batch(es)
+        </button>
+    </div>
+    <div class="btn-group btn-group-sm" role="group">
+        <button type="button" class="btn btn-info" ng-click="importSDFile()" ng-disabled="myReadonly">Import SD
+            File
+        </button>
+        <button type="button" class="btn btn-info" ng-click="exportSDFile()"
+                ng-disabled="myReadonly || !isHasCheckedRows()">Create SD
+            File
+        </button>
+        <button type="button" class="btn btn-info" ng-show="isHasRegService"
+                ng-click="registerBatches()">Register Batch(es)
+        </button>
+    </div>
+</my-table>

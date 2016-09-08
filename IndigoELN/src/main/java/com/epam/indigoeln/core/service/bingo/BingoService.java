@@ -4,7 +4,7 @@ import com.epam.indigo.BingoObject;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.core.repository.bingo.BingoRepository;
 import com.epam.indigoeln.core.service.indigo.IndigoProvider;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
