@@ -31,7 +31,7 @@ public class EntitySearchRepository {
 
     public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<Integer> bingoIds) {
 
-        Optional<Aggregation> aggregation = buildProjectAggregation(searchRequest);
+        Optional<Aggregation> aggregation = buildProjectAggregation(searchRequest, bingoIds);
         final Optional<List<EntitySearchResultDTO>> projectResult = aggregation.map(agg -> {
             LOGGER.debug("Perform project search query: " + agg.toString());
             List<Project> mappedResults = mongoTemplate.aggregate(agg, Project.class, Project.class).getMappedResults();
@@ -41,7 +41,7 @@ public class EntitySearchRepository {
             ).map(this::convert).collect(Collectors.toList());
         });
 
-        aggregation = buildNotebookAggregation(searchRequest);
+        aggregation = buildNotebookAggregation(searchRequest, bingoIds);
         final Optional<List<EntitySearchResultDTO>> notebookResult = aggregation.map(agg -> {
             LOGGER.debug("Perform notebook search query: " + agg.toString());
             List<Notebook> mappedResults = mongoTemplate.aggregate(agg, Notebook.class, Notebook.class).getMappedResults();
@@ -73,9 +73,12 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Aggregation> buildProjectAggregation(EntitySearchRequest request) {
+    private Optional<Aggregation> buildProjectAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
         ProjectSearchAggregationBuilder builder = ProjectSearchAggregationBuilder.getInstance();
-        if (request.getSearchQuery().isPresent()) {
+        if (!bingoIds.isEmpty()) {
+            final StructureSearchType type = request.getStructure().get().getType().getName();
+            builder.withBingoIds(type, bingoIds);
+        } else if (request.getSearchQuery().isPresent()) {
             builder.withSearchQuery(request.getSearchQuery().get());
         } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
@@ -92,9 +95,12 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request) {
+    private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
         NotebookSearchAggregationBuilder builder = NotebookSearchAggregationBuilder.getInstance();
-        if (request.getSearchQuery().isPresent()) {
+        if (!bingoIds.isEmpty()) {
+            final StructureSearchType type = request.getStructure().get().getType().getName();
+            builder.withBingoIds(type, bingoIds);
+        } else if (request.getSearchQuery().isPresent()) {
             builder.withSearchQuery(request.getSearchQuery().get());
         } else {
             builder.withAdvancedCriteria(request.getAdvancedSearch());

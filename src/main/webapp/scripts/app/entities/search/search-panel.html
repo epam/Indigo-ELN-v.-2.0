@@ -157,7 +157,11 @@
                         <div class="row reagent-search-row">
                             <div class="col-xs-12">
                                 <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
-                                                  my-title="Structure or reaction" my-model="scheme"></structure-scheme>
+                                                  my-title="Structure or reaction" my-model="scheme"
+                                                  ng-if="model.restrictions.structure.type.name == 'Product'"></structure-scheme>
+                                <structure-scheme class="search-structure-scheme" my-structure-type="reaction"
+                                                  my-title="Structure or reaction" my-model="scheme"
+                                                  ng-if="model.restrictions.structure.type.name == 'Reaction'"></structure-scheme>
                             </div>
                         </div>
                     </div>
