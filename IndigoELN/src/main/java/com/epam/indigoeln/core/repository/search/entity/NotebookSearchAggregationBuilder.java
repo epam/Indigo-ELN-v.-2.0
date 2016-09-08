@@ -3,11 +3,9 @@ package com.epam.indigoeln.core.repository.search.entity;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.repository.search.AbstractSearchAggregationBuilder;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class NotebookSearchAggregationBuilder extends AbstractSearchAggregationBuilder {
 
@@ -23,12 +21,13 @@ public class NotebookSearchAggregationBuilder extends AbstractSearchAggregationB
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME);
     private static final List<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_DESCRIPTION, FIELD_NAME, FIELD_AUTHOR_ID, FIELD_KIND);
 
+    private Collection<AggregationOperation> baseOperations = new ArrayList<>();
+
     private NotebookSearchAggregationBuilder() {
-        aggregationOperations = new ArrayList<>();
         setSearchQueryFields(SEARCH_QUERY_FIELDS);
         setAvailableFields(AVAILABLE_FIELDS);
         final int packageLength = Notebook.class.getPackage().getName().length() + 1;
-        aggregationOperations.add(
+        baseOperations.add(
                 Aggregation.project(FIELD_DESCRIPTION, FIELD_NAME, FIELD_AUTHOR, FIELD_ACCESS_LIST, FIELD_CREATION_DATE)
                         .andExpression("substr(_class, " + packageLength + ", -1)").as(FIELD_KIND)
         );
@@ -39,7 +38,11 @@ public class NotebookSearchAggregationBuilder extends AbstractSearchAggregationB
     }
 
     public Optional<Aggregation> build() {
-        return Optional.ofNullable(aggregationOperations.isEmpty() ? null : Aggregation.newAggregation(aggregationOperations));
+        return Optional.ofNullable(aggregationOperations.isEmpty() ? null : aggregationOperations).map(ao -> {
+            List<AggregationOperation> operations = new ArrayList<>(baseOperations);
+            operations.addAll(ao);
+            return Aggregation.newAggregation(operations);
+        });
     }
 
 }

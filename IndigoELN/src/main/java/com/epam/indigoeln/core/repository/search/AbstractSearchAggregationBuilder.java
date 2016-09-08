@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.repository.search;
 
+import com.epam.indigoeln.core.repository.search.entity.StructureSearchType;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -20,6 +21,10 @@ public class AbstractSearchAggregationBuilder {
 
     public AbstractSearchAggregationBuilder() {
         aggregationOperations = new ArrayList<>();
+    }
+
+    public AbstractSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
+        return this;
     }
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
