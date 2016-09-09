@@ -7,14 +7,24 @@
             <div class="form-horizontal">
                 <div class="row">
                     <div style="position:relative">
-                        <div class="col-xs-4">
+                        <div class="col-xs-2">
                             <label>Notebook ID #: </label>
                             <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span>
                         </div>
-                        <div class="col-xs-2" style="position:absolute;top:-7px;left:225px;width:80px;">
-                            <my-input my-model="model.preferCompoundDetails.nbkBatch"
-                                      my-readonly="myReadonly">
-                            </my-input>
+                        <div class="col-xs-2" style="width:80px;margin-top: -7px;">
+                            <my-select
+                                    my-model="selectedCompound"
+                                    my-items="model.preferredCompoundSummary.compounds"
+                                    my-change="onSelectCompound()"
+                                    my-item-prop="nbkBatch"
+                                    my-control = "selectControl"
+                            ></my-select>
+                        </div>
+                        <div class="col-xs-2" style="margin-top: -7px;">
+                            <my-checkbox
+                                    my-model="showSummary"
+                                    my-label="Show Summary"
+                            ></my-checkbox>
                         </div>
 
 
@@ -23,7 +33,7 @@
             </div>
         </div>
 
-        <indigo-compound-summary model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
+        <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
 
         <div class="panel-body">
             <div class="row">

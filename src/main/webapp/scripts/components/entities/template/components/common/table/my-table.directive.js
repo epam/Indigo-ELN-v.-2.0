@@ -92,8 +92,6 @@ angular.module('indigoeln')
         controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal) {
 			var that = this;
 
-			console.log($scope.myHideColumnSettings)
-
 			function getColumnsProps(myColumns) {
 				return _.map(myColumns, function (column) {
 					column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
