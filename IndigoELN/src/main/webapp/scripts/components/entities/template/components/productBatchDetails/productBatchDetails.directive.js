@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/8/2016.
  */
 angular.module('indigoeln')
-    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService) {
+    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService, $filter) {
         return {
             restrict: 'E',
             replace: true,
@@ -10,7 +10,22 @@ angular.module('indigoeln')
             controller: function ($scope, $uibModal, AlertModal) {
                 $scope.model = $scope.model || {};
                 $scope.model.productBatchDetails = {};
+                $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
                 $scope.detailTable = [];
+
+                $scope.selectControl = {};
+
+                $scope.onSelectBatch = function () {
+                    if($scope.share.selectedRow){
+                        $scope.share.selectedRow.$$selected = false;
+                    }
+                    $scope.share.selectedRow = $scope.selectedBatch || null;
+                    $scope.share.selectedRow.$$selected = true;
+                    setProductBatchDetails($scope.share.selectedRow);
+                    $scope.detailTable[0] = $scope.share.selectedRow;
+                };
+
+
 
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
@@ -69,7 +84,13 @@ angular.module('indigoeln')
                         hideSetValue: true,
                         readonly: true
                     },
-                    {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2}
+                    {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2},
+                    {
+                        id: 'registrationDate', name: 'Registration Date', format: function (val) {
+                        return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
+                    }
+                    },
+                    {id: 'registrationStatus', name: 'Registration Status'}
                 ];
 
                 function getProductBatchDetails() {
@@ -102,10 +123,14 @@ angular.module('indigoeln')
                     setStoicTable(data.stoichTable);
                     setProductBatches(data.actualProducts);
                     $scope.detailTable[0] = data.row;
+                    $scope.selectedBatch = data.row;
+                    $scope.selectControl.setSelection(data.row);
                 });
                 var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
                     setProductBatchDetails({});
                     $scope.detailTable[0] = {};
+                    $scope.selectedBatch = {};
+                    $scope.selectControl.unSelect();
                 });
                 $scope.$on('$destroy', function () {
                     onBatchSummaryRowSelectedEvent();

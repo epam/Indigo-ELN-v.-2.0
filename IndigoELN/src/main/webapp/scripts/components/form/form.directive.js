@@ -241,6 +241,7 @@ angular.module('indigoeln')
             myMultiple: '=',
             myLabelVertical: '=',
             myLabelColumnsNum: '=',
+            myControl: '=',
             myPlaceHolder: '@',
             myItemProp: '@',
             myOrderByProp: '@',
@@ -251,6 +252,17 @@ angular.module('indigoeln')
         },
         controller: function ($scope) {
             $scope.ctrl = {selected: $scope.myModel};
+
+            $scope.control = $scope.myControl || {};
+
+            $scope.control.setSelection = function(select){
+                $scope.ctrl.selected = select;
+            };
+
+            $scope.control.unSelect = function(){
+                $scope.ctrl.selected = {};
+            };
+
             $scope.$watchCollection('ctrl.selected', function (newSelected) {
                 $scope.myModel = newSelected;
             });
@@ -293,7 +305,7 @@ angular.module('indigoeln')
         '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
         '<div class="col-xs-10">' +
         '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
-        '<ui-select-match placeholder="{{myPlaceHolder}}"> {{$select.selected.name}}</ui-select-match>' +
+        '<ui-select-match placeholder="{{myPlaceHolder}}" > {{ $select.selected.name || $select.selected[myItemProp]}}</ui-select-match>' +
         '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
         '</ui-select-choices>' +
         '</ui-select>' +

@@ -7,28 +7,57 @@ angular.module('indigoeln')
             controller: function ($scope) {
                 $scope.model = $scope.model || {};
                 $scope.model.preferCompoundDetails = {};
+                $scope.model.preferredCompoundSummary = $scope.model.preferredCompoundSummary || {};
                 $scope.showStructure = false;
+
+                $scope.selectControl = {};
+
+
+                $scope.onSelectCompound = function () {
+                    if($scope.share.selectedRow){
+                        $scope.share.selectedRow.$$selected = false;
+                    }
+                    $scope.share.selectedRow = $scope.selectedCompound || {};
+                    $scope.share.selectedRow.$$selected = true;
+                    selectCompound($scope.share.selectedRow);
+                };
+
+
+                function selectCompound(row) {
+                    $scope.model.preferCompoundDetails = row;
+
+
+                    if (row.structure) {
+                        $scope.structureImage = row.structure.image;
+                    } else {
+                        $scope.structureImage = '';
+                    }
+
+                    $scope.selectedCompound = row;
+                    $scope.selectControl.setSelection(row);
+                }
+
+                function deselectCompound() {
+                    $scope.model.preferCompoundDetails = {};
+                    $scope.structureImage = '';
+                    $scope.selectControl.unSelect();
+                }
 
 
                 var onCompoundSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
-                    $scope.model.preferCompoundDetails = data.row;
-                    if(data.row.structure){
-                        $scope.structureImage = data.row.structure.image;
-                    }else{
-                        $scope.structureImage = '';
-                    }
+                    selectCompound(data.row);
                 });
-               var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function (event, data) {
-                    if(data.structure){
+
+                var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function (event, data) {
+                    if (data.structure) {
                         $scope.structureImage = data.structure.image;
-                    }else{
+                    } else {
                         $scope.structureImage = '';
                     }
                 });
 
                 var onCompoundSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
-                    $scope.model.preferCompoundDetails = {};
-                    $scope.structureImage = '';
+                    deselectCompound();
                 });
 
 
