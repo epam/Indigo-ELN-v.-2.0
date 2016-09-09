@@ -1,9 +1,15 @@
 angular.module('indigoeln')
     .controller('StructureExportModalController', function ($scope, $uibModalInstance, $window, structureToSave, structureType, FileSaver) {
 
+        var formats = {
+            molecule: [{name: 'MDL Molfile'}],
+            reaction: [{name: 'RXN File'}]
+        };
+
         $scope.structureToSave = structureToSave;
         // the only value at this moment
-        $scope.format = {name: 'MDL Molfile'};
+        $scope.formats = formats[structureType];
+        $scope.format = $scope.formats[0];
 
         $scope.download = function() {
 
