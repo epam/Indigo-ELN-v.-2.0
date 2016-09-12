@@ -24,7 +24,9 @@ public enum Authority implements GrantedAuthority {
 
     EXPERIMENT_READER,
     EXPERIMENT_CREATOR,
-    EXPERIMENT_REMOVER;
+    EXPERIMENT_REMOVER,
+
+    GLOBAL_SEARCH;
 
     @Override
     public String getAuthority() {

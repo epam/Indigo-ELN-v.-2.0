@@ -6,10 +6,19 @@ public class Word {
 
     private static final long serialVersionUID = 3317184304499940837L;
 
+    private String id;
     private String name;
     private String description;
     private boolean enable;
     private Integer rank;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getDescription() {
         return description;
@@ -46,6 +55,7 @@ public class Word {
     @Override
     public String toString() {
         return "Word{" +
+                "id='" + id + '\'' +
                 "name='" + name + '\'' +
                 "description='" + description + '\'' +
                 "enable='" + enable + '\'' +
@@ -55,7 +65,7 @@ public class Word {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), name, description, enable, rank);
+        return Objects.hashCode(super.hashCode(), id, name, description, enable, rank);
     }
 
     @Override
@@ -70,7 +80,8 @@ public class Word {
             return false;
         }
         Word w = (Word) o;
-        return Objects.equal(name, w.name) &&
+        return Objects.equal(id, w.id) &&
+                Objects.equal(name, w.name) &&
                 Objects.equal(description, w.description) &&
                 Objects.equal(rank, w.rank) &&
                 Objects.equal(enable, w.enable);

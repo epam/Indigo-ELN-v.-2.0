@@ -48,7 +48,12 @@ angular.module('indigoeln')
                 description: 'Experiment creator',
                 tooltip: 'Allow to create / update Experiment'
             },
-            {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Allow to remove Experiment'}
+            {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Allow to remove Experiment'},
+            {
+                name: 'GLOBAL_SEARCH',
+                description: 'Search within the system',
+                tooltip: 'Allow to search for projects, notebooks and experiment among the system'
+            }
         ];
 
         function initAuthorities(role) {

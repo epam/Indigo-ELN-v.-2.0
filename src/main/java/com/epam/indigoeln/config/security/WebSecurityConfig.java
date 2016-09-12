@@ -46,7 +46,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] DICTIONARY_READERS = new String[]{
             DICTIONARY_EDITOR.name(), CONTENT_EDITOR.name(),
-            EXPERIMENT_CREATOR.name(), NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name()};
+            EXPERIMENT_CREATOR.name(), NOTEBOOK_CREATOR.name(), PROJECT_CREATOR.name(),
+            GLOBAL_SEARCH.name()};
 
     private static final String[] ROLE_READERS = new String[]{
             USER_EDITOR.name(), ROLE_EDITOR.name()};
@@ -214,7 +215,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/dictionaries").hasAuthority(DICTIONARY_EDITOR.name())
                 .antMatchers(HttpMethod.DELETE, "/api/dictionaries/*").hasAuthority(DICTIONARY_EDITOR.name())
-
+                //search resource
+                .antMatchers(HttpMethod.POST, "/api/search").hasAuthority(GLOBAL_SEARCH.name())
                 // spring boot endpoints
                 // https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html
                 .antMatchers("/health/**").authenticated()
