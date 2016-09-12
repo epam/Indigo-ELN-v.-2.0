@@ -73,6 +73,7 @@ public class DictionaryResource {
         dictionary.setDescription("all users");
         Set<Word> words = allUsers.stream().map(user -> {
             Word word = new Word();
+            word.setId(user.getId());
             word.setName(user.getFullName());
             return word;
         }).collect(Collectors.toSet());

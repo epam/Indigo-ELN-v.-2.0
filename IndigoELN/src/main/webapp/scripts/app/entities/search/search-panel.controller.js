@@ -7,8 +7,8 @@ angular.module('indigoeln')
 
         $scope.model = {};
         $scope.identity = pageInfo.identity;
-        $scope.users = _.map(pageInfo.users, function (item) {
-            return {name: item.fullName, id: item.id};
+        $scope.users = _.map(pageInfo.users.words, function (item) {
+            return {name: item.name, id: item.id};
         });
 
 

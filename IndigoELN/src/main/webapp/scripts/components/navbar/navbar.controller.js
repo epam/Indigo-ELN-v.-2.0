@@ -4,6 +4,7 @@ angular.module('indigoeln')
         $scope.PROJECT_CREATOR = 'PROJECT_CREATOR';
         $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
         $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
+        $scope.GLOBAL_SEARCH = 'GLOBAL_SEARCH';
         $scope.PROJECT_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR].join(',');
         $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
         $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');

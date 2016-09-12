@@ -45,7 +45,7 @@ public class ChangeLogVersion10 {
                         "PROJECT_READER", "NOTEBOOK_READER", "EXPERIMENT_READER",
                         "PROJECT_CREATOR", "NOTEBOOK_CREATOR", "EXPERIMENT_CREATOR",
                         "PROJECT_REMOVER", "NOTEBOOK_REMOVER", "EXPERIMENT_REMOVER",
-                        "TEMPLATE_EDITOR", "DICTIONARY_EDITOR"
+                        "TEMPLATE_EDITOR", "DICTIONARY_EDITOR", "GLOBAL_SEARCH"
                 ))
                 .get());
     }
