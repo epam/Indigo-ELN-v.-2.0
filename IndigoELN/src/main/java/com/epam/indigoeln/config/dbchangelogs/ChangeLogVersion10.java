@@ -53,7 +53,7 @@ public class ChangeLogVersion10 {
     @ChangeSet(order = "03", author = "indigoeln", id = "03-initUsers")
     public void initUsers(DB db) {
         db.getCollection("user").insert(BasicDBObjectBuilder.start()
-                .add("_id", "user-0")
+                .add("_id", "admin")
                 .add("login", "admin")
                 .add("password", "$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC")
                 .add("first_name", "admin")
