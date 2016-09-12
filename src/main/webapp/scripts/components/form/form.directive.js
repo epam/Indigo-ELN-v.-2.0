@@ -355,7 +355,8 @@ angular.module('indigoeln')
             myInputGroup: '@',
             myReadonly: '=',
             myRowsNum: '=',
-            myTooltip: '='
+            myTooltip: '=',
+            myTrim: '='
         },
         compile: function (tElement, tAttrs) {
             if (tAttrs.myInputGroup) {
@@ -373,6 +374,9 @@ angular.module('indigoeln')
             formUtils.doVertical(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
 
+            if (tAttrs.myTrim) {
+                tElement.find('textarea').attr('ng-trim', tAttrs.myTrim);
+            }
 
             if (tAttrs.myNoElastic){
                 tElement.find('textarea').removeAttr('msd-elastic');
