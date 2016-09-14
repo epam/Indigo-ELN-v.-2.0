@@ -353,7 +353,11 @@ angular.module('indigoeln')
                         batch.formula = result.data.molecularFormula;
                         batch.molWeight = result.data.molecularWeight;
                         batch.exactMass = result.data.exactMolecularWeight;
-                        batch.structure = {image: result.data.image, molfile: result.data.molecule};
+                        batch.structure = {
+                            image: result.data.image,
+                            molfile: result.data.molecule,
+                            structureType: 'molecule'
+                        };
                         return batch;
                     });
                 }
