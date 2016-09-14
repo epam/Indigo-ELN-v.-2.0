@@ -1,9 +1,10 @@
 angular.module('indigoeln')
-    .controller('StructureSchemeController', function ($scope, $attrs, $http, $uibModal, $rootScope) {
+    .controller('StructureSchemeController', function ($scope, $q, $attrs, $http, $uibModal, $rootScope) {
         // structure types: molecule, reaction
         var type = $attrs.myStructureType;
         $scope.structureType = type;
         $scope.myTitle = $attrs.myTitle;
+        $scope.myAutosave = $attrs.myAutosave === 'true';
         var batchSummarySelected;
         var newReactionScheme;
 
@@ -52,6 +53,31 @@ angular.module('indigoeln')
                 $scope.model[type].structureMolfile = data.molfile;
             });
         }
+
+        var renderStructure = function (structure) {
+            var deferred = $q.defer();
+            $http({
+                url: 'api/renderer/' + type + '/image',
+                method: 'POST',
+                data: structure
+            }).success(function (result) {
+                deferred.resolve(result);
+            });
+            return deferred.promise;
+        };
+
+        var setStructure = function (structure) {
+            renderStructure(structure).then(function (result) {
+                $scope.model[type].image = result.image;
+                $scope.model[type].structureMolfile = structure;
+                if ($scope.model.restrictions) {
+                    $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
+                    $scope.model.restrictions.structure.molfile = structure;
+                    $scope.model.restrictions.structure.image = result.image;
+                }
+            });
+        };
+
         // HTTP POST to save new structure into Bingo DB and get its id
         var saveNewStructure = function (structure, type) {
             $http({
@@ -59,11 +85,7 @@ angular.module('indigoeln')
                 method: 'POST',
                 data: structure
             }).success(function (structureId) {
-                $http({
-                    url: 'api/renderer/' + type + '/image',
-                    method: 'POST',
-                    data: structure
-                }).success(function (result) {
+                renderStructure(structure).then(function (result) {
                     $scope.model[type].image = result.image;
                     $scope.share = $scope.share || {};
                     if ($scope.share.selectedRow && type === 'molecule') {
@@ -73,14 +95,6 @@ angular.module('indigoeln')
                         $scope.share.selectedRow.structure.molfile = structure;
                         $scope.share.selectedRow.structure.structureId = structureId;
                         $rootScope.$broadcast('product-batch-structure-changed', $scope.share.selectedRow);
-                    } else {
-                        $scope.model[type].image = result.image;
-                        // case of search by molecule
-                        if ($scope.model.restrictions) {
-                            $scope.model.restrictions.structure = $scope.model.restrictions.structure || {};
-                            $scope.model.restrictions.structure.image = result.image;
-                            $scope.model.restrictions.structure.molfile = structure;
-                        }
                     }
                     $scope.model[type].structureId = structureId;
                     // set the renewed value if it's fine with bingo
@@ -114,8 +128,12 @@ angular.module('indigoeln')
 
             // process structure if changed
             modalInstance.result.then(function (structure) {
-                if (structure) {
-                    saveNewStructure(structure, type);
+                if ($scope.myAutosave) {
+                    if (structure) {
+                        saveNewStructure(structure, type);
+                    }
+                } else {
+                    setStructure(structure);
                 }
             });
         };
@@ -133,7 +151,11 @@ angular.module('indigoeln')
 
             // set structure if picked
             modalInstance.result.then(function (structure) {
-                saveNewStructure(structure, type);
+                if ($scope.myAutosave) {
+                    saveNewStructure(structure, type);
+                } else {
+                    setStructure(structure);
+                }
             });
         };
 
