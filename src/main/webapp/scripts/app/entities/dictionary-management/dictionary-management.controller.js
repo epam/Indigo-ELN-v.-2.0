@@ -147,7 +147,7 @@ angular.module('indigoeln')
 
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/admin/dictionary-management/dictionary-management-delete-word-dialog.html',
+                templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management-delete-word-dialog.html',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.dismiss = function () {$uibModalInstance.dismiss('cancel');};
                     $scope.confirmDeleteWord = function () { $uibModalInstance.close(true);};
