@@ -46,14 +46,18 @@ angular.module('indigoeln')
 				}, true));
 			}
             if ($scope.myColumn.hasStructurePopover) {
-				unbinds.push($scope.$watch(function () {
-					return $scope.myRow[$scope.myColumn.id];
-				}, function () {
+				var updatePopover = function () {
 					$scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
 					var image = $scope.myRow.structure ? $scope.myRow.structure.image : '';
 					$scope.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
 						'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
-				}));
+				};
+				unbinds.push($scope.$watch(function () {
+					return $scope.myRow[$scope.myColumn.id];
+				}, updatePopover));
+				unbinds.push($scope.$watch(function () {
+					return $scope.myRow.structure ? $scope.myRow.structure.image : null;
+				}, updatePopover));
 			}
 			$scope.$on('$destroy', function () {
 				_.each(unbinds, function (unbind) {
