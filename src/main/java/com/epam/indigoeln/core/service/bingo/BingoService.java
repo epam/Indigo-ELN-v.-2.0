@@ -99,6 +99,16 @@ public class BingoService {
         moleculeRepository.update(indigoProvider.getIndigo().loadMolecule(molecule), id);
     }
 
+    public Optional<Boolean> isEmptyMolecule(String reaction) {
+        try {
+            final IndigoObject moleculeStructure = indigoProvider.getIndigo().loadMolecule(reaction);
+            return Optional.of(moleculeStructure.countComponents() == 0);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
+    }
+
     /* Reaction */
 
     public void deleteMolecule(Integer id) {
@@ -126,6 +136,22 @@ public class BingoService {
                 .getById(id)
                 .map(indigoObject -> Optional.ofNullable(indigoObject.rxnfile()))
                 .orElse(Optional.empty());
+    }
+
+    public Optional<Boolean> isEmptyReaction(String reaction) {
+        try {
+            indigoProvider.getIndigo().loadReaction(reaction);
+        } catch (Exception e) {
+            try {
+                final IndigoObject moleculeStructure = indigoProvider.getIndigo().loadMolecule(reaction);
+                if (moleculeStructure.countComponents() == 0) {
+                    return Optional.of(true);
+                }
+            } catch (Exception e1) {
+                return Optional.empty();
+            }
+        }
+        return Optional.of(false);
     }
 
     public Optional<Integer> insertReaction(String reaction) {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +85,24 @@ public class BingoResource {
     }
 
     /**
+     * GET /molecule/empty -> checks if molecule is empty
+     */
+    @ApiOperation(value = "Checks if molecule is empty.", produces = "application/json")
+    @RequestMapping(value = "/molecule/empty", method = RequestMethod.POST)
+    public ResponseEntity<Object> isEmptyMolecule(
+            @ApiParam("Reaction to check.") @RequestBody String molecule
+    ) throws URISyntaxException {
+        Optional<Boolean> result = bingoService.isEmptyMolecule(molecule);
+
+        if (result.isPresent()) {
+            return ResponseEntity
+                    .ok().body(Collections.singletonMap("empty", result.get()));
+        } else {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
      * DELETE /molecule/:id -> delete molecule
      */
     @ApiOperation(value = "Deletes the molecule.", produces = "application/json")
@@ -148,6 +167,24 @@ public class BingoResource {
         return ResponseEntity
                 .ok()
                 .body(id.toString());
+    }
+
+    /**
+     * GET /reaction/:id/empty -> checks if reaction is empty
+     */
+    @ApiOperation(value = "Checks if reaction is empty.", produces = "application/json")
+    @RequestMapping(value = "/reaction/empty", method = RequestMethod.POST)
+    public ResponseEntity<Object> isEmptyReaction(
+            @ApiParam("Reaction to check.") @RequestBody String reaction
+    ) throws URISyntaxException {
+        Optional<Boolean> result = bingoService.isEmptyReaction(reaction);
+
+        if (result.isPresent()) {
+            return ResponseEntity
+                    .ok().body(Collections.singletonMap("empty", result.get()));
+        } else {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
