@@ -7,7 +7,10 @@ import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.stereotype.Repository;
@@ -18,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
-public class EntitySearchRepository {
+public class EntitySearchRepository implements ApplicationContextAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchComponentsRepository.class);
 
@@ -28,6 +31,9 @@ public class EntitySearchRepository {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    private ApplicationContext context;
+
 
     public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<Integer> bingoIds) {
 
@@ -118,7 +124,7 @@ public class EntitySearchRepository {
     }
 
     private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
-        ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(mongoTemplate);
+        ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(context, mongoTemplate);
         if (!bingoIds.isEmpty()) {
             final StructureSearchType type = request.getStructure().get().getType().getName();
             builder.withBingoIds(type, bingoIds);
@@ -139,4 +145,8 @@ public class EntitySearchRepository {
         return result;
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
 }

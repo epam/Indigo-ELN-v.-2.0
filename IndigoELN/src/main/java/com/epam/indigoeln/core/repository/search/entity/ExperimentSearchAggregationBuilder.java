@@ -1,11 +1,10 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
-import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.DBRef;
-import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -13,7 +12,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -34,12 +32,14 @@ public class ExperimentSearchAggregationBuilder {
     private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList(FIELD_STATUS);
     private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList(FIELD_STATUS, FIELD_AUTHOR_ID, FIELD_KIND);
 
+    private ApplicationContext context;
     private MongoTemplate template;
 
     private Collection<AggregationOperation> baseOperations;
     private Optional<AggregationOperation> experimentFilter;
 
-    private ExperimentSearchAggregationBuilder(MongoTemplate template) {
+    private ExperimentSearchAggregationBuilder(ApplicationContext context, MongoTemplate template) {
+        this.context = context;
         this.template = template;
         baseOperations = new ArrayList<>();
 
@@ -60,14 +60,13 @@ public class ExperimentSearchAggregationBuilder {
                 .last(FIELD_KIND).as(FIELD_KIND));
     }
 
-    public static ExperimentSearchAggregationBuilder getInstance(MongoTemplate template) {
-        return new ExperimentSearchAggregationBuilder(template);
+    public static ExperimentSearchAggregationBuilder getInstance(ApplicationContext context, MongoTemplate template) {
+        return new ExperimentSearchAggregationBuilder(context, template);
     }
 
     public ExperimentSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
 
-        Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withBingoIds(type, bingoIds).build();
-        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, false));
+        final Optional<Set<DBRef>> dbRefs = new ComponentSearchAggregationBuilder(context, template).withBingoIds(type, bingoIds).build();
 
         List<Criteria> fieldCriteriaList = new ArrayList<>();
         dbRefs.map(Criteria.where(FIELD_COMPONENTS)::in).ifPresent(cr -> {
@@ -85,8 +84,7 @@ public class ExperimentSearchAggregationBuilder {
 
     public ExperimentSearchAggregationBuilder withQuerySearch(String querySearch) {
 
-        Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withQuerySearch(querySearch).build();
-        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, false));
+        final Optional<Set<DBRef>> dbRefs = new ComponentSearchAggregationBuilder(context, template).withQuerySearch(querySearch).build();
 
         List<Criteria> fieldCriteriaList = SEARCH_QUERY_FIELDS.stream().map(
                 field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
@@ -106,8 +104,7 @@ public class ExperimentSearchAggregationBuilder {
 
     public ExperimentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
 
-        Optional<Collection<Aggregation>> componentsAggregations = new ComponentSearchAggregationBuilder().withAdvancedCriteria(criteria).build();
-        final Optional<Set<DBRef>> dbRefs = componentsAggregations.map(ca -> getDBRefs(ca, true));
+        final Optional<Set<DBRef>> dbRefs = new ComponentSearchAggregationBuilder(context, template).withAdvancedCriteria(criteria).build();
 
         List<Criteria> fieldCriteriaList = criteria.stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
@@ -138,31 +135,6 @@ public class ExperimentSearchAggregationBuilder {
                     .last(FIELD_ACCESS_LIST).as(FIELD_ACCESS_LIST));
             return Aggregation.newAggregation(operations);
         });
-    }
-
-    private Set<DBRef> getDBRefs(Collection<Aggregation> componentsAggregations, boolean and) {
-        final Set<DBRef> result = collect(componentsAggregations.stream()
-                .map(aggregation ->
-                        template.aggregate(aggregation, Component.class, Component.class).getMappedResults()
-                                .stream().map(c -> new DBRef("component", new ObjectId(c.getId()))).collect(Collectors.toSet()))
-                .collect(Collectors.toList()), and);
-        return result.isEmpty() ? null : result;
-    }
-
-    private Set<DBRef> collect(List<Set<DBRef>> refs, boolean and) {
-        Set<DBRef> result = new HashSet<>();
-        if (refs.isEmpty()) {
-            return result;
-        }
-        result.addAll(refs.get(0));
-        for (int i = 1; i < refs.size(); i++) {
-            if (and) {
-                result.retainAll(refs.get(i));
-            } else {
-                result.addAll(refs.get(i));
-            }
-        }
-        return result;
     }
 
 }
