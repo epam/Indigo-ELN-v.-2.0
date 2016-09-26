@@ -37,6 +37,7 @@ function searchComponents(filter) {
                 'content': 1,
                 'batch': 1,
                 'reactant': 1,
+                'product': 1,
                 'batchPurity': createProjectCond('$batch.purity.data')
             }
         },
