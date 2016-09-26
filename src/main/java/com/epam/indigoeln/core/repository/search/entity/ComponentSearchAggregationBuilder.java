@@ -1,202 +1,105 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.mongodb.BasicDBList;
+import com.mongodb.DBRef;
+import org.bson.types.ObjectId;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
-import static org.springframework.data.mongodb.core.aggregation.Fields.field;
-import static org.springframework.data.mongodb.core.aggregation.Fields.from;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-
 public class ComponentSearchAggregationBuilder {
 
-    public static final String FIELD_NAME = "name";
-    public static final String FIELD_DESCRIPTION = "description";
-    public static final String FIELD_THERAPEUTIC_AREA = "therapeuticArea";
-    public static final String FIELD_CODE_AND_NAME = "projectCode";
-    public static final String FIELD_YIELD = "batchYield";
-    public static final String FIELD_PURITY = "purity";
-    public static final String FIELD_COMPOUND_ID = "compoundId";
-    public static final String FIELD_CHEMICAL_NAME = "chemicalName";
-    public static final String FIELD_STRUCTURE = "structure";
-    public static final String FIELD_STRUCTURE_ID = "structureId";
-    public static final String FIELD_CONTENT = "content";
-    public static final String FIELD_BATCHES = "batches";
-
-    public static final String FIELD_STRUCTURE_STRUCTURE_ID = FIELD_STRUCTURE + ".structureId";
-
-    public static final String FIELD_CONTENT_DESCRIPTION = FIELD_CONTENT + ".description";
-    public static final String FIELD_CONTENT_STRUCTURE_ID = FIELD_CONTENT + ".structureId";
-    public static final String FIELD_CONTENT_TITLE = FIELD_CONTENT + ".title";
-    public static final String FIELD_CONTENT_BATCHES = FIELD_CONTENT + ".batches";
-
-    public static final String FIELD_BATCHES_CHEMICAL_NAME = FIELD_BATCHES + ".chemicalName";
-    public static final String FIELD_BATCHES_COMPOUND_ID = FIELD_BATCHES + ".compoundId";
-    public static final String FIELD_BATCHES_PURITY = FIELD_BATCHES + ".purity";
-    public static final String FIELD_BATCHES_YIELD = FIELD_BATCHES + ".yield";
-    public static final String FIELD_BATCHES_CODE_AND_NAME_NAME = FIELD_BATCHES + ".codeAndName.name";
-    public static final String FIELD_BATCHES_THERAPEUTIC_AREA_NAME = FIELD_BATCHES + ".therapeuticArea.name";
-    public static final String FIELD_BATCHES_STRUCTURE = FIELD_BATCHES + ".structure";
-
-    public static final String COMPONENT_NAME_EXPERIMENT_DESCRIPTION = "experimentDescription";
-    public static final String COMPONENT_NAME_PRODUCT_BATCH_SUMMARY = "productBatchSummary";
-    public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
-    public static final String COMPONENT_NAME_REACTION = "reaction";
     public static final String CONDITION_CONTAINS = "contains";
     public static final String CONDITION_EQUALS = "=";
     public static final String CONDITION_IN = "in";
-    public static List<String> BATCH_FIELDS = Arrays.asList(FIELD_THERAPEUTIC_AREA, FIELD_CODE_AND_NAME, FIELD_YIELD,
-            FIELD_PURITY, FIELD_COMPOUND_ID, FIELD_CHEMICAL_NAME);
     protected List<Aggregation> aggregations;
+    private MongoTemplate mongoTemplate;
+    private ExecutableMongoScript searchScript;
+    private Optional<Criteria> args;
 
-    public ComponentSearchAggregationBuilder() {
+    public ComponentSearchAggregationBuilder(ApplicationContext context, MongoTemplate mongoTemplate) {
+
+        this.mongoTemplate = mongoTemplate;
+        final String function = loadFunction(context, "classpath:mongo/components/search.js");
+        searchScript = new ExecutableMongoScript(function);
+
         aggregations = new ArrayList<>();
+
     }
 
     public ComponentSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
-        switch (type) {
-            case Product:
-                aggregations.add(getBatchesAggregationByBingoIds(bingoIds));
-                break;
-            case Reaction:
-                aggregations.add(getReactionAggregation(bingoIds));
+        SearchCriterion searchCriterion = null;
+        if (type == StructureSearchType.Product) {
+            searchCriterion = new SearchCriterion("batchStructureId", "batchStructureId", CONDITION_IN, bingoIds);
+        } else if (type == StructureSearchType.Reaction) {
+            searchCriterion = new SearchCriterion("reactionStructureId", "reactionStructureId", CONDITION_IN, bingoIds);
         }
+        args = Optional.ofNullable(searchCriterion).map(AggregationUtils::createCriterion);
         return this;
     }
 
     public ComponentSearchAggregationBuilder withQuerySearch(String querySearch) {
-        aggregations.add(getBatchesAggregationByQuerySearch(querySearch));
-        aggregations.add(getDescriptionAggregation(querySearch));
-        aggregations.add(getConceptAggregation(querySearch));
-        return this;
-    }
-
-    public ComponentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
-        getBatchesAggregationByCriteria(criteria).ifPresent(aggregations::add);
-        getDescriptionAggregation(criteria).ifPresent(aggregations::add);
-        getConceptAggregation(criteria).ifPresent(aggregations::add);
-        return this;
-    }
-
-    public Optional<Collection<Aggregation>> build() {
-        return Optional.ofNullable(aggregations.isEmpty() ? null : aggregations);
-    }
-
-    private Aggregation getDescriptionAggregation(String querySearch) {
-        return getDescriptionAggregation(new SearchCriterion(FIELD_DESCRIPTION, FIELD_DESCRIPTION, CONDITION_CONTAINS, querySearch));
-    }
-
-    private Optional<Aggregation> getDescriptionAggregation(List<SearchCriterion> criteria) {
-        if (criteria.isEmpty()) {
-            return Optional.empty();
-        }
-        return criteria.stream().filter(c -> FIELD_DESCRIPTION.equals(c.getField())).findAny().map(this::getDescriptionAggregation);
-    }
-
-    private Aggregation getReactionAggregation(List<Integer> bingoIds) {
-        return getReactionAggregation(new SearchCriterion(FIELD_STRUCTURE_ID, FIELD_STRUCTURE_ID, CONDITION_IN, bingoIds));
-    }
-
-    private Aggregation getBatchesAggregationByBingoIds(List<Integer> bingoIds) {
         Collection<SearchCriterion> searchCriteria = new ArrayList<>();
-        searchCriteria.add(new SearchCriterion(FIELD_STRUCTURE_STRUCTURE_ID, FIELD_STRUCTURE_STRUCTURE_ID, CONDITION_IN, bingoIds));
-        return getBatchesAggregation(searchCriteria, true);
-    }
-
-    private Aggregation getBatchesAggregationByQuerySearch(String querySearch) {
-        Collection<SearchCriterion> searchCriteria = new ArrayList<>();
-        Stream.of(FIELD_THERAPEUTIC_AREA, FIELD_CODE_AND_NAME, FIELD_COMPOUND_ID, FIELD_CHEMICAL_NAME).map(
+        Stream.of("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName").map(
                 f -> new SearchCriterion(f, f, CONDITION_CONTAINS, querySearch)
         ).forEach(searchCriteria::add);
-        Stream.of(FIELD_YIELD, FIELD_PURITY).map(
+        Stream.of("batchYield", "purity").map(
                 f -> new SearchCriterion(f, f, CONDITION_EQUALS, querySearch)
         ).forEach(searchCriteria::add);
-        return getBatchesAggregation(searchCriteria, false);
+        args = Optional.of(searchCriteria).map(ac ->
+                        new Criteria().orOperator(AggregationUtils.createCriteria(searchCriteria).toArray(new Criteria[searchCriteria.size()]))
+        );
+        return this;
     }
 
-    private Optional<Aggregation> getBatchesAggregationByCriteria(List<SearchCriterion> criteria) {
-        if (criteria.isEmpty()) {
-            return Optional.empty();
+    public ComponentSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> advancedCriteria) {
+        args = Optional.ofNullable(advancedCriteria.isEmpty() ? null : advancedCriteria).map(ac ->
+                        new Criteria().andOperator(AggregationUtils.createCriteria(advancedCriteria).toArray(new Criteria[advancedCriteria.size()]))
+        );
+        return this;
+    }
+
+    public Optional<Set<DBRef>> build() {
+        return args.map(
+                a -> ((BasicDBList) mongoTemplate.scriptOps().execute(searchScript, a.getCriteriaObject()))
+                        .stream()
+                        .map(o -> (ObjectId) o)
+                        .map(id -> new DBRef("component", id))
+                        .collect(Collectors.toSet()
+                        )
+        );
+    }
+
+    protected String loadFunction(ResourceLoader resourceLoader, String path) {
+
+        Resource functionResource = resourceLoader.getResource(path);
+
+        if (!functionResource.exists()) {
+            throw new IndigoRuntimeException(String.format("Resource %s not found!", path));
         }
-        final List<SearchCriterion> batchCriteria = criteria.stream().filter(c -> BATCH_FIELDS.contains(c.getField())).collect(Collectors.toList());
-        return Optional.ofNullable(batchCriteria.isEmpty() ? null : getBatchesAggregation(batchCriteria, true));
 
-    }
-
-    private Aggregation getConceptAggregation(String querySearch) {
-        return getConceptAggregation(new SearchCriterion(FIELD_NAME, FIELD_NAME, CONDITION_CONTAINS, querySearch));
-    }
-
-    private Optional<Aggregation> getConceptAggregation(List<SearchCriterion> criteria) {
-        if (criteria.isEmpty()) {
-            return Optional.empty();
+        InputStream inputStream;
+        try {
+            inputStream = functionResource.getInputStream();
+        } catch (IOException e) {
+            throw new IndigoRuntimeException(String.format("Cannot read file %s!", path), e);
         }
-        return criteria.stream().filter(c -> FIELD_NAME.equals(c.getField())).findAny().map(this::getConceptAggregation);
-    }
-
-    private Aggregation getDescriptionAggregation(SearchCriterion criterion) {
-        List<AggregationOperation> result = new ArrayList<>();
-        result.add(project(FIELD_NAME, FIELD_CONTENT));
-        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_EXPERIMENT_DESCRIPTION)));
-        result.add(project(from(field(FIELD_DESCRIPTION, FIELD_CONTENT_DESCRIPTION))));
-        result.add(match(AggregationUtils.createCriterion(criterion)));
-        return newAggregation(result);
-    }
-
-    private Aggregation getReactionAggregation(SearchCriterion criterion) {
-        List<AggregationOperation> result = new ArrayList<>();
-        result.add(project(FIELD_NAME, FIELD_CONTENT));
-        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_REACTION)));
-        result.add(project(from(field(FIELD_STRUCTURE_ID, FIELD_CONTENT_STRUCTURE_ID))));
-        result.add(match(AggregationUtils.createCriterion(criterion)));
-        return newAggregation(result);
-    }
-
-    private Aggregation getBatchesAggregation(Collection<SearchCriterion> criteria, boolean and) {
-        List<AggregationOperation> result = new ArrayList<>();
-        result.add(project(FIELD_NAME, FIELD_CONTENT));
-        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_PRODUCT_BATCH_SUMMARY)));
-        result.add(project(from(field(FIELD_BATCHES, FIELD_CONTENT_BATCHES))));
-        result.add(unwind(FIELD_BATCHES));
-        result.add(project(from(
-                field(FIELD_THERAPEUTIC_AREA, FIELD_BATCHES_THERAPEUTIC_AREA_NAME),
-                field(FIELD_CODE_AND_NAME, FIELD_BATCHES_CODE_AND_NAME_NAME),
-                field(FIELD_YIELD, FIELD_BATCHES_YIELD),
-                field(FIELD_STRUCTURE, FIELD_BATCHES_STRUCTURE),
-                field(FIELD_PURITY, FIELD_BATCHES_PURITY),
-                field(FIELD_COMPOUND_ID, FIELD_BATCHES_COMPOUND_ID),
-                field(FIELD_CHEMICAL_NAME, FIELD_BATCHES_CHEMICAL_NAME)
-        )));
-
-        Criteria matchCriteria;
-        if (and) {
-            matchCriteria = new Criteria().andOperator(AggregationUtils.createCriteria(criteria).toArray(new Criteria[criteria.size()]));
-        } else {
-            matchCriteria = new Criteria().orOperator(AggregationUtils.createCriteria(criteria).toArray(new Criteria[criteria.size()]));
+        try (Scanner scanner = new Scanner(inputStream)) {
+            return scanner.useDelimiter("\\A").next();
         }
-        result.add(match(matchCriteria));
-
-        return newAggregation(result);
-
-    }
-
-    private Aggregation getConceptAggregation(SearchCriterion criterion) {
-        List<AggregationOperation> result = new ArrayList<>();
-        result.add(project(FIELD_NAME, FIELD_CONTENT));
-        result.add(match(where(FIELD_NAME).is(COMPONENT_NAME_CONCEPT_DETAILS)));
-        result.add(project(from(field(FIELD_NAME, FIELD_CONTENT_TITLE))));
-
-        result.add(match(AggregationUtils.createCriterion(criterion)));
-
-        return newAggregation(result);
-
     }
 
 }
