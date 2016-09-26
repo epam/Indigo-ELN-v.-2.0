@@ -1,25 +1,27 @@
-function createProjectCond(path) {
-    return {
-        $cond: {
-            if: {
-                $eq: [path, undefined]
-            },
-            then: [null],
-            else: {
-                $cond: {
-                    if: {
-                        $eq: [path, []]
-                    },
-                    then: [null],
-                    else: path
-                }
-            }
-        }
-    };
-}
-
 /* jshint unused: false */
 function searchComponents(filter) {
+
+    var createProjectCond = function (path) {
+        return {
+            $cond: {
+                if: {
+                    $eq: [path, undefined]
+                },
+                then: [null],
+                else: {
+                    $cond: {
+                        if: {
+                            $eq: [path, []]
+                        },
+                        then: [null],
+                        else: path
+                    }
+                }
+            }
+        };
+    };
+
+
     return db.getCollection('component').aggregate([
         {
             $project: {
