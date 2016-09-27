@@ -8,6 +8,12 @@
             {{myColumn.format(myRow[myColumn.id])}}
             </span>
         </span>
+        <span ng-if="myColumn.type === 'html'">
+            <span ng-if="!myColumn.format" ng-bind-html="myRow[myColumn.id]">
+            </span>
+            <span ng-if="myColumn.format" ng-bind-html="myColumn.format(myRow[myColumn.id])">
+            </span>
+        </span>
         <span ng-if="myColumn.type === 'primitive' && !isEmpty(myRow[myColumn.id])">
             {{myRow[myColumn.id] | round:myColumn.sigDigits:myColumn:myRow}}
         </span>

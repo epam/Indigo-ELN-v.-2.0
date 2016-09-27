@@ -1,5 +1,7 @@
 package com.epam.indigoeln.web.rest.dto.search;
 
+import com.epam.indigoeln.core.model.User;
+
 import java.time.ZonedDateTime;
 
 public class EntitySearchResultDTO {
@@ -8,7 +10,7 @@ public class EntitySearchResultDTO {
 
     private String name;
 
-    private ZonedDateTime creationDate;
+    private Details details;
 
     public String getKind() {
         return kind;
@@ -26,11 +28,44 @@ public class EntitySearchResultDTO {
         this.name = name;
     }
 
-    public ZonedDateTime getCreationDate() {
-        return creationDate;
+    public Details getDetails() {
+        return details;
     }
 
-    public void setCreationDate(ZonedDateTime creationDate) {
-        this.creationDate = creationDate;
+    public void setDetails(Details details) {
+        this.details = details;
+    }
+
+    public static class Details {
+
+        private ZonedDateTime creationDate;
+
+        private String author;
+
+        private String title;
+
+        public ZonedDateTime getCreationDate() {
+            return creationDate;
+        }
+
+        public void setCreationDate(ZonedDateTime creationDate) {
+            this.creationDate = creationDate;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public void setAuthor(String author) {
+            this.author = author;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
     }
 }

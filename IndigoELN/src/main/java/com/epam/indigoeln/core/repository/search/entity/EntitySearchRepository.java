@@ -1,70 +1,77 @@
 package com.epam.indigoeln.core.repository.search.entity;
 
 import com.epam.indigoeln.core.model.*;
-import com.epam.indigoeln.core.repository.search.component.SearchComponentsRepository;
+import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.web.rest.dto.BasicDTO;
+import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.NotebookDTO;
+import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
+import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Repository
-public class EntitySearchRepository implements ApplicationContextAware {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchComponentsRepository.class);
+public class EntitySearchRepository {
 
     private static final String KIND_PROJECT = "Project";
     private static final String KIND_NOTEBOOK = "Notebook";
     private static final String KIND_EXPERIMENT = "Experiment";
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private ProjectSearchRepository projectSearchRepository;
 
-    private ApplicationContext context;
+    @Autowired
+    private ProjectRepository projectRepository;
 
+    @Autowired
+    private NotebookSearchRepository notebookSearchRepository;
+
+    @Autowired
+    private NotebookRepository notebookRepository;
+
+    @Autowired
+    private ExperimentSearchRepository experimentSearchRepository;
+
+    @Autowired
+    private ExperimentRepository experimentRepository;
 
     public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<Integer> bingoIds) {
 
-        Optional<Aggregation> aggregation = buildProjectAggregation(searchRequest, bingoIds);
-        final Optional<List<EntitySearchResultDTO>> projectResult = aggregation.map(agg -> {
-            LOGGER.debug("Perform project search query: " + agg.toString());
-            List<Project> mappedResults = mongoTemplate.aggregate(agg, Project.class, Project.class).getMappedResults();
-
-            return mappedResults.stream().filter(
+        final Optional<List<EntitySearchResultDTO>> projectResult = findProjectsIds(searchRequest).map(ids -> {
+            final Iterable<Project> projects = projectRepository.findAll(ids);
+            return StreamSupport.stream(projects.spliterator(), false).filter(
                     p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(this::convert).collect(Collectors.toList());
+            ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
         });
 
-        aggregation = buildNotebookAggregation(searchRequest, bingoIds);
-        final Optional<List<EntitySearchResultDTO>> notebookResult = aggregation.map(agg -> {
-            LOGGER.debug("Perform notebook search query: " + agg.toString());
-            List<Notebook> mappedResults = mongoTemplate.aggregate(agg, Notebook.class, Notebook.class).getMappedResults();
-
-            return mappedResults.stream().filter(
+        final Optional<List<EntitySearchResultDTO>> notebookResult = findNotebooksIds(searchRequest).map(ids -> {
+            final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
+            return StreamSupport.stream(notebooks.spliterator(), false).filter(
                     n -> PermissionUtil.hasPermissions(user.getId(), n.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(this::convert).collect(Collectors.toList());
+            ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
         });
 
-        aggregation = buildExperimentAggregation(searchRequest, bingoIds);
-        final Optional<List<EntitySearchResultDTO>> experimentResult = aggregation.map(agg -> {
-            LOGGER.debug("Perform experiment search query: " + agg.toString());
-            List<Experiment> mappedResults = mongoTemplate.aggregate(agg, Experiment.class, Experiment.class).getMappedResults();
+        final Optional<List<EntitySearchResultDTO>> experimentResult = findExperimentsIds(searchRequest, bingoIds).map(ids -> {
+            final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
 
-            return mappedResults.stream().filter(
+            Map<String, String> notebookNameMap = new HashMap<>();
+            final Set<DBRef> dbRefs = ids.stream().map(id -> new DBRef("experiment", id)).collect(Collectors.toSet());
+            notebookRepository.findByExperimentsIds(dbRefs).forEach(n -> n.getExperiments().stream().forEach(e -> notebookNameMap.put(e.getId(), n.getName())));
+
+            return StreamSupport.stream(experiments.spliterator(), false).filter(
                     p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(this::convert).collect(Collectors.toList());
+            ).map(ExperimentDTO::new).map(e -> convert(notebookNameMap.get(e.getFullId()), e)).collect(Collectors.toList());
+
         });
         return merge(projectResult, notebookResult, experimentResult);
 
@@ -79,74 +86,74 @@ public class EntitySearchRepository implements ApplicationContextAware {
         return result;
     }
 
-    private Optional<Aggregation> buildProjectAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
-        ProjectSearchAggregationBuilder builder = ProjectSearchAggregationBuilder.getInstance();
-        if (!bingoIds.isEmpty()) {
-            final StructureSearchType type = request.getStructure().get().getType().getName();
-            builder.withBingoIds(type, bingoIds);
-        } else if (request.getSearchQuery().isPresent()) {
-            builder.withSearchQuery(request.getSearchQuery().get());
+    private Optional<Set<String>> findProjectsIds(EntitySearchRequest request) {
+        if (request.getSearchQuery().isPresent()) {
+            return projectSearchRepository.withQuerySearch(request.getSearchQuery().get());
         } else {
-            builder.withAdvancedCriteria(request.getAdvancedSearch());
+            return projectSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
         }
-
-        return builder.build();
     }
 
-    private EntitySearchResultDTO convert(Project project) {
+    private EntitySearchResultDTO convert(ProjectDTO project) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_PROJECT);
         result.setName(project.getName());
-        result.setCreationDate(project.getCreationDate());
+        result.setDetails(getDetails(project));
         return result;
     }
 
-    private Optional<Aggregation> buildNotebookAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
-        NotebookSearchAggregationBuilder builder = NotebookSearchAggregationBuilder.getInstance();
-        if (!bingoIds.isEmpty()) {
-            final StructureSearchType type = request.getStructure().get().getType().getName();
-            builder.withBingoIds(type, bingoIds);
-        } else if (request.getSearchQuery().isPresent()) {
-            builder.withSearchQuery(request.getSearchQuery().get());
+    private Optional<Set<String>> findNotebooksIds(EntitySearchRequest request) {
+        if (request.getSearchQuery().isPresent()) {
+            return notebookSearchRepository.withQuerySearch(request.getSearchQuery().get());
         } else {
-            builder.withAdvancedCriteria(request.getAdvancedSearch());
+            return notebookSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
         }
-
-        return builder.build();
     }
 
-    private EntitySearchResultDTO convert(Notebook notebook) {
+    private EntitySearchResultDTO convert(NotebookDTO notebook) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_NOTEBOOK);
         result.setName(notebook.getName());
-        result.setCreationDate(notebook.getCreationDate());
+        result.setDetails(getDetails(notebook));
         return result;
     }
 
-    private Optional<Aggregation> buildExperimentAggregation(EntitySearchRequest request, List<Integer> bingoIds) {
-        ExperimentSearchAggregationBuilder builder = ExperimentSearchAggregationBuilder.getInstance(context, mongoTemplate);
+    private Optional<Set<String>> findExperimentsIds(EntitySearchRequest request, List<Integer> bingoIds) {
         if (!bingoIds.isEmpty()) {
             final StructureSearchType type = request.getStructure().get().getType().getName();
-            builder.withBingoIds(type, bingoIds);
+            return experimentSearchRepository.withBingoIds(type, bingoIds);
         } else if (request.getSearchQuery().isPresent()) {
-            builder.withQuerySearch(request.getSearchQuery().get());
+            return experimentSearchRepository.withQuerySearch(request.getSearchQuery().get());
         } else {
-            builder.withAdvancedCriteria(request.getAdvancedSearch());
+            return experimentSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
         }
-
-        return builder.build();
     }
 
-    private EntitySearchResultDTO convert(Experiment experiment) {
+    private EntitySearchResultDTO convert(String notebookName, ExperimentDTO experiment) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_EXPERIMENT);
-        result.setName(experiment.getName());
-        result.setCreationDate(experiment.getCreationDate());
+        result.setName(notebookName + "-" + experiment.getName());
+        result.setDetails(getDetails(experiment));
         return result;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
+    private EntitySearchResultDTO.Details getDetails(ExperimentDTO experiment) {
+        final EntitySearchResultDTO.Details details = getDetails((BasicDTO) experiment);
+
+        String title = BatchComponentUtil.getConceptDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
+                .orElseGet(
+                        () -> BatchComponentUtil.getReactionDetails(experiment.getComponents()).map(cd -> cd.getContent().getString("title"))
+                                .orElse(null)
+                );
+        details.setTitle(title);
+        return details;
     }
+
+    private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
+        EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
+        details.setCreationDate(dto.getCreationDate());
+        details.setAuthor(dto.getAuthor().getFullName());
+        return details;
+    }
+
 }
