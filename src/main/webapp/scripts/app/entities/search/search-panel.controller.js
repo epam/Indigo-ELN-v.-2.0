@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('SearchPanelController', function ($rootScope, $scope, SearchService, SearchUtilService, pageInfo) {
+    .controller('SearchPanelController', function ($rootScope, $scope, $sce, $filter, SearchService, SearchUtilService, pageInfo) {
 
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
@@ -141,8 +141,22 @@ angular.module('indigoeln')
                 name: 'Entity Name/Id'
             },
             {
-                id: 'nbkBatch',
-                name: 'Details'
+                id: 'details',
+                name: 'Details',
+                type: 'html',
+                format: function (val) {
+                    var result = [];
+                    if (val.creationDate) {
+                        result.push('Creation date: ' + $filter('date')(val.creationDate, 'MMM DD, YYYY HH:mm:ss z'));
+                    }
+                    if (val.author) {
+                        result.push('Owner: ' + val.author);
+                    }
+                    if (val.title) {
+                        result.push('Subject\\Title: ' + val.title);
+                    }
+                    return $sce.trustAsHtml(result.join('<br/>'));
+                }
             },
             {
                 id: 'actions',
