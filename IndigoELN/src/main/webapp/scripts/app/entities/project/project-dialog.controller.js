@@ -9,21 +9,21 @@ angular.module('indigoeln')
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
-            $timeout(function () {
-
-                var tabKind = $state.$current.data.tab.kind;
-
-                self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
-                    if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
-                        EntitiesBrowser.changeDirtyTab($stateParams, true);
-                    }else{
-                        EntitiesBrowser.changeDirtyTab($stateParams, false);
-                    }
-                }, true);
-
-                AutoSaveEntitiesEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
-
-            }, 0, false);
+            //$timeout(function () {
+            //
+            //    var tabKind = $state.$current.data.tab.kind;
+            //
+            //    self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
+            //        if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
+            //            EntitiesBrowser.changeDirtyTab($stateParams, true);
+            //        }else{
+            //            EntitiesBrowser.changeDirtyTab($stateParams, false);
+            //        }
+            //    }, true);
+            //
+            //    AutoSaveEntitiesEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
+            //
+            //}, 0, false);
             $scope.project = project;
             $scope.newProject = _.isUndefined($scope.project.id) || _.isNull($scope.project.id);
             $scope.project.author = $scope.project.author || identity;

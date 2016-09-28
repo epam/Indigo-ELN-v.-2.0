@@ -9,19 +9,19 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.experiments = pageInfo.experiments;
-            $timeout(function () {
-
-                var tabKind = $state.$current.data.tab.kind;
-
-                self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
-                    if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
-                        EntitiesBrowser.changeDirtyTab($stateParams, true);
-                    }
-                }, true);
-
-                AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
-
-            }, 0, false);
+            //$timeout(function () {
+            //
+            //    var tabKind = $state.$current.data.tab.kind;
+            //
+            //    self.dirtyListener = $scope.$watch(tabKind, function(oldValue, newValue){
+            //        if(!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))){
+            //            EntitiesBrowser.changeDirtyTab($stateParams, true);
+            //        }
+            //    }, true);
+            //
+            //    AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
+            //
+            //}, 0, false);
             $scope.notebook = pageInfo.notebook;
             $scope.newNotebook = _.isUndefined($scope.notebook.id) || _.isNull($scope.notebook.id);
             $scope.notebook.author = $scope.notebook.author || identity;
