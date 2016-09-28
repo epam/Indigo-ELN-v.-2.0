@@ -9,6 +9,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.experiments = pageInfo.experiments;
+            // Uncomment after fixing EPMLSOPELN-59
             //$timeout(function () {
             //
             //    var tabKind = $state.$current.data.tab.kind;
