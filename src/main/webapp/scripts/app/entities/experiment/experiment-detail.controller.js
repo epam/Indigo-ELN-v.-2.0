@@ -12,7 +12,7 @@ angular.module('indigoeln')
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
 
-
+            // Uncomment after fixing EPMLSOPELN-59
             //$timeout(function () {
             //    var tabKind = $state.$current.data.tab.kind;
             //    self.dirtyListener = $scope.$watch(tabKind, function(){
