@@ -102,9 +102,10 @@ angular.module('indigoeln')
                             };
                         });
                         _.each(result, function (item) {
-                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
-                                item.structure.image = image;
-                            });
+                            //TODO: uncomment after fixing EPMLSOPELN-355
+                            //CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
+                            //    item.structure.image = image;
+                            //});
                             CalculationService.getMoleculeInfo(item, function (molInfo) {
                                 item.formula = molInfo.data.molecularFormula;
                                 item.molWeight = item.molWeight || {};
