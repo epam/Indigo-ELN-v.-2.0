@@ -75,6 +75,19 @@ public class RegistrationResource {
         return registrationService.getRegisteredCompounds(id, jobId);
     }
 
+    @ApiOperation(value = "Returns compounds by their number.", produces = "application/json")
+    @RequestMapping(value = "/compounds/{compoundNo}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Compound> compounds(
+            @ApiParam("Registration repository id") String id,
+            @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
+    ) throws RegistrationException {
+        if (id == null) {
+            id = getRepositoryId();
+        }
+        return registrationService.getCompoundInfoByCompoundNo(id, compoundNo);
+    }
+
     @ApiOperation(value = "Searches for compounds by substructure.", produces = "application/json")
     @RequestMapping(value = "/search/substructure", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

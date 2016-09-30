@@ -130,6 +130,10 @@ public class RegistrationService {
         return getRegistrationRepository(id).getRegisteredCompounds(jobId);
     }
 
+    public List<Compound> getCompoundInfoByCompoundNo(String id, String compoundNo) throws RegistrationException {
+        return getRegistrationRepository(id).getCompoundInfoByCompoundNo(compoundNo);
+    }
+
     public List<Integer> searchSubstructure(String id, String structure, String searchOption) throws RegistrationException {
         return getRegistrationRepository(id).searchSub(structure, searchOption);
     }

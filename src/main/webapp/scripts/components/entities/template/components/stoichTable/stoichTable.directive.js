@@ -7,8 +7,8 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal,
-                                  CalculationService, SearchService, DialogService, StoichTableCache) {
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Dictionary,
+                                  CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -67,22 +67,69 @@ angular.module('indigoeln')
                     });
                 }
 
+                function getWord(dicts, dictName, wordName) {
+                    var dict = _.find(dicts, function (dict) {
+                        return dict.name === dictName;
+                    });
+                    if (dict) {
+                        return _.find(dict.words, function (word) {
+                            return word.name === wordName;
+                        });
+                    }
+                }
+
+                function convertCompoundsToBatches(compounds) {
+                    var deferred = $q.defer();
+                    Dictionary.all(function (dicts) {
+                        var result = _.map(compounds, function (c) {
+                            return {
+                                chemicalName: c.chemicalName,
+                                compoundId: c.compoundNo,
+                                conversationalBatchNumber: c.conversationalBatchNo,
+                                fullNbkBatch: c.batchNo,
+                                casNumber: c.casNo,
+                                structure: {
+                                    structureType: 'molecule',
+                                    molfile: c.structure
+                                },
+                                formula: c.formula,
+                                stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
+                                saltCode: _.find(saltCodeValues, function (sc) {
+                                    return sc.regValue === c.saltCode;
+                                }),
+                                saltEq: {value: c.saltEquivs, entered: false},
+                                comments: c.comment
+                            };
+                        });
+                        _.each(result, function (item) {
+                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
+                                item.structure.image = image;
+                            });
+                            CalculationService.getMoleculeInfo(item, function (molInfo) {
+                                item.formula = molInfo.data.molecularFormula;
+                                item.molWeight = item.molWeight || {};
+                                item.molWeight.value = molInfo.data.molecularWeight;
+                            });
+                        });
+                        deferred.resolve(result);
+                    });
+                    return deferred.promise;
+                }
+
                 function fetchBatchByCompoundId(compoundId, row) {
                     var searchRequest = {
-                        advancedSearch: [{
-                            condition: 'contains', field: 'compoundId', name: 'Compound ID', value: compoundId
-                        }],
-                        databases: ['Indigo ELN']
+                        compoundNo: compoundId
                     };
-                    SearchService.search(searchRequest, function (result) {
-                        if (result.length === 1) {
-                            populateFetchedBatch(row, result[0].details);
-                        } else if (result.length > 1) {
-                            var fetchedBatches = _.pluck(result, 'details');
-                            DialogService.structureValidation(fetchedBatches, compoundId, function (selectedBatch) {
-                                populateFetchedBatch(row, selectedBatch);
-                            });
-                        }
+                    RegistrationService.compounds(searchRequest, function (result) {
+                        convertCompoundsToBatches(result).then(function (batches) {
+                            if (batches.length === 1) {
+                                populateFetchedBatch(row, batches[0]);
+                            } else if (batches.length > 1) {
+                                DialogService.structureValidation(batches, compoundId, function (selectedBatch) {
+                                    populateFetchedBatch(row, selectedBatch);
+                                });
+                            }
+                        });
                     });
                 }
 
