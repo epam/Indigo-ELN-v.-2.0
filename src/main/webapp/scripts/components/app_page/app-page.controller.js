@@ -3,7 +3,7 @@
  */
 angular
     .module('indigoeln')
-.controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, batchStatusSubscriber) {
+.controller('AppPageController', function ($rootScope, $scope, $cookieStore, $window, experimentStatusSubscriber, batchStatusSubscriber, entityChangedSubscriber) {
         /**
          * Sidebar Toggle & Cookie Control
          */
@@ -43,6 +43,9 @@ angular
         });
         batchStatusSubscriber.onServerEvent(function (statuses) {
             $rootScope.$broadcast('batch-registration-status-changed', statuses);
+        });
+        entityChangedSubscriber.onServerEvent(function (data) {
+            $rootScope.$broadcast('entity-updated', data);
         });
 
 

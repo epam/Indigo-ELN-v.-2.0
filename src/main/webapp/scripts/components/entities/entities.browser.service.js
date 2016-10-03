@@ -110,5 +110,13 @@ angular.module('indigoeln')
             });
         };
 
+        EntitiesBrowser.getTabByParams = function (params) {
+            return resolvePrincipal(function () {
+                var userId = getUserId();
+                var tabKey = TabKeyUtils.getTabKeyFromParams(params);
+                return EntitiesBrowser.tabs[userId][tabKey];
+            });
+        };
+
         return EntitiesBrowser;
     });

@@ -18,6 +18,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -40,6 +41,9 @@ public class NotebookService {
 
     @Autowired
     private CustomDtoMapper dtoMapper;
+
+    @Autowired
+    private SimpMessagingTemplate template;
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
         return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
@@ -184,6 +188,14 @@ public class NotebookService {
         notebook.getAccessList().forEach(up ->
                 PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
         projectRepository.save(project);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user.getId());
+        Map<String, Object> entity = new HashMap<>();
+        entity.put("projectId", projectId);
+        entity.put("notebookId", SequenceIdUtil.extractShortId(notebookFromDB));
+        data.put("entity", entity);
+        template.convertAndSend("/topic/entity_updated", data);
 
         return result;
     }
