@@ -16,7 +16,7 @@
         <org.mapstruct.version>1.0.0.Final</org.mapstruct.version>
         <springfox.version>2.3.1</springfox.version>
         <itext.version>5.5.7</itext.version>
-        <bingo.version>1.2.2beta-r37</bingo.version>
+        <bingo.version>1.2.3.r0</bingo.version>
     </properties>
 
     <parent>

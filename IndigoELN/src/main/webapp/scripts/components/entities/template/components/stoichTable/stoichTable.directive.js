@@ -105,10 +105,9 @@ angular.module('indigoeln')
                         _.each(result, function (item) {
                             queries.push(CalculationService.getMoleculeInfo(item));
                         });
-                        //TODO: uncomment after fixing EPMLSOPELN-355
-                        //_.each(result, function (item) {
-                        //    queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
-                        //});
+                        _.each(result, function (item) {
+                            queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
+                        });
                         $q.all(queries).then(function (data) {
                             var i = 0;
                             for (i = 0; i < result.length; i++) {
@@ -118,10 +117,9 @@ angular.module('indigoeln')
                                 item.molWeight = item.molWeight || {};
                                 item.molWeight.value = molInfo.data.molecularWeight;
                             }
-                            //TODO: uncomment after fixing EPMLSOPELN-355
-                            //for (i = 0; i < result.length; i++) {
-                            //    result[i].structure.image = data[result.length + i];
-                            //}
+                            for (i = 0; i < result.length; i++) {
+                                result[i].structure.image = data[result.length + i];
+                            }
                             deferred.resolve(result);
                         });
                     });
