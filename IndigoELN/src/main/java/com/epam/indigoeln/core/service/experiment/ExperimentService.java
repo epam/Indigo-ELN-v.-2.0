@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.Striped;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.validation.ValidationException;
@@ -47,6 +48,8 @@ public class ExperimentService {
     private UserRepository userRepository;
     @Autowired
     private SequenceIdService sequenceIdService;
+    @Autowired
+    private SimpMessagingTemplate template;
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
 
@@ -295,6 +298,16 @@ public class ExperimentService {
             });
             notebookRepository.save(notebook);
             projectRepository.save(project);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("user", user.getId());
+            Map<String, Object> entity = new HashMap<>();
+            entity.put("projectId", projectId);
+            entity.put("notebookId", notebookId);
+            entity.put("experimentId", SequenceIdUtil.extractShortId(experimentFromDB));
+            data.put("entity", entity);
+            template.convertAndSend("/topic/entity_updated", data);
+
         } finally {
             lock.unlock();
         }

@@ -12,16 +12,16 @@ angular.module('indigoeln')
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
 
-            // Uncomment after fixing EPMLSOPELN-59
-            //$timeout(function () {
-            //    var tabKind = $state.$current.data.tab.kind;
-            //    self.dirtyListener = $scope.$watch(tabKind, function(){
-            //        EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
-            //    }, true);
-            //
-            //    AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
-            //
-            //}, 0, false);
+            $timeout(function () {
+                var tabKind = $state.$current.data.tab.kind;
+                self.dirtyListener = $scope.$watch(tabKind, function () {
+                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
+                }, true);
+
+                // Uncomment after fixing EPMLSOPELN-59
+                //AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
+
+            }, 0, false);
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
             $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];

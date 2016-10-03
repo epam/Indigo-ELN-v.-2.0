@@ -43,6 +43,9 @@ angular.module('indigoeln')
             });
         };
         return {
+            alert: function (title, message, size, okCallback, noCallback, okText, hideCancel) {
+                alertModal(title, message, size, okCallback, noCallback, okText, hideCancel);
+            },
             error: function (msg, size) {
                 alertModal('Error', msg, size);
             },

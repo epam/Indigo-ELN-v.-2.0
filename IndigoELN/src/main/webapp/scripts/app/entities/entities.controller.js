@@ -15,8 +15,6 @@ angular.module('indigoeln')
                 $scope.activeTab = value;
             });
 
-
-
             var entityClickListener = $scope.$on('entity-clicked', function (event, tab) {
                 $scope.onTabClick(tab);
             });
@@ -26,13 +24,20 @@ angular.module('indigoeln')
             var entityCloseAllListener = $scope.$on('entity-close-all', function () {
                 $scope.onCloseAllTabs();
             });
-
+            var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
+                EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
+                   if (tab && userId !== data.user) {
+                       $scope.onTabChanged(tab);
+                   }
+                });
+            });
 
             $scope.$on('$destroy', function () {
                 unsubscribe();
                 entityClickListener();
                 entityCloseListener();
                 entityCloseAllListener();
+                entityUpdatedListener();
             });
 
         };
@@ -77,6 +82,20 @@ angular.module('indigoeln')
             return $q.resolve();
         };
 
+        $scope.onTabChanged = function(tab) {
+            if (tab.dirty) {
+                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. Do you want to keep it open without possibility to save?.',
+                    null, function() {}, function() {
+                        onSaveTab(tab);
+                    }, 'Yes', true
+                );
+            } else {
+                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user, it will be closed. You will need to reopen it.',
+                    null, function() {
+                    onSaveTab(tab);
+                }, null, 'Ok', true);
+            }
+        };
 
         $scope.onCloseAllTabs = function () {
             var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });

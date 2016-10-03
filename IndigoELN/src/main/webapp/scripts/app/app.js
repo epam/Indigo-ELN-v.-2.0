@@ -117,6 +117,9 @@ angular.module('indigoeln',
                 },
                 batchStatusSubscriber: function (WSService) {
                     return WSService.subscribe('registration_status');
+                },
+                entityChangedSubscriber: function (WSService) {
+                    return WSService.subscribe('entity_updated');
                 }
             }
         }).state('navbar', {

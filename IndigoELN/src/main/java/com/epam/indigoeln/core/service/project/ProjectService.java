@@ -5,9 +5,11 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
@@ -17,6 +19,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -42,6 +45,9 @@ public class ProjectService {
 
     @Autowired
     private SequenceIdService sequenceIdService;
+
+    @Autowired
+    private SimpMessagingTemplate template;
 
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes() {
         return getAllProjectsAsTreeNodes(null);
@@ -132,6 +138,14 @@ public class ProjectService {
         projectFromDb.setVersion(project.getVersion());
 
         project = saveProjectAndHandleError(projectFromDb);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("user", user.getId());
+        Map<String, Object> entity = new HashMap<>();
+        entity.put("projectId", SequenceIdUtil.extractShortId(projectFromDb));
+        data.put("entity", entity);
+        template.convertAndSend("/topic/entity_updated", data);
+
         return new ProjectDTO(project);
     }
 
