@@ -101,18 +101,29 @@ angular.module('indigoeln')
                                 comments: c.comment
                             };
                         });
+                        var queries = [];
                         _.each(result, function (item) {
-                            //TODO: uncomment after fixing EPMLSOPELN-355
-                            //CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
-                            //    item.structure.image = image;
-                            //});
-                            CalculationService.getMoleculeInfo(item, function (molInfo) {
+                            queries.push(CalculationService.getMoleculeInfo(item));
+                        });
+                        //TODO: uncomment after fixing EPMLSOPELN-355
+                        //_.each(result, function (item) {
+                        //    queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
+                        //});
+                        $q.all(queries).then(function (data) {
+                            var i = 0;
+                            for (i = 0; i < result.length; i++) {
+                                var item = result[i];
+                                var molInfo = data[i];
                                 item.formula = molInfo.data.molecularFormula;
                                 item.molWeight = item.molWeight || {};
                                 item.molWeight.value = molInfo.data.molecularWeight;
-                            });
+                            }
+                            //TODO: uncomment after fixing EPMLSOPELN-355
+                            //for (i = 0; i < result.length; i++) {
+                            //    result[i].structure.image = data[result.length + i];
+                            //}
+                            deferred.resolve(result);
                         });
-                        deferred.resolve(result);
                     });
                     return deferred.promise;
                 }
