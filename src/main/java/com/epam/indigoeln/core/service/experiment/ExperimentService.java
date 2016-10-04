@@ -69,7 +69,7 @@ public class ExperimentService {
     }
 
     public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
-        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, user);
+        Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, PermissionUtil.isContentEditor(user) ? null : user);
         return experiments.stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
