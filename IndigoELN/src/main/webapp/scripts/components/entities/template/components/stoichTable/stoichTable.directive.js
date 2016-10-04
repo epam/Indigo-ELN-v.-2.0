@@ -118,7 +118,7 @@ angular.module('indigoeln')
                                 item.molWeight.value = molInfo.data.molecularWeight;
                             }
                             for (i = 0; i < result.length; i++) {
-                                result[i].structure.image = data[result.length + i];
+                                result[i].structure.image = data[result.length + i].data.image;
                             }
                             deferred.resolve(result);
                         });
