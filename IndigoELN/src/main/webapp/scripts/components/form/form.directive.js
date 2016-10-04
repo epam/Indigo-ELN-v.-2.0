@@ -237,7 +237,6 @@ angular.module('indigoeln')
             myModel: '=',
             myItems: '=',
             myDictionary: '@',
-            myDictionaryFull: '@',
             myMultiple: '=',
             myLabelVertical: '=',
             myLabelColumnsNum: '=',
@@ -271,11 +270,6 @@ angular.module('indigoeln')
             });
             if ($scope.myDictionary) {
                 Dictionary.getByName({name: $scope.myDictionary}, function (dictionary) {
-                    if ($scope.myDictionaryFull) {
-                        dictionary.words = _.map(dictionary.words, function (item) {
-                            return _.extend(item, {name: item.name + ' - ' + item.description});
-                        });
-                    }
                     $scope.myItems = dictionary.words;
                 });
             }
@@ -289,8 +283,10 @@ angular.module('indigoeln')
             }
             formUtils.doVertical(tAttrs, tElement);
             var select = tElement.find('ui-select-choices');
-            select.append('<span ng-bind-html="item.' + tAttrs.myItemProp +
-                ' | highlight: $select.search"></span>');
+            var htmlContent = _.reduce(tAttrs.myItemProp.split(','), function (memo, num) {
+                return memo + (memo.length > 0 ? " + ' - ' + " : '') + 'item.' + num;
+            }, '');
+            select.append('<span ng-bind-html="' + htmlContent + ' | highlight: $select.search"></span>');
             var repeat = select.attr('repeat');
             select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.myOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
@@ -301,16 +297,26 @@ angular.module('indigoeln')
                 }
             };
         },
-        template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-xs-10">' +
-        '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
-        '<ui-select-match placeholder="{{myPlaceHolder}}" > {{ $select.selected.name || $select.selected[myItemProp]}}</ui-select-match>' +
-        '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
-        '</ui-select-choices>' +
-        '</ui-select>' +
-        '</div>' +
-        '</div>'
+        template: function (tElement, tAttrs) {
+            var itemProp = tAttrs.myItemProp || 'name';
+            var content = _.chain(itemProp.split(','))
+                .map(function (prop) {
+                    return '{{ $select.selected.' + prop + '}}';
+                })
+                .reduce(function (memo, num) {
+                    return memo + (memo.length > 0 ? ' ' : '') + num;
+                }, '').value();
+            return '<div class="form-group {{myClasses}}">' +
+                '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
+                '<div class="col-xs-10">' +
+                '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
+                '<ui-select-match placeholder="{{myPlaceHolder}}" >' + content + '</ui-select-match>' +
+                '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
+                '</ui-select-choices>' +
+                '</ui-select>' +
+                '</div>' +
+                '</div>';
+        }
     };
 }).directive('myTwoToggle', function (formUtils) {
     return {
