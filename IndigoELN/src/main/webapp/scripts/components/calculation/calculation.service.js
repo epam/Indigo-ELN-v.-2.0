@@ -66,7 +66,7 @@ angular.module('indigoeln')
         };
 
         var getImageForStructure = function (molfile, type, callback) {
-            $http({
+            return $http({
                 url: 'api/renderer/' + type + '/image',
                 method: 'POST',
                 data: molfile
