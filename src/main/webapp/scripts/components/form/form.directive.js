@@ -304,7 +304,7 @@ angular.module('indigoeln')
                     return '{{ $select.selected.' + prop + '}}';
                 })
                 .reduce(function (memo, num) {
-                    return memo + (memo.length > 0 ? ' ' : '') + num;
+                    return memo + (memo.length > 0 ? ' - ' : '') + num;
                 }, '').value();
             return '<div class="form-group {{myClasses}}">' +
                 '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
