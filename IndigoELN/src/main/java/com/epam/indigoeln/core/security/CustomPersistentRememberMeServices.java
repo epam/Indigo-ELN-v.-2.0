@@ -87,24 +87,25 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
     @Transactional
     public UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
                                               HttpServletResponse response) {
-
-        PersistentToken token = getPersistentToken(cookieTokens);
-        String login = token.getUser().getLogin();
-
-        // Token also matches, so login is valid. Update the token value, keeping the *same* series number.
-        LOGGER.debug("Refreshing persistent login token for user '{}', series '{}'", login, token.getSeries());
-        token.setTokenDate(LocalDate.now());
-        token.setTokenValue(generateTokenData());
-        token.setIpAddress(request.getRemoteAddr());
-        token.setUserAgent(request.getHeader("User-Agent"));
         try {
+            PersistentToken token = getPersistentToken(cookieTokens);
+            String login = token.getUser().getLogin();
+
+            // Token also matches, so login is valid. Update the token value, keeping the *same* series number.
+            LOGGER.debug("Refreshing persistent login token for user '{}', series '{}'", login, token.getSeries());
+            token.setTokenDate(LocalDate.now());
+            token.setTokenValue(generateTokenData());
+            token.setIpAddress(request.getRemoteAddr());
+            token.setUserAgent(request.getHeader("User-Agent"));
+
             persistentTokenRepository.save(token);
             addCookie(token, request, response);
+
+            return getUserDetailsService().loadUserByUsername(login);
         } catch (DataAccessException e) {
             LOGGER.error("Failed to update token: ", e);
             throw new RememberMeAuthenticationException("Auto-login failed due to data access problem", e);
         }
-        return getUserDetailsService().loadUserByUsername(login);
     }
 
     @Override
