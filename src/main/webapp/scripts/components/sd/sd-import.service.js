@@ -1,25 +1,73 @@
 angular.module('indigoeln')
-    .factory('SdImportService', function ($http, $q, $uibModal, Dictionary, AlertModal) {
+    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, CalculationService) {
 
-        var properties = {
-            'stereoisomer': {
-                type: {
-                    dict: 'Stereoisomer Code'
-                },
-                code: 'STEREOISOMER_CODE'
-            }
+        var auxPrefixes = [
+            'COMPOUND_REGISTRATION_'
+        ];
+
+        var getItem = function (list, prop, value) {
+            return _.find(list, function (item) {
+                return item[prop].toUpperCase() === value.toUpperCase();
+            });
         };
 
-        var getWord = function (dicts, dictDescription, wordName) {
+        var getWord = function (dicts, dictName, prop, value) {
             var dict = _.find(dicts, function (dict) {
-                return dict.description === dictDescription;
+                return dict.name === dictName;
             });
             if (dict) {
-                return _.find(dict.words, function (word) {
-                    return word.name === wordName;
-                });
+                return getItem(dict.words, prop, value);
             }
         };
+
+        var properties = {
+            'registrationStatus': {code: 'REGISTRATION_STATUS'},
+            'conversationalBatchNumber': {code: 'CONVERSATIONAL_BATCH_NUMBER'},
+            'virtualCompoundId': {code: 'VIRTUAL_COMPOUND_ID'},
+            'source': {
+                format: function (dicts, value) {
+                    return getWord(dicts, 'Source', 'name', value);
+                },
+                code: 'COMPOUND_SOURCE_CODE'
+            },
+            'sourceDetail': {
+                format: function (dicts, value) {
+                    return getWord(dicts, 'Source Details', 'name', value);
+                },
+                code: 'COMPOUND_SOURCE_DETAIL_CODE'
+            },
+            'stereoisomer': {
+                format: function (dicts, value) {
+                    return getWord(dicts, 'Stereoisomer Code', 'name', value);
+                },
+                code: 'STEREOISOMER_CODE'
+            },
+            'saltCode': {
+                format: function (dicts, value) {
+                    return getItem(AppValues.getSaltCodeValues(), 'regValue', value);
+                },
+                code: 'GLOBAL_SALT_CODE'
+            },
+            'saltEq': {
+                format: function (dicts, value) {
+                    return {
+                        value: parseInt(value),
+                        entered: false
+                    };
+                },
+                code: 'GLOBAL_SALT_EQ'
+            },
+            'structureComments': {code: 'STRUCTURE_COMMENT'},
+            'compoundState': {
+                format: function (dicts, value) {
+                    return getWord(dicts, 'Compound State', 'name', value);
+                },
+                code: 'COMPOUND_STATE'
+            },
+            'precursors': {code: 'PRECURSORS'}
+        };
+
+
 
         var saveMolecule = function (mol) {
             var deferred = $q.defer();
@@ -33,26 +81,29 @@ angular.module('indigoeln')
             return deferred.promise;
         };
 
-        var render = function (mol) {
-            var deferred = $q.defer();
-            $http({
-                url: 'api/renderer/molecule/image',
-                method: 'POST',
-                data: mol
-            }).success(function (result) {
-                deferred.resolve(result);
-            });
-            return deferred.promise;
-        };
-
         var fillProperties = function (sdUnitToImport, itemToImport, dicts) {
             if (sdUnitToImport.properties) {
                 _.each(properties, function (property, name) {
                     var value = sdUnitToImport.properties[property.code];
-                    if (_.isObject(property.type) && property.type.dict) {
-                        value = getWord(dicts, property.type.dict, value);
+                    if (!value) {
+                        value = _.chain(auxPrefixes)
+                            .map(function (auxPrefix) {
+                                return auxPrefix + property.code;
+                            })
+                            .map(function (code) {
+                                return sdUnitToImport.properties[code];
+                            })
+                            .find(function (val) {
+                                return !_.isUndefined(val);
+                            }).
+                            value();
                     }
-                    itemToImport[name] = value;
+                    if (value && _.isFunction(property.format)) {
+                        value = property.format(dicts, value);
+                    }
+                    if (value) {
+                        itemToImport[name] = value;
+                    }
                 });
             }
         };
@@ -63,7 +114,7 @@ angular.module('indigoeln')
             }
             var sdUnitToImport = sdUnitsToImport[i];
             saveMolecule(sdUnitToImport.mol).then(function (structureId) {
-                render(sdUnitToImport.mol).then(function (result) {
+                CalculationService.getImageForStructure(sdUnitToImport.mol, 'molecule', function (result) {
                     var itemToImport = {};
                     itemToImport.structure = itemToImport.structure || {};
                     itemToImport.structure.image = result.image;
@@ -72,11 +123,13 @@ angular.module('indigoeln')
                     itemToImport.structure.structureId = structureId;
 
                     fillProperties(sdUnitToImport, itemToImport, dicts);
-                    addToTable(itemToImport).then(function (batch) {
-                        if (callback && _.isFunction(callback)) {
-                            callback(batch);
-                        }
-                        importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback);
+                    CalculationService.recalculateSalt(itemToImport).then(function () {
+                        addToTable(itemToImport).then(function (batch) {
+                            if (callback && _.isFunction(callback)) {
+                                callback(batch);
+                            }
+                            importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback);
+                        });
                     });
                 });
             });

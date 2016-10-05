@@ -2,17 +2,14 @@ package com.epam.indigoeln.web.rest;
 
 import com.chemistry.enotebook.domain.SDFileInfo;
 import com.epam.indigoeln.IndigoRuntimeException;
-import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.repository.component.ComponentRepository;
+import com.epam.indigoeln.core.service.sd.SDExportItem;
 import com.epam.indigoeln.core.service.sd.SDService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.web.rest.dto.SDEntryDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,16 +36,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/sd")
 public class SDResource {
 
-    private static final String EXPORT_COMPONENT_BATCH = "batch";
-    private static final String EXPORT_COMPONENT_COMPOUND = "compound";
-
     private static final String EXPORT_FILE_NAME = "export.sdf";
 
     @Autowired
     private SDService sdService;
-
-    @Autowired
-    private ComponentRepository componentRepository;
 
     @Autowired
     private UserService userService;
@@ -75,30 +65,10 @@ public class SDResource {
 
     @RequestMapping(value = "/export", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> exportFile(@RequestParam("component") String component, @RequestBody List<String> fullNbkBatchNumbers) throws IOException {
-
-        List<BasicDBObject> sdItems = null;
-        if (EXPORT_COMPONENT_BATCH.equals(component)) {
-            List<Component> components = componentRepository.findBatchSummariesByFullBatchNumbers(fullNbkBatchNumbers);
-            sdItems = components.stream().map(Component::getContent)
-                    .map(c -> (BasicDBList) c.get("batches"))
-                    .flatMap(List::stream)
-                    .map(o -> (BasicDBObject) o)
-                    .filter(b -> fullNbkBatchNumbers.contains(b.getString("fullNbkBatch")))
-                    .collect(Collectors.toList());
-        } else if (EXPORT_COMPONENT_COMPOUND.equals(component)) {
-            List<Component> components = componentRepository.findPreferredCompoundSummariesByFullBatchNumbers(fullNbkBatchNumbers);
-            sdItems = components.stream().map(Component::getContent)
-                    .map(c -> (BasicDBList) c.get("compounds"))
-                    .flatMap(List::stream)
-                    .map(o -> (BasicDBObject) o)
-                    .filter(b -> fullNbkBatchNumbers.contains(b.getString("fullNbkBatch")))
-                    .collect(Collectors.toList());
-        }
-
+    public ResponseEntity<Map> exportFile(@RequestBody List<SDExportItem> items) throws IOException {
         SDFileInfo sdFileInfo;
         try {
-            sdFileInfo = sdService.create(sdItems);
+            sdFileInfo = sdService.create(items);
         } catch (Exception e) {
             throw new IndigoRuntimeException("Error occurred while creating SD file.", e);
         }
