@@ -102,7 +102,7 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
             addCookie(token, request, response);
 
             return getUserDetailsService().loadUserByUsername(login);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to update token: ", e);
             throw new RememberMeAuthenticationException("Auto-login failed due to data access problem", e);
         }
