@@ -12,7 +12,7 @@ angular.module('indigoeln')
                 onShowStructure: '&'
             },
             controller: function ($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                  $log, $rootScope, AlertModal, $stateParams, SdImportService, SdService, $window, EntitiesBrowser,
+                                  $log, $rootScope, AlertModal, $stateParams, SdImportService, SdExportService, $window, EntitiesBrowser,
                                   RegistrationService, Alert, $q, $http, Notebook, ProductBatchSummaryCache,$filter) {
                 var stoichTable;
                 var unbinds = [];
@@ -665,18 +665,14 @@ angular.module('indigoeln')
                 };
 
                 $scope.importSDFile = function () {
-                    SdImportService.importFile(requestNbkBatchNumberAndAddToTable, function (batch) {
-                        $rootScope.$broadcast('product-batch-structure-changed', batch);
-                    });
+                    SdImportService.importFile(requestNbkBatchNumberAndAddToTable);
                 };
 
                 $scope.exportSDFile = function () {
-                    var selectedBatchNumbers = _.chain(getProductBatches()).filter(function (item) {
+                    var selectedBatches = _.filter(getCompounds(), function (item) {
                         return item.select;
-                    }).map(function (batch) {
-                        return batch.fullNbkBatch;
-                    }).value();
-                    SdService.export({component: 'batch'}, selectedBatchNumbers, function (data) {
+                    });
+                    SdExportService.exportItems(selectedBatches).then(function (data) {
                         $window.open('api/sd/download?fileName=' + data.fileName);
                     });
                 };

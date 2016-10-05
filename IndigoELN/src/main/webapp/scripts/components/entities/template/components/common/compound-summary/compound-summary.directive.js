@@ -12,7 +12,7 @@ angular.module('indigoeln')
                 onShowStructure: '&'
             },
             controller: function ($scope, CalculationService, RegistrationUtil,
-                                  $log, $rootScope, AlertModal, $stateParams, SdImportService, SdService, $window,
+                                  $log, $rootScope, AlertModal, $stateParams, SdImportService, SdExportService, $window,
                                   $q, $http, Notebook, EntitiesCache) {
 
                 $scope.model = $scope.model || {};
@@ -183,12 +183,10 @@ angular.module('indigoeln')
                 };
 
                 $scope.exportSDFile = function () {
-                    var selectedBatchNumbers = _.chain(getCompounds()).filter(function (item) {
+                    var selectedBatches = _.filter(getCompounds(), function (item) {
                         return item.select;
-                    }).map(function (batch) {
-                        return batch.fullNbkBatch;
-                    }).value();
-                    SdService.export({component: 'compound'}, selectedBatchNumbers, function (data) {
+                    });
+                    SdExportService.exportItems(selectedBatches).then(function (data) {
                         $window.open('api/sd/download?fileName=' + data.fileName);
                     });
                 };

@@ -17,7 +17,6 @@ import com.chemistry.enotebook.domain.SDFileInfo;
 import com.chemistry.enotebook.utils.sdf.SdUnit;
 import com.chemistry.enotebook.utils.sdf.SdfileIterator;
 import com.chemistry.enotebook.utils.sdf.SdfileIteratorFactory;
-import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,15 +55,15 @@ public class SDService {
         return result;
     }
 
-    public SDFileInfo create(Collection<BasicDBObject> sdItems) throws Exception {
+    public SDFileInfo create(Collection<SDExportItem> items) throws Exception {
         SDFileInfo info = new SDFileInfo();
-        if (sdItems != null && !sdItems.isEmpty()) {
+        if (items != null && !items.isEmpty()) {
             StringBuilder str = new StringBuilder();
-            int size = sdItems.size();
+            int size = items.size();
             int[] fileOffsets = new int[size];
             int i = 0;
-            for (BasicDBObject sdItem : sdItems) {
-                String sdStr = create(sdItem);
+            for (SDExportItem item : items) {
+                String sdStr = create(item);
                 fileOffsets[i] = (i + 1);
                 i++;
                 str.append(sdStr);
@@ -78,12 +77,11 @@ public class SDService {
         }
     }
 
-    public String create(BasicDBObject sdItem) throws Exception {
+    public String create(SDExportItem item) throws Exception {
         SdUnit sDunit;
 
         try {
-            final BasicDBObject structure = (BasicDBObject) sdItem.get("structure");
-            final String molfile = structure.getString("molfile");
+            final String molfile = item.getMolfile();
             if (molfile != null) {
                 // Check if it is not mol format already
                 if (molfile.indexOf("M END") <= 0) {
@@ -96,10 +94,7 @@ public class SDService {
                 throw new Exception("Compound structure is emtpy. Cannot prepare SD.");
             }
 
-            final BasicDBObject stereoisomer = (BasicDBObject) sdItem.get("stereoisomer");
-            if (stereoisomer != null) {
-                sDunit.setValue("STEREOISOMER_CODE", stereoisomer.getString("name"));
-            }
+            item.getProperties().forEach(sDunit::setValue);
 
             return sDunit.toString();
         } catch (Exception e) {
