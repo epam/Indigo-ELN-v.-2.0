@@ -669,7 +669,7 @@ angular.module('indigoeln')
                 };
 
                 $scope.exportSDFile = function () {
-                    var selectedBatches = _.filter(getCompounds(), function (item) {
+                    var selectedBatches = _.filter(getProductBatches(), function (item) {
                         return item.select;
                     });
                     SdExportService.exportItems(selectedBatches).then(function (data) {
