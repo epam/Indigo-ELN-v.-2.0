@@ -10,7 +10,9 @@ angular.module('indigoeln')
             controller: function ($scope, $uibModal, AlertModal) {
                 $scope.model = $scope.model || {};
                 $scope.model.productBatchDetails = {};
-                $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
+                if($scope.model.productBatchSummary){
+                    $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
+                }
                 $scope.detailTable = [];
 
                 $scope.selectControl = {};
