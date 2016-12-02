@@ -23,13 +23,16 @@ module.exports = function (grunt) {
             dist: 'src/main/webapp/dist'
         },
         watch: {
+            options: {
+                spawn: false
+            },
             bower: {
                 files: ['bower.json'],
                 tasks: ['wiredep']
             },
             less: {
-                files: ['src/main/less/**/*.{less}'],
-                tasks: ['less:compileBootstrap']
+                files: ['<%= yeoman.app %>/assets/less/*.less'],
+                tasks: ['less']
             }
         },
         autoprefixer: {
@@ -235,9 +238,17 @@ module.exports = function (grunt) {
             }
         },
         less: {
-            compileBootstrap: {
-                src: 'src/main/less/indigo-bootstrap.less',
-                dest: 'src/main/webapp/assets/styles/indigo-bootstrap.css'
+            components: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        cwd: '.',
+                        src: ['<%= yeoman.app %>/assets/less/*.less', '!<%= yeoman.app %>/assets/less/{boot,var,mix}*.less'],
+                        dest: '<%= yeoman.app %>/assets/styles/',
+                        ext: '.css'
+                    }
+                ]
             }
         },
         babel: {
@@ -275,7 +286,7 @@ module.exports = function (grunt) {
         'wiredep:app',
         'useminPrepare',
         'ngtemplates',
-        'less:compileBootstrap',
+        'less',
         'imagemin',
         'svgmin',
         'concat',

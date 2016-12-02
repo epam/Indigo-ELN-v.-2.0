@@ -1,0 +1,102 @@
+@import "../../bower_components/bootstrap/less/bootstrap.less";
+@import "variables.less";
+
+
+///panel-headingssss
+
+@state-info-bg: @bg-blue-l1;
+@brand-info: @bg-blue-l1;
+@panel-info-text: @bg-dark;
+
+@border-radius-base: 0px;
+@border-radius-large: 0px;
+@border-radius-small: 0px;
+@btn-primary-border: @bg-gray-l1;
+@table-border-color: @bg-white;
+
+@font-size-base: 13px;
+@grid-gutter-width: 15px;
+@panel-body-padding: 10px;
+@font-family-base: 'Roboto', sans-serif;
+
+//@navbar-height: 50px;
+@navbar-default-color: #fff;
+@navbar-default-link-color: #fff;
+@navbar-default-bg: #607d8b;
+@navbar-default-link-hover-color: #4dd0e1;
+@navbar-default-link-active-bg: #4dd0e1;
+
+@form-group-margin-bottom: 5px;
+
+@tooltip-bg: #4dd0e1;
+
+.btn:focus, .btn:active:focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn.active.focus {
+  outline: none;
+  outline-offset: -2px;
+}
+
+.form-control {
+  box-shadow: none;
+  font-weight: 500;
+  border: 1px solid #B2EBF2;
+}
+
+.form-control:focus {
+  border-color: @bg-blue-l1;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
+}
+
+input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focus {
+  outline: 0 auto -webkit-focus-ring-color;
+  outline-offset: 0;
+}
+
+label {
+  font-weight: normal !important;
+  color: #838a8d;
+}
+
+.help-block {
+  color: @bg-blue;
+}
+
+.btn {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.my-checkbox-wrapper {
+  margin-right: 20px;
+  .my-checkbox {
+    background-color: white !important;
+    border-color: #b2ebf2 !important;
+    font-size: 10px;
+    padding: 1px 3px 1px 5px;
+    margin-right: 5px;
+  }
+  label {
+    padding-left: 0;
+  }
+}
+
+table .success td {
+  background-color: @bg-blue !important;
+}
+
+@modal-title-padding: 10px 15px;
+.modal-dialog {
+  .modal-header {
+    background-color: #CFD8DC;
+  }
+  .modal-footer {
+    padding: 10px 15px;
+  }
+}
+
+.pagination {
+  margin: 0;
+}
+
+
+
