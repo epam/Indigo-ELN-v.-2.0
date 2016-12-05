@@ -129,7 +129,7 @@ body {
   animation: none;
 }
 .entities-content {
-  height: calc(-8vh);
+  height: calc(100vh - 108px);
   overflow-y: auto;
 }
 ::-webkit-scrollbar {
