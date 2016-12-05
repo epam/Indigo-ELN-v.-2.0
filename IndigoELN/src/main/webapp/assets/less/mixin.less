@@ -1,9 +1,184 @@
 @import 'variables.less';
 
-@font-face {
-  font-family: FontAwesome;
-  src: url(../fonts/segoeui.ttf);
+//@font-face {
+//  font-family: FontAwesome;
+//  src: url(../fonts/segoeui.ttf);
+//}
+
+.clearfix() {
+  &:before,
+  &:after {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
 }
+
+// Border Radius
+.border-radius(@radius) {
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -khtml-border-radius: @radius;
+  border-radius: @radius;
+}
+
+.border-top-radius(@radius) {
+  border-top-right-radius: @radius;
+  border-top-left-radius: @radius;
+}
+.border-right-radius(@radius) {
+  border-bottom-right-radius: @radius;
+  border-top-right-radius: @radius;
+}
+.border-bottom-radius(@radius) {
+  border-bottom-right-radius: @radius;
+  border-bottom-left-radius: @radius;
+}
+.border-left-radius(@radius) {
+  border-bottom-left-radius: @radius;
+  border-top-left-radius: @radius;
+}
+
+// Placeholder text
+.placeholder(@placeholder-color) {
+  &:-moz-placeholder            {color: @placeholder-color;}
+  &::-moz-placeholder           {color: @placeholder-color;}
+  &:-ms-input-placeholder       {color: @placeholder-color;}
+  &::-webkit-input-placeholder  {color: @placeholder-color;}
+}
+
+.placeholder-size(@placeholder-size) {
+  &:-moz-placeholder            {font-size: @placeholder-size;}
+  &::-moz-placeholder           {font-size: @placeholder-size;}
+  &:-ms-input-placeholder       {font-size: @placeholder-size;}
+  &::-webkit-input-placeholder  {font-size: @placeholder-size;}
+}
+
+// Text overflow
+.text-overflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Drop shadows
+.box-shadow(@shadow) {
+  -webkit-box-shadow: @shadow;
+  box-shadow: @shadow;
+}
+
+// Opacity
+.opacity(@opacity) {
+  opacity: @opacity;
+  -moz-opacity: @opacity;
+  -khtml-opacity: @opacity;
+  @opacity-ie: (@opacity * 100);
+  filter: ~"alpha(opacity=@{opacity-ie})";
+  zoom: 1;
+}
+
+//Display Inline
+.display-inline(){
+  display: inline-block;
+  vertical-align: middle;
+}
+
+//Box Sizing
+.box-sizing(@box-sizing-type) {
+  box-sizing: @box-sizing-type;
+  -moz-box-sizing: @box-sizing-type;
+  -webkit-box-sizing: @box-sizing-type;
+}
+
+//Display Table
+.display-table() {
+  display: table;
+  .h-w(100%, 100%);
+}
+
+.display-cell(){
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.display-flex-justify(){
+  display: flex;
+  display: -webkit-flex;
+  justify-content: space-between;
+  text-align: justify;
+  text-align-last: justify;
+  -webkit-box-align: justify;
+}
+
+//Position
+.position-abs-top-left(@left, @top){
+  left: @left;
+  position: absolute;
+  top: @top;
+}
+
+.position-abs-top-right(@right, @top){
+  position: absolute;
+  top: @top;
+  right: @right;
+}
+
+.position-abs-bottom-left(@left, @bottom){
+  bottom: @bottom;
+  left: @left;
+  position: absolute;
+}
+
+.position-abs-bottom-right(@right, @bottom){
+  bottom: @bottom;
+  position: absolute;
+  right: @right;
+}
+
+.position-fixed-top-left(@left, @top) {
+  left: @left;
+  position: fixed;
+  top: @top;
+}
+
+//parametrs
+.h-w(@height, @width) {
+  height: @height;
+  width: @width;
+}
+
+//Transition
+
+.transition(@transition-style, @transition-time, @transition-function) {
+  -webkit-transition: @transition-style @transition-time @transition-function;
+  transition: @transition-style @transition-time @transition-function;
+}
+
+.transform-center(@l-r, @t-b) {
+  transform: translate(@l-r, @t-b);
+  -webkit-transform: translate(@l-r, @t-b);
+}
+
+//For input group
+.input-gr-addon() {
+  vertical-align: middle;
+  width: 1%;
+  white-space: nowrap;
+}
+
+//For Select custom and file upload
+.opacity-input() {
+  cursor: pointer;
+  .h-w(100%, 100%);
+  .opacity(0);
+  .position-abs-top-left(0, 0);
+}
+
+
+
+
 
 .set-list-item-border(@bg:@bg1) {
   background: @bg;
@@ -21,6 +196,8 @@
   text-align: @ta;
   z-index: 100;
 }
+
+//icons
 
 .set-icon-bg(@bg: @bg-blue, @br: 1px solid @bg1, @br-s: 0, @color: @bg1, @fs: 14px, @lh: 19px, @ht: 19px, @wt: 19px) {
   background: @bg;
@@ -45,3 +222,5 @@
     }
   }
 }
+
+
