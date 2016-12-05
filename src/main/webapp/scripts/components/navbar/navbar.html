@@ -1,91 +1,148 @@
-<a ui-sref="experiment" class="logo-wrapper">
-</a>
-<ul class="head-controls-list">
-    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
-        <em class="icon-header-control-list fa fa-arrow-circle-o-up"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">
-        <em class="icon-header-control-list fa fa-cog"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" uib-dropdown on-toggle="toggled(open)"
-        id="opened-entities-dropdown"
-        uib-dropdown-toggle>
-        <em class="icon-header-control-list fa fa-th-large"></em>
-        <ul class="head-controls-list-submenu my-dropdown-list opened-entities" uib-dropdown-menu
-            aria-labelledby="opened-entities-dropdown">
-            <li class="head-controls-list-submenu__item" ng-click="onCloseAllClick()">
-                <a><strong>Close All</strong></a></li>
-            <hr style="margin-top:0;margin-bottom:0">
-            <li class="head-controls-list-submenu__item" ng-repeat="entity in entities">
-                <a style="position:relative;">
-                    <span class="capitalized" ng-click="onEntityClick(entity)"
-                       ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
-                        {{entity.name}} {{entity.$$title}}&nbsp;
-                        <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
-                            ng-click="onCloseEntityClick(entity, activeTab.tabKey);"
-                            style="position:absolute;top:10px;right:10px;"></em>
-                    </span></a>
-            </li>
-        </ul>
-        <span class="tooltip-icon-header">Opened Entities</span>
-    </li>
-    <li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">
-        <em class="icon-header-control-list fa fa-question-circle"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item" ui-sref="experiment">
-        <em class="icon-header-control-list fa fa-home"></em>
-        <span class="tooltip-icon-header">Home</span>
-    </li>
-    <li class="head-controls-list__item" uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown"
-        uib-dropdown-toggle>
-        <em class="icon-header-control-list fa fa-file-o"></em>
-        <ul class="head-controls-list-submenu my-dropdown-list" uib-dropdown-menu aria-labelledby="new-entity-dropdown"
-            has-any-authority="{{ENTITY_CREATORS}}">
-            <li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}">
-                <a ui-sref="entities.project-new">New Project</a></li>
-            <li class="head-controls-list-submenu__item" has-any-authority="{{NOTEBOOK_CREATORS}}">
-                <a ui-sref="notebook.select-project">New Notebook</a></li>
-            <li class="head-controls-list-submenu__item" has-any-authority="{{EXPERIMENT_CREATORS}}">
-                <a ui-sref="experiment.select-notebook-template">New Experiment</a></li>
-        </ul>
-        <span class="tooltip-icon-header">New Entity</span>
-    </li>
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list fa fa-files-o"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list fa fa-inbox"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list fa fa-folder-open"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list fa fa-floppy-o"></em>
-        <span class="tooltip-icon-header">Fake Tooltip</span>
-    </li>
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list fa fa-print"></em>
-        <span class="tooltip-icon-header">Print</span>
-    </li>
-    <li class="head-controls-list__item" ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">
-        <em class="icon-header-control-list fa fa-search"></em>
-        <span class="tooltip-icon-header"  >Search</span>
-    </li>
-</ul>
-<ul class="head-controls-list head-controls-list_right">
-    <li class="head-controls-list__item">
-        <em class="icon-header-control-list icon-header-control-list_user fa fa-user"><span>{{Principal.getIdentity().login}}</span></em>
-    </li>
-    <a ng-click="logout()">
-        <li class="head-controls-list__item" title="Log out">
-            <em class="icon-header-control-list fa fa-sign-out"></em>
-        </li>
-    </a>
-</ul>
+<nav class="navbar">
+    <div class="uui-toggle-box">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <a class="logo" href="#"></a>
+    <div class="uui-header-tools">
+        <form class="navbar-form">
+            <div class="form-group search-field">
+                <input type="text" class="form-control form-control-search" placeholder="Search">
+            </div>
+        </form>
+        <div class="profile dropdown">
+            <a class="profile-photo dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <img src="https://static.cdn.epam.com/avatar/1eda3986b9f9f37556c2553a1cb96c1a.jpg" alt="" class="full-img">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<a ui-sref="experiment" class="logo-wrapper">-->
+    <!--jgghmgh-->
+<!--</a>-->
+<!--<ul class="head-controls-list">-->
+    <!--<li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">-->
+        <!--<em class="icon-header-control-list fa fa-arrow-circle-o-up"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item head-controls-list__item" toggle-class-child="open-menu">-->
+        <!--<em class="icon-header-control-list fa fa-cog"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item head-controls-list__item_dark-color" uib-dropdown on-toggle="toggled(open)"-->
+        <!--id="opened-entities-dropdown"-->
+        <!--uib-dropdown-toggle>-->
+        <!--<em class="icon-header-control-list fa fa-th-large"></em>-->
+        <!--<ul class="head-controls-list-submenu my-dropdown-list opened-entities" uib-dropdown-menu-->
+            <!--aria-labelledby="opened-entities-dropdown">-->
+            <!--<li class="head-controls-list-submenu__item" ng-click="onCloseAllClick()">-->
+                <!--<a><strong>Close All</strong></a></li>-->
+            <!--<hr style="margin-top:0;margin-bottom:0">-->
+            <!--<li class="head-controls-list-submenu__item" ng-repeat="entity in entities">-->
+                <!--<a style="position:relative;">-->
+                    <!--<span class="capitalized" ng-click="onEntityClick(entity)"-->
+                       <!--ng-class="{'active' : entity.tabKey === activeTab.tabKey}">-->
+                        <!--{{entity.name}} {{entity.$$title}}&nbsp;-->
+                        <!--<em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"-->
+                            <!--ng-click="onCloseEntityClick(entity, activeTab.tabKey);"-->
+                            <!--style="position:absolute;top:10px;right:10px;"></em>-->
+                    <!--</span></a>-->
+            <!--</li>-->
+        <!--</ul>-->
+        <!--<span class="tooltip-icon-header">Opened Entities</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item head-controls-list__item_dark-color" toggle-class-child="open-menu">-->
+        <!--<em class="icon-header-control-list fa fa-question-circle"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item" ui-sref="experiment">-->
+        <!--<em class="icon-header-control-list fa fa-home"></em>-->
+        <!--<span class="tooltip-icon-header">Home</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item" uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown"-->
+        <!--uib-dropdown-toggle>-->
+        <!--<em class="icon-header-control-list fa fa-file-o"></em>-->
+        <!--<ul class="head-controls-list-submenu my-dropdown-list" uib-dropdown-menu aria-labelledby="new-entity-dropdown"-->
+            <!--has-any-authority="{{ENTITY_CREATORS}}">-->
+            <!--<li class="head-controls-list-submenu__item" has-any-authority="{{PROJECT_CREATORS}}">-->
+                <!--<a ui-sref="entities.project-new">New Project</a></li>-->
+            <!--<li class="head-controls-list-submenu__item" has-any-authority="{{NOTEBOOK_CREATORS}}">-->
+                <!--<a ui-sref="notebook.select-project">New Notebook</a></li>-->
+            <!--<li class="head-controls-list-submenu__item" has-any-authority="{{EXPERIMENT_CREATORS}}">-->
+                <!--<a ui-sref="experiment.select-notebook-template">New Experiment</a></li>-->
+        <!--</ul>-->
+        <!--<span class="tooltip-icon-header">New Entity</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list fa fa-files-o"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list fa fa-inbox"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list fa fa-folder-open"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list fa fa-floppy-o"></em>-->
+        <!--<span class="tooltip-icon-header">Fake Tooltip</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list fa fa-print"></em>-->
+        <!--<span class="tooltip-icon-header">Print</span>-->
+    <!--</li>-->
+    <!--<li class="head-controls-list__item" ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">-->
+        <!--<em class="icon-header-control-list fa fa-search"></em>-->
+        <!--<span class="tooltip-icon-header"  >Search</span>-->
+    <!--</li>-->
+<!--</ul>-->
+<!--<ul class="head-controls-list head-controls-list_right">-->
+    <!--<li class="head-controls-list__item">-->
+        <!--<em class="icon-header-control-list icon-header-control-list_user fa fa-user"><span>{{Principal.getIdentity().login}}</span></em>-->
+    <!--</li>-->
+    <!--<a ng-click="logout()">-->
+        <!--<li class="head-controls-list__item" title="Log out">-->
+            <!--<em class="icon-header-control-list fa fa-sign-out"></em>-->
+        <!--</li>-->
+    <!--</a>-->
+<!--</ul>-->
 

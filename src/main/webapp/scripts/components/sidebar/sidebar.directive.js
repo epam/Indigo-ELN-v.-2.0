@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .directive('innerMenuToggleButton', function () {
+    .directive('uuiToggleBox', function () {
     return {
         restrict: 'C',
         link: function (scope, element) {
