@@ -1,0 +1,56 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************TABS*********************/
+
+.nav-tabs {
+
+  > li {
+
+    > a {
+      border-top: 0 none;
+      color: @tabs-link-color;
+      font-family: @tabs-link-family;
+      margin-right: 0;
+      padding: @tabs-link-pad;
+      text-transform: uppercase;
+
+      &:hover, &:focus {
+        background-color: transparent;
+        border-color: transparent;
+        color: @tabs-link-hover-color;
+      }
+      .fa-remove {
+        margin-top: 2px;
+        margin-left: 13px;
+      }
+    }
+
+    &.active {
+      > a {
+        &,
+        &:hover,
+        &:focus {
+          border-top-color: transparent;
+        }
+      }
+    }
+  }
+}
+
+.main-tabs {
+  white-space: nowrap;
+
+  .nav-tabs {
+
+    > li {
+      display: inline-block;
+      float: none;
+    }
+  }
+
+  .mCSB_horizontal.mCSB_inside > .mCSB_container {
+    margin-bottom: 7px;
+  }
+}

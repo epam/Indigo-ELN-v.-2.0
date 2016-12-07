@@ -1,6 +1,8 @@
 @import 'variables.less';
 @import 'mixin.less';
 @import 'helper.less';
+@import 'controls.less';
+@import 'tabs.less';
 
 html {
     height: 100%;
@@ -9,13 +11,20 @@ html {
 body {
     height: 100%;
 }
-//body {
-//    font-family: 'Roboto', sans-serif;
-//}
 
 .main-container {
     padding-top: 60px;
 }
+
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+
 
 .countdown-dialog {
     position: relative;
@@ -204,9 +213,9 @@ body {
     cursor: pointer;
 }
 
-.nav-tabs > li > a {
-    color: gray;
-}
+//.nav-tabs > li > a {
+//    color: gray;
+//}
 
 .structure-editor-modal .modal-dialog {
     width: min-content;

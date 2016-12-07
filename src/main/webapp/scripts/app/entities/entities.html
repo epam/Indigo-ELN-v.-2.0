@@ -1,11 +1,114 @@
-<div my-tab-scroller class="experiment-tabs">
-    <ul class="nav nav-pills">
+<div class="controls-row">
+    <ul class="controls-list">
+        <li toggle-class-child="open-menu">
+            <a>
+                <i class="fa fa-arrow-circle-o-up"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li toggle-class-child="open-menu">
+            <a>
+                <i class="fa fa-cog"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li uib-dropdown on-toggle="toggled(open)" id="opened-entities-dropdown" uib-dropdown-toggle>
+            <a>
+                <i class="fa fa-th-large"></i>
+                <span class="tooltip-icon-header">Opened Entities</span>
+            </a>
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
+                <li ng-click="onCloseAllClick()">
+                    <a>Close All</a>
+                </li>
+                <li ng-repeat="entity in entities">
+                    <a>
+                        <span class="capitalized" ng-click="onEntityClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
+                            {{entity.name}} {{entity.$$title}}&nbsp;
+                            <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
+                            ng-click="onCloseEntityClick(entity, activeTab.tabKey);"
+                            style="position:absolute;top:10px;right:10px;"></em>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li toggle-class-child="open-menu">
+            <a>
+                <i class="fa fa-question-circle"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li class="item-null"><a></a></li>
+        <li uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
+            <a>
+                <i class="fa fa-file-o"></i>
+                <span class="tooltip-icon-header">New Entity</span>
+            </a>
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown" has-any-authority="{{ENTITY_CREATORS}}">
+                <li has-any-authority="{{PROJECT_CREATORS}}">
+                    <a ui-sref="entities.project-new">New Project</a>
+                </li>
+                <li has-any-authority="{{NOTEBOOK_CREATORS}}">
+                    <a ui-sref="notebook.select-project">New Notebook</a>
+                </li>
+                <li has-any-authority="{{EXPERIMENT_CREATORS}}">
+                    <a ui-sref="experiment.select-notebook-template">New Experiment</a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a>
+                <i class="fa fa-files-o"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li>
+            <a>
+                <i class="fa fa-inbox"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li>
+            <a>
+                <i class="fa fa-folder-open"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li>
+            <a>
+                <i class="fa fa-floppy-o"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li>
+            <a>
+                <i class="fa fa-print"></i>
+                <span class="tooltip-icon-header">Print</span>
+            </a>
+        </li>
+        <li ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">
+            <a>
+                <i class="fa fa-search"></i>
+                <span class="tooltip-icon-header"  >Search</span>
+            </a>
+        </li>
+        <li class="item-null"><a></a></li>
+        <li ui-sref="experiment">
+            <a>
+                <i class="fa fa-home"></i>
+                <span class="tooltip-icon-header">Home</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="main-tabs" my-tab-scroller>
+    <ul class="nav nav-tabs">
         <li role="presentation"  ng-class="{'active' : tab.tabKey === activeTab.tabKey}"
             ng-repeat="tab in tabs  track by tab.tabKey" class="experiment-tab">
-            <a class="capitalized" ng-click="$event.stopPropagation(); onTabClick(tab)">
-               {{tab.name}} {{tab.$$title}}<em
-                    class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
-                    ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></em>
+            <a ng-click="$event.stopPropagation(); onTabClick(tab)">
+               {{tab.name}} {{tab.$$title}}
+                <i class="fa fa-remove pull-right clickable" ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></i>
                 <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></i>
             </a>
         </li>

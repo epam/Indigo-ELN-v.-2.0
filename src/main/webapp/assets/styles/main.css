@@ -157,6 +157,101 @@
 .nomarg {
   margin-bottom: 0 !important;
 }
+/******************CONTROLS*********************/
+.controls-row {
+  background-color: #ededed;
+}
+.controls-list {
+  border-bottom: 1px solid #d1d0d0;
+}
+.controls-list:before,
+.controls-list:after {
+  content: " ";
+  display: table;
+}
+.controls-list:after {
+  clear: both;
+}
+.controls-list > li {
+  float: left;
+  position: relative;
+}
+.controls-list > li > a {
+  color: #7d7d7d;
+  display: block;
+  font-size: 20px;
+  height: 39px;
+  width: 44px;
+  line-height: 39px;
+  text-align: center;
+  -webkit-transition: all 0.2s linear;
+  transition: all 0.2s linear;
+}
+.controls-list > li > a:hover,
+.controls-list > li > a:focus {
+  background-color: #7d7d7d;
+  color: #fff;
+}
+.controls-list > li > a:hover .tooltip-icon-header,
+.controls-list > li > a:focus .tooltip-icon-header {
+  display: block;
+}
+.controls-list > li.item-null a:hover,
+.controls-list > li.item-null a:focus {
+  background-color: transparent;
+}
+.controls-list > li + li {
+  border-left: 1px solid #d1d0d0;
+}
+.controls-list > li:last-child {
+  border-right: 1px solid #d1d0d0;
+}
+.tooltip-icon-header {
+  color: #fff;
+  font: 14px 'Source Sans Pro Semibold', sans-serif;
+  display: none;
+  left: 50%;
+  position: absolute;
+  top: -24px;
+  transform: translate(-50%, 0);
+  -webkit-transform: translate(-50%, 0);
+  white-space: nowrap;
+  z-index: 1000;
+}
+/******************TABS*********************/
+.nav-tabs > li > a {
+  border-top: 0 none;
+  color: #616161;
+  font-family: 'Oswald Regular', sans-serif;
+  margin-right: 0;
+  padding: 14px 15px 13px;
+  text-transform: uppercase;
+}
+.nav-tabs > li > a:hover,
+.nav-tabs > li > a:focus {
+  background-color: transparent;
+  border-color: transparent transparent transparent #d1d0d0;
+  color: #3f51b5;
+}
+.nav-tabs > li > a .fa-remove {
+  margin-top: 2px;
+  margin-left: 13px;
+}
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  border-top-color: transparent;
+}
+.main-tabs {
+  white-space: nowrap;
+}
+.main-tabs .nav-tabs > li {
+  display: inline-block;
+  float: none;
+}
+.main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
+  margin-bottom: 7px;
+}
 html {
   height: 100%;
 }
@@ -165,6 +260,11 @@ body {
 }
 .main-container {
   padding-top: 60px;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 .countdown-dialog {
   position: relative;
@@ -321,9 +421,6 @@ body {
 .carousel,
 .panel-title a {
   cursor: pointer;
-}
-.nav-tabs > li > a {
-  color: gray;
 }
 .structure-editor-modal .modal-dialog {
   width: min-content;

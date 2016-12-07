@@ -2,238 +2,99 @@
 @import 'mixin.less';
 @import 'helper.less';
 
-@font-face {
-  font-family: segoeui;
-  src: url(../fonts/segoeui.ttf);
+/******************SIDEBAR*********************/
+
+.main-container {
+  #sidebar-wrapper, .uui-side-bar {
+    background-color: @sidebar-bg;
+    .h-w(100%, @sidebar-width);
+    .position-fixed-top-left(0, 60px);
+  }
 }
 
-/****sitebar landing-page****/
+.sidebar-menu {
 
-.uui-side-bar {
-  background-color: @darker-gray;
-  .h-w(100%, 260px);
-  .position-fixed-top-left(0, 60px);
+  > li {
+    .box-shadow(inset 0 -1px #3d3d3d);
 
+    a {
+      color: @sidebar-link-color;
+      display: block;
+      letter-spacing: .15px;
+      padding: @sidebar-link-pad;
+
+      &:hover, &:focus {
+        color: @sidebar-link-hover-color;
+        text-decoration: none;
+      }
+
+      .arrow {
+        float: right;
+        font-size: 12px;
+        margin: 6px 0 0;
+        min-width: 0;
+      }
+
+      i {
+        font-size: @sidebar-link-first-icon-size;
+        margin-right: 6px;
+        min-width: @sidebar-link-first-icon-width;
+      }
+    }
+
+    > a {
+      color: @sidebar-link-first-color;
+      font: @sidebar-link-first-size @sidebar-link-first-family;
+      text-transform: uppercase;
+
+      &:hover, &:focus {
+        background-color: @sidebar-link-first-hover-bg;
+      }
+    }
+
+    .sub-menu {
+
+      li {
+        a {
+          font: @sidebar-link-size @sidebar-link-family;
+          padding-left: 52px;
+        }
+
+        > ul {
+
+          > li {
+
+            a {
+              padding-left: 67px;
+            }
+
+            > ul {
+
+              > li a {
+                padding-left: 82px;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    &.open {
+      background-color: @sidebar-item-open-bg;
+      box-shadow: none;
+    }
+  }
 }
 
+//Custom sidebar scroll styles
 
+.wrapper-list-experiment {
+  height: 100%;
 
-
-
-
-
-//.main-container {
-//  .inner-menu-toggle-button {
-//    background: @bg4;
-//    right: 7px;
-//    position: absolute;
-//    top: 7px;
-//    transition: right .3s ease-out;
-//    z-index: 500;
-//    &__btn-icon {
-//      .set-icon-bg(@bg: transparent,@br:none, @br-s: 0, @color: @bg3, @fs: 17px, @lh: 26px, @ht: inherit, @wt: 26px);
-//      box-sizing: content-box;
-//      vertical-align: inherit;
-//      transition: all .5s ease-out;
-//    }
-//  }
-//  &.hide-menu {
-//    .inner-menu-toggle-button {
-//      &__btn-icon {
-//        transform: rotate(-180deg);
-//      }
-//    }
-//  }
-//}
-//
-//.main-container {
-//  .unit-navigation-page {
-//    ul {
-//      list-style-type: none;
-//      padding: 0;
-//      li {
-//        cursor: pointer;
-//        &:last-child {
-//          border-bottom: none !important;
-//        }
-//        span {
-//          vertical-align: middle;
-//          font: 14px/34px segoeui;
-//        }
-//      }
-//    }
-//  }
-//  &__sidebar {
-//    padding-top: 40px;
-//    transition: left 0.5s;
-//    width: 220px;
-//  }
-//}
-//
-//#sidebar-wrapper {
-//  margin-left: inherit;
-//  left: -210px;
-//  background: @bg3;
-//}
-//
-//#page-wrapper {
-//  &.open {
-//    #sidebar-wrapper {
-//
-//      left: 0;
-//    }
-//  }
-//}
-
-//.unit-navigation-page {
-//  .level-one {
-//    margin: 0;
-//    border-bottom: 1px solid @br1;
-//    > li {
-//      .set-item-menu(@bg:@bg9, @color:@link-color1, @ta:center);
-//      &:first-child {
-//        border-bottom: none;
-//      }
-//      span {
-//        user-select: none;
-//        -webkit-user-select: none;
-//      }
-//      .level-two {
-//        background: @bg3;
-//        > li {
-//          .set-item-menu(@bg:@bg3, @link-color2);
-//          border-bottom: 1px solid @br1;
-//          .type-of-experiment {
-//            padding-left: 24px;
-//            display: block;
-//            &:hover {
-//              background: darken(@bg3, 10%);
-//            }
-//            &:active, &.active {
-//              background: @bg11;
-//            }
-//          }
-//          .level-three {
-//            background: @bg4;
-//            padding-left: 29px;
-//            position: relative;
-//            &:before {
-//              .set-list-item-border(@bg:@bg11);
-//              height: ~"calc(100% - 36px)";
-//              left: 38px;
-//              top: 28px;
-//              width: 1px;
-//            }
-//            > li {
-//              .set-item-menu(@bg:transparent, @link-color2);
-//              span {
-//                padding-left: 0;
-//              }
-//              .level-four {
-//                > li {
-//                  span {
-//                    &:hover {
-//                      text-decoration: underline;
-//                    }
-//                    &.activ, &:active {
-//                      color: @bg11;
-//                      text-decoration: underline;
-//                    }
-//                  }
-//                }
-//              }
-//              ul {
-//                padding-left: 17px;
-//                &.level-four {
-//                  position: relative;
-//                  &:before {
-//                    .set-list-item-border(@bg:@bg10);
-//                    height: ~"calc(100% - 42px)";
-//                    left: 26px;
-//                    top: 25px;
-//                    width: 1px;
-//                    z-index: 200;
-//                  }
-//                  li {
-//                    .set-item-menu(@bg:@bg4, @link-color2);
-//                    text-align: left;
-//                    &:after {
-//                      .set-list-item-border(@bg11);
-//                      height: 1px;
-//                      left: -8px;
-//                      top: 19px;
-//                      width: 6px;
-//                    }
-//                    .fa {
-//                      color: @bg10;
-//                    }
-//                    span {
-//                      &:after {
-//                        content: "";
-//                        color: #4dd0e1;
-//                        font-family: fontawesome;
-//                      }
-//                    }
-//                    .icon-bg-round {
-//                      background: @bg10;
-//                    }
-//                    .level-five {
-//                      li {
-//                        &:hover {
-//                          .experiment-status, span {
-//                            text-decoration: underline;
-//                          }
-//                          .experiment-status {
-//                            text-decoration: none;
-//                            color: darken(@bg10, 30%);
-//                          }
-//                        }
-//                        &.activ, &:active {
-//                          span, .icon-bg-round {
-//                            background: @bg11;
-//                            color: @bg11;
-//                            text-decoration: underline;
-//                          }
-//                          span {
-//                            background: inherit;
-//                          }
-//                        }
-//                        &:after {
-//                          .set-list-item-border(@bg:@bg10);
-//                        }
-//                      }
-//                      &:before {
-//                        .set-list-item-border(@bg:@bg10);
-//                        display: none;
-//                      }
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }
-//}
-//
-//.hide-menu {
-//  .inner-menu-toggle-button {
-//    transition: right .3s ease-out;
-//  }
-//  .wrapper-list-experiment {
-//    margin-right: 50px;
-//    transition: right .3s ease-out;
-//  }
-//}
-//
-//.open .wrapper-list-experiment {
-//  overflow-x: visible;
-//  overflow-y: auto;
-//  height: ~"calc(100% - 17px)";
-//}
-//
-//.table-list__item {
-//  border: none !important;
-//}
+  &.my-scroller-axis-y .mCSB_inside>.mCSB_container {
+    margin-right: 0;
+  }
+  .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar {
+    background-color: transparent !important;
+  }
+}

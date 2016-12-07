@@ -1,37 +1,27 @@
-<!--<div class="inner-menu-toggle-button">-->
-    <!--<em class="inner-menu-toggle-button__btn-icon fa fa-chevron-left"></em>-->
-<!--</div>-->
 <div class="wrapper-list-experiment" my-scroller="y" my-scroller-theme="light">
-    <ul class="level-one animated">
-        <li ng-click="toggleBookmarksProjects(myBookmarks)"><span>My Bookmarks</span>
-            <ul class="level-two animated" ng-if="myBookmarks.projects.length">
+    <ul class="sidebar-menu animated">
+        <li class="open">
+            <a ng-click="toggleBookmarksProjects(myBookmarks)">
+                <i class="fa fa-angle-down arrow"></i>
+                <i class="fa fa-bookmark"></i>
+                <span>My Bookmarks</span>
+            </a>
+            <ul class="sub-menu animated" ng-if="myBookmarks.projects.length">
                 <li ng-repeat="project in myBookmarks.projects track by $index"
                     ng-click="toggleBookmarksNotebooks(project); $event.stopPropagation();"
                     ng-class="{'activ': project.fullId == activeMenuItem}">
-                <span class="type-of-experiment">
-                    {{project.name}}</span>
-                    <ul class="level-three animated" ng-if="project.children.length && project.isOpen">
+                    <a>{{project.name}}</a>
+                    <ul class="sub-menu animated" ng-if="project.children.length && project.isOpen">
                         <li class=""></li>
                         <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleBookmarksExperiments(notebook, project); $event.stopPropagation();"
                             ng-class="{'activ': notebook.fullId == activeMenuItem}">
-                            <em class="icon-bg-round fa"
-                                ng-class="{'fa-plus':!notebook.isOpen,'fa-minus':notebook.isOpen}"></em>
-                            <span>{{notebook.name}}</span>
-                            <ul class="level-four animated" ng-if="notebook.children.length && notebook.isOpen">
+                            <a>{{notebook.name}}</a>
+                            <ul class="sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-repeat="experiment in notebook.children track by $index"
                                     ng-class="{'activ': experiment.fullId == activeMenuItem}"
                                     ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
-                                    <em class="icon-bg-round"></em>
-                                    <span>{{experiment.name}}</span>
-                                    <em class="experiment-status"
-                                        ng-class="{'fa fa-key': experiment.status == 'Completed',
-                                                      'fa fa-check': experiment.status == 'Signing',
-                                                      'fa fa-pencil-square-o': experiment.status == 'Signed',
-                                                      'fa fa-pencil': experiment.status == 'Submitted',
-                                                      'fa fa-archive': experiment.status == 'Archived',
-                                                      'fa fa-times': experiment.status == 'Submit_Fail',
-                                                      'fa fa-circle-o': experiment.status == 'Open'}"></em>
+                                    <a>{{experiment.name}}</a>
                                 </li>
                             </ul>
                         </li>
@@ -39,34 +29,27 @@
                 </li>
             </ul>
         </li>
-    </ul>
-    <ul class="level-one animated" has-authority="{{CONTENT_EDITOR}}">
-        <li ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();"><span>All Projects</span>
-            <ul class="level-two animated" ng-if="allProjects.projects.length">
+        <li has-authority="{{CONTENT_EDITOR}}">
+            <a ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();">
+                <i class="fa fa-angle-down arrow"></i>
+                <i class="fa fa-sitemap"></i>
+                <span>All Projects</span>
+            </a>
+            <ul class="sub-menu animated" ng-if="allProjects.projects.length">
                 <li ng-repeat="project in allProjects.projects track by $index"
                     ng-click="toggleMyprojectsNotebooks(project, true); $event.stopPropagation();"
                     ng-class="{'activ': project.fullId == activeMenuItem}">
-                    <span class="type-of-experiment">{{project.name}}</span>
-                    <ul class="level-three animated" ng-if="project.children.length && project.isOpen">
+                    <a class="type-of-experiment">{{project.name}}</a>
+                    <ul class="sub-menu animated" ng-if="project.children.length && project.isOpen">
                         <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleMyprojectsExperiments(notebook, project, true); $event.stopPropagation();"
                             ng-class="{'activ': notebook.fullId == activeMenuItem}">
-                            <em class="icon-bg-round"></em>
-                            <span>{{notebook.name}}</span>
-                            <ul class="level-four animated" ng-if="notebook.children.length && notebook.isOpen">
+                            <a>{{notebook.name}}</a>
+                            <ul class="sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-repeat="experiment in notebook.children track by $index"
                                     ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
                                     ng-class="{'activ': experiment.fullId == activeMenuItem}">
-                                    <em class="icon-bg-round"></em>
-                                    <span>{{experiment.name}}</span>
-                                    <em class="experiment-status"
-                                        ng-class="{'fa fa-key': experiment.status == 'Completed',
-                                                      'fa fa-pencil': experiment.status == 'Submitted',
-                                                      'fa fa-check': experiment.status == 'Signing',
-                                                      'fa fa-pencil-square-o': experiment.status == 'Signed',
-                                                      'fa fa-archive': experiment.status == 'Archived',
-                                                      'fa fa-times': experiment.status == 'Submit_Fail',
-                                                      'fa fa-circle-o': experiment.status == 'Open'}"></em>
+                                    <a>{{experiment.name}}</a>
                                 </li>
                             </ul>
                         </li>
@@ -74,25 +57,28 @@
                 </li>
             </ul>
         </li>
-    </ul>
-    <ul class="level-one animated" has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
-        <li ng-click="toggleAdministration()"><span>Administration</span>
-            <ul class="level-two animated" ng-if="adminToggled">
+        <li has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
+            <a ng-click="toggleAdministration()">
+                <i class="fa fa-angle-down arrow"></i>
+                <i class="fa fa-cogs"></i>
+                <span>Administration</span>
+            </a>
+            <ul class="sub-menu animated" ng-if="adminToggled">
                 <li has-authority="{{USER_EDITOR}}" ng-class="{'activ': $state.includes('entities.user-management')}"
                     ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
-                    <span class="type-of-experiment ">Users</span>
+                    <a class="type-of-experiment ">Users</a>
                 </li>
                 <li has-authority="{{ROLE_EDITOR}}" ng-class="{'activ': $state.includes('entities.role-management')}"
                     ng-click="toggleAuthorities(); $event.stopPropagation();">
-                    <span class="type-of-experiment">Roles</span>
+                    <a class="type-of-experiment">Roles</a>
                 </li>
                 <li has-authority="{{TEMPLATE_EDITOR}}" ng-class="{'activ': $state.includes('entities.template')}"
                     ng-click="toggleTemplates(); $event.stopPropagation();">
-                    <span class="type-of-experiment">Templates</span>
+                    <a class="type-of-experiment">Templates</a>
                 </li>
                 <li has-authority="{{DICTIONARY_EDITOR}}" ng-class="{'activ': $state.includes('entities.dictionary-management')}"
                     ng-click="toggleDictionaries(); $event.stopPropagation();">
-                    <span class="type-of-experiment">Dictionaries</span>
+                    <a class="type-of-experiment">Dictionaries</a>
                 </li>
             </ul>
         </li>
