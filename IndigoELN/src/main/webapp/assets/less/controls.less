@@ -1,0 +1,59 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************CONTROLS*********************/
+
+.controls-row {
+  background-color: @controls-row-bg;
+}
+
+.controls-list {
+  border-bottom: @controls-list-border;
+  .clearfix();
+
+  > li {
+    float: left;
+    position: relative;
+
+    > a {
+      color: @controls-list-item-color;
+      display: block;
+      font-size: @controls-list-item-size;
+      .h-w(@controls-list-item-height, @controls-list-item-width);
+      line-height: @controls-list-item-height;
+      text-align: center;
+      .transition(all, 0.2s, linear);
+
+      &:hover, &:focus {
+        background-color: @controls-list-item-hover-bg;
+        color: @controls-list-item-hover-color;
+
+        .tooltip-icon-header {
+          display: block;
+        }
+      }
+    }
+    &.item-null {
+      a:hover, a:focus {
+        background-color: transparent;
+      }
+    }
+    + li {
+      border-left: @controls-list-border;
+    }
+    &:last-child {
+      border-right: @controls-list-border;
+    }
+  }
+}
+
+.tooltip-icon-header  {
+  color: @tooltip-color;
+  font: @tooltip-size @tooltip-family;
+  display: none;
+  .position-abs-top-left(50%, -24px);
+  .transform-center(-50%, 0);
+  white-space: nowrap;
+  z-index: 1000;
+}

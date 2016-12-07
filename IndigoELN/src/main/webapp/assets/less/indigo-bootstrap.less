@@ -2,7 +2,7 @@
 @import "variables.less";
 @import "mixin.less";
 
-@body-bg:                                 @gray-lighter !important;
+@body-bg:                                 @white !important;
 @font-family-base:                        'Source Sans Pro Regular',Arial,sans-serif !important;
 @text-color:                              @gray !important;
 
@@ -18,6 +18,8 @@
 @input-border:                            @gray;
 
 
+
+
 ///panel-headingssss
 
 @state-info-bg: @bg-blue-l1;
@@ -30,17 +32,10 @@
 @btn-primary-border: @bg-gray-l1;
 @table-border-color: @bg-white;
 
-//@font-size-base: 13px;
 @grid-gutter-width: 15px;
 @panel-body-padding: 10px;
 
-
-//@navbar-height: 50px;
-//@navbar-default-color: #fff;
-//@navbar-default-link-color: #fff;
-//@navbar-default-bg: #607d8b;
-//@navbar-default-link-hover-color: #4dd0e1;
-//@navbar-default-link-active-bg: #4dd0e1;
+@nav-tabs-active-link-hover-color:      @brand2;
 
 @form-group-margin-bottom: 5px;
 
@@ -53,17 +48,14 @@
 
 .form-control {
   box-shadow: none;
-  font-weight: 500;
-  //border: 1px solid #B2EBF2;
   padding-left: 10px;
   padding-right: 10px;
   outline: none;
-}
 
-.form-control:focus {
-  border-color: @bg-blue-l1;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6);
+  &:focus {
+    border-color: @bg-blue-l1;
+    .box-shadow(inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 2px rgba(102, 175, 233, 0.6));
+  }
 }
 
 input[type="file"]:focus, input[type="radio"]:focus, input[type="checkbox"]:focus {
@@ -78,6 +70,15 @@ label {
 
 .help-block {
   color: @bg-blue;
+}
+
+.dropdown-menu {
+  box-shadow: none;
+  padding: 0;
+
+  > li a {
+    padding: 5px 12px 7px 12px;
+  }
 }
 
 //.btn {
@@ -117,10 +118,3 @@ table .success td {
   margin: 0;
 }
 
-
-
-
-.dropdown-menu  {
-  box-shadow: none;
-  padding: 0;
-}
