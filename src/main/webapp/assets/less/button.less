@@ -1,0 +1,27 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************BUTTONS*********************/
+
+.btn {
+  font-family: @btn-family;
+  padding: @btn-pad;
+  text-transform: uppercase;
+
+  &-small {
+    font-size: @btn-small-size;
+    padding: @btn-small-pad;
+  }
+
+  &-default {
+    border-color: @btn-default-border-color;
+  }
+
+  &-info {
+
+    &:focus {
+      border-color: @btn-info-focus-border-color;
+    }
+  }
+}
