@@ -169,7 +169,7 @@
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
   background-color: transparent;
-  border-color: transparent transparent transparent #d1d0d0;
+  border-color: transparent;
   color: #3f51b5;
 }
 .nav-tabs > li > a .fa-remove {

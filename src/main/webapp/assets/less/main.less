@@ -23,7 +23,18 @@ ul {
 }
 
 
+#page-wrapper {
+    padding-left: 0;
+}
 
+#page-wrapper.open #sidebar-wrapper {
+    left: 0;
+    margin-left: 0;
+}
+
+#page-wrapper, #sidebar-wrapper {
+    .transition(all, 0.3s, linear);
+}
 
 
 .countdown-dialog {
