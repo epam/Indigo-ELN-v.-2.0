@@ -230,7 +230,7 @@
 .nav-tabs > li > a:hover,
 .nav-tabs > li > a:focus {
   background-color: transparent;
-  border-color: transparent transparent transparent #d1d0d0;
+  border-color: transparent;
   color: #3f51b5;
 }
 .nav-tabs > li > a .fa-remove {
@@ -265,6 +265,18 @@ ul {
   list-style: none;
   margin: 0;
   padding: 0;
+}
+#page-wrapper {
+  padding-left: 0;
+}
+#page-wrapper.open #sidebar-wrapper {
+  left: 0;
+  margin-left: 0;
+}
+#page-wrapper,
+#sidebar-wrapper {
+  -webkit-transition: all 0.3s linear;
+  transition: all 0.3s linear;
 }
 .countdown-dialog {
   position: relative;
