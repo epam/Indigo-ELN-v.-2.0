@@ -252,6 +252,22 @@
 .main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
   margin-bottom: 7px;
 }
+/******************BUTTONS*********************/
+.btn {
+  font-family: 'Oswald Regular', sans-serif;
+  padding: 7px 18px;
+  text-transform: uppercase;
+}
+.btn-small {
+  font-size: 12px;
+  padding: 2px 12px;
+}
+.btn-default {
+  border-color: #d1d0d0;
+}
+.btn-info:focus {
+  border-color: #25a4b8;
+}
 html {
   height: 100%;
 }
