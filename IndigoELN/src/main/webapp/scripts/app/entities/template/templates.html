@@ -5,8 +5,8 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-4">
-                <button class="btn btn-info" ui-sref="entities.template-new">
-                    <span class="glyphicon glyphicon-flash"></span> <span>Create a new Template</span>
+                <button class="btn btn-primary btn-small" ui-sref="entities.template-new">
+                    <span class="glyphicon glyphicon-plus"></span> <span>Create a new Template</span>
                 </button>
             </div>
         </div>
@@ -32,18 +32,18 @@
             <td>
                 <button type="submit"
                         ui-sref="entities.template-detail({id:template.id})"
-                        class="btn btn-info btn-sm">
+                        class="btn btn-info btn-small">
                     <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View</span>
                 </button>
                 <button type="submit"
                         ui-sref="entities.template-edit({id:template.id})"
-                        class="btn btn-info btn-sm">
+                        class="btn btn-info btn-small">
                     <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
                 </button>
                 <button type="submit"
                         ui-sref="entities.template.delete({id:template.id})"
-                        class="btn btn-danger btn-sm">
-                    <span class="glyphicon glyphicon-remove-circle"></span>&nbsp;<span> Delete</span>
+                        class="btn btn-info btn-small">
+                    <span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete</span>
                 </button>
             </td>
         </tr>

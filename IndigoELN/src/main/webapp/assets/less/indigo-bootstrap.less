@@ -24,11 +24,20 @@
 @btn-info-border:                         @btn-info-bg;
 
 
+@btn-primary-color: @white ;
+@btn-primary-bg : @brand2;
+@btn-primary-border : @brand2;
+
+@btn-default-color: @gray ;
+@btn-default-bg : @brand7;
+@btn-default-border : @brand7;
 
 
-///panel-headingssss
 
-@state-info-bg: @bg-blue-l1;
+
+///panel-headings
+
+@state-info-bg: @white;
 @brand-info: @bg-blue-l1;
 @panel-info-text: @bg-dark;
 
@@ -113,7 +122,14 @@ table .success td {
 @modal-title-padding: 10px 15px;
 .modal-dialog {
   .modal-header {
-    background-color: #CFD8DC;
+    //background-color: #CFD8DC;
+
+    .modal-title{
+      font-size: 16pt;
+      font-family: 'Oswald Regular', sans-serif;
+      color: #616161;
+      text-transform: uppercase;
+    }
   }
   .modal-footer {
     padding: 10px 15px;
@@ -122,5 +138,14 @@ table .success td {
 
 .pagination {
   margin: 0;
+}
+
+.panel.panel-info{
+  .panel-heading{
+    font-size: 16pt;
+    font-family: 'Oswald Regular', sans-serif;
+    color: #616161;
+    text-transform: uppercase;
+  }
 }
 

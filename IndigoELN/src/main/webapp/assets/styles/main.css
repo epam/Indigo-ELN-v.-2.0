@@ -85,6 +85,9 @@
 .up {
   text-transform: uppercase;
 }
+.top-3 {
+  top: 3px;
+}
 .m-auto {
   margin: 0 auto;
 }
@@ -263,7 +266,10 @@
   padding: 2px 12px;
 }
 .btn-default {
-  border-color: #d1d0d0;
+  border-color: #f2f2f2;
+}
+.btn-primary {
+  border-color: #3f51b5;
 }
 .btn-info:focus {
   border-color: #25a4b8;
@@ -273,6 +279,7 @@ html {
 }
 body {
   height: 100%;
+  overflow-y: hidden;
 }
 .main-container {
   padding-top: 60px;
@@ -422,8 +429,9 @@ ul {
   animation: none;
 }
 .entities-content {
-  height: calc(100vh - 108px);
+  height: calc(100vh - 155px);
   overflow-y: auto;
+  padding-top: 17px;
 }
 ::-webkit-scrollbar {
   width: 6px;
@@ -927,6 +935,9 @@ html {
 }
 .mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonRight {
   background-position: -100px -56px;
+}
+.main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
+  margin-bottom: 0px;
 }
 .components-holder-empty {
   /*content: 'You can drag & drop components here.';*/

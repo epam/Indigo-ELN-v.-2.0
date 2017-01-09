@@ -2,10 +2,28 @@ angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
                                                 $location, $state, Principal, EntitiesCache, AlertModal, Experiment, Notebook, Project, DialogService) {
 
-        var userId = Principal.getIdentity().id;
+
+
 
 
         var init = function () {
+
+            $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
+            $scope.PROJECT_CREATOR = 'PROJECT_CREATOR';
+            $scope.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
+            $scope.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
+            $scope.GLOBAL_SEARCH = 'GLOBAL_SEARCH';
+            $scope.PROJECT_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR].join(',');
+            $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
+            $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
+            $scope.ENTITY_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR, $scope.NOTEBOOK_CREATOR, $scope.EXPERIMENT_CREATOR].join(',');
+
+            $scope.Principal = Principal;
+
+            var userId =  Principal.getIdentity().id;
+            $scope.entities = EntitiesBrowser.tabs[userId];
+
+
             $scope.tabs = EntitiesBrowser.tabs[userId];
             $scope.activeTab = EntitiesBrowser.activeTab;
 

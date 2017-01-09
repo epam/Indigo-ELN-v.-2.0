@@ -85,6 +85,9 @@
 .up {
   text-transform: uppercase;
 }
+.top-3 {
+  top: 3px;
+}
 .m-auto {
   margin: 0 auto;
 }
@@ -168,7 +171,10 @@
   padding: 2px 12px;
 }
 .btn-default {
-  border-color: #d1d0d0;
+  border-color: #f2f2f2;
+}
+.btn-primary {
+  border-color: #3f51b5;
 }
 .btn-info:focus {
   border-color: #25a4b8;

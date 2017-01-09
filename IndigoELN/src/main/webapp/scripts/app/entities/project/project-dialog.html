@@ -1,8 +1,8 @@
 <div class="panel panel-info projects" ng-class="{'project-create': project.id==null}"
      cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-heading" ng-show="newProject">
-        <span>New Project</span>
-    </div>
+    <!--<div class="panel-heading" ng-show="newProject">-->
+        <!--<span>New Project</span>-->
+    <!--</div>-->
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
             <form id="createProjectForm" name="createProjectForm" role="form" novalidate
                   class="form-horizontal" autocomplete="off">
@@ -24,19 +24,19 @@
                         <button type="submit"
                                 ui-sref="entities.project-new.permissions()"
                                 ng-if="!project.id"
-                                class="btn btn-info "
+                                class="btn btn-default btn-small "
                                 ng-disabled="!isEditAllowed">
                             <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                         </button>
                         <button type="submit"
                                 ui-sref="entities.project-detail.permissions()"
                                 ng-if="project.id"
-                                class="btn btn-info "
+                                class="btn btn-default btn-small"
                                 ng-disabled="!isEditAllowed">
                             <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                         </button>
-                        <button type="button" class="btn btn-info" ng-click="isCollapsed = !isCollapsed">
-                            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
+                        <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
+                            <span class="glyphicon glyphicon-eye-open "></span>&nbsp;<span> View Members</span>
                         </button>
                         <div uib-collapse="isCollapsed">
                             <hr>
@@ -76,7 +76,7 @@
             </button>
             <button type="submit" ng-click="save()" form="createProjectForm"
                     ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving"
-                    class="btn btn-info">Save
+                    class="btn btn-primary">Save
             </button>
             <button type="button" class="btn btn-default" onclick="window.history.back()">
                 <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
