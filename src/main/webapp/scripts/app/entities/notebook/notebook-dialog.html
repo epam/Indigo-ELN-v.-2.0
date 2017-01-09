@@ -1,8 +1,8 @@
 <div class="panel panel-info notebooks" ng-class="{'notebook-create': !notebook.id}"
      cg-busy="{promise:loading, minDuration:700}">
-    <div class="panel-heading" ng-show="newNotebook">
-        <span>New Notebook</span>
-    </div>
+    <!--<div class="panel-heading" ng-show="newNotebook">-->
+        <!--<span>New Notebook</span>-->
+    <!--</div>-->
     <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
         <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()"
               class="form-horizontal" autocomplete="off">
@@ -25,18 +25,18 @@
                     <button type="submit"
                             ui-sref="entities.notebook-new.permissions({projectId:projectId})"
                             ng-if="!notebook.id"
-                            class="btn btn-info "
+                            class="btn btn-default btn-small"
                             ng-disabled="!isEditAllowed">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.notebook-detail.permissions({projectId:projectId, notebookId:notebook.id})"
                             ng-if="notebook.id"
-                            class="btn btn-info "
+                            class="btn btn-default btn-small"
                             ng-disabled="!isEditAllowed">
                         <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
                     </button>
-                    <button type="button" class="btn btn-info" ng-click="isCollapsed = !isCollapsed">
+                    <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
                         <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
                     </button>
                     <div uib-collapse="isCollapsed">
@@ -109,7 +109,7 @@
         </button>
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!isEditAllowed || createNotebookForm.$invalid || isSaving"
-                class="btn btn-info">
+                class="btn btn-primary">
             Save
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">

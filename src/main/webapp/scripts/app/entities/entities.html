@@ -18,16 +18,16 @@
                 <span class="tooltip-icon-header">Opened Entities</span>
             </a>
             <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
-                <li ng-click="onCloseAllClick()">
+                <li ng-click="onCloseAllTabs()">
                     <a>Close All</a>
                 </li>
                 <li ng-repeat="entity in entities">
                     <a>
-                        <span class="capitalized" ng-click="onEntityClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
-                            {{entity.name}} {{entity.$$title}}&nbsp;
-                            <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close"
-                            ng-click="onCloseEntityClick(entity, activeTab.tabKey);"
-                            style="position:absolute;top:10px;right:10px;"></em>
+                        <span class="capitalized d-flex"   ng-click="onTabClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
+                            <span ng-bind="entity.name + ' '+ entity.$$title"></span>&nbsp;
+                            <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close top-3"
+                            ng-click="onCloseTabClick(entity, activeTab.tabKey);" ></em>
+
                         </span>
                     </a>
                 </li>

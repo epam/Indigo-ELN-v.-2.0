@@ -85,6 +85,9 @@
 .up {
   text-transform: uppercase;
 }
+.top-3 {
+  top: 3px;
+}
 .m-auto {
   margin: 0 auto;
 }
