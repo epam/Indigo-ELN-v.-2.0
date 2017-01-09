@@ -7,8 +7,8 @@
     <a class="logo" href="#"></a>
     <div class="uui-header-tools">
         <form class="navbar-form">
-            <div class="form-group search-field">
-                <input type="text" class="form-control form-control-search" placeholder="Search">
+            <div class="form-group search-field"  ng-class="{'active': focused}">
+                <input type="text" class="form-control form-control-search" ng-focus="focused = true" ng-blur="focused = false" placeholder="Search">
             </div>
         </form>
         <div class="profile dropdown">
@@ -16,7 +16,7 @@
                 <img src="https://static.cdn.epam.com/avatar/1eda3986b9f9f37556c2553a1cb96c1a.jpg" alt="" class="full-img">
             </a>
             <ul class="dropdown-menu dropdown-menu-right">
-                <li><a href="#">Logout</a></li>
+                <li><a ng-click="logout()">Logout</a></li>
             </ul>
         </div>
     </div>
