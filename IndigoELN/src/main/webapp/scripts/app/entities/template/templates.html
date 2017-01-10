@@ -1,18 +1,10 @@
-<div class="panel panel-info templates">
-    <div class="panel-heading">
-        Templates
+<div class="templates">
+    <div class="m-b20">
+        <button class="btn btn-primary" ui-sref="entities.template-new">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span class="m-l5">Create a new Template</span>
+        </button>
     </div>
-    <div class="panel-body">
-        <div class="row">
-            <div class="col-xs-4">
-                <button class="btn btn-primary btn-small" ui-sref="entities.template-new">
-                    <span class="glyphicon glyphicon-plus"></span> <span>Create a new Template</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-
     <table class="table table-striped">
         <thead>
         <tr my-sort="predicate" ascending="reverse" callback="loadAll()">
@@ -49,8 +41,7 @@
         </tr>
         </tbody>
     </table>
-    <div class="panel-footer text-center">
-        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
-                        ng-change="loadAll()"></uib-pagination>
+    <div class="text-center">
+        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page" ng-change="loadAll()"></uib-pagination>
     </div>
 </div>

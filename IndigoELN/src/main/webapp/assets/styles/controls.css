@@ -121,6 +121,9 @@
 .semi-b {
   font-family: 'Source Sans Pro Semibold', sans-serif;
 }
+.awesome-b {
+  font-family: FontAwesome;
+}
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -160,12 +163,15 @@
 .nomarg {
   margin-bottom: 0 !important;
 }
+.m-r30-imp {
+  margin-right: 30px !important;
+}
 /******************CONTROLS*********************/
 .controls-row {
   background-color: #ededed;
 }
 .controls-list {
-  border-bottom: 1px solid #d1d0d0;
+  border-bottom: 1px solid #ddd;
 }
 .controls-list:before,
 .controls-list:after {
@@ -204,10 +210,10 @@
   background-color: transparent;
 }
 .controls-list > li + li {
-  border-left: 1px solid #d1d0d0;
+  border-left: 1px solid #ddd;
 }
 .controls-list > li:last-child {
-  border-right: 1px solid #d1d0d0;
+  border-right: 1px solid #ddd;
 }
 .tooltip-icon-header {
   color: #fff;

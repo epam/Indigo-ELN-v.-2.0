@@ -121,6 +121,9 @@
 .semi-b {
   font-family: 'Source Sans Pro Semibold', sans-serif;
 }
+.awesome-b {
+  font-family: FontAwesome;
+}
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,6 +162,9 @@
 }
 .nomarg {
   margin-bottom: 0 !important;
+}
+.m-r30-imp {
+  margin-right: 30px !important;
 }
 /******************HEADER*********************/
 .uui-header {
@@ -240,58 +246,4 @@
 }
 .profile.open {
   background-color: #283593;
-}
-.search-field.active .form-control-search {
-  background: #fff url("../images/icon-search-active.png") left 10px center no-repeat;
-  color: #424242;
-  width: 350px;
-}
-.search-field.active .form-control-search:-moz-placeholder {
-  color: #424242;
-}
-.search-field.active .form-control-search::-moz-placeholder {
-  color: #424242;
-}
-.search-field.active .form-control-search:-ms-input-placeholder {
-  color: #424242;
-}
-.search-field.active .form-control-search::-webkit-input-placeholder {
-  color: #424242;
-}
-.form-control-search {
-  background: #283593 url("../images/icon-search.png") left 10px center no-repeat;
-  border-color: transparent;
-  -moz-border-radius: 25px;
-  -webkit-border-radius: 25px;
-  -khtml-border-radius: 25px;
-  border-radius: 25px;
-  color: #fff;
-  width: 192px;
-  padding-left: 35px;
-  -webkit-transition: all 0.3s linear;
-  transition: all 0.3s linear;
-}
-.form-control-search:-moz-placeholder {
-  color: #5c6bc0;
-}
-.form-control-search::-moz-placeholder {
-  color: #5c6bc0;
-}
-.form-control-search:-ms-input-placeholder {
-  color: #5c6bc0;
-}
-.form-control-search::-webkit-input-placeholder {
-  color: #5c6bc0;
-}
-.form-control-search:-moz-placeholder {
-  font-size: 16px;
-}
-.form-control-search::-moz-placeholder {
-  font-size: 16px;
-}
-.form-control-search:-ms-input-placeholder {
-  font-size: 16px;
-}
-.form-control-search::-webkit-input-placeholder {
-  font-size: 16px;
 }
