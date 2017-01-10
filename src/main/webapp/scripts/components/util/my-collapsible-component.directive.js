@@ -47,7 +47,7 @@ angular.module('indigoeln')
                         var iconStyle = !isCollapsed ? 'glyphicon-chevron-up' : 'glyphicon-chevron-down';
                         var $button = $('<span class="pull-right clickable"><i class="glyphicon ' + iconStyle + '"></i></span>');
                         var $icon = $button.find('i');
-                        $heading.append($button);
+                        $heading.prepend($button);
                         if (isCollapsed) {
                             $collapsible.hide();
                         }
