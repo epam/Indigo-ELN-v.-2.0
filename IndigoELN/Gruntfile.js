@@ -214,7 +214,7 @@ module.exports = function (grunt) {
                         '*.html',
                         'scripts/**/*.html',
                         'assets/images/**/*.{png,gif,webp,jpg,jpeg,svg}',
-                        'assets/fonts/*',
+                        'assets/fonts/*/**.{ttf,otf,woff,eot,svg}',
                         'vendors/**/*'
                     ]
                 }, {
