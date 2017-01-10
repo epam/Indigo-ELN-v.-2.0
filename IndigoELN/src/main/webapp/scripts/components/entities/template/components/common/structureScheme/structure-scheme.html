@@ -1,11 +1,12 @@
 <div class="panel panel-info component" my-collapsible-component>
     <div class="panel-heading">
         {{myTitle}}
-                <span ng-disabled="myReadonly" class="fa fa-save btn pull-right" title="Export {{myTitle}}"
+                <span ng-disabled="myReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp" title="Export {{myTitle}}"
                       ng-click="exportStructure()"></span>
-                <span ng-disabled="myReadonly" class="fa  fa-folder-open-o btn pull-right" title="Import {{myTitle}}"
+                <span ng-disabled="myReadonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
+                      title="Import {{myTitle}}"
                       ng-click="importStructure()"></span>
-                <span ng-disabled="myReadonly" class="fa fa-edit btn panel-btn-reaction-scheme pull-right"
+                <span ng-disabled="myReadonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
                       title="Edit/Add {{myTitle}}" ng-click="openEditor()"></span>
     </div>
     <div s-resizable max-height="300" min-height="50"

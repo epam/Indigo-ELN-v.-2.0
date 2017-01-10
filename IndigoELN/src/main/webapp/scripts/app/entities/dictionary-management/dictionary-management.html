@@ -1,8 +1,8 @@
 <div class="panel panel-info dictionary">
     <div class="panel-body">
 
-        <button class="btn btn-info" ng-click="createDictionary()">
-            <span class="glyphicon glyphicon-flash"></span> <span>Create new Dictionary</span>
+        <button class="btn btn-primary btn-small" ng-click="createDictionary()">
+            <span class="glyphicon glyphicon-plus"></span> <span>Create new Dictionary</span>
         </button>
 
         <div ng-if="dictionary" class="panel panel-info edit-form animated" style="margin-top: 20px">
@@ -80,13 +80,13 @@
                 <td class="text-right">
                     <button type="submit"
                             ng-click="editDictionary(dictionary)"
-                            class="btn btn-info btn-sm">
-                        <span class="glyphicon glyphicon-pencil"></span>
+                            class="btn btn-info btn-small">
+                        <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.dictionary-management.delete({id:dictionary.id})"
-                            class="btn btn-danger btn-sm">
-                        <span class="glyphicon glyphicon-remove-circle"></span>
+                            class="btn btn-info btn-small">
+                        <span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete</span>
                     </button>
                 </td>
             </tr>
@@ -107,7 +107,7 @@
     </div>
 
     <div class="panel-body" uib-collapse="isCollapsed">
-        <button class="btn btn-info" ng-click="addWord()" ng-disabled="selectedDictionaryId == null"
+        <button class="btn btn-primary btn-small" ng-click="addWord()" ng-disabled="selectedDictionaryId == null"
                 style="margin-bottom: 20px">
             <span class="glyphicon glyphicon-plus"></span> <span>Add new Word</span>
         </button>
@@ -184,13 +184,13 @@
                     <td class="text-right">
                         <button type="submit"
                                 ng-click="editWord(word)"
-                                class="btn btn-info btn-sm">
-                            <span class="glyphicon glyphicon-pencil"></span>
+                                class="btn btn-info btn-small">
+                            <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
                         </button>
                         <button type="submit"
                                 ng-click="deleteWord(word)"
-                                class="btn btn-danger btn-sm">
-                            <span class="glyphicon glyphicon-remove-circle"></span>
+                                class="btn btn-info btn-small">
+                            <span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete</span>
                         </button>
                     </td>
                 </tr>
