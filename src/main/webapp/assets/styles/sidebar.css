@@ -121,6 +121,9 @@
 .semi-b {
   font-family: 'Source Sans Pro Semibold', sans-serif;
 }
+.awesome-b {
+  font-family: FontAwesome;
+}
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,6 +162,9 @@
 }
 .nomarg {
   margin-bottom: 0 !important;
+}
+.m-r30-imp {
+  margin-right: 30px !important;
 }
 /******************SIDEBAR*********************/
 .main-container #sidebar-wrapper,

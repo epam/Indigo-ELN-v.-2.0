@@ -166,42 +166,28 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABS*********************/
-.nav-tabs > li > a {
-  border-top: 0 none;
-  color: #616161;
-  font-family: 'Oswald Regular', sans-serif;
-  margin-right: 0;
-  padding: 14px 15px 13px;
-  text-transform: uppercase;
+/******************TABLES*********************/
+.table {
+  border: 1px solid #ddd;
 }
-.nav-tabs > li > a:hover,
-.nav-tabs > li > a:focus {
-  background-color: transparent;
-  border-color: transparent;
-  color: #3f51b5;
-}
-.nav-tabs > li > a .fa-remove {
-  margin-top: 2px;
-  margin-left: 13px;
-}
-.nav-tabs > li.active > a,
-.nav-tabs > li.active > a:hover,
-.nav-tabs > li.active > a:focus {
-  border-top-color: transparent;
-}
-.main-tabs {
+.table > thead > tr > th {
+  border-bottom: 1px solid #ddd;
+  font-family: 'Source Sans Pro Semibold', sans-serif;
+  font-weight: normal;
   white-space: nowrap;
 }
-.main-tabs .nav-tabs > li {
-  display: inline-block;
-  float: none;
+.table > thead > tr > th > p {
+  margin: 0;
 }
-.main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
-  margin-bottom: 7px;
+.table > thead > tr > th,
+.table > tbody > tr > td {
+  padding: 8px 16px;
 }
-.tab-content.entities-content {
-  height: calc(100vh - 156px);
-  overflow-y: auto;
-  padding: 13px 20px 20px;
+.table > tbody > tr > td {
+  border: 0 none;
+  vertical-align: middle;
+}
+.table.authoritiesTable > tbody > tr > td {
+  text-align: center;
+  white-space: nowrap;
 }

@@ -1,0 +1,38 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************TABLES*********************/
+
+.table {
+  border: 1px solid @border-color;
+
+  > thead > tr > th {
+    border-bottom: 1px solid @border-color;
+    font-family: 'Source Sans Pro Semibold', sans-serif;
+    font-weight: normal;
+    white-space: nowrap;
+
+    > p {
+      margin: 0;
+    }
+  }
+
+  > thead > tr > th,
+  > tbody > tr > td {
+    padding: 8px 16px;
+  }
+
+  > tbody > tr > td {
+    border: 0 none;
+    vertical-align: middle;
+  }
+
+  &.authoritiesTable {
+
+    > tbody > tr > td {
+      text-align: center;
+      white-space: nowrap;
+    }
+  }
+}
