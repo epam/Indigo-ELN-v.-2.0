@@ -1,0 +1,40 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************LISTS STYLE*********************/
+
+.list-group {
+
+  &-item {
+    border-width: 0 0 1px;
+    margin-bottom: 0;
+    padding: @list-group-item-pad;
+
+    &:first-child {
+      border-top-width: 1px;
+    }
+
+    > h5, > p {
+      margin: 0;
+
+      &:first-child {
+        margin-bottom: 2px;
+      }
+    }
+
+    .fa-trash {
+      margin-top: 2px;
+    }
+  }
+
+  span.list-group-item {
+    background-color: @list-group-item-span-bg;
+  }
+
+  &-drug {
+    .list-group-item:first-child {
+      border-top: 0 none;
+    }
+  }
+}

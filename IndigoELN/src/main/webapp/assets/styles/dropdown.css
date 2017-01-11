@@ -166,27 +166,18 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABLES*********************/
-.table {
-  border: 1px solid #ddd;
+/******************DROPDOWN STYLE*********************/
+.dropdown-menu {
+  box-shadow: none;
+  padding: 0;
 }
-.table > thead > tr > th {
-  border-bottom: 1px solid #ddd;
-  font-family: 'Source Sans Pro Semibold', sans-serif;
-  font-weight: normal;
+.dropdown-menu > li a {
+  padding: 5px 12px 7px 12px;
 }
-.table > thead > tr > th > p {
-  margin: 0;
+.ui-select-bootstrap .ui-select-choices-row > a {
+  padding: 3px 10px;
 }
-.table > thead > tr > th,
-.table > tbody > tr > td {
-  padding: 8px 16px;
-  white-space: nowrap;
-}
-.table > tbody > tr > td {
-  border: 0 none;
-  vertical-align: middle;
-}
-.table.authoritiesTable > tbody > tr > td {
-  text-align: center;
+.ui-select-bootstrap .ui-select-choices-row.active > a {
+  background-color: transparent;
+  color: #84d5fb;
 }

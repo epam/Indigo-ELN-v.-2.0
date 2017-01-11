@@ -1,122 +1,105 @@
-<div class="panel panel-info user-management">
-    <div class="panel-heading">
-        Users
-    </div>
-    <div class="panel-body">
-        <button class="btn btn-primary btn-small" ng-click="create()">
-            <span class="glyphicon glyphicon-plus"></span> <span>Create New User</span>
-        </button>
-
-        <div ng-if="user" class="panel panel-info edit-form animated">
-            <div class="panel-heading">
-                Create/Edit User
-            </div>
-            <div class="panel-body ">
-                <form id="editForm" name="editForm" role="form" novalidate
-                      class="form-horizontal" autocomplete="off">
-
-                    <div class="row">
-                        <div class="col-xs-6">
-                            <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-                            <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">
-                            <input style="display:none" type="password" name="fakepasswordremembered"/>
-                            <my-input
-                                    my-label="Login"
-                                    my-name="login"
-                                    my-type="text"
-                                    my-model="user.login"
-                                    my-validation-required="user.id == null"
-                                    my-validation-maxlength="50"
-                                    my-validation-pattern="/^[a-z0-9]*$/"
-                                    my-validation-pattern-text="Login should not contain symbols in upper case."
-                                    ></my-input>
-                            <my-input
-                                    my-label="First Name"
-                                    my-name="firstName"
-                                    my-type="text"
-                                    my-model="user.firstName"
-                                    my-validation-required="user.firstName == null"
-                                    my-validation-maxlength="50"
-                                    ></my-input>
-                            <my-input
-                                    my-label="Last Name"
-                                    my-name="lastName"
-                                    my-type="text"
-                                    my-model="user.lastName"
-                                    my-validation-required="user.lastName == null"
-                                    my-validation-maxlength="50"
-                            ></my-input>
-                            <my-select
-                                    my-label="System Roles"
-                                    my-name="role"
-                                    my-model="user.roles"
-                                    my-items="roles"
-                                    my-multiple="true"
-                            ></my-select>
-                            <p class="help-block col-xs-offset-2" ng-if="!user.roles.length"> This field is required. </p>
-                        </div>
-                        <div class="col-xs-6">
-                            <my-input
-                                    my-label="Email"
-                                    my-name="email"
-                                    my-type="text"
-                                    my-model="user.email"
-                                    my-validation-required="user.email == null"
-                                    my-validation-maxlength="100"
-                            ></my-input>
-                            <my-input ng-if="!user.id"
-                                    my-label="Password"
-                                    my-name="password"
-                                    my-type="password"
-                                    my-model="user.password"
-                                    my-validation-required="user.id == null"
-                                    my-validation-maxlength="50"
-                                    ></my-input>
-                            <my-select my-label="Groups"
-                                       my-items="[{name:'Group 1'}, {name:'Group 2'}]" my-model="user.group"
-                            ></my-select>
-                            &nbsp;
-                            <button class="btn btn-info col-xs-offset-2"
-                                    ng-if="user.id"
-                                    ng-click="changePassword()">Change Password
-                            </button>&nbsp;&nbsp;
-                            <normal style="color:green;" ng-if="user.password && user.id">
-                                <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
-                            </normal>
-                            <my-checkbox
-                                    my-label="Activated"
-                                    my-model="user.activated"
-                                    my-name="activated"
-                                    my-multiple="true"
-                            ></my-checkbox>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="panel-footer text-right">
-                <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length"
-                        class="btn btn-info">
-                    <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
-                </button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-                    <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span
-                        >Cancel</span>
-                </button>
+<div class="user-management">
+    <div class="row m-b20">
+        <div class="col-sm-6">
+            <button class="btn btn-primary" ng-click="create()">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                <span class="m-l5">Create new user</span>
+            </button>
+        </div>
+        <div class="col-sm-6 text-right">
+            <div class="search-field m-t5">
+                <i class="fa fa-search" ng-click="search()"></i>
+                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-model="searchText">
             </div>
         </div>
+    </div>
+    <div ng-if="user" class="panel panel-info edit-form animated">
+        <div class="panel-heading">Create/Edit User</div>
+        <div class="panel-body ">
+            <form id="editForm" name="editForm" role="form" novalidate autocomplete="off">
 
-        <form class="form-inline text-right">
-            <div class="form-group">
-                <label for="searchUser">Search User</label>
-                <input type="text" class="form-control" id="searchUser" placeholder="Username, first name or last name"
-                       ng-model="searchText">
-            </div>
-            <button type="submit" class="btn btn-info" ng-click="search()">
-                <span class="glyphicon glyphicon-search"></span>
-                Search
-            </button>
-        </form>
-
+                <div class="row">
+                    <div class="col-xs-6">
+                        <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
+                        <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">
+                        <input style="display:none" type="password" name="fakepasswordremembered"/>
+                        <my-input
+                                my-label="Login"
+                                my-name="login"
+                                my-type="text"
+                                my-model="user.login"
+                                my-validation-required="user.id == null"
+                                my-validation-maxlength="50"
+                                my-validation-pattern="/^[a-z0-9]*$/"
+                                my-validation-pattern-text="Login should not contain symbols in upper case."
+                                ></my-input>
+                        <my-input
+                                my-label="First Name"
+                                my-name="firstName"
+                                my-type="text"
+                                my-model="user.firstName"
+                                my-validation-required="user.firstName == null"
+                                my-validation-maxlength="50"
+                                ></my-input>
+                        <my-input
+                                my-label="Last Name"
+                                my-name="lastName"
+                                my-type="text"
+                                my-model="user.lastName"
+                                my-validation-required="user.lastName == null"
+                                my-validation-maxlength="50"
+                        ></my-input>
+                        <my-select
+                                my-label="System Roles"
+                                my-name="role"
+                                my-model="user.roles"
+                                my-items="roles"
+                                my-multiple="true"
+                        ></my-select>
+                        <p class="help-block" ng-if="!user.roles.length"> This field is required. </p>
+                    </div>
+                    <div class="col-xs-6">
+                        <my-input
+                                my-label="Email"
+                                my-name="email"
+                                my-type="text"
+                                my-model="user.email"
+                                my-validation-required="user.email == null"
+                                my-validation-maxlength="100"
+                        ></my-input>
+                        <my-input ng-if="!user.id"
+                                my-label="Password"
+                                my-name="password"
+                                my-type="password"
+                                my-model="user.password"
+                                my-validation-required="user.id == null"
+                                my-validation-maxlength="50"
+                                ></my-input>
+                        <my-select my-label="Groups"
+                                   my-items="[{name:'Group 1'}, {name:'Group 2'}]" my-model="user.group"
+                        ></my-select>
+                        &nbsp;
+                        <button class="btn btn-info col-xs-offset-2"
+                                ng-if="user.id"
+                                ng-click="changePassword()">Change Password
+                        </button>&nbsp;&nbsp;
+                        <normal style="color:green;" ng-if="user.password && user.id">
+                            <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
+                        </normal>
+                        <my-checkbox
+                                my-label="Activated"
+                                my-model="user.activated"
+                                my-name="activated"
+                                my-multiple="true"
+                        ></my-checkbox>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="panel-footer text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">Cancel</button>
+            <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length" class="btn btn-info m-l5">Save</button>
+        </div>
     </div>
     <table class="table table-striped">
         <thead>
@@ -167,9 +150,8 @@
         </tr>
         </tbody>
     </table>
-    <div class="panel-footer text-center">
-        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
-                        ng-change="loadAll()"></uib-pagination>
+    <div class="text-center">
+        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page" ng-change="loadAll()"></uib-pagination>
     </div>
 </div>
 

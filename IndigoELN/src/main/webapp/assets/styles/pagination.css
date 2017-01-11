@@ -166,27 +166,11 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABLES*********************/
-.table {
-  border: 1px solid #ddd;
+/******************PAGINATION STYLE*********************/
+.pagination {
+  margin: 0 0 20px;
 }
-.table > thead > tr > th {
-  border-bottom: 1px solid #ddd;
-  font-family: 'Source Sans Pro Semibold', sans-serif;
-  font-weight: normal;
-}
-.table > thead > tr > th > p {
-  margin: 0;
-}
-.table > thead > tr > th,
-.table > tbody > tr > td {
-  padding: 8px 16px;
-  white-space: nowrap;
-}
-.table > tbody > tr > td {
-  border: 0 none;
-  vertical-align: middle;
-}
-.table.authoritiesTable > tbody > tr > td {
-  text-align: center;
+.pagination > li > a,
+.pagination > li > span {
+  font-family: 'Oswald Regular', sans-serif;
 }

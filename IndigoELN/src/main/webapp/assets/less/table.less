@@ -5,13 +5,12 @@
 /******************TABLES*********************/
 
 .table {
-  border: 1px solid @border-color;
+  border: @table-border;
 
   > thead > tr > th {
-    border-bottom: 1px solid @border-color;
-    font-family: 'Source Sans Pro Semibold', sans-serif;
+    border-bottom: @table-border;
+    font-family: @table-th-family;
     font-weight: normal;
-    white-space: nowrap;
 
     > p {
       margin: 0;
@@ -20,7 +19,8 @@
 
   > thead > tr > th,
   > tbody > tr > td {
-    padding: 8px 16px;
+    padding: @table-col-pad;
+    white-space: nowrap;
   }
 
   > tbody > tr > td {
@@ -32,7 +32,10 @@
 
     > tbody > tr > td {
       text-align: center;
-      white-space: nowrap;
     }
   }
 }
+
+//table .success td {
+//  background-color: @bg-blue !important;
+//}

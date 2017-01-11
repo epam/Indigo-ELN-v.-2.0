@@ -166,27 +166,84 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABLES*********************/
-.table {
+/******************SEARCH*********************/
+.search-field {
+  display: inline-block;
+  height: 26px;
+  position: relative;
+}
+.search-field .uui-search {
+  background-color: #fff;
   border: 1px solid #ddd;
+  -moz-border-radius: 25px;
+  -webkit-border-radius: 25px;
+  -khtml-border-radius: 25px;
+  border-radius: 25px;
+  height: 100%;
+  width: 150px;
+  padding: 0 5px 0 30px;
+  outline: none;
+  -webkit-transition: all 0.3s linear;
+  transition: all 0.3s linear;
 }
-.table > thead > tr > th {
-  border-bottom: 1px solid #ddd;
-  font-family: 'Source Sans Pro Semibold', sans-serif;
-  font-weight: normal;
+.search-field .fa {
+  color: #bdbdbd;
+  cursor: pointer;
+  left: 10px;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
 }
-.table > thead > tr > th > p {
-  margin: 0;
+.search-field-main {
+  height: 32px;
 }
-.table > thead > tr > th,
-.table > tbody > tr > td {
-  padding: 8px 16px;
-  white-space: nowrap;
+.search-field-main .uui-search {
+  background-color: #283593;
+  border-color: transparent;
+  color: #fff;
+  font-size: 16px;
+  width: 200px;
 }
-.table > tbody > tr > td {
-  border: 0 none;
-  vertical-align: middle;
+.search-field-main .uui-search:-moz-placeholder {
+  color: #5c6bc0;
 }
-.table.authoritiesTable > tbody > tr > td {
-  text-align: center;
+.search-field-main .uui-search::-moz-placeholder {
+  color: #5c6bc0;
+}
+.search-field-main .uui-search:-ms-input-placeholder {
+  color: #5c6bc0;
+}
+.search-field-main .uui-search::-webkit-input-placeholder {
+  color: #5c6bc0;
+}
+.search-field-main .fa {
+  color: #5c6bc0;
+}
+.search-field-main.active .uui-search {
+  background-color: #fff;
+  color: #424242;
+  width: 350px;
+}
+.search-field-main.active .uui-search:-moz-placeholder {
+  color: #424242;
+}
+.search-field-main.active .uui-search::-moz-placeholder {
+  color: #424242;
+}
+.search-field-main.active .uui-search:-ms-input-placeholder {
+  color: #424242;
+}
+.search-field-main.active .uui-search::-webkit-input-placeholder {
+  color: #424242;
+}
+.search-field-main.active .fa {
+  color: #424242;
+}
+.search-field.search-full {
+  display: block;
+  margin-bottom: 20px;
+}
+.search-field.search-full .uui-search {
+  width: 100%;
 }

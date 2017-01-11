@@ -1,0 +1,77 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************FORMS STYLE*********************/
+
+label {
+  color: @label-color;
+  font-weight: normal;
+}
+
+.help-block {
+  color: @help-txt-color !important;
+  font-size: @help-txt-size;
+}
+
+//General Input styles
+
+.form-control {
+  box-shadow: none;
+  padding-left: 10px;
+  padding-right: 10px;
+  outline: none;
+
+  &:focus {
+    border-color: @brand2;
+    box-shadow: none;
+  }
+}
+
+input[type="file"]:focus,
+input[type="radio"]:focus,
+input[type="checkbox"]:focus {
+  outline: 0 auto -webkit-focus-ring-color;
+  outline-offset: 0;
+}
+
+//Select
+
+.ui-select-container {
+  .ui-select-match {
+    .btn {
+      border-color: @border-color;
+      font: @font-size-base 'Source Sans Pro Regular', sans-serif;
+      padding-left: 10px;
+      padding-right: 10px;
+      text-transform: none;
+    }
+  }
+  &.open {
+    .ui-select-match {
+      .btn {
+        background-color: transparent;
+        border-color: @brand2;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+//Checkbox and radio
+
+.my-checkbox-wrapper {
+  margin-right: 20px;
+
+  .my-checkbox {
+    background-color: white !important;
+    border-color: #b2ebf2 !important;
+    font-size: 10px;
+    padding: 1px 3px 1px 5px;
+    margin-right: 5px;
+  }
+
+  label {
+    padding-left: 0;
+  }
+}

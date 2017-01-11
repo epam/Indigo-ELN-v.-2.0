@@ -7,6 +7,7 @@
 .btn {
   font-family: @btn-family;
   padding: @btn-pad;
+  outline: none;
   text-transform: uppercase;
 
   &-small {
@@ -28,4 +29,13 @@
       border-color: @btn-info-focus-border-color;
     }
   }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus, .btn:active.focus,
+.btn.active.focus {
+  outline: none;
+  outline-offset: -2px;
 }
