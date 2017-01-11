@@ -45,14 +45,14 @@
                         >
                         <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;"
                              ng-if="!column.actions.length && column.id!=='show-hide-columns'">
-                            <a href class="btn btn-info" ng-disabled="myReadonly">
+                            <a href class="btn btn-transparent" ng-disabled="myReadonly">
                                 {{column.name}}
                             </a>
                         </div>
                         <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;" uib-dropdown
                              dropdown-append-to-body
                              ng-if="column.actions.length">
-                            <a href class="btn btn-info" uib-dropdown-toggle ng-disabled="myReadonly">
+                            <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="myReadonly">
                                 <span class="no-draggable">{{column.name}} <span class="caret"></span></span>
                             </a>
                             <ul uib-dropdown-menu class="no-draggable">

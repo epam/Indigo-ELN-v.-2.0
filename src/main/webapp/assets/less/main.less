@@ -435,39 +435,69 @@ tr {
     overflow: hidden;
 }
 
-.my-table.table-responsive th {
-    background-color: #E0F7FA;
-}
 
-.my-table.table-responsive th a {
-    color: black;
-}
 
-.my-table.table-responsive th .btn {
-    background-color: transparent !important;
-    border-color: transparent !important;
-}
+.my-table{
 
-.my-table.table-responsive th .btn-group.open .dropdown-toggle {
-    -webkit-box-shadow: none;
-    box-shadow: none;
-}
 
-.my-table.table-responsive .form-group {
-    margin-bottom: 0;
-}
+    &.table-responsive{
+        margin-left:14px;
+        margin-right:14px;
 
-.my-table.table-responsive td {
-    padding: 0;
-}
+        th{
+            .btn{
+                //background-color: transparent !important;
+                //border-color: transparent !important;
+                font-family: 'Source Sans Pro Semibold', sans-serif;
+                font-size: 14px;
+            }
 
-.my-table.table-responsive .input-group {
-    border-spacing: 0;
-}
+            a{
+               color:  #333333;
+                text-transform: inherit;
+            }
+        }
+    }
 
-.my-table.table-responsive .form-group .col-xs-12 {
-    padding: 0;
 }
+//
+//
+//.my-table{
+//    margin-left:14px;
+//    margin-right:14px;
+//}
+
+
+
+//.my-table.table-responsive th a {
+//    color: black;
+//}
+//
+//.my-table.table-responsive th .btn {
+//    background-color: transparent !important;
+//    border-color: transparent !important;
+//}
+//
+//.my-table.table-responsive th .btn-group.open .dropdown-toggle {
+//    -webkit-box-shadow: none;
+//    box-shadow: none;
+//}
+//
+//.my-table.table-responsive .form-group {
+//    margin-bottom: 0;
+//}
+//
+//.my-table.table-responsive td {
+//    padding: 0;
+//}
+//
+//.my-table.table-responsive .input-group {
+//    border-spacing: 0;
+//}
+//
+//.my-table.table-responsive .form-group .col-xs-12 {
+//    padding: 0;
+//}
 
 .reagent-search-tab {
     margin-top: 20px;
@@ -715,6 +745,7 @@ html {
 
 .panel-body.my-scroller-axis-y {
     padding-right: 0;
+    padding-left: 0;
 }
 
 .mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
