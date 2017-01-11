@@ -286,6 +286,10 @@
 .btn-info:focus {
   border-color: #25a4b8;
 }
+.btn-info.status {
+  border-radius: 25px;
+  pointer-events: none;
+}
 .btn:focus,
 .btn:active:focus,
 .btn.active:focus,
