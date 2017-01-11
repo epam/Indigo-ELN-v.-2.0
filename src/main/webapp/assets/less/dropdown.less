@@ -1,0 +1,36 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************DROPDOWN STYLE*********************/
+
+//Dropdown general styles
+
+.dropdown-menu {
+  box-shadow: none;
+  padding: 0;
+
+  > li a {
+    padding: @dropdown-item-main-pad;
+  }
+}
+
+//Dropdown in custom select
+
+.ui-select-bootstrap {
+
+  .ui-select-choices-row {
+
+    > a {
+      padding: @dropdown-item-pad;
+    }
+
+    &.active {
+
+      > a {
+        background-color: transparent;
+        color: @dropdown-item-active-color;
+      }
+    }
+  }
+}

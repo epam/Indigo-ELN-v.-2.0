@@ -1,0 +1,57 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************PANELS STYLE*********************/
+
+.panel {
+  box-shadow: none;
+
+  &-heading {
+    color: @panel-heading-color;
+    font: @panel-heading-size @panel-heading-family;
+    text-transform: uppercase;
+
+    .action-panel-btn {
+      padding: 5px 6px;
+      font-family: FontAwesome;
+      font-size: 18px;
+    }
+
+    .glyphicon {
+      margin-top: 4px;
+    }
+  }
+
+  &-body {
+
+    &-content-nopad {
+      margin-left: -@panel-space-horizontal;
+      margin-right: -@panel-space-horizontal;
+    }
+
+    &-nopad {
+      padding: 0;
+    }
+
+    .list-group {
+      margin-bottom: 0;
+    }
+  }
+
+  &-footer {
+    background-color: transparent;
+    border: 0 none;
+  }
+
+  &-info-collapse {
+
+  }
+}
+
+//Panel height for new templates page
+
+.panel-body-h {
+  height: @panel-body-h;
+  overflow-y: auto;
+}

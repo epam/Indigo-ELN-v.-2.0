@@ -170,6 +170,7 @@
 .btn {
   font-family: 'Oswald Regular', sans-serif;
   padding: 7px 18px;
+  outline: none;
   text-transform: uppercase;
 }
 .btn-small {
@@ -184,4 +185,13 @@
 }
 .btn-info:focus {
   border-color: #25a4b8;
+}
+.btn:focus,
+.btn:active:focus,
+.btn.active:focus,
+.btn.focus,
+.btn:active.focus,
+.btn.active.focus {
+  outline: none;
+  outline-offset: -2px;
 }

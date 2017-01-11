@@ -166,27 +166,38 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABLES*********************/
-.table {
-  border: 1px solid #ddd;
+/******************PANELS STYLE*********************/
+.panel {
+  box-shadow: none;
 }
-.table > thead > tr > th {
-  border-bottom: 1px solid #ddd;
-  font-family: 'Source Sans Pro Semibold', sans-serif;
-  font-weight: normal;
+.panel-heading {
+  color: #616161;
+  font: 16px 'Oswald Regular', sans-serif;
+  text-transform: uppercase;
 }
-.table > thead > tr > th > p {
-  margin: 0;
+.panel-heading .action-panel-btn {
+  padding: 5px 6px;
+  font-family: FontAwesome;
+  font-size: 18px;
 }
-.table > thead > tr > th,
-.table > tbody > tr > td {
-  padding: 8px 16px;
-  white-space: nowrap;
+.panel-heading .glyphicon {
+  margin-top: 4px;
 }
-.table > tbody > tr > td {
+.panel-body-content-nopad {
+  margin-left: -20px;
+  margin-right: -20px;
+}
+.panel-body-nopad {
+  padding: 0;
+}
+.panel-body .list-group {
+  margin-bottom: 0;
+}
+.panel-footer {
+  background-color: transparent;
   border: 0 none;
-  vertical-align: middle;
 }
-.table.authoritiesTable > tbody > tr > td {
-  text-align: center;
+.panel-body-h {
+  height: 360px;
+  overflow-y: auto;
 }

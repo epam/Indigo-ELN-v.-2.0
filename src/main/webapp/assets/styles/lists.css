@@ -166,27 +166,29 @@
 .m-r30-imp {
   margin-right: 30px !important;
 }
-/******************TABLES*********************/
-.table {
-  border: 1px solid #ddd;
+/******************LISTS STYLE*********************/
+.list-group-item {
+  border-width: 0 0 1px;
+  margin-bottom: 0;
+  padding: 13px 20px;
 }
-.table > thead > tr > th {
-  border-bottom: 1px solid #ddd;
-  font-family: 'Source Sans Pro Semibold', sans-serif;
-  font-weight: normal;
+.list-group-item:first-child {
+  border-top-width: 1px;
 }
-.table > thead > tr > th > p {
+.list-group-item > h5,
+.list-group-item > p {
   margin: 0;
 }
-.table > thead > tr > th,
-.table > tbody > tr > td {
-  padding: 8px 16px;
-  white-space: nowrap;
+.list-group-item > h5:first-child,
+.list-group-item > p:first-child {
+  margin-bottom: 2px;
 }
-.table > tbody > tr > td {
-  border: 0 none;
-  vertical-align: middle;
+.list-group-item .fa-trash {
+  margin-top: 2px;
 }
-.table.authoritiesTable > tbody > tr > td {
-  text-align: center;
+.list-group span.list-group-item {
+  background-color: #fafafa;
+}
+.list-group-drug .list-group-item:first-child {
+  border-top: 0 none;
 }

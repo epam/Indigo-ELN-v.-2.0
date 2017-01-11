@@ -1,115 +1,91 @@
-<div>
-    <div class="panel panel-info templates">
-        <div class="panel-body">
-            <form class="form-horizontal">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <my-input my-label="Name" my-model="template.name"></my-input>
+<div class="templates m-b20">
+    <form class="m-b10">
+        <div class="row">
+            <div class="col-sm-6">
+                <my-input my-label="Name" my-model="template.name"></my-input>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">Components</div>
+                <div class="panel-body panel-body-h">
+                    <div class="search-field search-full">
+                        <i class="fa fa-search" ng-click="search()"></i>
+                        <input type="search" class="uui-search" placeholder="Search by name or description" id="searchRole" ng-model="search.$">
                     </div>
-                </div>
-            </form>
-            <br/>
-            <div class="row">
-                <div class="col-xs-5">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Components
-                        </div>
-                        <div class="panel-body">
-                            <div class="input-group">
-                                <input type="text" class="form-control"
-                                       ng-model="search.$"
-                                       placeholder="Search by name or description">
-                                <span class="input-group-addon"><em class="fa fa-search"></em></span>
-                            </div>
-                            <br/>
-                            <div class="list-group templates-holder palette animated" dragula='"components"'
-                                 dragula-model='components' indeln-scroll>
-                                <a class="list-group-item draggable-component" data-id="{{component.id}}"
-                                   ng-repeat="component in components | filter:search track by $index">
-                                    <h5 class="list-group-item-heading draggable-component">{{component.name}}</h5>
-                                    <p class="list-group-item-text draggable-component">{{component.desc}} </p>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-7">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Template Builder <span class="btn-group pull-right">
-                                <em class="fa fa-plus" title="Add tab" ng-click="addTab()"
-                                    style="cursor: pointer"></em></span>
-                        </div>
-                        <div class="panel-body" dragula='"tabs"' dragula-model='template.templateContent'
-                             style="padding-bottom: 0">
-                            <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
-                                 ng-if="!template.templateContent.length">
-                                <h3 class="no-draggable text-muted">Please add tabs</h3>
-                            </div>
-                            <div class="panel panel-info tab animated"
-                                 ng-repeat="tab in template.templateContent">
-                                <div class="panel-heading">
-                                        <span editable-text="tab.name"
-                                              e-form="tabName"
-                                              ng-click="tabName.$show()">
-                                                {{ tab.name }}
-                                        </span>
-                                    <em class="fa fa-remove pull-right text-muted" style="cursor: pointer"
-                                        title="Remove"
-                                        ng-click="removeTab(tab)"></em>
-                                </div>
-                                <div class="panel-body">
-                                    <div class="list-group"
-                                         dragula='"components"' dragula-model='tab.components'
-                                         style="min-height: 100px">
-                                        <div class="no-draggable" style="position: absolute; left: 50%;"
-                                             ng-if="!tab.components.length">
-                                            <div class="no-draggable" style="position: relative; left: -50%;">
-                                                <h3 class="no-draggable text-muted">You can <b>drag & drop</b>
-                                                    components here.</h3>
-                                            </div>
-                                        </div>
-                                        <a class="list-group-item draggable-component component animated"
-                                           ng-repeat="component in tab.components">
-                                            <h5 class="list-group-item-heading draggable-component">
-                                                {{component.name}} <em class="fa fa-remove pull-right text-muted"
-                                                                       style="cursor: pointer" title="Remove"
-                                                                       ng-click="removeComponent(tab, component)"></em>
-                                            </h5>
-                                            <p class="list-group-item-text draggable-component">{{component.desc}} </p>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="panel-body-content-nopad">
+                        <div class="list-group templates-holder palette animated" dragula='"components"' dragula-model='components' indeln-scroll>
+                            <a class="list-group-item draggable-component" data-id="{{component.id}}"
+                               ng-repeat="component in components | filter:search track by $index">
+                                <h5 class="semi-b draggable-component">{{component.name}}</h5>
+                                <p class="draggable-component">{{component.desc}} </p>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" ng-click="close()">
-                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
-            </button>
-            <button ng-click="save()" class="btn btn-info">
-                <span class="glyphicon glyphicon-save"></span>&nbsp;<span>Save</span>
-            </button>
+        <div class="col-xs-6">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <button class="btn btn-default btn-small pull-right" ng-click="addTab()">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <span class="m-l5">Create new tab</span>
+                    </button>
+                    Template Builder
+                </div>
+                <div class="panel-body panel-body-nopad panel-body-h" dragula='"tabs"' dragula-model='template.templateContent'>
+                    <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
+                         ng-if="!template.templateContent.length">
+                        <h3 class="no-draggable text-muted">Please add tabs</h3>
+                    </div>
+                    <div class="list-group list-group-drug tab animated" ng-repeat="tab in template.templateContent">
+                        <span class="list-group-item">
+                            <i class="fa fa-trash pull-right" ng-click="removeTab(tab)"></i>
+                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b">
+                                {{ tab.name }} <i class="fa fa-pencil m-l5"></i>
+                            </span>
+                            <!--<em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeTab(tab)"></em>-->
+                        </span>
+                        <div class="list-group" dragula='"components"' dragula-model='tab.components'>
+                            <div class="no-draggable" style="position: absolute; left: 50%;" ng-if="!tab.components.length">
+                                <div class="no-draggable" style="position: relative; left: -50%;">
+                                    <h3 class="no-draggable text-muted">
+                                        You can <b>drag & drop</b>
+                                        components here.</h3>
+                                </div>
+                            </div>
+                            <a class="list-group-item draggable-component component animated"
+                               ng-repeat="component in tab.components">
+                                <h5 class="semi-b draggable-component">
+                                    {{component.name}}
+                                    <em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeComponent(tab, component)"></em>
+                                </h5>
+                                <p class="draggable-component">{{component.desc}} </p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <div class="text-right">
+        <button type="button" class="btn btn-default" ng-click="close()">Cancel</button>
+        <button ng-click="save()" class="btn btn-info m-l5">Save</button>
+    </div>
 </div>
-<div class="row">
-    <div class="col-xs-12">
-        <div class="panel panel-default">
-            <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false"
-                 ng-click="showPreview = !showPreview">
-                Show Preview
-            </div>
-            <div class="panel-body" ng-if="showPreview && template.templateContent.length">
-                <my-components my-template="template.templateContent"
-                               my-readonly="true"
-                               my-model="{}"
-                ></my-components>
-            </div>
-        </div>
+<div class="panel panel-info panel-info-collapse">
+    <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false" ng-click="showPreview = !showPreview">
+        <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
+            ng-click="isCollapsed = !isCollapsed"></em>
+        Show Preview
+    </div>
+    <div class="panel-body" ng-if="showPreview && template.templateContent.length">
+        <my-components my-template="template.templateContent"
+                       my-readonly="true"
+                       my-model="{}"
+        ></my-components>
     </div>
 </div>

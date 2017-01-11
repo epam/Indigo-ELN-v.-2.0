@@ -1,0 +1,68 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************SEARCH*********************/
+
+.search-field {
+  display: inline-block;
+  height: @search-field-height;
+  position: relative;
+
+  .uui-search {
+    background-color: @search-bg;
+    border: @search-border;
+    .border-radius(@search-radius);
+    .h-w(100%, @search-width);
+    padding: @search-pad;
+    outline: none;
+    .transition(all, 0.3s, linear);
+  }
+
+  .fa {
+    color: @search-icon-color;
+    cursor: pointer;
+    .position-abs-top-left(10px, 50%);
+    .transform-center(0, -50%);
+  }
+
+  &-main {
+    height: @search-main-height;
+
+    .uui-search {
+      background-color: @search-main-bg;
+      border-color: transparent;
+      color: @search-main-color;
+      font-size: @search-main-size;
+      .placeholder(@search-main-placeholder-color);
+      width: @search-main-width;
+    }
+
+    .fa {
+      color: @search-main-placeholder-color;
+    }
+
+    &.active {
+
+      .uui-search {
+        background-color: @search-main-active-bg;
+        color: @search-main-active-color;
+        .placeholder(@search-main-active-color);
+        width: @search-active-width;
+      }
+
+      .fa {
+        color: @search-main-active-color;
+      }
+    }
+  }
+
+  &.search-full {
+    display: block;
+    margin-bottom: 20px;
+
+    .uui-search {
+      width: 100%;
+    }
+  }
+}

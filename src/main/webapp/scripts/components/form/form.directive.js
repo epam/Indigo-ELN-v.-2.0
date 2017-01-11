@@ -164,14 +164,14 @@ angular.module('indigoeln')
             };
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-xs-10">' +
+        '<label>{{myLabel}}</label>' +
+        // '<div class="col-xs-10">' +
         '<input class="form-control"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.maxlength" > This field can\'t be longer than {{myValidationMaxlength}} characters.</p>' +
         '<p class="help-block" ng-if="ngModelCtrl.$error.pattern" >{{myValidationPatternText}}</p>' +
-        '</div>' +
+        // '</div>' +
         '</div>' +
         '</div>'
     };
@@ -307,14 +307,14 @@ angular.module('indigoeln')
                     return memo + (memo.length > 0 ? ' - ' : '') + num;
                 }, '').value();
             return '<div class="form-group {{myClasses}}">' +
-                '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-                '<div class="col-xs-10">' +
+                '<label>{{myLabel}}</label>' +
+                // '<div class="col-xs-10">' +
                 '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
                 '<ui-select-match placeholder="{{myPlaceHolder}}" >' + content + '</ui-select-match>' +
                 '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
                 '</ui-select-choices>' +
                 '</ui-select>' +
-                '</div>' +
+                // '</div>' +
                 '</div>';
         }
     };
@@ -338,12 +338,12 @@ angular.module('indigoeln')
             }
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-xs-10">' +
+        '<label>{{myLabel}}</label>' +
+        // '<div class="col-xs-10">' +
         '<div class="btn-group">' +
         '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +
         '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="mySecond" uncheckable ng-disabled="myReadonly">{{mySecond}}</label>' +
-        '</div>' +
+        // '</div>' +
         '</div> ' +
         '</div> '
     };
@@ -390,10 +390,10 @@ angular.module('indigoeln')
 
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label> ' +
-        '<div class="col-xs-10">' +
+        '<label>{{myLabel}}</label> ' +
+        // '<div class="col-xs-10">' +
         '<textarea class="form-control" rows="1" msd-elastic  style="resize: none;"></textarea>' +
-        '</div> ' +
+        // '</div> ' +
         '</div> '
     };
 }).directive('mySimpleText', function () {
@@ -449,13 +449,13 @@ angular.module('indigoeln')
             };
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-xs-10">' +
+        '<label>{{myLabel}}</label>' +
+        // '<div class="col-xs-10">' +
         '<input type="{{myType}}" class="form-control" name="{{myName}}" ng-model-options="{ debounce: 150 }" ng-model="ctrl.model" date-time view="date" ' +
         'format="MMM DD, YYYY HH:mm:ss z" ng-disabled="myReadonly" ng-required="myValidationRequired"/>' +
         '<div ng-show="ngModelCtrl.$invalid">' +
         '<p class="help-block" ng-show="ngModelCtrl.$error.required"> This field is required. </p>' +
-        '</div>' +
+        // '</div>' +
         '</div>' +
         '</div>'
     };
@@ -498,8 +498,8 @@ angular.module('indigoeln')
             }
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label class="col-xs-2 control-label">{{myLabel}}</label>' +
-        '<div class="col-xs-10">' +
+        '<label>{{myLabel}}</label>' +
+        '<div>' +
         ' <tags-input replace-spaces-with-dashes="false"></tags-input>' +
         '</div>' +
         '</div>'

@@ -1,6 +1,6 @@
 <div class="role-management">
         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
-    <div class="row">
+    <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="create()">
                 <i class="fa fa-plus" aria-hidden="true"></i>
@@ -8,7 +8,7 @@
             </button>
         </div>
         <div class="col-sm-6 text-right">
-            <div class="search-field">
+            <div class="search-field m-t5">
                 <i class="fa fa-search" ng-click="search()"></i>
                 <input type="search" class="uui-search" placeholder="Search" id="searchRole" ng-model="searchText">
             </div>
@@ -17,8 +17,7 @@
     <div ng-if="role" class="panel panel-info edit-form animated">
         <div class="panel-heading">Create/Update Role</div>
         <div class="panel-body ">
-            <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()"
-                  class="form-horizontal" autocomplete="off">
+            <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" autocomplete="off">
 
                 <div class="row">
                     <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
@@ -35,10 +34,8 @@
                         ></my-input>
                     </div>
                     <div class="col-xs-12 form-group">
-                        <div class="col-xs-1 control-label">
-                            <label>Authorities</label>
-                        </div>
-                        <div class="col-xs-11">
+                        <label>Authorities</label>
+                        <div class="row">
                             <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
                                 <div>
                                     <my-checkbox
@@ -63,7 +60,7 @@
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-info m-l5">Save</button>
         </div>
     </div>
-    <div class="table-responsive">
+    <div class="table-responsive" my-scroller="x">
         <table class="table table-striped authoritiesTable">
             <thead>
             <tr>
