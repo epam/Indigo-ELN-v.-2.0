@@ -7,12 +7,12 @@
             <div ng-class="{'col-xs-9':myLabel, 'col-xs-12':!myLabel}">
                 <div class="btn-toolbar pull-right" role="toolbar">
                     <span class="transclude"></span>
-                    <div class="btn-group" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
-                        <div id="show-hide-button" class="btn btn-info btn-sm"
+                    <div class="btn-group btn-group-sm" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
+                        <div id="show-hide-button" class="btn btn-info"
                              uib-dropdown-toggle
                              ng-disabled="disabled"
                              uib-tooltip="Column settings">
-                            <span class="glyphicon glyphicon-menu-hamburger no-draggable"></span>
+                            <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
                         </div>
                         <ul uib-dropdown-menu role="menu"
                             my-scroller="y"
@@ -20,7 +20,7 @@
                             <li role="menuitem"
                                 style="height: 26px"
                                 ng-click="$event.stopPropagation();">
-                                <button type="button" class="btn btn-primary btn-block"
+                                <button type="button" class="btn btn-default btn-small m-t5"
                                         ng-click="resetColumns()">Set default columns set
                                 </button>
                             </li>

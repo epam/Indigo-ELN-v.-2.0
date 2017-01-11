@@ -16,15 +16,15 @@
     <div class="btn-group btn-group-sm" role="group">
         <button type="button" class="btn btn-info"
                 ng-disabled="myReadonly"
-                ng-click="addNewCompound()">Add New Compound
+                ng-click="addNewCompound()"><span class="glyphicon glyphicon-plus"></span>&nbsp;<span> Add New Compound</span>
         </button>
         <button type="button" class="btn btn-info" ng-click="deleteCompounds()"
-                ng-disabled="myReadonly || !isHasCheckedRows()">Delete Compound(s)
+                ng-disabled="myReadonly || !isHasCheckedRows()"><span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete Compound(s)</span>
         </button>
     </div>
     <div class="btn-group btn-group-sm" role="group">
         <button type="button" class="btn btn-info" ng-click="importSDFile()" ng-disabled="myReadonly">
-            Import SD File
+             <span class="glyphicon glyphicon-import"></span>&nbsp;<span> Import SD File</span>
         </button>
         <button type="button" class="btn btn-info" ng-click="exportSDFile()"
                 ng-disabled="myReadonly || !isHasCheckedRows()">Create SD
