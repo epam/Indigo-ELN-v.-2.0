@@ -197,6 +197,12 @@
   background-color: transparent;
   border: 0 none;
 }
+.panel-info .panel-heading {
+  border: 0 none;
+}
+.panel-info .panel-body {
+  border-top: 1px solid #ddd;
+}
 .panel-body-h {
   height: 360px;
   overflow-y: auto;
