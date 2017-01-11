@@ -266,6 +266,29 @@
   overflow-y: auto;
   padding: 13px 20px 20px;
 }
+.inner-tabs .nav-tabs > li > a {
+  border-width: 0 0 3px;
+  border-bottom: 3px solid transparent;
+  font: 12px 'Source Sans Pro Semibold', sans-serif;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.inner-tabs .nav-tabs > li > a:hover,
+.inner-tabs .nav-tabs > li > a:focus {
+  border-bottom-color: #283593;
+}
+.inner-tabs .nav-tabs > li.active > a {
+  border-width: 0 0 3px;
+}
+.inner-tabs .nav-tabs > li.active > a,
+.inner-tabs .nav-tabs > li.active > a:hover,
+.inner-tabs .nav-tabs > li.active > a:focus {
+  border-bottom-color: #283593;
+}
+.inner-tabs .tab-content {
+  background-color: #ededed;
+  padding: 20px;
+}
 /******************BUTTONS*********************/
 .btn {
   font-family: 'Oswald Regular', sans-serif;
@@ -442,6 +465,12 @@
 .panel-footer {
   background-color: transparent;
   border: 0 none;
+}
+.panel-info .panel-heading {
+  border: 0 none;
+}
+.panel-info .panel-body {
+  border-top: 1px solid #ddd;
 }
 .panel-body-h {
   height: 360px;
