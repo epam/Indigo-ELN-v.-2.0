@@ -1,0 +1,31 @@
+@import 'variables.less';
+@import 'mixin.less';
+@import 'helper.less';
+
+/******************LABELS STYLE*********************/
+
+.uui-label {
+  background: @uui-label-bg;
+  border: @uui-label-border;
+  .border-radius(@uui-label-border-radius);
+  color: @uui-label-color;
+  display: inline-block;
+  font-size: @uui-label-size;
+  font-family: @uui-label-family;
+  line-height: 21px;
+  letter-spacing: .25px;
+  padding: @uui-label-pad;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+
+  &-green {
+    background: @uui-label-green-bg;
+    border-color: @uui-label-green-border-color;
+  }
+
+  &-red {
+    background: @uui-label-red-bg;
+    border-color: @uui-label-red-border-color;
+  }
+}

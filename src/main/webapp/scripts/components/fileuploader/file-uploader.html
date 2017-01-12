@@ -1,56 +1,53 @@
-<div class="panel panel-default user-management">
-    <div class="panel-heading">Attachments</div>
-    <div class="panel-body">
-        <button class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="upload()">
-            <span class="glyphicon glyphicon-flash"></span> <span>Attach File</span>
-        </button>
-
-        <form class="form-inline text-right">
-            <div class="form-group">
-                <label for="searchFile">Search File</label>
-                <input type="text" class="form-control" id="searchFile" placeholder="File name, author or type"
-                       ng-model="searchText">
-            </div>
-            <button type="submit" class="btn btn-info" ng-click="search()">
-                <span class="glyphicon glyphicon-search"></span>
-                Search
+<div class="user-management">
+    <div class="row m-b20">
+        <div class="col-sm-6">
+            <button class="btn btn-primary" ng-disabled="myReadonly" ng-click="upload()">
+                <span class="glyphicon glyphicon-flash"></span>
+                <span class="m-l5">Attach File</span>
             </button>
-        </form>
-
+        </div>
+        <div class="col-sm-6 text-right">
+            <div class="search-field m-t5">
+                <i class="fa fa-search" ng-click="search()"></i>
+                <input type="search" class="uui-search" placeholder="File name" id="searchFile" ng-model="searchText">
+            </div>
+        </div>
     </div>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>File Name</th>
-            <th>Author</th>
-            <th>Length (bytes)</th>
-            <th>Upload Date</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="file in files track by file.id">
-            <td>{{file.filename}}</td>
-            <td>{{file.author.login  || file.author.firstName}}</td>
-            <td>{{file.length | prettyBytes}}</td>
-            <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
-            <td class="text-right">
-                <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_self">
-                    <span class="glyphicon glyphicon-download"></span>
-                </a>
-                <button type="submit"
-                        ng-disabled="myReadonly"
-                        ng-click="delete(file)"
-                        class="btn btn-danger btn-sm">
-                    <span class="glyphicon glyphicon-remove-circle"></span>
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="panel-footer text-center">
-        <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
-                        ng-change="loadAll()"></uib-pagination>
+    <div class="table-responsive" my-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Author</th>
+                <th>Length (bytes)</th>
+                <th>Upload Date</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="file in files track by file.id">
+                <td>{{file.filename}}</td>
+                <td>{{file.author.login  || file.author.firstName}}</td>
+                <td>{{file.length | prettyBytes}}</td>
+                <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
+                <td class="text-right">
+                    <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_self">
+                        <span class="glyphicon glyphicon-download"></span>
+                    </a>
+                    <button type="submit"
+                            ng-disabled="myReadonly"
+                            ng-click="delete(file)"
+                            class="btn btn-danger btn-sm">
+                        <span class="glyphicon glyphicon-remove-circle"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+    <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
+                    ng-change="loadAll()"></uib-pagination>
     </div>
 </div>
 

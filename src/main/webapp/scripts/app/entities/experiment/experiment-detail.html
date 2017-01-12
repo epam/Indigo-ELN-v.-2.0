@@ -1,54 +1,48 @@
-<div class="panel panel-info panel-main-wrapper experiments p-l-r-0" cg-busy="{promise:loading, minDuration:700}" >
-    <div class="panel-body" my-scroller="y" my-scroller-theme="indigo-thick">
-        <div class="row m-l15-imp">
-            <div ng-init="isCollapsed=true;" class="col-xs-12">
-
-                <div class="row">
-                    <div class=col-xs-3>
-                        <label class="control-label">Experiment Members&nbsp;</label>
-                        <button type="submit"
-                                ui-sref="entities.experiment-detail.permissions()"
-                                class="btn btn-default btn-small "
-                                ng-disabled="!isEditAllowed">
-                            <span class="glyphicon glyphicon-book"></span>&nbsp;<span> Edit</span>
+<div class="experiments" cg-busy="{promise:loading, minDuration:700}" my-scroller="y" my-scroller-theme="indigo-thick">
+    <div class="tab-content-pad">
+        <div ng-init="isCollapsed=true;">
+            <div class="row m-b20">
+                <div class="col-sm-6 col-xs-9">
+                    <div class="row-inline">
+                        <span class="txt-larger">Experiment Members:</span>
+                        <button type="submit" ui-sref="entities.experiment-detail.permissions()" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
+                            <i class="fa fa-pencil"></i>
+                            <span class="m-l5">Edit</span>
                         </button>
                         <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
-                            <span class="glyphicon glyphicon-eye-open"></span>&nbsp;<span> View Members</span>
+                            <i class="fa fa-eye"></i>
+                            <span class="m-l5">View Members</span>
                         </button>
                     </div>
-                    <div class=col-xs-2>
-                        <label class="control-label">Status:&nbsp;</label>
-                        <button class="btn btn-info btn-small status" type="button"><span ng-bind="experiment.status"></span></button>
-                    </div>
                 </div>
-                <div uib-collapse="isCollapsed">
-                    <hr>
-                    <div class="col-xs-12">
-                        <ul id="triple-list" class="members">
-                            <li class="members" ng-repeat="member in experiment.accessList track by $index">
-                                {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                            </li>
-                        </ul>
-                        <br>
+                <div class="col-sm-6 col-xs-3">
+                    <div class="row-inline">
+                        <span class="txt-larger">Status:</span>
+                        <span class="uui-label" ng-bind="experiment.status"></span>
                     </div>
                 </div>
             </div>
+            <div uib-collapse="isCollapsed">
+                <hr>
+                <ul id="triple-list" class="list-triple members">
+                    <li class="members" ng-repeat="member in experiment.accessList track by $index">
+                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
+                    </li>
+                </ul>
+            </div>
         </div>
-        <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)"
-              style="margin-top: 20px">
-
-            <my-components my-template="experiment.template.templateContent"
-                           my-readonly="!isEditAllowed"
-                           my-model="experiment.components"
-                           my-experiment-form="experimentForm"
-                           my-experiment="experiment"></my-components>
-        </form>
     </div>
-    <div class="panel-footer text-right">
-
+    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
+        <my-components my-template="experiment.template.templateContent"
+                       my-readonly="!isEditAllowed"
+                       my-model="experiment.components"
+                       my-experiment-form="experimentForm"
+                       my-experiment="experiment"></my-components>
+    </form>
+    <div class="btn-bottom-block tab-content-pad">
         <div class="btn-group dropup" uib-dropdown is-open="isopen">
             <button id="single-button" type="button" class="btn btn-info" uib-dropdown-toggle ng-disabled="disabled">
-                <span class="glyphicon glyphicon-flash"></span>&nbsp;<span> Actions </span><span class="caret"></span>
+                <span class="glyphicon glyphicon-flash"></span><span class="m-l5"> Actions </span><span class="caret m-l5"></span>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
                 <li role="menuitem"><a><em>Status: </em><strong>{{ experiment.status}}</strong></a></li>
@@ -80,12 +74,11 @@
             <select ng-model="experiment.status" ng-options="o as o for o in statuses"></select>
         </div>-->
 
-        <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid"
-                class="btn btn-primary">
-            <span class="fa fa-save"></span>&nbsp;<span> Save</span>
+        <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid" class="btn btn-primary">
+            <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
         <a class="btn btn-default" onclick="window.history.back()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Back</span>
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </a>
     </div>
 </div>

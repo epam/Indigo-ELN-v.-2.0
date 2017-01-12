@@ -191,18 +191,71 @@
   padding-left: 0px;
   padding-right: 0px;
 }
-/******************DROPDOWN STYLE*********************/
-.dropdown-menu {
-  box-shadow: none;
-  padding: 0;
+/******************ANIMATION STYLE*********************/
+.user-management .edit-form.ng-leave {
+  animation: fadeOutUp 0.3s;
 }
-.dropdown-menu > li a {
-  padding: 5px 12px 7px 12px;
+.user-management .edit-form.ng-enter {
+  animation: fadeInDown 0.3s;
 }
-.ui-select-bootstrap .ui-select-choices-row > a {
-  padding: 3px 10px;
+.role-management .edit-form.ng-leave {
+  animation: fadeOutUp 0.3s;
 }
-.ui-select-bootstrap .ui-select-choices-row.active > a {
-  background-color: transparent;
-  color: #84d5fb;
+.role-management .edit-form.ng-enter {
+  animation: fadeInDown 0.3s;
+}
+.dictionary .edit-form.ng-leave {
+  animation: fadeOutUp 0.3s;
+}
+.dictionary .edit-form.ng-enter {
+  animation: fadeInDown 0.3s;
+}
+.words .edit-form.ng-leave {
+  animation: fadeOutUp 0.3s;
+}
+.words .edit-form.ng-enter {
+  animation: fadeInDown 0.3s;
+}
+.login-form .panel-info.has-error-add,
+.login-form .panel-info.has-error-remove {
+  animation: shake 0.7s;
+}
+#sidebar-wrapper ul .ng-enter {
+  animation: fadeInLeft 0.5s;
+}
+#sidebar-wrapper ul .ng-leave {
+  animation: none;
+}
+.templates .tab.ng-enter {
+  animation: fadeInDown 0.5s;
+}
+.templates .tab.ng-leave {
+  animation: fadeOutDown 0.5s;
+}
+.templates .component.ng-enter {
+  animation: fadeInLeft 0.5s;
+}
+.templates .component.ng-leave {
+  animation: fadeOutDown 0.5s;
+}
+.palette .draggable-component.ng-leave {
+  animation: fadeOut 0.5s;
+}
+.palette .draggable-component.ng-enter {
+  animation: fadeIn 0.5s;
+}
+.palette .draggable-component.ng-leave {
+  animation: none;
+}
+.page-content.ng-enter {
+  animation: fadeIn 0.7s;
+}
+.page-content.ng-leave {
+  animation: none;
+}
+.my-table tr.ng-leave {
+  animation: fadeOutUp 0.3s;
+}
+.my-table tr.ng-enter {
+  animation: fadeInDown 0.3s;
 }

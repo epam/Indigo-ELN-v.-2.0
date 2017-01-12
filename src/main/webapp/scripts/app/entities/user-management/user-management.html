@@ -1,4 +1,4 @@
-<div class="user-management panel-main-wrapper p-t14">
+<div class="tab-content-pad user-management">
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="create()">
@@ -97,8 +97,12 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">Cancel</button>
-            <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length" class="btn btn-primary m-l5">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </button>
+            <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length" class="btn btn-primary m-l5">
+                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+            </button>
         </div>
     </div>
     <table class="table table-striped">
@@ -125,13 +129,13 @@
             </td>
             <td>{{user.email}}</td>
             <td>
-                    <span class="label label-danger" ng-click="setActive(user, true)"
+                    <span class="uui-label uui-label-red" ng-click="setActive(user, true)"
                           ng-show="!user.system && !user.activated"
                           style="cursor: pointer;">Deactivated</span>
-                    <span class="label label-success" ng-click="setActive(user, false)"
+                    <span class="uui-label uui-label-green" ng-click="setActive(user, false)"
                           ng-show="!user.system && user.activated"
                           style="cursor: pointer;">Activated</span>
-                <span class="label label-success" ng-show="user.system">Activated</span>
+                <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
             </td>
             <td class="text-right">
                 <button type="submit"

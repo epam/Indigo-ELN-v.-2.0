@@ -124,11 +124,23 @@
 .awesome-b {
   font-family: FontAwesome;
 }
+.txt-larger {
+  font-size: 16px;
+}
+.txt-small {
+  font-size: 12px;
+}
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+.clickable {
+  cursor: pointer;
+}
+.capitalized {
+  text-transform: capitalize;
 }
 .m-t20 {
   margin-top: 20px;
@@ -144,6 +156,9 @@
 }
 .m-b10 {
   margin-bottom: 10px;
+}
+.m-b15 {
+  margin-bottom: 15px;
 }
 .m-b5 {
   margin-bottom: 5px;
@@ -165,6 +180,16 @@
 }
 .m-r30-imp {
   margin-right: 30px !important;
+}
+.m-l15-imp {
+  margin-left: 15px !important;
+}
+.p-t14 {
+  padding-top: 14px;
+}
+.p-l-r-0 {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 /******************FORMS STYLE*********************/
 label {
@@ -191,6 +216,10 @@ input[type="checkbox"]:focus {
   outline: 0 auto -webkit-focus-ring-color;
   outline-offset: 0;
 }
+textarea,
+.textarea-structure {
+  resize: none;
+}
 .ui-select-container .ui-select-match .btn {
   border-color: #ddd;
   font: 14px 'Source Sans Pro Regular', sans-serif;
@@ -207,8 +236,9 @@ input[type="checkbox"]:focus {
   margin-right: 20px;
 }
 .my-checkbox-wrapper .my-checkbox {
-  background-color: white !important;
-  border-color: #b2ebf2 !important;
+  background-color: #fff !important;
+  border-color: #ddd !important;
+  color: #84d5fb;
   font-size: 10px;
   padding: 1px 3px 1px 5px;
   margin-right: 5px;

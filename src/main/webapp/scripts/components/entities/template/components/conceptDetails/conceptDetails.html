@@ -5,7 +5,7 @@
     <div class="panel-body">
         <div class="form-horizontal">
             <div class="row">
-                <div class="col-xs-8">
+                <div class="col-xs-6">
                     <my-input my-label="Concept Subject / Title" my-label-vertical="true"
                               my-name="conceptDetailsTitle"
                               my-model="model.conceptDetails.title"
@@ -39,7 +39,7 @@
                                my-model="model.conceptDetails.experimentCreator"
                     ></my-select>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-6">
                     <my-date-picker my-label="Creation Date" my-label-vertical="true"
                                     my-model="experiment.creationDate"
                                     my-readonly="true"></my-date-picker>
@@ -61,14 +61,10 @@
                     ></my-select>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <my-text-area my-label="Concept Keywords" my-label-vertical="true"
-                                  my-model="model.conceptDetails.keywords"
-                                  my-readonly="myReadonly">
-                    </my-text-area>
-                </div>
-            </div>
+            <my-text-area my-label="Concept Keywords" my-label-vertical="true"
+                          my-model="model.conceptDetails.keywords"
+                          my-readonly="myReadonly">
+            </my-text-area>
         </div>
     </div>
 </div>
