@@ -358,6 +358,12 @@
   outline: none;
   outline-offset: -2px;
 }
+.btn-toolbar .btn-group + .btn-group {
+  margin-left: 20px;
+}
+.btn-group .btn + .btn {
+  margin-left: 5px;
+}
 /******************TABLES*********************/
 table {
   page-break-inside: auto;
@@ -372,7 +378,7 @@ tr {
 .table > thead > tr > th {
   border-bottom: 1px solid #ddd;
   color: #666;
-  font-family: 'Source Sans Pro Bold', sans-serif;
+  font-family: 'Source Sans Pro Semibold', sans-serif;
   font-weight: normal;
 }
 .table > thead > tr > th > p {
@@ -392,7 +398,7 @@ tr {
 }
 .table.product .btn {
   color: #666;
-  font: 14px 'Source Sans Pro Bold', sans-serif;
+  font: 14px 'Source Sans Pro Semibold', sans-serif;
   padding: 0;
 }
 .table .checkbox {
@@ -817,11 +823,11 @@ a {
   margin-top: -3px;
 }
 .btn-bottom-block {
-  margin-top: 20px;
+  margin: 20px 0;
   text-align: right;
 }
 .btn-bottom-block > * + * {
-  margin-left: 5px;
+  margin-left: 8px;
 }
 tags-input .host {
   margin: 0;
@@ -1349,6 +1355,16 @@ ul.my-dropdown-list {
 }
 @media (max-width: 1199px) {
   .m-bt-lg {
-    margin-bottom: 20px !important;
+    margin-bottom: 10px !important;
+  }
+}
+@media (min-width: 768px) {
+  .text-align {
+    text-align: right;
+  }
+}
+@media (max-width: 767px) {
+  .m-bt-sm {
+    margin-bottom: 10px !important;
   }
 }

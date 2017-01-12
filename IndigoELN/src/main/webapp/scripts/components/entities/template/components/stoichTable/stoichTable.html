@@ -7,38 +7,42 @@
                   my-draggable-columns="true"
                   my-draggable-rows="true" my-on-row-selected="onRowSelected"
                   my-readonly="myReadonly" my-label="Reactants, Reagents, Solvents">
-            <div class="m-b10">
-                <button type="button" ng-click="searchReagents(0)" class="btn btn-info btn-small" ng-disabled="myReadonly">
-                    <i class="fa fa-list"></i>
-                    <span class="m-l5">My Reagent List</span>
-                </button>
-                <button type="button" ng-click="searchReagents(1)" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly">
-                    <i class="fa fa-search"></i>
-                    <span class="m-l5">Search DBs</span>
-                </button>
-                <button type="button" ng-click="analyzeRxn()" ng-disabled="myReadonly || !model.stoichTable.products" class="btn btn-info btn-small m-l5">
-                    <i class="fa fa-line-chart"></i>
-                    <span class="m-l5">Analyze Rxn</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small m-l5" ng-click="createRxn()" ng-disabled="myReadonly || noReactantsInStoic()">
-                    <i class="fa fa-plus"></i>
-                    <span class="m-l5">Create Rxn</span>
-                </button>
+            <div class="btn-toolbar m-b10">
+                <div class="btn-group">
+                    <button type="button" ng-click="searchReagents(0)" class="btn btn-info btn-small" ng-disabled="myReadonly">
+                        <i class="fa fa-list"></i>
+                        <span class="m-l5">My Reagent List</span>
+                    </button>
+                    <button type="button" ng-click="searchReagents(1)" class="btn btn-info btn-small" ng-disabled="myReadonly">
+                        <i class="fa fa-search"></i>
+                        <span class="m-l5">Search DBs</span>
+                    </button>
+                </div>
+                <div class="btn-group">
+                    <button type="button" ng-click="analyzeRxn()" ng-disabled="myReadonly || !model.stoichTable.products" class="btn btn-info btn-small">
+                        <i class="fa fa-line-chart"></i>
+                        <span class="m-l5">Analyze Rxn</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-click="createRxn()" ng-disabled="myReadonly || noReactantsInStoic()">
+                        <i class="fa fa-plus"></i>
+                        <span class="m-l5">Create Rxn</span>
+                    </button>
+                </div>
             </div>
-            <div class="m-b20">
+            <div class="btn-group m-b20">
                 <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="appendRow()">
                     <i class="fa fa-plus"></i>
                     <span class="m-l5">Append Row</span>
                 </button>
-                <button type="button" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly || !selectedRow" ng-click="clear()">
+                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="clear()">
                     <i class="fa fa-eraser"></i>
                     <span class="m-l5">Clear</span>
                 </button>
-                <button type="button" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly || !selectedRow" ng-click="removeRow()">
+                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="removeRow()">
                     <i class="fa fa-trash"></i>
                     <span class="m-l5">Delete</span>
                 </button>
-                <button type="button" class="btn btn-info btn-small m-l5" disabled>
+                <button type="button" class="btn btn-info btn-small" disabled>
                     <i class="fa fa-plus"></i>
                     <span class="m-l5">MSDS Search</span>
                 </button>

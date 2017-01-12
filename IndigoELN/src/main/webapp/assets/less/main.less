@@ -94,11 +94,11 @@ a {
 //Main bottom block
 
 .btn-bottom-block {
-    margin-top: 20px;
+    margin: 20px 0;
     text-align: right;
 
     > * + * {
-        margin-left: 5px;
+        margin-left: 8px;
     }
 }
 
@@ -791,6 +791,18 @@ ul.my-dropdown-list {
 
 @media (max-width: 1199px) {
     .m-bt-lg {
-        margin-bottom: 20px !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .text-align {
+        text-align: right;
+    }
+}
+
+@media (max-width: 767px) {
+    .m-bt-sm {
+        margin-bottom: 10px !important;
     }
 }

@@ -31,15 +31,17 @@
                 <td>{{file.length | prettyBytes}}</td>
                 <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
                 <td class="text-right">
-                    <a class="btn btn-success btn-sm" href="api/project_files/{{file.id}}" target="_self">
-                        <span class="glyphicon glyphicon-download"></span>
-                    </a>
-                    <button type="submit"
-                            ng-disabled="myReadonly"
-                            ng-click="delete(file)"
-                            class="btn btn-danger btn-sm">
-                        <span class="glyphicon glyphicon-remove-circle"></span>
-                    </button>
+                    <div class="btn-group">
+                        <a class="btn btn-success btn-small" href="api/project_files/{{file.id}}" target="_self">
+                            <span class="glyphicon glyphicon-download"></span>
+                        </a>
+                        <button type="submit"
+                                ng-disabled="myReadonly"
+                                ng-click="delete(file)"
+                                class="btn btn-danger btn-small">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
+                        </button>
+                    </div>
                 </td>
             </tr>
             </tbody>

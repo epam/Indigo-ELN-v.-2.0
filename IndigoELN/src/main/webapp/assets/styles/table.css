@@ -205,7 +205,7 @@ tr {
 .table > thead > tr > th {
   border-bottom: 1px solid #ddd;
   color: #666;
-  font-family: 'Source Sans Pro Bold', sans-serif;
+  font-family: 'Source Sans Pro Semibold', sans-serif;
   font-weight: normal;
 }
 .table > thead > tr > th > p {
@@ -225,7 +225,7 @@ tr {
 }
 .table.product .btn {
   color: #666;
-  font: 14px 'Source Sans Pro Bold', sans-serif;
+  font: 14px 'Source Sans Pro Semibold', sans-serif;
   padding: 0;
 }
 .table .checkbox {
