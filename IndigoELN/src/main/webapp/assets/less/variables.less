@@ -184,6 +184,8 @@
 @brand5:                              #ffdc19; //yellow
 @brand6:                              #ff9b19; //orange
 @brand7:                              #f2f2f2; //light grey
+@brand8:                              #a3c644; //green
+@brand9:                              red;
 
 //Gray color
 
@@ -201,7 +203,7 @@
 @small-size:                          12px;
 @border-color:                        #ddd;
 @border-radius:                       0;
-
+@pad-space:                           20px;
 
 //Buttons
 
@@ -214,7 +216,7 @@
 @btn-info-border-color:               @brand3;
 @btn-info-focus-border-color:         #25a4b8;
 @btn-small-size:                      @small-size;
-@btn-small-pad:                       2px 12px;
+@btn-small-pad:                       3px 12px 2px;
 
 @btn-default-border-color:            @border-color;
 @btn-primary-border-color:            @brand2;
@@ -227,7 +229,7 @@
 
 //Panels
 
-@panel-space-horizontal:              20px;
+@panel-space-horizontal:              @pad-space;
 @panel-space-vertical:                13px;
 
 @panel-heading-color:                 @gray;
@@ -238,7 +240,7 @@
 
 //List Group
 
-@list-group-item-pad:                 13px 20px;
+@list-group-item-pad:                 13px @pad-space;
 @list-group-item-span-bg:             @gray-light;
 
 //Dropdown
@@ -326,13 +328,42 @@
 
 @tabs-link-color:                     @gray;
 @tabs-link-family:                    'Oswald Regular', sans-serif;
-@tabs-link-pad:                       14px 15px 13px;
+@tabs-link-pad:                       14px @pad-space 13px;
 @tabs-link-hover-color:               @brand2;
+
+@inner-tabs-link-border-width:        3px;
+@inner-tabs-link-size:                @small-size;
+@inner-tabs-link-family:              'Source Sans Pro Semibold', sans-serif;
+@inner-tabs-link-pad:                 8px @pad-space;
+@inner-tabs-link-hover-border-color:  @brand1;
 
 //Tables
 
 @table-border:                        1px solid @border-color;
 @table-col-pad:                       8px 16px;
-@table-th-family:                     'Source Sans Pro Semibold', sans-serif;
+@table-th-color:                      #666;
+@table-th-family:                     'Source Sans Pro Bold', sans-serif;
+
+//Labels
+
+@uui-label-bg:                        @brand3;
+@uui-label-border:                    1px solid @uui-label-bg;
+@uui-label-border-radius:             12px;
+@uui-label-color:                     @white;
+@uui-label-size:                      @small-size;
+@uui-label-family:                    'Oswald Regular',Arial,sans-serif;
+@uui-label-pad:                       0 13px;
+
+@uui-label-green-bg:                  @brand8;
+@uui-label-green-border-color:        @uui-label-green-bg;
+
+@uui-label-red-bg:                    @brand9;
+@uui-label-red-border-color:          @uui-label-red-bg;
+
+//tags List
+
+@tag-list-bg:                         #f2f2f2;
+@tag-list-size:                       @small-size;
+@tag-list-pad:                        0 5px;
 
 

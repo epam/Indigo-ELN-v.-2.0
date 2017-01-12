@@ -191,18 +191,30 @@
   padding-left: 0px;
   padding-right: 0px;
 }
-/******************DROPDOWN STYLE*********************/
-.dropdown-menu {
-  box-shadow: none;
-  padding: 0;
+/******************LABELS STYLE*********************/
+.uui-label {
+  background: #84d5fb;
+  border: 1px solid #84d5fb;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -khtml-border-radius: 12px;
+  border-radius: 12px;
+  color: #fff;
+  display: inline-block;
+  font-size: 12px;
+  font-family: 'Oswald Regular', Arial, sans-serif;
+  line-height: 21px;
+  letter-spacing: .25px;
+  padding: 0 13px;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
 }
-.dropdown-menu > li a {
-  padding: 5px 12px 7px 12px;
+.uui-label-green {
+  background: #a3c644;
+  border-color: #a3c644;
 }
-.ui-select-bootstrap .ui-select-choices-row > a {
-  padding: 3px 10px;
-}
-.ui-select-bootstrap .ui-select-choices-row.active > a {
-  background-color: transparent;
-  color: #84d5fb;
+.uui-label-red {
+  background: red;
+  border-color: red;
 }

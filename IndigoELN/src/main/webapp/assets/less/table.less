@@ -4,11 +4,21 @@
 
 /******************TABLES*********************/
 
+table {
+  page-break-inside: auto
+}
+
+tr {
+  page-break-inside: avoid;
+  page-break-after: auto
+}
+
 .table {
   border: @table-border;
 
   > thead > tr > th {
     border-bottom: @table-border;
+    color: @table-th-color;
     font-family: @table-th-family;
     font-weight: normal;
 
@@ -33,6 +43,19 @@
     > tbody > tr > td {
       text-align: center;
     }
+  }
+
+  &.product {
+
+    .btn {
+      color: @table-th-color;
+      font: 14px @table-th-family;
+      padding: 0;
+    }
+  }
+
+  .checkbox {
+    margin: 0;
   }
 }
 

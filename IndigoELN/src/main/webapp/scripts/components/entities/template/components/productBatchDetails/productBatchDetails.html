@@ -2,38 +2,29 @@
     <div class="panel-heading">
         Product Batch Details
     </div>
-    <div class="collapsible">
-        <div class="panel-body">
-            <div class="form-horizontal">
-                <div class="row">
-                    <div style="position:relative">
-                        <div class="col-xs-2">
-                            <label>Notebook Batch #: </label>
-                            <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span>
-                        </div>
-                        <div class="col-xs-2" style="width:80px;margin-top: -7px;">
-                            <my-select
-                                       my-model="selectedBatch"
-                                       my-items="model.productBatchSummary.batches"
-                                       my-change="onSelectBatch()"
-                                       my-item-prop="nbkBatch"
-                                       my-control = "selectControl"
-                            ></my-select>
-                        </div>
-
-                        <div class="col-xs-2" style="margin-top: -7px;">
-                            <my-checkbox
-                                    my-model="showSummary"
-                                    my-label="Show Summary"
-                            ></my-checkbox>
-                        </div>
-                    </div>
-                </div>
+    <div class="panel-body collapsible">
+        <div class="form-inline">
+            <div class="col-xs-2">
+                <span class="txt-larger">Notebook Batch #:</span>
+                <span class="txt-larger">{{model.productBatchDetails.fullNbkImmutablePart}}</span>
+            </div>
+            <div class="form-group">
+                <my-select
+                           my-model="selectedBatch"
+                           my-items="model.productBatchSummary.batches"
+                           my-change="onSelectBatch()"
+                           my-item-prop="nbkBatch"
+                           my-control = "selectControl"
+                ></my-select>
+            </div>
+            <div class="form-group">
+                <my-checkbox
+                        my-model="showSummary"
+                        my-label="Show Summary"
+                ></my-checkbox>
             </div>
         </div>
-
         <indigo-batch-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
-
         <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
                   my-rows="detailTable" my-readonly="myReadonly">
             <div class="btn-group btn-group-sm" role="group">
@@ -60,184 +51,182 @@
 
         </my-table>
 
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-lg-4">
-                    <my-select my-label="Status"
-                               my-label-vertical="true"
-                               my-model="model.productBatchDetails.regStatus"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-input my-label="Conversational Batch number"
-                              my-model="model.productBatchDetails.conversationalBatchNumber"
-                              my-label-vertical="true"
-                              my-readonly="true"
-                    ></my-input>
-                    <my-input my-label="Virtual Compound Id"
-                              my-model="model.productBatchDetails.virtualCompoundId"
+        <div class="row">
+            <div class="col-md-4 col-sm-6">
+                <my-select my-label="Status"
+                           my-label-vertical="true"
+                           my-model="model.productBatchDetails.regStatus"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-input my-label="Conversational Batch number"
+                          my-model="model.productBatchDetails.conversationalBatchNumber"
+                          my-label-vertical="true"
+                          my-readonly="true"
+                ></my-input>
+                <my-input my-label="Virtual Compound Id"
+                          my-model="model.productBatchDetails.virtualCompoundId"
+                          my-label-vertical="true"
+                          my-readonly="myReadonly"
+                ></my-input>
+                <my-select my-label="Source"
+                           my-label-vertical="true"
+                           my-model="model.productBatchDetails.source"
+                           my-dictionary="Source"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-select my-label="Source Detail"
+                           my-label-vertical="true"
+                           my-model="model.productBatchDetails.sourceDetail"
+                           my-dictionary="Source Details"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-select my-label="Sterioisomer Code"
+                           my-label-vertical="true"
+                           my-dictionary="Stereoisomer Code"
+                           my-item-prop="name,description"
+                           my-model="model.productBatchDetails.stereoisomer"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-simple-text my-label="Calculated Batch MW"
+                                my-model="model.productBatchDetails.molWeight.value | round"
+                                my-empty-text="none"
+                ></my-simple-text>
+                <my-simple-text my-label="Calculated Batch MF"
+                                my-model="model.productBatchDetails.formula"
+                                my-empty-text="none">
+                </my-simple-text>
+                <my-select my-label="Salt Code & Name"
+                           my-label-vertical="true"
+                           my-items="saltCodeValues"
+                           my-model="model.productBatchDetails.saltCode"
+                           my-change="recalculateSalt(model.productBatchDetails)"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-input my-label="Salt Equivalent"
+                          my-model="model.productBatchDetails.saltEq.value"
+                          my-change="recalculateSalt(model.productBatchDetails)"
+                          my-type="number"
+                          my-label-vertical="true"
+                          my-readonly="myReadonly"
+                ></my-input>
+                <my-text-area my-label="Structure comments"
+                              my-model="model.productBatchDetails.structureComments"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
-                    ></my-input>
-                    <my-select my-label="Source"
-                               my-label-vertical="true"
-                               my-model="model.productBatchDetails.source"
-                               my-dictionary="Source"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-select my-label="Source Detail"
-                               my-label-vertical="true"
-                               my-model="model.productBatchDetails.sourceDetail"
-                               my-dictionary="Source Details"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-select my-label="Sterioisomer Code"
-                               my-label-vertical="true"
-                               my-dictionary="Stereoisomer Code"
-                               my-item-prop="name,description"
-                               my-model="model.productBatchDetails.stereoisomer"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-simple-text my-label="Calculated Batch MW"
-                                    my-model="model.productBatchDetails.molWeight.value | round"
-                                    my-empty-text="none"
-                    ></my-simple-text>
-                    <my-simple-text my-label="Calculated Batch MF"
-                                    my-model="model.productBatchDetails.formula"
-                                    my-empty-text="none">
-                    </my-simple-text>
-                    <my-select my-label="Salt Code & Name"
-                               my-label-vertical="true"
-                               my-items="saltCodeValues"
-                               my-model="model.productBatchDetails.saltCode"
-                               my-change="recalculateSalt(model.productBatchDetails)"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-input my-label="Salt Equivalent"
-                              my-model="model.productBatchDetails.saltEq.value"
-                              my-change="recalculateSalt(model.productBatchDetails)"
-                              my-type="number"
+                ></my-text-area>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <my-select my-label="Compound State"
+                           my-label-vertical="true"
+                           my-dictionary="Compound State"
+                           my-model="model.productBatchDetails.compoundState"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-input my-label="Precursor/Reactant IDs"
+                          my-model="model.productBatchDetails.precursors"
+                          my-label-vertical="true"
+                          my-readonly="myReadonly || share.stoichTable"
+                ></my-input>
+                <my-input my-label="Purity"
+                          my-model="model.productBatchDetails.purity.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.purity.asString">
+                    <button class="btn btn-info" type="button" ng-click="editPurity()" ng-disabled="myReadonly">
+                        Edit
+                    </button>
+                </my-input>
+                <my-input my-label="Melting Point"
+                          my-model="model.productBatchDetails.meltingPoint.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.meltingPoint.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editMeltingPoint()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+                <my-input my-label="Residual Solvents"
+                          my-model="model.productBatchDetails.residualSolvents.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.residualSolvents.asString"
+                >
+                    <button class="btn btn-info" ng-click="editResidualSolvents()" type="button"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+                <my-input my-label="Solubility in Solvents"
+                          my-model="model.productBatchDetails.solubility.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.solubility.asString"
+                >
+                    <button class="btn btn-info" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">
+                        Edit
+                    </button>
+                </my-input>
+                <my-input my-label="External Supplier"
+                          my-model="model.productBatchDetails.externalSupplier.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.externalSupplier.asString"
+                >
+                    <button class="btn btn-info" ng-click="editExternalSupplier()" type="button"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <my-select my-label="Compound Protection"
+                           my-model="model.productBatchDetails.compoundProtection"
+                           my-label-vertical="true"
+                           my-dictionary="Compound Protection"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <my-input my-label="Health Hazards"
+                          my-model="model.productBatchDetails.healthHazards.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.healthHazards.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editHealthHazards()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+                <my-input my-label="Handling Precautions"
+                          my-model="model.productBatchDetails.handlingPrecautions.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.handlingPrecautions.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editHandlingPrecautions()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+                <my-input my-label="Storage Instructions"
+                          my-model="model.productBatchDetails.storageInstructions.asString"
+                          my-label-vertical="true"
+                          my-input-group="append"
+                          my-readonly="true"
+                          my-tooltip="model.productBatchDetails.storageInstructions.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editStorageInstructions()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </my-input>
+                <my-text-area my-label="Batch Comments"
+                              my-model="model.productBatchDetails.comments"
                               my-label-vertical="true"
                               my-readonly="myReadonly"
-                    ></my-input>
-                    <my-text-area my-label="Structure comments"
-                                  my-model="model.productBatchDetails.structureComments"
-                                  my-label-vertical="true"
-                                  my-readonly="myReadonly"
-                    ></my-text-area>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-lg-4">
-                    <my-select my-label="Compound State"
-                               my-label-vertical="true"
-                               my-dictionary="Compound State"
-                               my-model="model.productBatchDetails.compoundState"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-input my-label="Precursor/Reactant IDs"
-                              my-model="model.productBatchDetails.precursors"
-                              my-label-vertical="true"
-                              my-readonly="myReadonly || share.stoichTable"
-                    ></my-input>
-                    <my-input my-label="Purity"
-                              my-model="model.productBatchDetails.purity.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.purity.asString">
-                        <button class="btn btn-info" type="button" ng-click="editPurity()" ng-disabled="myReadonly">
-                            Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="Melting Point"
-                              my-model="model.productBatchDetails.meltingPoint.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.meltingPoint.asString"
-                    >
-                        <button class="btn btn-info" type="button" ng-click="editMeltingPoint()"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="Residual Solvents"
-                              my-model="model.productBatchDetails.residualSolvents.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.residualSolvents.asString"
-                    >
-                        <button class="btn btn-info" ng-click="editResidualSolvents()" type="button"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="Solubility in Solvents"
-                              my-model="model.productBatchDetails.solubility.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.solubility.asString"
-                    >
-                        <button class="btn btn-info" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">
-                            Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="External Supplier"
-                              my-model="model.productBatchDetails.externalSupplier.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.externalSupplier.asString"
-                    >
-                        <button class="btn btn-info" ng-click="editExternalSupplier()" type="button"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                </div>
-                <div class="col-xs-12 col-sm-6 col-lg-4">
-                    <my-select my-label="Compound Protection"
-                               my-model="model.productBatchDetails.compoundProtection"
-                               my-label-vertical="true"
-                               my-dictionary="Compound Protection"
-                               my-readonly="myReadonly"
-                    ></my-select>
-                    <my-input my-label="Health Hazards"
-                              my-model="model.productBatchDetails.healthHazards.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.healthHazards.asString"
-                    >
-                        <button class="btn btn-info" type="button" ng-click="editHealthHazards()"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="Handling Precautions"
-                              my-model="model.productBatchDetails.handlingPrecautions.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.handlingPrecautions.asString"
-                    >
-                        <button class="btn btn-info" type="button" ng-click="editHandlingPrecautions()"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                    <my-input my-label="Storage Instructions"
-                              my-model="model.productBatchDetails.storageInstructions.asString"
-                              my-label-vertical="true"
-                              my-input-group="append"
-                              my-readonly="true"
-                              my-tooltip="model.productBatchDetails.storageInstructions.asString"
-                    >
-                        <button class="btn btn-info" type="button" ng-click="editStorageInstructions()"
-                                ng-disabled="myReadonly">Edit
-                        </button>
-                    </my-input>
-                    <my-text-area my-label="Batch Comments"
-                                  my-model="model.productBatchDetails.comments"
-                                  my-label-vertical="true"
-                                  my-readonly="myReadonly"
-                    ></my-text-area>
-                </div>
+                ></my-text-area>
             </div>
         </div>
     </div>

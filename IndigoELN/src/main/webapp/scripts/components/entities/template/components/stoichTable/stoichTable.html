@@ -2,44 +2,46 @@
     <div class="panel-heading">
         Stoichiometry Table
     </div>
-    <div class="collapsible"><!-- for collapsible-->
+    <div class="panel-body collapsible">
         <my-table my-id="reactants" my-columns="reactantsColumns" my-rows="model.stoichTable.reactants"
                   my-draggable-columns="true"
                   my-draggable-rows="true" my-on-row-selected="onRowSelected"
                   my-readonly="myReadonly" my-label="Reactants, Reagents, Solvents">
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" ng-click="searchReagents(0)" class="btn btn-info ellipsis"
-                        ng-disabled="myReadonly">My Reagent List
+            <div class="m-b10">
+                <button type="button" ng-click="searchReagents(0)" class="btn btn-info btn-small" ng-disabled="myReadonly">
+                    <i class="fa fa-list"></i>
+                    <span class="m-l5">My Reagent List</span>
                 </button>
-                <button type="button" ng-click="searchReagents(1)" class="btn btn-info ellipsis"
-                        ng-disabled="myReadonly">Search DBs
+                <button type="button" ng-click="searchReagents(1)" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly">
+                    <i class="fa fa-search"></i>
+                    <span class="m-l5">Search DBs</span>
                 </button>
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" ng-click="analyzeRxn()"
-                        ng-disabled="myReadonly || !model.stoichTable.products"
-                        class="btn btn-info ellipsis">Analyze Rxn
+                <button type="button" ng-click="analyzeRxn()" ng-disabled="myReadonly || !model.stoichTable.products" class="btn btn-info btn-small m-l5">
+                    <i class="fa fa-line-chart"></i>
+                    <span class="m-l5">Analyze Rxn</span>
                 </button>
-                <button type="button" class="btn btn-info ellipsis" ng-click="createRxn()"
-                        ng-disabled="myReadonly || noReactantsInStoic()">Create Rxn
-                </button>
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-info ellipsis"
-                        ng-disabled="myReadonly"
-                        ng-click="appendRow()">Append Row
-                </button>
-                <button type="button" class="btn btn-info ellipsis"
-                        ng-disabled="myReadonly || !selectedRow"
-                        ng-click="clear()">Clear
-                </button>
-                <button type="button" class="btn btn-info ellipsis"
-                        ng-disabled="myReadonly || !selectedRow"
-                        ng-click="removeRow()">Delete
+                <button type="button" class="btn btn-info btn-small m-l5" ng-click="createRxn()" ng-disabled="myReadonly || noReactantsInStoic()">
+                    <i class="fa fa-plus"></i>
+                    <span class="m-l5">Create Rxn</span>
                 </button>
             </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button type="button" class="btn btn-info ellipsis" disabled>MSDS Search</button>
+            <div class="m-b20">
+                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="appendRow()">
+                    <i class="fa fa-plus"></i>
+                    <span class="m-l5">Append Row</span>
+                </button>
+                <button type="button" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly || !selectedRow" ng-click="clear()">
+                    <i class="fa fa-eraser"></i>
+                    <span class="m-l5">Clear</span>
+                </button>
+                <button type="button" class="btn btn-info btn-small m-l5" ng-disabled="myReadonly || !selectedRow" ng-click="removeRow()">
+                    <i class="fa fa-trash"></i>
+                    <span class="m-l5">Delete</span>
+                </button>
+                <button type="button" class="btn btn-info btn-small m-l5" disabled>
+                    <i class="fa fa-plus"></i>
+                    <span class="m-l5">MSDS Search</span>
+                </button>
             </div>
         </my-table>
         <my-table my-id="intended" my-columns="productsColumns" my-rows="model.stoichTable.products"

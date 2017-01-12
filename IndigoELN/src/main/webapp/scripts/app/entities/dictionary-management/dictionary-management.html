@@ -1,4 +1,4 @@
-<div class="dictionary panel-main-wrapper p-t14">
+<div class="tab-content-pad dictionary">
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="createDictionary()">
@@ -18,8 +18,7 @@
             Create/Edit Dictionary
         </div>
         <div class="panel-body ">
-            <form id="editForm" name="editForm" role="form" novalidate ng-submit="saveDictionary()"
-                  class="form-horizontal" autocomplete="off">
+            <form id="editForm" name="editForm" role="form" novalidate ng-submit="saveDictionary()" autocomplete="off">
                 <div class="row">
                     <div class="col-xs-6">
                         <my-input
@@ -43,20 +42,14 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearDictionary()">Cancel</button>
-            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary m-l5">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearDictionary()">
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </button>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary m-l5">
+                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+            </button>
         </div>
     </div>
-
-    <!--<form class="form-inline text-right">-->
-        <!--<my-input id="searchDictionary" my-label="Search Dictionary" my-model="searchText" my-input-group="append">-->
-            <!--<button class="btn btn-info" type="submit" ng-click="searchDictionary()">-->
-                <!--<span class="glyphicon glyphicon-search"></span>-->
-                <!--Search-->
-            <!--</button>-->
-        <!--</my-input>-->
-    <!--</form>-->
-
     <div class="table-responsive" style="min-height: 273px" my-scroller="x">
         <table class="table table-striped">
             <thead>
@@ -99,7 +92,6 @@
                         ng-change="loadAllDictionaries()">
         </uib-pagination>
     </div>
-
 
     <div class="panel panel-info panel-info-collapse words">
         <div class="panel-heading">
@@ -150,12 +142,16 @@
                     </form>
                 </div>
                 <div class="panel-footer text-right">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearWord()">Cancel</button>
-                    <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || isWordSaving" class="btn btn-primary m-l5">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearWord()">
+                        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                    </button>
+                    <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || isWordSaving" class="btn btn-primary m-l5">
+                        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+                    </button>
                 </div>
             </div>
             <div class="table-responsive" my-scroller="x">
-                <table class="table table-striped">
+                <table class="table table-striped nomarg">
                     <thead>
                     <tr>
                         <th>Name</th>

@@ -1074,7 +1074,7 @@ body {
   font-family: 'Source Sans Pro Regular', Arial, sans-serif !important;
   font-size: 14px;
   line-height: 1.42857143;
-  color: #616161 !important;
+  color: #333333;
   background-color: #fff !important;
 }
 input,
@@ -2538,7 +2538,7 @@ output {
 .form-control {
   display: block;
   width: 100%;
-  height: 32px;
+  height: 34px;
   padding: 6px 12px;
   font-size: 14px;
   line-height: 1.42857143;
@@ -2594,7 +2594,7 @@ input[type="search"] {
   input[type="time"].form-control,
   input[type="datetime-local"].form-control,
   input[type="month"].form-control {
-    line-height: 32px;
+    line-height: 34px;
   }
   input[type="date"].input-sm,
   input[type="time"].input-sm,
@@ -2771,7 +2771,7 @@ select[multiple].input-lg {
   position: relative;
 }
 .has-feedback .form-control {
-  padding-right: 40px;
+  padding-right: 42.5px;
 }
 .form-control-feedback {
   position: absolute;
@@ -2779,9 +2779,9 @@ select[multiple].input-lg {
   right: 0;
   z-index: 2;
   display: block;
-  width: 32px;
-  height: 32px;
-  line-height: 32px;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
   text-align: center;
   pointer-events: none;
 }
@@ -2899,7 +2899,7 @@ select[multiple].input-lg {
   display: block;
   margin-top: 5px;
   margin-bottom: 10px;
-  color: #a1a1a1 !important;
+  color: #737373;
 }
 @media (min-width: 768px) {
   .form-inline .form-group {
@@ -3022,7 +3022,7 @@ select[multiple].input-lg {
 .btn:hover,
 .btn:focus,
 .btn.focus {
-  color: #616161;
+  color: #333333;
   text-decoration: none;
 }
 .btn:active,
@@ -3049,25 +3049,25 @@ fieldset[disabled] a.btn {
   pointer-events: none;
 }
 .btn-default {
-  color: #616161;
+  color: #333333;
   background-color: #ededed;
   border-color: #ededed;
 }
 .btn-default:focus,
 .btn-default.focus {
-  color: #616161;
+  color: #333333;
   background-color: #d4d4d4;
   border-color: #adadad;
 }
 .btn-default:hover {
-  color: #616161;
+  color: #333333;
   background-color: #d4d4d4;
   border-color: #cecece;
 }
 .btn-default:active,
 .btn-default.active,
 .open > .dropdown-toggle.btn-default {
-  color: #616161;
+  color: #333333;
   background-color: #d4d4d4;
   border-color: #cecece;
 }
@@ -3080,7 +3080,7 @@ fieldset[disabled] a.btn {
 .btn-default:active.focus,
 .btn-default.active.focus,
 .open > .dropdown-toggle.btn-default.focus {
-  color: #616161;
+  color: #333333;
   background-color: #c2c2c2;
   border-color: #adadad;
 }
@@ -3103,7 +3103,7 @@ fieldset[disabled] .btn-default.focus {
 }
 .btn-default .badge {
   color: #ededed;
-  background-color: #616161;
+  background-color: #333333;
 }
 .btn-primary {
   color: #fff;
@@ -4357,8 +4357,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   border-bottom: 1px solid transparent;
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(255, 255, 255, 0.1);
-  margin-top: 14px;
-  margin-bottom: 14px;
+  margin-top: 13px;
+  margin-bottom: 13px;
 }
 @media (min-width: 768px) {
   .navbar-form .form-group {
@@ -4443,8 +4443,8 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
   border-bottom-left-radius: 0;
 }
 .navbar-btn {
-  margin-top: 14px;
-  margin-bottom: 14px;
+  margin-top: 13px;
+  margin-bottom: 13px;
 }
 .navbar-btn.btn-sm {
   margin-top: 15px;
@@ -5007,7 +5007,7 @@ a.thumbnail.active {
 }
 .thumbnail .caption {
   padding: 9px;
-  color: #616161 !important;
+  color: #333333;
 }
 .alert {
   padding: 15px;

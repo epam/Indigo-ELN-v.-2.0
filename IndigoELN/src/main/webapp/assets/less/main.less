@@ -12,11 +12,14 @@
 @import 'lists.less';
 @import 'dropdown.less';
 @import 'dialogs.less';
+@import 'label.less';
+@import 'animation.less';
 
 //General Styles
 
 html {
     height: 100%;
+    overflow-y: auto;
 }
 
 body {
@@ -38,12 +41,26 @@ ul {
     cursor: pointer;
 }
 
+a {
+    cursor: pointer;
+}
+
 [ng\:cloak], [ng-cloak],
 [data-ng-cloak], [x-ng-cloak],
 .ng-cloak, .x-ng-cloak {
     display: none !important;
 }
 
+.row {
+    margin-left: -15px !important;
+    margin-right: -15px !important;
+}
+
+.row > div {
+    margin-bottom: 0;
+}
+
+//Container styles
 
 #page-wrapper {
     padding-left: 0;
@@ -54,14 +71,91 @@ ul {
     margin-left: 0;
 }
 
-#page-wrapper, #sidebar-wrapper {
+#page-wrapper,
+#sidebar-wrapper {
     .transition(all, 0.3s, linear);
 }
 
-.row {
-    margin-left: -15px !important;
-    margin-right: -15px !important;
+//Row with inline elements
+
+.row-inline {
+    > * {
+        .display-inline();
+
+        + * {
+            margin-left: 5px;
+        }
+    }
+    > span {
+        margin-top: -3px;
+    }
 }
+
+//Main bottom block
+
+.btn-bottom-block {
+    margin-top: 20px;
+    text-align: right;
+
+    > * + * {
+        margin-left: 5px;
+    }
+}
+
+//Tags List
+
+tags-input {
+
+    .host {
+        margin: 0;
+    }
+
+    .tags {
+        border-color: @border-color;
+        box-shadow: none;
+        -webkit-appearance: none;
+
+        &.focused {
+            border-color: @brand2;
+            box-shadow: none;
+        }
+
+        .input {
+            font-family: inherit;
+        }
+    }
+
+    .tag-list {
+
+        .tag-item {
+            background-image: none;
+            background-color: @tag-list-bg;
+            .border-radius(@border-radius);
+            font-size: @tag-list-size;
+            font-family: inherit;
+            padding: @tag-list-pad;
+
+            .remove-button {
+                color: #999;
+                font-weight: normal;
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 .countdown-dialog {
@@ -92,61 +186,12 @@ ul {
     height: 5px;
 }
 
-.user-management .edit-form.ng-leave {
-    animation: fadeOutUp 0.3s;
-}
-
-.user-management .edit-form.ng-enter {
-    animation: fadeInDown 0.3s;
-}
-
-.user-management .pagination, .templates .pagination {
-    margin: 0;
-}
-
-.role-management .edit-form.ng-leave {
-    animation: fadeOutUp 0.3s;
-}
-
-.role-management .edit-form.ng-enter {
-    animation: fadeInDown 0.3s;
-}
-
-.dictionary .edit-form.ng-leave {
-    animation: fadeOutUp 0.3s;
-}
-
-.dictionary .edit-form.ng-enter {
-    animation: fadeInDown 0.3s;
-}
-
-.words .edit-form.ng-leave {
-    animation: fadeOutUp 0.3s;
-}
-
-.words .edit-form.ng-enter {
-    animation: fadeInDown 0.3s;
-}
-
-
 .login-form {
     margin-top: 50px;
 }
 
-.login-form .panel-info.has-error-add,
-.login-form .panel-info.has-error-remove {
-    animation: shake 0.7s;
-}
-
-#sidebar-wrapper ul .ng-enter {
-    animation: fadeInLeft 0.5s;
-}
-
-#sidebar-wrapper ul .ng-leave {
-    animation: none;
-}
-
 /* file uploader*/
+
 .my-drop-zone {
     border: dotted 3px lightgray !important;
     text-align: center;
@@ -175,14 +220,6 @@ ul {
     text-decoration: none;
     cursor: default !important;
     border-bottom: none;
-}
-
-.page-content.ng-enter {
-    animation: fadeIn 0.7s;
-}
-
-.page-content.ng-leave {
-    animation: none;
 }
 
 
@@ -237,29 +274,11 @@ ul {
     font-weight: bold;
 }
 
-.textarea-structure {
-    resize: vertical;
-}
-
 .clear-elem {
     clear: left;
     display: block;
 }
 
-.members ul {
-    overflow: hidden;
-    list-style-type: circle;
-}
-
-.members li {
-    line-height: 2em;
-    float: left;
-    display: inline;
-}
-
-#triple-list li {
-    width: 33.333%;
-}
 
 .members .list-group-item {
     overflow: hidden;
@@ -273,38 +292,6 @@ ul {
 
 .templates .list-group {
     margin-bottom: 0;
-}
-
-.templates .tab.ng-enter {
-    animation: fadeInDown 0.5s;
-}
-
-.templates .tab.ng-leave {
-    animation: fadeOutDown 0.5s;
-}
-
-.templates .component.ng-enter {
-    animation: fadeInLeft 0.5s;
-}
-
-.templates .component.ng-leave {
-    animation: fadeOutDown 0.5s;
-}
-
-.palette .draggable-component.ng-leave {
-    animation: fadeOut 0.5s;
-}
-
-.palette .draggable-component.ng-enter {
-    animation: fadeIn 0.5s;
-}
-
-.palette .draggable-component.ng-leave {
-    animation: none;
-}
-
-.capitalized {
-    text-transform: capitalize;
 }
 
 .experiment-tab-close {
@@ -363,17 +350,6 @@ ul {
 .slider.slider-horizontal .slider-tick, .slider.slider-horizontal .slider-handle {
     margin-top: -8px;
 }
-a {
-    cursor: pointer;
-}
-
-table {
-    page-break-inside:auto
-}
-
-tr {
-    page-break-inside:avoid; page-break-after:auto
-}
 
 .print-header {
     color: grey;
@@ -429,75 +405,6 @@ tr {
     font-size: 14px;
 }
 
-.ellipsis {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-
-
-.my-table{
-
-
-    &.table-responsive{
-        margin-left:14px;
-        margin-right:14px;
-
-        th{
-            .btn{
-                //background-color: transparent !important;
-                //border-color: transparent !important;
-                font-family: 'Source Sans Pro Semibold', sans-serif;
-                font-size: 14px;
-            }
-
-            a{
-               color:  #333333;
-                text-transform: inherit;
-            }
-        }
-    }
-
-}
-//
-//
-//.my-table{
-//    margin-left:14px;
-//    margin-right:14px;
-//}
-
-
-
-//.my-table.table-responsive th a {
-//    color: black;
-//}
-//
-//.my-table.table-responsive th .btn {
-//    background-color: transparent !important;
-//    border-color: transparent !important;
-//}
-//
-//.my-table.table-responsive th .btn-group.open .dropdown-toggle {
-//    -webkit-box-shadow: none;
-//    box-shadow: none;
-//}
-//
-//.my-table.table-responsive .form-group {
-//    margin-bottom: 0;
-//}
-//
-//.my-table.table-responsive td {
-//    padding: 0;
-//}
-//
-//.my-table.table-responsive .input-group {
-//    border-spacing: 0;
-//}
-//
-//.my-table.table-responsive .form-group .col-xs-12 {
-//    padding: 0;
-//}
 
 .reagent-search-tab {
     margin-top: 20px;
@@ -734,14 +641,6 @@ body > .ui-select-bootstrap.open {
     padding-bottom: 100px;
 }
 
-//.tab-pane .tab-content > .panel {
-//    margin: 0;
-//    border: 0;
-//}
-
-html {
-    overflow-y: auto;
-}
 
 .panel-body.my-scroller-axis-y {
     padding-right: 0;
@@ -821,10 +720,6 @@ html {
     background-position: -100px -56px;
 }
 
-//.main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
-//    margin-bottom: 0px;
-//}
-
 .components-holder-empty {
     /*content: 'You can drag & drop components here.';*/
     /*position: absolute;*/
@@ -833,14 +728,6 @@ html {
     /*font-weight: 500;*/
     /*margin-top: 32px;*/
     /*left: 20%;*/
-}
-
-.clickable {
-    cursor: pointer;
-}
-
-.row > div {
-    margin-bottom: 0;
 }
 
 .linkedExperiments .tag-list span {
@@ -867,10 +754,6 @@ html {
     color: blue;
 }
 
-.table .checkbox {
-    margin: 0;
-}
-
 .not-editable {
     text-decoration: none;
     color: black;
@@ -889,18 +772,25 @@ ul.my-dropdown-list {
     padding: 5px;
 }
 
-.my-table tr.ng-leave {
-    animation: fadeOutUp 0.3s;
-}
-
-.my-table tr.ng-enter {
-    animation: fadeInDown 0.3s;
-}
-
 .entity-changed {
     top: 2px;
     right: 4px;
     position: absolute;
     font-size: 10px;
     color: #23aabb;
+}
+
+
+//Media
+
+@media (min-width: 1200px) {
+    .text-align-lg {
+        text-align: right;
+    }
+}
+
+@media (max-width: 1199px) {
+    .m-bt-lg {
+        margin-bottom: 20px !important;
+    }
 }

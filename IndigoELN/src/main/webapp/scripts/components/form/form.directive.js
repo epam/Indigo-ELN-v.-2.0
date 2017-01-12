@@ -6,7 +6,7 @@ angular.module('indigoeln')
                 if (tAttrs.myLabelVertical && tAttrs.myLabel) {
                     tElement.find('.col-xs-2').removeClass('col-xs-2');
                     tElement.find('.col-xs-10').children().unwrap();
-                    tElement.children().wrap('<div class="col-xs-12"/>');
+                    // tElement.children().wrap('<div class="col-xs-12"/>');
                 }
             },
             clearLabel: function (tAttrs, tElement) {

@@ -124,11 +124,23 @@
 .awesome-b {
   font-family: FontAwesome;
 }
+.txt-larger {
+  font-size: 16px;
+}
+.txt-small {
+  font-size: 12px;
+}
 .ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+}
+.clickable {
+  cursor: pointer;
+}
+.capitalized {
+  text-transform: capitalize;
 }
 .m-t20 {
   margin-top: 20px;
@@ -144,6 +156,9 @@
 }
 .m-b10 {
   margin-bottom: 10px;
+}
+.m-b15 {
+  margin-bottom: 15px;
 }
 .m-b5 {
   margin-bottom: 5px;
@@ -165,6 +180,16 @@
 }
 .m-r30-imp {
   margin-right: 30px !important;
+}
+.m-l15-imp {
+  margin-left: 15px !important;
+}
+.p-t14 {
+  padding-top: 14px;
+}
+.p-l-r-0 {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 /******************SEARCH*********************/
 .search-field {
