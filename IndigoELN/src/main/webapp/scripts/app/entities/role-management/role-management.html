@@ -9,8 +9,8 @@
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <i class="fa fa-search" ng-click="search()"></i>
-                <input type="search" class="uui-search" placeholder="Search" id="searchRole" ng-model="searchText">
+                <i class="fa fa-search"></i>
+                <input type="search" class="uui-search" placeholder="Search" ng-change="search()" id="searchRole" ng-model="searchText">
             </div>
         </div>
     </div>
@@ -76,17 +76,17 @@
                     <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
                           class="role-check-icon"></span>
                 </td>
-                <td class="text-right">
+                <td>
                     <button type="submit"
                             ng-click="edit(role)"
                             ng-show="!role.system"
-                            class="btn btn-info btn-sm pull-left">
+                            class="btn btn-info btn-small">
                         <span class="glyphicon glyphicon-pencil"></span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.role-management.delete({id:role.id})"
                             ng-show="!role.system"
-                            class="btn btn-danger btn-sm pull-right">
+                            class="btn btn-info btn-small">
                         <span class="glyphicon glyphicon-remove-circle"></span>
                     </button>
                 </td>

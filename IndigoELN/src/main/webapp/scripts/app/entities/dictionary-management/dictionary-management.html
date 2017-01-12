@@ -8,8 +8,8 @@
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <i class="fa fa-search" ng-click="searchDictionary()"></i>
-                <input type="search" class="uui-search" placeholder="Search" id="searchDictionary" my-label="Search Dictionary" my-model="searchText" my-input-group="append">
+                <i class="fa fa-search"></i>
+                <input type="search" class="uui-search" placeholder="Search" id="searchDictionary" ng-change="searchDictionary()"  ng-model="searchText">
             </div>
         </div>
     </div>

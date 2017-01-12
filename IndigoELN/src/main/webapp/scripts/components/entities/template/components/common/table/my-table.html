@@ -6,7 +6,6 @@
             </div>
             <div ng-class="{'col-xs-9':myLabel, 'col-xs-12':!myLabel}">
                 <div class="btn-toolbar pull-right" role="toolbar">
-                    <span class="transclude"></span>
                     <div class="btn-group btn-group-sm" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
                         <div id="show-hide-button" class="btn btn-info"
                              uib-dropdown-toggle
@@ -33,6 +32,11 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <span class="transclude"></span>
             </div>
         </div>
     </div>

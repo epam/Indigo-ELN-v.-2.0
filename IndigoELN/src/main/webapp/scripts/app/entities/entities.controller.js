@@ -158,6 +158,10 @@ angular.module('indigoeln')
             onSaveTab(tab);
         };
 
+        $scope.openSearch = function () {
+            $state.go('entities.search-panel')
+        };
+
         $scope.onTabClick = function (tab) {
             EntitiesBrowser.goToTab(tab);
         };
