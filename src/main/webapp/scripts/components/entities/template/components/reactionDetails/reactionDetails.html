@@ -3,88 +3,86 @@
         Reaction Details
     </div>
     <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-6">
-                    <my-input my-label="Experiment Subject / Title" my-label-vertical="true"
-                              my-model="model.reactionDetails.title"
-                              my-readonly="myReadonly"></my-input>
-                    <my-select my-label="Therapeutic Area"
-                               my-dictionary="Therapeutic Area"
-                               my-model="model.reactionDetails.therapeuticArea"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"></my-select>
-                    <my-select my-label="Project Code & Name"
-                               my-dictionary="Project Code & Name"
-                               my-model="model.reactionDetails.codeAndName"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"></my-select>
-                    <my-input my-label="Batch Creator" my-label-vertical="true"
-                              my-model="experiment.author.fullName"
-                              my-readonly="true"></my-input>
-                    <my-select my-label="Co-authors"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                               my-model="model.reactionDetails.coAuthors"
-                               my-multiple="true"
-                    ></my-select>
-                    <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if -->
-                    <my-select ng-if="false"
-                               my-label="Experiment Creator (Author)"
-                               my-label-vertical="true"
-                               my-model="model.reactionDetails.experimentCreator"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                    ></my-select>
-                </div>
-                <div class="col-xs-6">
-                    <my-date-picker my-label="Creation Date" my-label-vertical="true"
-                                    my-model="experiment.creationDate" my-readonly="true"></my-date-picker>
-                    <my-tag-input my-label="Cont. FROM Rxn"
-                                  my-model="model.reactionDetails.contFromRxn"
-                                  my-readonly="myReadonly"
-                                  my-label-vertical="true"
-                                  my-on-click="onLinkedExperimentClick"
-                                  my-on-adding="onAddLinkedExperiment"
-                                  my-source="getExperiments"
-                                  my-placeholder="11112222-0003"
-                                  my-classes="linkedExperiments"
-                                  my-max-tags="1"></my-tag-input>
-                    <my-tag-input my-label="Cont. TO Rxn"
-                                  my-model="model.reactionDetails.contToRxn"
-                                  my-readonly="myReadonly"
-                                  my-label-vertical="true"
-                                  my-on-click="onLinkedExperimentClick"
-                                  my-on-adding="onAddLinkedExperiment"
-                                  my-source="getExperiments"
-                                  my-placeholder="11112222-0005"
-                                  my-classes="linkedExperiments"
-                                  my-max-tags="1"></my-tag-input>
-                    <my-tag-input my-label="Linked Experiment"
-                                  my-model="model.reactionDetails.linkedExperiments"
-                                  my-readonly="myReadonly"
-                                  my-label-vertical="true"
-                                  my-on-click="onLinkedExperimentClick"
-                                  my-on-adding="onAddLinkedExperiment"
-                                  my-source="getExperiments"
-                                  my-placeholder="11112222-0003, 11112222-0005"
-                                  my-classes="linkedExperiments"></my-tag-input>
-                    <my-input my-label="Project Alias Name" my-label-vertical="true"
-                              my-model="model.reactionDetails.projectAliasName"
-                              my-readonly="myReadonly"></my-input>
-                    <my-select my-label="Batch Owner"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                               my-model="model.reactionDetails.batchOwner"
-                               my-multiple="true"
-                    ></my-select>
-                </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <my-input my-label="Experiment Subject / Title" my-label-vertical="true"
+                          my-model="model.reactionDetails.title"
+                          my-readonly="myReadonly"></my-input>
+                <my-select my-label="Therapeutic Area"
+                           my-dictionary="Therapeutic Area"
+                           my-model="model.reactionDetails.therapeuticArea"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"></my-select>
+                <my-select my-label="Project Code & Name"
+                           my-dictionary="Project Code & Name"
+                           my-model="model.reactionDetails.codeAndName"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"></my-select>
+                <my-input my-label="Batch Creator" my-label-vertical="true"
+                          my-model="experiment.author.fullName"
+                          my-readonly="true"></my-input>
+                <my-select my-label="Co-authors"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                           my-model="model.reactionDetails.coAuthors"
+                           my-multiple="true"
+                ></my-select>
+                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if -->
+                <my-select ng-if="false"
+                           my-label="Experiment Creator (Author)"
+                           my-label-vertical="true"
+                           my-model="model.reactionDetails.experimentCreator"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                ></my-select>
             </div>
-            <my-text-area my-label="Literature Ref" my-label-vertical="true" my-no-elastic="true"
-                          my-model="model.reactionDetails.literature"
-                          my-readonly="myReadonly"></my-text-area>
+            <div class="col-xs-6">
+                <my-date-picker my-label="Creation Date" my-label-vertical="true"
+                                my-model="experiment.creationDate" my-readonly="true"></my-date-picker>
+                <my-tag-input my-label="Cont. FROM Rxn"
+                              my-model="model.reactionDetails.contFromRxn"
+                              my-readonly="myReadonly"
+                              my-label-vertical="true"
+                              my-on-click="onLinkedExperimentClick"
+                              my-on-adding="onAddLinkedExperiment"
+                              my-source="getExperiments"
+                              my-placeholder="11112222-0003"
+                              my-classes="linkedExperiments"
+                              my-max-tags="1"></my-tag-input>
+                <my-tag-input my-label="Cont. TO Rxn"
+                              my-model="model.reactionDetails.contToRxn"
+                              my-readonly="myReadonly"
+                              my-label-vertical="true"
+                              my-on-click="onLinkedExperimentClick"
+                              my-on-adding="onAddLinkedExperiment"
+                              my-source="getExperiments"
+                              my-placeholder="11112222-0005"
+                              my-classes="linkedExperiments"
+                              my-max-tags="1"></my-tag-input>
+                <my-tag-input my-label="Linked Experiment"
+                              my-model="model.reactionDetails.linkedExperiments"
+                              my-readonly="myReadonly"
+                              my-label-vertical="true"
+                              my-on-click="onLinkedExperimentClick"
+                              my-on-adding="onAddLinkedExperiment"
+                              my-source="getExperiments"
+                              my-placeholder="11112222-0003, 11112222-0005"
+                              my-classes="linkedExperiments"></my-tag-input>
+                <my-input my-label="Project Alias Name" my-label-vertical="true"
+                          my-model="model.reactionDetails.projectAliasName"
+                          my-readonly="myReadonly"></my-input>
+                <my-select my-label="Batch Owner"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                           my-model="model.reactionDetails.batchOwner"
+                           my-multiple="true"
+                ></my-select>
+            </div>
         </div>
+        <my-text-area my-label="Literature Ref" my-label-vertical="true" my-no-elastic="true"
+                      my-model="model.reactionDetails.literature"
+                      my-readonly="myReadonly"></my-text-area>
     </div>
 </div>

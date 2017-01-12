@@ -3,68 +3,66 @@
         Concept Details
     </div>
     <div class="panel-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-6">
-                    <my-input my-label="Concept Subject / Title" my-label-vertical="true"
-                              my-name="conceptDetailsTitle"
-                              my-model="model.conceptDetails.title"
-                              my-readonly="myReadonly">
-                    </my-input>
-                    <my-select my-label="Therapeutic Area"
-                               my-dictionary="Therapeutic Area"
-                               my-model="model.conceptDetails.therapeuticArea"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly">
-                    </my-select>
-                    <my-select my-label="Project Code & Name"
-                               my-dictionary="Project Code & Name"
-                               my-model="model.conceptDetails.codeAndName"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly">
-                    </my-select>
-                    <my-select my-label="Co-authors"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                               my-model="model.conceptDetails.coAuthors"
-                               my-multiple="true"
-                    ></my-select>
-                    <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if-->
-                    <my-select ng-if="false"
-                               my-label="Experiment Creator (Author)"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                               my-model="model.conceptDetails.experimentCreator"
-                    ></my-select>
-                </div>
-                <div class="col-xs-6">
-                    <my-date-picker my-label="Creation Date" my-label-vertical="true"
-                                    my-model="experiment.creationDate"
-                                    my-readonly="true"></my-date-picker>
-                    <my-tag-input my-label="Linked Experiment"
-                                  my-model="model.conceptDetails.linkedExperiments"
-                                  my-readonly="myReadonly"
-                                  my-label-vertical="true"
-                                  my-on-click="onLinkedExperimentClick"
-                                  my-on-adding="onAddLinkedExperiment"
-                                  my-source="getExperiments"
-                                  my-placeholder="11112222-0003, 11112222-0005"
-                                  my-classes="linkedExperiments"></my-tag-input>
-                    <my-select my-label="Designers"
-                               my-label-vertical="true"
-                               my-readonly="myReadonly"
-                               my-items="users"
-                               my-model="model.conceptDetails.designers"
-                               my-multiple="true"
-                    ></my-select>
-                </div>
-            </div>
-            <my-text-area my-label="Concept Keywords" my-label-vertical="true"
-                          my-model="model.conceptDetails.keywords"
+        <div class="row">
+            <div class="col-xs-6">
+                <my-input my-label="Concept Subject / Title" my-label-vertical="true"
+                          my-name="conceptDetailsTitle"
+                          my-model="model.conceptDetails.title"
                           my-readonly="myReadonly">
-            </my-text-area>
+                </my-input>
+                <my-select my-label="Therapeutic Area"
+                           my-dictionary="Therapeutic Area"
+                           my-model="model.conceptDetails.therapeuticArea"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly">
+                </my-select>
+                <my-select my-label="Project Code & Name"
+                           my-dictionary="Project Code & Name"
+                           my-model="model.conceptDetails.codeAndName"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly">
+                </my-select>
+                <my-select my-label="Co-authors"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                           my-model="model.conceptDetails.coAuthors"
+                           my-multiple="true"
+                ></my-select>
+                <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if-->
+                <my-select ng-if="false"
+                           my-label="Experiment Creator (Author)"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                           my-model="model.conceptDetails.experimentCreator"
+                ></my-select>
+            </div>
+            <div class="col-xs-6">
+                <my-date-picker my-label="Creation Date" my-label-vertical="true"
+                                my-model="experiment.creationDate"
+                                my-readonly="true"></my-date-picker>
+                <my-tag-input my-label="Linked Experiment"
+                              my-model="model.conceptDetails.linkedExperiments"
+                              my-readonly="myReadonly"
+                              my-label-vertical="true"
+                              my-on-click="onLinkedExperimentClick"
+                              my-on-adding="onAddLinkedExperiment"
+                              my-source="getExperiments"
+                              my-placeholder="11112222-0003, 11112222-0005"
+                              my-classes="linkedExperiments"></my-tag-input>
+                <my-select my-label="Designers"
+                           my-label-vertical="true"
+                           my-readonly="myReadonly"
+                           my-items="users"
+                           my-model="model.conceptDetails.designers"
+                           my-multiple="true"
+                ></my-select>
+            </div>
         </div>
+        <my-text-area my-label="Concept Keywords" my-label-vertical="true"
+                      my-model="model.conceptDetails.keywords"
+                      my-readonly="myReadonly">
+        </my-text-area>
     </div>
 </div>
