@@ -3,10 +3,10 @@
         <div class="col-xs-4" ng-if="myLabel">
             {{myLabel}}
         </div>
-        <div ng-class="{'col-xs-8 text-right':myLabel, 'col-xs-12':!myLabel}">
+        <div ng-class="{'col-xs-8 text-right':myLabel, 'col-xs-12 text-right':!myLabel}">
             <div class="search-field">
-                <i class="fa fa-search" ng-click="search()"></i>
-                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-model="searchText">
+                <i class="fa fa-search"></i>
+                <input type="search" class="uui-search" placeholder="Search" ng-change="search()" id="searchUser" ng-model="searchText">
             </div>
             <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
                 <div id="show-hide-button" class="btn btn-info"
