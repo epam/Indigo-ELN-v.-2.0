@@ -91,6 +91,8 @@ angular.module('indigoeln')
         };
 
         $scope.searchDictionary = function () {
+            console.log("SDSDSD");
+
             Dictionary.query({page: $scope.page - 1, size: $scope.itemsPerPage, search: $scope.searchText}, function (result, headers) {
                 $scope.links = ParseLinks.parse(headers('link'));
                 $scope.totalItems = headers('X-Total-Count');
