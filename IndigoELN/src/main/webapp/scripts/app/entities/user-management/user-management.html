@@ -9,7 +9,7 @@
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
                 <i class="fa fa-search" ng-click="search()"></i>
-                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-model="searchText">
+                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-change="search()" ng-model="searchText">
             </div>
         </div>
     </div>
@@ -137,18 +137,18 @@
                           style="cursor: pointer;">Activated</span>
                 <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
             </td>
-            <td class="text-right">
+            <td>
                 <button type="submit"
                         ng-click="edit(user)"
                         ng-show="!user.system"
-                        class="btn btn-info btn-sm">
+                        class="btn btn-info btn-small">
                     <span class="glyphicon glyphicon-pencil"></span>
                 </button>
                 <button type="submit"
                         ui-sref="entities.user-management.delete({login:user.login})"
                         ng-show="!user.system"
-                        class="btn btn-danger btn-sm">
-                    <span class="glyphicon glyphicon-remove-circle"></span>
+                        class="btn btn-info btn-small">
+                    <span class="glyphicon glyphicon-trash"></span>
                 </button>
             </td>
         </tr>
