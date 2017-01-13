@@ -1,121 +1,192 @@
-<div>
-    <div class="panel panel-default">
+<div class="main-page-content">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="panel panel-info panel-main-h">
+                <div class="panel-heading">experiments statistics</div>
+                <div class="panel-body panel-body-nopad">
+                    <div class="statistic-radio">
+                        <input type="radio">
+                        <div>
+                            <span class="statistic-txt">Open</span>
+                            <span class="count pull-right">144</span>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                    <span class="sr-only">60%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="statistic-radio statistic-orange">
+                        <input type="radio">
+                        <div>
+                            <span class="statistic-txt">Waiting author’s signature</span>
+                            <span class="count pull-right">5</span>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                    <span class="sr-only">60%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="statistic-radio statistic-yellow">
+                        <input type="radio">
+                        <div>
+                            <span class="statistic-txt">Submitted by author</span>
+                            <span class="count pull-right">8</span>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+                                    <span class="sr-only">60%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="panel panel-info panel-main-h">
+                <div class="panel-heading">experiments</div>
+                <div class="panel-body panel-body-nopad">
+                    <div class="experiment-count-block">
+                        <span>157</span>
+                        <span>Experiments</span>
+                        <span>(created during the last month)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-info panel-info-table">
         <div class="panel-heading">Open and Completed Experiments</div>
-        <table class="main-table table table-striped table-condensed">
-        <thead class="main-table__header">
-        <tr class="table-list">
-            <th class="table-list__item table-list__item_header">Experiment ID</th>
-            <th class="table-list__item table-list__item_header">Title</th>
-            <th class="table-list__item table-list__item_header">Status</th>
-            <th class="table-list__item table-list__item_header">Co-authors</th>
-            <th class="table-list__item table-list__item_header">Project</th>
-            <th class="table-list__item table-list__item_header">Creation Date</th>
-            <th class="table-list__item table-list__item_header">Last Edit Date</th>
-            <th class="table-list__item table-list__item_header">Idle Workdays</th>
-        </tr>
-        </thead>
-        <tbody class="main-table__body">
-        <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp track by $index">
-            <td class="table-list__item">
-                <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
-            </td>
-            <td class="table-list__item">{{exp.name}}</td>
-            <td class="table-list__item">{{exp.status}}</td>
-            <td class="table-list__item">
-                <ul>
-                    <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
-                </ul>
-            </td>
-            <td class="table-list__item">{{exp.project}}</td>
-            <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-            <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
-        </tr>
-        </tbody>
-    </table>
+        <div class="panel-body panel-body-nopad">
+            <div class="table-responsive" my-scroller="x">
+                <table class="main-table table table-striped table-condensed">
+                    <thead class="main-table__header">
+                    <tr class="table-list">
+                        <th class="table-list__item table-list__item_header">Experiment ID</th>
+                        <th class="table-list__item table-list__item_header">Title</th>
+                        <th class="table-list__item table-list__item_header">Status</th>
+                        <th class="table-list__item table-list__item_header">Co-authors</th>
+                        <th class="table-list__item table-list__item_header">Project</th>
+                        <th class="table-list__item table-list__item_header">Creation Date</th>
+                        <th class="table-list__item table-list__item_header">Last Edit Date</th>
+                        <th class="table-list__item table-list__item_header">Idle Workdays</th>
+                    </tr>
+                    </thead>
+                    <tbody class="main-table__body">
+                    <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp track by $index">
+                        <td class="table-list__item">
+                            <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+                        </td>
+                        <td class="table-list__item">{{exp.name}}</td>
+                        <td class="table-list__item">{{exp.status}}</td>
+                        <td class="table-list__item">
+                            <ul>
+                                <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
+                            </ul>
+                        </td>
+                        <td class="table-list__item">{{exp.project}}</td>
+                        <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="panel panel-default">
+    <div class="panel panel-info panel-info-table">
         <div class="panel-heading">Experiments Waiting Author’s Signature</div>
-        <table class="main-table table table-striped table-condensed">
-            <thead class="main-table__header">
-            <tr class="table-list">
-                <th class="table-list__item table-list__item_header">Experiment ID</th>
-                <th class="table-list__item table-list__item_header">Title</th>
-                <th class="table-list__item table-list__item_header">Status</th>
-                <th class="table-list__item table-list__item_header">Author</th>
-                <th class="table-list__item table-list__item_header">Submitter</th>
-                <th class="table-list__item table-list__item_header">Witness</th>
-                <th class="table-list__item table-list__item_header">Creation Date</th>
-                <th class="table-list__item table-list__item_header">Last Action Date</th>
-                <th class="table-list__item table-list__item_header">Idle Workdays</th>
-            </tr>
-            </thead>
-            <tbody class="main-table__body">
-            <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
-                <td class="table-list__item">
-                    <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
-                </td>
-                <td class="table-list__item">{{exp.name}}</td>
-                <td class="table-list__item">{{exp.status}}</td>
-                <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
-                <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
-                <td class="table-list__item">
-                    <ul>
-                        <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' +
-                            user.lastName}}
-                        </li>
-                    </ul>
-                </td>
-                <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="panel-body panel-body-nopad">
+            <div class="table-responsive" my-scroller="x">
+                <table class="main-table table table-striped table-condensed">
+                    <thead class="main-table__header">
+                    <tr class="table-list">
+                        <th class="table-list__item table-list__item_header">Experiment ID</th>
+                        <th class="table-list__item table-list__item_header">Title</th>
+                        <th class="table-list__item table-list__item_header">Status</th>
+                        <th class="table-list__item table-list__item_header">Author</th>
+                        <th class="table-list__item table-list__item_header">Submitter</th>
+                        <th class="table-list__item table-list__item_header">Witness</th>
+                        <th class="table-list__item table-list__item_header">Creation Date</th>
+                        <th class="table-list__item table-list__item_header">Last Action Date</th>
+                        <th class="table-list__item table-list__item_header">Idle Workdays</th>
+                    </tr>
+                    </thead>
+                    <tbody class="main-table__body">
+                    <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
+                        <td class="table-list__item">
+                            <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
+                        </td>
+                        <td class="table-list__item">{{exp.name}}</td>
+                        <td class="table-list__item">{{exp.status}}</td>
+                        <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
+                        <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
+                        <td class="table-list__item">
+                            <ul>
+                                <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' +
+                                    user.lastName}}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <div class="panel panel-default">
+    <div class="panel panel-info panel-info-table">
         <div class="panel-heading">Experiments Submitted by Author</div>
-        <table class="main-table table table-striped table-condensed">
-            <thead class="main-table__header">
-            <tr class="table-list">
-                <th class="table-list__item table-list__item_header">Experiment ID</th>
-                <th class="table-list__item table-list__item_header">Title</th>
-                <th class="table-list__item table-list__item_header">Status</th>
-                <th class="table-list__item table-list__item_header">Author</th>
-                <th class="table-list__item table-list__item_header">Submitter</th>
-                <th class="table-list__item table-list__item_header">Witness</th>
-                <th class="table-list__item table-list__item_header">Creation Date</th>
-                <th class="table-list__item table-list__item_header">Last Edit Date</th>
-                <th class="table-list__item table-list__item_header">Comments</th>
-            </tr>
-            </thead>
-            <tbody class="main-table__body">
-            <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
-                <td class="table-list__item">
-                    <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
-                </td>
-                <td class="table-list__item">{{exp.name}}</td>
-                <td class="table-list__item">{{exp.status}}</td>
-                <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
-                <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
-                <td class="table-list__item">
-                    <ul>
-                        <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' +
-                            user.lastName}}
-                        </li>
-                    </ul>
-                </td>
-                <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                <td class="table-list__item">
-                    <ul>
-                        <li ng-repeat="comment in exp.comments track by $index">{{comment}}</li>
-                    </ul>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="panel-body panel-body-nopad">
+            <div class="table-responsive" my-scroller="x">
+                <table class="main-table table table-striped table-condensed">
+                    <thead class="main-table__header">
+                    <tr class="table-list">
+                        <th class="table-list__item table-list__item_header">Experiment ID</th>
+                        <th class="table-list__item table-list__item_header">Title</th>
+                        <th class="table-list__item table-list__item_header">Status</th>
+                        <th class="table-list__item table-list__item_header">Author</th>
+                        <th class="table-list__item table-list__item_header">Submitter</th>
+                        <th class="table-list__item table-list__item_header">Witness</th>
+                        <th class="table-list__item table-list__item_header">Creation Date</th>
+                        <th class="table-list__item table-list__item_header">Last Edit Date</th>
+                        <th class="table-list__item table-list__item_header">Comments</th>
+                    </tr>
+                    </thead>
+                    <tbody class="main-table__body">
+                    <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
+                        <td class="table-list__item">
+                            <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
+                        </td>
+                        <td class="table-list__item">{{exp.name}}</td>
+                        <td class="table-list__item">{{exp.status}}</td>
+                        <td class="table-list__item">{{exp.author.firstName + ' ' + exp.author.lastName}}</td>
+                        <td class="table-list__item">{{exp.submitter.firstName + ' ' + exp.submitter.lastName}}</td>
+                        <td class="table-list__item">
+                            <ul>
+                                <li ng-repeat="user in exp.witnesses track by $index">{{user.firstName + ' ' +
+                                    user.lastName}}
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
+                        <td class="table-list__item">
+                            <ul>
+                                <li ng-repeat="comment in exp.comments track by $index">{{comment}}</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

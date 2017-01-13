@@ -105,55 +105,57 @@
             </button>
         </div>
     </div>
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Username</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>System Roles</th>
-            <th>Email</th>
-            <th>Active</th>
-            <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="user in users track by user.id">
-            <td>{{user.login}}</td>
-            <td>{{user.firstName}}</td>
-            <td>{{user.lastName}}</td>
-            <td>
-                <span ng-repeat="role in user.roles track by role.id">
-                    {{role.name}}<span ng-if="!$last">, </span>
-                </span>
-            </td>
-            <td>{{user.email}}</td>
-            <td>
-                    <span class="uui-label uui-label-red" ng-click="setActive(user, true)"
-                          ng-show="!user.system && !user.activated"
-                          style="cursor: pointer;">Deactivated</span>
-                    <span class="uui-label uui-label-green" ng-click="setActive(user, false)"
-                          ng-show="!user.system && user.activated"
-                          style="cursor: pointer;">Activated</span>
-                <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
-            </td>
-            <td>
-                <button type="submit"
-                        ng-click="edit(user)"
-                        ng-show="!user.system"
-                        class="btn btn-info btn-small">
-                    <span class="glyphicon glyphicon-pencil"></span>
-                </button>
-                <button type="submit"
-                        ui-sref="entities.user-management.delete({login:user.login})"
-                        ng-show="!user.system"
-                        class="btn btn-info btn-small">
-                    <span class="glyphicon glyphicon-trash"></span>
-                </button>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="table-responsive" my-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>System Roles</th>
+                <th>Email</th>
+                <th>Active</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="user in users track by user.id">
+                <td>{{user.login}}</td>
+                <td>{{user.firstName}}</td>
+                <td>{{user.lastName}}</td>
+                <td>
+                    <span ng-repeat="role in user.roles track by role.id">
+                        {{role.name}}<span ng-if="!$last">, </span>
+                    </span>
+                </td>
+                <td>{{user.email}}</td>
+                <td>
+                        <span class="uui-label uui-label-red" ng-click="setActive(user, true)"
+                              ng-show="!user.system && !user.activated"
+                              style="cursor: pointer;">Deactivated</span>
+                        <span class="uui-label uui-label-green" ng-click="setActive(user, false)"
+                              ng-show="!user.system && user.activated"
+                              style="cursor: pointer;">Activated</span>
+                    <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
+                </td>
+                <td>
+                    <button type="submit"
+                            ng-click="edit(user)"
+                            ng-show="!user.system"
+                            class="btn btn-info btn-small">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                    <button type="submit"
+                            ui-sref="entities.user-management.delete({login:user.login})"
+                            ng-show="!user.system"
+                            class="btn btn-info btn-small">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="text-center">
         <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page" ng-change="loadAll()"></uib-pagination>
     </div>
