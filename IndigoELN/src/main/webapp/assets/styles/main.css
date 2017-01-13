@@ -510,6 +510,10 @@ tr {
 .panel-heading .glyphicon {
   margin-top: 4px;
 }
+.panel-heading .count {
+  margin-top: -4px;
+  margin-left: 15px;
+}
 .panel-body-content-nopad {
   margin-left: -20px;
   margin-right: -20px;
@@ -1077,6 +1081,7 @@ tags-input .tag-list .tag-item .remove-button {
   -khtml-border-radius: 12px;
   border-radius: 12px;
   display: inline-block;
+  vertical-align: middle;
   font: 12px 'Oswald Regular', Arial, sans-serif;
   min-width: 30px;
   text-align: center;

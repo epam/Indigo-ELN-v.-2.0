@@ -208,6 +208,10 @@
 .panel-heading .glyphicon {
   margin-top: 4px;
 }
+.panel-heading .count {
+  margin-top: -4px;
+  margin-left: 15px;
+}
 .panel-body-content-nopad {
   margin-left: -20px;
   margin-right: -20px;
