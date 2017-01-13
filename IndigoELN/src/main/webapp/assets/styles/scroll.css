@@ -191,61 +191,121 @@
   padding-left: 0px;
   padding-right: 0px;
 }
-/******************PANELS STYLE*********************/
-.panel {
-  box-shadow: none;
+/******************CUSTOM SCROLL STYLE*********************/
+.mCustomScrollBox.mCSB_horizontal .mCSB_scrollTools .mCSB_draggerContainer {
+  top: -15px;
 }
-.panel-heading {
-  color: #616161;
-  font: 16px 'Oswald Regular', sans-serif;
-  text-transform: uppercase;
+.mCustomScrollBox.mCSB_horizontal .mCSB_draggerRail {
+  height: 6px;
+  width: 100%;
 }
-.panel-heading .action-panel-btn {
-  padding: 5px 6px;
-  font-family: FontAwesome;
-  font-size: 18px;
+.mCustomScrollBox.mCSB_horizontal .mCSB_dragger .mCSB_dragger_bar {
+  width: 100%;
+  height: 6px;
+  margin: 7px auto;
 }
-.panel-heading .glyphicon {
-  margin-top: 4px;
+.mCS-indigo.mCSB_scrollTools .mCSB_draggerRail {
+  background-color: #cfcfcf;
 }
-.panel-body-content-nopad {
-  margin-left: -20px;
-  margin-right: -20px;
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #9d9d9d;
 }
-.panel-body-nopad {
-  padding: 0;
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
+  background-color: #9d9d9d;
 }
-.panel-body .list-group {
-  margin-bottom: 0;
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+  background-color: #9d9d9d;
 }
-.panel-footer {
-  background-color: transparent;
-  border: 0 none;
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonUp {
+  background-position: -80px 0;
 }
-.panel-info .panel-heading {
-  border: 0 none;
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonDown {
+  background-position: -80px -20px;
 }
-.panel-info .panel-body {
-  border-top: 1px solid #ddd;
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonLeft {
+  background-position: -80px -40px;
 }
-.panel-info-collapse .inner-tabs .tab-content {
-  border: 0 none;
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonRight {
+  background-position: -80px -56px;
 }
-.panel-info-table .table {
-  border: 0 none;
-  margin-bottom: 0;
+.wrapper-list-experiment .mCSB_container {
+  padding-bottom: 100px;
 }
-.panel-info-table .mCSB_scrollTools.mCSB_scrollTools_horizontal {
-  height: 0;
+.panel-body.my-scroller-axis-y {
+  padding-right: 0;
+  padding-left: 0;
 }
-.panel-main-wrapper {
-  position: relative;
-  border-bottom: none;
-  border-top: none;
-  margin-top: -1px;
-  padding-left: 20px;
-  padding-right: 20px;
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
+  width: 4px;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
 }
-.panel-main-h {
-  min-height: 174px;
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  width: 6px;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.75);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_draggerRail {
+  width: 100%;
+  height: 4px;
+  margin: 6px 0;
+}
+.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
+  width: 100%;
+  height: 6px;
+  margin: 5px auto;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.75);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.85);
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.9);
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonUp {
+  background-position: -96px 0;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonDown {
+  background-position: -96px -20px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonLeft {
+  background-position: -100px -40px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonRight {
+  background-position: -100px -56px;
+}
+.my-scroller-axis-y .mCSB_inside > .mCSB_container {
+  margin-right: 15px;
+}
+.my-scroller-axis-y .mCSB_container.mCS_y_hidden {
+  margin-right: 0 !important;
+}
+.my-scroller-axis-x .mCSB_inside > .mCSB_container {
+  margin-bottom: 15px !important;
+}
+.my-scroller-axis-x .mCSB_container.mCS_x_hidden {
+  margin-bottom: 0 !important;
 }

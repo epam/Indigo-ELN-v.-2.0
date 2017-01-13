@@ -533,9 +533,12 @@ tr {
 .panel-info-collapse .inner-tabs .tab-content {
   border: 0 none;
 }
-.panel-info-notebook .table {
+.panel-info-table .table {
   border: 0 none;
   margin-bottom: 0;
+}
+.panel-info-table .mCSB_scrollTools.mCSB_scrollTools_horizontal {
+  height: 0;
 }
 .panel-main-wrapper {
   position: relative;
@@ -544,6 +547,9 @@ tr {
   margin-top: -1px;
   padding-left: 20px;
   padding-right: 20px;
+}
+.panel-main-h {
+  min-height: 174px;
 }
 /******************FORMS STYLE*********************/
 label {
@@ -599,6 +605,9 @@ textarea,
 }
 .my-checkbox-wrapper label {
   padding-left: 0;
+}
+.input-group-btn .btn {
+  height: 34px;
 }
 /******************LISTS STYLE*********************/
 .list-group-item {
@@ -762,12 +771,132 @@ textarea,
 .my-table tr.ng-enter {
   animation: fadeInDown 0.3s;
 }
+/******************CUSTOM SCROLL STYLE*********************/
+.mCustomScrollBox.mCSB_horizontal .mCSB_scrollTools .mCSB_draggerContainer {
+  top: -15px;
+}
+.mCustomScrollBox.mCSB_horizontal .mCSB_draggerRail {
+  height: 6px;
+  width: 100%;
+}
+.mCustomScrollBox.mCSB_horizontal .mCSB_dragger .mCSB_dragger_bar {
+  width: 100%;
+  height: 6px;
+  margin: 7px auto;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_draggerRail {
+  background-color: #cfcfcf;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #9d9d9d;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
+  background-color: #9d9d9d;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-indigo.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+  background-color: #9d9d9d;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonUp {
+  background-position: -80px 0;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonDown {
+  background-position: -80px -20px;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonLeft {
+  background-position: -80px -40px;
+}
+.mCS-indigo.mCSB_scrollTools .mCSB_buttonRight {
+  background-position: -80px -56px;
+}
+.wrapper-list-experiment .mCSB_container {
+  padding-bottom: 100px;
+}
+.panel-body.my-scroller-axis-y {
+  padding-right: 0;
+  padding-left: 0;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
+  width: 4px;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  width: 6px;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.75);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_draggerRail {
+  width: 100%;
+  height: 4px;
+  margin: 6px 0;
+}
+.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
+  width: 100%;
+  height: 6px;
+  margin: 5px auto;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.75);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.85);
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
+  background-color: #607D8B;
+  background-color: rgba(96, 125, 139, 0.9);
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonUp {
+  background-position: -96px 0;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonDown {
+  background-position: -96px -20px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonLeft {
+  background-position: -100px -40px;
+}
+.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonRight {
+  background-position: -100px -56px;
+}
+.my-scroller-axis-y .mCSB_inside > .mCSB_container {
+  margin-right: 15px;
+}
+.my-scroller-axis-y .mCSB_container.mCS_y_hidden {
+  margin-right: 0 !important;
+}
+.my-scroller-axis-x .mCSB_inside > .mCSB_container {
+  margin-bottom: 15px !important;
+}
+.my-scroller-axis-x .mCSB_container.mCS_x_hidden {
+  margin-bottom: 0 !important;
+}
 html {
   height: 100%;
   overflow-y: auto;
 }
 body {
+  color: #616161 !important;
   height: 100%;
+  min-width: 1020px;
   overflow-y: hidden;
 }
 .main-container {
@@ -811,6 +940,11 @@ a {
 #sidebar-wrapper {
   -webkit-transition: all 0.3s linear;
   transition: all 0.3s linear;
+}
+.main-page-content {
+  background-color: #ededed;
+  height: calc(100vh - 50px);
+  padding: 20px;
 }
 .row-inline > * {
   display: inline-block;
@@ -859,6 +993,121 @@ tags-input .tag-list .tag-item .remove-button {
   color: #999;
   font-weight: normal;
 }
+.statistic-radio {
+  position: relative;
+}
+.statistic-radio input[type=radio],
+.statistic-radio input[type=checkbox] {
+  cursor: pointer;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  -moz-opacity: 0;
+  -khtml-opacity: 0;
+  filter: alpha(opacity=0);
+  zoom: 1;
+  left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 500;
+}
+.statistic-radio input[type=radio] + div,
+.statistic-radio input[type=checkbox] + div {
+  padding: 8px 70px 8px 20px;
+  overflow: hidden;
+}
+.statistic-radio input[type=radio] + div:after,
+.statistic-radio input[type=checkbox] + div:after {
+  color: #dfdfdf;
+  content: "\f10c";
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translate(0, -50%);
+  -webkit-transform: translate(0, -50%);
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.statistic-radio input[type=radio]:checked + div,
+.statistic-radio input[type=checkbox]:checked + div {
+  background-color: #edf9fe;
+}
+.statistic-radio input[type=radio]:checked + div:after,
+.statistic-radio input[type=checkbox]:checked + div:after {
+  color: #84d5fb;
+  content: "\f192";
+}
+.statistic-radio .statistic-txt {
+  font-family: 'Oswald Regular', sans-serif;
+  float: left;
+  width: 170px;
+}
+.statistic-radio .progress {
+  margin: 6px 40px 0 180px;
+}
+.statistic-radio.statistic-orange .count {
+  border-color: #ff9b19;
+}
+.statistic-radio.statistic-orange .progress-bar {
+  background-color: #ff9b19;
+}
+.statistic-radio.statistic-yellow .count {
+  border-color: #ffdc19;
+}
+.statistic-radio.statistic-yellow .progress-bar {
+  background-color: #ffdc19;
+}
+.statistic-radio + .statistic-radio {
+  margin-top: 5px;
+}
+.progress {
+  box-shadow: none;
+  height: 10px;
+}
+.progress-bar {
+  box-shadow: none;
+}
+.count {
+  border: 1px solid #84d5fb;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -khtml-border-radius: 12px;
+  border-radius: 12px;
+  display: inline-block;
+  font: 12px 'Oswald Regular', Arial, sans-serif;
+  min-width: 30px;
+  text-align: center;
+  padding: 2px 4px;
+}
+.count-orange {
+  border-color: #ff9b19;
+}
+.count-yellow {
+  border-color: #ffdc19;
+}
+.experiment-count-block {
+  font-family: 'Oswald Regular', sans-serif;
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+}
+.experiment-count-block > * {
+  display: block;
+  line-height: 1;
+}
+.experiment-count-block > *:first-child {
+  font-size: 68px;
+}
+.experiment-count-block > *:last-child {
+  font-size: 10px;
+  margin-top: 5px;
+}
+.login-form {
+  margin-top: 50px;
+}
 .countdown-dialog {
   position: relative;
 }
@@ -882,9 +1131,6 @@ tags-input .tag-list .tag-item .remove-button {
   left: 0;
   width: 100%;
   height: 5px;
-}
-.login-form {
-  margin-top: 50px;
 }
 /* file uploader*/
 .my-drop-zone {
@@ -1172,132 +1418,14 @@ tags-input .tag-list .tag-item .remove-button {
 .experiment-tabs .mCSB_container.mCS_x_hidden {
   margin-bottom: 0 !important;
 }
-.my-scroller-axis-y .mCSB_inside > .mCSB_container {
-  margin-right: 15px;
-}
-.my-scroller-axis-y .mCSB_container.mCS_y_hidden {
-  margin-right: 0 !important;
-}
-.my-scroller-axis-x .mCSB_inside > .mCSB_container {
-  margin-bottom: 15px !important;
-}
-.my-scroller-axis-x .mCSB_container.mCS_x_hidden {
-  margin-bottom: 0 !important;
-}
 .role-check-icon {
   color: #25aabb;
 }
 .ui-select-toggle {
   background-color: transparent;
 }
-/* theme "indigo" for scroller*/
-.mCustomScrollBox.mCSB_horizontal .mCSB_scrollTools .mCSB_draggerContainer {
-  top: -15px;
-}
-.mCustomScrollBox.mCSB_horizontal .mCSB_draggerRail {
-  height: 6px;
-  width: 100%;
-}
-.mCustomScrollBox.mCSB_horizontal .mCSB_dragger .mCSB_dragger_bar {
-  width: 100%;
-  height: 6px;
-  margin: 7px auto;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_draggerRail {
-  background-color: #cfcfcf;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
-  background-color: #9d9d9d;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
-  background-color: #9d9d9d;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-indigo.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
-  background-color: #9d9d9d;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_buttonUp {
-  background-position: -80px 0;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_buttonDown {
-  background-position: -80px -20px;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_buttonLeft {
-  background-position: -80px -40px;
-}
-.mCS-indigo.mCSB_scrollTools .mCSB_buttonRight {
-  background-position: -80px -56px;
-}
 body > .ui-select-bootstrap.open {
   z-index: 1050;
-}
-.wrapper-list-experiment .mCSB_container {
-  padding-bottom: 100px;
-}
-.panel-body.my-scroller-axis-y {
-  padding-right: 0;
-  padding-left: 0;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
-  width: 4px;
-  background-color: #fff;
-  background-color: rgba(255, 255, 255, 0.1);
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
-  width: 6px;
-  background-color: #fff;
-  background-color: rgba(255, 255, 255, 0.75);
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-}
-.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_draggerRail {
-  width: 100%;
-  height: 4px;
-  margin: 6px 0;
-}
-.mCS-indigo-thick.mCSB_scrollTools_horizontal .mCSB_dragger .mCSB_dragger_bar {
-  width: 100%;
-  height: 6px;
-  margin: 5px auto;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_draggerRail {
-  background-color: #607D8B;
-  background-color: rgba(96, 125, 139, 0.1);
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger .mCSB_dragger_bar {
-  background-color: #607D8B;
-  background-color: rgba(96, 125, 139, 0.75);
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:hover .mCSB_dragger_bar {
-  background-color: #607D8B;
-  background-color: rgba(96, 125, 139, 0.85);
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger:active .mCSB_dragger_bar,
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_dragger.mCSB_dragger_onDrag .mCSB_dragger_bar {
-  background-color: #607D8B;
-  background-color: rgba(96, 125, 139, 0.9);
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonUp {
-  background-position: -96px 0;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonDown {
-  background-position: -96px -20px;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonLeft {
-  background-position: -100px -40px;
-}
-.mCS-indigo-thick.mCSB_scrollTools .mCSB_buttonRight {
-  background-position: -100px -56px;
 }
 .components-holder-empty {
   /*content: 'You can drag & drop components here.';*/

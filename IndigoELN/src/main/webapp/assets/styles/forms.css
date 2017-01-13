@@ -246,3 +246,6 @@ textarea,
 .my-checkbox-wrapper label {
   padding-left: 0;
 }
+.input-group-btn .btn {
+  height: 34px;
+}
