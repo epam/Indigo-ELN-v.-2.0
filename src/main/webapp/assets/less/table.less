@@ -1,3 +1,4 @@
+@import "../../bower_components/bootstrap/less/mixins/table-row.less";
 @import 'variables.less';
 @import 'mixin.less';
 @import 'helper.less';
@@ -54,10 +55,15 @@ tr {
     }
   }
 
-  .checkbox {
-    margin: 0;
-  }
+  //.checkbox {
+  //  margin: 0;
+  //}
+
+  //
 }
+
+.table-row-variant(success; @brand4);
+
 
 //table .success td {
 //  background-color: @bg-blue !important;

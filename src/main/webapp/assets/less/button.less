@@ -1,3 +1,4 @@
+@import "../../bower_components/bootstrap/less/mixins/buttons.less";
 @import 'variables.less';
 @import 'mixin.less';
 @import 'helper.less';
@@ -65,5 +66,15 @@
 
   .btn + .btn {
     margin-left: 5px;
+  }
+}
+
+//override xeditable
+.editable-buttons{
+  .btn{
+    padding: 6px 12px;
+    background-color: @brand3;
+    .button-variant(@white; @brand3; @btn-info-bg);
+
   }
 }
