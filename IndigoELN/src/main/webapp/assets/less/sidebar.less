@@ -55,6 +55,17 @@
     .sub-menu {
 
       li {
+
+        &.activ{
+          > a:first-child{
+            color:#fff;
+          }
+          &.open {
+            background-color: #212121;
+            box-shadow: none;
+          }
+        }
+
         a {
           font: @sidebar-link-size @sidebar-link-family;
           padding-left: 52px;
@@ -66,6 +77,13 @@
 
             a {
               padding-left: 67px;
+              display: flex;
+              justify-content: space-between;
+
+              em {
+                padding-top:5px;
+                font-size: 15px;
+              }
             }
 
             > ul {
