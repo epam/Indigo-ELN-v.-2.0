@@ -4,6 +4,7 @@ angular.module('indigoeln')
         $scope.predicate = 'id';
         $scope.reverse = true;
         $scope.page = 1;
+        $scope.dView = 'open';
         $scope.loadAll = function () {
             Dashboard.get({}, function (result) {
                 $scope.experiments = result;
