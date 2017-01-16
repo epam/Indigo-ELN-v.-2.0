@@ -5,39 +5,27 @@
                 <div class="panel-heading">experiments statistics</div>
                 <div class="panel-body panel-body-nopad">
                     <div class="statistic-radio">
-                        <input type="radio">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'open'">
                         <div>
                             <span class="statistic-txt">Open</span>
-                            <span class="count pull-right">144</span>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                    <span class="sr-only">60%</span>
-                                </div>
-                            </div>
+                            <span class="count pull-right" ng-bind="experiments.openAndCompletedExp.length"></span>
+                            <uib-progressbar animate="false" value="(experiments.openAndCompletedExp.length * 100)/100" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-orange">
-                        <input type="radio">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'wait'">
                         <div>
                             <span class="statistic-txt">Waiting author’s signature</span>
-                            <span class="count pull-right">5</span>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                    <span class="sr-only">60%</span>
-                                </div>
-                            </div>
+                            <span class="count pull-right" ng-bind="experiments.waitingSignatureExp.length"></span>
+                            <uib-progressbar animate="false" value="(experiments.waitingSignatureExp.length * 100)/100" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-yellow">
-                        <input type="radio">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'submitted'">
                         <div>
                             <span class="statistic-txt">Submitted by author</span>
-                            <span class="count pull-right">8</span>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
-                                    <span class="sr-only">60%</span>
-                                </div>
-                            </div>
+                            <span class="count pull-right" ng-bind="experiments.submittedAndSigningExp.length"></span>
+                            <uib-progressbar animate="false" value="(experiments.submittedAndSigningExp.length * 100)/100" type="success"></uib-progressbar>
                         </div>
                     </div>
                 </div>
@@ -57,8 +45,8 @@
         </div>
     </div>
 
-    <div class="panel panel-info panel-info-table">
-        <div class="panel-heading">Open and Completed Experiments <span class="count">144</span></div>
+    <div class="panel panel-info panel-info-table" ng-if="dView === 'open'">
+        <div class="panel-heading">Open and Completed Experiments <span class="count" ng-bind="experiments.openAndCompletedExp.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
@@ -97,8 +85,8 @@
         </div>
     </div>
 
-    <div class="panel panel-info panel-info-table">
-        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange">5</span></div>
+    <div class="panel panel-info panel-info-table" ng-if="dView === 'wait'">
+        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="experiments.waitingSignatureExp.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
@@ -142,8 +130,8 @@
 
     </div>
 
-    <div class="panel panel-info panel-info-table">
-        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow">8</span></div>
+    <div class="panel panel-info panel-info-table" ng-if="dView === 'submitted'">
+        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="experiments.submittedAndSigningExp.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
