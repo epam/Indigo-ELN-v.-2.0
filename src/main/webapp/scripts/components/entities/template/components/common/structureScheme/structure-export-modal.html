@@ -3,12 +3,9 @@
         <h5 class="modal-title">Export Structure</h5>
     </div>
     <div class="modal-body">
-        <div >
-            <my-select my-label="Choose format"
-                       my-items="formats" my-model="format"
-                       my-label-vertical="true"></my-select>
-        </div>
-        <br/><br/><br/>
+        <my-select my-label="Choose format"
+                   my-items="formats" my-model="format"
+                   my-label-vertical="true"></my-select>
         <div>
             <my-text-area my-label="Input Structure" my-label-vertical="true" my-model="structureToSave"></my-text-area>
             <!--the next component required to avoid floating out of modal body-->
@@ -16,7 +13,11 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-info" ng-click="download()">Download</button>
-        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-default" type="button" ng-click="cancel()">
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button class="btn btn-primary" ng-click="download()">
+            <i class="fa fa-download"></i><span class="m-l5">Download</span>
+        </button>
     </div>
 </div>

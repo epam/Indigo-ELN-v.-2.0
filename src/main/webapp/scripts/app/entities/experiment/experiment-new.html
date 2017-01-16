@@ -14,15 +14,11 @@
         </div>
         <div class="modal-footer">
             <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
-               ng-if="mode == 'edit'">
-                <span class="glyphicon glyphicon-trash"></span>&nbsp;<span>Delete</span>
-            </a>
+               ng-if="mode == 'edit'">Delete</a>
             <a class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
-                <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </a>
-            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-info">
-                <span class="glyphicon glyphicon-save"></span>&nbsp;<span>OK</span>
-            </button>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">OK</button>
         </div>
     </div>
 </form>

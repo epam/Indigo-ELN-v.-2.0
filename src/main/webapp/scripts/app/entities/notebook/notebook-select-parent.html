@@ -4,15 +4,13 @@
             <h5 class="modal-title">Project selection</h5>
         </div>
         <div class="modal-body">
-            <div>
-                <my-select my-label="Please select a project for new notebook"
-                           my-label-vertical="true"
-                           my-model="selectedParent"
-                           my-items="parents"
-                           my-item-prop="name"
-                ></my-select>
-            </div>
-            <div style="margin: 100px 10px 0 20px; height: 100px;">
+            <my-select my-label="Please select a project for new notebook"
+                       my-label-vertical="true"
+                       my-model="selectedParent"
+                       my-items="parents"
+                       my-item-prop="name"
+            ></my-select>
+            <div style="height: 100px;">
                 <table class="table table-striped" ng-show="selectedParent">
                     <thead>
                     <tr>
@@ -34,11 +32,11 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-info">
-                Ok
-            </button>
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
-                Cancel
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </button>
+            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-primary">
+                Ok
             </button>
         </div>
     </div>

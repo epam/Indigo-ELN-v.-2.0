@@ -4,59 +4,42 @@
     </div>
     <div class="collapsible">
         <div class="panel-body">
-            <div class="form-horizontal">
-                <div class="row">
-                    <div style="position:relative">
-                        <div class="col-xs-2">
-                            <label>Notebook ID #: </label>
-                            <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span>
-                        </div>
-                        <div class="col-xs-2" style="width:80px;margin-top: -7px;">
-                            <my-select
-                                    my-model="selectedCompound"
-                                    my-items="model.preferredCompoundSummary.compounds"
-                                    my-change="onSelectCompound()"
-                                    my-item-prop="nbkBatch"
-                                    my-control = "selectControl"
-                            ></my-select>
-                        </div>
-                        <div class="col-xs-2" style="margin-top: -7px;">
-                            <my-checkbox
-                                    my-model="showSummary"
-                                    my-label="Show Summary"
-                            ></my-checkbox>
-                        </div>
-
-
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label>Notebook ID #: <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span></label>
+                        <my-select
+                                my-model="selectedCompound"
+                                my-items="model.preferredCompoundSummary.compounds"
+                                my-change="onSelectCompound()"
+                                my-item-prop="nbkBatch"
+                                my-control = "selectControl"
+                        ></my-select>
                     </div>
+                    <my-checkbox
+                            my-model="showSummary"
+                            my-label="Show Summary"
+                    ></my-checkbox>
                 </div>
             </div>
-        </div>
-
-        <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
-
-        <div class="panel-body">
-            <div class="row">
-                <div class="col-xs-12 col-sm-6 col-lg-4">
-                    <div class="form-group ">
-                        <my-checkbox
-                                my-model="showStructure"
-                                my-label="Show Structure"
-                        ></my-checkbox>
-                    </div>
-
-                </div>
+            <hr class="hr-top">
+            <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
+            <div class="form-group ">
+                <my-checkbox
+                        my-model="showStructure"
+                        my-label="Show Structure"
+                ></my-checkbox>
             </div>
             <div class="row" ng-if="showStructure">
 
-                    <div class="structure-preview-wrapper">
-                            <img style="padding:10px;"
-                                 ng-src="data:image/svg+xml;base64,{{structureImage}}"
-                                 alt="Image is unavailable.">
-                    </div>
+                <div class="structure-preview-wrapper">
+                    <img style="padding:10px;"
+                         ng-src="data:image/svg+xml;base64,{{structureImage}}"
+                         alt="Image is unavailable.">
+                </div>
             </div>
             <div class="row">
-                <div class="col-xs-12 col-sm-6 col-lg-4">
+                <div class="col-xs-6">
                     <my-input my-label="Virtual Compound Id"
                               my-model="model.preferCompoundDetails.virtualCompoundId"
                               my-label-vertical="true"
@@ -85,7 +68,7 @@
                     </my-text-area>
 
                 </div>
-                <div class="col-xs-12 col-sm-6 col-lg-4">
+                <div class="col-xs-6">
                     <my-text-area my-label="Structure comments"
                                   my-model="model.preferCompoundDetails.structureComments"
                                   my-label-vertical="true"
@@ -93,6 +76,23 @@
                     </my-text-area>
                 </div>
             </div>
+
+                <!--<div class="row">-->
+                    <!--<div class="col-xs-2">-->
+                        <!---->
+                        <!---->
+                    <!--</div>-->
+                    <!--<div class="col-xs-2">-->
+                       <!---->
+                    <!--</div>-->
+                    <!--<div class="col-xs-2">-->
+                        <!---->
+                    <!--</div>-->
+                <!--</div>-->
         </div>
+
+
+
+
     </div>
 </div>

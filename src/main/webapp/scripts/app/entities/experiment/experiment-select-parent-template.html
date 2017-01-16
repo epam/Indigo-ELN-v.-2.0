@@ -1,27 +1,22 @@
-<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off"
-      class="form-horizontal">
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
     <div>
 		<div class="modal-header">
             <h5 class="modal-title">Experiment creation</h5>
 		</div>
 		<div class="modal-body">
-            <div>
-                <my-select my-label="Please select a Template for new experiment"
-                           my-label-vertical="true"
-                           my-model="selectedTemplate"
-                           my-items="templates"
-                           my-item-prop="name"
-                        ></my-select>
-            </div>
-            <div>
-                <my-select my-label="Please select a Notebook for new experiment"
-                           my-label-vertical="true"
-                           my-model="selectedParent"
-                           my-items="parents"
-                           my-item-prop="name"
-                ></my-select>
-            </div>
-            <div style="margin: 20px 10px 0 20px; height: 100px;">
+            <my-select my-label="Please select a Template for new experiment"
+                       my-label-vertical="true"
+                       my-model="selectedTemplate"
+                       my-items="templates"
+                       my-item-prop="name"
+                    ></my-select>
+            <my-select my-label="Please select a Notebook for new experiment"
+                       my-label-vertical="true"
+                       my-model="selectedParent"
+                       my-items="parents"
+                       my-item-prop="name"
+            ></my-select>
+            <div style="height: 100px;">
                 <table class="table table-striped" ng-show="selectedParent">
                     <thead>
                     <tr>
@@ -43,12 +38,12 @@
             </div>
 		</div>
 		<div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </button>
             <button type="submit" form="select-parent-dialog"
-                    ng-disabled="!selectedParent.id || !selectedTemplate.id || isSaving" class="btn btn-info">
+                    ng-disabled="!selectedParent.id || !selectedTemplate.id || isSaving" class="btn btn-primary">
                 OK
-			</button>
-			<button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
-				Cancel
 			</button>
 		</div>
 	</div>

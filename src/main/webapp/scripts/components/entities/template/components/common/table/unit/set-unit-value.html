@@ -4,35 +4,29 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-12" style="margin-bottom: 0">
-                    <my-input my-label="Value" my-model="value" my-input-group="append"
-                              my-type="number" my-validation-required="true">
-                        <div class="btn-group" uib-dropdown ng-init="initUnit()">
-                            <button type="button" class="btn btn-info"
-                                    aria-haspopup="true"
-                                    aria-expanded="false"
-                                    uib-dropdown-toggle>{{unit}} <span class="caret"></span>
-                            </button>
-                            <ul class="dropdown-menu" uib-dropdown-menu>
-                                <li ng-repeat="unitName in unitNames track by unitName"><a href=""
-                                                                                           ng-click="setUnit(unitName)">{{unitName}}</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </my-input>
-                </div>
+        <my-input my-label="Value" my-model="value" my-input-group="append"
+                  my-type="number" my-validation-required="true">
+            <div class="btn-group" uib-dropdown ng-init="initUnit()">
+                <button type="button" class="btn btn-info"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        uib-dropdown-toggle>{{unit}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" uib-dropdown-menu>
+                    <li ng-repeat="unitName in unitNames track by unitName"><a href=""
+                                                                               ng-click="setUnit(unitName)">{{unitName}}</a>
+                    </li>
+                </ul>
             </div>
-        </div>
+        </my-input>
     </div>
     <div class="modal-footer">
-        <button type="submit" ng-disabled="productBatchSummarySetUnitValueForm.$invalid" class="btn btn-info"
-                form="productBatchSummarySetUnitValueForm">
-            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Save</span>
-        </button>
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="productBatchSummarySetUnitValueForm.$invalid" class="btn btn-primary"
+                form="productBatchSummarySetUnitValueForm">
+            <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
     </div>
 </form>

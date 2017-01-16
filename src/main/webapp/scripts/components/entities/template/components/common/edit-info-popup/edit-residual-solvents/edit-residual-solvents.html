@@ -2,53 +2,52 @@
     <h5 class="modal-title">Edit Residual Solvents Information</h5>
 </div>
 <div class="modal-body">
-    <div><strong>Please add residual solvents</strong></div>
-    <br/>
-    <div class="row" ng-if="solvents.data.length">
-        <div class="col-xs-12">
-            <table class="table table-striped" id="search-result-table">
-                <thead class="search-table-head">
-                    <tr>
-                        <th>Solvent Name</th>
-                        <th># EQ. of Solvent</th>
-                        <th>Comment</th>
-                        <th style="width:5%"></th>
-                    </tr>
-                </thead>
-                <tbody ng-repeat="item in solvents.data track by $index">
-                    <tr ng-class="{'search-table-row-highlight':item.isSelected}">
-                        <td>
-                            <my-select my-dictionary="Solvent name"
-                                       my-model="solvents.data[$index].name"></my-select></td>
-                        <td>
-                            <my-input my-model="solvents.data[$index].eq" my-type="number"></my-input>
-                        </td>
-                        <td><my-input my-model="solvents.data[$index].comment"></my-input></td>
-                        <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <p class="m-b20"><span class="semi-b">Please add residual solvents</span></p>
+    <div ng-if="solvents.data.length">
+        <table class="table table-striped" id="search-result-table">
+            <thead class="search-table-head">
+                <tr>
+                    <th>Solvent Name</th>
+                    <th># EQ. of Solvent</th>
+                    <th>Comment</th>
+                    <th style="width:5%"></th>
+                </tr>
+            </thead>
+            <tbody ng-repeat="item in solvents.data track by $index">
+                <tr ng-class="{'search-table-row-highlight':item.isSelected}">
+                    <td>
+                        <my-select my-dictionary="Solvent name"
+                                   my-model="solvents.data[$index].name"></my-select></td>
+                    <td>
+                        <my-input my-model="solvents.data[$index].eq" my-type="number"></my-input>
+                    </td>
+                    <td><my-input my-model="solvents.data[$index].comment"></my-input></td>
+                    <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-
-    <div class="btn-toolbar">
+    <div class="btn-group">
         <button class="btn btn-info"
                 type="button"
                 ng-click="addSolvent()">
-            <span class="glyphicon glyphicon-plus"></span> Add residual solvent
+            <i class="fa fa-plus"></i>
+            <span class="m-l5">Add residual solvent</span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="solvents.length"
                 ng-click="removeAll()">
-            <span class="glyphicon glyphicon-trash"></span> Remove all
+            <i class="fa fa-trash"></i>
+            <span class="m-l5">Remove all</span>
         </button>
     </div>
 </div>
-
-
-</div>
-<div class="modal-footer text-right">
-    <button class="btn btn-info" type="button" ng-click="save()">Save</button>
-    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="cancel()">
+        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="save()">
+        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+    </button>
 </div>

@@ -14,14 +14,11 @@
                 my-items="items"
                 my-model="selectedTemplate"
         ></my-select>
-        <br/><br/>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="dismiss()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
-        <button type="submit" class="btn btn-info" ng-disabled="!selectedTemplate">
-            <span class="glyphicon glyphicon-ok-circle"></span>&nbsp;<span>Ok</span>
-        </button>
+        <button type="submit" class="btn btn-primary" ng-disabled="!selectedTemplate">Ok</button>
     </div>
 </form>

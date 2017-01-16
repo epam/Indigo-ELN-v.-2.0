@@ -671,14 +671,24 @@ textarea,
   color: #84d5fb;
 }
 /******************DIALOGS STYLE*********************/
-.modal-dialog .modal-header .modal-title {
-  font-size: 16pt;
-  font-family: 'Oswald Regular', sans-serif;
-  color: #616161;
-  text-transform: uppercase;
+.modal-dialog .modal-title {
+  font-size: 16px;
+}
+.modal-dialog .modal-title .glyphicon,
+.modal-dialog .modal-title .fa {
+  margin-right: 5px;
 }
 .modal-dialog .modal-footer {
-  padding: 10px 20px;
+  border: 0 none;
+}
+.countdown-dialog {
+  position: relative;
+}
+.countdown-dialog span {
+  position: absolute;
+  display: block;
+  width: 100%;
+  color: black;
 }
 /******************LABELS STYLE*********************/
 .uui-label {
@@ -893,6 +903,33 @@ textarea,
 .my-scroller-axis-x .mCSB_container.mCS_x_hidden {
   margin-bottom: 0 !important;
 }
+/******************TYPE*********************/
+a {
+  cursor: pointer;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Oswald Regular', Arial, sans-serif;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+hr.hr-top {
+  margin-top: 5px;
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fa,
+.glyphicon {
+  cursor: pointer;
+}
 html {
   height: 100%;
   overflow-y: auto;
@@ -905,18 +942,6 @@ body {
 }
 .main-container {
   padding-top: 60px;
-}
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.fa,
-.glyphicon {
-  cursor: pointer;
-}
-a {
-  cursor: pointer;
 }
 [ng\:cloak],
 [ng-cloak],
@@ -1113,15 +1138,6 @@ tags-input .tag-list .tag-item .remove-button {
 .login-form {
   margin-top: 50px;
 }
-.countdown-dialog {
-  position: relative;
-}
-.countdown-dialog span {
-  position: absolute;
-  display: block;
-  width: 100%;
-  color: black;
-}
 .newtemplate {
   width: 100px;
   height: 100px;
@@ -1314,34 +1330,40 @@ tags-input .tag-list .tag-item .remove-button {
 .need-to-print .checkbox label {
   font-size: 14px;
 }
-.reagent-search-tab {
-  margin-top: 20px;
-}
 .reagent-search-container {
-  margin: 10px;
+  margin-top: 20px;
 }
 .reagent-search-row {
   position: relative;
 }
-.reagent-search-row p {
-  position: absolute;
-  top: 8px;
+.reagent-search-row label {
+  padding-top: 7px;
+}
+.reagent-search-row .my-checkbox-wrapper,
+.reagent-search-row .search-structure-scheme {
+  margin-bottom: 0;
+}
+.reagent-search-row .checkbox {
+  margin-top: 0;
 }
 .reagent-search-hint {
   font-size: 12px;
-  left: 10px;
 }
-.reagent-search-well {
-  margin-left: 12px;
+.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
+  width: auto !important;
 }
-.reagent-search-advanced {
-  position: relative;
-}
-.reagent-search-advanced a {
-  position: absolute;
-  top: 32px;
+.link-advanced-search {
+  display: inline-block;
   font-size: 16px;
+  margin-top: 30px;
+}
+.link-advanced-search:hover,
+.link-advanced-search:focus {
   text-decoration: none;
+}
+.link-advanced-search > span {
+  font-size: 12px;
+  margin-left: 5px;
 }
 .reagent-search-collapse {
   margin: 7px;
@@ -1349,16 +1371,8 @@ tags-input .tag-list .tag-item .remove-button {
 .reagent-search-collapse a {
   text-decoration: none;
 }
-.reagent-search-row strong {
-  position: absolute;
-  top: 15px;
-  left: 10px;
-}
 .reagent-search-row .info-col {
   margin-bottom: 25px;
-}
-.reagent-search-row div {
-  margin-bottom: 2px;
 }
 .search-button {
   margin: 2px 7px;
