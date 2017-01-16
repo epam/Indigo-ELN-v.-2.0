@@ -19,7 +19,7 @@
                         <div class="list-group templates-holder palette animated" dragula='"components"' dragula-model='components' indeln-scroll>
                             <a class="list-group-item draggable-component" data-id="{{component.id}}"
                                ng-repeat="component in components | filter:search track by $index">
-                                <h5 class="semi-b draggable-component">{{component.name}}</h5>
+                                <h5 class="draggable-component">{{component.name}}</h5>
                                 <p class="draggable-component">{{component.desc}} </p>
                             </a>
                         </div>
@@ -59,7 +59,7 @@
                             </div>
                             <a class="list-group-item draggable-component component animated"
                                ng-repeat="component in tab.components">
-                                <h5 class="semi-b draggable-component">
+                                <h5 class="draggable-component">
                                     {{component.name}}
                                     <em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeComponent(tab, component)"></em>
                                 </h5>

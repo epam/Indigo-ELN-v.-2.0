@@ -4,21 +4,15 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-12" style="margin-bottom: 0">
-                    <my-input my-type="text" my-model="value"></my-input>
-                </div>
-            </div>
-        </div>
+        <my-input my-type="text" my-model="value"></my-input>
     </div>
     <div class="modal-footer">
-        <button type="submit" ng-disabled="productBatchSummarySetInputValueForm.$invalid" class="btn btn-info"
-                form="productBatchSummarySetInputValueForm">
-            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Save</span>
-        </button>
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="productBatchSummarySetInputValueForm.$invalid" class="btn btn-primary"
+                form="productBatchSummarySetInputValueForm">
+            <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
     </div>
 </form>

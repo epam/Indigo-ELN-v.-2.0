@@ -1,20 +1,16 @@
-<div class="panel panel-info templates">
-    <div class="panel-heading">
-        <span>Template</span> {{template.name}}
+<div class="templates">
+    <div class="tab-content-pad">
+        <h3>Template {{template.name}}</h3>
     </div>
-    <div class="panel-body">
-        <form class="form-horizontal">
-            <my-components my-template="template.templateContent"
-                           my-readonly="true"
-                           my-model="{}"
-            ></my-components>
-        </form>
-    </div>
-    <div class="panel-footer">
-        <button type="submit"
-                onclick="window.history.back()"
-                class="btn btn-info">
-            <span class="glyphicon glyphicon-arrow-left"></span>&nbsp;<span> Back</span>
+    <form>
+        <my-components my-template="template.templateContent"
+                       my-readonly="true"
+                       my-model="{}"
+        ></my-components>
+    </form>
+    <div class="btn-bottom-block tab-content-pad">
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </button>
     </div>
 </div>

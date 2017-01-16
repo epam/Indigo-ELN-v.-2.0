@@ -8,10 +8,10 @@
                 <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
                     <input type="file" style="position: relative; right: 50%; left: 40%;" nv-file-select=""
                            uploader="uploader"/>
-                    <br/><br/><strong>Drop file here</strong>
+                    <br/><br/><span class="semi-b">Drop file here</span>
                 </div>
             </div>
-            <div style="margin-bottom: 10px">
+            <div>
                 <table class="table">
                     <thead>
                     <tr>
@@ -37,6 +37,8 @@
         </div>
     </div>
 </div>
-<div class="modal-footer text-right">
-    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="cancel()">
+        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+    </button>
 </div>

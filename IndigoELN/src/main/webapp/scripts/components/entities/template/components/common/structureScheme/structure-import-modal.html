@@ -3,11 +3,10 @@
         <h5 class="modal-title">Import Structure</h5>
     </div>
     <div class="modal-body">
-        <div class="col-xs-12">
-            <label class="control-label">Select File</label>
+        <div class="form-group">
+            <label>Select File:</label>
             <input type="file" my-file-reader="showContent($fileContent)" />
         </div>
-        <br/><br/><br/><br/>
         <div >
             <my-text-area my-label="Input Structure" my-label-vertical="true" my-model="content"
                           my-trim="false"></my-text-area>
@@ -16,7 +15,9 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-info" type="button" ng-click="import()">Import</button>
-        <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        <button class="btn btn-default" type="button" ng-click="cancel()">
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button class="btn btn-primary" type="button" ng-click="import()">Import</button>
     </div>
 </div>

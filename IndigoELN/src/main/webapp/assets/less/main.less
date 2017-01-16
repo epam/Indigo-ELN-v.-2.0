@@ -15,6 +15,7 @@
 @import 'label.less';
 @import 'animation.less';
 @import 'scroll.less';
+@import 'type.less';
 
 //GENERAL STYLES
 
@@ -34,20 +35,6 @@ body {
     padding-top: 60px;
 }
 
-ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.fa, .glyphicon {
-    cursor: pointer;
-}
-
-a {
-    cursor: pointer;
-}
-
 [ng\:cloak], [ng-cloak],
 [data-ng-cloak], [x-ng-cloak],
 .ng-cloak, .x-ng-cloak {
@@ -57,10 +44,10 @@ a {
 .row {
     margin-left: -15px !important;
     margin-right: -15px !important;
-}
 
-.row > div {
-    margin-bottom: 0;
+    > div {
+        margin-bottom: 0;
+    }
 }
 
 //CONTAINER STYLES
@@ -285,19 +272,7 @@ tags-input {
 
 
 
-
-
-
-.countdown-dialog {
-    position: relative;
-}
-
-.countdown-dialog span {
-    position: absolute;
-    display: block;
-    width: 100%;
-    color: black;
-}
+//OLD STYLES
 
 .newtemplate {
     width: 100px;
@@ -477,6 +452,8 @@ tags-input {
     margin-top: -8px;
 }
 
+//PRINT STYLES
+
 .print-header {
     color: grey;
     margin-top: 20px;
@@ -531,42 +508,50 @@ tags-input {
     font-size: 14px;
 }
 
-
-.reagent-search-tab {
-    margin-top: 20px;
-}
+//SEARCH PAGE
 
 .reagent-search-container {
-    margin: 10px;
+    margin-top: 20px;
 }
 
 .reagent-search-row {
     position: relative;
-}
 
-.reagent-search-row p {
-    position: absolute;
-    top: 8px;
+    label {
+        padding-top: 7px;
+    }
+
+    .my-checkbox-wrapper,
+    .search-structure-scheme {
+        margin-bottom: 0;
+    }
+
+    .checkbox {
+        margin-top: 0;
+    }
 }
 
 .reagent-search-hint {
     font-size: 12px;
-    left: 10px;
 }
 
-.reagent-search-well {
-    margin-left: 12px;
+.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
+    width: auto !important;
 }
 
-.reagent-search-advanced {
-    position:relative
-}
-
-.reagent-search-advanced a {
-    position:absolute;
-    top: 32px;
+.link-advanced-search {
+    display: inline-block;
     font-size: 16px;
-    text-decoration: none;
+    margin-top: 30px;
+
+    &:hover, &:focus {
+        text-decoration: none;
+    }
+
+    > span {
+        font-size: 12px;
+        margin-left: 5px;
+    }
 }
 
 .reagent-search-collapse {
@@ -577,19 +562,11 @@ tags-input {
     text-decoration: none;
 }
 
-.reagent-search-row strong {
-    position:absolute;
-    top:15px;
-    left: 10px;
-}
-
 .reagent-search-row .info-col {
      margin-bottom: 25px;
 }
 
-.reagent-search-row div {
-    margin-bottom: 2px;
-}
+
 
 .search-button {
     margin: 2px 7px;

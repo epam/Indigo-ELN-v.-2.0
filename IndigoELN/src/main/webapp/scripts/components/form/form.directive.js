@@ -409,9 +409,9 @@ angular.module('indigoeln')
         compile: function () {
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<div class="col-xs-12 text-left" style="padding-top: 7px">' +
-        '<div style="float: left; width: 150px"><strong>{{myLabel}}</strong></div> <span>{{myModel||myEmptyText}}</span>' +
-        '</div>' +
+        // '<div class="col-xs-12 text-left">' +
+        '<p><span class="semi-b">{{myLabel}}:</span>&nbsp;&nbsp;<span>{{myModel||myEmptyText}}</span></p>' +
+        // '</div>' +
         '</div>'
     };
 }).directive('myDatePicker', function (formUtils) {

@@ -191,23 +191,30 @@
   padding-left: 0px;
   padding-right: 0px;
 }
-/******************DIALOGS STYLE*********************/
-.modal-dialog .modal-title {
-  font-size: 16px;
+/******************TYPE*********************/
+a {
+  cursor: pointer;
 }
-.modal-dialog .modal-title .glyphicon,
-.modal-dialog .modal-title .fa {
-  margin-right: 5px;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Oswald Regular', Arial, sans-serif;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-transform: uppercase;
 }
-.modal-dialog .modal-footer {
-  border: 0 none;
+hr.hr-top {
+  margin-top: 5px;
 }
-.countdown-dialog {
-  position: relative;
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-.countdown-dialog span {
-  position: absolute;
-  display: block;
-  width: 100%;
-  color: black;
+.fa,
+.glyphicon {
+  cursor: pointer;
 }

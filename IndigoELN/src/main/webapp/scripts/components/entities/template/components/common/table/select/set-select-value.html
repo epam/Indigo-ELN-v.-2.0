@@ -4,22 +4,16 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <div class="form-horizontal">
-            <div class="row">
-                <div class="col-xs-12" style="margin-bottom: 0">
-                    <my-select ng-if="!dictionary" my-items="values" my-model="wrapper.value"></my-select>
-                    <my-select ng-if="dictionary" my-dictionary="{{dictionary}}" my-model="wrapper.value"></my-select>
-                </div>
-            </div>
-        </div>
+        <my-select ng-if="!dictionary" my-items="values" my-model="wrapper.value"></my-select>
+        <my-select ng-if="dictionary" my-dictionary="{{dictionary}}" my-model="wrapper.value"></my-select>
     </div>
     <div class="modal-footer">
-        <button type="submit" ng-disabled="productBatchSummarySetSelectValueForm.$invalid" class="btn btn-info"
-                form="productBatchSummarySetSelectValueForm">
-            <span class="glyphicon glyphicon-book"></span>&nbsp;<span>Save</span>
-        </button>
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
-            <span class="glyphicon glyphicon-ban-circle"></span>&nbsp;<span>Cancel</span>
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button type="submit" ng-disabled="productBatchSummarySetSelectValueForm.$invalid" class="btn btn-primary"
+                form="productBatchSummarySetSelectValueForm">
+            <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
     </div>
 </form>

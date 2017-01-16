@@ -5,17 +5,27 @@
 /******************DIALOGS STYLE*********************/
 
 .modal-dialog {
-  .modal-header {
-    //background-color: #CFD8DC;
 
-    .modal-title{
-      font-size: 16pt;
-      font-family: 'Oswald Regular', sans-serif;
-      color: #616161;
-      text-transform: uppercase;
+  .modal-title{
+    font-size: @modal-title-size;
+
+    .glyphicon, .fa {
+      margin-right: 5px;
     }
   }
+
   .modal-footer {
-    padding: 10px 20px;
+    border: 0 none;
+  }
+}
+
+.countdown-dialog {
+  position: relative;
+
+  span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
   }
 }

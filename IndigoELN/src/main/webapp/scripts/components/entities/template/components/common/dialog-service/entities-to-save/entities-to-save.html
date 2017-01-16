@@ -15,8 +15,12 @@
 </div>
 
 </div>
-<div class="modal-footer text-right">
-    <button class="btn btn-info" type="button" ng-click="save()" ng-disabled="!isSelected()">Save Selected</button>
+<div class="modal-footer">
+    <button class="btn btn-default" type="button" ng-click="cancel()">
+        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+    </button>
+    <button class="btn btn-primary" type="button" ng-click="save()" ng-disabled="!isSelected()">
+        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+    </button>
     <button class="btn btn-info" type="button" ng-click="discardAll()">Discard All</button>
-    <button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>
 </div>
