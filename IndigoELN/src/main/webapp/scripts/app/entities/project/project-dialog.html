@@ -1,53 +1,66 @@
-<div class="tab-content-pad projects" ng-class="{'project-create': project.id==null}" cg-busy="{promise:loading, minDuration:700}" my-scroller="y" my-scroller-theme="indigo-thick">
-    <!--<div class="panel-heading" ng-show="newProject">-->
-        <!--<span>New Project</span>-->
-    <!--</div>-->
+<div class="experiments" cg-busy="{promise:loading, minDuration:700}">
+    <div class="tab-content-pad">
+        <div ng-init="isCollapsed=true;">
+            <div class="row m-b20">
+                <div class="col-sm-6 col-xs-9">
+                    <div class="row-inline">
+                        <span class="txt-larger">Project Members:</span>
+                        <button type="submit" ui-sref="entities.project-new.permissions()" ng-if="!project.id" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
+                            <i class="fa fa-pencil"></i>
+                            <span class="m-l5">Edit</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
+                            <i class="fa fa-eye"></i>
+                            <span class="m-l5">View Members</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div uib-collapse="isCollapsed">
+                <hr>
+                <ul id="triple-list" class="list-triple members">
+                    <li class="members" ng-repeat="member in project.accessList track by $index">
+                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
     <form id="createProjectForm" name="createProjectForm" role="form" novalidate autocomplete="off">
-        <my-input my-label="Project Name"
-                  my-readonly="!isEditAllowed"
-                  my-name="projectName"
-                  my-type="text"
-                  my-label-vertical="true"
-                  my-model="project.name"
-                  my-validation-required="!project.name.trim()"
-                  class="m-b20">
-        </my-input>
-        <div class="row-inline m-b15 ng-pristine ng-valid">
-            <span class="txt-larger">Project Members:</span>
-            <button type="submit" ui-sref="entities.project-new.permissions()" ng-if="!project.id" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
-                <i class="fa fa-pencil"></i>
-                <span class="m-l5">Edit</span>
-            </button>
-            <button type="submit" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
-                <i class="fa fa-eye"></i>
-                <span class="m-l5">View Members</span>
-            </button>
-        </div>
-        <div uib-collapse="isCollapsed">
-            <hr>
-            <ul id="triple-list" class="list-triple members">
-                <li class="members" ng-repeat="member in project.accessList track by $index">
-                    {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                </li>
-            </ul>
-        </div>
-        <my-tag-input my-label="Tags" my-model="project.tags" my-readonly="!isEditAllowed"
-                      my-label-vertical="true"></my-tag-input>
-        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditAllowed"
-                  my-model="project.keywords"></my-input>
-        <my-input my-label="Literature" my-label-vertical="true" my-readonly="!isEditAllowed"
-                  my-model="project.references"></my-input>
-        <label>Project Description</label>
-        <my-text-editor my-model="project.description"
-                        my-name="projectDescription"
-                        my-readonly="!isEditAllowed"></my-text-editor>
-        <div class="m-t20">
-            <my-file-uploader upload-url="api/project_files"
-                          my-readonly="!isEditAllowed">
-            </my-file-uploader>
+        <div class="inner-tabs">
+            <div class="simple-tab-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <my-input my-label="Project Name"
+                                  my-readonly="!isEditAllowed"
+                                  my-name="projectName"
+                                  my-type="text"
+                                  my-label-vertical="true"
+                                  my-model="project.name"
+                                  my-validation-required="!project.name.trim()">
+                        </my-input>
+                        <my-tag-input my-label="Tags" my-model="project.tags" my-readonly="!isEditAllowed"
+                                      my-label-vertical="true"></my-tag-input>
+                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditAllowed"
+                                  my-model="project.keywords"></my-input>
+                        <my-input my-label="Literature" my-label-vertical="true" my-readonly="!isEditAllowed"
+                                  my-model="project.references"></my-input>
+                        <label>Project Description</label>
+                        <my-text-editor my-model="project.description"
+                                        my-name="projectDescription"
+                                        my-readonly="!isEditAllowed"></my-text-editor>
+                        <div class="m-t20">
+                            <my-file-uploader upload-url="api/project_files"
+                                              my-readonly="!isEditAllowed">
+                            </my-file-uploader>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
-    <div class="btn-bottom-block">
+
+    <div class="btn-bottom-block tab-content-pad">
         <button class="btn btn-info" type="button"
                 ng-disabled="!isCreateChildAllowed || !project.id"
                 ui-sref="entities.notebook-new({parentId:project.id})">Create Notebook
@@ -57,7 +70,7 @@
                 class="btn btn-primary"><i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </button>
     </div>
 </div>

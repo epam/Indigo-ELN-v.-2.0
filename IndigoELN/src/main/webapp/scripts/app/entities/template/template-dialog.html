@@ -1,11 +1,14 @@
 <div class="tab-content-pad templates m-b20">
-    <form class="m-b10">
+    <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
         <div class="row">
             <div class="col-sm-6">
-                <my-input my-label="Name" my-model="template.name"></my-input>
+                <my-input my-label="Name" my-model="template.name" my-validation-required="!template.name.trim()"></my-input>
             </div>
         </div>
     </form>
+</div>
+<div class="inner-tabs">
+    <div class="admin-tab-content" id="entities-content-id">
     <div class="row">
         <div class="col-xs-6">
             <div class="panel panel-info">
@@ -71,25 +74,31 @@
             </div>
         </div>
     </div>
-    <div class="btn-bottom-block">
+        <div class="panel panel-info panel-info-collapse">
+            <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false" ng-click="showPreview = !showPreview">
+                <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
+                    ng-click="isCollapsed = !isCollapsed"></em>
+                Show Preview
+            </div>
+            <div class="preview-components panel-body panel-body-nopad" ng-if="showPreview && template.templateContent.length">
+                <my-components my-template="template.templateContent"
+                               my-readonly="true"
+                               my-model="{}"
+                ></my-components>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <div class="btn-bottom-block tab-content-pad">
+        <button ng-click="save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
+            <i class="fa fa-save"></i><span class="m-l5">Save</span>
+        </button>
         <button type="button" class="btn btn-default" ng-click="close()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
-        <button ng-click="save()" class="btn btn-primary">
-            <i class="fa fa-save"></i><span class="m-l5">Save</span>
-        </button>
     </div>
-</div>
-<div class="panel panel-info panel-info-collapse">
-    <div class="panel-heading" style="cursor: pointer" ng-init="showPreview = false" ng-click="showPreview = !showPreview">
-        <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !isCollapsed, 'glyphicon-chevron-up': isCollapsed}"
-            ng-click="isCollapsed = !isCollapsed"></em>
-        Show Preview
-    </div>
-    <div class="panel-body panel-body-nopad" ng-if="showPreview && template.templateContent.length">
-        <my-components my-template="template.templateContent"
-                       my-readonly="true"
-                       my-model="{}"
-        ></my-components>
-    </div>
-</div>
+
+
+

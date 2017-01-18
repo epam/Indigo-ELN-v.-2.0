@@ -5,10 +5,11 @@ angular.module('indigoeln')
         $scope.predicate = 'id';
         $scope.reverse = true;
         $scope.page = 1;
+        $scope.itemsPerPage = 10;
         $scope.loadAll = function () {
             Template.query({
                 page: $scope.page - 1,
-                size: 20,
+                size: $scope.itemsPerPage,
                 sort: [$scope.predicate + ',' + ($scope.reverse ? 'asc' : 'desc'), 'id']
             }, function (result, headers) {
                 $scope.links = ParseLinks.parse(headers('link'));
