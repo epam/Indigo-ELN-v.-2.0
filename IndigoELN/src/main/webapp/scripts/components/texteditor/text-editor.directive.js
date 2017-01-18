@@ -15,7 +15,7 @@ angular.module('indigoeln')
             },
             require: '^form',
             restrict: 'E',
-            template: '<textarea name={{myName}} ng-model="myModel" data-autosave="editor-content" autofocus></textarea>',
+            template: '<textarea name={{myName}} class="form-control" ng-model="myModel" data-autosave="editor-content" autofocus></textarea>',
             replace: true,
             link: function (scope, elem, iAttrs, formCtrl) {
                 Simditor.locale = 'en_EN';

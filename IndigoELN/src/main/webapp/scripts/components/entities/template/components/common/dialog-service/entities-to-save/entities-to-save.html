@@ -3,24 +3,22 @@
 </div>
 <div class="modal-body">
     <div class="long-content-popup">
-        <div class="row select-from-dictionary" ng-repeat="entity in entities track by entity.tabKey">
-            <div class="col-xs-12">
-                <my-checkbox
-                        my-model="entity.$$saveEntity"
-                        my-label="{{entity.name | capitalize}} {{entity.$$title}}"
-                ></my-checkbox>
-            </div>
+        <div class="select-from-dictionary" ng-repeat="entity in entities track by entity.tabKey">
+            <my-checkbox
+                    my-model="entity.$$saveEntity"
+                    my-label="{{entity.name | capitalize}} {{entity.$$title}}"
+            ></my-checkbox>
         </div>
     </div>
 </div>
-
-</div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="cancel()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        <i class="fa fa-ban"></i>
+        <span class="m-l5">Cancel</span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="save()" ng-disabled="!isSelected()">
-        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+        <i class="fa fa-save"></i>
+        <span class="m-l5">Save</span>
     </button>
     <button class="btn btn-info" type="button" ng-click="discardAll()">Discard All</button>
 </div>

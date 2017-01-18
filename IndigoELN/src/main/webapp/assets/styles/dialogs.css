@@ -202,6 +202,9 @@
 .modal-dialog .modal-footer {
   border: 0 none;
 }
+.modal-dialog .modal-footer .btn + .btn {
+  margin-left: 5px;
+}
 .countdown-dialog {
   position: relative;
 }

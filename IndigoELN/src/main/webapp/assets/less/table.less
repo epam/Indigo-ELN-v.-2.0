@@ -32,6 +32,14 @@ tr {
   > tbody > tr > td {
     padding: @table-col-pad;
     white-space: nowrap;
+
+    &.td-40p {
+      width: 40%;
+    }
+
+    .btn + .btn {
+      margin-left: @space-between-btns;
+    }
   }
 
   > tbody > tr > td {
@@ -53,13 +61,15 @@ tr {
       font: 14px @table-th-family;
       padding: 0;
     }
+
+    .my-checkbox-wrapper {
+      margin: 0;
+
+      .checkbox {
+        margin: 0;
+      }
+    }
   }
-
-  //.checkbox {
-  //  margin: 0;
-  //}
-
-  //
 }
 
 .table-row-variant(success; @brand4);
