@@ -227,6 +227,12 @@ textarea,
   padding-right: 10px;
   text-transform: none;
 }
+.ui-select-container .ui-select-match .btn .ui-select-match-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 96%;
+}
 .ui-select-container.open .ui-select-match .btn {
   background-color: transparent;
   border-color: #3f51b5;
@@ -238,10 +244,11 @@ textarea,
 .my-checkbox-wrapper .my-checkbox {
   background-color: #fff !important;
   border-color: #ddd !important;
-  color: #84d5fb;
-  font-size: 10px;
-  padding: 1px 3px 1px 5px;
+  color: #3f51b5 !important;
+  padding: 1px 3px 1px 5px !important;
+  font: 10px 'Oswald Regular', sans-serif !important;
   margin-right: 5px;
+  margin-top: -3px;
 }
 .my-checkbox-wrapper label {
   padding-left: 0;

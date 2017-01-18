@@ -202,6 +202,10 @@
   font-size: 12px;
   padding: 3px 12px 2px;
 }
+.btn-small .fa {
+  margin-top: 2px;
+  vertical-align: top;
+}
 .btn-default {
   border-color: #f2f2f2;
 }
@@ -232,5 +236,63 @@
   margin-left: 20px;
 }
 .btn-group .btn + .btn {
-  margin-left: 5px;
+  margin-left: 7px;
+}
+.editable-buttons .btn {
+  padding: 6px 12px;
+  color: #fff;
+  background-color: #84d5fb;
+  border-color: #5bc0de;
+}
+.editable-buttons .btn:focus,
+.editable-buttons .btn.focus {
+  color: #fff;
+  background-color: #53c4f9;
+  border-color: #1f7e9a;
+}
+.editable-buttons .btn:hover {
+  color: #fff;
+  background-color: #53c4f9;
+  border-color: #2aabd2;
+}
+.editable-buttons .btn:active,
+.editable-buttons .btn.active,
+.open > .dropdown-toggle.editable-buttons .btn {
+  color: #fff;
+  background-color: #53c4f9;
+  border-color: #2aabd2;
+}
+.editable-buttons .btn:active:hover,
+.editable-buttons .btn.active:hover,
+.open > .dropdown-toggle.editable-buttons .btn:hover,
+.editable-buttons .btn:active:focus,
+.editable-buttons .btn.active:focus,
+.open > .dropdown-toggle.editable-buttons .btn:focus,
+.editable-buttons .btn:active.focus,
+.editable-buttons .btn.active.focus,
+.open > .dropdown-toggle.editable-buttons .btn.focus {
+  color: #fff;
+  background-color: #30b8f8;
+  border-color: #1f7e9a;
+}
+.editable-buttons .btn:active,
+.editable-buttons .btn.active,
+.open > .dropdown-toggle.editable-buttons .btn {
+  background-image: none;
+}
+.editable-buttons .btn.disabled:hover,
+.editable-buttons .btn[disabled]:hover,
+fieldset[disabled] .editable-buttons .btn:hover,
+.editable-buttons .btn.disabled:focus,
+.editable-buttons .btn[disabled]:focus,
+fieldset[disabled] .editable-buttons .btn:focus,
+.editable-buttons .btn.disabled.focus,
+.editable-buttons .btn[disabled].focus,
+fieldset[disabled] .editable-buttons .btn.focus {
+  background-color: #84d5fb;
+  border-color: #5bc0de;
+}
+.editable-buttons .btn .badge {
+  color: #84d5fb;
+  background-color: #fff;
 }

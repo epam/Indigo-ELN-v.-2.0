@@ -9,10 +9,10 @@ angular.module('indigoeln')
                 '<div class="modal-body long-content-popup">' +
                     '<p>' + message + '</p>' +
                     '</div>' +
-                    '<div class="modal-footer text-right">' +
+                    '<div class="modal-footer">' +
                 '<button class="btn btn-primary" type="button" ng-click="ok()">{{okText}}</button>' +
                 '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">No</button>' +
-                '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()">Cancel</button>' +
+                '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span></button>' +
                     '</div>',
                 controller: function ($scope, $uibModalInstance) {
                     $scope.hasOkCallback = !!okCallback;

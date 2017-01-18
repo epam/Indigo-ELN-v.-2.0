@@ -226,6 +226,9 @@
   background-color: transparent;
   border: 0 none;
 }
+.panel-footer .btn + .btn {
+  margin-left: 5px;
+}
 .panel-info .panel-heading {
   border: 0 none;
 }

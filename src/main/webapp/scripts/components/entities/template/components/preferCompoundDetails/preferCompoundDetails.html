@@ -30,13 +30,10 @@
                         my-label="Show Structure"
                 ></my-checkbox>
             </div>
-            <div class="row" ng-if="showStructure">
-
-                <div class="structure-preview-wrapper">
-                    <img style="padding:10px;"
-                         ng-src="data:image/svg+xml;base64,{{structureImage}}"
-                         alt="Image is unavailable.">
-                </div>
+            <div class="structure-preview-wrapper" ng-if="showStructure">
+                <img
+                     ng-src="data:image/svg+xml;base64,{{structureImage}}"
+                     alt="Image is unavailable.">
             </div>
             <div class="row">
                 <div class="col-xs-6">

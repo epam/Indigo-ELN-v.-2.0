@@ -14,6 +14,11 @@
   &-small {
     font-size: @btn-small-size;
     padding: @btn-small-pad;
+
+    .fa {
+      margin-top: 2px;
+      vertical-align: top;
+    }
   }
 
   &-default {
@@ -65,16 +70,17 @@
 .btn-group {
 
   .btn + .btn {
-    margin-left: 5px;
+    margin-left: @space-between-btns + 2px;
   }
 }
 
 //override xeditable
+
 .editable-buttons{
+
   .btn{
     padding: 6px 12px;
     background-color: @brand3;
     .button-variant(@white; @brand3; @btn-info-bg);
-
   }
 }

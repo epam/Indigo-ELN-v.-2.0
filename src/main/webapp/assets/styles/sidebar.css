@@ -236,12 +236,25 @@
 .sidebar-menu > li > a:focus {
   background-color: #84d5fb;
 }
+.sidebar-menu > li .sub-menu li.activ > a:first-child {
+  color: #fff;
+}
+.sidebar-menu > li .sub-menu li.activ.open {
+  background-color: #212121;
+  box-shadow: none;
+}
 .sidebar-menu > li .sub-menu li a {
   font: 18px 'Oswald Light', sans-serif;
   padding-left: 52px;
 }
 .sidebar-menu > li .sub-menu li > ul > li a {
   padding-left: 67px;
+  display: flex;
+  justify-content: space-between;
+}
+.sidebar-menu > li .sub-menu li > ul > li a em {
+  padding-top: 5px;
+  font-size: 15px;
 }
 .sidebar-menu > li .sub-menu li > ul > li > ul > li a {
   padding-left: 82px;

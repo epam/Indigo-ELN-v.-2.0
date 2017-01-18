@@ -43,10 +43,12 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearDictionary()">
-                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                <i class="fa fa-ban"></i>
+                <span class="m-l5">Cancel</span>
             </button>
-            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary m-l5">
-                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">
+                <i class="fa fa-save"></i>
+                <span class="m-l5">Save</span>
             </button>
         </div>
     </div>
@@ -75,12 +77,14 @@
                     <button type="submit"
                             ng-click="editDictionary(dictionary)"
                             class="btn btn-info btn-small">
-                        <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
+                        <i class="fa fa-pencil"></i>
+                        <span class="m-l5">Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.dictionary-management.delete({id:dictionary.id})"
-                            class="btn btn-info btn-small m-l5">
-                        <span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete</span>
+                            class="btn btn-info btn-small">
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">Delete</span>
                     </button>
                 </td>
             </tr>
@@ -145,7 +149,7 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clearWord()">
                         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
                     </button>
-                    <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || isWordSaving" class="btn btn-primary m-l5">
+                    <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || isWordSaving" class="btn btn-primary">
                         <i class="fa fa-save"></i><span class="m-l5">Save</span>
                     </button>
                 </div>
@@ -176,12 +180,12 @@
                             <button type="submit"
                                     ng-click="editWord(word)"
                                     class="btn btn-info btn-small">
-                                <span class="glyphicon glyphicon-pencil"></span>&nbsp;<span> Edit</span>
+                                <span class="fa fa-pencil"></span><span class="m-l5">Edit</span>
                             </button>
                             <button type="submit"
                                     ng-click="deleteWord(word)"
-                                    class="btn btn-info btn-small m-l5">
-                                <span class="glyphicon glyphicon-trash"></span>&nbsp;<span> Delete</span>
+                                    class="btn btn-info btn-small">
+                                <span class="fa fa-trash"></span><span class="m-l5">Delete</span>
                             </button>
                         </td>
                     </tr>

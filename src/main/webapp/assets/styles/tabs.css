@@ -219,8 +219,15 @@
   white-space: nowrap;
 }
 .main-tabs .nav-tabs > li {
+  opacity: 0.5;
   display: inline-block;
   float: none;
+}
+.main-tabs .nav-tabs > li.active {
+  opacity: 1;
+}
+.main-tabs .nav-tabs > li.active > a {
+  color: #3f51b5;
 }
 .main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
   margin-bottom: 18px;

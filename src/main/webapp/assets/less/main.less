@@ -94,7 +94,7 @@ body {
     text-align: right;
 
     > * + * {
-        margin-left: 8px;
+        margin-left: @space-between-btns;
     }
 }
 
@@ -253,6 +253,7 @@ tags-input {
 
         &:first-child {
             font-size: 68px;
+            margin-bottom: 5px;
         }
 
         &:last-child {
@@ -297,6 +298,14 @@ tags-input {
     border: dotted 3px lightgray !important;
     text-align: center;
     height: 150px;
+
+    input[type=file] {
+        margin: 0 auto;
+    }
+
+    > div {
+        padding-top: 25px;
+    }
 }
 
 .nv-file-over {
