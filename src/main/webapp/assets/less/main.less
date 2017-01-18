@@ -96,6 +96,12 @@ body {
     > * + * {
         margin-left: @space-between-btns;
     }
+
+    &.experiment-preview-block{
+        border-top: 1px solid #ddd;
+        margin: 0px;
+        padding: 20px 18px 20px 0px;
+    }
 }
 
 //TAGS LIST
@@ -466,7 +472,21 @@ tags-input {
 .print-header {
     color: grey;
     margin-top: 20px;
-    border-color: grey !important;
+    tr:first-child{
+        background-color:@brand2;
+        th:first-child {
+            color:#fff;
+            padding:0;
+
+            h2{
+                margin: 10px 0px 10px 10px;
+            }
+        }
+
+        .logo{
+            margin:0px;
+        }
+    }
 }
 
 .print-header, .print-table, .print-table-simple, .print-box {
@@ -482,6 +502,14 @@ tags-input {
 
 .print-component .simditor {
     border-color: black;
+}
+
+.print-component{
+    display: flex;
+    justify-content: space-between;
+    .my-checkbox-wrapper{
+        padding-top:7px;
+    }
 }
 
 .print-header td, .print-header th, .print-table-simple td, .print-table-simple th {

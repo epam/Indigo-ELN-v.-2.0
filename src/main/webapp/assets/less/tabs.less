@@ -67,14 +67,24 @@
 
 .tab-content {
 
-  &.entities-content {
-    height: ~"calc(100vh - 156px)";
-    overflow-y: auto;
-    padding: @pad-space 0;
-  }
+  //&.simple-entity {
+  //  height: ~"calc(100vh - 156px)";
+  //  overflow-y: auto;
+  //  padding: @pad-space 0;
+  //}
+
 
   &-pad {
     padding: 0 @pad-space;
+
+    &.dictionary, &.role-management{
+      height: ~"calc(100vh - 170px)";
+      overflow-y: auto;
+    }
+
+
+
+
   }
 }
 
@@ -116,5 +126,47 @@
     border: 1px solid @border-color;
     border-top: 0 none;
     padding: @pad-space;
+
+    height: ~"calc(100vh - 330px)";
+    overflow-y: auto;
+
+  }
+
+  .simple-tab-content {
+    border: 1px solid @border-color;
+    padding: @pad-space;
+
+    height: ~"calc(100vh - 300px)";
+    overflow-y: auto;
+
+  }
+
+  .admin-tab-content {
+    border: 1px solid @border-color;
+    padding: @pad-space;
+    height: ~"calc(100vh - 340px)";
+    overflow-y: auto;
+
+    .preview-components{
+      .tab-content {
+        overflow-y:hidden;
+        height: inherit;
+      }
+    }
+
+  }
+
+  .simditor{
+    .simditor-wrapper{
+      .simditor-body, .simditor-placeholder{
+        font-size: 14px;
+        font-family: inherit;
+
+
+        p{
+          color: #616161;
+        }
+      }
+    }
   }
 }
