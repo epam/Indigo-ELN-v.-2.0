@@ -275,6 +275,10 @@ tags-input {
     margin-top: 50px;
 }
 
+.scroll-full {
+    height: ~"calc(100vh - 180px)";
+    overflow-y: auto;
+}
 
 
 
@@ -449,12 +453,6 @@ tags-input {
     background-color: #b2ebf2;
 }
 
-//#page-wrapper {
-//    padding-left: 40px;
-//    padding-top: 70px;
-//}
-
-
 .slider-handle {
     background: #b2ebf2 none;
 }
@@ -467,13 +465,15 @@ tags-input {
     margin-top: -8px;
 }
 
-//PRINT STYLES
+//--------------------PRINT STYLES
 
 .print-header {
     color: grey;
     margin-top: 20px;
+
     tr:first-child{
         background-color:@brand2;
+
         th:first-child {
             color:#fff;
             padding:0;
@@ -545,35 +545,24 @@ tags-input {
     font-size: 14px;
 }
 
-//SEARCH PAGE
+//--------------------SEARCH
 
-.reagent-search-container {
-    margin-top: 20px;
+.reagent-search-tab {
+    padding-top: 10px;
 }
 
-.reagent-search-row {
-    position: relative;
+//Main search block with advanced link
 
-    label {
-        padding-top: 7px;
-    }
+.main-search-block {
 
-    .my-checkbox-wrapper,
-    .search-structure-scheme {
+    .form-group {
         margin-bottom: 0;
     }
 
-    .checkbox {
-        margin-top: 0;
+    .search-hint {
+        font-size: @small-size;
+        margin-top: 3px;
     }
-}
-
-.reagent-search-hint {
-    font-size: 12px;
-}
-
-.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
-    width: auto !important;
 }
 
 .link-advanced-search {
@@ -586,35 +575,64 @@ tags-input {
     }
 
     > span {
-        font-size: 12px;
+        font-size: @small-size;
         margin-left: 5px;
     }
 }
 
+//Advanced search
+
+.criteria-search-block {
+    position: relative;
+
+    & + & {
+        margin-top: @pad-space;
+    }
+
+    .my-checkbox-wrapper,
+    .search-structure-scheme {
+        margin-bottom: 0;
+    }
+
+    .checkbox {
+        margin-top: 0;
+    }
+}
+
+.search-image {
+    margin: 30px 0;
+}
+
+//Search collapse
+
 .reagent-search-collapse {
-    margin: 7px;
+    margin: 10px 0;
+
+    a {
+        color: @gray;
+        font-family: 'Source Sans Pro Semibold', sans-serif;
+        text-decoration: none;
+
+        .glyphicon {
+            font-size: 10px;
+            margin-top: -5px;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+    }
 }
 
-.reagent-search-collapse a {
-    text-decoration: none;
-}
-
-.reagent-search-row .info-col {
-     margin-bottom: 25px;
+.collapse-content {
+    margin-top: @pad-space;
 }
 
 
-
-.search-button {
-    margin: 2px 7px;
+.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
+    width: auto !important;
 }
 
 .search-table-row-highlight {
     background-color: #b2ebf2;
-}
-
-.search-table-head {
-    background-color: rgba(191, 191, 191, 0.28);
 }
 
 #search-result-table, #my-reagent-list-table {
@@ -649,9 +667,9 @@ tags-input {
     border-color: #d1d1d1;
 }
 
-.melting-point-info div, .select-from-dictionary div {
-    margin-bottom: 0;
-}
+//.melting-point-info div, .select-from-dictionary div {
+//    margin-bottom: 0;
+//}
 
 .long-content-popup {
     overflow-y: scroll;
@@ -754,7 +772,7 @@ ul.my-dropdown-list {
 }
 
 
-//MEDIA
+//--------------------MEDIA
 
 @media (min-width: 1200px) {
     .text-align-lg {

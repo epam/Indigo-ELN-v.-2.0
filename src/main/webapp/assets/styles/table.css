@@ -224,6 +224,10 @@ tr {
 .table > tbody > tr > td .btn + .btn {
   margin-left: 5px;
 }
+.table > thead > tr > th > .form-group,
+.table > tbody > tr > td > .form-group {
+  margin-bottom: 0;
+}
 .table > tbody > tr > td {
   border: 0 none;
   vertical-align: middle;

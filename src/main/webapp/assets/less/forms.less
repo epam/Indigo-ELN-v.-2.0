@@ -9,6 +9,10 @@ label {
   font-weight: normal;
 }
 
+.control-label {
+  padding-top: 7px;
+}
+
 .help-block {
   color: @help-txt-color !important;
   font-size: @help-txt-size;
@@ -94,6 +98,16 @@ textarea, .textarea-structure {
   &-btn {
     .btn {
       height: @input-height-base;
+
+      + .btn {
+        margin-left: 7px;
+      }
     }
   }
+}
+
+//Input Right txt
+
+.input-right-txt {
+  .position-abs-top-right(-2px, 33px);
 }
