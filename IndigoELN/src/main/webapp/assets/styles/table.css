@@ -267,3 +267,9 @@ tr {
 .table-hover > tbody > tr.success:hover > th {
   background-color: #d5f1fd;
 }
+.my-scroller-axis-x {
+  overflow: hidden;
+}
+.my-component {
+  width: 100%;
+}
