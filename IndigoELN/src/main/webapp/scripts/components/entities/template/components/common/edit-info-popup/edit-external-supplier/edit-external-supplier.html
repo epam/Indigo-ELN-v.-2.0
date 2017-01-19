@@ -4,11 +4,11 @@
 <div class="modal-body">
     <my-select my-items="externalSupplierCodeAndNameSelect"
                my-label="External Supplier Code & Name"
-               my-label-columns-num="5"
+               my-label-vertical="true"
                my-model="externalSupplier.codeAndName"></my-select>
     <my-input my-model="externalSupplier.catalogRegistryNumber"
               my-label="Supplier Catalog/Registry#"
-              my-label-columns-num="5"></my-input>
+              my-label-vertical="true"> </my-input>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="cancel()">
