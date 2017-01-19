@@ -51,7 +51,7 @@ angular.module('indigoeln')
                         if (isCollapsed) {
                             $collapsible.hide();
                         }
-                        $button.on('click', function () {
+                        $heading.on('click', function () {
                             if (isCollapsed) {
                                 // expand the panel
                                 $collapsible.slideDown();
