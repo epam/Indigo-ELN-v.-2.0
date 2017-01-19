@@ -2,12 +2,12 @@
     <div class="panel-heading">
         {{myTitle}}
                 <span ng-disabled="myReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp" title="Export {{myTitle}}"
-                      ng-click="exportStructure()"></span>
+                      ng-click="exportStructure($event)"></span>
                 <span ng-disabled="myReadonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
                       title="Import {{myTitle}}"
-                      ng-click="importStructure()"></span>
+                      ng-click="importStructure($event)"></span>
                 <span ng-disabled="myReadonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
-                      title="Edit/Add {{myTitle}}" ng-click="openEditor()"></span>
+                      title="Edit/Add {{myTitle}}" ng-click="openEditor($event)"></span>
     </div>
     <div s-resizable max-height="300" min-height="50"
          class="panel-body text-center" ng-class="{'sizable-panel-body': image}" style="height: 150px">

@@ -127,7 +127,8 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.openEditor = function () {
+        $scope.openEditor = function ($event) {
+            $event.stopPropagation();
             if ($scope.myReadonly) {
                 return;
             }
@@ -160,7 +161,8 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.importStructure = function () {
+        $scope.importStructure = function ($event) {
+            $event.stopPropagation();
             if ($scope.myReadonly) {
                 return;
             }
@@ -181,7 +183,8 @@ angular.module('indigoeln')
             });
         };
 
-        $scope.exportStructure = function () {
+        $scope.exportStructure = function ($event) {
+            $event.stopPropagation();
             if ($scope.myReadonly) {
                 return;
             }

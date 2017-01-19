@@ -21,26 +21,21 @@
                                my-model="solubility.data[$index].solventName"></my-select></td>
                 <td><my-select my-items="solubilityTypeSelect"
                                my-model="solubility.data[$index].type"></my-select></td>
-                <td style="position:relative">
+                <td>
                     <div class="row"
-                         style="position:absolute;top:3px"
                          ng-init="solubility.data[$index].value.unit=unitSelect[0];solubility.data[$index].value.operator=operatorSelect[0]"
                          ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Quantitative'">
                         <my-select my-items="operatorSelect"
-                                   style="padding:0;min-width: 40px;"
-                                   class="col-xs-4"
+                                   class="col-xs-4 p-l1-all-0"
                                    my-model="solubility.data[$index].value.operator"></my-select>
-                        <my-input class="col-xs-4"
-                                  style="padding:0;min-width: 65px;"
+                        <my-input class="col-xs-4 p-l1-all-0"
                                   my-type="number"
                                   my-model="solubility.data[$index].value.value"></my-input>
-                        <my-select class="col-xs-4"
-                                   style="padding:0;min-width: 75px;"
+                        <my-select class="col-xs-4 p-l1-all-0"
                                    my-items="unitSelect"
                                    my-model="solubility.data[$index].value.unit"></my-select>
                     </div>
                     <div class="row col-xs-12"
-                         style="position:absolute;top:3px"
                          ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Qualitative'">
                         <my-select my-items="qualitativeSolubilitySelect"
                                    my-model="solubility.data[$index].value.value"></my-select>
