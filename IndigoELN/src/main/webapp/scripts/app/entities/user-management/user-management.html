@@ -78,11 +78,11 @@
                         <my-select my-label="Groups"
                                    my-items="[{name:'Group 1'}, {name:'Group 2'}]" my-model="user.group"
                         ></my-select>
-                        &nbsp;
-                        <button class="btn btn-info col-xs-offset-2"
+
+                        <button class="btn btn-info"
                                 ng-if="user.id"
                                 ng-click="changePassword()">Change Password
-                        </button>&nbsp;&nbsp;
+                        </button>
                         <normal style="color:green;" ng-if="user.password && user.id">
                             <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
                         </normal>
@@ -143,13 +143,15 @@
                             ng-click="edit(user)"
                             ng-show="!user.system"
                             class="btn btn-info btn-small">
-                        <span class="glyphicon glyphicon-pencil"></span>
+                        <i class="fa fa-pencil"></i>
+                        <span class="m-l5">Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.user-management.delete({login:user.login})"
                             ng-show="!user.system"
                             class="btn btn-info btn-small">
-                        <span class="glyphicon glyphicon-trash"></span>
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">delete</span>
                     </button>
                 </td>
             </tr>

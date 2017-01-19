@@ -1,76 +1,69 @@
 <div class="modal-header">
     <h5 class="modal-title">Lookup Reagents</h5>
 </div>
-<div class="modal-body">
+<div class="modal-body modal-body-search">
     <uib-tabset active="activeForm">
-        <uib-tab index="0" active="isActiveTab0" ng-click="isActiveTab0 = true; isActiveTab1 = false"
-                 heading="My Reagent List">
+        <uib-tab index="0" active="isActiveTab0" ng-click="isActiveTab0 = true; isActiveTab1 = false" heading="My Reagent List">
             <div class="reagent-search-tab">
-                <div class="reagent-search-container">
-                    <div class="row">
-                        <div class="col-xs-10">
-                            <div class="input-group">
-                                <input type="text" class="form-control" ng-model="myReagents.searchQuery"/>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-info" ng-click="searchMyReagents(myReagents.searchQuery)"
-                                            type="button">Search
-                                    </button>
-                                    <button class="btn btn-info" ng-click="clearMyReagentsSearchQuery()"
-                                            type="button">Clear
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="input-group m-b20">
+                    <input type="text" class="form-control" ng-model="myReagents.searchQuery"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-info" ng-click="searchMyReagents(myReagents.searchQuery)"
+                                type="button">Search
+                        </button>
+                        <button class="btn btn-info" ng-click="clearMyReagentsSearchQuery()"
+                                type="button">Clear
+                        </button>
+                    </span>
                 </div>
-                <div class="row reagent-search-row">
-                    <strong>{{myReagentList.length}} reagents in my list</strong>
-                    <div class="pull-right">
-                        <button class="btn btn-info search-button"
+                <div class="clearfix m-b20">
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-info"
                                 type="button"
                                 ng-click="removeFromMyReagentList()"
                                 ng-disabled="false">
-                            <span class="glyphicon glyphicon-remove-sign"></span> Remove from My List
+                            <i class="fa fa-trash"></i><span class="m-l5">Remove from My List</span>
                         </button>
-                        <button class="btn btn-info search-button"
+                        <button class="btn btn-info"
                                 type="button"
                                 ng-click="addToStoichTable(myReagentList)"
                                 ng-disabled="false">
-                            <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
+                            <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
                         </button>
                     </div>
+                    <span class="semi-b">{{myReagentList.length}} reagents in my list</span>
                 </div>
-                <div class="row">
-                    <div class="col-xs-12">
-                        <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents"
-                                             my-editable-info="true"></search-result-table>
-                </div>
+                <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents"
+                                     my-editable-info="true"></search-result-table>
             </div>
-</div>
-</uib-tab>
-<uib-tab index="1" active="isActiveTab1" ng-click="isActiveTab0 = false; isActiveTab1 = true"
-         heading="Reagent Catalog">
-    <div class="reagent-search-tab">
-        <div class="reagent-search-container" ng-show="!isSearchResultFound">
-            <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
-            <div class="row well well-sm" ng-init="$$isCollapsed=true" style="margin-top:3px;">
-                <my-input class="col-xs-9" my-model="model.restrictions.searchQuery"
-                          my-label="Type in your search query"
-                          my-label-vertical="true"></my-input>
-                <div class="reagent-search-advanced"><a ng-click="$$isCollapsed = !$$isCollapsed">
-                                                <span ng-class="{'glyphicon glyphicon-triangle-right':$$isCollapsed,
-                                                                     'glyphicon glyphicon-triangle-bottom':!$$isCollapsed}"></span>
-                    Advanced search</a></div>
-                <div class="col-xs-12 reagent-search-hint">If you search a molecular
-                    formula, add spaces between each element: C8 H9 Br, C2 H5 OH
-                </div>
-                <div uib-collapse="$$isCollapsed">
-                    <div class="col-xs-12">
-                        <div ng-show="!isSearchResultFound">
-                            <div class="reagent-search-container">
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.compoundId.name}}:</p>
+        </uib-tab>
+        <uib-tab index="1" active="isActiveTab1" ng-click="isActiveTab0 = false; isActiveTab1 = true" heading="Reagent Catalog">
+            <div class="reagent-search-tab">
+                <div ng-show="!isSearchResultFound">
+                    <my-checklist my-items="model.databases" my-label="Choose catalog to search in" class="m-b20"></my-checklist>
+                    <div ng-init="$$isCollapsed=true" class="m-b20">
+                        <div class="main-search-block">
+                            <div class="row">
+                                <div class="col-xs-9">
+                                    <my-input my-model="model.restrictions.searchQuery"
+                                              my-label="Type in your search query"
+                                              my-label-vertical="true"></my-input>
+                                </div>
+                                <div class="col-xs-3">
+                                    <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                        Advanced search
+                            <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
+                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="search-hint">If you search a molecular formula, add spaces between each element: C8 H9 Br, C2 H5 OH</div>
+                        </div>
+                        <div uib-collapse="$$isCollapsed" class="collapse-content">
+                            <div ng-show="!isSearchResultFound">
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.compoundId.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
@@ -81,9 +74,9 @@
                                                 my-model="model.restrictions.advancedSearch.compoundId.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</p>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
@@ -94,8 +87,8 @@
                                                 my-model="model.restrictions.advancedSearch.fullNbkBatch.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.formula.name}}:</p>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.formula.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
@@ -106,8 +99,8 @@
                                                 my-model="model.restrictions.advancedSearch.formula.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.molWeight.name}}:</p>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.molWeight.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionNumber"
@@ -118,9 +111,9 @@
                                                 my-model="model.restrictions.advancedSearch.molWeight.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.chemicalName.name}}:</p></div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionChemicalName"
                                                    my-model="model.restrictions.advancedSearch.chemicalName.condition"></my-select>
@@ -130,9 +123,9 @@
                                                 my-model="model.restrictions.advancedSearch.chemicalName.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.externalNumber.name}}:</p></div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
                                                    my-model="model.restrictions.advancedSearch.externalNumber.condition"></my-select>
@@ -142,16 +135,16 @@
                                                 my-model="model.restrictions.advancedSearch.externalNumber.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.compoundState.name}}:</p></div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.compoundState.name}}:</label></div>
                                     <div class="col-xs-6">
                                         <my-select my-dictionary="Compound State"
                                                    my-model="model.restrictions.advancedSearch.compoundState.value"></my-select>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>{{model.restrictions.advancedSearch.comments.name}}:</p>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.comments.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
@@ -162,9 +155,9 @@
                                                 my-model="model.restrictions.advancedSearch.comments.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</p></div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
                                                    my-model="model.restrictions.advancedSearch.hazardComments.condition"></my-select>
@@ -174,9 +167,9 @@
                                                 my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
                                     </div>
                                 </div>
-                                <div class="row reagent-search-row">
-                                    <div class="col-xs-3"><p>
-                                        {{model.restrictions.advancedSearch.casNumber.name}}:</p>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.casNumber.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
                                         <my-select my-items="conditionText"
@@ -190,213 +183,205 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="well well-sm" style="margin-top:-10px;">
-                <div class="reagent-search-well"><strong>Or draw structure</strong>
-                    <div class="row reagent-search-row">
-                        <div class="col-xs-2"><p>Similarity criteria</p></div>
-                        <div class="col-xs-4">
-                            <my-select my-items="conditionSimilarity"
-                                       my-model="model.restrictions.structure.similarityCriteria"></my-select>
-                        </div>
-                        <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
-                            <my-input class="col-xs-2" style="width:80px;"
-                                      my-name="similarityValue"
-                                      my-validation-pattern="/^\d{1,2}(?!\d)|100$/"
-                                      my-validation-max-length="3"
-                                      my-validation-required="true"
-                                      my-validation-pattern-text="Enter 1-100"
-                                      my-model="model.restrictions.structure.similarityValue"></my-input>
-                            <div style="position:relative">
-                                <span style="position:absolute;top:7px;">%</span>
+                    <div class="m-b20">
+                        <h5>Or draw structure</h5>
+                        <div class="row">
+                            <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
+                            <div class="col-xs-4">
+                                <my-select my-items="conditionSimilarity"
+                                           my-model="model.restrictions.structure.similarityCriteria"></my-select>
+                            </div>
+                            <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
+                                <my-input class="col-xs-2" style="width:80px;"
+                                          my-name="similarityValue"
+                                          my-validation-pattern="/^\d{1,2}(?!\d)|100$/"
+                                          my-validation-max-length="3"
+                                          my-validation-required="true"
+                                          my-validation-pattern-text="Enter 1-100"
+                                          my-model="model.restrictions.structure.similarityValue"></my-input>
+                                <div style="position:relative">
+                                    <span style="position:absolute;top:7px;">%</span>
+                                </div>
                             </div>
                         </div>
+                        <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
+                                          my-autosave="false"
+                                          my-title="Structure" my-model="scheme"></structure-scheme>
                     </div>
-                    <div class="row reagent-search-row">
-                        <div class="col-xs-12">
-                            <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
-                                              my-autosave="false"
-                                              my-title="Structure" my-model="scheme"></structure-scheme>
-                        </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary"
+                                type="button"
+                                ng-click="search()"
+                                ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
+                                                            !model.restrictions.searchQuery">Search
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div>
-                <button class="btn btn-info"
-                        type="button"
-                        ng-click="search()"
-                        ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
-                                                    !model.restrictions.searchQuery">Search
-                </button>
-            </div>
-        </div>
-        <div ng-show="isSearchResultFound">
-            <div class="reagent-search-container">
-                <div>Search results for
-                                    <span ng-if="model.restrictions.structure.image"> structure
-                                        <div><img style="padding:10px;height:140px;"
-                                                  ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
-                                                  alt="Image is unavailable."></div></span>
-                    <strong ng-if="!model.restrictions.structure.image && model.advancedSummary.length">&quot;
-                        <strong ng-repeat="restriction in model.advancedSummary track by $index">
-                            {{restriction.name}}: <span ng-if="restriction.condition.name">
-                                            {{restriction.condition.name}}</span>
-                            {{restriction.value.name || restriction.value}}
-                            <span ng-if="!$last">AND </span></strong>&quot;</strong>
-                    <strong ng-if="!model.restrictions.structure.image &&
-                                                    !model.advancedSummary.length && model.restrictions.searchQuery">
-                        &quot;{{model.restrictions.searchQuery}}&quot;</strong></div>
-                <div class="reagent-search-collapse" ng-init="isChangeQueryCollapsed=true">
-                    <a ng-click="isChangeQueryCollapsed = !isChangeQueryCollapsed">
-                                                <span ng-class="{'glyphicon glyphicon-triangle-right':isChangeQueryCollapsed,
-                                                     'glyphicon glyphicon-triangle-bottom':!isChangeQueryCollapsed}"></span>
-                        Change search query</a></div>
-                <div uib-collapse="isChangeQueryCollapsed">
-                    <div class="col-xs-12">
-                        <div class="reagent-search-container">
-                            <div class="row well well-sm">
-                                <my-input class="col-xs-9" my-model="model.restrictions.searchQuery"
-                                          my-label="Type in your search query" my-label-vertical="true"></my-input>
-                                <div class="col-xs-12 reagent-search-hint">If you search a molecular
-                                    formula, add spaces between each element: C8 H9 Br, C2 H5 OH
+                <div ng-show="isSearchResultFound">
+                    <div>Search results for
+                                        <span ng-if="model.restrictions.structure.image"> structure
+                                            <div class="search-image"><img class="full-img"
+                                                      ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
+                                                      alt="Image is unavailable."></div></span>
+                        <span class="semi-b" ng-if="!model.restrictions.structure.image && model.advancedSummary.length">&quot;
+                            <span ng-repeat="restriction in model.advancedSummary track by $index">
+                                {{restriction.name}}: <span ng-if="restriction.condition.name">
+                                                {{restriction.condition.name}}</span>
+                                {{restriction.value.name || restriction.value}}
+                                <span ng-if="!$last">AND </span></span>&quot;</span>
+                        <span class="semi-b" ng-if="!model.restrictions.structure.image &&
+                                                        !model.advancedSummary.length && model.restrictions.searchQuery">
+                            &quot;{{model.restrictions.searchQuery}}&quot;</span>
+                    </div>
+                    <div class="m-b20">
+                        <div class="reagent-search-collapse" ng-init="isChangeQueryCollapsed=true">
+                            <a ng-click="isChangeQueryCollapsed = !isChangeQueryCollapsed">
+                                                        <span ng-class="{'glyphicon glyphicon-triangle-right':isChangeQueryCollapsed,
+                                                             'glyphicon glyphicon-triangle-bottom':!isChangeQueryCollapsed}"></span>Change search query</a></div>
+                        <div uib-collapse="isChangeQueryCollapsed" class="collapse-content">
+                            <div class="main-search-block m-b20">
+                                <div class="row">
+                                    <div class="col-xs-9">
+                                        <my-input my-model="model.restrictions.searchQuery"
+                                                  my-label="Type in your search query" my-label-vertical="true"></my-input>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
+                                            Advanced search
+                                            <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
+                                                                 'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="col-xs-12">
-                                    <div>
-                                        <div class="reagent-search-container">
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.compoundId.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.compoundId.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.compoundId.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.fullNbkBatch.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.fullNbkBatch.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.formula.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.formula.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.formula.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.molWeight.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionNumber"
-                                                               my-model="model.restrictions.advancedSearch.molWeight.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.molWeight.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.chemicalName.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionChemicalName"
-                                                               my-model="model.restrictions.advancedSearch.chemicalName.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.chemicalName.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.externalNumber.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.externalNumber.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.externalNumber.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.compoundState.name}}:</p></div>
-                                                <div class="col-xs-6">
-                                                    <my-select my-dictionary="Compound State"
-                                                               my-model="model.restrictions.advancedSearch.compoundState.value"></my-select>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.comments.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.comments.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.comments.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.hazardComments.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.hazardComments.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
-                                                </div>
-                                            </div>
-                                            <div class="row reagent-search-row">
-                                                <div class="col-xs-3"><p>
-                                                    {{model.restrictions.advancedSearch.casNumber.name}}:</p></div>
-                                                <div class="col-xs-3">
-                                                    <my-select my-items="conditionText"
-                                                               my-model="model.restrictions.advancedSearch.casNumber.condition"></my-select>
-                                                </div>
-                                                <div class="col-xs-3">
-                                                    <my-input
-                                                            my-model="model.restrictions.advancedSearch.casNumber.value"></my-input>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="search-hint">If you search a molecular formula, add spaces between each element: C8 H9 Br, C2 H5 OH</div>
+                            </div>
+                            <div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.compoundId.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.compoundId.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.compoundId.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.fullNbkBatch.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.fullNbkBatch.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.formula.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.formula.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.formula.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.molWeight.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionNumber"
+                                                   my-model="model.restrictions.advancedSearch.molWeight.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.molWeight.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionChemicalName"
+                                                   my-model="model.restrictions.advancedSearch.chemicalName.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.chemicalName.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.externalNumber.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.externalNumber.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.compoundState.name}}:</label></div>
+                                    <div class="col-xs-6">
+                                        <my-select my-dictionary="Compound State"
+                                                   my-model="model.restrictions.advancedSearch.compoundState.value"></my-select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.comments.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.comments.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.comments.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.hazardComments.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.hazardComments.value"></my-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{model.restrictions.advancedSearch.casNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <my-select my-items="conditionText"
+                                                   my-model="model.restrictions.advancedSearch.casNumber.condition"></my-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <my-input
+                                                my-model="model.restrictions.advancedSearch.casNumber.value"></my-input>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="reagent-search-collapse" ng-init="isReDrawStructureCollapsed=true">
-                    <a ng-click="isReDrawStructureCollapsed = !isReDrawStructureCollapsed">
-                                                <span ng-class="{'glyphicon glyphicon-triangle-right':isReDrawStructureCollapsed,
-                                                     'glyphicon glyphicon-triangle-bottom':!isReDrawStructureCollapsed}"></span>Draw
-                        structure</a></div>
-                <div uib-collapse="isReDrawStructureCollapsed">
-                    <div class="col-xs-12">
-                        <div class="well well-sm">
-                            <div class="row reagent-search-row">
-                                <div class="col-xs-2"><p>Similarity criteria</p></div>
+                        <div class="reagent-search-collapse" ng-init="isReDrawStructureCollapsed=true">
+                            <a ng-click="isReDrawStructureCollapsed = !isReDrawStructureCollapsed">
+                                                        <span ng-class="{'glyphicon glyphicon-triangle-right':isReDrawStructureCollapsed,
+                                                             'glyphicon glyphicon-triangle-bottom':!isReDrawStructureCollapsed}"></span>Draw
+                                structure</a></div>
+                        <div uib-collapse="isReDrawStructureCollapsed" class="collapse-content">
+                            <div class="row">
+                                <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
                                 <div class="col-xs-4">
                                     <my-select my-items="conditionSimilarity"
                                                my-model="model.restrictions.structure.similarityCriteria"></my-select>
@@ -410,53 +395,43 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row reagent-search-row">
-                                <div class="col-xs-12">
-                                    <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
-                                                      my-autosave="false"
-                                                      my-title="Structure" my-model="scheme"></structure-scheme>
-                                </div>
-                            </div>
+                            <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
+                                              my-autosave="false"
+                                              my-title="Structure" my-model="scheme"></structure-scheme>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div>
-                <button class="btn btn-info search-button"
-                        type="button"
-                        ng-click="search()"
-                        ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
-                                                    !model.restrictions.searchQuery">Search
-                </button>
-            </div>
-            <div class="row reagent-search-row">
-                <strong>{{searchResults.length}} results found</strong>
-                <div class="pull-right">
-                    <button class="btn btn-info search-button"
-                            type="button"
-                            ng-click="addToMyReagentList()"
-                            ng-disabled="false">
-                        <span class="glyphicon glyphicon-star"></span> Add to My Reagent List
-                    </button>
-                    <button class="btn btn-info search-button"
-                            type="button"
-                            ng-click="addToStoichTable(searchResults)"
-                            ng-disabled="false">
-                        <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
-                    </button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
+                    <div class="m-b20">
+                        <button class="btn btn-primary"
+                                type="button"
+                                ng-click="search()"
+                                ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
+                                                            !model.restrictions.searchQuery">Search
+                        </button>
+                    </div>
+                    <div class="clearfix m-b20">
+                        <div class="btn-group pull-right">
+                            <button class="btn btn-info"
+                                    type="button"
+                                    ng-click="addToMyReagentList()"
+                                    ng-disabled="false">
+                                <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
+                            </button>
+                            <button class="btn btn-info"
+                                    type="button"
+                                    ng-click="addToStoichTable(searchResults)"
+                                    ng-disabled="false">
+                                <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
+                            </button>
+                        </div>
+                        <span class="semi-b">{{searchResults.length}} results found</span>
+                    </div>
                     <search-result-table my-table-content="searchResults"
                                          my-editable-info="false"></search-result-table>
                 </div>
             </div>
-        </div>
-    </div>
-</uib-tab>
-</uib-tab>
-</uib-tabset>
+        </uib-tab>
+        </uib-tab>
+    </uib-tabset>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="cancel()">

@@ -33,3 +33,26 @@
     color: black;
   }
 }
+
+.modal-body-search {
+  padding-left: 0;
+  padding-right: 0;
+
+  .nav-tabs {
+    > li {
+      &.active {
+        > a {
+          &,
+          &:hover,
+          &:focus {
+            border-top-color: @border-color;
+          }
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 10px 20px 0;
+  }
+}

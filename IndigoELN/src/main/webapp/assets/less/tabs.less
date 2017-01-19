@@ -47,16 +47,17 @@
   .nav-tabs {
 
     > li {
+      display: inline-block;
+      float: none;
+      .opacity(0.5);
 
-      &.active{
-        opacity: 1;
+      &.active {
+        .opacity(1);
+
         > a{
           color:@brand2;
         }
       }
-      opacity:0.5;
-      display: inline-block;
-      float: none;
     }
   }
 
@@ -81,10 +82,6 @@
       height: ~"calc(100vh - 170px)";
       overflow-y: auto;
     }
-
-
-
-
   }
 }
 

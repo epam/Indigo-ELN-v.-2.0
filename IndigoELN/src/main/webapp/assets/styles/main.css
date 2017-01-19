@@ -280,12 +280,20 @@
   white-space: nowrap;
 }
 .main-tabs .nav-tabs > li {
-  opacity: 0.5;
   display: inline-block;
   float: none;
+  opacity: 0.5;
+  -moz-opacity: 0.5;
+  -khtml-opacity: 0.5;
+  filter: alpha(opacity=50);
+  zoom: 1;
 }
 .main-tabs .nav-tabs > li.active {
   opacity: 1;
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  filter: alpha(opacity=100);
+  zoom: 1;
 }
 .main-tabs .nav-tabs > li.active > a {
   color: #3f51b5;
@@ -293,13 +301,13 @@
 .main-tabs .mCSB_horizontal.mCSB_inside > .mCSB_container {
   margin-bottom: 18px;
 }
-.tab-content.entities-content {
-  height: calc(100vh - 156px);
-  overflow-y: auto;
-  padding: 20px 0;
-}
 .tab-content-pad {
   padding: 0 20px;
+}
+.tab-content-pad.dictionary,
+.tab-content-pad.role-management {
+  height: calc(100vh - 170px);
+  overflow-y: auto;
 }
 .inner-tabs .nav-tabs {
   padding: 0 20px;
@@ -327,6 +335,33 @@
   border: 1px solid #ddd;
   border-top: 0 none;
   padding: 20px;
+  height: calc(100vh - 330px);
+  overflow-y: auto;
+}
+.inner-tabs .simple-tab-content {
+  border: 1px solid #ddd;
+  padding: 20px;
+  height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+.inner-tabs .admin-tab-content {
+  border: 1px solid #ddd;
+  padding: 20px;
+  height: calc(100vh - 340px);
+  overflow-y: auto;
+}
+.inner-tabs .admin-tab-content .preview-components .tab-content {
+  overflow-y: hidden;
+  height: inherit;
+}
+.inner-tabs .simditor .simditor-wrapper .simditor-body,
+.inner-tabs .simditor .simditor-wrapper .simditor-placeholder {
+  font-size: 14px;
+  font-family: inherit;
+}
+.inner-tabs .simditor .simditor-wrapper .simditor-body p,
+.inner-tabs .simditor .simditor-wrapper .simditor-placeholder p {
+  color: #616161;
 }
 /******************BUTTONS*********************/
 .btn {
@@ -465,6 +500,10 @@ tr {
 .table > thead > tr > th .btn + .btn,
 .table > tbody > tr > td .btn + .btn {
   margin-left: 5px;
+}
+.table > thead > tr > th > .form-group,
+.table > tbody > tr > td > .form-group {
+  margin-bottom: 0;
 }
 .table > tbody > tr > td {
   border: 0 none;
@@ -622,6 +661,14 @@ tr {
 .panel-body-nopad {
   padding: 0;
 }
+.panel-body.panel-experiment-preview {
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.panel-body.panel-experiment-preview .row-preview {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 .panel-body .list-group {
   margin-bottom: 0;
 }
@@ -663,6 +710,9 @@ tr {
 label {
   color: #9e9e9e;
   font-weight: normal;
+}
+.control-label {
+  padding-top: 7px;
 }
 .help-block {
   color: red !important;
@@ -723,6 +773,14 @@ textarea,
 }
 .input-group-btn .btn {
   height: 34px;
+}
+.input-group-btn .btn + .btn {
+  margin-left: 7px;
+}
+.input-right-txt {
+  position: absolute;
+  top: 33px;
+  right: -2px;
 }
 /******************LISTS STYLE*********************/
 .list-group-item {
@@ -803,6 +861,18 @@ textarea,
   display: block;
   width: 100%;
   color: black;
+}
+.modal-body-search {
+  padding-left: 0;
+  padding-right: 0;
+}
+.modal-body-search .nav-tabs > li.active > a,
+.modal-body-search .nav-tabs > li.active > a:hover,
+.modal-body-search .nav-tabs > li.active > a:focus {
+  border-top-color: #ddd;
+}
+.modal-body-search .tab-content {
+  padding: 10px 20px 0;
 }
 /******************LABELS STYLE*********************/
 .uui-label {
@@ -1106,6 +1176,11 @@ body {
 .btn-bottom-block > * + * {
   margin-left: 5px;
 }
+.btn-bottom-block.experiment-preview-block {
+  border-top: 1px solid #ddd;
+  margin: 0px;
+  padding: 20px 18px 20px 0px;
+}
 tags-input .host {
   margin: 0;
 }
@@ -1252,6 +1327,10 @@ tags-input .tag-list .tag-item .remove-button {
 }
 .login-form {
   margin-top: 50px;
+}
+.scroll-full {
+  height: calc(100vh - 180px);
+  overflow-y: auto;
 }
 .newtemplate {
   width: 100px;
@@ -1404,7 +1483,19 @@ tags-input .tag-list .tag-item .remove-button {
 .print-header {
   color: grey;
   margin-top: 20px;
-  border-color: grey !important;
+}
+.print-header tr:first-child {
+  background-color: #3f51b5;
+}
+.print-header tr:first-child th:first-child {
+  color: #fff;
+  padding: 0;
+}
+.print-header tr:first-child th:first-child h2 {
+  margin: 10px 0px 10px 10px;
+}
+.print-header tr:first-child .logo {
+  margin: 0px;
 }
 .print-header,
 .print-table,
@@ -1420,6 +1511,13 @@ tags-input .tag-list .tag-item .remove-button {
 }
 .print-component .simditor {
   border-color: black;
+}
+.print-component {
+  display: flex;
+  justify-content: space-between;
+}
+.print-component .my-checkbox-wrapper {
+  padding-top: 7px;
 }
 .print-header td,
 .print-header th,
@@ -1451,27 +1549,15 @@ tags-input .tag-list .tag-item .remove-button {
 .need-to-print .checkbox label {
   font-size: 14px;
 }
-.reagent-search-container {
-  margin-top: 20px;
+.reagent-search-tab {
+  padding-top: 10px;
 }
-.reagent-search-row {
-  position: relative;
-}
-.reagent-search-row label {
-  padding-top: 7px;
-}
-.reagent-search-row .my-checkbox-wrapper,
-.reagent-search-row .search-structure-scheme {
+.main-search-block .form-group {
   margin-bottom: 0;
 }
-.reagent-search-row .checkbox {
-  margin-top: 0;
-}
-.reagent-search-hint {
+.main-search-block .search-hint {
   font-size: 12px;
-}
-.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
-  width: auto !important;
+  margin-top: 3px;
 }
 .link-advanced-search {
   display: inline-block;
@@ -1486,23 +1572,44 @@ tags-input .tag-list .tag-item .remove-button {
   font-size: 12px;
   margin-left: 5px;
 }
+.criteria-search-block {
+  position: relative;
+}
+.criteria-search-block + .criteria-search-block {
+  margin-top: 20px;
+}
+.criteria-search-block .my-checkbox-wrapper,
+.criteria-search-block .search-structure-scheme {
+  margin-bottom: 0;
+}
+.criteria-search-block .checkbox {
+  margin-top: 0;
+}
+.search-image {
+  margin: 30px 0;
+}
 .reagent-search-collapse {
-  margin: 7px;
+  margin: 10px 0;
 }
 .reagent-search-collapse a {
+  color: #616161;
+  font-family: 'Source Sans Pro Semibold', sans-serif;
   text-decoration: none;
 }
-.reagent-search-row .info-col {
-  margin-bottom: 25px;
+.reagent-search-collapse a .glyphicon {
+  font-size: 10px;
+  margin-top: -5px;
+  margin-right: 5px;
+  vertical-align: middle;
 }
-.search-button {
-  margin: 2px 7px;
+.collapse-content {
+  margin-top: 20px;
+}
+.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
+  width: auto !important;
 }
 .search-table-row-highlight {
   background-color: #b2ebf2;
-}
-.search-table-head {
-  background-color: rgba(191, 191, 191, 0.28);
 }
 #search-result-table,
 #my-reagent-list-table {
@@ -1530,10 +1637,6 @@ tags-input .tag-list .tag-item .remove-button {
 }
 .search-structure-scheme.panel-info {
   border-color: #d1d1d1;
-}
-.melting-point-info div,
-.select-from-dictionary div {
-  margin-bottom: 0;
 }
 .long-content-popup {
   overflow-y: scroll;

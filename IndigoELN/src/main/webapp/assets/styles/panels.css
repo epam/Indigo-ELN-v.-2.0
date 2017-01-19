@@ -219,6 +219,14 @@
 .panel-body-nopad {
   padding: 0;
 }
+.panel-body.panel-experiment-preview {
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+}
+.panel-body.panel-experiment-preview .row-preview {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
 .panel-body .list-group {
   margin-bottom: 0;
 }

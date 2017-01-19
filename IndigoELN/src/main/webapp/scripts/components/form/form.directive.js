@@ -338,7 +338,7 @@ angular.module('indigoeln')
             }
         },
         template: '<div class="form-group {{myClasses}}">' +
-        '<label>{{myLabel}}</label>' +
+        '<label class="m-r5">{{myLabel}}</label>' +
         // '<div class="col-xs-10">' +
         '<div class="btn-group">' +
         '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +

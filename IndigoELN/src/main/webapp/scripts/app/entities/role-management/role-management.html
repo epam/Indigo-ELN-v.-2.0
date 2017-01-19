@@ -4,7 +4,7 @@
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="create()">
                 <i class="fa fa-plus" aria-hidden="true"></i>
-                <span class="m-l5">Create a new Role</span>
+                <span class="m-l5">Create new Role</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
@@ -85,13 +85,15 @@
                             ng-click="edit(role)"
                             ng-show="!role.system"
                             class="btn btn-info btn-small">
-                        <span class="glyphicon glyphicon-pencil"></span>
+                        <i class="fa fa-pencil"></i>
+                        <span class="m-l5">Edit</span>
                     </button>
                     <button type="submit"
                             ui-sref="entities.role-management.delete({id:role.id})"
                             ng-show="!role.system"
                             class="btn btn-info btn-small">
-                        <span class="glyphicon glyphicon-remove-circle"></span>
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">delete</span>
                     </button>
                 </td>
             </tr>
