@@ -544,6 +544,12 @@ tr {
 .table-hover > tbody > tr.success:hover > th {
   background-color: #d5f1fd;
 }
+.my-scroller-axis-x {
+  overflow: hidden;
+}
+.my-component {
+  width: 100%;
+}
 /******************SEARCH*********************/
 .search-field {
   display: inline-block;
@@ -1139,6 +1145,11 @@ body {
 }
 .row > div {
   margin-bottom: 0;
+}
+@-moz-document url-prefix() {
+  fieldset {
+    display: table-cell;
+  }
 }
 #page-wrapper {
   padding-left: 0;

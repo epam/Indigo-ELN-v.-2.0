@@ -107,8 +107,8 @@
         <li role="presentation"  ng-class="{'active' : tab.tabKey === activeTab.tabKey}"
             ng-repeat="tab in tabs  track by tab.tabKey" class="experiment-tab">
             <a ng-click="$event.stopPropagation(); onTabClick(tab)">
-               {{tab.name}} {{tab.$$title}}
                 <i class="fa fa-remove pull-right clickable" ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></i>
+                {{tab.name}} {{tab.$$title}}
                 <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></i>
             </a>
         </li>
