@@ -25,25 +25,27 @@
         <indigo-batch-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
         <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
                   my-rows="detailTable" my-readonly="myReadonly" class="my-table-wrapper">
-            <div class="btn-group m-b20" role="group">
-                <button class="btn btn-info btn-small"
-                        ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
-                        type="button"
-                        ng-click="model.productBatchDetails.batchType = 'Intermediate'">
-                    Intermediate
-                </button>
-                <button class="btn btn-info btn-small"
-                        ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
-                        type="button"
-                        ng-click="model.productBatchDetails.batchType = 'Test Compound'">
-                    Test Compound
-                </button>
-                <button class="btn btn-info btn-small"
-                        type="button"
-                        ng-click="registerBatch()">
-                    <i class="fa fa-floppy-o"></i>
-                    <span class="m-l5">Register</span>
-                </button>
+            <div class="text-right m-b20">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-info btn-small"
+                            ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
+                            type="button"
+                            ng-click="model.productBatchDetails.batchType = 'Intermediate'">
+                        Intermediate
+                    </button>
+                    <button class="btn btn-info btn-small"
+                            ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
+                            type="button"
+                            ng-click="model.productBatchDetails.batchType = 'Test Compound'">
+                        Test Compound
+                    </button>
+                    <button class="btn btn-info btn-small"
+                            type="button"
+                            ng-click="registerBatch()">
+                        <i class="fa fa-floppy-o"></i>
+                        <span class="m-l5">Register</span>
+                    </button>
+                </div>
             </div>
         </my-table>
 
