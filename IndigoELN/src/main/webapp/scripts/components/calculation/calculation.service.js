@@ -91,10 +91,9 @@ angular.module('indigoeln')
         };
 
         var recalculateSalt = function (reagent) {
-            var deferred = $q.defer();
             if (reagent.structure && reagent.structure.molfile) {
                 var config = getSaltConfig(reagent);
-                $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
+                return $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
                     .then(function (result) {
                         var data = result.data;
                         data.mySaltEq = reagent.saltEq;
@@ -103,10 +102,10 @@ angular.module('indigoeln')
                         reagent.molWeight.value = data.molecularWeight;
                         reagent.formula = getSaltFormula(data);
                         reagent.lastUpdatedType = 'weight'; // for product batch summary
-                        deferred.resolve();
                     });
-                return deferred.promise;
             }
+
+           return $q.resolve();
         };
 
         var recalculateStoich = function (calcData) {

@@ -14,7 +14,9 @@ angular.module('indigoeln')
         $scope.model[type] = $scope.model[type] || {structureScheme: {}};
 
         var unsubscribe = $scope.$watch('model.' + type + '.structureId', function () {
-            $scope.share[type] = $scope.model[type].structureMolfile;
+            if($scope.share){
+                $scope.share[type] = $scope.model[type].structureMolfile;
+            }
         });
         $scope.$on('$destroy', function () {
             unsubscribe();

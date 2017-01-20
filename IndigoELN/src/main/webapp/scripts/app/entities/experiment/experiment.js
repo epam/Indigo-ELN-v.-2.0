@@ -75,7 +75,7 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function ($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
-                                        AutoSaveEntitiesEngine) {
+                                        AutoSaveEntitiesEngine, EntitiesBrowser) {
 
                         var deferred = $q.defer();
                         var params = {
@@ -101,13 +101,15 @@ angular.module('indigoeln')
                             EntitiesCache.get(params),
                             EntitiesCache.get(notebookParams),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
+                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
+                            EntitiesBrowser.getTabByParams($stateParams)
                         ]).then(function (results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
+                                dirty: results[4].dirty,
                                 experimentId: $stateParams.experimentId,
                                 notebookId: $stateParams.notebookId,
                                 projectId: $stateParams.projectId

@@ -13,10 +13,12 @@ angular.module('indigoeln')
 
                 var tabKind = $state.$current.data.tab.kind;
 
+                if(pageInfo.dirty){
+                    $scope.createNotebookForm.$setDirty(pageInfo.dirty);
+                }
+
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
-                    if (!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))) {
-                        EntitiesBrowser.changeDirtyTab($stateParams, true);
-                    }
+                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
                 }, true);
 
                 // Uncomment after fixing EPMLSOPELN-59

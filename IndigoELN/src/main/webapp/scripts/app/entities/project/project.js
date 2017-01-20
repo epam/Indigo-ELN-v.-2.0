@@ -65,7 +65,7 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine) {
+                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
 
                         var deferred = $q.defer();
                         if(!EntitiesCache.get($stateParams)){
@@ -76,14 +76,16 @@ angular.module('indigoeln')
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
+                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                            EntitiesBrowser.getTabByParams($stateParams)
                         ]).then(function(results){
                             deferred.resolve({
                                 project: results[0],
                                 identity: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
-                                hasCreateChildAuthority: results[4]
+                                hasCreateChildAuthority: results[4],
+                                dirty: results[5].dirty
                             });
                         });
                         return deferred.promise;
