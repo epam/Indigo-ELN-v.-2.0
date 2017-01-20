@@ -12,13 +12,11 @@ angular.module('indigoeln')
             $timeout(function () {
 
                 var tabKind = $state.$current.data.tab.kind;
-
+                if(pageInfo.dirty){
+                    $scope.createProjectForm.$setDirty(pageInfo.dirty);
+                }
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
-                    if (!_.isEqual(_.omit(oldValue, _.functions(oldValue)), _.omit(newValue, _.functions(newValue)))) {
-                        EntitiesBrowser.changeDirtyTab($stateParams, true);
-                    } else {
-                        EntitiesBrowser.changeDirtyTab($stateParams, false);
-                    }
+                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
                 }, true);
 
                 // Uncomment after fixing EPMLSOPELN-59

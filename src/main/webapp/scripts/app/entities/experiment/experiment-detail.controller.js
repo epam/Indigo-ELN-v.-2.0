@@ -14,6 +14,9 @@ angular.module('indigoeln')
 
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
+                if(pageInfo.dirty){
+                    $scope.experimentForm.$setDirty(pageInfo.dirty);
+                }
                 self.dirtyListener = $scope.$watch(tabKind, function () {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
                 }, true);

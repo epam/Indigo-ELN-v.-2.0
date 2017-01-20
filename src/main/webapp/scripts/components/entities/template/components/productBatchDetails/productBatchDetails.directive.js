@@ -9,7 +9,8 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html',
             controller: function ($scope, $uibModal, AlertModal) {
                 $scope.model = $scope.model || {};
-                $scope.model.productBatchDetails = {};
+                $scope.showSummary = false;
+                $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
                 if($scope.model.productBatchSummary){
                     $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
                 }
@@ -142,48 +143,56 @@ angular.module('indigoeln')
                 $scope.editSolubility = function () {
                     var callback = function (result) {
                         getProductBatchDetails().solubility = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editSolubility(getProductBatchDetails().solubility, callback);
                 };
                 $scope.editResidualSolvents = function () {
                     var callback = function (result) {
                         getProductBatchDetails().residualSolvents = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents, callback);
                 };
                 $scope.editExternalSupplier = function () {
                     var callback = function (result) {
                         getProductBatchDetails().externalSupplier = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editExternalSupplier(getProductBatchDetails().externalSupplier, callback);
                 };
                 $scope.editMeltingPoint = function () {
                     var callback = function (result) {
                         getProductBatchDetails().meltingPoint = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editMeltingPoint(getProductBatchDetails().meltingPoint, callback);
                 };
                 $scope.editPurity = function () {
                     var callback = function (result) {
                         getProductBatchDetails().purity = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editPurity(getProductBatchDetails().purity, callback);
                 };
                 $scope.editHealthHazards = function () {
                     var callback = function (result) {
                         getProductBatchDetails().healthHazards = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editHealthHazards(getProductBatchDetails().healthHazards, callback);
                 };
                 $scope.editHandlingPrecautions = function () {
                     var callback = function (result) {
                         getProductBatchDetails().handlingPrecautions = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editHandlingPrecautions(getProductBatchDetails().handlingPrecautions, callback);
                 };
                 $scope.editStorageInstructions = function () {
                     var callback = function (result) {
                         getProductBatchDetails().storageInstructions = result;
+                        $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
                 };

@@ -6,9 +6,10 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/preferCompoundDetails/preferCompoundDetails.html',
             controller: function ($scope) {
                 $scope.model = $scope.model || {};
-                $scope.model.preferCompoundDetails = {};
+                $scope.model.preferCompoundDetails =  $scope.model.preferCompoundDetails || {};
                 $scope.model.preferredCompoundSummary = $scope.model.preferredCompoundSummary || {};
                 $scope.showStructure = false;
+                $scope.showSummary =false;
 
                 $scope.selectControl = {};
 
