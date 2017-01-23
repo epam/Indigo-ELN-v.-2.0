@@ -1,0 +1,40 @@
+<div name="permissionsForm">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="clear()">&times;</button>
+        <h5 class="modal-title">
+            {{entity}} Members
+        </h5>
+    </div>
+    <div class="modal-body">
+        <h5>Current Members:</h5>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>Login</th>
+                    <th>Permission</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="member in accessList track by $index">
+                    <td>{{ member.user.lastName }}</td>
+                    <td>{{ member.user.firstName }}</td>
+                    <td>{{ member.user.login }}</td>
+                    <td>
+                        {{ member.permissionView }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="close()">
+            <i class="fa fa-ban"></i><span class="m-l5">Close</span>
+        </button>
+    </div>
+</div>

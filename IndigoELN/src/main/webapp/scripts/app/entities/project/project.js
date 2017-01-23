@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig) {
+    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('project', {
                 abstract: true,
@@ -103,12 +103,23 @@ angular.module('indigoeln')
                     {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
                 ]
             }))
-            .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
-                parent: 'entities.project-detail',
+            .state('entities.project-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+                parent: 'entities.project-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read project)'},
+                    {id: 'USER', name: 'USER (read project, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                ]
+            }))
+            .state('entities.project-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+                parent: 'entities.project-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                },
+                'permissions': [
                     {id: 'VIEWER', name: 'VIEWER (read project)'},
                     {id: 'USER', name: 'USER (read project, create notebooks)'},
                     {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}

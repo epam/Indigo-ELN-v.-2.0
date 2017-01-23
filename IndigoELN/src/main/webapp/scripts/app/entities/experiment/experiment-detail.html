@@ -9,7 +9,7 @@
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
-                        <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
+                        <button type="button" class="btn btn-default btn-small" ui-sref="entities.experiment-detail.permissions-view()">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
                         </button>
@@ -21,14 +21,6 @@
                         <span class="uui-label" ng-bind="experiment.status"></span>
                     </div>
                 </div>
-            </div>
-            <div uib-collapse="isCollapsed">
-                <hr>
-                <ul id="triple-list" class="list-triple members">
-                    <li class="members" ng-repeat="member in experiment.accessList track by $index">
-                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                    </li>
-                </ul>
             </div>
         </div>
     </div>

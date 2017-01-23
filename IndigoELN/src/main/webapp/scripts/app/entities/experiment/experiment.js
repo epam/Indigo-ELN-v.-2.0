@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig) {
+    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('experiment', {
                 parent: 'entity',
@@ -178,6 +178,16 @@ angular.module('indigoeln')
                 }
             })
             .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.experiment-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
+                },
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read experiment)'},
+                    {id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                ]
+            }))
+            .state('entities.experiment-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.experiment-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
