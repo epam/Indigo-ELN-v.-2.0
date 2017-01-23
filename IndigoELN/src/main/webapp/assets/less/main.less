@@ -282,11 +282,13 @@ tags-input {
 .scroll-full {
     height: ~"calc(100vh - 180px)";
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .scroll-dashboard-full {
     height: ~"calc(100vh - 60px)";
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 
@@ -610,6 +612,7 @@ tags-input {
 
 .search-image {
     margin: 30px 0;
+    display:flex;
 }
 
 //Search collapse
@@ -642,6 +645,10 @@ tags-input {
 
 .ui-select-multiple.ui-select-bootstrap {
     height: 34px;
+}
+
+.ui-select-container.ui-select-multiple .ui-select-match .btn {
+    padding: 3px 10px;
 }
 
 .search-table-row-highlight {

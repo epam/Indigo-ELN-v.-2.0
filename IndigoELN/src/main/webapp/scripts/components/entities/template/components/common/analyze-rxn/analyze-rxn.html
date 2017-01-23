@@ -1,7 +1,7 @@
 <div class="modal-header">
     <h5 class="modal-title">Reactant Structure Search</h5>
 </div>
-<div class="modal-body">
+<div class="modal-body rxn-body-search">
     <div class="well well-sm">
 
 
@@ -27,32 +27,38 @@
         <div class="row">
             <div class="col-xs-3 reagent-search-collapse" ng-init="$$isSelectedReactantsCollapsed=true">
                 <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed">
-                        <span ng-class="{'glyphicon glyphicon-triangle-right':$$isSelectedReactantsCollapsed,
-                             'glyphicon glyphicon-triangle-bottom':!$$isSelectedReactantsCollapsed}"></span>
+                        <span ng-class="{'fa fa-angle-right':$$isSelectedReactantsCollapsed,
+                             'fa fa-angle-down':!$$isSelectedReactantsCollapsed}"></span>
                     Selected reactants ({{model.selectedReactants.length}})
                 </a>
             </div>
-            <button class="col-xs-2 btn btn-info btn-sm search-button"
-                    type="button"
-                    ng-click="addToStoichTable(searchResult)"
-                    ng-disabled="!model.selectedReactants.length">
-                <span class="glyphicon glyphicon-plus"></span> Add to Stoich. Table
-            </button>
-            <button class="col-xs-2 btn btn-info btn-sm search-button"
-                    type="button"
-                    ng-click="updateStoicAndExit(searchResult)">
-                <span></span> Update Stoich and Exit
-            </button>
+            <div class="col-xs-9">
+                <div class="btn-group pull-right">
+                    <button class="btn btn-info"
+                            type="button"
+                            ng-click="addToStoichTable(searchResult)"
+                            ng-disabled="!model.selectedReactants.length">
+                        <i class="fa fa-trash"></i><span class="m-l5">Add to Stoich. Table</span>
+                    </button>
+                    <button class="btn btn-info"
+                            type="button"
+                            ng-click="updateStoicAndExit(searchResult)"
+                            ng-disabled="false">
+                        <i class="fa fa-plus"></i><span class="m-l5">Update Stoich and Exit</span>
+                    </button>
+                </div>
+            </div>
         </div>
+
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
             <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.formula}}
             </div>
         </div>
-        <uib-tabset active="activeForm">
+        <uib-tabset active="activeForm" class="inner-tabs">
             <uib-tab ng-repeat="tab in tabs track by $index"
                      heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
                      active="tab.active">
-                <div class="search-tab-content">
+                <div class="reagent-search-tab">
                     <strong>{{tab.searchResult.length}} results found</strong>
                     <div class="row">
                         <div class="col-xs-12">
