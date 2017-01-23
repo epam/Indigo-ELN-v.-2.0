@@ -19,7 +19,12 @@
                                 ng-disabled="!isEditAllowed">
                             <i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
                         </button>
-                        <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
+                        <button type="button" class="btn btn-default btn-small"  ng-if="!notebook.id"
+                                ui-sref="entities.notebook-new.permissions-view({projectId:projectId})">
+                            <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-small"  ng-if="notebook.id"
+                                ui-sref="entities.notebook-detail.permissions-view({projectId:projectId, notebookId:notebook.id})">
                             <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
                         </button>
                     </div>

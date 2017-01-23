@@ -9,20 +9,17 @@
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
-                        <button type="button" class="btn btn-default btn-small" ng-click="isCollapsed = !isCollapsed">
+                        <button type="submit" ui-sref="entities.project-new.permissions-view()" ng-if="!project.id"  type="button" class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
                         </button>
+                        <button type="submit" ui-sref="entities.project-detail.permissions-view()" ng-if="project.id"  type="button" class="btn btn-default btn-small">
+                            <i class="fa fa-eye"></i>
+                            <span class="m-l5">View Members</span>
+                        </button>
+
                     </div>
                 </div>
-            </div>
-            <div uib-collapse="isCollapsed">
-                <hr>
-                <ul id="triple-list" class="list-triple members">
-                    <li class="members" ng-repeat="member in project.accessList track by $index">
-                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView + ')' }}
-                    </li>
-                </ul>
             </div>
         </div>
     </div>

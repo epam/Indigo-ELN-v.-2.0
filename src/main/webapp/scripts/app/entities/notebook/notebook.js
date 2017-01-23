@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig) {
+    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('notebook', {
                 abstract: true,
@@ -111,7 +111,29 @@ angular.module('indigoeln')
                     {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
                 ]
             }))
+            .state('entities.notebook-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
+                parent: 'entities.notebook-new',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
+                },
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
+                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
+                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                ]
+            }))
             .state('entities.notebook-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.notebook-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
+                },
+                permissions: [
+                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
+                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
+                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                ]
+            }))
+            .state('entities.notebook-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.notebook-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
