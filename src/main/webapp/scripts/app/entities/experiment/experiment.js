@@ -109,7 +109,7 @@ angular.module('indigoeln')
                                 notebook: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
-                                dirty: results[4].dirty,
+                                dirty: results[4] ? results[4].dirty :false,
                                 experimentId: $stateParams.experimentId,
                                 notebookId: $stateParams.notebookId,
                                 projectId: $stateParams.projectId
