@@ -2,70 +2,162 @@ package com.epam.indigoeln.core.repository.bingo;
 
 import com.epam.indigo.Bingo;
 import com.epam.indigo.BingoObject;
+import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public abstract class BingoRepository {
+public class BingoRepository {
+
+    private static final Logger log = LoggerFactory.getLogger(BingoRepository.class);
+
+    public static final String MOLECULE = "molecule";
+    public static final String REACTION = "reaction";
 
     private final Object lock = new Object();
 
-    protected Bingo database;
+    private String type;
+    private Bingo bingo;
 
-    public Optional<IndigoObject> getById(Integer id) {
+    private Indigo indigo;
+
+    public BingoRepository(String type, Bingo bingo, Indigo indigo) {
+        this.indigo = indigo;
+        this.type = type;
+        this.bingo = bingo;
+    }
+
+    public String getById(Integer id) {
         synchronized (lock) {
-            return Optional.ofNullable(database.getRecordById(id));
+            try {
+                return file(bingo.getRecordById(id));
+            } catch (Exception e) {
+                log.warn("Cannot find " + type + " with id=" + id + ": " + e.getMessage());
+            }
+            return null;
         }
     }
 
-    public Optional<Integer> insert(IndigoObject record) {
+    public Integer insert(String structure) {
         synchronized (lock) {
-            return Optional.ofNullable(database.insert(record));
+            try {
+                return bingo.insert(load(structure));
+            } catch (Exception e) {
+                log.warn("Cannot insert " + type + ": " + e.getMessage());
+            }
+            return null;
         }
     }
 
-    public void update(IndigoObject record, Integer id) {
+    public void update(String structure, Integer id) {
         synchronized (lock) {
-            database.delete(id);
-            database.insert(record, id);
+            try {
+                try {
+                    bingo.delete(id);
+                } catch (Exception ignored) {
+                }
+                bingo.insert(load(structure), id);
+            } catch (Exception e) {
+                log.warn("Cannot update " + type + " with id=" + id + ": " + e.getMessage());
+            }
         }
     }
 
     public void delete(Integer id) {
         synchronized (lock) {
-            database.delete(id);
+            try {
+                bingo.delete(id);
+            } catch (Exception e) {
+                log.warn("Cannot delete " + type + " with id=" + id + ": " + e.getMessage());
+            }
         }
     }
 
-    public BingoObject searchExact(IndigoObject query) {
-        return database.searchExact(query);
+    public List<Integer> searchExact(String query, String options) {
+        synchronized (lock) {
+            try {
+                return result(bingo.searchExact(load(query), options));
+            } catch (Exception e) {
+                log.warn("Cannot search exact: " + e.getMessage());
+            }
+            return Collections.emptyList();
+        }
     }
 
-    public BingoObject searchExact(IndigoObject query, String options) {
-        return database.searchExact(query, options);
+    public List<Integer> searchSub(String query, String options) {
+        synchronized (lock) {
+            try {
+                return result(bingo.searchSub(query(query), options));
+            } catch (Exception e) {
+                log.warn("Cannot search sub: " + e.getMessage());
+            }
+            return Collections.emptyList();
+        }
     }
 
-    public BingoObject searchSub(IndigoObject query) {
-        return database.searchSub(query);
+    public List<Integer> searchSim(String query, Float min, Float max, String metric) {
+        synchronized (lock) {
+            try {
+                return result(bingo.searchSim(load(query), min, max, metric));
+            } catch (Exception e) {
+                log.warn("Cannot search sim: " + e.getMessage());
+            }
+            return Collections.emptyList();
+        }
     }
 
-    public BingoObject searchSub(IndigoObject query, String options) {
-        return database.searchSub(query, options);
+    public List<Integer> searchMolFormula(String query, String options) {
+        synchronized (lock) {
+            try {
+                return result(bingo.searchMolFormula(query, options));
+            } catch (Exception e) {
+                log.warn("Cannot search molformula: " + e.getMessage());
+            }
+            return Collections.emptyList();
+        }
     }
 
-    public BingoObject searchSim(IndigoObject query, Float min, Float max) {
-        return database.searchSim(query, min, max);
+    private IndigoObject load(String structure) throws Exception {
+        switch (type) {
+            case MOLECULE:
+                return indigo.loadMolecule(structure);
+            case REACTION:
+                return indigo.loadReaction(structure);
+        }
+        throw new Exception("Unknown type");
     }
 
-    public BingoObject searchSim(IndigoObject query, Float min, Float max, String metric) {
-        return database.searchSim(query, min, max, metric);
+    private IndigoObject query(String structure) throws Exception {
+        switch (type) {
+            case MOLECULE:
+                return indigo.loadQueryMolecule(structure);
+            case REACTION:
+                return indigo.loadQueryReaction(structure);
+        }
+        throw new Exception("Unknown type");
     }
 
-    public BingoObject searchMolFormula(String query) {
-        return database.searchMolFormula(query);
+    private String file(IndigoObject object) throws Exception {
+        switch (type) {
+            case MOLECULE:
+                return object.molfile();
+            case REACTION:
+                return object.rxnfile();
+        }
+        throw new Exception("Unknown type");
     }
 
-    public BingoObject searchMolFormula(String query, String options) {
-        return database.searchMolFormula(query, options);
+    private List<Integer> result(BingoObject object) {
+        List<Integer> result = new ArrayList<>();
+
+        while (object.next()) {
+            result.add(object.getCurrentId());
+        }
+
+        return result;
     }
 }
