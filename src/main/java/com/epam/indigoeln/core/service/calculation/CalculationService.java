@@ -2,9 +2,9 @@ package com.epam.indigoeln.core.service.calculation;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
+import com.epam.indigoeln.config.bingo.IndigoConfig;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
-import com.epam.indigoeln.core.service.indigo.IndigoProvider;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +31,7 @@ public class CalculationService {
             SALT_FORMULA, "");
 
     @Autowired
-    private IndigoProvider indigoProvider;
+    private IndigoConfig indigoConfig;
 
     @Autowired
     private CodeTableService codeTableService;
@@ -44,7 +44,7 @@ public class CalculationService {
      * @return true if all chemistry items equals
      */
     public boolean chemistryEquals(List<String> chemistryItems, boolean isReaction) {
-        Indigo indigo = indigoProvider.getIndigo();
+        Indigo indigo = indigoConfig.indigo();
         IndigoObject prevHandle = null;
         for(String chemistry : chemistryItems) {
             IndigoObject handle = isReaction ? indigo.loadReaction(chemistry) : indigo.loadMolecule(chemistry);
@@ -67,7 +67,7 @@ public class CalculationService {
     public Map<String, String> getMolecularInformation(String molecule, Optional<String> saltCodeOpt, Optional<Float> saltEqOpt) {
         Map<String, String> result = new HashMap<>();
 
-        IndigoObject handle = indigoProvider.getIndigo().loadMolecule(molecule);
+        IndigoObject handle = indigoConfig.indigo().loadMolecule(molecule);
 
         Map<String, String> saltMetadata = getSaltMetadata(saltCodeOpt).orElse(SALT_METADATA_DEFAULT);
         float saltEq = saltEqOpt.orElse(1.0f);
@@ -98,7 +98,7 @@ public class CalculationService {
      * @return true if molecule empty
      */
     public boolean isMoleculeEmpty(String molecule) {
-        return indigoProvider.getIndigo().loadMolecule(molecule).countAtoms() == 0;
+        return indigoConfig.indigo().loadMolecule(molecule).countAtoms() == 0;
     }
 
     /**
@@ -108,7 +108,7 @@ public class CalculationService {
      * @return true if molecule is chiral
      */
     public boolean isMoleculeChiral(String molecule) {
-        return indigoProvider.getIndigo().loadMolecule(molecule).isChiral();
+        return indigoConfig.indigo().loadMolecule(molecule).isChiral();
     }
 
     /**
@@ -117,7 +117,7 @@ public class CalculationService {
      * @return reaction components
      */
     public ReactionPropertiesDTO extractReactionComponents(String reaction) {
-        IndigoObject handle = indigoProvider.getIndigo().loadReaction(reaction);
+        IndigoObject handle = indigoConfig.indigo().loadReaction(reaction);
 
         //fetch reactants
         List<String> reactants = new ArrayList<>();
@@ -142,7 +142,7 @@ public class CalculationService {
      * @return reaction DTO enriched by reactants and products
      */
     public ReactionPropertiesDTO combineReactionComponents(ReactionPropertiesDTO reactionDTO) {
-        Indigo indigo = indigoProvider.getIndigo();
+        Indigo indigo = indigoConfig.indigo();
         IndigoObject handle = indigo.createReaction();
 
         //add reactants to the structure
@@ -166,7 +166,7 @@ public class CalculationService {
      * @return is reaction valid
      */
     public boolean isValidReaction(String reaction) {
-        IndigoObject handle = indigoProvider.getIndigo().loadQueryReaction(reaction);
+        IndigoObject handle = indigoConfig.indigo().loadQueryReaction(reaction);
         return (handle.countReactants() > 0) && (handle.countProducts() > 0);
     }
 
@@ -177,14 +177,14 @@ public class CalculationService {
      * @return RendererResult
      */
     public RendererResult getStructureWithImage(String structure, String structureType) {
-        Indigo indigo = indigoProvider.getIndigo();
+        Indigo indigo = indigoConfig.indigo();
         IndigoObject io = StringUtils.equals(structureType, "molecule") ? indigo.loadMolecule(structure) :
                 indigo.loadReaction(structure);
 
         // auto-generate coordinates as Bingo DB doesn't store them
         io.layout();
 
-        return new RendererResult(indigoProvider.getRenderer(indigo).renderToBuffer(io));
+        return new RendererResult(indigoConfig.renderer(indigo).renderToBuffer(io));
     }
 
     private Optional<Map> getSaltMetadata(Optional<String> saltCode) {
