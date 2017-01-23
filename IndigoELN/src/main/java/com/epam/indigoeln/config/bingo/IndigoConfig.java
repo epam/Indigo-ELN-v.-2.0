@@ -1,20 +1,20 @@
-package com.epam.indigoeln.core.service.indigo;
+package com.epam.indigoeln.config.bingo;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoRenderer;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class IndigoProvider {
+@Configuration
+public class IndigoConfig {
 
-    public Indigo getIndigo() {
+    public Indigo indigo() {
         Indigo indigo = new Indigo();
         indigo.setOption("ignore-stereochemistry-errors", "true");
 
         return indigo;
     }
 
-    public IndigoRenderer getRenderer(Indigo indigo) {
+    public IndigoRenderer renderer(Indigo indigo) {
         IndigoRenderer renderer = new IndigoRenderer(indigo);
 
         indigo.setOption("render-label-mode", "hetero");
