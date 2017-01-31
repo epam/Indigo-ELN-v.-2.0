@@ -191,6 +191,9 @@
   padding-left: 0px;
   padding-right: 0px;
 }
+.p-l1-all-0 {
+  padding: 0 0 0 1px;
+}
 /******************TABLES*********************/
 table {
   page-break-inside: auto;
@@ -235,7 +238,7 @@ tr {
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
 }
-.table.product .btn {
+.table.product .btn-group .btn {
   color: #666;
   font: 14px 'Source Sans Pro Semibold', sans-serif;
   padding: 0;
@@ -272,4 +275,7 @@ tr {
 }
 .my-component {
   width: 100%;
+}
+.my-component .panel-heading {
+  cursor: pointer;
 }

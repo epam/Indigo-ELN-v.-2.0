@@ -191,6 +191,9 @@
   padding-left: 0px;
   padding-right: 0px;
 }
+.p-l1-all-0 {
+  padding: 0 0 0 1px;
+}
 /******************TABS*********************/
 .nav-tabs > li > a {
   border-top: 0 none;
@@ -276,6 +279,7 @@
   padding: 20px;
   height: calc(100vh - 330px);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .inner-tabs .simple-tab-content {
   border: 1px solid #ddd;

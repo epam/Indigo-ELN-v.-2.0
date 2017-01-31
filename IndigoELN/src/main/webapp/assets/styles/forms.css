@@ -191,6 +191,9 @@
   padding-left: 0px;
   padding-right: 0px;
 }
+.p-l1-all-0 {
+  padding: 0 0 0 1px;
+}
 /******************FORMS STYLE*********************/
 label {
   color: #9e9e9e;
@@ -262,8 +265,17 @@ textarea,
 .input-group-btn .btn + .btn {
   margin-left: 7px;
 }
+.input-group-sm .input-group-btn .btn {
+  height: 30px;
+}
 .input-right-txt {
   position: absolute;
   top: 33px;
   right: -2px;
+}
+.form-inline .select-inline {
+  width: 30%;
+}
+.form-inline .select-inline .ui-select-container .ui-select-match .btn {
+  width: 100%;
 }
