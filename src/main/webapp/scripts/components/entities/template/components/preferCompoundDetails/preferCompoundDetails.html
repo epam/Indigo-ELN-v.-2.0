@@ -4,24 +4,21 @@
     </div>
     <div class="collapsible">
         <div class="panel-body">
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="form-group">
-                        <label>Notebook ID #: <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span></label>
-                        <my-select
-                                my-model="selectedCompound"
-                                my-items="model.preferredCompoundSummary.compounds"
-                                my-change="onSelectCompound()"
-                                my-item-prop="nbkBatch"
-                                my-control = "selectControl"
-                        ></my-select>
-                    </div>
-                    <my-checkbox
-                            my-model="showSummary"
-                            my-label="Show Summary"
-                    ></my-checkbox>
-                </div>
-            </div>
+            <form class="form-inline">
+                <label>Notebook ID #: <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span></label>
+                <my-select
+                        my-model="selectedCompound"
+                        my-items="model.preferredCompoundSummary.compounds"
+                        my-change="onSelectCompound()"
+                        my-item-prop="nbkBatch"
+                        my-control = "selectControl"
+                        class="select-inline"
+                ></my-select>
+            </form>
+            <my-checkbox
+                    my-model="showSummary"
+                    my-label="Show Summary"
+            ></my-checkbox>
             <hr class="hr-top">
             <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
             <div class="form-group ">

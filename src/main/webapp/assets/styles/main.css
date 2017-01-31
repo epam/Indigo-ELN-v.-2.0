@@ -191,6 +191,9 @@
   padding-left: 0px;
   padding-right: 0px;
 }
+.p-l1-all-0 {
+  padding: 0 0 0 1px;
+}
 /******************CONTROLS*********************/
 .controls-row {
   background-color: #ededed;
@@ -337,6 +340,7 @@
   padding: 20px;
   height: calc(100vh - 330px);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .inner-tabs .simple-tab-content {
   border: 1px solid #ddd;
@@ -512,7 +516,7 @@ tr {
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
 }
-.table.product .btn {
+.table.product .btn-group .btn {
   color: #666;
   font: 14px 'Source Sans Pro Semibold', sans-serif;
   padding: 0;
@@ -549,6 +553,9 @@ tr {
 }
 .my-component {
   width: 100%;
+}
+.my-component .panel-heading {
+  cursor: pointer;
 }
 /******************SEARCH*********************/
 .search-field {
@@ -783,10 +790,19 @@ textarea,
 .input-group-btn .btn + .btn {
   margin-left: 7px;
 }
+.input-group-sm .input-group-btn .btn {
+  height: 30px;
+}
 .input-right-txt {
   position: absolute;
   top: 33px;
   right: -2px;
+}
+.form-inline .select-inline {
+  width: 30%;
+}
+.form-inline .select-inline .ui-select-container .ui-select-match .btn {
+  width: 100%;
 }
 /******************LISTS STYLE*********************/
 .list-group-item {
@@ -877,6 +893,16 @@ textarea,
   border: 0 none;
   height: auto;
   padding: 10px 20px 0;
+}
+.rxn-body-search .tab-content {
+  background-color: transparent;
+  border: 0 none;
+  height: auto;
+  padding: 10px 0px 0;
+  overflow-x: hidden;
+}
+.rxn-body-search .inner-tabs .nav-tabs {
+  padding: 0px;
 }
 /******************LABELS STYLE*********************/
 .uui-label {
@@ -1340,6 +1366,12 @@ tags-input .tag-list .tag-item .remove-button {
 .scroll-full {
   height: calc(100vh - 180px);
   overflow-y: auto;
+  overflow-x: hidden;
+}
+.scroll-dashboard-full {
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .newtemplate {
   width: 100px;
@@ -1596,6 +1628,7 @@ tags-input .tag-list .tag-item .remove-button {
 }
 .search-image {
   margin: 30px 0;
+  display: flex;
 }
 .reagent-search-collapse {
   margin: 10px 0;
@@ -1614,8 +1647,11 @@ tags-input .tag-list .tag-item .remove-button {
 .collapse-content {
   margin-top: 20px;
 }
-.ui-select-multiple.ui-select-bootstrap input.ui-select-search {
-  width: auto !important;
+.ui-select-multiple.ui-select-bootstrap {
+  height: 34px;
+}
+.ui-select-container.ui-select-multiple .ui-select-match .btn {
+  padding: 3px 10px;
 }
 .search-table-row-highlight {
   background-color: #b2ebf2;

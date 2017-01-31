@@ -3,24 +3,21 @@
         Product Batch Details
     </div>
     <div class="panel-body collapsible">
-        <div class="row">
-            <div class="col-xs-6">
-                <div class="form-group">
-                    <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
-                    <my-select
-                            my-model="selectedBatch"
-                            my-items="model.productBatchSummary.batches"
-                            my-change="onSelectBatch()"
-                            my-item-prop="nbkBatch"
-                            my-control = "selectControl"
-                    ></my-select>
-                </div>
-                <my-checkbox
-                        my-model="showSummary"
-                        my-label="Show Summary"
-                ></my-checkbox>
-            </div>
-        </div>
+        <form class="form-inline">
+            <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
+            <my-select
+                    my-model="selectedBatch"
+                    my-items="model.productBatchSummary.batches"
+                    my-change="onSelectBatch()"
+                    my-item-prop="nbkBatch"
+                    my-control = "selectControl"
+                    class="select-inline"
+            ></my-select>
+        </form>
+        <my-checkbox
+                my-model="showSummary"
+                my-label="Show Summary"
+        ></my-checkbox>
         <hr class="hr-top">
         <indigo-batch-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
         <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
