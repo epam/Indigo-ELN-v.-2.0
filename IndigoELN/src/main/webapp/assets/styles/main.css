@@ -748,8 +748,14 @@ label {
   outline: none;
 }
 .form-control:focus {
-  border-color: #ccc;
+  border-color: #3f51b5;
   box-shadow: none;
+}
+.form-control:disabled:focus,
+.form-control.disabled:focus,
+.form-control[disabled]:focus,
+.form-control[readonly]:focus {
+  border-color: #e5e5e5;
 }
 input[type="file"]:focus,
 input[type="radio"]:focus,
@@ -810,9 +816,6 @@ textarea,
 }
 .form-inline .select-inline {
   width: 30%;
-}
-.form-inline .select-inline .ui-select-container .ui-select-match .btn {
-  width: 100%;
 }
 /******************LISTS STYLE*********************/
 .list-group-item {

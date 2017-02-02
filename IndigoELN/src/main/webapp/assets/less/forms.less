@@ -27,8 +27,13 @@ label {
   outline: none;
 
   &:focus {
-    border-color: @input-border;
+    border-color: @brand2;
     box-shadow: none;
+  }
+  &:disabled, &.disabled, &[disabled], &[readonly] {
+    &:focus {
+      border-color: #e5e5e5;
+    }
   }
 }
 
@@ -127,7 +132,7 @@ textarea, .textarea-structure {
     width: 30%;
 
     .ui-select-container .ui-select-match .btn {
-      width: 100%;
+
     }
   }
 }
