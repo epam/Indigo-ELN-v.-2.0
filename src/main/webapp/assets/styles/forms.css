@@ -213,7 +213,7 @@ label {
   outline: none;
 }
 .form-control:focus {
-  border-color: #3f51b5;
+  border-color: #ccc;
   box-shadow: none;
 }
 input[type="file"]:focus,
