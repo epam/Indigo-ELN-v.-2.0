@@ -37,7 +37,7 @@ public class SearchComponentsRepository {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest, List<Integer> bingoIds) {
+    public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest, List<String> bingoIds) {
         Aggregation aggregation = buildAggregation(searchRequest, bingoIds);
         LOGGER.debug("Perform search query: " + aggregation.toString());
 
@@ -46,7 +46,7 @@ public class SearchComponentsRepository {
         return mappedResults.stream().map(convertResult).collect(Collectors.toList());
     }
 
-    private Aggregation buildAggregation(BatchSearchRequest request, List<Integer> bingoIds) {
+    private Aggregation buildAggregation(BatchSearchRequest request, List<String> bingoIds) {
         BatchSearchAggregationBuilder builder = BatchSearchAggregationBuilder.getInstance();
         request.getSearchQuery().ifPresent(builder::withSearchQuery);
 

@@ -40,7 +40,7 @@ public class ExperimentSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<String>> withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
+    public Optional<Set<String>> withBingoIds(StructureSearchType type, List<String> bingoIds) {
         return componentSearchRepository.withBingoIds(type, bingoIds)
                 .map(Criteria.where("components")::in).map(this::find);
     }

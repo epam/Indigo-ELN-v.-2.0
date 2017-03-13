@@ -26,12 +26,12 @@ public class EntitySearchService {
     private BingoService bingoService;
 
     public List<EntitySearchResultDTO> find(User user, EntitySearchRequest searchRequest) {
-        final List<Integer> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb).orElse(Collections.emptyList());
+        final List<String> bingoIds = searchRequest.getStructure().map(this::searchByBingoDb).orElse(Collections.emptyList());
         return repository.findEntities(user, searchRequest, bingoIds);
     }
 
     @SuppressWarnings("unchecked")
-    private List<Integer> searchByBingoDb(EntitySearchStructure structure) {
+    private List<String> searchByBingoDb(EntitySearchStructure structure) {
         switch (structure.getType().getName()) {
             case Product:
                 return searchMoleculeByBingoDb(structure);
@@ -42,8 +42,8 @@ public class EntitySearchService {
         }
     }
 
-    private List<Integer> searchReactionByBingoDb(EntitySearchStructure structure) {
-        List<Integer> bingoIds;
+    private List<String> searchReactionByBingoDb(EntitySearchStructure structure) {
+        List<String> bingoIds;
         String molFile = structure.getMolfile();
         String formula = structure.getFormula();
 
@@ -70,8 +70,8 @@ public class EntitySearchService {
         return bingoIds;
     }
 
-    private List<Integer> searchMoleculeByBingoDb(EntitySearchStructure structure) {
-        List<Integer> bingoIds;
+    private List<String> searchMoleculeByBingoDb(EntitySearchStructure structure) {
+        List<String> bingoIds;
         String molFile = structure.getMolfile();
         String formula = structure.getFormula();
 
