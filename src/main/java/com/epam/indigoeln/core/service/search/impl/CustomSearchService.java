@@ -36,7 +36,7 @@ public class CustomSearchService implements SearchServiceAPI {
     @Override
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         if(searchRequest.getStructure().isPresent()) {
-            List<Integer> bingoIds = searchByBingoDb(searchRequest.getStructure().get());
+            List<String> bingoIds = searchByBingoDb(searchRequest.getStructure().get());
             return bingoIds.isEmpty() ? Collections.emptyList() :
                     searchComponentsRepository.findBatches(searchRequest, bingoIds);
         } else {
@@ -45,8 +45,8 @@ public class CustomSearchService implements SearchServiceAPI {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Integer> searchByBingoDb(BatchSearchStructure structure) {
-        List<Integer> bingoIds;
+    private List<String> searchByBingoDb(BatchSearchStructure structure) {
+        List<String> bingoIds;
         String molFile = structure.getMolfile();
         String formula = structure.getFormula();
 

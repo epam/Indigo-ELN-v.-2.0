@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.service.bingo.BingoService;
+import com.epam.indigoeln.core.service.calculation.CalculationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,16 +31,19 @@ public class BingoResource {
     @Autowired
     private BingoService bingoService;
 
+    @Autowired
+    private CalculationService calculationService;
+
     /**
      * GET /molecule/:id -> get structure of molecule
      */
     @ApiOperation(value = "Returns the structure of molecule.", produces = "application/json")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getMolecule(
-            @ApiParam("Identifier of the molecule.") @PathVariable Integer id
+            @ApiParam("Identifier of the molecule.") @PathVariable String id
         ) {
         return bingoService
-                .getMolecule(id)
+                .getById(id)
                 .map(molecule -> new ResponseEntity<>(molecule, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -47,13 +51,13 @@ public class BingoResource {
     /**
      * POST /molecule/ -> create new molecule
      */
-    @ApiOperation(value = "Creates a new molecule.", produces = "application/json")
-    @RequestMapping(value = "/molecule/", method = RequestMethod.POST)
+    @ApiOperation(value = "Creates a new molecule.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/molecule/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     @SuppressWarnings("unchecked")
     public ResponseEntity<String> addMolecule(
             @ApiParam("The molecule to create.") @RequestBody String molecule
         ) throws URISyntaxException {
-        Optional<Integer> result = bingoService.insertMolecule(molecule);
+        Optional<String> result = bingoService.insert(molecule);
 
         if (result.isPresent()) {
             return ResponseEntity
@@ -67,21 +71,25 @@ public class BingoResource {
     /**
      * PUT /molecule/:id -> update molecule
      */
-    @ApiOperation(value = "Updates the molecule.", produces = "application/json")
-    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "Updates the molecule.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/molecule/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateMolecule(
-            @ApiParam("Id of the molecule to update.") @PathVariable Integer id,
+            @ApiParam("Id of the molecule to update.") @PathVariable String id,
             @ApiParam("New molecule data.") @RequestBody String molecule
         ) {
-        if (!bingoService.getMolecule(id).isPresent()) {
+        if (!bingoService.getById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        bingoService.updateMolecule(id, molecule);
+        Optional<String> result = bingoService.update(id, molecule);
 
-        return ResponseEntity
-                .ok()
-                .body(id.toString());
+        if (result.isPresent()) {
+            return ResponseEntity
+                    .ok()
+                    .body(result.get().toString());
+        } else {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -92,7 +100,7 @@ public class BingoResource {
     public ResponseEntity<Object> isEmptyMolecule(
             @ApiParam("Reaction to check.") @RequestBody String molecule
     ) throws URISyntaxException {
-        Optional<Boolean> result = bingoService.isEmptyMolecule(molecule);
+        Optional<Boolean> result = calculationService.isEmptyMolecule(molecule);
 
         if (result.isPresent()) {
             return ResponseEntity
@@ -108,9 +116,9 @@ public class BingoResource {
     @ApiOperation(value = "Deletes the molecule.", produces = "application/json")
     @RequestMapping(value = "/molecule/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(
-            @ApiParam("Id of the molecule to delete.") @PathVariable Integer id
+            @ApiParam("Id of the molecule to delete.") @PathVariable String id
         ) {
-        bingoService.deleteMolecule(id);
+        bingoService.delete(id);
         return ResponseEntity
                 .ok()
                 .build();
@@ -122,10 +130,10 @@ public class BingoResource {
     @ApiOperation(value = "Returns structure of the reaction.", produces = "application/json")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.GET, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getReaction(
-            @ApiParam("Id of the reaction.") @PathVariable Integer id
+            @ApiParam("Id of the reaction.") @PathVariable String id
         ) {
         return bingoService
-                .getReaction(id)
+                .getById(id)
                 .map(molecule -> new ResponseEntity<>(molecule, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -133,12 +141,12 @@ public class BingoResource {
     /**
      * POST /reaction/ -> create new reaction
      */
-    @ApiOperation(value = "Creates new reaction.", produces = "application/json")
-    @RequestMapping(value = "/reaction/", method = RequestMethod.POST)
+    @ApiOperation(value = "Creates new reaction.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/reaction/", method = RequestMethod.POST, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> addReaction(
             @ApiParam("Reaction to create.") @RequestBody String reaction
         ) throws URISyntaxException {
-        Optional<Integer> result = bingoService.insertReaction(reaction);
+        Optional<String> result = bingoService.insert(reaction);
 
         if (result.isPresent()) {
             return ResponseEntity
@@ -152,21 +160,24 @@ public class BingoResource {
     /**
      * PUT /reaction/:id -> update existing reaction
      */
-    @ApiOperation(value = "Updates the reaction.", produces = "application/json")
-    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "Updates the reaction.", produces = MediaType.TEXT_PLAIN_VALUE)
+    @RequestMapping(value = "/reaction/{id}", method = RequestMethod.PUT, produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> updateReaction(
-            @ApiParam("Id of the reaction to update.") @PathVariable Integer id,
+            @ApiParam("Id of the reaction to update.") @PathVariable String id,
             @ApiParam("New reaction data.") @RequestBody String reaction
         ) {
-        if (!bingoService.getReaction(id).isPresent()) {
+        if (!bingoService.getById(id).isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        bingoService.updateReaction(id, reaction);
-
-        return ResponseEntity
-                .ok()
-                .body(id.toString());
+        Optional<String> result = bingoService.update(id, reaction);
+        if (result.isPresent()) {
+            return ResponseEntity
+                    .ok()
+                    .body(result.get().toString());
+        } else {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     /**
@@ -177,7 +188,7 @@ public class BingoResource {
     public ResponseEntity<Object> isEmptyReaction(
             @ApiParam("Reaction to check.") @RequestBody String reaction
     ) throws URISyntaxException {
-        Optional<Boolean> result = bingoService.isEmptyReaction(reaction);
+        Optional<Boolean> result = calculationService.isEmptyReaction(reaction);
 
         if (result.isPresent()) {
             return ResponseEntity
@@ -193,9 +204,9 @@ public class BingoResource {
     @ApiOperation(value = "Deletes the reaction.", produces = "application/json")
     @RequestMapping(value = "/reaction/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteReaction(
-            @ApiParam("Id of the reaction to delete.") @PathVariable Integer id
+            @ApiParam("Id of the reaction to delete.") @PathVariable String id
         ) {
-        bingoService.deleteReaction(id);
+        bingoService.delete(id);
         return ResponseEntity
                 .ok()
                 .build();
@@ -206,7 +217,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for exact molecule.", produces = "application/json")
     @RequestMapping(value = "/molecule/search/exact", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchMoleculeExact(
+    public ResponseEntity<List<String>> searchMoleculeExact(
             @ApiParam("Molecule structure to search for.") @RequestBody String structure,
             @ApiParam("Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeExact(structure, options));
@@ -218,7 +229,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for molecule by substructure.", produces = "application/json")
     @RequestMapping(value = "/molecule/search/substructure", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchMoleculeSubstructure(
+    public ResponseEntity<List<String>> searchMoleculeSubstructure(
             @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
             @ApiParam("Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchMoleculeSub(structure, options));
@@ -229,7 +240,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for molecule by similarity.", produces = "application/json")
     @RequestMapping(value = "/molecule/search/similarity", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchMoleculeSimilarity(
+    public ResponseEntity<List<String>> searchMoleculeSimilarity(
             @ApiParam("Molecule substructure to search for.") @RequestBody String structure,
             @ApiParam("Min similarity.") @RequestParam Float min,
             @ApiParam("Max similarity.") @RequestParam Float max,
@@ -243,7 +254,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for molecule by formula.", produces = "application/json")
     @RequestMapping(value = "/molecule/search/molformula", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchMoleculeByMolFormula(
+    public ResponseEntity<List<String>> searchMoleculeByMolFormula(
             @ApiParam("Molecule formula to search for.") @RequestBody String formula,
             @ApiParam("Search options.") @RequestParam(required = false) String options
         ) {
@@ -255,7 +266,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for exact reaction.", produces = "application/json")
     @RequestMapping(value = "/reaction/search/exact", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchReactionExact(
+    public ResponseEntity<List<String>> searchReactionExact(
             @ApiParam("Reaction structure to search for.") @RequestBody String structure,
             @ApiParam("Search options.") @RequestParam(required = false) String options
         ) {
@@ -267,7 +278,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for reaction by substructure.", produces = "application/json")
     @RequestMapping(value = "/reaction/search/substructure", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchReactionSubstructure(
+    public ResponseEntity<List<String>> searchReactionSubstructure(
             @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
             @ApiParam("Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionSub(structure, options));
@@ -278,7 +289,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for reaction by similarity.", produces = "application/json")
     @RequestMapping(value = "/reaction/search/similarity", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchReactionSimilarity(
+    public ResponseEntity<List<String>> searchReactionSimilarity(
             @ApiParam("Reaction substructure to search for.") @RequestBody String structure,
             @ApiParam("Min similarity.") @RequestParam Float min,
             @ApiParam("Max similarity.") @RequestParam Float max,
@@ -292,7 +303,7 @@ public class BingoResource {
      */
     @ApiOperation(value = "Searches for reaction by formula.", produces = "application/json")
     @RequestMapping(value = "/reaction/search/molformula", method = RequestMethod.POST)
-    public ResponseEntity<List<Integer>> searchReactionByMolFormula(
+    public ResponseEntity<List<String>> searchReactionByMolFormula(
             @ApiParam("Reaction formula to search for.") @RequestBody String formula,
             @ApiParam("Search options.") @RequestParam(required = false) String options) {
         return ResponseEntity.ok(bingoService.searchReactionMolFormula(formula, options));

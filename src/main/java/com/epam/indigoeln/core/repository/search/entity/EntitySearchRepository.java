@@ -45,7 +45,7 @@ public class EntitySearchRepository {
     @Autowired
     private ExperimentRepository experimentRepository;
 
-    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<Integer> bingoIds) {
+    public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<String> bingoIds) {
 
         final Optional<List<EntitySearchResultDTO>> projectResult = findProjectsIds(searchRequest).map(ids -> {
             final Iterable<Project> projects = projectRepository.findAll(ids);
@@ -118,7 +118,7 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Set<String>> findExperimentsIds(EntitySearchRequest request, List<Integer> bingoIds) {
+    private Optional<Set<String>> findExperimentsIds(EntitySearchRequest request, List<String> bingoIds) {
         if (!bingoIds.isEmpty()) {
             final StructureSearchType type = request.getStructure().get().getType().getName();
             return experimentSearchRepository.withBingoIds(type, bingoIds);

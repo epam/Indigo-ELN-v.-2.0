@@ -38,7 +38,7 @@ public final class BatchSearchAggregationBuilder extends AbstractSearchAggregati
         return new BatchSearchAggregationBuilder();
     }
 
-    public BatchSearchAggregationBuilder withBingoIds(List<Integer> bingoIds) {
+    public BatchSearchAggregationBuilder withBingoIds(List<String> bingoIds) {
         Criteria structureCriteria = Criteria.where(CONTENT_PREFIX + "structure.structureId").in(bingoIds);
         aggregationOperations.add(Aggregation.match(structureCriteria));
         return this;

@@ -42,7 +42,7 @@ public class ComponentSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<DBRef>> withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
+    public Optional<Set<DBRef>> withBingoIds(StructureSearchType type, List<String> bingoIds) {
         SearchCriterion searchCriterion = null;
         if (type == StructureSearchType.Product) {
             searchCriterion = new SearchCriterion("batchStructureId", "batchStructureId", CONDITION_IN, bingoIds);
