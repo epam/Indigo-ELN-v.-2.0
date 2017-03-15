@@ -31,7 +31,7 @@ public class ExperimentSignStatusCheckingJob {
     @Autowired
     private SimpMessagingTemplate template;
 
-    @Scheduled(fixedRateString = "${schedule.experiment.sign.status.check.rate:60}000")
+    @Scheduled(fixedRateString = "${indigoeln.schedule.experiment.sign.status.check.rate:60}000")
     public void execute() {
         LOGGER.debug("Experiment sign status checking job started");
         final List<Experiment> experiments = experimentRepository.findByStatusIn(Arrays.asList(ExperimentStatus.SUBMITTED,

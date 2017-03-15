@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.config.DashboardProperties;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
@@ -56,11 +57,8 @@ public class DashboardResource {
     @Autowired
     private UserService userService;
 
-    @Value("${dashboard.threshold.level}")
-    private int thresholdLevel;
-
-    @Value("${dashboard.threshold.unit}")
-    private ChronoUnit thresholdUnit;
+    @Autowired
+    private DashboardProperties dashboardProperties;
 
     /**
      * GET  /dashboard -> Returns dashboard experiments
@@ -77,7 +75,7 @@ public class DashboardResource {
         User user = userService.getUserWithAuthorities();
         DashboardDTO dashboardDTO = new DashboardDTO();
 
-        ZonedDateTime threshold = ZonedDateTime.now().minus(thresholdLevel, thresholdUnit);
+        ZonedDateTime threshold = ZonedDateTime.now().minus(dashboardProperties.getThresholdLevel(), dashboardProperties.getThresholdUnit());
 
         dashboardDTO.setOpenAndCompletedExp(getCurrentRows(user, threshold));
         dashboardDTO.setWaitingSignatureExp(getWaitingRows(user));

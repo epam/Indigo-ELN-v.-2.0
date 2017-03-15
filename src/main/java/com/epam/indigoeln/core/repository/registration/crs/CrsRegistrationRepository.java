@@ -6,6 +6,7 @@ import com.epam.indigo.crs.classes.FullCompoundInfo;
 import com.epam.indigo.crs.exceptions.CRSException;
 import com.epam.indigo.crs.services.registration.BingoRegistration;
 import com.epam.indigo.crs.services.search.BingoSearch;
+import com.epam.indigoeln.config.crs.CrsProperties;
 import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
@@ -27,11 +28,9 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     private static final String STATUS_PASSED = "PASSED";
     private static final String STATUS_FAILED = "FAILED";
     private static RegistrationRepositoryInfo INFO = new RegistrationRepositoryInfo(ID, NAME);
-    @Value("${crs.service.username}")
-    private String username;
 
-    @Value("${crs.service.password}")
-    private String password;
+    @Autowired
+    private CrsProperties crsProperties;
 
     @Autowired
     private BingoRegistration registration;
@@ -41,7 +40,7 @@ public class CrsRegistrationRepository implements RegistrationRepository {
 
     private String getToken() throws RegistrationException {
         try {
-            return registration.getTokenHash(username, password);
+            return registration.getTokenHash(crsProperties.getUsername(), crsProperties.getPassword());
         } catch (CRSException e) {
             throw new RegistrationException(e);
         }

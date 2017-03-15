@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.security;
 
+import com.epam.indigoeln.config.security.IntSecurityProperties;
 import com.epam.indigoeln.core.model.PersistentToken;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.PersistentTokenRepository;
@@ -7,7 +8,6 @@ import com.epam.indigoeln.core.repository.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,9 +77,9 @@ public class CustomPersistentRememberMeServices extends AbstractRememberMeServic
     private UserRepository userRepository;
 
     @Autowired
-    public CustomPersistentRememberMeServices(Environment env, UserDetailsService userDetailsService) {
+    public CustomPersistentRememberMeServices(IntSecurityProperties securityProperties, UserDetailsService userDetailsService) {
 
-        super(env.getProperty("indigoeln.security.rememberme.key"), userDetailsService);
+        super(securityProperties.getRemembermeKey(), userDetailsService);
         random = new SecureRandom();
     }
 
