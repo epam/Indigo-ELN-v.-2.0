@@ -2,13 +2,11 @@ package com.epam.indigoeln.core.service.calculation;
 
 import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.config.bingo.IndigoConfig;
 import com.epam.indigoeln.config.bingo.IndigoProvider;
 import com.epam.indigoeln.core.service.calculation.helper.RendererResult;
 import com.epam.indigoeln.core.service.codetable.CodeTableService;
 import com.epam.indigoeln.web.rest.dto.calculation.ReactionPropertiesDTO;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -4,6 +4,7 @@
   "testPath": "src/test/javascript/spec",
   "dependencies": {
     "angular": "1.4.8",
+    "angular-mocks": "1.4.8",
     "angular-animate": "1.4.8",
     "angular-bootstrap": "0.14.3",
     "angular-bootstrap-checkbox": "0.4.0",
@@ -40,11 +41,11 @@
     "ui-select": "angular-ui-select#0.16.1",
     "underscore": "1.8.3",
     "jquery-ui": "1.11.4",
-    "ui-router-extras": "~0.1.2",
+    "ui-router-extras": "0.1.2",
     "sockjs-client": "1.0.3",
     "stomp-websocket": "2.3.4",
     "malihu-custom-scrollbar-plugin": "3.1.5",
-    "angular-cache": "~4.6.0"
+    "angular-cache": "4.6.0"
   },
   "overrides": {
     "bootstrap": {

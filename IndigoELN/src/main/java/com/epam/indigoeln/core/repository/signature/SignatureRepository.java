@@ -1,10 +1,11 @@
 package com.epam.indigoeln.core.repository.signature;
 
+import com.epam.indigoeln.config.signature.SignatureProperties;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.stereotype.Repository;
@@ -23,34 +24,28 @@ public class SignatureRepository {
 
     private static final String SESSION_ID_ATTRIBUTE = "SignatureSessionId";
 
-    @Value("${integration.signatureservice.url}")
-    private String signatureServiceUrl;
-
-    @Value("${integration.signatureservice.username}")
-    private String username;
-
-    @Value("${integration.signatureservice.password}")
-    private String password;
+    @Autowired
+    private SignatureProperties signatureProperties;
 
     private RestTemplate restTemplate = new RestTemplate();
 
     public String getReasons() {
-        return exchange(signatureServiceUrl + "/api/getReasons", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getReasons", HttpMethod.GET, null,
                 String.class, new HashMap<>()).getBody();
     }
 
     public String getStatuses() {
-        return exchange(signatureServiceUrl + "/api/getStatuses", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getStatuses", HttpMethod.GET, null,
                 String.class, new HashMap<>()).getBody();
     }
 
     public String getFinalStatus() {
-        return exchange(signatureServiceUrl + "/api/getFinalStatus", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getFinalStatus", HttpMethod.GET, null,
                 String.class, new HashMap<>()).getBody();
     }
 
     public String getSignatureTemplates(String username) {
-        return exchange(signatureServiceUrl + "/api/getTemplates?username={username}", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getTemplates?username={username}", HttpMethod.GET, null,
                 String.class, Collections.singletonMap("username", username)).getBody();
     }
 
@@ -70,7 +65,7 @@ public class SignatureRepository {
         };
         map.add("file", fileResource);
 
-        return exchange(signatureServiceUrl + "/api/uploadDocument", HttpMethod.POST, map,
+        return exchange(signatureProperties.getUrl() + "/api/uploadDocument", HttpMethod.POST, map,
                 String.class, new HashMap<>()).getBody();
     }
 
@@ -79,7 +74,7 @@ public class SignatureRepository {
             return StringUtils.EMPTY;
         }
 
-        return exchange(signatureServiceUrl + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
                 String.class, Collections.singletonMap("id", documentId)).getBody();
     }
 
@@ -89,7 +84,7 @@ public class SignatureRepository {
         }
 
 
-        return exchange(signatureServiceUrl + "/api/getDocumentsByIds", HttpMethod.POST,
+        return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
                 Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
     }
 
@@ -98,7 +93,7 @@ public class SignatureRepository {
             return StringUtils.EMPTY;
         }
 
-        return exchange(signatureServiceUrl + "/api/getDocuments?username={username}", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
                 String.class, Collections.singletonMap("username", username)).getBody();
     }
 
@@ -107,7 +102,7 @@ public class SignatureRepository {
             return new byte[0];
         }
 
-        return exchange(signatureServiceUrl + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
+        return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
                 byte[].class, Collections.singletonMap("id", documentId)).getBody();
     }
 
@@ -119,7 +114,7 @@ public class SignatureRepository {
             return restTemplate.exchange(url, method, entity, clazz, args);
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                sessionId = login(username, password);
+                sessionId = login(signatureProperties.getUsername(), signatureProperties.getPassword());
                 setSessionId(sessionId);
                 entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
                 return restTemplate.exchange(url, method, entity, clazz, args);
@@ -142,7 +137,7 @@ public class SignatureRepository {
         Map<String, Object> o = new HashMap<>();
         o.put("username", username);
         o.put("password", password);
-        ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureServiceUrl + "/loginProcess", o,
+        ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureProperties.getUrl() + "/loginProcess", o,
                 Object.class);
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
             HttpHeaders headers = responseEntity.getHeaders();

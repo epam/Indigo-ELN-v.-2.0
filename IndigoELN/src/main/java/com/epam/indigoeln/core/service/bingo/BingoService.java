@@ -1,16 +1,16 @@
 package com.epam.indigoeln.core.service.bingo;
 
-import com.epam.indigo.Bingo;
-import com.epam.indigo.BingoObject;
-import com.epam.indigo.Indigo;
-import com.epam.indigo.IndigoObject;
-import com.epam.indigoeln.config.bingo.IndigoProvider;
-import com.epam.indigoeln.core.service.calculation.CalculationService;
+import com.epam.indigoeln.config.bingo.BingoProperties;
+import com.epam.indigoeln.core.service.bingo.dto.BingoResponse;
+import com.epam.indigoeln.core.service.bingo.dto.BingoStructure;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,123 +22,99 @@ public class BingoService {
 
     private static final Logger log = LoggerFactory.getLogger(BingoService.class);
 
-    private static final String MOL = "MOL";
-    private static final String RXN = "RXN";
-
-    private final Object transaction = new Object();
-
     @Autowired
-    private IndigoProvider indigoProvider;
-
-    @Autowired
-    private CalculationService calculationService;
-
-    @Autowired
-    private Indigo moleculeIndigo;
-
-    @Autowired
-    private Indigo reactionIndigo;
-
-    @Autowired
-    private Bingo moleculeBingo;
-
-    @Autowired
-    private Bingo reactionBingo;
+    private BingoProperties bingoProperties;
 
     /* Common */
 
     public Optional<String> getById(String id) {
         try {
-            synchronized (transaction) {
-                Integer intId = getId(id);
-                if (intId != null) {
-                    if (StringUtils.startsWith(id, MOL)) {
-                        return Optional.of(moleculeBingo.getRecordById(intId).molfile());
-                    }
-                    if (StringUtils.startsWith(id, RXN)) {
-                        return Optional.of(moleculeBingo.getRecordById(intId).rxnfile());
-                    }
-                }
+            BingoResponse response = getResponse(HttpMethod.GET, "/structures/" + id, StringUtils.EMPTY);
+
+            if (response.getStructures() != null && response.getStructures().size() > 0) {
+                return Optional.of(response.getStructures().get(0).getStructure());
             }
         } catch (Exception e) {
             log.warn("Cannot find by id=" + id + ": " + e.getMessage());
         }
+
         return Optional.empty();
     }
 
     public Optional<String> insert(String s) {
         try {
-            synchronized (transaction) {
-                if (calculationService.isMolecule(s)) {
-                    return Optional.of(MOL + moleculeBingo.insert(moleculeIndigo.loadMolecule(s)));
-                }
-                if (calculationService.isReaction(s)) {
-                    return Optional.of(RXN + reactionBingo.insert(reactionIndigo.loadReaction(s)));
-                }
+            BingoResponse response = getResponse(HttpMethod.POST, "/structures", s);
+
+            if (response.getStructures() != null && response.getStructures().size() > 0) {
+                return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
             log.warn("Cannot insert: " + e.getMessage());
         }
+
         return Optional.empty();
     }
 
     public Optional<String> update(String id, String s) {
         try {
-            synchronized (transaction) {
-                delete(id);
-                return insert(s);
+            BingoResponse response = getResponse(HttpMethod.PUT, "/structures/" + id, s);
+
+            if (response.getStructures() != null && response.getStructures().size() > 0) {
+                return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
             log.warn("Cannot update by id=" + id + ": " + e.getMessage());
         }
+
         return Optional.empty();
     }
 
     public void delete(String id) {
         try {
-            synchronized (transaction) {
-                Integer intId = getId(id);
-                if (intId != null) {
-                    if (StringUtils.startsWith(id, MOL)) {
-                        moleculeBingo.delete(intId);
-                    }
-                    if (StringUtils.startsWith(id, RXN)) {
-                        reactionBingo.delete(intId);
-                    }
-                }
-            }
+            getResponse(HttpMethod.DELETE, "/structures/" + id, StringUtils.EMPTY);
         } catch (Exception e) {
             log.warn("Cannot delete by id=" + id + ": " + e.getMessage());
         }
     }
 
-    private Integer getId(String id) {
-        if (StringUtils.startsWith(id, MOL)) {
-            return Integer.valueOf(id.substring(id.indexOf(MOL) + MOL.length()));
-        }
-        if (StringUtils.startsWith(id, RXN)) {
-            return Integer.valueOf(id.substring(id.indexOf(RXN) + RXN.length()));
-        }
-        return null;
-    }
-
-    private List<String> result(BingoObject object, String prefix) {
+    private List<String> result(BingoResponse response) {
         List<String> result = new ArrayList<>();
 
-        while (object.next()) {
-            result.add(prefix + object.getCurrentId());
+        if (response.getStructures() != null) {
+            for (BingoStructure structure : response.getStructures()) {
+                result.add(structure.getId());
+            }
         }
 
         return result;
+    }
+
+    private BingoResponse getResponse(HttpMethod method, String endpoint, String body) {
+        String basic = bingoProperties.getUsername() + ":" + bingoProperties.getPassword();
+
+        ResponseEntity<BingoResponse> resp = new RestTemplate().exchange(
+                bingoProperties.getApiUrl() + endpoint,
+                method,
+                new HttpEntity<>(body, new HttpHeaders() {{
+                    set("Authorization", "Basic " + Base64.encodeBase64String(basic.getBytes()));
+                }}),
+                BingoResponse.class);
+
+        if (resp.getStatusCode() == HttpStatus.OK) {
+            return resp.getBody();
+        }
+
+        throw new RuntimeException("Error executing BingoDB request");
     }
 
     /* Molecule */
 
     public List<String> searchMoleculeExact(String molecule, String options) {
         try {
-            synchronized (transaction) {
-                return result(moleculeBingo.searchExact(moleculeIndigo.loadMolecule(molecule), options), MOL);
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/molecule/exact?options=" + options, molecule));
         } catch (Exception e) {
             log.warn("Cannot search exact molecule: " + e.getMessage());
         }
@@ -147,9 +123,10 @@ public class BingoService {
 
     public List<String> searchMoleculeSub(String molecule, String options) {
         try {
-            synchronized (transaction) {
-                return result(moleculeBingo.searchSub(moleculeIndigo.loadQueryMolecule(molecule), options), MOL);
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/molecule/substructure?options=" + options, molecule));
         } catch (Exception e) {
             log.warn("Cannot search sub molecule: " + e.getMessage());
         }
@@ -158,9 +135,10 @@ public class BingoService {
 
     public List<String> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
         try {
-            synchronized (transaction) {
-                return result(moleculeBingo.searchSim(moleculeIndigo.loadMolecule(molecule), min, max, metric), MOL);
+            if (metric == null) {
+                metric = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/molecule/similarity?min=" + min + "&max=" + max + "&metric=" + metric, molecule));
         } catch (Exception e) {
             log.warn("Cannot search sim molecule: " + e.getMessage());
         }
@@ -169,9 +147,10 @@ public class BingoService {
 
     public List<String> searchMoleculeMolFormula(String formula, String options) {
         try {
-            synchronized (transaction) {
-                return result(moleculeBingo.searchMolFormula(formula, options), MOL);
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/molecule/molformula?options=" + options, formula));
         } catch (Exception e) {
             log.warn("Cannot search molformula molecule: " + e.getMessage());
         }
@@ -182,25 +161,10 @@ public class BingoService {
 
     public List<String> searchReactionExact(String reaction, String options) {
         try {
-            synchronized (transaction) {
-                if (calculationService.isReaction(reaction)) {
-                    return result(reactionBingo.searchExact(reactionIndigo.loadReaction(reaction), options), RXN);
-                } else {
-                    List<String> result = new ArrayList<>();
-
-                    IndigoObject rxn = reactionIndigo.createReaction();
-                    rxn.addReactant(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchExact(rxn, options), RXN));
-
-                    rxn = reactionIndigo.createReaction();
-                    rxn.addProduct(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchExact(rxn, options), RXN));
-
-                    return result;
-                }
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/reaction/exact?options=" + options, reaction));
         } catch (Exception e) {
             log.warn("Cannot search exact reaction: " + e.getMessage());
         }
@@ -209,25 +173,10 @@ public class BingoService {
 
     public List<String> searchReactionSub(String reaction, String options) {
         try {
-            synchronized (transaction) {
-                if (calculationService.isReaction(reaction)) {
-                    return result(reactionBingo.searchSub(reactionIndigo.loadQueryReaction(reaction), options), RXN);
-                } else {
-                    List<String> result = new ArrayList<>();
-
-                    IndigoObject rxn = reactionIndigo.createQueryReaction();
-                    rxn.addReactant(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchSub(rxn, options), RXN));
-
-                    rxn = reactionIndigo.createReaction();
-                    rxn.addProduct(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchSub(rxn, options), RXN));
-
-                    return result;
-                }
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/reaction/substructure?options=" + options, reaction));
         } catch (Exception e) {
             log.warn("Cannot search sub reaction: " + e.getMessage());
         }
@@ -236,25 +185,10 @@ public class BingoService {
 
     public List<String> searchReactionSim(String reaction, Float min, Float max, String metric) {
         try {
-            synchronized (transaction) {
-                if (calculationService.isReaction(reaction)) {
-                    return result(reactionBingo.searchSim(reactionIndigo.loadReaction(reaction), min, max, metric), RXN);
-                } else {
-                    List<String> result = new ArrayList<>();
-
-                    IndigoObject rxn = reactionIndigo.createReaction();
-                    rxn.addReactant(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchSim(rxn, min, max, metric), RXN));
-
-                    rxn = reactionIndigo.createReaction();
-                    rxn.addProduct(reactionIndigo.loadMolecule(reaction));
-
-                    result.addAll(result(reactionBingo.searchSim(rxn, min, max, metric), RXN));
-
-                    return result;
-                }
+            if (metric == null) {
+                metric = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/reaction/similarity?min=" + min + "&max=" + max + "&metric=" + metric, reaction));
         } catch (Exception e) {
             log.warn("Cannot search sim reaction: " + e.getMessage());
         }
@@ -263,9 +197,10 @@ public class BingoService {
 
     public List<String> searchReactionMolFormula(String formula, String options) {
         try {
-            synchronized (transaction) {
-                return result(reactionBingo.searchMolFormula(formula, options), RXN);
+            if (options == null) {
+                options = StringUtils.EMPTY;
             }
+            return result(getResponse(HttpMethod.POST, "/search/reaction/molformula?options=" + options, formula));
         } catch (Exception e) {
             log.warn("Cannot search molformula reaction: " + e.getMessage());
         }

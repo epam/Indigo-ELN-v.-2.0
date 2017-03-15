@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -74,7 +73,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             EXPERIMENT_REMOVER.name(), CONTENT_EDITOR.name()};
 
     @Autowired
-    private Environment env;
+    private IntSecurityProperties securityProperties;
 
     @Autowired
     private AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
@@ -136,7 +135,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .rememberMe()
                 .rememberMeServices(rememberMeServices)
                 .rememberMeParameter("remember-me")
-                .key(env.getProperty("indigoeln.security.rememberme.key"))
+                .key(securityProperties.getRemembermeKey())
                 .and()
                 .formLogin()
                 .loginProcessingUrl("/api/authentication")

@@ -16,9 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -41,8 +40,8 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     @PostConstruct
     public void init() {
         try {
-            File file = new File(getPhantomPath());
-            file.setExecutable(true);
+            File file = getPhantomExecutable();
+
             phantomJSDriverService = new PhantomJSDriverService.Builder()
                     .usingPhantomJSExecutable(file)
                     .usingAnyFreePort()
@@ -114,7 +113,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         }
     }
 
-    private static URI getPhantomPath() {
+    private static File getPhantomExecutable() {
         StringBuilder sb = new StringBuilder(22);
 
         String separator = "/";
@@ -133,14 +132,20 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             sb.append(".exe");
         }
 
-        URL url = Thread.currentThread().getContextClassLoader().getResource(sb.toString());
+        File file = new File(System.getProperty("java.io.tmpdir") + "/" + sb.toString());
 
-        try {
-            return url != null ? url.toURI() : null;
-        } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage(), e);
-            throw new IndigoRuntimeException("Phantom executable path is incorrect");
+        if (!file.exists()) {
+            try (InputStream is = PhantomJsServiceImpl.class.getClassLoader().getResourceAsStream(sb.toString())) {
+                FileUtils.copyToFile(is, file);
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                throw new IndigoRuntimeException("Phantom executable path is incorrect");
+            }
         }
+
+        file.setExecutable(true);
+
+        return file;
     }
 
     private static String getArch(String os) {

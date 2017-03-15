@@ -19,14 +19,7 @@ public class Application extends SpringBootServletInitializer {
      * Main method, used to run the application.
      */
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication(Application.class);
-        SimpleCommandLinePropertySource source = new SimpleCommandLinePropertySource(args);
-
-        if (!source.containsProperty("spring.profiles.active") && !System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
-            app.setAdditionalProfiles(Application.Profile.DEV);
-        }
-
-        app.run(args);
+        SpringApplication.run(Application.class, args);
     }
 
     /**

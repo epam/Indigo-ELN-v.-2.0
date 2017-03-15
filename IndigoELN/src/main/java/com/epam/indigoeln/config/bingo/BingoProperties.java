@@ -4,16 +4,34 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties("bingo")
+@ConfigurationProperties("bingodb")
 public class BingoProperties {
 
-    private String indexFolder;
+    private String apiUrl;
+    private String username;
+    private String password;
 
-    public String getIndexFolder() {
-        return indexFolder;
+    public String getApiUrl() {
+        return apiUrl;
     }
 
-    public void setIndexFolder(String indexFolder) {
-        this.indexFolder = indexFolder;
+    public void setApiUrl(String apiUrl) {
+        this.apiUrl = apiUrl;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

@@ -40,7 +40,7 @@ public class BatchRegisterStatusCheckingJob {
     @Autowired
     private SimpMessagingTemplate template;
 
-    @Scheduled(fixedRateString = "${schedule.batch.register.status.check.rate:60}000")
+    @Scheduled(fixedRateString = "${indigoeln.schedule.batch.register.status.check.rate:60}000")
     public void execute() {
         LOGGER.debug("Batch registration status checking job started");
         final List<Experiment> experiments = experimentRepository.findAll();

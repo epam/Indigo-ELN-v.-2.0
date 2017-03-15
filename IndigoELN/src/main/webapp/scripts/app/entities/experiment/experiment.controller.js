@@ -16,7 +16,7 @@ angular.module('indigoeln')
         };
         $scope.loadAll();
 
-        $scope.signatureServiceUrl = CONFIG['client.signatureservice.url'];
+        $scope.signatureServiceUrl = CONFIG['indigoeln.client.signatureservice.url'];
 
         $scope.refresh = function () {
             $scope.loadAll();
