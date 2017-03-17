@@ -366,6 +366,24 @@
                 </configuration>
             </plugin>
 
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <configuration>
+                    <baseImage>openjdk:8-jre</baseImage>
+                    <imageName>${project.build.finalName}</imageName>
+                    <entryPoint>["java", "-Xmx2048m", "-jar", "/${project.build.finalName}.war"]</entryPoint>
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.war</include>
+                        </resource>
+                    </resources>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
