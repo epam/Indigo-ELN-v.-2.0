@@ -9,6 +9,9 @@ public class ResponseDTO {
     private String message;
     private List<BingoStructure> structures;
 
+    public ResponseDTO() {
+    }
+
     public ResponseDTO(String message) {
         this.message = message;
     }

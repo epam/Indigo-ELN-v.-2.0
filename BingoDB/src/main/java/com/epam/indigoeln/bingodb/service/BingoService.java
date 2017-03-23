@@ -60,12 +60,15 @@ public class BingoService {
             if (isReaction(s)) {
                 return getById(createId(reactionBingo.insert(reactionIndigo.loadReaction(s)), s));
             }
-            return null;
+            throw new RuntimeException("Not a molecule or reaction");
         }
     }
 
     public BingoStructure update(String id, String s) {
         synchronized (transaction) {
+            if (!isMolecule(s) && !isReaction(s)) {
+                throw new RuntimeException("Not a molecule or reaction");
+            }
             delete(id);
             return insert(s);
         }
