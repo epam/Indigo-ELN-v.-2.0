@@ -97,15 +97,4 @@ public class SearchResource {
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction similarity with given structure"));
     }
-
-    @RequestMapping(method = RequestMethod.POST, path = "/reaction/molformula")
-    public ResponseEntity<ResponseDTO> searchReactionMolFormula(@RequestBody String molFormula,
-                                                                @RequestParam(required = false) String options) {
-        try {
-            return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionMolFormula(molFormula, options)));
-        } catch (Exception e) {
-            log.warn("Cannot search reaction molformula: " + e.getMessage());
-        }
-        return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction molformula with given mol formula"));
-    }
 }
