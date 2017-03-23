@@ -120,14 +120,13 @@ public class BingoService {
         }
     }
 
-
     public List<BingoStructure> searchReactionExact(String s, String options) {
         synchronized (transaction) {
             if (isReaction(s)) {
                 return result(reactionBingo.searchExact(reactionIndigo.loadReaction(s), options), Prefix.RXN);
             }
             if (isMolecule(s)) {
-                ArrayList<BingoStructure> result = new ArrayList<BingoStructure>();
+                ArrayList<BingoStructure> result = new ArrayList<>();
 
                 IndigoObject rxn1 = reactionIndigo.createReaction();
                 rxn1.addReactant(reactionIndigo.loadMolecule(s));
@@ -149,7 +148,7 @@ public class BingoService {
                 return result(reactionBingo.searchSub(reactionIndigo.loadQueryReaction(s), options), Prefix.RXN);
             }
             if (isMolecule(s)) {
-                ArrayList<BingoStructure> result = new ArrayList<BingoStructure>();
+                ArrayList<BingoStructure> result = new ArrayList<>();
 
                 IndigoObject rxn1 = reactionIndigo.createQueryReaction();
                 rxn1.addReactant(reactionIndigo.loadMolecule(s));
@@ -171,7 +170,7 @@ public class BingoService {
                 return result(reactionBingo.searchSim(reactionIndigo.loadReaction(s), min, max, metric), Prefix.RXN);
             }
             if (isMolecule(s)) {
-                ArrayList<BingoStructure> result = new ArrayList<BingoStructure>();
+                ArrayList<BingoStructure> result = new ArrayList<>();
 
                 IndigoObject rxn1 = reactionIndigo.createReaction();
                 rxn1.addReactant(reactionIndigo.loadMolecule(s));
@@ -187,16 +186,10 @@ public class BingoService {
         }
     }
 
-    public List<BingoStructure> searchReactionMolFormula(String molFormula, String options) {
-        synchronized (transaction) {
-            return result(reactionBingo.searchMolFormula(molFormula, options), Prefix.RXN);
-        }
-    }
-
     /* Common */
 
     private List<BingoStructure> result(BingoObject o, String prefix) {
-        List<BingoStructure> result = new ArrayList<BingoStructure>();
+        List<BingoStructure> result = new ArrayList<>();
 
         while (o.next()) {
             result.add(getById(prefix + o.getCurrentId()));
