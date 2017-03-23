@@ -85,6 +85,12 @@ public class SearchResourceTest {
         Assert.assertTrue(findById(id, searchResponse.getStructures()).isPresent());
     }
 
+    @Test
+    public void testSearchReactionMolFormula() {
+        ResponseDTO searchResponse = restTemplate.postForObject("/api/search/reaction/molformula", "C2H6", ResponseDTO.class);
+        Assert.assertEquals("Operation is not supported", searchResponse.getMessage());
+    }
+
     private Optional<BingoStructure> findById(String id, List<BingoStructure> structures) {
         return structures.stream().filter(s -> id.equals(s.getId())).findFirst();
     }
