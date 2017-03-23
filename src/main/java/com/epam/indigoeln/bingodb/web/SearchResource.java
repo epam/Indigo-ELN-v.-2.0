@@ -97,4 +97,10 @@ public class SearchResource {
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction similarity with given structure"));
     }
+
+    @RequestMapping(method = RequestMethod.POST, path = "/reaction/molformula")
+    public ResponseEntity<ResponseDTO> searchReactionMolFormula(@RequestBody String molFormula,
+                                                                @RequestParam(required = false) String options) {
+        return ResponseEntity.badRequest().body(new ResponseDTO("Operation is not supported"));
+    }
 }
