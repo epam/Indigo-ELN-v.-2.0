@@ -39,7 +39,7 @@
                     </button>
                     Template Builder
                 </div>
-                <div class="panel-body panel-body-nopad panel-body-h" dragula='"tabs"' dragula-model='template.templateContent'>
+                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" dragula='"tabs"' dragula-model='template.templateContent'>
                     <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
                          ng-if="!template.templateContent.length">
                         <h3 class="no-draggable text-muted">Please add tabs</h3>
@@ -53,9 +53,9 @@
                             <!--<em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeTab(tab)"></em>-->
                         </span>
                         <div class="list-group" dragula='"components"' dragula-model='tab.components'>
-                            <div class="no-draggable" style="position: absolute; left: 50%;" ng-if="!tab.components.length">
-                                <div class="no-draggable" style="position: relative; left: -50%;">
-                                    <h3 class="no-draggable text-muted">
+                            <div class="no-draggable " ng-if="!tab.components.length">
+                                <div class="no-draggable">
+                                    <h3 class="no-draggable text-muted drag-mess">
                                         You can <b>drag & drop</b>
                                         components here.</h3>
                                 </div>
@@ -64,7 +64,7 @@
                                ng-repeat="component in tab.components">
                                 <h5 class="draggable-component">
                                     {{component.name}}
-                                    <em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeComponent(tab, component)"></em>
+                                    <em class="fa fa-remove pull-right text-muted" title="Remove" ng-click="removeComponent(tab, component)"></em>
                                 </h5>
                                 <p class="draggable-component">{{component.desc}} </p>
                             </a>

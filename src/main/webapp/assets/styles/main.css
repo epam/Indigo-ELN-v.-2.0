@@ -1797,20 +1797,27 @@ ul.my-dropdown-list {
     margin-bottom: 10px !important;
   }
 }
-.list-group-drug { 
-  padding-bottom: 80px   
+.templates-and-tabs,
+.list-group.palette {
+    overflow-y: auto;
+    max-height: 400px;
 }
-.list-group-drug:after {
-    content: 'Please, drag template here';
-    position: absolute;
-    bottom: 20px;
-    right: 0;
-    left: 0;
-    line-height: 80px;
-    text-align: center;
-    color: #777;
-    font-style: italic;
+
+.list-group.palette {
+    max-height: 315px;
 }
+
 .draggable-component .fa-remove {
-    color: #777
+    color: #777;
+    cursor: pointer;
+}
+
+.list-group-drug .draggable-component:last-of-type {
+    border: 0;
+}
+
+.drag-mess {
+    text-align: center;
+    line-height: 80px;
+    color: #dfdfdf;
 }
