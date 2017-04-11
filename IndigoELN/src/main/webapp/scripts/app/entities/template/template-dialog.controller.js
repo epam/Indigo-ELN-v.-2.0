@@ -1,9 +1,18 @@
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
-
-        $scope.components = Components;
+        $scope.components = Components.map(function(c) { 
+            return c; 
+        });
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
+
+        var sortComponents = function() {
+            $scope.components.sort(function(b, a) {
+                return (a.name < b.name) ? 1 : (a.name > b.name) ? -1 : 0;
+            })
+        }
+
+        sortComponents();
 
         var onSaveSuccess = function () {
             $scope.isSaving = false;
@@ -48,12 +57,12 @@ angular.module('indigoeln').controller('TemplateDialogController',
                 return source.classList.contains('palette');
             },
             accepts: function (el, target) {
-                var componentId = angular.element(el).data('id');
-                return !target.classList.contains('palette') && !hasComponent(componentId);
+                return true;
             },
             moves: function (el, container, handle) {
                 return !handle.classList.contains('no-draggable');
-            }
+            }, 
+            copy: false
         });
 
         dragulaService.options($scope, 'tabs', {
@@ -79,6 +88,8 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         $scope.removeComponent = function (tab, component) {
             tab.components = _.without(tab.components, component);
+            $scope.components.push(component);
+            sortComponents();
         };
 
     });
