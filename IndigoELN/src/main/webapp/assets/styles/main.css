@@ -1797,3 +1797,20 @@ ul.my-dropdown-list {
     margin-bottom: 10px !important;
   }
 }
+.list-group-drug { 
+  padding-bottom: 80px   
+}
+.list-group-drug:after {
+    content: 'Please, drag template here';
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    left: 0;
+    line-height: 80px;
+    text-align: center;
+    color: #777;
+    font-style: italic;
+}
+.draggable-component .fa-remove {
+    color: #777
+}
