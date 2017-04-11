@@ -157,9 +157,8 @@ angular.module('indigoeln')
                     if (structure) {
                         saveNewStructure(type, structure);
                     }
-                } else {
-                    setStructure(type, structure);
                 }
+                setStructure(type, structure);
             });
         };
 
