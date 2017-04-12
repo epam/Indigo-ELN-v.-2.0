@@ -421,7 +421,11 @@ angular.module('indigoeln')
                 });
 
 
-
+                function editPurity(row) {
+                    InfoEditor.editPurity(row.purity, function (result) {
+                        row.purity = result;
+                    });
+                }
 
                 function editPurityForAllRows(rows) {
                     InfoEditor.editPurity({}, function (result) {
