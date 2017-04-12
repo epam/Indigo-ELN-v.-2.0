@@ -1346,6 +1346,7 @@ tags-input .tag-list .tag-item .remove-button {
   vertical-align: middle;
   font: 12px 'Oswald Regular', Arial, sans-serif;
   min-width: 30px;
+  height: 20px;
   text-align: center;
   padding: 2px 4px;
 }
@@ -1799,25 +1800,21 @@ ul.my-dropdown-list {
 }
 .templates-and-tabs,
 .list-group.palette {
-    overflow-y: auto;
-    max-height: 400px;
+  overflow-y: auto;
+  max-height: 400px;
 }
-
 .list-group.palette {
-    max-height: 315px;
+  max-height: 315px;
 }
-
 .draggable-component .fa-remove {
-    color: #777;
-    cursor: pointer;
+  color: #777;
+  cursor: pointer;
 }
-
 .list-group-drug .draggable-component:last-of-type {
-    border: 0;
+  border: 0;
 }
-
 .drag-mess {
-    text-align: center;
-    line-height: 80px;
-    color: #dfdfdf;
+  text-align: center;
+  line-height: 80px;
+  color: #dfdfdf;
 }
