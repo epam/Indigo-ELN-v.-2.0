@@ -336,13 +336,16 @@ angular.module('indigoeln')
             if (tAttrs.myLabelVertical) {
                 $('<br/>').insertAfter(tElement.find('label').first());
             }
+
+            var active = 'active';
+            return active;
         },
         template: '<div class="form-group {{myClasses}}">' +
         '<label class="m-r5">{{myLabel}}</label>' +
         // '<div class="col-xs-10">' +
         '<div class="btn-group">' +
-        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="myFirst" uncheckable ng-disabled="myReadonly">{{myFirst}}</label>' +
-        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" uib-btn-radio="mySecond" uncheckable ng-disabled="myReadonly">{{mySecond}}</label>' +
+        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-click="myModel = myFirst" ng-class="{active: myModel === myFirst}" ng-disabled="myReadonly">{{myFirst}}</label>' +
+        '<label class="btn btn-info" ng-model-options="{ debounce: 150 }" ng-model="myModel" ng-click="myModel = mySecond" ng-class="{active: myModel === mySecond}" ng-disabled="myReadonly">{{mySecond}}</label>' +
         // '</div>' +
         '</div> ' +
         '</div> '
