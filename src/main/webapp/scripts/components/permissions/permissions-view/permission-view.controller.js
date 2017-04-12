@@ -10,4 +10,8 @@ angular.module('indigoeln')
                 $uibModalInstance.dismiss('cancel');
             };
 
+            $scope.clear = function() {
+              $uibModalInstance.dismiss('cancel');
+            };
+
     });
