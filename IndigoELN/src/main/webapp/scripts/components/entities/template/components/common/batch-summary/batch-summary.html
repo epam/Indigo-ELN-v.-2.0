@@ -1,49 +1,51 @@
-<my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
-          my-draggable-columns="true"
-          my-readonly="myReadonly"
-          my-editable="isEditable"
-          my-on-row-selected="onRowSelected"
-          my-hide-column-settings="isHideColumnSettings">
-    <div class="row m-b20">
-        <div class="col-lg-8 m-bt-lg">
-            <span class="txt-small bold m-r5">Batches:</span>
-            <div class="btn-group">
-                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="addNewBatch()">
-                    <i class="fa fa-plus"></i>
-                    <span class="m-l5">Add</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="duplicateBatch()">
-                    <i class="fa fa-clone"></i>
-                    <span class="m-l5">Duplicate</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="deleteBatches()">
-                    <i class="fa fa-trash"></i>
-                    <span class="m-l5">Delete</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
-                    <i class="fa fa-refresh"></i>
-                    <span class="m-l5">Sync</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
-                <button type="button" class="btn btn-info btn-small" ng-show="isHasRegService" ng-click="registerBatches()">
-                    <i class="fa fa-floppy-o"></i>
-                    <span class="m-l5">Register</span>
-                </button>
+<div cg-busy="{promise:loading, minDuration:700}">
+    <my-table my-id="product-batch-summary" my-columns="columns" my-rows="model.productBatchSummary.batches"
+              my-draggable-columns="true"
+              my-readonly="myReadonly"
+              my-editable="isEditable"
+              my-on-row-selected="onRowSelected"
+              my-hide-column-settings="isHideColumnSettings">
+        <div class="row m-b20">
+            <div class="col-lg-8 m-bt-lg">
+                <span class="txt-small bold m-r5">Batches:</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="addNewBatch()">
+                        <i class="fa fa-plus"></i>
+                        <span class="m-l5">Add</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="duplicateBatch()">
+                        <i class="fa fa-clone"></i>
+                        <span class="m-l5">Duplicate</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="deleteBatches()">
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">Delete</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
+                        <i class="fa fa-refresh"></i>
+                        <span class="m-l5">Sync</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
+                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-show="isHasRegService" ng-click="registerBatches()">
+                        <i class="fa fa-floppy-o"></i>
+                        <span class="m-l5">Register</span>
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-4 text-align-lg">
+                <span class="txt-small bold m-r5">SD File:</span>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="myReadonly">
+                        <i class="fa fa-cloud-download"></i>
+                        <span class="m-l5">Import</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
+                            ng-disabled="myReadonly || !isHasCheckedRows()">
+                        <i class="fa fa-cloud-upload"></i>
+                        <span class="m-l5">Export</span>
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4 text-align-lg">
-            <span class="txt-small bold m-r5">SD File:</span>
-            <div class="btn-group">
-                <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="myReadonly">
-                    <i class="fa fa-cloud-download"></i>
-                    <span class="m-l5">Import</span>
-                </button>
-                <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
-                        ng-disabled="myReadonly || !isHasCheckedRows()">
-                    <i class="fa fa-cloud-upload"></i>
-                    <span class="m-l5">Export</span>
-                </button>
-            </div>
-        </div>
-    </div>
-</my-table>
+    </my-table>
+</div>
