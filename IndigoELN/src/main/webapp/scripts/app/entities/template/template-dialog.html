@@ -44,7 +44,7 @@
                          ng-if="!template.templateContent.length">
                         <h3 class="no-draggable text-muted">Please add tabs</h3>
                     </div>
-                    <div class="list-group list-group-drug tab animated" ng-repeat="tab in template.templateContent">
+                    <div class="list-group list-group-drug tab" ng-repeat="tab in template.templateContent">
                         <span class="list-group-item">
                             <i class="fa fa-trash pull-right" ng-click="removeTab(tab)"></i>
                             <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b">
@@ -60,7 +60,7 @@
                                         components here.</h3>
                                 </div>
                             </div>
-                            <a class="list-group-item draggable-component component animated"
+                            <a class="list-group-item draggable-component component"
                                ng-repeat="component in tab.components">
                                 <h5 class="draggable-component">
                                     {{component.name}}
