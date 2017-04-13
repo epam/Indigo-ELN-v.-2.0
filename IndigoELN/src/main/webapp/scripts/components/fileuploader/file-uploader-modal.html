@@ -36,16 +36,16 @@
                             <button type="button" class="btn btn-info btn-small" ng-click="item.upload()"
                                     ng-disabled="item.isReady || item.isUploading || item.isSuccess">
                                 <span class="glyphicon glyphicon-upload"></span>
-                                <span class="m-l5">Upload all</span>
+                                <span class="m-l5">Upload</span>
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.cancel()"
                                     ng-disabled="!item.isUploading">
                                 <i class="fa fa-ban"></i>
-                                <span class="m-l5">Cancel all</span>
+                                <span class="m-l5">Cancel</span>
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.remove();remove($index)">
                                 <i class="fa fa-trash"></i>
-                                <span class="m-l5">Remove all</span>
+                                <span class="m-l5">Remove</span>
                             </button>
                         </td>
                     </tr>
