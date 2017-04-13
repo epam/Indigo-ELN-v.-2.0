@@ -221,3 +221,7 @@ ul {
 .glyphicon {
   cursor: pointer;
 }
+.btn[disabled] .fa,
+.btn[disabled] .glyphicon {
+  cursor: not-allowed;
+}
