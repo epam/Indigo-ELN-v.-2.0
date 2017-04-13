@@ -83,11 +83,17 @@ angular.module('indigoeln')
                 }
             };
 
+            var unsubscribeExp = $scope.$watch('experiment', function () {
+                EntitiesBrowser.setCurrentExperiment($scope.experiment);
+            });
+
             var unsubscribe = $scope.$watch('experiment.status', function () {
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
+
             $scope.$on('$destroy', function () {
                 unsubscribe();
+                unsubscribeExp();
             });
 
             $scope.completeExperiment = function () {

@@ -46,6 +46,14 @@ angular.module('indigoeln')
             return $q.resolve();
         };
 
+        EntitiesBrowser.setCurrentExperiment = function (experiment) {
+            EntitiesBrowser.activeExperiment = experiment;
+        };
+
+        EntitiesBrowser.getCurrentExperiment = function () {
+           return  EntitiesBrowser.activeExperiment;
+        }
+
         EntitiesBrowser.goToTab = function (tab) {
             var curTab = tab;
             return resolvePrincipal(function () {
