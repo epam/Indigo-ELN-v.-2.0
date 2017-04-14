@@ -6,9 +6,9 @@ angular.module('indigoeln')
         $scope.page = 1;
         $scope.dView = 'open';
         $scope.loadAll = function () {
-            Dashboard.get({}, function (result) {
+            $scope.loading = Dashboard.get({}, function (result) {
                 $scope.experiments = result;
-            });
+            }).$promise;
         };
         $scope.loadPage = function (page) {
             $scope.page = page;

@@ -1,15 +1,15 @@
-<div class="main-page-content scroll-dashboard-full">
+<div class="main-page-content scroll-dashboard-full" >
     <div class="row">
         <div class="col-sm-8">
-            <div class="panel panel-info panel-main-h">
+            <div class="panel panel-info panel-main-h" cg-busy="{promise:loading, minDuration:700}">
                 <div class="panel-heading">experiments statistics</div>
-                <div class="panel-body panel-body-nopad">
+                <div class="panel-body panel-body-nopad" >
                     <div class="statistic-radio">
                         <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'open'">
                         <div>
                             <span class="statistic-txt">Open</span>
                             <span class="count pull-right" ng-bind="experiments.openAndCompletedExp.length"></span>
-                            <uib-progressbar animate="false" value="(experiments.openAndCompletedExp.length * 100)/100" type="success"></uib-progressbar>
+                            <uib-progressbar animate="false" value="((experiments.openAndCompletedExp.length * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-orange">
@@ -17,7 +17,7 @@
                         <div>
                             <span class="statistic-txt">Waiting author’s signature</span>
                             <span class="count pull-right" ng-bind="experiments.waitingSignatureExp.length"></span>
-                            <uib-progressbar animate="false" value="(experiments.waitingSignatureExp.length * 100)/100" type="success"></uib-progressbar>
+                            <uib-progressbar animate="false" value="((experiments.waitingSignatureExp.length * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-yellow">
@@ -25,7 +25,7 @@
                         <div>
                             <span class="statistic-txt">Submitted by author</span>
                             <span class="count pull-right" ng-bind="experiments.submittedAndSigningExp.length"></span>
-                            <uib-progressbar animate="false" value="(experiments.submittedAndSigningExp.length * 100)/100" type="success"></uib-progressbar>
+                            <uib-progressbar animate="false" value="((experiments.submittedAndSigningExp.length * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                 </div>
