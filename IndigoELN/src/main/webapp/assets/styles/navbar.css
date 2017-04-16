@@ -196,7 +196,6 @@
 }
 /******************HEADER*********************/
 .uui-header {
-  min-width: 1020px;
   left: 0;
   position: fixed;
   top: 0;
@@ -209,6 +208,12 @@
 }
 .uui-header-tools > * {
   float: left;
+}
+.uui-header-tools .navbar-form {
+  padding-top: 0;
+  padding-bottom: 0;
+  border: 0;
+  box-shadow: none;
 }
 .navbar {
   background-color: #3f51b5;
