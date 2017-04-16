@@ -282,3 +282,6 @@ textarea,
 .form-inline .select-inline {
   width: 30%;
 }
+.form-inline .select-inline .form-control {
+  width: 100%;
+}
