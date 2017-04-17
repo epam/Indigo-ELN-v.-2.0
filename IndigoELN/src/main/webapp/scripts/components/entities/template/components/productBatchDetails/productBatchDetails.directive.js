@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/8/2016.
  */
 angular.module('indigoeln')
-    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService, $filter) {
+    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService, $filter, StoichTableCache) {
         return {
             restrict: 'E',
             replace: true,
@@ -11,11 +11,12 @@ angular.module('indigoeln')
                 $scope.model = $scope.model || {};
                 $scope.showSummary = false;
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
+                $scope.share.stoichTable = StoichTableCache.getStoicTable();
+
                 if($scope.model.productBatchSummary){
                     $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
                 }
                 $scope.detailTable = [];
-
                 $scope.selectControl = {};
 
                 $scope.onSelectBatch = function () {
@@ -27,8 +28,6 @@ angular.module('indigoeln')
                     setProductBatchDetails($scope.share.selectedRow);
                     $scope.detailTable[0] = $scope.share.selectedRow;
                 };
-
-
 
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
@@ -204,6 +203,7 @@ angular.module('indigoeln')
                         CalculationService.recalculateStoich();
                     });
                 };
+
                 var unsubscribe = $scope.$watch('share.stoichTable', function (stoichTable) {
                     if (stoichTable && stoichTable.reactants) {
                         getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function (item) {
