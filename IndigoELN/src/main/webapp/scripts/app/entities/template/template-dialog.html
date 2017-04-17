@@ -19,7 +19,7 @@
                         <input type="search" class="uui-search" placeholder="Search by name or description" id="searchRole" ng-model="search.$">
                     </div>
                     <div class="panel-body-content-nopad">
-                        <div class="list-group templates-holder palette animated" dragula='"components"' dragula-model='components' indeln-scroll>
+                        <div class="list-group templates-holder palette animated scroller" dragula='"components"' dragula-model='components' indeln-scroll>
                             <a class="list-group-item draggable-component" data-id="{{component.id}}"
                                ng-repeat="component in components | filter:search track by $index">
                                 <h5 class="draggable-component">{{component.name}}</h5>
@@ -39,7 +39,7 @@
                     </button>
                     Template Builder
                 </div>
-                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" dragula='"tabs"' dragula-model='template.templateContent'>
+                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs scroller" dragula='"tabs"' dragula-model='template.templateContent'>
                     <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
                          ng-if="!template.templateContent.length">
                         <h3 class="no-draggable text-muted">Please add tabs</h3>
