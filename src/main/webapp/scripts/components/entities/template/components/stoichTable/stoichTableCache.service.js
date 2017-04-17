@@ -3,6 +3,7 @@ angular.module('indigoeln')
         var _stoichTable;
         return {
             getStoicTable: function () {
+                if (!_stoichTable) _stoichTable = {"reactants":[],"products":null}
                 return _stoichTable;
             },
             setStoicTable: function (table) {

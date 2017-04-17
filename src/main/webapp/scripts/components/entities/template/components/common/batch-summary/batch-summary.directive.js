@@ -702,6 +702,31 @@ angular.module('indigoeln')
                     }
                 };
 
+                var initStructure = function(batches, type) {
+                    var changed;
+                    batches.forEach(function(row) {
+                        if (row.structure) return;
+                        changed = true;
+                        type = type || 'molecule';
+                        var model = $scope.model[type] ||  {};
+                        model.image = null;
+                        model.structureMolfile = null;
+                        model.structureId = null;
+                       
+                        row.structure = row.structure || {};
+                        row.structure.image = null;
+                        row.structure.structureType = type;
+                        row.structure.molfile = null;
+                        row.structure.structureId = null;
+                    })
+                    if (changed) {
+                        CalculationService.recalculateStoich();
+                        console.log('init structure', batches)
+                    }
+                }
+
+
+
                 unbinds.push($scope.$watch('share.stoichTable', function (table) {
                     setStoicTable(table);
                     updatePrecursor();
@@ -717,6 +742,7 @@ angular.module('indigoeln')
                     $scope.share.actualProducts = batches;
                     ProductBatchSummaryCache.setProductBatchSummary(batches);
                     updatePrecursor();
+                    initStructure(batches)
                 }, true));
 
                 unbinds.push($scope.$watch('isHasRegService', function (val) {
@@ -724,6 +750,7 @@ angular.module('indigoeln')
                     _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
                     _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
                 }));
+
 
 
                 unbinds.push( $scope.$watch(function(){
