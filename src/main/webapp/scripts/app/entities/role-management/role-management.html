@@ -69,7 +69,7 @@
             <thead>
             <tr>
                 <th><p>Role name</p></th>
-                <th ng-repeat="authority in authorities track by $index"><p>{{authority.description}}</p></th>
+                <th ng-repeat="authority in authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
                 <th>Action</th>
             </tr>
             </thead>

@@ -212,7 +212,7 @@
   color: #ccc;
   display: block;
   letter-spacing: .15px;
-  padding: 14px 18px;
+  padding: 14px 20px;
 }
 .sidebar-menu > li a:hover,
 .sidebar-menu > li a:focus {
@@ -272,6 +272,7 @@
 .wrapper-list-experiment.my-scroller-axis-y .mCSB_inside > .mCSB_container {
   margin-right: 0;
 }
-.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar {
+.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar,
+.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerRail {
   background-color: transparent !important;
 }

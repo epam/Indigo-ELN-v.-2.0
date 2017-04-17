@@ -317,12 +317,12 @@ public class ExperimentService {
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
-        List<String> componentIdsForRemove = componentsFromDb.stream().map(Component::getId).collect(Collectors.toList());
+        List<String> componentIdsForRemove = componentsFromDb.stream().filter(c -> c != null).map(Component::getId).collect(Collectors.toList());
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
             if (component.getId() != null) {
-                Optional<Component> existing = componentsFromDb.stream().filter(c -> c.getId().equals(component.getId())).findFirst();
+                Optional<Component> existing = componentsFromDb.stream().filter(c -> c != null).filter(c -> c.getId().equals(component.getId())).findFirst();
                 if (existing.isPresent()) {
                     Component componentForSave = existing.get();
                     componentForSave.setContent(component.getContent());
@@ -338,7 +338,10 @@ public class ExperimentService {
         }
 
         componentRepository.delete(
-                componentsFromDb.stream().filter(c -> componentIdsForRemove.contains(c.getId())).collect(Collectors.toList()));
+                componentsFromDb.stream()
+                        .filter(c -> c != null)
+                        .filter(c -> componentIdsForRemove.contains(c.getId()))
+                        .collect(Collectors.toList()));
 
         return componentRepository.save(componentsForSave);
     }

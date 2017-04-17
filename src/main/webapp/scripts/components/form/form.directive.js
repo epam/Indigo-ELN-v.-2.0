@@ -82,11 +82,11 @@ angular.module('indigoeln')
                 if (tAttrs.myClick) {
                     $element.attr('ng-click', 'myClickAsync()');
                 }
-                if (tAttrs.myTooltip) {
+                /*if (tAttrs.myTooltip) {
                     $element.attr('uib-popover', '{{myTooltip}}')
                         .attr('popover-trigger', 'mouseenter')
                         .attr('popover-placement', 'bottom');
-                }
+                }*/
                 if (tAttrs.myModel) {
                     $element.attr('ng-model', 'myModel')
                         .attr('ng-model-options', '{ debounce: 150 }');
@@ -223,8 +223,10 @@ angular.module('indigoeln')
         },
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
+        '<div class="checkbox-label-wrapper" uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" >' +
         '<checkbox id="{{myName}}" class="btn-info my-checkbox"></checkbox> ' +
-        '<label uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" for="{{myName}}" ng-click="!myDisabled ? myModel = !myModel : return; myChangeAsync();">{{myLabel}}</label>' +
+        '<label for="{{myName}}" ng-click="!myDisabled ? myModel = !myModel : return; myChangeAsync();">{{myLabel}}</label>' +
+        '</div>' +
         '</div> ' +
         '</div> '
     };

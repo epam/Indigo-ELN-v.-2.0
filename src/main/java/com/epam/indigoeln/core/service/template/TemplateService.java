@@ -7,12 +7,15 @@ import com.epam.indigoeln.core.repository.template.TemplateRepository;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.web.rest.dto.TemplateDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
+import com.epam.indigoeln.core.service.exception.*;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 /**
  * Service class for managing Templates
@@ -46,7 +49,7 @@ public class TemplateService {
 
     public TemplateDTO createTemplate(TemplateDTO templateDTO) {
         Template template = dtoMapper.convertFromDTO(templateDTO);
-        Template savedTemplate = templateRepository.save(template);
+        Template savedTemplate = saveTemplateAndHandleError(template);
         return new TemplateDTO(savedTemplate);
     }
 
@@ -62,6 +65,16 @@ public class TemplateService {
 
     public void deleteTemplate(String templateId) {
         templateRepository.delete(templateId);
+    }
+
+    private Template saveTemplateAndHandleError(Template template) {
+        try {
+            return templateRepository.save(template);
+        } catch (DuplicateKeyException e) {
+            throw DuplicateFieldException.createWithTemplateName(template.getName(), e);
+        } catch (OptimisticLockingFailureException e) {
+            throw ConcurrencyException.createWithTemplateName(template.getName(), e);
+        }
     }
 
 }

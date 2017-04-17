@@ -125,5 +125,16 @@ angular.module('indigoeln')
                     {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
                 ]
             }))
+            .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
+                parent: 'entities.project-detail',
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
+                },
+                'permissions': [
+                    {id: 'VIEWER', name: 'VIEWER (read project)'},
+                    {id: 'USER', name: 'USER (read project, create notebooks)'},
+                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                ]
+            }))
         ;
     });
