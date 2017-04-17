@@ -97,14 +97,18 @@ angular.module('indigoeln')
                             return batch.fullNbkBatch;
                         });
                         if (batchNumbers.length) {
-                           saveAndRegister(batchNumbers)
+                           saveAndRegister(batchNumbers, function() {
+                                batches.forEach(function(b) {
+                                    b.registrationStatus == 'IN_PROGRESS'; //EPMLSOPELN-403
+                                })
+                           })
                         } else {
                             Alert.warning('No Batches was selected for Registration');
                         }
                     }
                 };
 
-                var saveAndRegister = function(batchNumbers) {
+                var saveAndRegister = function(batchNumbers, success) {
                     var experiment = EntitiesBrowser.getCurrentExperiment();
                     $scope.loading = Experiment.update($stateParams, experiment).$promise
                         .then(function(result) {
@@ -112,8 +116,13 @@ angular.module('indigoeln')
                             RegistrationService.register({}, batchNumbers).$promise.
                             then(function() {
                                 Alert.success('Selected Batches successfully sent to Registration');
+                            }, function() {
+                                Alert.error('ERROR! Selected Batches registration failed');
                             });
-                        }, function() {});
+                            success();
+                        }, function() {
+                            Alert.error('Selected Batches save failed');
+                        });
                 }
 
                 var setSelectSourceValueAction = {
@@ -587,7 +596,6 @@ angular.module('indigoeln')
                     stoichTable = table;
                 }
 
-
                 $scope.isEditable = function (row, columnId) {
                     var rowResult = !(RegistrationUtil.isRegistered(row));
                     if (rowResult) {
@@ -600,7 +608,6 @@ angular.module('indigoeln')
                     return rowResult;
                 };
 
-
                 $scope.onRowSelected = function (row) {
                     $scope.share.selectedRow = row || null;
                     if (row) {
@@ -611,11 +618,9 @@ angular.module('indigoeln')
                     $log.debug(row);
                 };
 
-
                 $scope.isIntendedSynced = function () {
                     return getIntendedNotInActual() ? !getIntendedNotInActual().length : true;
                 };
-
 
                 $scope.syncWithIntendedProducts = function () {
                     var syncingIntendedProducts = $q.defer();
@@ -632,7 +637,6 @@ angular.module('indigoeln')
                     }
                     syncingIntendedProducts.resolve();
                 };
-
 
                 $scope.duplicateBatches = function (batchesQueueToAdd, i, isSyncWithIntended) {
                     if (!batchesQueueToAdd[i]) {
@@ -652,7 +656,6 @@ angular.module('indigoeln')
                     });
                     $scope.duplicateBatches(batchesToDuplicate, 0);
                 };
-
 
                 $scope.addNewBatch = function () {
                     requestNbkBatchNumberAndAddToTable();
@@ -734,6 +737,7 @@ angular.module('indigoeln')
                         row.formula = null;
                         row.molWeight = null;
                     };
+
                     var getInfoCallback = function (molInfo) {
                         row.formula = molInfo.data.molecularFormula;
                         row.molWeight = row.molWeight || {};
