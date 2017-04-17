@@ -204,6 +204,7 @@
 }
 .ui-select-bootstrap .ui-select-choices-row > a {
   padding: 3px 10px;
+  white-space: normal;
 }
 .ui-select-bootstrap .ui-select-choices-row.active > a {
   background-color: transparent;

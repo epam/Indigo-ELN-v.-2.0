@@ -272,6 +272,7 @@
 .wrapper-list-experiment.my-scroller-axis-y .mCSB_inside > .mCSB_container {
   margin-right: 0;
 }
-.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar {
+.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar,
+.wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerRail {
   background-color: transparent !important;
 }
