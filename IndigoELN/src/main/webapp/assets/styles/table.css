@@ -210,6 +210,7 @@ tr {
   color: #666;
   font-family: 'Source Sans Pro Semibold', sans-serif;
   font-weight: normal;
+  white-space: nowrap;
 }
 .table > thead > tr > th > p {
   margin: 0;
@@ -217,7 +218,6 @@ tr {
 .table > thead > tr > th,
 .table > tbody > tr > td {
   padding: 8px 16px;
-  white-space: nowrap;
 }
 .table > thead > tr > th.td-40p,
 .table > tbody > tr > td.td-40p {
@@ -227,6 +227,14 @@ tr {
 .table > tbody > tr > td .btn + .btn {
   margin-left: 5px;
 }
+.table > thead > tr > th .btn-group,
+.table > tbody > tr > td .btn-group {
+  margin: -5px;
+}
+.table > thead > tr > th .btn-group .btn,
+.table > tbody > tr > td .btn-group .btn {
+  margin: 5px;
+}
 .table > thead > tr > th > .form-group,
 .table > tbody > tr > td > .form-group {
   margin-bottom: 0;
@@ -235,8 +243,22 @@ tr {
   border: 0 none;
   vertical-align: middle;
 }
+.table.authoritiesTable > thead > tr > th:first-child {
+  border-right: 1px solid #ddd;
+  background-color: #fafafa;
+}
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
+}
+.table.authoritiesTable > tbody > tr > td:first-child {
+  text-align: left;
+  border-right: 1px solid #ddd;
+}
+.table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
+  background-color: #f6f6f6;
+}
+.table.authoritiesTable > tbody > tr:nth-of-type(even) > td:first-child {
+  background-color: #fafafa;
 }
 .table.product .btn-group .btn {
   color: #666;

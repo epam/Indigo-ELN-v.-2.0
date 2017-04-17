@@ -22,6 +22,7 @@ tr {
     color: @table-th-color;
     font-family: @table-th-family;
     font-weight: normal;
+    white-space: nowrap;
 
     > p {
       margin: 0;
@@ -31,7 +32,6 @@ tr {
   > thead > tr > th,
   > tbody > tr > td {
     padding: @table-col-pad;
-    white-space: nowrap;
 
     &.td-40p {
       width: 40%;
@@ -39,6 +39,14 @@ tr {
 
     .btn + .btn {
       margin-left: @space-between-btns;
+    }
+
+    .btn-group {
+      margin: -@space-between-btns;
+
+      .btn {
+        margin: @space-between-btns;
+      }
     }
 
     > .form-group {
@@ -52,15 +60,38 @@ tr {
   }
 
   &.authoritiesTable {
+    > thead > tr > th {
+      &:first-child {
+        border-right: 1px solid #ddd;
+        background-color: #fafafa;
+      }
+    }
 
-    > tbody > tr > td {
-      text-align: center;
+    > tbody > tr {
+      > td {
+        text-align: center;
+
+        &:first-child {
+          text-align: left;
+          border-right: 1px solid #ddd;
+        }
+      }
+      &:nth-of-type(odd) > td {
+        &:first-child {
+          background-color: #f6f6f6;
+        }
+      }
+      &:nth-of-type(even) > td {
+        &:first-child {
+          background-color: #fafafa;
+        }
+      }
     }
   }
 
   &.product {
 
-    .btn-group{
+    .btn-group {
       .btn {
         color: @table-th-color;
         font: 14px @table-th-family;
@@ -80,7 +111,6 @@ tr {
 
 .table-row-variant(success; @brand4);
 
-
 //table .success td {
 //  background-color: @bg-blue !important;
 //}
@@ -93,7 +123,7 @@ tr {
 
 .my-component {
   width: 100%;
-  .panel-heading{
-    cursor:pointer;
+  .panel-heading {
+    cursor: pointer;
   }
 }
