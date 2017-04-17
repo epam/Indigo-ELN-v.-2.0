@@ -15,6 +15,10 @@ public class ConcurrencyException extends CustomParametrizedException {
         return new ConcurrencyException("Newer version of project " + projectName + " already exists. Please reopen it.", e, projectName);
     }
 
+    public static ConcurrencyException createWithTemplateName(String templateName, Exception e) {
+        return new ConcurrencyException("Newer version of template " + templateName + " already exists. Please reopen it.", e, templateName);
+    }
+
     public static ConcurrencyException createWithNotebookName(String notebookName, Exception e) {
         return new ConcurrencyException("Newer version of notebook " + notebookName + " already exists. Please reopen it.", e, notebookName);
     }
