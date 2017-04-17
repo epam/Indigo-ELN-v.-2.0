@@ -5,13 +5,17 @@
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
                         <span class="txt-larger">Project Members:</span>
-                        <button type="submit" ui-sref="entities.project-new.permissions()" ng-if="project.id" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
+                        <button type="submit" ui-sref="entities.project-new.permissions()" ng-if="!project.id" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
                         <button type="submit" ui-sref="entities.project-new.permissions-view()" ng-if="!project.id"  type="button" class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
+                        </button>
+                        <button type="submit" ui-sref="entities.project-detail.permissions()" ng-if="project.id" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
+                            <i class="fa fa-pencil"></i>
+                            <span class="m-l5">Edit</span>
                         </button>
                         <button type="submit" ui-sref="entities.project-detail.permissions-view()" ng-if="project.id"  type="button" class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
