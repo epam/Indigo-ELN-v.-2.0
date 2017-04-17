@@ -1,7 +1,7 @@
 angular.module('indigoeln').controller('TemplateDialogController',
     function ($scope, $stateParams, Template, Alert, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
-        $scope.components = Components.map(function(c) { 
-            return c; 
+        $scope.components = Components.map(function(c) {
+            return c;
         });
         $scope.template = pageInfo.entity || {};
         $scope.template.templateContent = $scope.template.templateContent || [];
@@ -21,7 +21,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         var onSaveError = function (result) {
             $scope.isSaving = false;
-            Alert.error('Error saving template: ' + result);
+            Alert.error('Error saving, template name already exists: ' + result);
         };
 
         $scope.save = function () {
