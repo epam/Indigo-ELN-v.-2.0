@@ -22,6 +22,10 @@ public class DuplicateFieldException extends CustomParametrizedException {
         return new DuplicateFieldException("Project name " + name + " is already in use", e, name);
     }
 
+    public static DuplicateFieldException createWithTemplateName(String name, Exception e) {
+        return new DuplicateFieldException("Template name " + name + " is already in use", e, name);
+    }
+
     public static DuplicateFieldException createWithUserLogin(String login) {
         return new DuplicateFieldException("Login " + login + " is already in use", login);
     }

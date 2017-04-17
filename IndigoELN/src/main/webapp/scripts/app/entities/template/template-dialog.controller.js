@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('TemplateDialogController',
-    function ($scope, $stateParams, Template, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
+    function ($scope, $stateParams, Template, Alert, $state, dragulaService, Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
         $scope.components = Components.map(function(c) { 
             return c; 
         });
@@ -19,16 +19,17 @@ angular.module('indigoeln').controller('TemplateDialogController',
             $scope.close();
         };
 
-        var onSaveError = function () {
+        var onSaveError = function (result) {
             $scope.isSaving = false;
+            Alert.error('Error saving template: ' + result);
         };
 
         $scope.save = function () {
             $scope.isSaving = true;
             if ($scope.template.id) {
-                Template.update($scope.template, onSaveSuccess, onSaveError);
+                Template.update($scope.template, onSaveSuccess, onSaveError($scope.template.name));
             } else {
-                Template.save($scope.template, onSaveSuccess, onSaveError);
+                Template.save($scope.template, onSaveSuccess, onSaveError($scope.template.name));
             }
         };
 
