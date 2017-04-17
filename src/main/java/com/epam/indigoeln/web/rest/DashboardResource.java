@@ -166,15 +166,18 @@ public class DashboardResource {
      */
     private boolean hasAccess(User user, Triple<Project, Notebook, Experiment> t) {
         final Project project = t.getLeft();
-        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (project == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, project.getAccessList(), UserPermission.READ_ENTITY)) {
             return false;
         }
         final Notebook notebook = t.getMiddle();
-        if (!PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(), UserPermission.READ_ENTITY)) {
+        if (notebook == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, notebook.getAccessList(), UserPermission.READ_ENTITY)) {
             return false;
         }
         final Experiment experiment = t.getRight();
-        return PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY);
+        if (experiment == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY)) {
+            return false;
+        }
+        return true;
     }
 
     /**

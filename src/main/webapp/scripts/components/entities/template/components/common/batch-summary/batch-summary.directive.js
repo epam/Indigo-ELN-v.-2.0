@@ -13,7 +13,7 @@ angular.module('indigoeln')
             },
             controller: function ($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
                                   $log, $rootScope, AlertModal, $stateParams, SdImportService, SdExportService, $window, EntitiesBrowser,
-                                  RegistrationService, Alert, $q, $http, Notebook, ProductBatchSummaryCache,$filter) {
+                                  RegistrationService, Alert, $q, $http, Notebook, Experiment, ProductBatchSummaryCache,$filter) {
                 var stoichTable;
                 var unbinds = [];
 
@@ -81,33 +81,40 @@ angular.module('indigoeln')
                     }
                 };
 
-
-                var registerBatches = function (excludes) {
-                    EntitiesBrowser.saveCurrentEntity().then(function () {
-                        var batches = _.filter(getProductBatches(), function (row) {
-                            return row.select && !_.contains(excludes, row.fullNbkBatch);
-                        });
-                        var message = '';
-                        var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
-                        if (notFullBatches.length) {
-                            _.each(notFullBatches, function (notFullBatch) {
-                                message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
-                            });
-                            AlertModal.error(message);
-                        } else {
-                            var batchNumbers = _.map(batches, function (batch) {
-                                return batch.fullNbkBatch;
-                            });
-                            if (batchNumbers.length) {
-                                Alert.success('Selected Batches successfully sent to Registration');
-                                RegistrationService.register({}, batchNumbers);
-                            } else {
-                                Alert.warning('No Batches was selected for Registration');
-                            }
-                        }
+                var registerBatches = function(excludes) {
+                    var batches = _.filter(getProductBatches(), function(row) {
+                        return row.select && !_.contains(excludes, row.fullNbkBatch);
                     });
+                    var message = '';
+                    var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
+                    if (notFullBatches.length) {
+                        _.each(notFullBatches, function(notFullBatch) {
+                            message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
+                        });
+                        AlertModal.error(message);
+                    } else {
+                        var batchNumbers = _.map(batches, function(batch) {
+                            return batch.fullNbkBatch;
+                        });
+                        if (batchNumbers.length) {
+                           saveAndRegister(batchNumbers)
+                        } else {
+                            Alert.warning('No Batches was selected for Registration');
+                        }
+                    }
                 };
 
+                var saveAndRegister = function(batchNumbers) {
+                    var experiment = EntitiesBrowser.getCurrentExperiment();
+                    $scope.loading = Experiment.update($stateParams, experiment).$promise
+                        .then(function(result) {
+                            console.warn('experiment saved', result.version);
+                            RegistrationService.register({}, batchNumbers).$promise.
+                            then(function() {
+                                Alert.success('Selected Batches successfully sent to Registration');
+                            });
+                        }, function() {});
+                }
 
                 var setSelectSourceValueAction = {
                     action: function () {

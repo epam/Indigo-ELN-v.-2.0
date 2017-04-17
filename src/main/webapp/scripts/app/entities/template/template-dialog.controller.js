@@ -51,7 +51,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
             return !_.isUndefined(component);
         };
 
-        dragulaService.options($scope, 'components', {
+        var drag = dragulaService.options($scope, 'components', {
             //removeOnSpill: true,
             copy: function (el, source) {
                 return source.classList.contains('palette');
@@ -92,4 +92,34 @@ angular.module('indigoeln').controller('TemplateDialogController',
             sortComponents();
         };
 
+        //dragula autoscroller
+        var lastIndex, up = true,
+            interval;
+        $scope.$on('components.out', function(e, el, cont, source) {
+            var $el = $(el),
+                $cont = $el.parents('.scroller').eq(0),
+                top = $cont.scrollTop();
+            interval = setInterval(function() {
+                $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
+            }, 10)
+        })
+
+        $scope.$on('components.over', function() {
+            clearInterval(interval);
+        })
+
+        $scope.$on('components.dragend', function() {
+            clearInterval(interval);
+        })
+        
+        $scope.$on('components.shadow', function(e, el, cont, source) {
+            var $el = $(el),
+                index = $el.index();
+            if (!lastIndex) {
+                lastIndex = index;
+            } else {
+                up = lastIndex > index;
+                lastIndex = index;
+            }
+        })
     });
