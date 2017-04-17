@@ -60,9 +60,32 @@ tr {
   }
 
   &.authoritiesTable {
+    > thead > tr > th {
+      &:first-child {
+        border-right: 1px solid #ddd;
+        background-color: #fafafa;
+      }
+    }
 
-    > tbody > tr > td {
-      text-align: center;
+    > tbody > tr {
+      > td {
+        text-align: center;
+
+        &:first-child {
+          text-align: left;
+          border-right: 1px solid #ddd;
+        }
+      }
+      &:nth-of-type(odd) > td {
+        &:first-child {
+          background-color: #f6f6f6;
+        }
+      }
+      &:nth-of-type(even) > td {
+        &:first-child {
+          background-color: #fafafa;
+        }
+      }
     }
   }
 
