@@ -14,7 +14,7 @@ angular.module('indigoeln')
 		},
 		link: function ($scope, iElement, iAttrs, myTableCtrl) {
 			var oldVal, isChanged;
-			$scope.toggleEditable = function () {
+			$scope.toggleEditable = function ($event) {
 				return myTableCtrl.toggleEditable($scope.myColumn.id, $scope.myRowIndex);
 			};
 			$scope.isEditable = function () {
@@ -93,7 +93,7 @@ angular.module('indigoeln')
 			myHideColumnSettings:'='
 
 		},
-        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal) {
+        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout) {
 			var that = this;
 
 			function getColumnsProps(myColumns) {
@@ -154,6 +154,7 @@ angular.module('indigoeln')
 			var editableCell = null;
 			that.toggleEditable = function (columnId, rowIndex) {
 				editableCell = columnId + '-' + rowIndex;
+
 			};
 			that.isEditable = function (columnId, rowIndex) {
 				if ($scope.myEditable) {
@@ -168,25 +169,32 @@ angular.module('indigoeln')
 				}
 				return editableCell === columnId + '-' + rowIndex;
 			};
-			$scope.onRowSelect = function ($event, row) {
-				var target = $($event.target);
-				if (target.is('button,span,ul,a,li,input')) {
-					return;
-				}
-				_.each($scope.myRows, function (item) {
-					if (item !== row) {
-						item.$$selected = false;
-					}
-				});
+			
+			$scope.isColumnReadonly = function(col, rowId) {
+				var iseditable = !that.isEditable(col.id, rowId);
+				return col.readonly === true || !iseditable;
+			} 
 
-				row.$$selected = !row.$$selected;
-
-				if ($scope.myOnRowSelected) {
-					$scope.myOnRowSelected(_.find($scope.myRows, function (item) {
-						return item.$$selected;
-					}));
-				}
+			$scope.onRowSelect = function($event, row) {
+			    var target = $($event.target);
+			    if ($attrs.myTabSupport)
+			        initTabSupport($event.currentTarget);
+			    if (target.is('button,span,ul,a,li,input')) {
+			        return;
+			    }
+			    _.each($scope.myRows, function(item) {
+			        if (item !== row) {
+			            item.$$selected = false;
+			        }
+			    });
+			    row.$$selected = !row.$$selected;
+			    if ($scope.myOnRowSelected) {
+			        $scope.myOnRowSelected(_.find($scope.myRows, function(item) {
+			            return item.$$selected;
+			        }));
+			    }
 			};
+
 			dragulaService.options($scope, 'my-table-columns', {
 				moves: function (el, container, handle) {
 					return !handle.classList.contains('no-draggable');
@@ -212,6 +220,27 @@ angular.module('indigoeln')
 				});
 			}
 
+			function initTabSupport(tar)  {
+				var $tar = $(tar);
+				var $input = $tar.find('input').focus();
+				if (!$input.attr('tab-initiated')) {
+				    $input.on('keydown', function(e) {
+				        if (e.keyCode != 9) return; //tab key
+				        var $next = $tar.nextAll('[col-read-only="false"]').filter(function() {
+				        	return $(this).find('[toggleEditable]')[0];
+				        }).eq(0), toggle = $next.find('[toggleEditable]')[0];
+
+				        //console.warn($next[0])
+				        if (toggle) {
+				            $timeout(function() {
+				                angular.element(toggle).triggerHandler('click');
+				        		initTabSupport($next)
+				            })
+				        }
+				    }).attr('tab-initiated', true)
+				}
+			}
+			
 			$scope.onPageChanged = function (page) {
 				$scope.pagination.page = page;
 			};
