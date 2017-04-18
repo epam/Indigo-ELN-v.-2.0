@@ -19,7 +19,7 @@
                 my-label="Show Summary"
         ></my-checkbox>
         <hr class="hr-top">
-        <indigo-batch-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
+        <indigo-batch-summary ng-if="showSummary" my-tab-support="true"  model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
         <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
                   my-rows="detailTable" my-readonly="myReadonly" class="my-table-wrapper">
             <div class="text-right m-b20">

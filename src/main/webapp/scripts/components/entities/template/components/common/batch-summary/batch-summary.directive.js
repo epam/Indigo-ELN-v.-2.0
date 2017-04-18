@@ -249,7 +249,7 @@ angular.module('indigoeln')
                         hideSetValue: true,
                         readonly: true
                     },
-                    {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2},
+                    {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2, readonly: true},
                     {
                         id: 'compoundState',
                         name: 'Compound State',

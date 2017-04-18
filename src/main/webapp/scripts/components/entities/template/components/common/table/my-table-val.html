@@ -21,7 +21,7 @@
            ng-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})">
             {{myRow[myColumn.realId].asString || '&mdash;'}}</a>
         <a ng-if="isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image' && myColumn.type!== 'boolean' && myColumn.type !== 'string'"
-           ng-click="toggleEditable()">&mdash;</a>
+           ng-click="toggleEditable()" toggleEditable>&mdash;</a>
         <a ng-if="isEmpty(myRow[myColumn.id]) && myRow[myColumn.id].readonly" class="not-editable"
         ></a>
         <a ng-if="!isEmpty(myRow[myColumn.id]) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image'&& myColumn.type!== 'boolean'"
