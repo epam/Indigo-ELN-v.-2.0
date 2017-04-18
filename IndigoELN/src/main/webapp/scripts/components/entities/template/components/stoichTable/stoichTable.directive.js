@@ -173,6 +173,8 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
+                            console.warn(row, row.fullNbkBatch)
+                            row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "");
                             fetchBatchByNbkNumber(nbkBatch, row);
                         }
                     },
