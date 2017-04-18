@@ -54,6 +54,38 @@
   font-weight: normal;
   font-style: normal;
 }
+.flex {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.flex-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+.flex-row-wrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.flex-start-center {
+  align-items: center;
+  align-content: center;
+  max-width: 100%;
+  justify-content: flex-start;
+}
+.flex-center-center {
+  align-items: center;
+  align-content: center;
+  max-width: 100%;
+  justify-content: center;
+}
 .overflow {
   overflow: hidden;
 }
@@ -517,11 +549,11 @@ tr {
 }
 .table > thead > tr > th .btn-group,
 .table > tbody > tr > td .btn-group {
-  margin: -5px;
-}
-.table > thead > tr > th .btn-group .btn,
-.table > tbody > tr > td .btn-group .btn {
-  margin: 5px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
 }
 .table > thead > tr > th > .form-group,
 .table > tbody > tr > td > .form-group {
@@ -537,16 +569,20 @@ tr {
 }
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
+  white-space: nowrap;
+}
+.table.authoritiesTable > tbody > tr > td .role-name {
+  width: 205px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table.authoritiesTable > tbody > tr > td:first-child {
   text-align: left;
   border-right: 1px solid #ddd;
+  background-color: #fafafa;
 }
 .table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
   background-color: #f6f6f6;
-}
-.table.authoritiesTable > tbody > tr:nth-of-type(even) > td:first-child {
-  background-color: #fafafa;
 }
 .table.product .btn-group .btn {
   color: #666;

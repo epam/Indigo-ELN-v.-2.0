@@ -281,16 +281,20 @@ tr {
 }
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
+  white-space: nowrap;
+}
+.table.authoritiesTable > tbody > tr > td .role-name {
+  width: 205px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table.authoritiesTable > tbody > tr > td:first-child {
   text-align: left;
   border-right: 1px solid #ddd;
+  background-color: #fafafa;
 }
 .table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
   background-color: #f6f6f6;
-}
-.table.authoritiesTable > tbody > tr:nth-of-type(even) > td:first-child {
-  background-color: #fafafa;
 }
 .table.product .btn-group .btn {
   color: #666;

@@ -75,7 +75,7 @@
             </thead>
             <tbody>
             <tr ng-repeat="role in roles track by role.id">
-                <td>{{role.name}}</td>
+                <td><div class="role-name">{{role.name}}</div></td>
                 <td ng-repeat="authority in authorities track by $index">
                     <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
                           class="role-check-icon"></span>
