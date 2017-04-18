@@ -98,7 +98,7 @@ angular.module('indigoeln').controller('TemplateDialogController',
             interval;
         $scope.$on('components.out', function(e, el, cont, source) {
             var $el = $(el),
-                $cont = $el.parents('.scroller').eq(0),
+                $cont = $el.parents('[scroller]').eq(0),
                 top = $cont.scrollTop();
             interval = setInterval(function() {
                 $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
@@ -124,3 +124,17 @@ angular.module('indigoeln').controller('TemplateDialogController',
             }
         })
     });
+
+angular.module('indigoeln').directive('focusOnCreate', function () {
+    // focus node on create
+    return {
+        restrict: 'A',
+        link: function (scope, element, attrs) {
+            var $this = $(element)
+            var $cont = $this.parents('[scroller]').eq(0);
+            var top = $this.position().top + $this.outerHeight(true);
+            $cont.animate({ scrollTop: top }, 500);
+            console.log(top)
+        }
+    };
+})
