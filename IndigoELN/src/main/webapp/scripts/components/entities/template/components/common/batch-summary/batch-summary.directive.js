@@ -743,6 +743,8 @@ angular.module('indigoeln')
                     ProductBatchSummaryCache.setProductBatchSummary(batches);
                     updatePrecursor();
                     initStructure(batches)
+
+
                 }, true));
 
                 unbinds.push($scope.$watch('isHasRegService', function (val) {
@@ -763,6 +765,7 @@ angular.module('indigoeln')
                     var resetMolInfo = function () {
                         row.formula = null;
                         row.molWeight = null;
+                        CalculationService.calculateProductBatch({row : row, column : 'totalWeight'});
                     };
 
                     var getInfoCallback = function (molInfo) {
@@ -770,6 +773,7 @@ angular.module('indigoeln')
                         row.molWeight = row.molWeight || {};
                         row.molWeight.value = molInfo.data.molecularWeight;
                         CalculationService.recalculateStoich();
+                        CalculationService.calculateProductBatch({row : row, column : 'totalWeight'});
                     };
                     if (row.structure && row.structure.molfile) {
                         CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
