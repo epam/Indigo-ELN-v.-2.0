@@ -16,7 +16,6 @@ angular
 
         var etimeout, popExperiment;
         $scope.experimentEnter = function(experiment, notebook, project) {
-            //console.log(experiment);
             if (etimeout) $timeout.cancel(etimeout)
             popExperiment = null;
             etimeout = $timeout(function() {
