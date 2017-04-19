@@ -7,6 +7,7 @@ angular
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
         $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
         $scope.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
+        $scope.POPOVER_TEMPLATE = 'scripts/components/sidebar/sidebar-popover-template.html';
         $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
             $scope.TEMPLATE_EDITOR, $scope.DICTIONARY_EDITOR].join(',');
         $scope.myBookmarks = {};
