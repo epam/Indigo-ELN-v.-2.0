@@ -1,7 +1,7 @@
 angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, $q, localStorageService, Project, Notebook, Experiment,
-                                               AllProjects, AllNotebooks, AllExperiments, Principal, $rootScope, EntitiesBrowser) {
+                                               AllProjects, AllNotebooks, AllExperiments, Principal, $rootScope, EntitiesBrowser, $uibTooltip, $timeout) {
         $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
         $scope.USER_EDITOR = 'USER_EDITOR';
         $scope.ROLE_EDITOR = 'ROLE_EDITOR';
@@ -13,6 +13,30 @@ angular
         $scope.myBookmarks = {};
         $scope.allProjects = {};
         $scope.$state = $state;
+
+        var etimeout, popExperiment;
+        $scope.experimentEnter = function(experiment, notebook, project) {
+            //console.log(experiment);
+            if (etimeout) $timeout.cancel(etimeout)
+            popExperiment = null;
+            etimeout = $timeout(function() {
+                Experiment.get({
+                    experimentId: experiment.id,
+                    notebookId: notebook.id,
+                    projectId: project.id
+                }).$promise.then(function(data) {
+                    popExperiment = experiment;
+                    angular.extend(experiment, data)
+                })
+            }, 500);
+        };
+        $scope.experimentLeave = function() {
+            if (etimeout) $timeout.cancel(etimeout)
+            popExperiment = null;
+        }
+        $scope.isOpen = function(experiment) {
+            return experiment == popExperiment;
+        }
 
         var updateProjectsStatuses = function (projects, statuses) {
             angular.forEach(projects, function (project) {
