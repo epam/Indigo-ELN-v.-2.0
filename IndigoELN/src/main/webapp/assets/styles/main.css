@@ -584,10 +584,14 @@ tr {
 .table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
   background-color: #f6f6f6;
 }
+.table.product > thead > tr > th .btn-group {
+  justify-content: center;
+}
 .table.product .btn-group .btn {
   color: #666;
   font: 14px 'Source Sans Pro Semibold', sans-serif;
   padding: 0;
+  width: auto;
 }
 .table.product .my-checkbox-wrapper {
   margin: 0;
@@ -1868,6 +1872,7 @@ ul.my-dropdown-list {
 .list-group.palette {
   overflow-y: auto;
   max-height: 400px;
+  position: relative;
 }
 .list-group.palette {
   max-height: 315px;

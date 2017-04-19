@@ -54,6 +54,38 @@
   font-weight: normal;
   font-style: normal;
 }
+.flex {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+.flex-row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+.flex-row-wrap {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+.flex-start-center {
+  align-items: center;
+  align-content: center;
+  max-width: 100%;
+  justify-content: flex-start;
+}
+.flex-center-center {
+  align-items: center;
+  align-content: center;
+  max-width: 100%;
+  justify-content: center;
+}
 .overflow {
   overflow: hidden;
 }
@@ -275,4 +307,11 @@
 .wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerContainer .mCSB_dragger_bar,
 .wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerRail {
   background-color: transparent !important;
+}
+.sidebar-popover {
+  color: #999;
+}
+.sidebar-popover .sidebar-popover-number {
+  text-transform: uppercase;
+  font-family: 'Oswald Regular', sans-serif;
 }
