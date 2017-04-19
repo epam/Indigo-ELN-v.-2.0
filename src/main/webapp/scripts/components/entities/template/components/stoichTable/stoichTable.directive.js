@@ -175,7 +175,7 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
-                            row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "");
+                            row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "") || undefined;
                             fetchBatchByNbkNumber(nbkBatch, row);
                         }
                     },
