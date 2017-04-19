@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                Alert.error('Error saving project: ' + result);
+                Alert.error('This Project name is already in use in the system.');
             };
 
             $scope.save = function () {
@@ -87,7 +87,7 @@ angular.module('indigoeln')
                                      $scope.createProjectForm.$setPristine();
                                      onUpdateSuccess({id: $scope.project.id});
                                  }, function () {
-                                     onSaveError($scope.project.id);
+                                     onSaveError($scope.project.name);
                                  });
                 } else {
                     $scope.loading = Project.save($scope.project, onSaveSuccess, onSaveError).$promise;
