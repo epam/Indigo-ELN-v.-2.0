@@ -7,7 +7,7 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
-            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Dictionary,
+            controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert, Dictionary,
                                   CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
@@ -63,6 +63,8 @@ angular.module('indigoeln')
                     SearchService.search(searchRequest, function (result) {
                         if (result[0]) {
                             populateFetchedBatch(row, result[0].details);
+                        } else {
+                            Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
                         }
                     });
                 }
@@ -173,7 +175,6 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
-                            console.warn(row, row.fullNbkBatch)
                             row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "");
                             fetchBatchByNbkNumber(nbkBatch, row);
                         }
