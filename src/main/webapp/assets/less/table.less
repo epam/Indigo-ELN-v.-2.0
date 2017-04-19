@@ -90,12 +90,15 @@ tr {
   }
 
   &.product {
-
+    &> thead > tr > th .btn-group {
+      justify-content: center;
+    }
     .btn-group {
       .btn {
         color: @table-th-color;
         font: 14px @table-th-family;
         padding: 0;
+        width: auto;
       }
     }
 
