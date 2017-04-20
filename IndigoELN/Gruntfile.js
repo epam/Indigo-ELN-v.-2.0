@@ -61,6 +61,16 @@ module.exports = function (grunt) {
                 proxy: 'localhost:8080'
             }
         },
+        complexity : {
+            js: {
+                files : [{ cwd: '.', src: ['/**/*.js'], expand : true}],
+                exclude: [],
+                options: {
+                    pmdXML: '/pmd.xml',
+                    teamcity: true  //send buildStatisticValue to TeamCity
+                }
+            }
+        },
         clean: {
             dist: {
                 files: [{
@@ -289,6 +299,7 @@ module.exports = function (grunt) {
         'less',
         'imagemin',
         'svgmin',
+        'complexity',
         'concat',
         'babel:dist',
         'copy:fonts',
