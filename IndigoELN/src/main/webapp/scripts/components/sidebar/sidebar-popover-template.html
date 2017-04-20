@@ -1,0 +1,19 @@
+<div class="sidebar-popover">
+  <div class="sidebar-popover-number m-b5">Experiment {{notebook.name}}-{{experiment.name}}</div>
+  <div class="sidebar-popover-content">
+    <div class="bold">
+      {{experiment.components.reactionDetails.therapeuticArea.name}}
+    </div>
+    <div>
+      <span class="bold">Creation Date:</span> {{experiment.creationDate  | date:'MMM dd yyyy'}}
+    </div>
+    <span>
+      <span class="bold">Author:</span> {{experiment.author.firstName}}
+    </span>
+    <span>
+      <span class="bold">Status:</span> {{experiment.status}}
+    </span>
+    <span ng-if = "!!experiment.components.reaction" class="sidebar-popover-sheme" style="background-image: url('data:image/svg+xml;base64,{{experiment.components.reaction.image}}') ">
+    </span>
+  </div>
+</div>
