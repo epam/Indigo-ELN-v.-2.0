@@ -18,11 +18,11 @@
                             ng-class="{'activ': notebook.fullId == activeMenuItem}">
                             <a>{{notebook.name}}</a>
                             <ul class="sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
-                                <li ng-repeat="experiment in notebook.children track by $index"
+                                <li ng-repeat="experiment in notebook.children track by $index" 
                                     ng-class="{'activ': experiment.fullId == activeMenuItem}"
-                                    ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();">
-                                    <a>
-                                        <span ng-bind="experiment.name"></span>
+                                    ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();" >
+                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)" ng-mouseleave="experimentLeave()" >
+                                        <span  uib-popover-template="POPOVER_TEMPLATE" popover-placement="right" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
                                         <em class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',
@@ -61,8 +61,8 @@
                                 <li ng-repeat="experiment in notebook.children track by $index"
                                     ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
                                     ng-class="{'activ': experiment.fullId == activeMenuItem}">
-                                    <a>
-                                        <span ng-bind="experiment.name"></span>
+                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)" ng-mouseleave="experimentLeave()">
+                                        <span uib-popover-template="POPOVER_TEMPLATE" popover-placement="right" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
                                         <em class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',

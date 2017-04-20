@@ -6,9 +6,11 @@
                 <div class="main-search-block">
                     <div class="row">
                         <div class="col-xs-9">
-                            <my-input my-model="model.restrictions.searchQuery"
-                                      my-label="Type in your search query"
-                                      my-label-vertical="true"></my-input>
+                            <form ng-submit="search()">
+                                <my-input my-model="model.restrictions.searchQuery"
+                                          my-label="Type in your search query"
+                                          my-label-vertical="true"></my-input>
+                            </form>
                         </div>
                         <div class="col-xs-3">
                             <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
