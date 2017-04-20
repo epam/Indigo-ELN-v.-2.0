@@ -315,3 +315,9 @@
   text-transform: uppercase;
   font-family: 'Oswald Regular', sans-serif;
 }
+.sidebar-popover-sheme {
+  display: block;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
