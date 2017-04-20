@@ -19,7 +19,7 @@
     "grunt-browser-sync": "2.2.0",
     "grunt-build-control": "0.6.1",
     "grunt-cli": "0.1.13",
-    "grunt-complexity-report": "^0.1.0",
+    "grunt-complexity": "^1.0.1",
     "grunt-contrib-clean": "0.7.0",
     "grunt-contrib-concat": "0.5.1",
     "grunt-contrib-copy": "0.8.2",

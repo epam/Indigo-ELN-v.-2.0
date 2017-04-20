@@ -62,12 +62,11 @@ module.exports = function (grunt) {
             }
         },
         complexity : {
-            js: {
-                files : [{ cwd: '.', src: ['/**/*.js'], expand : true}],
+            generic: {
+                src: ['src/main/webapp/scripts/**/*.js'],
                 exclude: [],
                 options: {
-                    pmdXML: '/pmd.xml',
-                    teamcity: true  //send buildStatisticValue to TeamCity
+                    pmdXML: './pmd.xml'
                 }
             }
         },
