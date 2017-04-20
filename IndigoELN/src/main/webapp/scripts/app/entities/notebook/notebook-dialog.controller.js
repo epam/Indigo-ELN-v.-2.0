@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                Alert.error('Error saving notebook: ' + result);
+                Alert.error('This Notebook name is already in use in the system');
             };
 
             $scope.save = function () {
