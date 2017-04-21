@@ -95,25 +95,37 @@ angular.module('indigoeln')
             '<div ng-switch-when="attachments"><attachments /></div>' +
             '</div>'
         };
-    }).directive('myComponents', function () {
-    return {
-        restrict: 'E',
-        replace: true,
-        scope: {
-            myTemplate: '=',
-            myReadonly: '=',
-            myModel: '=',
-            myExperiment: '=',
-            myExperimentForm: '='
-        },
-        link: function (scope) {
-            //for communication between components
-            scope.share = {};
-        },
-        template: '<fieldset ng-disabled="myReadonly"><uib-tabset class="inner-tabs">' +
-        '<uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-        '<div class="my-component" ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
-        '</uib-tab>' +
-        '</uib-tabset></fieldset>'
-    };
-});
+    })
+    .directive('myComponents', function($timeout) {
+        var scrollCache = {}
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: {
+                myTemplate: '=',
+                myReadonly: '=',
+                myModel: '=',
+                myExperiment: '=',
+                myExperimentForm: '='
+            },
+            link: function(scope, element) {
+                var id = scope.myExperiment.fullId;
+                $timeout(function() {
+                    var tc = element.find('.tab-content');
+                    if (scrollCache[id]) {
+                        tc[0].scrollTop = scrollCache[id];
+                    }
+                    tc.on('scroll', function() {
+                        scrollCache[id] = this.scrollTop;
+                    })
+                }, 1);
+                //for communication between components
+                scope.share = {};
+            },
+            template: '<fieldset ng-disabled="myReadonly"><uib-tabset class="inner-tabs">' +
+                '<uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
+                '<div class="my-component" ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
+                '</uib-tab>' +
+                '</uib-tabset></fieldset>'
+        };
+    });
