@@ -16,9 +16,6 @@ angular.module('indigoeln')
             if (!user) return;
             var strorageKey = user.id + '.current-tabs', id = user.id;
             tabs[id] =  JSON.parse(localStorageService.get(strorageKey));
-            for (var key in tabs[id]) {
-                EntitiesBrowser.goToTab(tabs[id][key])
-            } 
             saveTabs = function() {
                 localStorageService.set(strorageKey, angular.toJson(tabs[id]))
             }
@@ -27,14 +24,12 @@ angular.module('indigoeln')
         var getUserId = function () {
             var id = Principal.getIdentity().id;
             EntitiesBrowser.tabs[id] = EntitiesBrowser.tabs[id] || {};
-            
             return id;
         };
 
         var getTabKey = function (tab) {
             return tab && tab.tabKey ? tab.tabKey : TabKeyUtils.getTabKeyFromTab(tab);
         };
-
 
         function deleteClosedTabAndGoToActive(userId, tabKey) {
             var keys = _.keys(EntitiesBrowser.tabs[userId]);
@@ -52,6 +47,7 @@ angular.module('indigoeln')
             } else if (keys.length === 1) {
                 $state.go('experiment');
             }
+            saveTabs()
         }
 
 
@@ -127,7 +123,7 @@ angular.module('indigoeln')
                 if(!EntitiesBrowser.tabs[userId][tabKey]){
                     curTab.tabKey = tabKey;
                     EntitiesBrowser.tabs[userId][tabKey] = curTab;
-                    saveTabs()
+                    if (saveTabs) saveTabs()
                 }
                 self.setActiveTab(EntitiesBrowser.tabs[userId][tabKey]);
             });

@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, Experiment, Notebook, Project, DialogService) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
 
 
 
@@ -93,6 +93,7 @@ angular.module('indigoeln')
                         return service.update(tab.params, entity).$promise
                             .then(function () {
                                 onSaveTab(tab);
+                                clearRecovery(tab)
                             });
                     }
                 });
@@ -128,6 +129,7 @@ angular.module('indigoeln')
                             // close remained tabs
                             _.each($scope.tabs, function(tab){
                                 onSaveTab(tab);
+                                clearRecovery(tab)
                             });
                         });
                     } else {
@@ -143,12 +145,22 @@ angular.module('indigoeln')
             });
         };
 
+        function clearRecovery(tab) {
+            var entityPromise = EntitiesCache.getByKey(tab.tabKey);
+            if (entityPromise) {
+                entityPromise.then(function (entity) {
+                     AutoRecoverEngine.clearRecovery(tab.kind, entity)
+                })
+            }
+        }
         $scope.onCloseTabClick = function (tab) {
             if (tab.dirty) {
                 AlertModal.save('Do you want to save the changes?', null, function (isSave) {
                     if (isSave) {
                         saveEntity(tab);
                         return;
+                    } else {
+                        clearRecovery(tab)
                     }
                     onSaveTab(tab);
 

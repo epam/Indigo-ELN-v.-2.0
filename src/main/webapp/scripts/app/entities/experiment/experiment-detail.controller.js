@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement,
-                  FileUploaderCash, AutoSaveEntitiesEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams) {
+                  FileUploaderCash, AutoSaveEntitiesEngine, AutoRecoverEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams) {
 
 
             var self = this;
@@ -21,8 +21,7 @@ angular.module('indigoeln')
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
                 }, true);
 
-                // Uncomment after fixing EPMLSOPELN-59
-                //AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
+                AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
 
             }, 0, false);
 
@@ -77,6 +76,7 @@ angular.module('indigoeln')
                             $scope.experiment.version = result.version;
                             $scope.experimentForm.$setPristine();
                         }, function () {
+                            
                         });
                 } else {
                     $scope.loading = Experiment.save(experimentForSave).$promise;
