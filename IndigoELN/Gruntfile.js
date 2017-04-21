@@ -61,6 +61,15 @@ module.exports = function (grunt) {
                 proxy: 'localhost:8080'
             }
         },
+        complexity : {
+            generic: {
+                src: ['src/main/webapp/scripts/**/*.js'],
+                exclude: [],
+                options: {
+                    pmdXML: './pmd.xml'
+                }
+            }
+        },
         clean: {
             dist: {
                 files: [{
@@ -289,6 +298,7 @@ module.exports = function (grunt) {
         'less',
         'imagemin',
         'svgmin',
+        'complexity',
         'concat',
         'babel:dist',
         'copy:fonts',
