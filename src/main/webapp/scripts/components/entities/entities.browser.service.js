@@ -3,15 +3,31 @@
  */
 angular.module('indigoeln')
     .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
-                                          Principal, TabKeyUtils) {
+                                          Principal, TabKeyUtils, localStorageService) {
         var EntitiesBrowser = {};
-
-        EntitiesBrowser.tabs = {};
+        var tabs = EntitiesBrowser.tabs =  {};
         EntitiesBrowser.activeTab = {};
+        var saveTabs;
+        var resolvePrincipal = function (func) {
+            return Principal.identity().then(func);
+        };
+
+        resolvePrincipal(function(user) {
+            if (!user) return;
+            var strorageKey = user.id + '.current-tabs', id = user.id;
+            tabs[id] =  JSON.parse(localStorageService.get(strorageKey));
+            for (var key in tabs[id]) {
+                EntitiesBrowser.goToTab(tabs[id][key])
+            } 
+            saveTabs = function() {
+                localStorageService.set(strorageKey, angular.toJson(tabs[id]))
+            }
+        })
 
         var getUserId = function () {
             var id = Principal.getIdentity().id;
             EntitiesBrowser.tabs[id] = EntitiesBrowser.tabs[id] || {};
+            
             return id;
         };
 
@@ -19,9 +35,6 @@ angular.module('indigoeln')
             return tab && tab.tabKey ? tab.tabKey : TabKeyUtils.getTabKeyFromTab(tab);
         };
 
-        var resolvePrincipal = function (func) {
-            return Principal.identity().then(func);
-        };
 
         function deleteClosedTabAndGoToActive(userId, tabKey) {
             var keys = _.keys(EntitiesBrowser.tabs[userId]);
@@ -73,6 +86,7 @@ angular.module('indigoeln')
             return resolvePrincipal(function () {
                 var userId = getUserId();
                 deleteClosedTabAndGoToActive(userId, tabKey);
+                console.log('close', tabs)
             });
         };
 
@@ -113,6 +127,7 @@ angular.module('indigoeln')
                 if(!EntitiesBrowser.tabs[userId][tabKey]){
                     curTab.tabKey = tabKey;
                     EntitiesBrowser.tabs[userId][tabKey] = curTab;
+                    saveTabs()
                 }
                 self.setActiveTab(EntitiesBrowser.tabs[userId][tabKey]);
             });
