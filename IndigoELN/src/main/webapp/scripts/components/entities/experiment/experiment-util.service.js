@@ -25,9 +25,19 @@ angular.module('indigoeln')
 
         var repeatExperiment = function (experiment, params) {
             experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
+            console.log('repeat', experiment)
+            var ec = experiment.components;
+            var components = {
+                reactionDetails : ec.reactionDetails,
+                conceptDetails : ec.conceptDetails,
+                reaction : ec.reaction,
+                stoichTable : ec.stoichTable,
+                experimentDescription : ec.experimentDescription
+            }
+            
             var experimentForSave = {
                 accessList: experiment.accessList,
-                components: experiment.components,
+                components: components,
                 name: experiment.name,
                 status: 'Open',
                 template: experiment.template
