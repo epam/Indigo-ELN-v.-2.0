@@ -298,7 +298,6 @@ module.exports = function (grunt) {
         'less',
         'imagemin',
         'svgmin',
-        'complexity',
         'concat',
         'babel:dist',
         'copy:fonts',
