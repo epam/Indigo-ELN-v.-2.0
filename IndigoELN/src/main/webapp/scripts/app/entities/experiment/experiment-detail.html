@@ -1,5 +1,12 @@
 <div class="experiments" cg-busy="{promise:loading, minDuration:700}">
-    <div class="tab-content-pad">
+
+    <div ng-if="!!restored" style="padding: 10px 20px; background: #dff560">
+        <span>Experiment <b> {{restored.rec.name}} </b> was not saved. Do you want to restore changes? 
+            <button class="btn btn-primary" ng-click="restored.resolve(true)"> Yes </button> <button ng-click="restored.resolve(false)" class="btn btn-default"> No, thanks </button> 
+        </span> 
+    </div>
+
+    <div ng-if="!restored"  class="tab-content-pad">
         <div ng-init="isCollapsed=true;">
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
@@ -24,6 +31,7 @@
             </div>
         </div>
     </div>
+
     <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
         <my-components my-template="experiment.template.templateContent"
                        my-readonly="!isEditAllowed"
