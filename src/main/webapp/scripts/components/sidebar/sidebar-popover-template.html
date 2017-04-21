@@ -1,9 +1,14 @@
 <div class="sidebar-popover">
   <div class="sidebar-popover-number m-b5">Experiment {{notebook.name}}-{{experiment.name}}</div>
   <div class="sidebar-popover-content">
-    <div class="bold">
-      {{experiment.components.reactionDetails.title}},
-      {{experiment.components.reactionDetails.therapeuticArea.name}}
+    <div>
+      <span class="bold">
+        {{experiment.components.reactionDetails.title}}
+        
+      </span>
+      <i>
+        {{experiment.components.reactionDetails.therapeuticArea.name}}
+      </i>
     </div>
     <div>
       <span class="bold">Creation Date:</span> {{experiment.creationDate  | date:'MMM dd yyyy'}}
