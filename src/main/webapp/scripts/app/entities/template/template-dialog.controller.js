@@ -21,15 +21,15 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         var onSaveError = function (result) {
             $scope.isSaving = false;
-            Alert.error('Error saving, template name already exists: ' + result);
+            Alert.error('Error saving, template name already exists.');
         };
 
         $scope.save = function () {
             $scope.isSaving = true;
             if ($scope.template.id) {
-                Template.update($scope.template, onSaveSuccess, onSaveError($scope.template.name));
+                Template.update($scope.template, onSaveSuccess, onSaveError);
             } else {
-                Template.save($scope.template, onSaveSuccess, onSaveError($scope.template.name));
+                Template.save($scope.template, onSaveSuccess, onSaveError).$promise;
             }
         };
 
