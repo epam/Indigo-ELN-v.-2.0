@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal) {
+    .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal, Alert) {
         $scope.dictionaries = [];
         $scope.selectedDictionaryId = null;
         $scope.selectedDictionary = null;
@@ -45,6 +45,8 @@ angular.module('indigoeln')
             $scope.isSaving = false;
             $scope.isWordSaving = false;
             $scope.loadAllDictionaries();
+           Alert.error('Dictionary not saved due to server error!')
+     
         };
 
         var updateRanks = function (len) {

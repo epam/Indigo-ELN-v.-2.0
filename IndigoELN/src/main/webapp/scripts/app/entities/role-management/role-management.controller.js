@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo) {
+    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo, Alert) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
 
         $scope.roles = pageInfo.roles;
@@ -130,6 +130,7 @@ angular.module('indigoeln')
 
         var onSaveError = function () {
             $scope.isSaving = false;
+            Alert.error('Role not saved due to server error!')
             loadAll();
         };
 

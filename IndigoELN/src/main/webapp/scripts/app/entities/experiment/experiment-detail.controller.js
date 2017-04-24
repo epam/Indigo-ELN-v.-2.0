@@ -76,7 +76,7 @@ angular.module('indigoeln')
                     $scope.experiment.version = result.version;
                     $scope.experimentForm.$setPristine();
                 }, function () {
-                    Alert.error('Experiment was not saved!')
+                    Alert.error('Experiment not saved due to server error!')
                 });
             };
 
@@ -124,7 +124,7 @@ angular.module('indigoeln')
                     $scope.experimentForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                 }, function () {
-                    Alert.error('Failed to refresh experiment!')
+                    Alert.error('Experiment not refreshed due to server error!')
                 });
             };
 
