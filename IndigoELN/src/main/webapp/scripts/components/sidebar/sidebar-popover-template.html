@@ -19,7 +19,6 @@
     <span>
       <span class="bold">Status:</span> {{experiment.status}}
     </span>
-    <span ng-if = "!!experiment.components.reaction" class="sidebar-popover-sheme" style="background-image: url('data:image/svg+xml;base64,{{experiment.components.reaction.image}}') ">
-    </span>
+    <img ng-if = "!!experiment.components.reaction" class="sidebar-popover-sheme" src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}" alt="ReactionSheme">
   </div>
 </div>

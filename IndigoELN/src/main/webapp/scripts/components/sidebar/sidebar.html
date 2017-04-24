@@ -62,7 +62,7 @@
                                     ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
                                     ng-class="{'activ': experiment.fullId == activeMenuItem}">
                                     <a ng-mouseenter="experimentEnter(experiment, notebook, project)" ng-mouseleave="experimentLeave()">
-                                        <span uib-popover-template="POPOVER_TEMPLATE" popover-placement="right" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
+                                        <span uib-popover-template="POPOVER_TEMPLATE" popover-class="sidebar-popover-basis" popover-placement="right" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
                                         <em class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',
