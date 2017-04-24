@@ -168,3 +168,17 @@
     }
   }
 }
+
+//EPMLSOPELN-436 'display' replaced  to 'visible' to avoid grid mCustomScrollbar reset  
+.tab-content {
+    .tab-pane {
+        display: block;
+        visibility: hidden;
+        height: 0;
+        overflow: hidden;
+    }
+    .active {
+        visibility: visible;
+        height: auto;
+    }
+}

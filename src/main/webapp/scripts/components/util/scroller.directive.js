@@ -36,12 +36,11 @@ angular.module('indigoeln')
             link: function (scope, iElement, iAttrs) {
                 if (scope.myId && EntitiesBrowser.activeTab) {
                     var key = EntitiesBrowser.activeTab.$$title + scope.myId, val = scrollCache[key];
-                    if (val)
-                     setTimeout(function() { 
-                        $element.mCustomScrollbar('scrollTo', val )
-                    },500)
+                    setTimeout(function() { 
+                        $element.mCustomScrollbar('scrollTo', val || [0,0], { callbacks:false, scrollInertia : 0 })
+                    }, 500)
                 }
-
+               
                 var $element = $(iElement);
                 $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
                 $element.mCustomScrollbar({
@@ -49,7 +48,7 @@ angular.module('indigoeln')
                     theme: iAttrs.myScrollerTheme || 'indigo',
                     scrollInertia: 300, 
                     callbacks : {
-                        onScroll : function() {
+                        onScroll : function(e) {
                             if (!key) return;
                             scrollCache[key] = [this.mcs.top, this.mcs.left];
                         }
@@ -61,7 +60,6 @@ angular.module('indigoeln')
         return {
             restrict: 'A',
             link: function (scope, iElement, iAttrs) {
-                return
                 var scrollToTop = function () {
                     var h = $(window).height();
                     $(document).mousemove(function(e) {
