@@ -308,6 +308,9 @@
 .wrapper-list-experiment .mCSB_scrollTools .mCSB_draggerRail {
   background-color: transparent !important;
 }
+.sidebar-popover-basis {
+  max-width: none;
+}
 .sidebar-popover {
   color: #999;
 }
