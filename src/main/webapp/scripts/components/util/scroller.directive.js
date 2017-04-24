@@ -29,16 +29,31 @@ angular.module('indigoeln')
             }
         };
     })
-    .directive('myScroller', function () {
+    .directive('myScroller', function (EntitiesBrowser) {
+        var scrollCache = {}
         return {
             restrict: 'A',
             link: function (scope, iElement, iAttrs) {
+                if (scope.myId && EntitiesBrowser.activeTab) {
+                    var key = EntitiesBrowser.activeTab.$$title + scope.myId, val = scrollCache[key];
+                    if (val)
+                     setTimeout(function() { 
+                        $element.mCustomScrollbar('scrollTo', val )
+                    },500)
+                }
+
                 var $element = $(iElement);
                 $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
                 $element.mCustomScrollbar({
                     axis: iAttrs.myScroller,
                     theme: iAttrs.myScrollerTheme || 'indigo',
-                    scrollInertia: 300
+                    scrollInertia: 300, 
+                    callbacks : {
+                        onScroll : function() {
+                            if (!key) return;
+                            scrollCache[key] = [this.mcs.top, this.mcs.left];
+                        }
+                     }
                 });
             }
         };
@@ -46,6 +61,7 @@ angular.module('indigoeln')
         return {
             restrict: 'A',
             link: function (scope, iElement, iAttrs) {
+                return
                 var scrollToTop = function () {
                     var h = $(window).height();
                     $(document).mousemove(function(e) {

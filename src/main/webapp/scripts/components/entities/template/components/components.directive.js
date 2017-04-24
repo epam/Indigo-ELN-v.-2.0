@@ -113,12 +113,14 @@ angular.module('indigoeln')
                 $timeout(function() {
                     var tc = element.find('.tab-content');
                     if (scrollCache[id]) {
-                        tc[0].scrollTop = scrollCache[id];
+                        setTimeout(function() {
+                            tc[0].scrollTop = scrollCache[id];
+                        }, 100)
                     }
                     tc.on('scroll', function() {
                         scrollCache[id] = this.scrollTop;
                     })
-                }, 1);
+                }, 100);
                 //for communication between components
                 scope.share = {};
             },
