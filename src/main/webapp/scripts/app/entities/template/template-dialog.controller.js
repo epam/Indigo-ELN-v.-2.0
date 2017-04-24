@@ -21,7 +21,8 @@ angular.module('indigoeln').controller('TemplateDialogController',
 
         var onSaveError = function (result) {
             $scope.isSaving = false;
-            Alert.error('Error saving, template name already exists.');
+            var mess = result.status == 400 ? 'Error saving, template name already exists.' : 'Template not saved due to server error!'
+            Alert.error(mess);
         };
 
         $scope.save = function () {

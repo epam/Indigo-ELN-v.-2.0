@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo) {
+    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo, Alert) {
         $scope.users = [];
         $scope.roles = pageInfo.roles;
 
@@ -40,6 +40,7 @@ angular.module('indigoeln')
         var onSaveError = function () {
             $scope.isSaving = false;
             $scope.loadAll();
+            Alert.error('User not saved due to server error!')
         };
 
         $scope.save = function () {

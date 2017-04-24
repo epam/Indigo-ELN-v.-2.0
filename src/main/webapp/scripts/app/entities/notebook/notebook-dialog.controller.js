@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook was not saved';
+                var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook not saved due to server error';
                 Alert.error(mess);
             };
             $scope.refresh = function () {
@@ -87,7 +87,7 @@ angular.module('indigoeln')
                     $scope.createNotebookForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                 }, function () {
-                    Alert.error('Failed to refresh  notebook!')
+                    Alert.error('Notebook not refreshed due to server error!')
                 });
             };
             $scope.save = function () {

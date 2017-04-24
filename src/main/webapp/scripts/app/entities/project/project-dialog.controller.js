@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                var mess =  (result.status == 400) ? 'this Project name is already in use in the system' : 'Project was not saved';
+                var mess =  (result.status == 400) ? 'this Project name is already in use in the system' : 'Project not saved due to server error';
                 Alert.error(mess);
             };
 
@@ -101,7 +101,7 @@ angular.module('indigoeln')
                     $scope.createProjectForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                 }, function () {
-                    Alert.error('Failed to refresh project!')
+                    Alert.error('Project not refreshed due to server error!')
                 });
             };
 
