@@ -77,6 +77,9 @@
         <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid" class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
+        <a class="btn btn-default" ng-click="refresh()">
+            <i class="fa fa-refresh"></i><span class="m-l5">Refresh</span>
+        </a>
         <a class="btn btn-default" onclick="window.history.back()">
             <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </a>

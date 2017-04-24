@@ -76,7 +76,8 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                Alert.error('This Project name is already in use in the system.');
+                var mess =  (result.status == 400) ? 'this Project name is already in use in the system' : 'Project was not saved';
+                Alert.error(mess);
             };
 
             $scope.save = function () {
@@ -86,12 +87,22 @@ angular.module('indigoeln')
                                      $scope.project.version = result.version;
                                      $scope.createProjectForm.$setPristine();
                                      onUpdateSuccess({id: $scope.project.id});
-                                 }, function () {
-                                     onSaveError($scope.project.name);
-                                 });
+                                 }, onSaveError);
                 } else {
                     $scope.loading = Project.save($scope.project, onSaveSuccess, onSaveError).$promise;
                 }
+            };
+
+            $scope.refresh = function () {
+               $scope.loading = Project.get($stateParams).$promise
+                .then(function (result) {
+                    angular.extend($scope.project, result);
+                    $scope.createProjectForm.$setPristine();
+                    $scope.createProjectForm.$dirty = false;
+                    EntitiesBrowser.changeDirtyTab($stateParams, false);
+                }, function () {
+                    Alert.error('Failed to refresh project!')
+                });
             };
 
         });

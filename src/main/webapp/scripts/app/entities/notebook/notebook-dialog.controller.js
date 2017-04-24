@@ -76,18 +76,27 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                Alert.error('This Notebook name is already in use in the system');
+                var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook was not saved';
+                Alert.error(mess);
             };
-
+            $scope.refresh = function () {
+               $scope.loading = Notebook.get($stateParams).$promise
+                .then(function (result) {
+                    angular.extend($scope.notebook, result);
+                    $scope.createNotebookForm.$setPristine();
+                    $scope.createNotebookForm.$dirty = false;
+                    EntitiesBrowser.changeDirtyTab($stateParams, false);
+                }, function () {
+                    Alert.error('Failed to refresh  notebook!')
+                });
+            };
             $scope.save = function () {
                 if ($scope.notebook.id) {
                     $scope.loading = Notebook.update($stateParams, $scope.notebook).$promise
                         .then(function (result) {
                             $scope.notebook.version = result.version;
                             $scope.createNotebookForm.$setPristine();
-                        }, function () {
-                            onSaveError($scope.notebook.id);
-                        });
+                        }, onSaveError);
 
                 } else {
                     $scope.loading = Notebook.save({
@@ -95,4 +104,5 @@ angular.module('indigoeln')
                     }, $scope.notebook, onSaveSuccess, onSaveError).$promise;
                 }
             };
+
         });

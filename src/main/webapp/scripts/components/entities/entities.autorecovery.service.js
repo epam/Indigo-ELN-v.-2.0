@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .factory('AutoRecoverEngine', function(AlertModal, Principal, localStorageService, $q) {
         var delay = 500;
-        var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate']
+        var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
         var kinds = ['experiment'],
             save, get, clear;
         var deferred = $q.defer();

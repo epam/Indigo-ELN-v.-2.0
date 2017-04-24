@@ -70,6 +70,9 @@
                 ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving"
                 class="btn btn-primary"><i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
+        <a class="btn btn-default" ng-click="refresh()">
+            <i class="fa fa-refresh"></i><span class="m-l5">Refresh</span>
+        </a>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </button>

@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement,
-                  FileUploaderCash, AutoSaveEntitiesEngine, AutoRecoverEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams) {
+                  FileUploaderCash, AutoSaveEntitiesEngine, AutoRecoverEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams, Alert) {
 
 
             var self = this;
@@ -70,17 +70,14 @@ angular.module('indigoeln')
 
             $scope.save = function (experiment) {
                 var experimentForSave = _.extend({}, experiment);
-                if (experiment.template !== null) {
-                    $scope.loading = Experiment.update($stateParams, $scope.experiment).$promise
-                        .then(function (result) {
-                            $scope.experiment.version = result.version;
-                            $scope.experimentForm.$setPristine();
-                        }, function () {
-                            
-                        });
-                } else {
-                    $scope.loading = Experiment.save(experimentForSave).$promise;
-                }
+                $scope.loading = (experiment.template !== null)  ? Experiment.update($stateParams, $scope.experiment).$promise 
+                    : Experiment.save(experimentForSave).$promise ;
+                $scope.loading.then(function (result) {
+                    $scope.experiment.version = result.version;
+                    $scope.experimentForm.$setPristine();
+                }, function () {
+                    Alert.error('Experiment was not saved!')
+                });
             };
 
             var unsubscribeExp = $scope.$watch('experiment', function () {
@@ -118,6 +115,17 @@ angular.module('indigoeln')
 
             $scope.printExperiment = function () {
                 ExperimentUtil.printExperiment(params);
+            };
+            $scope.refresh = function () {
+               $scope.loading = Experiment.get($stateParams).$promise
+                .then(function (result) {
+                    angular.extend($scope.experiment, result);
+                    $scope.experimentForm.$setPristine();
+                    $scope.experimentForm.$dirty = false;
+                    EntitiesBrowser.changeDirtyTab($stateParams, false);
+                }, function () {
+                    Alert.error('Failed to refresh experiment!')
+                });
             };
 
             $scope.isStatusOpen = function () {
