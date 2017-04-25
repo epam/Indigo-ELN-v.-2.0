@@ -37,9 +37,7 @@ angular.module('indigoeln')
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
 
-            PermissionManagement.setEntity('Experiment'); console.log(pageInfo);
-            PermissionManagement.setEntityId($scope.experiment.id);
-            PermissionManagement.setParentId(notebookId);
+            PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
             FileUploaderCash.setFiles([]);
@@ -78,7 +76,7 @@ angular.module('indigoeln')
                             $scope.experiment.version = result.version;
                             $scope.experimentForm.$setPristine();
                         }, function () {
-                            
+
                         });
                 } else {
                     $scope.loading = Experiment.save(experimentForSave).$promise;

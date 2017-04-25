@@ -168,10 +168,8 @@ angular.module('indigoeln')
                 var agent, params;
                 var deferred = $q.defer();
                 if (_entity === 'Experiment' || !_entityId) {
-//                    $q.when(true);
-                    console.log("notebookId:", _parentId, "experimentId:", _entityId, "userId:", member.user.id);
-                    agent = UserRemovableFromExperiment;
-                    params = {notebookId: _parentId, experimentId: _entityId, userId: member.user.id };
+                    deferred.resolve(true);
+                    return deferred.promise;
                 }
                 if (_entity === 'Project') {
                     agent = UserRemovableFromProject;
