@@ -15,7 +15,7 @@ angular.module('indigoeln')
         });
     })
     .factory('UserRemovableFromExperiment', function ($resource) {
-        return $resource('api/notebooks/permissions/user-removable', {}, {
+        return $resource('api/experiments/permissions/user-removable', {}, {
             'get': {method: 'GET'}
         });
     })
