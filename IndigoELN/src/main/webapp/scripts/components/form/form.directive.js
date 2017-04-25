@@ -101,6 +101,9 @@ angular.module('indigoeln')
                 if (tAttrs.myName) {
                     $element.attr('name', '{{myName}}');
                 }
+                if (tAttrs.myNumberMin != undefined) {
+                    $element.attr('min', tAttrs.myNumberMin);
+                }
                 if (tAttrs.myType) {
                     $element.attr('type', '{{myType}}');
                 }

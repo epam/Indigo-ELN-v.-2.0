@@ -66,7 +66,7 @@
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number">
+                      my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number" my-number-min = '0'>
                 <div class="btn-group-sm" uib-dropdown dropdown-append-to-body>
                     <button type="button" class="btn btn-info"
                             aria-haspopup="true"
@@ -86,7 +86,7 @@
                       my-type="number"
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
+                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})" my-number-min = '0'
                       my-parsers="unitParsers" my-formatters="unitFormatters">
             </my-input>
         </div>
