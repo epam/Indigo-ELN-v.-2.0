@@ -37,7 +37,9 @@ angular.module('indigoeln')
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
 
-            PermissionManagement.setEntity('Experiment');
+            PermissionManagement.setEntity('Experiment'); console.log(pageInfo);
+            PermissionManagement.setEntityId($scope.experiment.id);
+            PermissionManagement.setParentId(notebookId);
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
             FileUploaderCash.setFiles([]);
