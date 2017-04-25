@@ -182,4 +182,11 @@ angular.module('indigoeln')
                 $scope.roles = $filter('filter')(result, {name: $scope.searchText});
             });
         };
+
+//        var roleTable = document.getElementById('roleTable');
+//        roleTable.onscroll = function() {
+//            console.log(roleTable);
+//        }
+//        console.log(roleTable.x);
+
     });
