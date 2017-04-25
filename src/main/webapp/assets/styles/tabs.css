@@ -338,3 +338,13 @@
 .inner-tabs .simditor .simditor-wrapper .simditor-placeholder p {
   color: #616161;
 }
+.tab-content .tab-pane {
+  display: block;
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+.tab-content .active {
+  visibility: visible;
+  height: auto;
+}
