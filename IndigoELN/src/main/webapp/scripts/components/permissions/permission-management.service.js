@@ -14,7 +14,12 @@ angular.module('indigoeln')
             'get': {method: 'GET'}
         });
     })
-    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
+    .factory('UserRemovableFromExperiment', function ($resource) {
+        return $resource('api/notebooks/permissions/user-removable', {}, {
+            'get': {method: 'GET'}
+        });
+    })
+    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook, UserRemovableFromExperiment) {
         var _accessList, _author, _entity, _entityId, _parentId;
 
         var VIEWER = ['READ_ENTITY'];
@@ -163,7 +168,10 @@ angular.module('indigoeln')
                 var agent, params;
                 var deferred = $q.defer();
                 if (_entity === 'Experiment' || !_entityId) {
-                    $q.when(true);
+//                    $q.when(true);
+                    console.log("notebookId:", _parentId, "experimentId:", _entityId, "userId:", member.user.id);
+                    agent = UserRemovableFromExperiment;
+                    params = {notebookId: _parentId, experimentId: _entityId, userId: member.user.id };
                 }
                 if (_entity === 'Project') {
                     agent = UserRemovableFromProject;
