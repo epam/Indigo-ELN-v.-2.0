@@ -14,7 +14,7 @@ angular.module('indigoeln')
             'get': {method: 'GET'}
         });
     })
-    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
+    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook, UserRemovableFromExperiment) {
         var _accessList, _author, _entity, _entityId, _parentId;
 
         var VIEWER = ['READ_ENTITY'];
@@ -163,7 +163,8 @@ angular.module('indigoeln')
                 var agent, params;
                 var deferred = $q.defer();
                 if (_entity === 'Experiment' || !_entityId) {
-                    $q.when(true);
+                    deferred.resolve(true);
+                    return deferred.promise;
                 }
                 if (_entity === 'Project') {
                     agent = UserRemovableFromProject;
