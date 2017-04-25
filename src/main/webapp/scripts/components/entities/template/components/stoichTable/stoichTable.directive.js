@@ -8,7 +8,7 @@ angular.module('indigoeln')
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/stoichTable/stoichTable.html',
             controller: function ($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert, Dictionary,
-                                  CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache) {
+                                  CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache, $timeout) {
                 $scope.model = $scope.model || {};
                 $scope.model.stoichTable = $scope.model.stoichTable || {};
                 $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -53,20 +53,24 @@ angular.module('indigoeln')
                     CalculationService.recalculateStoich();
                 };
 
-                function fetchBatchByNbkNumber(nbkBatch, row) {
+                var ftimeout;
+                function fetchBatchByNbkNumber(nbkBatch, success) {
                     var searchRequest = {
                         advancedSearch: [{
                             condition: 'contains', field: 'fullNbkBatch', name: 'NBK batch #', value: nbkBatch
                         }],
                         databases: ['Indigo ELN']
                     };
-                    SearchService.search(searchRequest, function (result) {
-                        if (result[0]) {
-                            populateFetchedBatch(row, result[0].details);
-                        } else {
-                            Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
-                        }
-                    });
+                    $timeout.cancel(ftimeout);
+                    ftimeout = $timeout(function() {
+                        SearchService.search(searchRequest, function (result) {
+                            if (result[0]) {
+                                success(result.slice(0, 5))
+                            } else {
+                                Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
+                            }
+                        });
+                    }, 500)
                 }
 
                 function getWord(dicts, dictName, wordName) {
@@ -172,7 +176,22 @@ angular.module('indigoeln')
                         name: 'Nbk Batch #',
                         type: 'input',
                         hasStructurePopover: true,
+                        hasPopup : true,
+                        popItemClick : function(row, item) {
+                            populateFetchedBatch(row, item.details);
+                        },
+                        onChange : function(data) {
+                            var row = data.row;
+                            if (row) {
+                                var nbkBatch = data.model;
+                                row.$$popItems = null;
+                                fetchBatchByNbkNumber(nbkBatch, function(result) {
+                                    row.$$popItems = result.map(function(r) { return {item : r, title : r.details.fullNbkBatch}})
+                                })
+                            }
+                        },
                         onClose: function (data) {
+                            return;
                             var row = data.row;
                             var nbkBatch = data.model;
                             row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "") || undefined;
