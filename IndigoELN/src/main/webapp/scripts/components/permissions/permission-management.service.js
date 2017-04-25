@@ -14,7 +14,7 @@ angular.module('indigoeln')
             'get': {method: 'GET'}
         });
     })
-    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook, UserRemovableFromExperiment) {
+    .factory('PermissionManagement', function ($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
         var _accessList, _author, _entity, _entityId, _parentId;
 
         var VIEWER = ['READ_ENTITY'];
