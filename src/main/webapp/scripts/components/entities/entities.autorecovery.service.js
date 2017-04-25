@@ -42,13 +42,15 @@ angular.module('indigoeln')
                         rec = type.recoveries[entity.id] = { id: entity.id, name: entity.name };
                     }
                     rec.date = +new Date();
+                    delete rec.thisSession;
                     localStorageService.set(subkey, angular.toJson(types))
+                    rec.thisSession = true;
                     localStorageService.set(getKey(kind, entity), angular.toJson(clone));
                 };
                 get = function(kind, entity) {
                     var type = types[kind];
                     var rec = type.recoveries[entity.id];
-                    if (!rec) return;
+                    if (!rec || rec.thisSession) return;
                     return { entity: JSON.parse(localStorageService.get(getKey(kind, entity))), rec: rec }
                 }
                 deferred.resolve()
