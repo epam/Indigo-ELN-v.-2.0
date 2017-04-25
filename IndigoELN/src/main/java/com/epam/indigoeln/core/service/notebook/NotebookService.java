@@ -139,6 +139,8 @@ public class NotebookService {
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
         // add OWNER's permissions for specified User to notebook
         PermissionUtil.addOwnerToAccessList(notebook.getAccessList(), user);
+        // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
+        PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
 
         saveNotebookAndHandleError(notebook);
 
