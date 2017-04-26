@@ -129,4 +129,23 @@ tr {
   .panel-heading {
     cursor: pointer;
   }
+.grid-popup {
+      margin-top: -10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      max-height: 0;
+      transition: max-height ease-out 0.3s;
+      visibility: hidden;
+      line-height: 20px
+  }
+  
+  .grid-popup.shown-true {
+      max-height: 200px;
+      visibility: visible;
+  }
+  
+  .grid-popup .popitem:hover {
+      cursor: pointer;
+      background: #f1f1f1
+  }
 }
