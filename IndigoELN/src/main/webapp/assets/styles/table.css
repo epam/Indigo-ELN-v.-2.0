@@ -275,9 +275,8 @@ tr {
   border: 0 none;
   vertical-align: middle;
 }
-.table.authoritiesTable > thead > tr > th:first-child {
-  border-right: 1px solid #ddd;
-  background-color: #fafafa;
+.table.authoritiesTable > tbody > tr {
+  height: 40px;
 }
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
@@ -288,12 +287,16 @@ tr {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.table.authoritiesTable > tbody > tr > td:first-child {
+.table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
+  background-color: #f6f6f6;
+}
+.table.authoritiesTable.authoritiesColumn > thead > tr > th,
+.table.authoritiesTable.authoritiesColumn > thead > tr > td {
   text-align: left;
   border-right: 1px solid #ddd;
   background-color: #fafafa;
 }
-.table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
+.table.authoritiesTable.authoritiesColumn > tbody > tr:nth-of-type(odd){
   background-color: #f6f6f6;
 }
 .table.product > thead > tr > th .btn-group {
