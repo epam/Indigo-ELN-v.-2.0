@@ -2,7 +2,7 @@ angular.module('indigoeln')
     .factory('AutoRecoverEngine', function(AlertModal, Principal, localStorageService, $q) {
         var delay = 500;
         var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
-        var kinds = ['experiment'],
+        var kinds = ['experiment', 'project', 'notebook'],
             save, get, clear;
         var deferred = $q.defer();
         Principal.identity()
@@ -15,14 +15,14 @@ angular.module('indigoeln')
                         types[kind] = { recoveries: {} };
                     })
                 } else {
-                    console.log('recoveries', types)
+                    //console.log('recoveries', types)
                 }
 
                 function getKey(kind, entity) {
                     return subkey + kind + '.entity.' + entity.id;
                 }
                 clear = function(kind, entity) {
-                    console.log('clear entity', kind, entity)
+                    //console.log('clear entity', kind, entity)
                     var type = types[kind];
                     var rec = type.recoveries[entity.id];
                     if (!rec) return;
@@ -39,7 +39,7 @@ angular.module('indigoeln')
                     var type = types[kind];
                     var rec = type.recoveries[entity.id];
                     if (!rec) {
-                        rec = type.recoveries[entity.id] = { id: entity.id, name: entity.name };
+                        rec = type.recoveries[entity.id] = { id: entity.id, name: entity.name, kind : kind };
                     }
                     rec.date = +new Date();
                     delete rec.thisSession;
@@ -58,7 +58,7 @@ angular.module('indigoeln')
         return {
             trackEntityChanges: function(entity, form, $scope, kind) {
                 deferred.promise.then(function() {
-                    console.log('trackEntityChanges', entity, kind)
+                    //console.log('trackEntityChanges', entity, kind)
                     var rec = get(kind, entity);
                     if (rec) {
                         $scope.restored = {
@@ -72,11 +72,11 @@ angular.module('indigoeln')
                                 $scope.restored = null;
                             }
                         }
-                        console.log('restore', rec.rec, rec.entity)
+                        //console.log('restore', rec.rec, rec.entity)
                     }
                     var onChange = _.debounce(function(entity, old) {
                         if (form.$dirty) {
-                            console.log('change', form.$dirty, entity);
+                           // console.log('change', old, entity);
                             save(kind, entity)
                         } else {}
                     }, delay);

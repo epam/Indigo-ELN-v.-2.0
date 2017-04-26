@@ -28,19 +28,21 @@ angular.module('indigoeln')
 
         return {
             trackEntityChanges: function (entity, form, $scope, kind) {
-                if (entity.$$form && entity.$$form.$dirty) {
-                    form.$setDirty();
-                }
-                entity.$$form = form;
-                var onChange = _.debounce(function (entity) {
-                    if (entity.$$form && entity.$$form.$dirty && entity.fullId) {
-                        AutosaveService.save({id: entity.fullId}, angular.toJson(entity));
-                    }
-                }, delay);
-                var unbind = $scope.$watch(kind, onChange, true);
-                $scope.$on('$destroy', function () {
-                    unbind();
-                });
+                //replaced with autorecovery 
+
+                // if (entity.$$form && entity.$$form.$dirty) {
+                //     form.$setDirty();
+                // }
+                // entity.$$form = form;
+                // var onChange = _.debounce(function (entity) {
+                //     if (entity.$$form && entity.$$form.$dirty && entity.fullId) {
+                //         AutosaveService.save({id: entity.fullId}, angular.toJson(entity));
+                //     }
+                // }, delay);
+                // var unbind = $scope.$watch(kind, onChange, true);
+                // $scope.$on('$destroy', function () {
+                //     unbind();
+                // });
             },
 
 
@@ -52,22 +54,27 @@ angular.module('indigoeln')
                         deferred.resolve(entity);
                     });
                 };
-                AutosaveService.get({id: fullId}, function (entity) {
-                    if (entity.fullId) {
-                        AlertModal.autorecover('Auto-Recover file(s) found for ' + entity.name + '. Do you want to recover from this files?', null, function () {
-                            AutosaveService.delete({id: fullId}, function () {
-                                deferred.resolve(entity);
-                            });
-                        }, function () {
-                            AutosaveService.delete({id: fullId}, function () {
-                                loadOrigin();
-                            });
-                        });
-                    } else {
-                        loadOrigin();
-                    }
-                });
-                return deferred.promise;
+                loadOrigin()
+                return deferred.promise; 
+
+                //replaced with autorecovery 
+
+                // AutosaveService.get({id: fullId}, function (entity) {
+                //     if (entity.fullId) {
+                //         AlertModal.autorecover('Auto-Recover file(s) found for ' + entity.name + '. Do you want to recover from this files?', null, function () {
+                //             AutosaveService.delete({id: fullId}, function () {
+                //                 deferred.resolve(entity);
+                //             });
+                //         }, function () {
+                //             AutosaveService.delete({id: fullId}, function () {
+                //                 loadOrigin();
+                //             });
+                //         });
+                //     } else {
+                //         loadOrigin();
+                //     }
+                // });
+                // return deferred.promise;
             }
         }
     });
