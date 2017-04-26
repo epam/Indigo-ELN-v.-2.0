@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('ProjectDialogController',
         function ($scope, $rootScope, $state, Project, Alert,
-                  PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils) {
+                  PermissionManagement, FileUploaderCash, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils, AutoRecoverEngine) {
             var self = this;
             EntitiesBrowser.setCurrentTabTitle(pageInfo.project.name, $stateParams);
             var identity = pageInfo.identity;
@@ -19,8 +19,7 @@ angular.module('indigoeln')
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
                 }, true);
 
-                // Uncomment after fixing EPMLSOPELN-59
-                //AutoSaveEntitiesEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
+                AutoRecoverEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
 
             }, 0, false);
             $scope.project = project;

@@ -1,7 +1,7 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
         function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
-                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils) {
+                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils, AutoRecoverEngine) {
             var self = this;
             EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
             var identity = pageInfo.identity;
@@ -10,9 +10,7 @@ angular.module('indigoeln')
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.experiments = pageInfo.experiments;
             $timeout(function () {
-
                 var tabKind = $state.$current.data.tab.kind;
-
                 if(pageInfo.dirty){
                     $scope.createNotebookForm.$setDirty(pageInfo.dirty);
                 }
@@ -20,9 +18,7 @@ angular.module('indigoeln')
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
                 }, true);
-
-                // Uncomment after fixing EPMLSOPELN-59
-                //AutoSaveEntitiesEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
+                AutoRecoverEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
 
             }, 0, false);
             $scope.notebook = pageInfo.notebook;
