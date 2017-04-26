@@ -1,0 +1,5 @@
+<div ng-if="!!restored" class="autorecovery">
+    <span> <span  style="text-transform: capitalize;">{{restored.rec.kind}}</span> <b> {{restored.rec.name}} </b> was not saved. Do you want to restore changes? 
+        <button class="btn btn-primary" ng-click="restored.resolve(true)"> Yes </button> <button ng-click="restored.resolve(false)" class="btn btn-default"> No, thanks </button> 
+    </span> 
+</div>
