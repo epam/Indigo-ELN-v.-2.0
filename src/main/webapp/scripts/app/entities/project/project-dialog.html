@@ -67,7 +67,7 @@
                 ui-sref="entities.notebook-new({parentId:project.id})">Create Notebook
         </button>
         <button type="submit" ng-click="save()" form="createProjectForm"
-                ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving"
+                ng-disabled="!isEditAllowed || createProjectForm.$invalid || isSaving || !isActive"
                 class="btn btn-primary"><i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
         <a class="btn btn-default" ng-click="refresh()">
