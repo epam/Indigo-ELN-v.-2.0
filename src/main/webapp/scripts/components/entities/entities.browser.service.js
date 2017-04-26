@@ -15,7 +15,10 @@ angular.module('indigoeln')
         resolvePrincipal(function(user) {
             if (!user) return;
             var strorageKey = user.id + '.current-tabs', id = user.id;
-            tabs[id] =  JSON.parse(localStorageService.get(strorageKey));
+            var t = tabs[id] =  JSON.parse(localStorageService.get(strorageKey));
+            for (var key in t) {
+                t[key].$$title = t[key].title
+            }
             saveTabs = function() {
                 localStorageService.set(strorageKey, angular.toJson(tabs[id]))
             }
@@ -82,7 +85,6 @@ angular.module('indigoeln')
             return resolvePrincipal(function () {
                 var userId = getUserId();
                 deleteClosedTabAndGoToActive(userId, tabKey);
-                console.log('close', tabs)
             });
         };
 
@@ -98,8 +100,10 @@ angular.module('indigoeln')
             return resolvePrincipal(function () {
                 var userId = getUserId();
                 var result = TabKeyUtils.getTabKeyFromParams(stateParams);
-                if (EntitiesBrowser.tabs[userId][result]) {
-                    EntitiesBrowser.tabs[userId][result].$$title = tabTitle;
+                var t = EntitiesBrowser.tabs[userId][result];
+                if (t) {
+                    t.$$title = t.title = tabTitle;
+                    saveTabs();
                 }
             });
         };

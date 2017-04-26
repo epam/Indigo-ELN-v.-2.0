@@ -66,7 +66,7 @@
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                       my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number">
+                      my-parsers="unitParsers" my-formatters="unitFormatters" my-type="number" my-number-min = '0'>
                 <div class="btn-group-sm" uib-dropdown dropdown-append-to-body>
                     <button type="button" class="btn btn-info"
                             aria-haspopup="true"
@@ -86,7 +86,7 @@
                       my-type="number"
                       my-readonly="myColumn.readonly || myRow[myColumn.id].readonly"
                       my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
-                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
+                      my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})" my-number-min = '0'
                       my-parsers="unitParsers" my-formatters="unitFormatters">
             </my-input>
         </div>
@@ -102,11 +102,14 @@
                        my-model="myRow[myColumn.id]"
                        my-dictionary="{{myColumn.dictionary}}" my-classes="form-group-sm"></my-select>
         </div>
-        <div ng-if="myColumn.type == 'input'">
+        <div ng-if="myColumn.type == 'input'" class="cell-has-popup-{{myColumn.hasPopup}}">
             <my-input my-model="myRow[myColumn.id]" my-classes="form-group-sm"
                       my-type="text"
                       my-click="myColumn.onClick(myRow[myColumn.id])"
                       my-change="myColumn.onChange(myRow[myColumn.id])"></my-input>
+              <ul ng-if="myColumn.hasPopup"  class="grid-popup shown-{{!!myRow.$$popItems.length}}" > 
+                  <li ng-repeat="popitem in myRow.$$popItems track by $index " ng-click="myColumn.popItemClick(myRow, popitem.item)" class="popitem">{{popitem.title}}</li>
+              </ul>
         </div>
     </div>
 </div>

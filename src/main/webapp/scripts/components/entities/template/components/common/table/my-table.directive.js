@@ -43,6 +43,9 @@ angular.module('indigoeln')
 				}, function (newVal, prevVal) {
 					oldVal = prevVal;
 					isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
+					if (isChanged && $scope.myColumn.onChange) { 
+						$scope.myColumn.onChange({ row : $scope.myRow, model: $scope.myRow[$scope.myColumn.id] })
+					};
 				}, true));
 			}
             if ($scope.myColumn.hasStructurePopover) {
