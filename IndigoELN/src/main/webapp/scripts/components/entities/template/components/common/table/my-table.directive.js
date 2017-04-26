@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/1/2016.
  */
 angular.module('indigoeln')
-.directive('myTableVal', function ($sce, roundFilter) {
+.directive('myTableVal', function ($sce, roundFilter, Alert) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -25,11 +25,20 @@ angular.module('indigoeln')
 					(_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0) || obj.value === '0');
 			};
 			$scope.closeThis = function () {
-				if ($scope.myColumn.onClose && isChanged) {
-					$scope.myColumn.onClose({
-						model: $scope.myRow[$scope.myColumn.id],
+				var col = $scope.myColumn;
+				if ((col.type == 'scalar' || col.type == 'unit') && isChanged) {
+					var val = $scope.myRow[col.id];
+					var absv = Math.abs(val.value);
+					if (absv!=val.value) {
+						val.value = absv;
+						Alert.error('Total Amount made must more than zero.')
+					}
+				}
+				if (col.onClose && isChanged) {
+					col.onClose({
+						model: $scope.myRow[col.id],
 						row: $scope.myRow,
-						column: $scope.myColumn.id,
+						column: col.id,
 						oldVal: oldVal
 					});
 					isChanged = false;
@@ -43,8 +52,10 @@ angular.module('indigoeln')
 				}, function (newVal, prevVal) {
 					oldVal = prevVal;
 					isChanged = !angular.equals(newVal, prevVal) && $scope.isEditable();
-					if (isChanged && $scope.myColumn.onChange) { 
-						$scope.myColumn.onChange({ row : $scope.myRow, model: $scope.myRow[$scope.myColumn.id] })
+					var col = $scope.myColumn;
+					if (isChanged) { 
+						if (col.onChange)
+							col.onChange({ row : $scope.myRow, model: $scope.myRow[col.id], oldVal: oldVal })
 					};
 				}, true));
 			}
