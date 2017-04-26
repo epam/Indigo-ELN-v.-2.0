@@ -46,6 +46,7 @@ angular.module('indigoeln')
                 var reactionReactants, actualProducts;
 
                 var populateFetchedBatch = function (row, source) {
+                    row.$$populatedBatch = source;
                     _.extend(row, source);
                     row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
                     row.weight = null;
@@ -64,11 +65,7 @@ angular.module('indigoeln')
                     $timeout.cancel(ftimeout);
                     ftimeout = $timeout(function() {
                         SearchService.search(searchRequest, function (result) {
-                            if (result[0]) {
-                                success(result.slice(0, 5))
-                            } else {
-                                Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
-                            }
+                            success(result.slice(0, 5))
                         });
                     }, 500)
                 }
@@ -148,7 +145,9 @@ angular.module('indigoeln')
                         });
                     });
                 }
-
+                var alertWrongFormat = function() {
+                    Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
+                }
                 $scope.reactantsColumns = [
                     {
                         id: 'compoundId',
@@ -178,24 +177,47 @@ angular.module('indigoeln')
                         hasStructurePopover: true,
                         hasPopup : true,
                         popItemClick : function(row, item) {
+                            row.fullNbkBatch = item.details.fullNbkBatch;
                             populateFetchedBatch(row, item.details);
                         },
                         onChange : function(data) {
                             var row = data.row;
                             if (row) {
+                                if (!row.$$fullNbkBatchOld) row.$$fullNbkBatchOld = data.oldVal;
                                 var nbkBatch = data.model;
                                 row.$$popItems = null;
+                                row.$$populatedBatch = null;
                                 fetchBatchByNbkNumber(nbkBatch, function(result) {
-                                    row.$$popItems = result.map(function(r) { return {item : r, title : r.details.fullNbkBatch}})
+                                    if (result[0]) {
+                                        row.$$popItems = result.map(function(r) { return {item : r, title : r.details.fullNbkBatch}})
+                                    }
+                                    else {
+                                        alertWrongFormat()
+                                    }
                                 })
                             }
                         },
                         onClose: function (data) {
-                            return;
                             var row = data.row;
                             var nbkBatch = data.model;
-                            row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "") || undefined;
-                            fetchBatchByNbkNumber(nbkBatch, row);
+                            if (!row.$$populatedBatch) {
+                                console.warn('change nbk', row)
+                                row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "").trim() || undefined;
+                                if (row.fullNbkBatch) {
+                                    fetchBatchByNbkNumber(nbkBatch, function(result) {
+                                        var pb = result[0];
+                                        if (pb && pb.details.fullNbkBatch == row.fullNbkBatch) {
+                                            populateFetchedBatch(row, pb.details);
+                                        } else {
+                                            alertWrongFormat()
+                                            row.fullNbkBatch = row.$$fullNbkBatchOld || undefined;
+                                        }
+                                    });
+                                } else {
+                                    alertWrongFormat()
+                                    row.fullNbkBatch = row.$$fullNbkBatchOld || undefined;
+                                }
+                            }
                         }
                     },
                     {
