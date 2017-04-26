@@ -56,14 +56,8 @@ tr {
   }
 
   &.authoritiesTable {
-    > thead > tr > th {
-      &:first-child {
-        border-right: 1px solid #ddd;
-        background-color: #fafafa;
-      }
-    }
-
     > tbody > tr {
+      height: 40px;
       > td {
         text-align: center;
         white-space: nowrap;
@@ -73,18 +67,17 @@ tr {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-
-        &:first-child {
-          text-align: left;
+      }
+    }
+    &.authoritiesColumn {
+      > thead > tr > th,
+      > tbody > tr > td {
+        text-align: left;
           border-right: 1px solid #ddd;
           background-color: #fafafa;
-
-        }
       }
-      &:nth-of-type(odd) > td {
-        &:first-child {
-          background-color: #f6f6f6;
-        }
+      > tbody > tr:nth-of-type(odd) {
+        background-color: #f6f6f6;
       }
     }
   }
