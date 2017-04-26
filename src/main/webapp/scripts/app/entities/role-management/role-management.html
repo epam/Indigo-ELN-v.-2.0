@@ -64,40 +64,57 @@
             </button>
         </div>
     </div>
-    <div class="table-responsive" my-scroller="x">
-        <table class="table table-striped authoritiesTable">
-            <thead>
-            <tr>
-                <th><p>Role name</p></th>
-                <th ng-repeat="authority in authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
-                <th>Action</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="role in roles track by role.id">
-                <td><div class="role-name">{{role.name}}</div></td>
-                <td ng-repeat="authority in authorities track by $index">
-                    <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
-                          class="role-check-icon"></span>
-                </td>
-                <td>
-                    <button type="submit"
-                            ng-click="edit(role)"
-                            ng-show="!role.system"
-                            class="btn btn-info btn-small">
-                        <i class="fa fa-pencil"></i>
-                        <span class="m-l5">Edit</span>
-                    </button>
-                    <button type="submit"
-                            ui-sref="entities.role-management.delete({id:role.id})"
-                            ng-show="!role.system"
-                            class="btn btn-info btn-small">
-                        <i class="fa fa-trash"></i>
-                        <span class="m-l5">delete</span>
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="table-responsive container-fluid">
+            <div class="row">
+                <div class="col-sm-2" style="padding:0">
+                    <table class="table table-striped authoritiesTable">
+                        <thead>
+                            <tr>
+                                <th><p>Role name</p></th>
+                            </tr>
+                        <tbody>
+                            <tr ng-repeat="role in roles track by role.id">
+                                <td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-10" my-scroller="x" style="padding:0">
+                    <table class="table table-striped authoritiesTable">
+                        <thead>
+                        <tr>
+                            <!--<th><p>Role name</p></th>-->
+                            <th ng-repeat="authority in authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="role in roles track by role.id">
+                            <!--<td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>-->
+                            <td ng-repeat="authority in authorities track by $index">
+                                <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
+                                             class="role-check-icon"></span>
+                            </td>
+                            <td>
+                                <button type="submit"
+                                        ng-click="edit(role)"
+                                        ng-show="!role.system"
+                                        class="btn btn-info btn-small">
+                                    <i class="fa fa-pencil"></i>
+                                    <span class="m-l5">Edit</span>
+                                </button>
+                                <button type="submit"
+                                        ui-sref="entities.role-management.delete({id:role.id})"
+                                        ng-show="!role.system"
+                                        class="btn btn-info btn-small">
+                                    <i class="fa fa-trash"></i>
+                                    <span class="m-l5">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </div>
 </div>
