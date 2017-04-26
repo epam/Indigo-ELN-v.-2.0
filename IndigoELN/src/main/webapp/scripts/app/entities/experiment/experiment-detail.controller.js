@@ -76,7 +76,7 @@ angular.module('indigoeln')
                     $scope.experiment.version = result.version;
                     $scope.experimentForm.$setPristine();
                 }, function () {
-                    Alert.error('Experiment not saved due to server error!')
+                    Alert.error('Experiment is not saved due to server error!')
                 });
             };
 

@@ -130,7 +130,7 @@ angular.module('indigoeln')
 
         var onSaveError = function () {
             $scope.isSaving = false;
-            Alert.error('Role not saved due to server error!')
+            Alert.error('Role is not saved due to server error!')
             loadAll();
         };
 

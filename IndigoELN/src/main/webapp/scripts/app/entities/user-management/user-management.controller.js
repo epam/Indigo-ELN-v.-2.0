@@ -40,7 +40,7 @@ angular.module('indigoeln')
         var onSaveError = function () {
             $scope.isSaving = false;
             $scope.loadAll();
-            Alert.error('User not saved due to server error!')
+            Alert.error('User is not saved due to server error!')
         };
 
         $scope.save = function () {

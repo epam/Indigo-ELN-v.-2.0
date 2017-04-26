@@ -45,7 +45,7 @@ angular.module('indigoeln')
             $scope.isSaving = false;
             $scope.isWordSaving = false;
             $scope.loadAllDictionaries();
-           Alert.error('Dictionary not saved due to server error!')
+           Alert.error('Dictionary is not saved due to server error!')
      
         };
 

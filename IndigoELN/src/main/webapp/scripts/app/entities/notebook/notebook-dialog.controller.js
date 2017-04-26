@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook not saved due to server error';
+                var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook is not saved due to server error';
                 Alert.error(mess);
             };
             $scope.refresh = function () {
