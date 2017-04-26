@@ -76,7 +76,7 @@ angular.module('indigoeln')
             };
 
             var onSaveError = function (result) {
-                var mess =  (result.status == 400) ? 'this Project name is already in use in the system' : 'Project not saved due to server error';
+                var mess =  (result.status == 400) ? 'this Project name is already in use in the system' : 'Project is not saved due to server error';
                 Alert.error(mess);
             };
 
