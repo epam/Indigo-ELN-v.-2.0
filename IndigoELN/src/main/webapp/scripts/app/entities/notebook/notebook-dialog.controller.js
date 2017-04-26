@@ -9,6 +9,7 @@ angular.module('indigoeln')
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
             $scope.experiments = pageInfo.experiments;
+            $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
@@ -17,6 +18,7 @@ angular.module('indigoeln')
 
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
+                    $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
                 }, true);
                 AutoRecoverEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
 
