@@ -183,7 +183,7 @@ angular.module('indigoeln')
                         onChange : function(data) {
                             var row = data.row;
                             if (row) {
-                                if (!row.$$fullNbkBatchOld) row.$$fullNbkBatchOld = data.oldVal;
+                                if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) row.$$fullNbkBatchOld = data.oldVal;
                                 var nbkBatch = data.model;
                                 row.$$popItems = null;
                                 row.$$populatedBatch = null;
@@ -201,7 +201,6 @@ angular.module('indigoeln')
                             var row = data.row;
                             var nbkBatch = data.model;
                             if (!row.$$populatedBatch) {
-                                console.warn('change nbk', row)
                                 row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "").trim() || undefined;
                                 if (row.fullNbkBatch) {
                                     fetchBatchByNbkNumber(nbkBatch, function(result) {
