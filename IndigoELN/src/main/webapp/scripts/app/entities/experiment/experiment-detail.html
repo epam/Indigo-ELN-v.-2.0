@@ -66,7 +66,7 @@
             <select ng-model="experiment.status" ng-options="o as o for o in statuses"></select>
         </div>-->
 
-        <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid" class="btn btn-primary">
+        <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid || !isActive" class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
         <a class="btn btn-default" onclick="window.history.back()">
