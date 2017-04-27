@@ -573,9 +573,8 @@ tr {
   border: 0 none;
   vertical-align: middle;
 }
-.table.authoritiesTable > thead > tr > th:first-child {
-  border-right: 1px solid #ddd;
-  background-color: #fafafa;
+.table.authoritiesTable > tbody > tr {
+  height: 40px;
 }
 .table.authoritiesTable > tbody > tr > td {
   text-align: center;
@@ -586,12 +585,13 @@ tr {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.table.authoritiesTable > tbody > tr > td:first-child {
+.table.authoritiesTable.authoritiesColumn > thead > tr > th,
+.table.authoritiesTable.authoritiesColumn > tbody > tr > td {
   text-align: left;
   border-right: 1px solid #ddd;
   background-color: #fafafa;
 }
-.table.authoritiesTable > tbody > tr:nth-of-type(odd) > td:first-child {
+.table.authoritiesTable.authoritiesColumn > tbody > tr:nth-of-type(odd) > td {
   background-color: #f6f6f6;
 }
 .table.product > thead > tr > th .btn-group {
@@ -638,6 +638,23 @@ tr {
 }
 .my-component .panel-heading {
   cursor: pointer;
+}
+.my-component .grid-popup {
+  margin-top: -10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  max-height: 0;
+  transition: max-height ease-out 0.3s;
+  visibility: hidden;
+  line-height: 20px;
+}
+.my-component .grid-popup.shown-true {
+  max-height: 200px;
+  visibility: visible;
+}
+.my-component .grid-popup .popitem:hover {
+  cursor: pointer;
+  background: #f1f1f1;
 }
 /******************SEARCH*********************/
 .search-field {
@@ -1906,4 +1923,16 @@ ul.my-dropdown-list {
 }
 .checkbox-label-wrapper {
   display: inline-block;
+}
+.autorecovery {
+  padding: 4px 20px;
+  background: #dff560;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+.autorecovery .btn {
+  margin-left: 10px;
 }
