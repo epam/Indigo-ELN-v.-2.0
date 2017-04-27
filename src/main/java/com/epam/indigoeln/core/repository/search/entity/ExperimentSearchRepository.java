@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class ExperimentSearchRepository implements InitializingBean {
 
-    private static final List<String> SEARCH_QUERY_FIELDS = Collections.singletonList("status");
+    private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("status","name");
     private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author._id", "kind");
 
     @Autowired

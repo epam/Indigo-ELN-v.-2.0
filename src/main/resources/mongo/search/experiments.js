@@ -30,6 +30,7 @@ function searchExperiments(filter) {
         {
             $project: {
                 'components': createProjectCond('$components'),
+                'name': 1,
                 'status': 1,
                 'author': 1,
                 'kind': {'$substr': ['$_class', 30, -1]}
