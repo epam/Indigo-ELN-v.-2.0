@@ -55,7 +55,8 @@ tr {
     vertical-align: middle;
   }
 
-  &.authoritiesTable {
+  &.authorities-table {
+    border-left: none;
     > tbody > tr {
       height: 40px;
       > td {
@@ -69,7 +70,9 @@ tr {
         }
       }
     }
-    &.authoritiesColumn {
+    &.authorities-column {
+      border-left: 1px solid #ddd;
+      float: left;
       > thead > tr > th,
       > tbody > tr > td {
         text-align: left;
@@ -110,7 +113,9 @@ tr {
     }
   }
 }
-
+.wrapper-authorities-col {
+  float: left;
+}
 .table-row-variant(success; @brand4);
 
 //table .success td {

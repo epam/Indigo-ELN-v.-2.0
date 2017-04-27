@@ -573,33 +573,40 @@ tr {
   border: 0 none;
   vertical-align: middle;
 }
-.table.authoritiesTable > tbody > tr {
+.table.authorities-table {
+  border-left: none;
+}
+.table.authorities-table > tbody > tr {
   height: 40px;
 }
-.table.authoritiesTable > tbody > tr > td {
+.table.authorities-table > tbody > tr > td {
   text-align: center;
   white-space: nowrap;
 }
-.table.authoritiesTable > tbody > tr > td .role-name {
+.table.authorities-table > tbody > tr > td .role-name {
   width: 205px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.table.authoritiesTable.authoritiesColumn > thead > tr > th,
-.table.authoritiesTable.authoritiesColumn > tbody > tr > td {
+.table.authorities-table.authorities-column {
+  border-left: 1px solid #ddd;
+  float: left;
+}
+.table.authorities-table.authorities-column > thead > tr > th,
+.table.authorities-table.authorities-column > tbody > tr > td {
   text-align: left;
   border-right: 1px solid #ddd;
   background-color: #fafafa;
 }
-.table.authoritiesTable.authoritiesColumn > thead > tr > th .tooltip,
-.table.authoritiesTable.authoritiesColumn > tbody > tr > td .tooltip {
+.table.authorities-table.authorities-column > thead > tr > th .tooltip,
+.table.authorities-table.authorities-column > tbody > tr > td .tooltip {
   width: auto;
 }
-.table.authoritiesTable.authoritiesColumn > thead > tr > th .tooltip .tooltip-inner,
-.table.authoritiesTable.authoritiesColumn > tbody > tr > td .tooltip .tooltip-inner {
+.table.authorities-table.authorities-column > thead > tr > th .tooltip .tooltip-inner,
+.table.authorities-table.authorities-column > tbody > tr > td .tooltip .tooltip-inner {
   max-width: none;
 }
-.table.authoritiesTable.authoritiesColumn > tbody > tr:nth-of-type(odd) > td {
+.table.authorities-table.authorities-column > tbody > tr:nth-of-type(odd) > td {
   background-color: #f6f6f6;
 }
 .table.product > thead > tr > th .btn-group {
@@ -616,6 +623,9 @@ tr {
 }
 .table.product .my-checkbox-wrapper .checkbox {
   margin: 0;
+}
+.wrapper-authorities-col {
+  float: left;
 }
 .table > thead > tr > td.success,
 .table > tbody > tr > td.success,
