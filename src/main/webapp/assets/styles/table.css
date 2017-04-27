@@ -293,6 +293,14 @@ tr {
   border-right: 1px solid #ddd;
   background-color: #fafafa;
 }
+.table.authoritiesTable.authoritiesColumn > thead > tr > th .tooltip,
+.table.authoritiesTable.authoritiesColumn > tbody > tr > td .tooltip {
+  width: auto;
+}
+.table.authoritiesTable.authoritiesColumn > thead > tr > th .tooltip .tooltip-inner,
+.table.authoritiesTable.authoritiesColumn > tbody > tr > td .tooltip .tooltip-inner {
+  max-width: none;
+}
 .table.authoritiesTable.authoritiesColumn > tbody > tr:nth-of-type(odd) > td {
   background-color: #f6f6f6;
 }
