@@ -1,84 +1,20 @@
 angular.module('indigoeln')
     .controller('SearchPanelController', function ($rootScope, $scope, $sce, $filter, SearchService, SearchUtilService, pageInfo) {
-
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
-
-
-        $scope.model = {};
         $scope.identity = pageInfo.identity;
         $scope.users = _.map(pageInfo.users.words, function (item) {
             return {name: item.name, id: item.id};
         });
-
-
-        $scope.model.restrictions = {
-            searchQuery: '',
-            advancedSearch: {
-                therapeuticArea: {name: 'Therapeutic Area', field: 'therapeuticArea', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                projectCode: {name: 'Project Code', field: 'projectCode', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                batchYield: {name: 'Batch Yield%', field: 'batchYield', condition: {name: '>'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                batchPurity: {name: 'Batch Purity%', field: 'purity', condition: {name: '>'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                subject: {name: 'Subject/Title', field: 'name', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                entityDescription: {name: 'Entity Description', field: 'description', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                compoundId: {name: 'Compound ID', field: 'compoundId', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                literatureRef: {name: 'Literature Ref', field: 'references', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                entityKeywords: {name: 'Entity Keywords', field: 'keywords', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                entityTypeCriteria: {
-                    name: 'Entity Type Criteria',
-                    $$skipList: true,
-                    field: 'kind',
-                    condition: {name: 'in'},
-                    value: []
-                },
-
-                entityDomain: {
-                    name: 'Entity Searching Domain',
-                    $$skipList: true,
-                    field: 'author._id',
-                    condition: {name: 'in'},
-                    value: []
-                },
-
-                statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
-
-
-            },
-            users : [],
-            entityType: 'Project',
-            structure: {
-                name: 'Reaction Scheme',
-                similarityCriteria: {name: 'equal'},
-                similarityValue: null,
-                image: null,
-                type: {name: 'Product'}
-            }
-        };
-
+        $scope.model = SearchUtilService.getStoredModel();
+        $scope.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
 
         $scope.structureTypes = [{name:'Reaction'},{name:'Product'}];
         $scope.conditionSimilarity = [{name: 'equal'}, {name: 'substructure'}, {name: 'similarity'}];
+
+        $scope.clear = function() {
+            $scope.model = SearchUtilService.getStoredModel(true);
+        };
 
         $scope.isAdvancedSearchFilled = function () {
             return SearchUtilService.isAdvancedSearchFilled($scope.model.restrictions.advancedSearch);
