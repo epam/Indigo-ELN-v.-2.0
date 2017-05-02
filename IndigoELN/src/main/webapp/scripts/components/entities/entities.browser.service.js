@@ -7,7 +7,7 @@ angular.module('indigoeln')
         var EntitiesBrowser = {};
         var tabs = EntitiesBrowser.tabs =  {};
         EntitiesBrowser.activeTab = {};
-        var saveTabs;
+        var saveTabs = function() {};
         var resolvePrincipal = function (func) {
             return Principal.identity().then(func);
         };

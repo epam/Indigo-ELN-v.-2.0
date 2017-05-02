@@ -19,10 +19,10 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, Principal, Dictionary) {
+                    pageInfo: function ($q, Principal, Users) {
                         var deferred = $q.defer();
                         $q.all([
-                            Dictionary.get({id: 'users'}).$promise,
+                            Users.get(),
                             Principal.identity()
                         ]).then(function(results){
                             deferred.resolve({

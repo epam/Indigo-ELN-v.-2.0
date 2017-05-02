@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('Experiment', function ($resource, PermissionManagement) {
+    .factory('Experiment', function ($resource, PermissionManagement, $rootScope) {
         function toModel(experiment) {
             var components = experiment.components;
             if (_.isArray(components)) {
@@ -22,6 +22,13 @@ angular.module('indigoeln')
             data.components = toComponents(data.components);
             data.accessList = PermissionManagement.expandPermission(data.accessList);
             return data;
+        }
+
+        var interceptor = {
+            response: function(data) {
+                $rootScope.$broadcast('experiment-updated', toModel(data.resource))
+                return data;
+            }
         }
 
         return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
@@ -50,7 +57,8 @@ angular.module('indigoeln')
                     transformRequest: function (data) {
                         data = transformRequest(data);
                         return angular.toJson(data);
-                    }
+                    },
+                    interceptor : interceptor
                 },
                 'version': {
                     method: 'POST',
@@ -61,7 +69,8 @@ angular.module('indigoeln')
                     transformRequest: function (data) {
                         data = transformRequest(data);
                         return angular.toJson(data);
-                    }
+                    },
+                    interceptor : interceptor
                 },
                 'delete': {method: 'DELETE'}
             });

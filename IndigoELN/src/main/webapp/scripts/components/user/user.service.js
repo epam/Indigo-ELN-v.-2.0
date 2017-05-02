@@ -30,4 +30,14 @@ angular.module('indigoeln')
             },
             'delete': {method: 'DELETE'}
         });
+    }).factory('Users', function($q, Dictionary) {
+        var deferred;
+        return {
+            get: function(force) {
+                if (!deferred || force) {
+                    deferred = Dictionary.get({ id: 'users' });
+                } 
+                return deferred.$promise;
+            }
+        }
     });
