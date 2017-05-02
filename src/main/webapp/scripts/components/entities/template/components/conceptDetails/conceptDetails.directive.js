@@ -7,43 +7,63 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/conceptDetails/conceptDetails.html',
-            controller: function ($scope, Principal, Dictionary, Alert, $state) {
+            controller: function ($scope, Principal, Dictionary, Users, Alert, $state, $q) {
                 $scope.model.conceptDetails = $scope.model.conceptDetails || {};
                 $scope.model.reactionDetails = $scope.model.reactionDetails || {};
                 $scope.model.conceptDetails.experimentCreator = $scope.model.conceptDetails.experimentCreator ||
                     {name: Principal.getIdentity().fullName};
                 $scope.onLinkedExperimentClick = function (tag) {
-                    var experiment = _.find($scope.experiments, function (experiment) {
-                        return experiment.name === tag.text;
-                    });
-                    if (!experiment) {
-                        Alert.error('Can not find a experiment with the name: ' + tag.text);
-                        return;
-                    }
-                    $state.go('entities.experiment-detail', {
-                        experimentId: experiment.id,
-                        notebookId: experiment.notebookId,
-                        projectId: experiment.projectId
-                    });
+                    init().then(function(experiments) {
+                        var experiment = _.find(experiments, function (experiment) {
+                            return experiment.name === tag.text;
+                        });
+                        if (!experiment) {
+                            Alert.error('Can not find a experiment with the name: ' + tag.text);
+                            return;
+                        }
+                        $state.go('entities.experiment-detail', {
+                            experimentId: experiment.id,
+                            notebookId: experiment.notebookId,
+                            projectId: experiment.projectId
+                        });
+
+                    })
                 };
                 $scope.onAddLinkedExperiment = function (tag) {
-                    return _.isObject(_.find($scope.experiments, function (experiment) {
-                        return experiment.name === tag.text;
-                    }));
+                     var _deferred = $q.defer();
+                    init().then(function(experiments) {
+                        _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
+                            return experiment.name === tag.text;
+                        })));
+                    })
+                    return _deferred.promise;
                 };
-                $scope.getExperiments = function (query) {
-                    return _.chain($scope.experiments).filter(function (experiment) {
-                        return experiment.name.startsWith(query);
-                    }).map(function (experiment) {
-                        return experiment.name;
-                    }).value();
-                };
-                Dictionary.get({id: 'users'}, function (dictionary) {
+
+                var deferred;
+                function init() {
+                    if (deferred) return deferred.promise;
+                    deferred = $q.defer();
+                    Dictionary.get({id: 'experiments'}, function (dictionary) {
+                        deferred.resolve(dictionary.words)
+                        console.log('inited', dictionary.words)
+                    });
+                    return deferred.promise;
+                }
+                Users.get().then(function(dictionary) {
                     $scope.users = dictionary.words;
-                });
-                Dictionary.get({id: 'experiments'}, function (dictionary) {
-                    $scope.experiments = dictionary.words;
-                });
+                })
+                $scope.getExperiments = function(query) {
+                    var _deferred = $q.defer();
+                    init().then(function(experiments) {
+                        var filtered = _.chain(experiments).filter(function(experiment) {
+                            return experiment.name.startsWith(query);
+                        }).map(function(experiment) {
+                            return experiment.name;
+                        }).value();
+                        _deferred.resolve(filtered)
+                    })
+                    return _deferred.promise;
+                };
             }
         };
     });

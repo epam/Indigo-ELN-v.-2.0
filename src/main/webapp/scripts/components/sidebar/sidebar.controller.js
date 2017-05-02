@@ -19,6 +19,11 @@ angular
             if (etimeout) $timeout.cancel(etimeout)
             popExperiment = null;
             etimeout = $timeout(function() {
+                if (experiment.components) {
+                    popExperiment = experiment;
+                    console.log('popped', popExperiment)
+                    return;
+                }
                 Experiment.get({
                     experimentId: experiment.id,
                     notebookId: notebook.id,
@@ -37,22 +42,24 @@ angular
             return experiment == popExperiment;
         }
 
-        var updateProjectsStatuses = function (projects, statuses) {
+
+        var updateExperiments = function (projects, callback) {
             angular.forEach(projects, function (project) {
                 angular.forEach(project.children, function (notebook) {
-                    angular.forEach(notebook.children, function (experiment) {
-                        var status = statuses[experiment.fullId];
-                        if (status) {
-                            experiment.status = status;
-                        }
-                    });
+                    angular.forEach(notebook.children, callback);
                 });
             });
         };
 
         var updateStatuses = function (statuses) {
-            updateProjectsStatuses($scope.myBookmarks.projects, statuses);
-            updateProjectsStatuses($scope.allProjects.projects, statuses);
+            var updStatus = function(experiment) {
+                var status = statuses[experiment.fullId];
+                if (status) {
+                    experiment.status = status;
+                }
+            }
+            updateExperiments($scope.myBookmarks.projects, updStatus);
+            updateExperiments($scope.allProjects.projects, updStatus);
         };
 
         var onProjectCreatedEvent = $scope.$on('project-created', function () {
@@ -128,11 +135,25 @@ angular
             updateStatuses(data);
         });
 
+        var onExperimentChangedEvent = $scope.$on('experiment-updated', function (event, experiment) {
+            if (experiment) {
+                var updExp = function (exp) {
+                    if (exp.fullId === experiment.fullId) {
+                        angular.extend(exp, experiment)
+                    }
+                }
+                updateExperiments($scope.myBookmarks.projects, updExp);
+                updateExperiments($scope.allProjects.projects, updExp);
+            }
+            console.log('experiment-updated', experiment)
+        });
+
         $scope.$on('$destroy', function () {
             onExperimentCreatedEvent();
             onNotebookCreatedEvent();
             onProjectCreatedEvent();
             onExperimentStatusChangedEvent();
+            onExperimentChangedEvent()
         });
 
         //------------localstorage----------------

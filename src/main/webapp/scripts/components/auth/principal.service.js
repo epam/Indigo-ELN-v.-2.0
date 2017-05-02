@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .factory('Principal', function ($q, Account) {
-        var _identity,
+        var _identity, deferred,
             _authenticated = false;
 
         return {
@@ -46,20 +46,20 @@ angular.module('indigoeln')
                 _authenticated = identity !== null;
             },
             identity: function (force) {
-                var deferred = $q.defer();
 
                 if (force === true) {
                     _identity = undefined;
+                    deferred = null;
                 }
-
                 // check and see if we have retrieved the identity data from the server.
                 // if we have, reuse it by immediately resolving
-                if (angular.isDefined(_identity)) {
-                    deferred.resolve(_identity);
 
+                if (!deferred) 
+                    deferred = $q.defer();
+                else {
                     return deferred.promise;
                 }
-
+                
                 // retrieve the identity data from the server, update the identity object, and then resolve.
                 Account.get().$promise
                     .then(function (account) {
