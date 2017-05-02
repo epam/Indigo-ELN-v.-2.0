@@ -1,8 +1,10 @@
 angular.module('indigoeln')
     .controller('NavbarController', function ($scope, $state, $rootScope, $q, Principal, Auth, EntitiesBrowser, EntitiesCache) {
-        $scope.Principal = Principal;
-
-        var userId =  Principal.getIdentity().id;
+        
+        Principal.identity().then(function(user) {
+            $scope.user =  user;
+            console.warn('user', user)
+        })
 
         $scope.logout = function () {
             var userId = Principal.getIdentity().id;
