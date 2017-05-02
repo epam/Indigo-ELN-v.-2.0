@@ -326,6 +326,13 @@ tr {
 .table.product .my-checkbox-wrapper .checkbox {
   margin: 0;
 }
+.product-batch-register .product tbody tr td a {
+  cursor: default;
+}
+.product-batch-register .product tbody tr td a:hover {
+  color: #337ab7;
+  text-decoration: none;
+}
 .wrapper-authorities-col {
   float: left;
 }
