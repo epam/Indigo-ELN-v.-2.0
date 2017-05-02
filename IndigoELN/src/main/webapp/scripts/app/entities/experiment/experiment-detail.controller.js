@@ -11,7 +11,7 @@ angular.module('indigoeln')
             }
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
-            $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+            $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
@@ -19,7 +19,9 @@ angular.module('indigoeln')
                 }
                 self.dirtyListener = $scope.$watch(tabKind, function () {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
-                    $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+                    $timeout(function() {
+                            $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
+                        }, 0)
                 }, true);
 
                 AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
