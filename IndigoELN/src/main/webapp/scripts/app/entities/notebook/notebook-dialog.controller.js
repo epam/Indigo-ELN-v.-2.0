@@ -18,7 +18,9 @@ angular.module('indigoeln')
 
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
-                    $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+                    $timeout(function(){
+                            $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+                    }, 0);
                 }, true);
                 AutoRecoverEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind);
 
