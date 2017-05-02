@@ -40,6 +40,9 @@ angular.module('indigoeln')
                     if (scope.myModel !== editor.getValue()) {
                         $timeout(function () {
                             scope.myModel = newContent = editor.getValue();
+                            if (isInit) {
+                                formCtrl[scope.myName].$setDirty();
+                            }
                         });
                     }
                 });
