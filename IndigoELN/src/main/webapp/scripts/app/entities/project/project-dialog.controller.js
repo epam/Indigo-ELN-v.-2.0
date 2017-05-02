@@ -9,7 +9,7 @@ angular.module('indigoeln')
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
-            $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+            $scope.isBtnSaveActive = false;
             $timeout(function () {
 
                 var tabKind = $state.$current.data.tab.kind;
@@ -18,7 +18,14 @@ angular.module('indigoeln')
                 }
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
-                    $scope.isActive = EntitiesBrowser.getActiveTab().dirty;
+
+                    if (EntitiesBrowser.getActiveTab().name == "New Project"){
+                        $scope.isBtnSaveActive = true;
+                    } else {
+                        $timeout(function() {
+                            $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
+                        }, 0);
+                    }
                 }, true);
 
                 AutoRecoverEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind);
@@ -32,6 +39,8 @@ angular.module('indigoeln')
             if (!$scope.project.id) {
                 FileUploaderCash.setFiles([]);
             }
+
+
 
             PermissionManagement.setEntity('Project');
             PermissionManagement.setEntityId($scope.project.id);
