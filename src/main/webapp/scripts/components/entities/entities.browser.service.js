@@ -16,6 +16,7 @@ angular.module('indigoeln')
             if (!user) return;
             var strorageKey = user.id + '.current-tabs', id = user.id;
             var oldTabs = JSON.parse(localStorageService.get(strorageKey));
+            console.warn(oldTabs)
             if (oldTabs) {
                 var t = tabs[id] =  oldTabs;
                 for (var key in t) {
@@ -23,6 +24,10 @@ angular.module('indigoeln')
                 }
             }
             saveTabs = function() {
+                var tabsToSave = angular.extend({}, tabs[id])
+                for (var key in tabsToSave) {
+                    delete tabsToSave[key].dirty;
+                }
                 localStorageService.set(strorageKey, angular.toJson(tabs[id]))
             }
         })
