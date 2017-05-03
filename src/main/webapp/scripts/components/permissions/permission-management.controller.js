@@ -2,7 +2,6 @@ angular.module('indigoeln')
     .controller('PermissionManagementController',
         function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal, $rootScope) {
 
-            var oldAccessList = PermissionManagement.getAccessList(); //for compare with new access list
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
             $scope.entity = PermissionManagement.getEntity();
