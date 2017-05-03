@@ -3,7 +3,7 @@
         <div class="col-xs-4" ng-if="myLabel">
             {{myLabel}}
         </div>
-        <div ng-class="{'col-xs-8 text-right':myLabel, 'col-xs-12 text-right':!myLabel}">
+        <div ng-class="{'col-xs-8 text-right':myLabel, 'col-xs-12 text-right':!myLabel}" class="is-hidden">
             <div class="search-field">
                 <i class="fa fa-search"></i>
                 <input type="search" class="uui-search" placeholder="Search" ng-change="search()" id="searchUser" ng-model="searchText">
