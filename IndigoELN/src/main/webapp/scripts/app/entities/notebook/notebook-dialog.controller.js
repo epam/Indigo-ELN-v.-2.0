@@ -16,7 +16,7 @@ angular.module('indigoeln')
                     $scope.isSummary  =false;
                     return;
                 }
-                if ($scope.experiments) {
+                if ($scope.experiments && $scope.experiments.length) {
                     $scope.isSummary = true;
                     return;
                 }
@@ -24,6 +24,10 @@ angular.module('indigoeln')
                     notebookId: $stateParams.notebookId,
                     projectId: $stateParams.projectId
                 }).$promise.then(function(data) {
+                    if (!data.length) {
+                        Alert.info('There are no experiments in this notebook')
+                        return;    
+                    }
                     $scope.experiments = data;
                     $scope.isSummary = true;
                 }, function() {
