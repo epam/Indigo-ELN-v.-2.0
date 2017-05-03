@@ -204,6 +204,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/templates/*").hasAuthority(TEMPLATE_EDITOR.name())
                 // user resource
                 .antMatchers(HttpMethod.GET, "/api/users").hasAnyAuthority(USER_READERS)
+                .antMatchers(HttpMethod.GET, "/api/users/permission-management").hasAnyAuthority(USER_READERS)
                 .antMatchers(HttpMethod.GET, "/api/users/*").hasAuthority(USER_EDITOR.name())
                 .antMatchers(HttpMethod.POST, "/api/users").hasAuthority(USER_EDITOR.name())
                 .antMatchers(HttpMethod.PUT, "/api/users").hasAuthority(USER_EDITOR.name())

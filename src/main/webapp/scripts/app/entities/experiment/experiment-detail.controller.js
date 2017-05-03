@@ -21,7 +21,7 @@ angular.module('indigoeln')
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
                     $timeout(function() {
                             $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                        }, 0)
+                    }, 0)
                 }, true);
 
                 AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
@@ -69,6 +69,13 @@ angular.module('indigoeln')
                 onAccessListChangedEvent();
                 onExperimentStatusChangedEvent();
                 self.dirtyListener();
+            });
+
+            //Activate save button when change permission
+            $scope.$on("activate button", function(){
+                $timeout(function() {
+                    $scope.isBtnSaveActive = true;
+                }, 10); //If put 0, then save button isn't activated
             });
 
             $scope.save = function (experiment) {

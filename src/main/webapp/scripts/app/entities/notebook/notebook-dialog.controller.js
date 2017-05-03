@@ -75,6 +75,13 @@ angular.module('indigoeln')
                 self.dirtyListener();
             });
 
+            //Activate save button when change permission
+            $scope.$on("activate button", function(){
+                $timeout(function() {
+                    $scope.isBtnSaveActive = true;
+                }, 10); //If put 0, then save button isn't activated
+            });
+
             // isEditAllowed
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
                 $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
