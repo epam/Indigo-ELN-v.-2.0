@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
 
 
 
@@ -44,8 +44,10 @@ angular.module('indigoeln')
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
                 EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                   if (tab && userId !== data.user) {
-                       $scope.onTabChanged(tab);
+                    console.warn('update', data, userId, tab)
+                   //if (tab && userId !== data.user) {
+                   if (tab) {
+                       $scope.onTabChanged(tab, data.entity);
                    }
                 });
             });
@@ -100,21 +102,24 @@ angular.module('indigoeln')
             }
             return $q.resolve();
         };
-
-        $scope.onTabChanged = function(tab) {
+        
+        $scope.onTabChanged = function(tab, entity) {
+            if (!EntitiesBrowser.updateCurrentEntity) return;
             if (tab.dirty) {
-                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. Do you want to keep it open without possibility to save?.',
-                    null, function() {}, function() {
-                        onSaveTab(tab);
+                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept (Yes) or Reject (No) saved changes. "Yes" button reloads page to show saved data, "No" button leave entered data and allows you to save them.',
+                    null,
+                    function() {
+                        EntitiesBrowser.updateCurrentEntity()
+                    },
+                    function() {
                     }, 'Yes', true
                 );
             } else {
-                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user, it will be closed. You will need to reopen it.',
-                    null, function() {
-                    onSaveTab(tab);
-                }, null, 'Ok', true);
+                Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
+                EntitiesBrowser.updateCurrentEntity()
             }
         };
+
 
         $scope.onCloseAllTabs = function () {
             var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });
@@ -163,7 +168,6 @@ angular.module('indigoeln')
                         clearRecovery(tab)
                     }
                     onSaveTab(tab);
-
                 });
                 return;
             }
