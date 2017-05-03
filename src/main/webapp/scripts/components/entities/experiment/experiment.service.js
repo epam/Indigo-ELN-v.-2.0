@@ -50,8 +50,9 @@ angular.module('indigoeln')
                     transformResponse: function (data) {
                         data = angular.fromJson(data);
                         data = toModel(data);
+                        $rootScope.$broadcast('experiment-updated', data)
                         return data;
-                    }
+                    },
                 },
                 'save': {method: 'POST',
                     transformRequest: function (data) {
