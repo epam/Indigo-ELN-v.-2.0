@@ -61,12 +61,7 @@
                                         my-model="notebook.description"
                                         my-readonly="!isEditAllowed"></my-text-editor>
 
-                        <div class="btn-bottom-block">
-                            <a class="btn btn-info" ng-click="showSummary()">
-                                <span class="m-l5" ng-show="!isSummary">Show Notebook Content</span>
-                                <span class="m-l5" ng-show="isSummary">Hide Notebook Content</span>
-                            </a>
-                        </div>
+                       
                         <div ng-if="isSummary && experiments.length" class="panel panel-info panel-info-table m-t20">
                             <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
                             <div class="panel-body panel-body-nopad">
@@ -117,6 +112,12 @@
     </form>
 
     <div class="btn-bottom-block tab-content-pad">
+        <div class="pull-left">
+            <a class="btn btn-info" ng-click="showSummary()">
+                <span class="m-l5" ng-show="!isSummary">Show Notebook Content</span>
+                <span class="m-l5" ng-show="isSummary">Hide Notebook Content</span>
+            </a>
+        </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!isCreateChildAllowed || !notebook.id"
                 ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment
