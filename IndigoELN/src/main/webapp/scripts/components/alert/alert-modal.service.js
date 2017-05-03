@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .factory('AlertModal', function ($uibModal) {
-        var alertModal = function (title, message, size, okCallback, noCallback, okText, hideCancel) {
+        var alertModal = function (title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
             $uibModal.open({
                 size: size || 'md',
                 template: '<div class="modal-header">' +
@@ -11,7 +11,7 @@ angular.module('indigoeln')
                     '</div>' +
                     '<div class="modal-footer">' +
                 '<button class="btn btn-primary" type="button" ng-click="ok()">{{okText}}</button>' +
-                '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">No</button>' +
+                '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">{{noText}}</button>' +
                 '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span></button>' +
                     '</div>',
                 controller: function ($scope, $uibModalInstance) {
@@ -22,7 +22,8 @@ angular.module('indigoeln')
                     } else {
                         $scope.cancelVisible = $scope.hasOkCallback || $scope.hasNoCallback;
                     }
-                    $scope.okText = okText || 'Ok';
+                    $scope.okText = okText || 'OK';
+                    $scope.noText = noText || 'No';
                     $scope.cancel = function () {
                         $uibModalInstance.dismiss('cancel');
                     };
@@ -43,8 +44,8 @@ angular.module('indigoeln')
             });
         };
         return {
-            alert: function (title, message, size, okCallback, noCallback, okText, hideCancel) {
-                alertModal(title, message, size, okCallback, noCallback, okText, hideCancel);
+            alert: function (title, message, size, okCallback, noCallback, okText, hideCancel, noText) {
+                alertModal(title, message, size, okCallback, noCallback, okText, hideCancel, noText);
             },
             error: function (msg, size) {
                 alertModal('Error', msg, size);

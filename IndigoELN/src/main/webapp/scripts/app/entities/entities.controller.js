@@ -44,11 +44,10 @@ angular.module('indigoeln')
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
                 EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                    console.warn('update', data, userId, tab)
-                   //if (tab && userId !== data.user) {
-                   if (tab) {
+                    if (tab && userId !== data.user) {
+                    //if (tab) {
                        $scope.onTabChanged(tab, data.entity);
-                   }
+                    }
                 });
             });
 
@@ -102,17 +101,18 @@ angular.module('indigoeln')
             }
             return $q.resolve();
         };
-        
+
         $scope.onTabChanged = function(tab, entity) {
             if (!EntitiesBrowser.updateCurrentEntity) return;
             if (tab.dirty) {
-                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept (Yes) or Reject (No) saved changes. "Yes" button reloads page to show saved data, "No" button leave entered data and allows you to save them.',
+                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept or Reject saved changes. "Accept" button reloads page to show saved data, "Reject" button leave entered data and allows you to save them.',
                     null,
                     function() {
                         EntitiesBrowser.updateCurrentEntity()
                     },
                     function() {
-                    }, 'Yes', true
+                        EntitiesBrowser.updateCurrentEntity(true)
+                    }, 'Accept', true, 'Reject'
                 );
             } else {
                 Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
