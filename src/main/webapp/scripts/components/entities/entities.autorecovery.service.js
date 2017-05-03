@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .factory('AutoRecoverEngine', function(AlertModal, Principal, localStorageService, $q) {
-        var delay = 300;
+        var delay = 1000;
         var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
         var kinds = ['experiment', 'project', 'notebook'],
             save, get, clear, states = {};
@@ -106,7 +106,6 @@ angular.module('indigoeln')
                     console.log('track', $scope)
                     var onChange = _.debounce(function(entity, old) {
                         if (form.$dirty) {
-                            console.log('change', old, entity);
                             save(kind, entity)
                             if (!entity.$$undo) {
                                 if (state.aindex < state.actions.length - 1) {
