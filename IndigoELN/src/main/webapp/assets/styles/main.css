@@ -681,6 +681,9 @@ tr {
   cursor: pointer;
   background: #f1f1f1;
 }
+.table-batch-details .is-hidden {
+  display: none;
+}
 /******************SEARCH*********************/
 .search-field {
   display: inline-block;
@@ -914,6 +917,45 @@ textarea,
 .my-checkbox-wrapper label {
   padding-left: 0;
 }
+.batch-details-radio {
+  display: inline-block;
+  margin-left: 30px;
+}
+.batch-details-radio input {
+  display: none;
+}
+.batch-details-radio label {
+  position: relative;
+  color: #666;
+  cursor: pointer;
+  padding-left: 20px;
+  margin-bottom: 0;
+}
+.batch-details-radio label:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #9a9a9a;
+  border-radius: 50%;
+}
+.batch-details-radio input:checked + label:before {
+  border: 1px solid #84d5fb;
+}
+.batch-details-radio input:checked + label:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 5px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  background-color: #84d5fb;
+  border-radius: 50%;
+}
 .input-group-btn .btn {
   height: 34px;
 }
@@ -933,6 +975,12 @@ textarea,
 }
 .form-inline .select-inline .form-control {
   width: 100%;
+}
+.form-inline.form-batch-details .select-inline {
+  width: 100px !important;
+}
+.form-inline.form-batch-details .select-inline .form-control {
+  width: 100px;
 }
 /******************LISTS STYLE*********************/
 .list-group-item {
