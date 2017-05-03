@@ -40,7 +40,13 @@ angular.module('indigoeln')
                 FileUploaderCash.setFiles([]);
             }
 
-
+            //Activate save button when change permission
+            $scope.$on("activate button", function(){
+                $timeout(function() {
+                    $scope.isBtnSaveActive = true;
+                    console.log("receive broadcast");
+                }, 10); //If put 0, then save button isn't activated
+            });
 
             PermissionManagement.setEntity('Project');
             PermissionManagement.setEntityId($scope.project.id);
