@@ -286,25 +286,25 @@
 .editable-buttons .btn {
   padding: 6px 12px;
   color: #fff;
-  background-color: #84d5fb;
+  background-color: #53c4f9;
   border-color: #5bc0de;
 }
 .editable-buttons .btn:focus,
 .editable-buttons .btn.focus {
   color: #fff;
-  background-color: #53c4f9;
+  background-color: #22b3f7;
   border-color: #1f7e9a;
 }
 .editable-buttons .btn:hover {
   color: #fff;
-  background-color: #53c4f9;
+  background-color: #22b3f7;
   border-color: #2aabd2;
 }
 .editable-buttons .btn:active,
 .editable-buttons .btn.active,
 .open > .dropdown-toggle.editable-buttons .btn {
   color: #fff;
-  background-color: #53c4f9;
+  background-color: #22b3f7;
   border-color: #2aabd2;
 }
 .editable-buttons .btn:active:hover,
@@ -317,7 +317,7 @@
 .editable-buttons .btn.active.focus,
 .open > .dropdown-toggle.editable-buttons .btn.focus {
   color: #fff;
-  background-color: #30b8f8;
+  background-color: #08a4ed;
   border-color: #1f7e9a;
 }
 .editable-buttons .btn:active,
@@ -334,10 +334,10 @@ fieldset[disabled] .editable-buttons .btn:focus,
 .editable-buttons .btn.disabled.focus,
 .editable-buttons .btn[disabled].focus,
 fieldset[disabled] .editable-buttons .btn.focus {
-  background-color: #84d5fb;
+  background-color: #53c4f9;
   border-color: #5bc0de;
 }
 .editable-buttons .btn .badge {
-  color: #84d5fb;
+  color: #53c4f9;
   background-color: #fff;
 }
