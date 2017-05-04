@@ -14,6 +14,12 @@ tr {
   page-break-after: auto
 }
 
+.table-responsive {
+  @media screen and (max-width: @screen-xs-max) {
+    border: none;
+  }
+}
+
 .table {
   border: @table-border;
 
@@ -175,3 +181,4 @@ tr {
     display: none;
   }
 }
+
