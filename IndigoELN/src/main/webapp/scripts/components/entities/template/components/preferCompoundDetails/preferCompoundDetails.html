@@ -4,7 +4,7 @@
     </div>
     <div class="collapsible">
         <div class="panel-body">
-            <form class="form-inline">
+            <form class="form-inline form-compound-details">
                 <label>Notebook ID #: <span>{{model.preferCompoundDetails.fullNbkImmutablePart}}</span></label>
                 <my-select
                         my-model="selectedCompound"
@@ -14,18 +14,95 @@
                         my-control = "selectControl"
                         class="select-inline"
                 ></my-select>
-            </form>
-            <my-checkbox
+                <my-checkbox
                     my-model="showSummary"
                     my-label="Show Summary"
-            ></my-checkbox>
-            <hr class="hr-top">
+                ></my-checkbox>
+            </form>
+
             <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
-            <div class="form-group ">
+            <!--<div class="form-group ">
                 <my-checkbox
                         my-model="showStructure"
                         my-label="Show Structure"
                 ></my-checkbox>
+            </div>-->
+            <div class="row m-b20">
+                <div class="col-xs-12 text-right">
+                    <div class="search-field">
+                        <i class="fa fa-search"></i>
+                        <input type="search" class="uui-search" placeholder="Search" ng-change="search()" ng-model="searchText">
+                    </div>
+                    <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
+                        <div id="show-hide-button" class="btn btn-info"
+                             uib-dropdown-toggle
+                             ng-disabled="disabled"
+                             uib-tooltip="Column settings">
+                            <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
+                        </div>
+                        <ul uib-dropdown-menu role="menu"
+                            my-scroller="y"
+                            my-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
+                            <li role="menuitem"
+                                style="height: 26px"
+                                ng-click="$event.stopPropagation();">
+                                <button type="button" class="btn btn-default btn-small m-t5"
+                                        ng-click="resetColumns()">Set default columns set
+                                </button>
+                            </li>
+                            <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
+                                role="menuitem"
+                                ng-click="$event.stopPropagation();">
+                                <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
+                                             my-change="saveInLocalStorage();"></my-checkbox>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-b20 ng-scope">
+                <div class="col-sm-7 m-bt-sm">
+                    <div class="btn-toolbar">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-info btn-small" ng-disabled="true"
+                                    ng-click="registerVC()">
+                                <i class="fa fa-floppy-o"></i>
+                                <span class="m-l5">Register VC</span>
+                            </button>
+                            <button type="button" class="btn btn-info btn-small"
+                                    ng-disabled="true"
+                                    ng-click="vnv()">VnV
+                            </button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-info btn-small"
+                                    ng-disabled="myReadonly"
+                                    ng-click="addNewCompound()">
+                                <i class="fa fa-plus"></i>
+                                <span class="m-l5">Add</span>
+                            </button>
+                            <button type="button" class="btn btn-info btn-small" ng-click="deleteCompounds()"
+                                    ng-disabled="myReadonly || !isHasCheckedRows()">
+                                <i class="fa fa-trash"></i>
+                                <span class="m-l5">Delete</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5 text-align">
+                    <span class="txt-small bold m-r5">SD File:</span>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="myReadonly">
+                            <i class="fa fa-cloud-download"></i>
+                            <span class="m-l5">Import</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
+                                ng-disabled="myReadonly || !isHasCheckedRows()">
+                            <i class="fa fa-cloud-upload"></i>
+                            <span class="m-l5">Export</span>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="structure-preview-wrapper" ng-if="showStructure">
                 <img
