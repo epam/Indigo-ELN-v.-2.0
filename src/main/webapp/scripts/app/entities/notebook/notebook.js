@@ -79,10 +79,6 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-                            NotebookSummaryExperiments.query({
-                                notebookId: $stateParams.notebookId,
-                                projectId: $stateParams.projectId
-                            }).$promise,
                             EntitiesBrowser.getTabByParams($stateParams)
                         ]).then(function(results){
                             deferred.resolve({
@@ -91,7 +87,6 @@ angular.module('indigoeln')
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
                                 hasCreateChildAuthority: results[4],
-                                experiments: results[5],
                                 dirty: results[6] ? results[6].dirty : false,
                                 projectId: $stateParams.projectId
                             });

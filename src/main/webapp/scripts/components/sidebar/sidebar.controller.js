@@ -145,7 +145,6 @@ angular
                 updateExperiments($scope.myBookmarks.projects, updExp);
                 updateExperiments($scope.allProjects.projects, updExp);
             }
-            console.log('experiment-updated', experiment)
         });
 
         $scope.$on('$destroy', function () {

@@ -60,7 +60,9 @@
                         <my-text-editor my-name="notebookDescription"
                                         my-model="notebook.description"
                                         my-readonly="!isEditAllowed"></my-text-editor>
-                        <div class="panel panel-info panel-info-table m-t20">
+
+                       
+                        <div ng-if="isSummary && experiments.length" class="panel panel-info panel-info-table m-t20">
                             <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
                             <div class="panel-body panel-body-nopad">
                                 <div class="table-responsive" my-scroller="x">
@@ -87,7 +89,7 @@
                                                 <p>Experiment Status: {{exp.status}}</p>
                                             </td>
                                             <td class="table-list__item">
-                                                <img style="padding: 10px; background-color: white; "
+                                                <img ng-if="!!exp.components.reaction.image" style="padding: 10px; background-color: white; "
                                                      class="img-responsive center-block"
                                                      ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
                                                      alt="Image is unavailable.">
@@ -110,6 +112,12 @@
     </form>
 
     <div class="btn-bottom-block tab-content-pad">
+        <div class="pull-left">
+            <a class="btn btn-info" ng-click="showSummary()">
+                <span class="m-l5" ng-show="!isSummary">Show Notebook Content</span>
+                <span class="m-l5" ng-show="isSummary">Hide Notebook Content</span>
+            </a>
+        </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!isCreateChildAllowed || !notebook.id"
                 ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment

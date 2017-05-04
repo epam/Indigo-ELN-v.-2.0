@@ -25,9 +25,10 @@ angular.module('indigoeln')
         }
 
         var interceptor = {
-            response: function(data) {
-                $rootScope.$broadcast('experiment-updated', toModel(data.resource))
-                return data;
+            response: function(config) {
+                var _data = _.extend({}, config.data);
+                $rootScope.$broadcast('experiment-updated', toModel(_data))
+                return config.data;
             }
         }
 
@@ -50,8 +51,9 @@ angular.module('indigoeln')
                     transformResponse: function (data) {
                         data = angular.fromJson(data);
                         data = toModel(data);
+                        $rootScope.$broadcast('experiment-updated', data)
                         return data;
-                    }
+                    },
                 },
                 'save': {method: 'POST',
                     transformRequest: function (data) {

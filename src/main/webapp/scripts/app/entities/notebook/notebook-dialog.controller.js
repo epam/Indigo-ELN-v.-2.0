@@ -1,15 +1,40 @@
 angular.module('indigoeln')
     .controller('NotebookDialogController',
         function ($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
-                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils, AutoRecoverEngine) {
+                  ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, AutoSaveEntitiesEngine, TabKeyUtils, AutoRecoverEngine, NotebookSummaryExperiments) {
             var self = this;
             EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
             var identity = pageInfo.identity;
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
             var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
-            $scope.experiments = pageInfo.experiments;
             $scope.isBtnSaveActive = false;
+            $scope.isSummary = false;
+
+            $scope.showSummary = function() {
+                if ($scope.isSummary) {
+                    $scope.isSummary  =false;
+                    return;
+                }
+                if ($scope.experiments && $scope.experiments.length) {
+                    $scope.isSummary = true;
+                    return;
+                }
+                $scope.loading = NotebookSummaryExperiments.query({
+                    notebookId: $stateParams.notebookId,
+                    projectId: $stateParams.projectId
+                }).$promise.then(function(data) {
+                    if (!data.length) {
+                        Alert.info('There are no experiments in this notebook')
+                        return;    
+                    }
+                    $scope.experiments = data;
+                    $scope.isSummary = true;
+                }, function() {
+                    Alert.error('Cannot get summary right now due to server error')
+                })
+            }
+
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
@@ -48,6 +73,13 @@ angular.module('indigoeln')
             $scope.$on('$destroy', function() {
                 onAccessListChangedEvent();
                 self.dirtyListener();
+            });
+
+            //Activate save button when change permission
+            $scope.$on("activate button", function(){
+                $timeout(function() {
+                    $scope.isBtnSaveActive = true;
+                }, 10); //If put 0, then save button isn't activated
             });
 
             // isEditAllowed
