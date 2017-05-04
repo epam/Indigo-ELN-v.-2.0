@@ -532,6 +532,11 @@ tr {
   page-break-inside: avoid;
   page-break-after: auto;
 }
+@media screen and (max-width: 767px) {
+  .table-responsive {
+    border: none;
+  }
+}
 .table {
   border: 1px solid #ddd;
 }
