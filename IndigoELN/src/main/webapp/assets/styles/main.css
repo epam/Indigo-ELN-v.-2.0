@@ -982,6 +982,9 @@ textarea,
 .form-inline.form-batch-details .select-inline .form-control {
   width: 100px;
 }
+.form-inline.form-batch-details .my-checkbox-wrapper {
+  margin-left: 10px;
+}
 /******************LISTS STYLE*********************/
 .list-group-item {
   border-width: 0 0 1px;

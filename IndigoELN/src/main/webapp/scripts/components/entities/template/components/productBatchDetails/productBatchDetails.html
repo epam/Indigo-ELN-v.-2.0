@@ -13,11 +13,11 @@
                     my-control = "selectControl"
                     class="select-inline"
             ></my-select>
-        </form>
-       <!--<my-checkbox
+            <my-checkbox
                 my-model="showSummary"
                 my-label="Show Summary"
-        ></my-checkbox> -->
+            ></my-checkbox>
+        </form>
         <indigo-batch-summary ng-if="showSummary" my-tab-support="true"  model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
         <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
                   my-rows="detailTable" my-readonly="myReadonly" class="my-table-wrapper table-batch-details">
