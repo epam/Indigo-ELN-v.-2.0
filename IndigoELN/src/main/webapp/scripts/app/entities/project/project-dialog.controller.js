@@ -44,7 +44,6 @@ angular.module('indigoeln')
             $scope.$on("activate button", function(){
                 $timeout(function() {
                     $scope.isBtnSaveActive = true;
-                    console.log("receive broadcast");
                 }, 10); //If put 0, then save button isn't activated
             });
 
