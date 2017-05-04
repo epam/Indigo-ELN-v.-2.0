@@ -850,6 +850,14 @@ ul.my-dropdown-list {
     -webkit-filter: drop-shadow(-1px -1px 2px @tooltip-shadow);
     filter: drop-shadow(-1px -1px 2px @tooltip-shadow);
     width: 165px;
+    border: 1px solid #e3e3e3;
+    &.right {
+        padding: 0;
+        margin-left: 10px;
+        .tooltip-arrow {
+            left: -5px;
+        }
+    }
 }
 
 //--------------------ROLES PAGE
