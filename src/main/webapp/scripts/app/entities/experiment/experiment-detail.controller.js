@@ -28,6 +28,14 @@ angular.module('indigoeln')
 
             }, 0, false);
 
+
+            //Activate save button when change permission
+            $scope.$on("activate button", function(){
+                $timeout(function() {
+                    $scope.isBtnSaveActive = true;
+                }, 10); //If put 0, then save button isn't activated
+            });
+
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
             $scope.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
 
