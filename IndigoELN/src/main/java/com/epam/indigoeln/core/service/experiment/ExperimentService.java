@@ -70,7 +70,13 @@ public class ExperimentService {
 
     public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, PermissionUtil.isContentEditor(user) ? null : user);
-        return experiments.stream().map(ExperimentDTO::new).collect(Collectors.toList());
+        return experiments.stream().sorted((e1,e2) -> {
+            int i = e1.getName().compareTo(e2.getName());
+            if (i == 0){
+                i = e1.getExperimentVersion() - e2.getExperimentVersion();
+            }
+            return i;
+        }).map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
     /**
