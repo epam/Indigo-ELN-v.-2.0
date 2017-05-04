@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('PermissionManagementController',
-        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal) {
+        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal, $rootScope) {
 
             $scope.accessList = PermissionManagement.getAccessList();
             $scope.permissions = permissions;
@@ -74,6 +74,7 @@ angular.module('indigoeln')
 
             $scope.ok = function() {
                 $uibModalInstance.close($scope.accessList);
+                $rootScope.$broadcast("activate button", 0); //broadcast for activate save button on page
             };
 
             $scope.clear = function() {
