@@ -23,7 +23,11 @@ angular.module('indigoeln')
                 }
             }
             saveTabs = function() {
-                localStorageService.set(strorageKey, angular.toJson(tabs[id]))
+                var tabsToSave = angular.extend({}, tabs[id])
+                for (var key in tabsToSave) {
+                    delete tabsToSave[key].dirty;
+                }
+                localStorageService.set(strorageKey, angular.toJson(tabsToSave))
             }
         })
 
@@ -56,6 +60,9 @@ angular.module('indigoeln')
             saveTabs()
         }
 
+        EntitiesBrowser.setUpdateCurrentEntity = function(f) {
+            EntitiesBrowser.updateCurrentEntity = f;
+        }
 
         EntitiesBrowser.saveCurrentEntity = function () {
             return $q.resolve();
@@ -92,6 +99,7 @@ angular.module('indigoeln')
         };
 
         EntitiesBrowser.setActiveTab = function (tab) {
+            EntitiesBrowser.updateCurrentEntity = null;
             EntitiesBrowser.activeTab = tab;
         };
 

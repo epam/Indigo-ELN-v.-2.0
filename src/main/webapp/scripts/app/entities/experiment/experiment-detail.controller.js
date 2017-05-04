@@ -21,7 +21,7 @@ angular.module('indigoeln')
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
                     $timeout(function() {
                             $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                    }, 0)
+                        }, 0)
                 }, true);
 
                 AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind);
@@ -71,13 +71,6 @@ angular.module('indigoeln')
                 self.dirtyListener();
             });
 
-            //Activate save button when change permission
-            $scope.$on("activate button", function(){
-                $timeout(function() {
-                    $scope.isBtnSaveActive = true;
-                }, 10); //If put 0, then save button isn't activated
-            });
-
             $scope.save = function (experiment) {
                 var experimentForSave = _.extend({}, experiment);
                 $scope.loading = (experiment.template !== null)  ? Experiment.update($stateParams, $scope.experiment).$promise 
@@ -97,7 +90,7 @@ angular.module('indigoeln')
             var unsubscribe = $scope.$watch('experiment.status', function () {
                 $scope.isEditAllowed = $scope.isStatusOpen();
             });
-
+            
             $scope.$on('$destroy', function () {
                 unsubscribe();
                 unsubscribeExp();
@@ -126,17 +119,22 @@ angular.module('indigoeln')
             $scope.printExperiment = function () {
                 ExperimentUtil.printExperiment(params);
             };
-            $scope.refresh = function () {
+            $scope.refresh = function (noExtend) {
                $scope.loading = Experiment.get($stateParams).$promise
                 .then(function (result) {
-                    angular.extend($scope.experiment, result);
-                    $scope.experimentForm.$setPristine();
-                    $scope.experimentForm.$dirty = false;
-                    EntitiesBrowser.changeDirtyTab($stateParams, false);
+                    if (!noExtend) {
+                        angular.extend($scope.experiment, result);
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
+                        $scope.experimentForm.$setPristine();
+                        $scope.experimentForm.$dirty = false;
+                    } else {
+                         $scope.experiment.version = result.version;
+                    }
                 }, function () {
                     Alert.error('Experiment not refreshed due to server error!')
                 });
             };
+            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
 
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';
