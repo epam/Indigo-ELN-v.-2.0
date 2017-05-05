@@ -10,6 +10,7 @@ public class BatchSearchRequest {
     private Optional<BatchSearchStructure> structure = Optional.empty();
     private List<SearchCriterion> advancedSearch = Collections.emptyList();
     private List<String> databases = Collections.emptyList();
+    private Optional<Integer> batchesLimit = Optional.empty();
 
     public Optional<String> getSearchQuery() {
         return searchQuery;
@@ -41,5 +42,13 @@ public class BatchSearchRequest {
 
     public void setStructure(BatchSearchStructure structure) {
         this.structure = Optional.ofNullable(structure);
+    }
+
+    public Optional<Integer> getBatchesLimit() {
+        return batchesLimit;
+    }
+
+    public void setBatchesLimit(Integer batchesLimit) {
+        this.batchesLimit = Optional.ofNullable(batchesLimit);
     }
 }
