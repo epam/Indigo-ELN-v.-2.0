@@ -8,7 +8,7 @@
                 <div class="input-group m-b20">
                     <input type="text" class="form-control" ng-model="myReagents.searchQuery"/>
                     <span class="input-group-btn">
-                        <button class="btn btn-info" ng-click="searchMyReagents(myReagents.searchQuery)"
+                        <button class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}" ng-click="searchMyReagents(myReagents.searchQuery)"
                                 type="button">Search
                         </button>
                         <button class="btn btn-info" ng-click="clearMyReagentsSearchQuery()"
@@ -209,7 +209,7 @@
                                           my-title="Structure" my-model="scheme"></structure-scheme>
                     </div>
                     <div class="text-right">
-                        <button class="btn btn-primary"
+                        <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
                                 type="button"
                                 ng-click="search()"
                                 ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
@@ -401,7 +401,7 @@
                         </div>
                     </div>
                     <div class="m-b20">
-                        <button class="btn btn-primary"
+                        <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
                                 type="button"
                                 ng-click="search()"
                                 ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
