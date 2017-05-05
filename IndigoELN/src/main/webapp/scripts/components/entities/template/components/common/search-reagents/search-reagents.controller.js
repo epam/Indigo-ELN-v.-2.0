@@ -135,9 +135,11 @@ angular.module('indigoeln').controller('SearchReagentsController',
         };
 
         $scope.search = function () {
+            $scope.loading = true;
             var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions, $scope.model.databases);
             SearchService.search(searchRequest, function (result) {
                 responseCallback(result);
+                $scope.loading = false;
             });
             $scope.isSearchResultFound = true;
         };
