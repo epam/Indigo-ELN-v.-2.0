@@ -58,6 +58,8 @@ public class SearchComponentsRepository {
             builder.withAdvancedCriteria(request.getAdvancedSearch());
         }
 
+        request.getBatchesLimit().ifPresent(builder::withLimit);
+
         return builder.build();
     }
 }
