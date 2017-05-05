@@ -23,7 +23,7 @@ angular.module('indigoeln')
                 }
             }
             saveTabs = function() {
-                var tabsToSave = angular.extend({}, tabs[id])
+                var tabsToSave = angular.copy(tabs[id])
                 for (var key in tabsToSave) {
                     delete tabsToSave[key].dirty;
                 }
