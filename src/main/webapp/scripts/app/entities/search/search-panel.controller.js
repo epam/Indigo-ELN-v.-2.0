@@ -103,8 +103,10 @@ angular.module('indigoeln')
 
 
         $scope.search = function () {
+            $scope.loading = true;
             var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions);
             SearchService.searchAll(searchRequest, function (result) {
+                $scope.loading = false;
                 $scope.searchResults = result;
             });
         };

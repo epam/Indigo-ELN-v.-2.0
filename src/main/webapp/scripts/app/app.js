@@ -5,11 +5,11 @@ angular.module('indigoeln',
         'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
         'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside',
         'config', 'angular-cache'])
-    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
+    .run(function ($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser, $http, $cookies) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null, idleTime = 30, countdown = 30;
-
+         
 
         $rootScope.$on('$stateChangeStart', function (event, toState, toStateParams) {
             $rootScope.toState = toState;
@@ -98,6 +98,7 @@ angular.module('indigoeln',
         //enable CSRF
         $httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
         $httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
+        $httpProvider.defaults.withCredentials = true;
 
         $urlRouterProvider.otherwise('/');
         $stateProvider.state('app_page', {
@@ -143,6 +144,21 @@ angular.module('indigoeln',
         });
         $httpProvider.interceptors.push('errorHandlerInterceptor');
         $httpProvider.interceptors.push('notificationInterceptor');
+        
+        $httpProvider.interceptors.push(function($q, $cookies) {
+            return {
+                'request': function(config) {
+                    if (config.url.startsWith('api')) {
+                        config.url = 'http://ecse00100843.epam.com/' + config.url;
+                        // config.headers = config.headers || {};
+                        // config.headers['X-CSRF-TOKEN'] = $cookies.get('CSRF-TOKEN')
+                        // console.warn($cookies.get('CSRF-TOKEN'))
+                    }
+                    return config || $q.when(config);
+                }
+            }
+        });
+
 
         // 30 min of idleness
         IdleProvider.idle(30 * 60);
