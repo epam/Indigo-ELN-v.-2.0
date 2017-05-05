@@ -87,7 +87,7 @@ angular.module('indigoeln')
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
                                 hasCreateChildAuthority: results[4],
-                                dirty: results[6] ? results[6].dirty : false,
+                                dirty: results[5] ? results[5].dirty : false,
                                 projectId: $stateParams.projectId
                             });
                         });
