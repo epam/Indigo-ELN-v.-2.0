@@ -9,22 +9,19 @@ angular.module('indigoeln')
                         axis: 'x',
                         theme: 'indigo',
                         scrollInertia: 100,
-                        callbacks: {
-                            onUpdate: function () {
-                                $element.mCustomScrollbar('scrollTo', '.active', {
-                                    scrollInertia: 100
-                                });
-                            }
-                        }
                     });
-                    scope.$on('$stateChangeSuccess', function () {
-                        $timeout(function () {
-                            $element.mCustomScrollbar('update');
-                            $element.mCustomScrollbar('scrollTo', '.active', {
-                                scrollInertia: 100
+                    var onTabChanged = scope.$watch('activeTab', function () {
+                        $element.mCustomScrollbar('update');
+                         $timeout(function () {
+                            var l = $element.find('.active').position().left;
+                            $element.mCustomScrollbar('scrollTo', l, {
+                                scrollInertia: 300
                             });
-                        }, 0, false);
-                    });
+                        }, 100);
+                    })
+                    scope.$on('$destroy', function () {
+                        onTabChanged()
+                    })
                 }, 0, false);
             }
         };
