@@ -30,7 +30,7 @@ angular.module('indigoeln')
                 var sourceDetailExternal = AppValues.getSourceDetailExternal();
                 var sourceDetailInternal = AppValues.getSourceDetailInternal();
                 var compoundProtectionValues = AppValues.getCompoundProtectionValues();
-
+                var compounds = [ { name : 'Intermediate'}, { name : 'Test Compound'} ]
 
                 RegistrationService.info({}, function (info) {
                     $scope.isHasRegService = _.isArray(info) && info.length > 0;
@@ -175,6 +175,7 @@ angular.module('indigoeln')
                         id: 'nbkBatch',
                         name: 'Nbk Batch #'
                     },
+                    {id: 'registrationStatus', name: 'Registration Status'},
                     {
                         id: 'select',
                         name: 'Select',
@@ -330,7 +331,7 @@ angular.module('indigoeln')
                         id: 'virtualCompoundId', name: 'Virtual Compound Id'
                     },
                     {
-                        id: 'stereoisomer', name: 'Stereoisomer',
+                        id: 'stereoisomer', name: 'Stereoisomer Code',
                         type: 'select',
                         dictionary: 'Stereoisomer Code',
                         values: function () {
@@ -376,7 +377,7 @@ angular.module('indigoeln')
                     {
                         id: '$$externalSupplier',
                         realId: 'externalSupplier',
-                        name: 'Ext Supplier',
+                        name: 'External Supplier',
                         type: 'string',
                         onClick: function (data) {
                             editExternalSupplier(data.row);
@@ -392,13 +393,13 @@ angular.module('indigoeln')
                     },
                     {
                         id: 'precursors',
-                        name: 'Precursors',
+                        name: 'Precursor/Reactant IDs',
                         type: 'input'
                     },
                     {
                         id: '$$healthHazards',
                         realId: 'healthHazards',
-                        name: 'Hazards',
+                        name: 'Health Hazards',
                         type: 'string',
                         onClick: function (data) {
                             editHealthHazards(data.row);
@@ -429,10 +430,124 @@ angular.module('indigoeln')
                         id: 'registrationDate', name: 'Registration Date', format: function (val) {
                         return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
                     }
+                    }, {
+                        id: '$$residualSolvents',
+                        realId: 'residualSolvents',
+                        name: 'Residual Solvents',
+                        type: 'string',
+                        onClick: function (data) {
+                            editResidualSolvents([data.row]);
+                        },
+                        actions: [{
+                            name: 'Set value for Residual Solvents',
+                            title: 'Residual Solvents',
+                            rows: getProductBatches(),
+                            action: function () {
+                                editResidualSolvents(getProductBatches());
+                            }
+                        }]
+                    },{
+                        id: '$$solubility',
+                        realId: 'solubility',
+                        name: 'Solubility in Solvents',
+                        type: 'string',
+                        onClick: function (data) {
+                            editSolubility([data.row]);
+                        },
+                        actions: [{
+                            name: 'Set value for Solubility in Solvents',
+                            title: 'Solubility in Solvents',
+                            rows: getProductBatches(),
+                            action: function () {
+                                editSolubility(getProductBatches());
+                            }
+                        }]
+                    },{
+                        id: '$$storageInstructions',
+                        realId: 'storageInstructions',
+                        name: 'Storage Instructions',
+                        type: 'string',
+                        onClick: function (data) {
+                            editStorageInstructions([data.row]);
+                        },
+                        actions: [{
+                            name: 'Set value for Storage Instructions',
+                            title: 'Storage Instructions',
+                            rows: getProductBatches(),
+                            action: function () {
+                                editStorageInstructions(getProductBatches());
+                            }
+                        }]
+                    },{
+                        id: '$$handlingPrecautions',
+                        realId: 'handlingPrecautions',
+                        name: 'Handling Precautions',
+                        type: 'string',
+                        onClick: function (data) {
+                            editHandlingPrecautions([data.row]);
+                        },
+                        actions: [{
+                            name: 'Set value for Handling Precautions',
+                            title: 'Handling Precautions',
+                            rows: getProductBatches(),
+                            action: function () {
+                                editHandlingPrecautions(getProductBatches());
+                            }
+                        }]
+                    }, {
+                        id: 'comments', 
+                        name: 'Batch Comments',
+                        type: 'input'
+                    }, {
+                        id: '$$batchType',
+                        name: 'Intermediate/Test Compound',
+                        type: 'select',
+                        values: function (row) {
+                            return compounds;
+                        },
+                        onClose: function (data) {
+                        }
                     },
-                    {id: 'registrationStatus', name: 'Registration Status'}
+  
                 ];
+                console.log(saltCodeValues)
 
+               var editResidualSolvents = function (rows) {
+                    var callback = function (result) {
+                         _.each(rows, function (row) {
+                            row.residualSolvents = result;
+                        })
+                    };
+                    InfoEditor.editResidualSolvents({}, callback);
+                };
+                
+                var editSolubility = function (rows) {
+                    var callback = function (result) {
+                         _.each(rows, function (row) {
+                            row.solubility = result;
+                        })
+
+                    };
+                    InfoEditor.editSolubility({}, callback);
+                };
+                
+                var editHandlingPrecautions = function (rows) {
+                    var callback = function (result) {
+                         _.each(rows, function (row) {
+                            row.handlingPrecautions = result;
+                        })
+                    };
+                    InfoEditor.editHandlingPrecautions({}, callback);
+                };
+
+                var editStorageInstructions = function (rows) {
+                    var callback = function (result) {
+                         _.each(rows, function (row) {
+                            row.storageInstructions = result;
+                        })
+                    };
+                    InfoEditor.editStorageInstructions({}, callback);
+                };
 
                 $scope.showStructuresColumn = _.find($scope.columns, function (item) {
                     return item.id === 'structure';
@@ -740,6 +855,7 @@ angular.module('indigoeln')
                         batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
                         batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
                         batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
+                        batch.$$batchType = batch.batchType ? (compounds[0].name == batch.batchType  ? compounds[0] : compounds[1]) : null;
                     });
                     $scope.share.actualProducts = batches;
                     ProductBatchSummaryCache.setProductBatchSummary(batches);
