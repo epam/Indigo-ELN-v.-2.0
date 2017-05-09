@@ -52,7 +52,7 @@
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioIntermediate"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
-                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'">
+                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'; experimentForm.$setDirty()"  ng-checked="model.productBatchDetails.batchType == 'Intermediate'">
                             <label for="batchDetailsRadioIntermediate">Intermediate</label>
                         </div>
                         <div class="batch-details-radio">
@@ -60,7 +60,7 @@
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioTest"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
-                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'">
+                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'; experimentForm.$setDirty()" ng-checked="model.productBatchDetails.batchType =='Test Compound'">
                             <label  for="batchDetailsRadioTest">Test Compound</label>
                         </div>
                     </div>
@@ -127,7 +127,7 @@
                            my-dictionary="Source Details"
                            my-readonly="myReadonly"
                 ></my-select>
-                <my-select my-label="Sterioisomer Code"
+                <my-select my-label="Stereoisomer Code"
                            my-label-vertical="true"
                            my-dictionary="Stereoisomer Code"
                            my-item-prop="name,description"
