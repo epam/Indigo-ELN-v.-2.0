@@ -89,25 +89,25 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'wait'">
-        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="experiments.waitingSignatureExp.length"></span></div>
+        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr class="table-list">
-                        <th class="table-list__item table-list__item_header">Experiment ID</th>
-                        <th class="table-list__item table-list__item_header">Title</th>
-                        <th class="table-list__item table-list__item_header">Status</th>
-                        <th class="table-list__item table-list__item_header">Author</th>
-                        <th class="table-list__item table-list__item_header">Submitter</th>
+                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th my-sort-by="id"  class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Witness</th>
-                        <th class="table-list__item table-list__item_header">Creation Date</th>
-                        <th class="table-list__item table-list__item_header">Last Action Date</th>
+                        <th my-sort-by="creationDate"  class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="lastEditDate"  class="table-list__item table-list__item_header">Last Action Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Idle Workdays</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
+                    <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
                         <td class="table-list__item">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
@@ -124,7 +124,7 @@
                         </td>
                         <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
                         <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                        <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+                        <td class="table-list__item">{{getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -134,25 +134,25 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'submitted'">
-        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="experiments.submittedAndSigningExp.length"></span></div>
+        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr class="table-list">
-                        <th class="table-list__item table-list__item_header">Experiment ID</th>
-                        <th class="table-list__item table-list__item_header">Title</th>
-                        <th class="table-list__item table-list__item_header">Status</th>
-                        <th class="table-list__item table-list__item_header">Author</th>
-                        <th class="table-list__item table-list__item_header">Submitter</th>
-                        <th class="table-list__item table-list__item_header">Witness</th>
-                        <th class="table-list__item table-list__item_header">Creation Date</th>
-                        <th class="table-list__item table-list__item_header">Last Edit Date</th>
+                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="submitter.firstName" class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
+                        <th  class="table-list__item table-list__item_header">Witness</th>
+                        <th my-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Comments</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
+                    <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
                         <td class="table-list__item">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
