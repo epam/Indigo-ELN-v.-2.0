@@ -1,6 +1,7 @@
 <div cg-busy="{promise:loading, minDuration:700}">
     <my-table my-id="product-batch-summary" my-tab-support="true" my-columns="columns" my-rows="model.productBatchSummary.batches"
               my-draggable-columns="true"
+              my-search-columns="['nbkBatch']"
               my-readonly="myReadonly"
               my-editable="isEditable"
               my-on-row-selected="onRowSelected"
