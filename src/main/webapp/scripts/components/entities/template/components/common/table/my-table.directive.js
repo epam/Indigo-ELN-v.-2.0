@@ -191,12 +191,16 @@ angular.module('indigoeln')
 
 			var stimeout;
 			var originalRows = $scope.myRows, lastQ;
-			var searchColumns = $scope.mySearchColumns || ['id']
+			var searchColumns = $scope.mySearchColumns || ['id', 'nbkBatch']
 			$scope.filteredRows =  originalRows;
 			console.warn('init search', originalRows, searchColumns)
-			$scope.search =	function() {
-				var q = $scope.searchText.trim().toLowerCase();
-				if (lastQ && lastQ  == q) return;
+
+			$scope.search =	function(q) {
+				if (q === undefined) {
+					q = $scope.searchText.trim().toLowerCase();
+				}
+				$scope.searchText = q;
+				if (lastQ && lastQ  == q || !originalRows) return;
 				if (stimeout) $timeout.cancel(stimeout)
 				if (!q) {
 					lastQ  = q;
@@ -300,6 +304,12 @@ angular.module('indigoeln')
 				$scope.rowsForDisplay = pages[$scope.pagination.page - 1];
 			};
 			$scope.$watch('pagination.page', updateRowsForDisplay);
+			$scope.$watchCollection('myRows', function (newVal, oldVal) {
+				console.log('isChanged', newVal, oldVal)
+				if (newVal && oldVal && newVal.length > oldVal.length) {
+					$scope.search('')
+				}
+			})
 			$scope.$watchCollection('filteredRows', function (newVal, oldVal) {
 				if (newVal && oldVal && newVal.length > oldVal.length) {
 					var pages = calcPages($scope.filteredRows);
