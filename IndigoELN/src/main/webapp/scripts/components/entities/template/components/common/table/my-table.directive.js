@@ -193,8 +193,7 @@ angular.module('indigoeln')
 			var originalRows = $scope.myRows, lastQ;
 			var searchColumns = $scope.mySearchColumns || ['id', 'nbkBatch']
 			$scope.filteredRows =  originalRows;
-			console.warn('init search', originalRows, searchColumns)
-
+			
 			$scope.search =	function(q) {
 				if (q === undefined) {
 					q = $scope.searchText.trim().toLowerCase();
@@ -224,7 +223,6 @@ angular.module('indigoeln')
 						if (rate > 0) filtered.push(r)
 					})
 					$scope.filteredRows = $filter('orderBy')(filtered, 'rate', true);
-					console.warn('search', q)
 					lastQ = q;
 				}, 300)
 			}
@@ -305,7 +303,6 @@ angular.module('indigoeln')
 			};
 			$scope.$watch('pagination.page', updateRowsForDisplay);
 			$scope.$watchCollection('myRows', function (newVal, oldVal) {
-				console.log('isChanged', newVal, oldVal)
 				if (newVal && oldVal && newVal.length > oldVal.length) {
 					$scope.search('')
 				}
