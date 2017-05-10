@@ -506,12 +506,14 @@ angular.module('indigoeln')
                             return compounds;
                         },
                         onClose: function (data) {
+                            var r = data.row;
+                            if (!r.$$batchType) return;
+                            r.batchType = r.$$batchType.name;
                         }
                     },
   
                 ];
-                console.log(saltCodeValues)
-
+        
                var editResidualSolvents = function (rows) {
                     var callback = function (result) {
                          _.each(rows, function (row) {
