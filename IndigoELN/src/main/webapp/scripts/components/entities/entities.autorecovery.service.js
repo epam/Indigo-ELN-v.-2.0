@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('AutoRecoverEngine', function(AlertModal, Principal, localStorageService, $q) {
+    .factory('AutoRecoverEngine', function($rootScope, AlertModal, Principal, localStorageService, $q, $timeout) {
         var delay = 1000;
         var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
         var kinds = ['experiment', 'project', 'notebook'],
@@ -59,7 +59,6 @@ angular.module('indigoeln')
         return {
             trackEntityChanges: function(entity, form, $scope, kind) {
                 deferred.promise.then(function() {
-                    //console.log('trackEntityChanges', entity, kind)
                     var state = states[entity.fullId] || { actions : [] };
                     states[entity.fullId] = state;
                     var rec = get(kind, entity);
@@ -91,6 +90,7 @@ angular.module('indigoeln')
                             var act = (state.aindex < state.actions.length - 2) ? state.actions[state.aindex + 2] : state.last;
                             state.aindex++;
                             console.log('redo', state.aindex, state.actions)
+
                             angular.extend(entity, act);
                             entity.$$undo = true;
                         }
@@ -103,21 +103,29 @@ angular.module('indigoeln')
                         return state.actions.length > 0 && state.aindex < state.actions.length - 1;
                     }
 
-                    console.log('track', $scope)
-                    var onChange = _.debounce(function(entity, old) {
-                        if (form.$dirty) {
-                            save(kind, entity)
-                            if (!entity.$$undo) {
-                                if (state.aindex < state.actions.length - 1) {
-                                    state.actions = state.actions.slice(state.aindex)
+                    var ctimeout, prev;
+                    var onChange = function(entity, old) {
+                        if (ctimeout) {
+                            $timeout.cancel(ctimeout);
+                        } else {
+                            prev = angular.extend({}, old);
+                        }
+                        ctimeout = $timeout(function() {
+                            if (form.$dirty) {
+                                save(kind, entity)
+                                if (!entity.$$undo) {
+                                    if (state.aindex < state.actions.length - 1) {
+                                        state.actions = state.actions.slice(state.aindex)
+                                    }
+                                    state.actions.push(prev);
+                                    state.aindex = state.actions.length - 1;
+                                    state.last =  angular.extend({}, entity);
                                 }
-                                state.actions.push(old);
-                                state.aindex = state.actions.length - 1;
-                                state.last =  angular.extend({}, entity);
-                            }
-                        } 
-                        entity.$$undo = false;
-                    }, delay);
+                            } 
+                            entity.$$undo = false;
+                            ctimeout = null;
+                        }, 1000)
+                    };
                     var unbind = $scope.$watch(kind, onChange, true);
                     var unbindDirty = $scope.$watch(form.$name + '.$dirty', function(val, old) {
                         if (!val && old) {
