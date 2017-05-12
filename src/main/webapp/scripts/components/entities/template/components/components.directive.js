@@ -109,24 +109,40 @@ angular.module('indigoeln')
                 myExperimentForm: '='
             },
             link: function(scope, element) {
-                var id = scope.myExperiment.fullId;
+                var id = scope.myExperiment.fullId, tc, preventFirstScroll;
                 $timeout(function() {
-                    var tc = element.find('.tab-content');
+                    tc = element.find('.tab-content');
                     if (scrollCache[id]) {
                         setTimeout(function() {
+                            nostore = true;
                             tc[0].scrollTop = scrollCache[id];
                         }, 100)
                     }
-                    tc.on('scroll', function() {
-                        scrollCache[id] = this.scrollTop;
+                    var stimeout, nostore;
+                    tc.on('scroll', function(e) {
+                        if (nostore)  {
+                            nostore = false;
+                            return;
+                        }
+                        if (!preventFirstScroll) {
+                            scrollCache[id] = this.scrollTop;
+                        } else {
+                            nostore = true;
+                            tc[0].scrollTop = scrollCache[id] || 0;
+                        }
+                        clearTimeout(stimeout)
+                        stimeout = setTimeout(function() { preventFirstScroll = true; }, 300)
+                        preventFirstScroll = false;
+                        nostore = false;
                     })
                 }, 100);
+   
                 //for communication between components
                 scope.share = {};
             },
-            template: '<fieldset ng-disabled="myReadonly"><uib-tabset class="inner-tabs">' +
+            template: '<fieldset ng-disabled="myReadonly" ><uib-tabset class="inner-tabs">' +
                 '<uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in myTemplate track by tab.name">' +
-                '<div class="my-component" ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
+                '<div class="my-component"  ng-repeat="component in tab.components" my-component={{component.id}} my-model="myModel" my-experiment="myExperiment" my-experiment-form="myExperimentForm" my-share="share" my-readonly="myReadonly"></div>' +
                 '</uib-tab>' +
                 '</uib-tabset></fieldset>'
         };
