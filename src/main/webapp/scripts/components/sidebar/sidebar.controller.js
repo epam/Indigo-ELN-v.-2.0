@@ -31,9 +31,15 @@ angular
                 }).$promise.then(function(data) {
                     popExperiment = experiment;
                     angular.extend(experiment, data)
+                    wrapName(experiment);
                 })
             }, 500);
         };
+
+        function wrapName(exp) {
+            if (!exp.lastVersion  || (exp.lastVersion && exp.experimentVersion > 1)) exp.name += ' v' + exp.experimentVersion;
+        }
+
         $scope.experimentLeave = function() {
             if (etimeout) $timeout.cancel(etimeout)
             popExperiment = null;
@@ -140,6 +146,7 @@ angular
                 var updExp = function (exp) {
                     if (exp.fullId === experiment.fullId) {
                         angular.extend(exp, experiment)
+                        wrapName(exp);
                     }
                 }
                 updateExperiments($scope.myBookmarks.projects, updExp);
