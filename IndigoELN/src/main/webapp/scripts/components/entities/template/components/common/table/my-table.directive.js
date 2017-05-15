@@ -305,7 +305,8 @@ angular.module('indigoeln')
 			$scope.$watchCollection('myRows', function (newVal, oldVal) {
 				if (newVal && oldVal && newVal.length > oldVal.length) {
 					$scope.search('')
-				}
+				} 
+				$scope.filteredRows =  originalRows =  $scope.myRows; 
 			})
 			$scope.$watchCollection('filteredRows', function (newVal, oldVal) {
 				if (newVal && oldVal && newVal.length > oldVal.length) {
