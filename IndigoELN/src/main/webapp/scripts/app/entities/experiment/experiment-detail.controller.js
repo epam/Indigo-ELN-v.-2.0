@@ -11,8 +11,10 @@ angular.module('indigoeln')
             }
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
+
             $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
             $timeout(function () {
+                EntitiesBrowser.setCurrentForm($scope.experimentForm)
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
                     $scope.experimentForm.$setDirty(pageInfo.dirty);
