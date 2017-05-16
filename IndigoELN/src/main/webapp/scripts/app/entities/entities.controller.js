@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService) {
 
 
 
@@ -43,6 +43,7 @@ angular.module('indigoeln')
                 $scope.onCloseAllTabs();
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
+                console.warn('try-entity-updated', userId, data)
                 EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
                     console.warn('entity-updated', userId, data)
                     if (tab && userId !== data.user) {
