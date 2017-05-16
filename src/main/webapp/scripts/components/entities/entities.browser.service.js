@@ -74,6 +74,15 @@ angular.module('indigoeln')
 
         EntitiesBrowser.getCurrentExperiment = function () {
            return  EntitiesBrowser.activeExperiment;
+        } 
+
+        var curForm;
+        EntitiesBrowser.setCurrentForm = function (form) {
+            curForm = form;
+        };
+
+        EntitiesBrowser.getCurrentForm = function () {
+           return curForm;
         }
 
         EntitiesBrowser.goToTab = function (tab) {

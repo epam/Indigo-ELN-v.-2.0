@@ -114,6 +114,7 @@ angular.module('indigoeln')
             var batchToDuplicate = angular.copy(batchToCopy);
             var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended)
             p.then(function(batch) {
+                EntitiesBrowser.getCurrentForm().$setDirty(true);
                 duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
             });
             return p
@@ -155,6 +156,7 @@ angular.module('indigoeln')
             }
             syncingIntendedProducts.resolve();
         };
+
         function getIntendedNotInActual() {
             if (stoichTable) {
                 var intended = stoichTable.products;
@@ -183,11 +185,14 @@ angular.module('indigoeln')
             duplicateBatches: duplicateBatches,
             duplicateBatch: duplicateBatch,
             setStoicTable: function(_table) { stoichTable = _table; },
-            getIntendedNotInActual : getIntendedNotInActual,
-            syncWithIntendedProducts : syncWithIntendedProducts,
-
+            getIntendedNotInActual: getIntendedNotInActual,
+            syncWithIntendedProducts: syncWithIntendedProducts,
             addNewBatch: function() {
-                return requestNbkBatchNumberAndAddToTable()
+                var q = requestNbkBatchNumberAndAddToTable()
+                q.then(function() {
+                    EntitiesBrowser.getCurrentForm().$setDirty(true);
+                })
+                return q;
             },
             importSDFile: function() {
                 SdImportService.importFile(requestNbkBatchNumberAndAddToTable);
@@ -222,6 +227,7 @@ angular.module('indigoeln')
                         batches.splice(batches.indexOf(), 1)
                     else {}
                 }
+                if (deleted > 0) EntitiesBrowser.getCurrentForm().$setDirty(true);
                 return deleted;
             }
         };
