@@ -45,9 +45,10 @@ angular.module('indigoeln')
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
                 Principal.identity(true).then(function(user) {
                     EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                        console.warn('entity-updated', user.id, data)
-                        if (tab && user.id !== data.user) {
-                           $scope.onTabChanged(tab, data.entity);
+                        console.warn('entity-update', user.id, data, tab)
+                        if (tab && user.id != data.user) {
+                            $scope.onTabChanged(tab, data.entity);
+                            console.warn('entity-updated', data.entity)
                         }
                     });
                 })
@@ -105,7 +106,10 @@ angular.module('indigoeln')
         };
 
         $scope.onTabChanged = function(tab, entity) {
+            console.log(1)
             if (!EntitiesBrowser.updateCurrentEntity) return;
+            console.log(2)
+
             if (tab.dirty) {
                 AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept or Reject saved changes. "Accept" button reloads page to show saved data, "Reject" button leave entered data and allows you to save them.',
                     null,
@@ -120,6 +124,7 @@ angular.module('indigoeln')
                 Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
                 EntitiesBrowser.updateCurrentEntity()
             }
+            console.log(3)
         };
 
         $scope.onUndo = function () {
