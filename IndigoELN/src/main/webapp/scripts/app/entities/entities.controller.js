@@ -44,8 +44,8 @@ angular.module('indigoeln')
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
                 EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
+                    console.warn('entity-updated', userId, data)
                     if (tab && userId !== data.user) {
-                    //if (tab) {
                        $scope.onTabChanged(tab, data.entity);
                     }
                 });
