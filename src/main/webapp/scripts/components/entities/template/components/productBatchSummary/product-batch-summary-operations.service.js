@@ -150,7 +150,7 @@ angular.module('indigoeln')
                     syncingIntendedProducts.resolve();
                     AlertModal.info('Product Batch Summary is synchronized', 'sm');
                 } else {
-                    duplicateBatches(batchesQueueToAdd, 0, true);
+                    return duplicateBatches(batchesQueueToAdd, 0, true);
                 }
             }
             syncingIntendedProducts.resolve();
