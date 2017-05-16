@@ -43,13 +43,14 @@ angular.module('indigoeln')
                 $scope.onCloseAllTabs();
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
-                console.warn('try-entity-updated', userId, data)
-                EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                    console.warn('entity-updated', userId, data)
-                    if (tab && userId !== data.user) {
-                       $scope.onTabChanged(tab, data.entity);
-                    }
-                });
+                Principal.identity(true).then(function(user) {
+                    EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
+                        console.warn('entity-updated', user.id, data)
+                        if (tab && user.id !== data.user) {
+                           $scope.onTabChanged(tab, data.entity);
+                        }
+                    });
+                })
             });
 
             $scope.$on('$destroy', function () {
