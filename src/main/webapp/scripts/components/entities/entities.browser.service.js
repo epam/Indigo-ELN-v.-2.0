@@ -100,6 +100,7 @@ angular.module('indigoeln')
 
         EntitiesBrowser.setActiveTab = function (tab) {
             EntitiesBrowser.updateCurrentEntity = null;
+            EntitiesBrowser.activeExperiment = null;
             EntitiesBrowser.activeTab = tab;
         };
 

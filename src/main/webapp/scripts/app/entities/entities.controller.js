@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService) {
 
 
 
@@ -43,12 +43,14 @@ angular.module('indigoeln')
                 $scope.onCloseAllTabs();
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
-                EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                    if (tab && userId !== data.user) {
-                    //if (tab) {
-                       $scope.onTabChanged(tab, data.entity);
-                    }
-                });
+                Principal.identity(true).then(function(user) {
+                    EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
+                        console.warn('entity-updated', user.id, data)
+                        if (tab && user.id !== data.user) {
+                           $scope.onTabChanged(tab, data.entity);
+                        }
+                    });
+                })
             });
 
             $scope.$on('$destroy', function () {
@@ -120,6 +122,21 @@ angular.module('indigoeln')
             }
         };
 
+        $scope.onUndo = function () {
+            AutoRecoverEngine.undoAction(EntitiesBrowser.activeExperiment);
+        }
+
+        $scope.onRedo = function () {
+            AutoRecoverEngine.redoAction(EntitiesBrowser.activeExperiment)
+        }
+
+        $scope.canUndo = function () {
+            AutoRecoverEngine.canUndo(EntitiesBrowser.activeExperiment)
+        }
+        
+        $scope.canRedo = function () {
+            AutoRecoverEngine.canRedo(EntitiesBrowser.activeExperiment)
+        }
 
         $scope.onCloseAllTabs = function () {
             var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });
