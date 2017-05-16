@@ -75,4 +75,8 @@ public class OperationDeniedException extends CustomParametrizedException {
         return new OperationDeniedException("The current user doesn't have permissions to update " +
                 entityName + " with id = " + entityId, entityId);
     }
+
+    public static OperationDeniedException versionExperiment(String entityId){
+        return new OperationDeniedException("A new version of experiment can't be created while there is open experiment",entityId);
+    }
 }
