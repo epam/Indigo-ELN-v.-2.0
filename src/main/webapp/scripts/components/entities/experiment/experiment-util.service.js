@@ -20,6 +20,7 @@ angular.module('indigoeln')
                     notebookId: params.notebookId,
                     name: result.name
                 });
+                $rootScope.$broadcast('experiment-updated', experiment)
             }).$promise;
         };
 
