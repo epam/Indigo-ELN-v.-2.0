@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/8/2016.
  */
 angular.module('indigoeln')
-    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService, ProductBatchSummaryCache, $filter, $timeout, StoichTableCache, $rootScope, ProductBatchSummaryOperations) {
+    .directive('productBatchDetails', function (InfoEditor, AppValues, $timeout,  CalculationService, ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope, ProductBatchSummaryOperations) {
         return {
             restrict: 'E',
             replace: true,
@@ -19,21 +19,26 @@ angular.module('indigoeln')
                     ProductBatchSummaryCache.setProductBatchSummary(_batches);
                 }
                 $scope.init = function() {
-                    if (_batches.length > 0) {
-                        $scope.selectedBatch = _batches[0];
-                        $scope.onSelectBatch()
-                    }
+                    $timeout(function() {
+                        if (_batches && _batches.length > 0) {
+                            $scope.selectedBatch = _batches[0];
+                            $scope.onSelectBatch()
+                        }
+                    }, 1000)
                 }
                 $scope.onSelectBatch = function () {
                     if($scope.share.selectedRow){
                         $scope.share.selectedRow.$$selected = false;
                     }
                     var row = $scope.share.selectedRow = $scope.selectedBatch || null;
-                    if (row) row.$$selected = true;
+                    if (row) {
+                        row.$$selected = true;
+                    }
                     setProductBatchDetails(row);
                     $scope.detailTable[0] = row;
-                    console.log('onSelectBatch', $scope.selectedBatch)
+                    console.log('onSelectBatch', row)
                     checkOnlySelectedBatch()
+                    $rootScope.$broadcast('batch-summary-row-selected', {row : row});
                 };
                 $scope.detailTable = [];
                 $scope.selectControl = {};
@@ -130,7 +135,7 @@ angular.module('indigoeln')
                 var setProductBatches = function (batches) {
                     productBatches = batches;
                 };
-                var onRowSelected = function(data) {
+                var onRowSelected = function(data, noevent) {
                     setProductBatchDetails(data.row);
                     if (data.stoichTable)
                         setStoicTable(data.stoichTable);
@@ -139,7 +144,10 @@ angular.module('indigoeln')
                     $scope.detailTable[0] = data.row;
                     $scope.selectedBatch = data.row;
                     checkOnlySelectedBatch()
-                    $scope.selectControl.setSelection(data.row);
+                    if ($scope.selectControl.setSelection) $scope.selectControl.setSelection(data.row);
+                    if (!noevent) {
+                        $rootScope.$broadcast('batch-summary-row-selected', data);
+                    }
                 }
                 function checkOnlySelectedBatch() {
                     var batches = ProductBatchSummaryCache.getProductBatchSummary();
@@ -149,7 +157,7 @@ angular.module('indigoeln')
                     if ($scope.selectedBatch) $scope.selectedBatch.select = true;
                 }
                 var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
-                    onRowSelected(data)
+                    onRowSelected(data, true)
                 });
                 function onRowDeSelected() {
                     setProductBatchDetails({});
@@ -176,9 +184,17 @@ angular.module('indigoeln')
                     })
                 }  
                 $scope.deleteBatches = function() {
+                    var batches = $scope.model.productBatchSummary.batches;
+                    var ind = batches.indexOf($scope.selectedBatch) - 1;
                     var deleted = ProductBatchSummaryOperations.deleteBatches()
                     if (deleted > 0) {
-                        onRowDeSelected()
+                        if (ind < 0) ind = 0;
+                        if (batches.length > 0) {
+                            $scope.selectedBatch = batches[ind];
+                            $scope.onSelectBatch()
+                        } else {
+                            onRowDeSelected()
+                        }
                     }
                 } 
                 $scope.isIntendedSynced = function () {
@@ -187,7 +203,9 @@ angular.module('indigoeln')
                 };
 
                 $scope.syncWithIntendedProducts = function () {
-                    ProductBatchSummaryOperations.syncWithIntendedProducts()
+                    ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
+                        onRowSelected( { row : batch });
+                    })
                 }
 
                 $scope.registerBatches = function () {
