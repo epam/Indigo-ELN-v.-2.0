@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
 
 
 
@@ -120,6 +120,21 @@ angular.module('indigoeln')
             }
         };
 
+        $scope.onUndo = function () {
+            AutoRecoverEngine.undoAction(EntitiesBrowser.activeExperiment);
+        }
+
+        $scope.onRedo = function () {
+            AutoRecoverEngine.redoAction(EntitiesBrowser.activeExperiment)
+        }
+
+        $scope.canUndo = function () {
+            AutoRecoverEngine.canUndo(EntitiesBrowser.activeExperiment)
+        }
+        
+        $scope.canRedo = function () {
+            AutoRecoverEngine.canRedo(EntitiesBrowser.activeExperiment)
+        }
 
         $scope.onCloseAllTabs = function () {
             var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });
