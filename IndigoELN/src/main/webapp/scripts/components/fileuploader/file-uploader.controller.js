@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('FileUploaderController', function ($scope, FileUploaderCash, FileUploader,
+    .controller('FileUploaderController', function ($scope, $rootScope, FileUploaderCash, FileUploader,
                                                     $cookies, $stateParams, ParseLinks, Alert, $uibModal, $filter,
                                                     ProjectFileUploaderService, ExperimentFileUploaderService) {
         var params = $stateParams;
@@ -67,6 +67,8 @@ angular.module('indigoeln')
                 }
             }).result.then(function (result) {
                 $scope.files = _.union($scope.files, result);
+                $rootScope.$broadcast("refresh after attach", 0);
+                Alert.success("Attachments are saved successfully.");
             });
         };
         $scope.delete = function (file) {

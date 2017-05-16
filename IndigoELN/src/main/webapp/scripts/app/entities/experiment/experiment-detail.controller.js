@@ -142,6 +142,12 @@ angular.module('indigoeln')
                     Alert.error('Experiment not refreshed due to server error!')
                 });
             };
+
+            //This is necessary for correct saving after attaching files
+            $scope.$on("refresh after attach", function() {
+                $scope.refresh();
+            });
+
             EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
 
             $scope.isStatusOpen = function () {
