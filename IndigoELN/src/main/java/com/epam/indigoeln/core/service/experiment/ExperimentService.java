@@ -222,6 +222,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(),user);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setCoAuthors(lastVersion.getCoAuthors());
         newVersion.setWitness(lastVersion.getWitness());
