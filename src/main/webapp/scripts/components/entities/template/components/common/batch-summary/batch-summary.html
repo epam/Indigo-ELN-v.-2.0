@@ -5,7 +5,7 @@
               my-editable="isEditable"
               my-on-row-selected="onRowSelected"
               my-hide-column-settings="isHideColumnSettings"
-              ng-class="{'product-batch-register': !myReadonly && isHasCheckedRows()}">
+              ng-class="{'product-batch-register': myReadonly || !isHasCheckedRows()}">
         <div class="row m-b20">
             <div class="col-lg-8 m-bt-lg">
                 <span class="txt-small bold m-r5">Batches:</span>
