@@ -16,33 +16,34 @@ angular.module('indigoeln').factory('experimentPdfCreator',
             return $printFormClone;
         };
 
-        // var prepareIframe = function ($iframe, callback) {
-        //     var $iframeContents = $iframe.contents();
-        //     var promises = [];
-        //     $('link')
-        //         .clone()
-        //         .map(function (index, value) {
-        //             promises[index] = $.get(value.href, function (data) {
-        //                 $('<style type="text/css">' + data + '</style>').appendTo($iframeContents.find('head'));
-        //             });
-        //         });
-        //     $.when.apply($, promises).then(callback.bind(null, $iframeContents));
-        //     var iframeBody = $iframeContents.find('body');
-        //     iframeBody.addClass('main-container');
-        //     iframeBody.css({
-        //         'min-width': '960px',
-        //         'background-color': '#fff'
-        //     });
-        //     iframeBody.css('overflow', 'auto');
-        //     var $preparedPrintForm = preparedPrintForm();
-        //     iframeBody.append($preparedPrintForm);
-        // };
+        var prepareIframe = function ($iframe, callback) {
+            var $iframeContents = $iframe.contents();
+            var promises = [];
+            $('link')
+                .clone()
+                .map(function (index, value) {
+                    promises[index] = $.get(value.href, function (data) {
+                        $('<style type="text/css">' + data + '</style>').appendTo($iframeContents.find('head'));
+                    });
+                });
+            $.when.apply($, promises).then(callback.bind(null, $iframeContents));
+            var iframeBody = $iframeContents.find('body');
+            iframeBody.addClass('main-container');
+            iframeBody.css({
+                'min-width': '960px',
+                'background-color': '#fff'
+            });
+            iframeBody.css('overflow', 'auto');
+            var $preparedPrintForm = preparedPrintForm();
+            iframeBody.append($preparedPrintForm);
+        };
 
         return {
             createPDF: function (fileName, actionToApply) {
                 var $form = preparedPrintForm();
-                $.get('/assets/print.css', function (data) {
+               // $.get('/assets/print.css', function (data) {
                    // var html = '<style>'  + data + '</style>'+ $form.html() + $form.html() + '<!--ADD_PAGE--><h1 style="page-break-before: always">Numbers</h1>' + $form.html() + '<div class="pb"> </div>' + $form.html() + '<div class="pb"> </div>' + $form.html();
+                    var data = '.for-print-only {font-size: 10px; width: 570px; color: #000; } .for-print-only table {width: 100% } .for-print-only table td, .for-print-only table th {border: 1px solid #ccc; font-size: 10px } .pb {page-break-before: always } ';
                     $form.find('img').remove();
                     var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
                     var pdf = new jsPDF('p', 'pt', 'a4');
@@ -51,11 +52,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     canvas.width = 72 * 8.5;;
 
                     html2pdf(html, pdf, function(_pdf) {
-                        // pdf.addPage()
-                        // html2pdf(html, pdf, function(pdf) {
-                            _pdf.output('dataurlnewwindow');
-                        //})
-                       
+                        _pdf.output('dataurlnewwindow');
                     });
 
                     // pdf.fromHTML(html, 0, 0);
@@ -63,7 +60,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
 
                     var w = window.open('', 'wnd');
                     w.document.body.innerHTML = html;
-                });
+                //});
 
                 // return;
                 // var $iframe = $('<iframe />', {
