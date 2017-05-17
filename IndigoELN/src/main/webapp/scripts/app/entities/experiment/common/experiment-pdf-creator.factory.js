@@ -51,13 +51,13 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     canvas.height = 72 * 11;
                     canvas.width = 72 * 8.5;;
 
+                    console.warn('start', pdf, html)
+
                     html2pdf(html, pdf, function(_pdf) {
                         _pdf.output('dataurlnewwindow');
+                        pdf.save(fileName);
+                        console.warn('completed pdf', pdf)
                     });
-
-                    // pdf.fromHTML(html, 0, 0);
-                    // pdf.output('dataurlnewwindow');
-
                     var w = window.open('', 'wnd');
                     w.document.body.innerHTML = html;
                 //});
