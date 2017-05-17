@@ -122,7 +122,12 @@ angular.module('indigoeln')
 
             //This is necessary for correct saving after attaching files
             $scope.$on("refresh after attach", function() {
-                $scope.refresh();
+                $scope.loading = Project.get($stateParams).$promise
+                    .then(function (result) {
+                             $scope.project.version = result.version;
+                    }, function () {
+                        Alert.error('Project not refreshed due to server error!')
+                    });
             });
 
         });
