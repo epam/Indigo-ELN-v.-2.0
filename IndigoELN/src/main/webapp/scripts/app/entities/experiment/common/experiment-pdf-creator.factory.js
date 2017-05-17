@@ -41,7 +41,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
         return {
             createPDF: function (fileName, actionToApply) {
                 var $form = preparedPrintForm();
-                $.get('/assets/styles/print.css', function (data) {
+                $.get('/assets/print.css', function (data) {
                    // var html = '<style>'  + data + '</style>'+ $form.html() + $form.html() + '<!--ADD_PAGE--><h1 style="page-break-before: always">Numbers</h1>' + $form.html() + '<div class="pb"> </div>' + $form.html() + '<div class="pb"> </div>' + $form.html();
                     $form.find('img').remove();
                     var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
