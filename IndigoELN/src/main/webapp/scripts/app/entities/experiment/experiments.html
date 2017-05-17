@@ -49,11 +49,11 @@
         <div class="panel-heading">Open experiments <span class="count" ng-bind="curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
-                <table class="main-table table table-striped table-condensed">
+                <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
                     <tr  my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
                         <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
-                        <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
                         <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
                         <th  class="table-list__item table-list__item_header">Co-authors</th>
@@ -69,7 +69,7 @@
                             <a  class = "ellipsis" ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
-                        <td class="table-list__item ">  <div class="ellipsis"> {{exp.name}} </div>  </td>
+                        <td class="table-list__item dash-exp-name"  title="{{exp.name}}">  <div class="ellipsis"> {{exp.name}} </div>  </td>
                         <td class="table-list__item">{{exp.author.firstName}}</td>
                         <!-- <td class="table-list__item">{{exp.status}}</td> -->
                         <td class="table-list__item">
@@ -77,7 +77,7 @@
                                 <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                             </ul>
                         </td>
-                        <td class="table-list__item"> <a ui-sref="entities.project-detail({projectId: exp.projectId})"> {{exp.project}} </a></td>
+                        <td class="table-list__item dash-proj-name"> <a class="ellipsis" ui-sref="entities.project-detail({projectId: exp.projectId})"> {{exp.project}} </a></td>
                         <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
                         <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
                         <td class="table-list__item">{{getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'}}</td>
