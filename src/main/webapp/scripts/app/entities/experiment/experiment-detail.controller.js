@@ -123,7 +123,13 @@ angular.module('indigoeln')
             };
 
             $scope.versionExperiment = function () {
+                var original = $scope.experiment, originalState = angular.copy($stateParams);
                 $scope.loading = ExperimentUtil.versionExperiment($scope.experiment, params);
+                $scope.loading.then(function() {
+                    Experiment.get($stateParams).$promise.then(function (result) {
+                        angular.extend(original, result);
+                    });
+                })
             };
 
             $scope.printExperiment = function () {
