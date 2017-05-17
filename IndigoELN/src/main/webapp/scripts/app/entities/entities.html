@@ -58,13 +58,13 @@
             </ul>
         </li>
         <li>
-            <a>
+            <a ng-disabled="canUndo()" ng-click = "onUndo()">
                 <i class="fa fa-mail-reply"></i>
                 <span class="tooltip-icon-header">Undo</span>
             </a>
         </li>
         <li>
-            <a>
+            <a  ng-disabled="canRedo()" ng-click = "onRedo()">
                 <i class="fa fa-mail-forward"></i>
                 <span class="tooltip-icon-header">Redo</span>
             </a>

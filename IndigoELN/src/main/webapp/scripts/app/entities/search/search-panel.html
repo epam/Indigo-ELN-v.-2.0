@@ -171,14 +171,14 @@
             </div>
         </div>
         <div class="btn-bottom-block">
-            <button class="btn btn-primary" type="button" ng-click="search()" ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
+            <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}" type="button" ng-click="search()" ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
                     !model.restrictions.searchQuery">Search
             </button>
             <button class="btn btn-secondary" type="button" ng-click="clear()">Clear</button>
         </div>
 
         <my-table my-id="search-result-table" my-columns="columns" my-rows="searchResults"
-                  my-draggable-columns="false"
+                  my-draggable-columns="false"  my-search-columns="['name']"
                   my-readonly="true"  my-hide-column-settings="true">
         </my-table>
     </div>

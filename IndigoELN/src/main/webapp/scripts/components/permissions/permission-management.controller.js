@@ -9,7 +9,10 @@ angular.module('indigoeln')
             $scope.parentId = PermissionManagement.getParentId();
             $scope.author = PermissionManagement.getAuthor();
             $scope.users = _.filter(users, function(user) {
-                return user.id !== $scope.author.id;
+                if (user.id !== $scope.author.id  && PermissionManagement.hasAuthorityForPermission({user:user}, $scope.permissions[0].id)){
+                    return true;
+                }
+                return false;
             });
             var unsubscribe = $scope.$watch('selectedMembers', function (user) {
                 $scope.addMember(user);
@@ -74,7 +77,8 @@ angular.module('indigoeln')
 
             $scope.ok = function() {
                 $uibModalInstance.close($scope.accessList);
-                $rootScope.$broadcast("activate button", 0); //broadcast for activate save button on page
+                //broadcast for activate save button on page
+                $rootScope.$broadcast("activate button", 0);
             };
 
             $scope.clear = function() {

@@ -104,10 +104,10 @@ angular.module('indigoeln')
 			myOnRowSelected: '=',
 			myDraggableRows: '=',
 			myDraggableColumns: '=',
-			myHideColumnSettings:'='
-
+			myHideColumnSettings:'=',
+			mySearchColumns: '='
 		},
-        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout) {
+        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout, $filter) {
 			var that = this;
 
 			function getColumnsProps(myColumns) {
@@ -172,7 +172,7 @@ angular.module('indigoeln')
 			};
 			that.isEditable = function (columnId, rowIndex) {
 				if ($scope.myEditable) {
-					var row = $scope.myRows[rowIndex];
+					var row = $scope.rowsForDisplay[rowIndex];
 					var editable = $scope.myEditable(row, columnId);
 					if (!editable) {
 						return false;
@@ -188,6 +188,44 @@ angular.module('indigoeln')
 				var iseditable = !that.isEditable(col.id, rowId);
 				return col.readonly === true || !iseditable;
 			} 
+
+			var stimeout;
+			var originalRows = $scope.myRows, lastQ;
+			var searchColumns = $scope.mySearchColumns || ['id', 'nbkBatch']
+			$scope.filteredRows =  originalRows;
+			
+			$scope.search =	function(q) {
+				if (q === undefined) {
+					q = $scope.searchText.trim().toLowerCase();
+				}
+				$scope.searchText = q;
+				if (lastQ && lastQ  == q || !originalRows) return;
+				if (stimeout) $timeout.cancel(stimeout)
+				if (!q) {
+					lastQ  = q;
+					$scope.filteredRows = originalRows;
+					return;
+				};
+				stimeout = $timeout(function() {
+					var filtered = [];
+					originalRows.forEach(function(r) {
+						var rate = 0;
+						searchColumns.forEach(function(sc) {
+							if (!r[sc]) return;
+							var s = r[sc].toString().toLowerCase();
+							if (s.indexOf(q) == 0) {
+								rate+=10;
+							} else if  (s.indexOf(q) > 0) {
+								rate++;
+							}
+						})
+						r.$$rate = rate;
+						if (rate > 0) filtered.push(r)
+					})
+					$scope.filteredRows = $filter('orderBy')(filtered, 'rate', true);
+					lastQ = q;
+				}, 300)
+			}
 
 			$scope.onRowSelect = function($event, row) {
 			    var target = $($event.target);
@@ -258,14 +296,21 @@ angular.module('indigoeln')
 			$scope.onPageChanged = function (page) {
 				$scope.pagination.page = page;
 			};
+
 			var updateRowsForDisplay = function () {
-				var pages = calcPages($scope.myRows);
+				var pages = calcPages($scope.filteredRows);
 				$scope.rowsForDisplay = pages[$scope.pagination.page - 1];
 			};
 			$scope.$watch('pagination.page', updateRowsForDisplay);
 			$scope.$watchCollection('myRows', function (newVal, oldVal) {
 				if (newVal && oldVal && newVal.length > oldVal.length) {
-					var pages = calcPages($scope.myRows);
+					$scope.search('')
+				} 
+				$scope.filteredRows =  originalRows =  $scope.myRows; 
+			})
+			$scope.$watchCollection('filteredRows', function (newVal, oldVal) {
+				if (newVal && oldVal && newVal.length > oldVal.length) {
+					var pages = calcPages($scope.filteredRows);
 					$scope.pagination.page = Object.keys(pages).length;
 				}
 				updateRowsForDisplay();

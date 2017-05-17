@@ -25,15 +25,22 @@ angular.module('indigoeln')
                     projectId: $stateParams.projectId
                 }).$promise.then(function(data) {
                     if (!data.length) {
-                        Alert.info('There are no experiments in this notebook')
-                        return;    
+                        Alert.info('There are no experiments in this notebook');
+                        return;
                     }
+                    data.forEach(function (exp) {
+                        if (!exp.lastVersion || exp.experimentVersion > 1){
+                            exp.fullName = $scope.notebook.name + '-' + exp.name + ' v' + exp.experimentVersion;
+                        }else {
+                            exp.fullName = $scope.notebook.name + '-' + exp.name;
+                        }
+                    });
                     $scope.experiments = data;
                     $scope.isSummary = true;
                 }, function() {
-                    Alert.error('Cannot get summary right now due to server error')
-                })
-            }
+                    Alert.error('Cannot get summary right now due to server error');
+                });
+            };
 
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;

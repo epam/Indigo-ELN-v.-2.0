@@ -52,8 +52,10 @@ angular.module('indigoeln').controller('AnalyzeRxnController',
         }
 
         $scope.search = function () {
+            $scope.loading = true;
             _.each($scope.tabs, function (tab) {
                 getSearchResult(tab.formula, function (searchResult) {
+                    $scope.loading = false;
                     tab.searchResult = responseCallback(searchResult);
                 });
             });

@@ -120,4 +120,9 @@ angular.module('indigoeln')
                 });
             };
 
+            //This is necessary for correct saving after attaching files
+            $scope.$on("refresh after attach", function() {
+                $scope.refresh();
+            });
+
         });

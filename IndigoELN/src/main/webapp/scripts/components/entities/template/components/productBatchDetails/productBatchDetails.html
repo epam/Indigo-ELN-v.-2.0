@@ -3,7 +3,7 @@
         Product Batch Details
     </div>
     <div class="panel-body collapsible">
-        <form class="form-inline form-batch-details">
+        <form class="form-inline form-batch-details" ng-init = "init()">
             <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
             <my-select
                     my-model="selectedBatch"
@@ -15,7 +15,7 @@
             ></my-select>
             <my-checkbox
                 my-model="showSummary"
-                my-label="Show Summary"
+                my-label="Show summary table"
             ></my-checkbox>
         </form>
         <indigo-batch-summary ng-if="showSummary" my-tab-support="true"  model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
@@ -30,20 +30,20 @@
                             <i class="fa fa-plus"></i>
                             <span class="m-l5">Add</span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly  || !isHasCheckedRows()" ng-click="duplicateBatch()">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="duplicateBatch()">
                             <i class="fa fa-clone"></i>
                             <span class="m-l5">Duplicate</span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly  || !isHasCheckedRows()" ng-click="deleteBatches()">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="deleteBatches()">
                             <i class="fa fa-trash"></i>
                             <span class="m-l5">Delete</span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly  || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
                             <i class="fa fa-refresh"></i>
                             <span class="m-l5">Sync</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
-                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="registerBatches()">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="registerBatches()">
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
@@ -52,7 +52,7 @@
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioIntermediate"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
-                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'">
+                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'; experimentForm.$setDirty()"  ng-checked="model.productBatchDetails.batchType == 'Intermediate'">
                             <label for="batchDetailsRadioIntermediate">Intermediate</label>
                         </div>
                         <div class="batch-details-radio">
@@ -60,7 +60,7 @@
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioTest"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
-                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'">
+                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'; experimentForm.$setDirty()" ng-checked="model.productBatchDetails.batchType =='Test Compound'">
                             <label  for="batchDetailsRadioTest">Test Compound</label>
                         </div>
                     </div>
@@ -73,7 +73,7 @@
                             <span class="m-l5">Import</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
-                                ng-disabled="myReadonly || !isHasCheckedRows()">
+                                ng-disabled="myReadonly || !selectedBatch.nbkBatch">
                             <i class="fa fa-cloud-upload"></i>
                             <span class="m-l5">Export</span>
                         </button>
@@ -127,7 +127,7 @@
                            my-dictionary="Source Details"
                            my-readonly="myReadonly"
                 ></my-select>
-                <my-select my-label="Sterioisomer Code"
+                <my-select my-label="Stereoisomer Code"
                            my-label-vertical="true"
                            my-dictionary="Stereoisomer Code"
                            my-item-prop="name,description"
