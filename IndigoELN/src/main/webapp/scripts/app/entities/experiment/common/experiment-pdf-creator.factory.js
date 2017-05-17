@@ -44,7 +44,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                 $.get('/assets/styles/print.css', function (data) {
                    // var html = '<style>'  + data + '</style>'+ $form.html() + $form.html() + '<!--ADD_PAGE--><h1 style="page-break-before: always">Numbers</h1>' + $form.html() + '<div class="pb"> </div>' + $form.html() + '<div class="pb"> </div>' + $form.html();
                     $form.find('img').remove();
-                    var html = '<style>'  + data + '</style> <div>' +  $form.html() + '</div>';
+                    var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
                     var pdf = new jsPDF('p', 'pt', 'a4');
                     var canvas = pdf.canvas;
                     canvas.height = 72 * 11;
