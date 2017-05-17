@@ -1,0 +1,4 @@
+body { font-size: 10px; width: 570px; color: #000 }
+table { width: 100% }
+table td, table th { border : 1px solid #ccc; font-size: 10px}
+.pb {page-break-before: always }
