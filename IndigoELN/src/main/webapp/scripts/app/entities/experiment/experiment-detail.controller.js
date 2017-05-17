@@ -147,7 +147,12 @@ angular.module('indigoeln')
 
             //This is necessary for correct saving after attaching files
             $scope.$on("refresh after attach", function() {
-                $scope.refresh();
+                $scope.loading = Experiment.get($stateParams).$promise
+                    .then(function (result) {
+                             $scope.experiment.version = result.version;
+                    }, function () {
+                        Alert.error('Experiment not refreshed due to server error!')
+                    });
             });
 
             EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
