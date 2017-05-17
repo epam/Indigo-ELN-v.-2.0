@@ -3,15 +3,13 @@ package com.epam.indigoeln.core.service.search;
 import com.epam.indigoeln.web.rest.dto.search.ProductBatchDetailsDTO;
 import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.epam.indigoeln.core.service.search.SearchServiceConstants.*;
 
 @Service
 public class SearchServiceFacade {
@@ -26,7 +24,16 @@ public class SearchServiceFacade {
     public Collection<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest) {
         Collection<ProductBatchDetailsDTO> result = new ArrayList<>();
         for(SearchServiceAPI provider : getSearchProviders(searchRequest.getDatabases())) {
-            result.addAll(provider.findBatches(searchRequest));
+            Collection<ProductBatchDetailsDTO> batches = provider.findBatches(searchRequest);
+            result.addAll(batches);
+            Optional<Integer> batchesLeft = searchRequest.getBatchesLimit();
+            if (batchesLeft.isPresent()){
+                if (batches.size() == batchesLeft.get()){
+                    break;
+                }else {
+                    searchRequest.setBatchesLimit(batchesLeft.get() - batches.size());
+                }
+            }
         }
         return result;
     }

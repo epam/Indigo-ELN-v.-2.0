@@ -5,27 +5,27 @@
                 <div class="panel-heading">experiments statistics</div>
                 <div class="panel-body panel-body-nopad" >
                     <div class="statistic-radio">
-                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'open'">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-change="onViewChange()" ng-value="'open'">
                         <div>
                             <span class="statistic-txt">Open</span>
-                            <span class="count pull-right" ng-bind="experiments.openAndCompletedExp.length"></span>
-                            <uib-progressbar animate="false" value="((experiments.openAndCompletedExp.length * 100)/100) || 0" type="success"></uib-progressbar>
+                            <span class="count pull-right" ng-bind="openExperimentsLength"></span>
+                            <uib-progressbar animate="false" value="((openExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-orange">
-                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'wait'">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'wait'" ng-change="onViewChange()">
                         <div>
                             <span class="statistic-txt">Waiting author’s signature</span>
-                            <span class="count pull-right" ng-bind="experiments.waitingSignatureExp.length"></span>
-                            <uib-progressbar animate="false" value="((experiments.waitingSignatureExp.length * 100)/100) || 0" type="success"></uib-progressbar>
+                            <span class="count pull-right" ng-bind="waitingExperimentsLength"></span>
+                            <uib-progressbar animate="false" value="((waitingExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                     <div class="statistic-radio statistic-yellow">
-                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'submitted'">
+                        <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'submitted'" ng-change="onViewChange()">
                         <div>
                             <span class="statistic-txt">Submitted by author</span>
-                            <span class="count pull-right" ng-bind="experiments.submittedAndSigningExp.length"></span>
-                            <uib-progressbar animate="false" value="((experiments.submittedAndSigningExp.length * 100)/100) || 0" type="success"></uib-progressbar>
+                            <span class="count pull-right" ng-bind="submittedExperimentsLength"></span>
+                            <uib-progressbar animate="false" value="((submittedExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                 <div class="panel-heading">experiments</div>
                 <div class="panel-body panel-body-nopad">
                     <div class="experiment-count-block">
-                        <span ng-bind="(experiments.submittedAndSigningExp.length + experiments.openAndCompletedExp.length)"></span>
+                        <span ng-bind="(submittedExperimentsLength + openExperimentsLength)"></span>
                         <span>Experiments</span>
                         <span>(created during the last month)</span>
                     </div>
@@ -46,38 +46,41 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'open'">
-        <div class="panel-heading">Open experiments <span class="count" ng-bind="experiments.openAndCompletedExp.length"></span></div>
+        <div class="panel-heading">Open experiments <span class="count" ng-bind="curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr class="table-list">
-                        <th class="table-list__item table-list__item_header">Experiment ID</th>
-                        <th class="table-list__item table-list__item_header">Title</th>
-                        <th class="table-list__item table-list__item_header">Status</th>
-                        <th class="table-list__item table-list__item_header">Co-authors</th>
-                        <th class="table-list__item table-list__item_header">Project</th>
-                        <th class="table-list__item table-list__item_header">Creation Date</th>
-                        <th class="table-list__item table-list__item_header">Last Edit Date</th>
-                        <th class="table-list__item table-list__item_header">Idle Workdays</th>
+                    <tr  my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
+                        <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
+                        <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
+                        <th  class="table-list__item table-list__item_header">Co-authors</th>
+                        <th my-sort-by="project" class="table-list__item table-list__item_header">Project <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th class="table-list__item table-list__item_header">Idle Workdays </span></th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in experiments.openAndCompletedExp track by $index">
+                    <tr ng-class=" {true : 'table-list', 'reaction-popup'  : !!exp.reactionImage}" ng-repeat="exp in curExperimentsPaged track by $index" ng-mouseenter="experimentEnter(exp)">
                         <td class="table-list__item">
-                            <a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+                            <a  class = "ellipsis" ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
+                            <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
-                        <td class="table-list__item">{{exp.name}}</td>
-                        <td class="table-list__item">{{exp.status}}</td>
+                        <td class="table-list__item ">  <div class="ellipsis"> {{exp.name}} </div>  </td>
+                        <td class="table-list__item">{{exp.author.firstName}}</td>
+                        <!-- <td class="table-list__item">{{exp.status}}</td> -->
                         <td class="table-list__item">
                             <ul>
                                 <li ng-repeat="user in exp.coAuthors track by $index">{{user.firstName + ' ' + user.lastName}}</li>
                             </ul>
                         </td>
-                        <td class="table-list__item">{{exp.project}}</td>
+                        <td class="table-list__item"> <a ui-sref="entities.project-detail({projectId: exp.projectId})"> {{exp.project}} </a></td>
                         <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
                         <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                        <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+                        <td class="table-list__item">{{getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -86,25 +89,25 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'wait'">
-        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="experiments.waitingSignatureExp.length"></span></div>
+        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr class="table-list">
-                        <th class="table-list__item table-list__item_header">Experiment ID</th>
-                        <th class="table-list__item table-list__item_header">Title</th>
-                        <th class="table-list__item table-list__item_header">Status</th>
-                        <th class="table-list__item table-list__item_header">Author</th>
-                        <th class="table-list__item table-list__item_header">Submitter</th>
+                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th my-sort-by="id"  class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Witness</th>
-                        <th class="table-list__item table-list__item_header">Creation Date</th>
-                        <th class="table-list__item table-list__item_header">Last Action Date</th>
+                        <th my-sort-by="creationDate"  class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="lastEditDate"  class="table-list__item table-list__item_header">Last Action Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Idle Workdays</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in experiments.waitingSignatureExp track by $index">
+                    <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
                         <td class="table-list__item">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
@@ -121,7 +124,7 @@
                         </td>
                         <td class="table-list__item">{{exp.creationDate | date:'MMM dd yyyy'}}</td>
                         <td class="table-list__item">{{exp.lastEditDate | date:'MMM dd yyyy'}}</td>
-                        <td class="table-list__item">{{getIdleWorkdays(exp.lastEditDate) + ' day(s)'}}</td>
+                        <td class="table-list__item">{{getIdleWorkdays(exp.creationDate, exp.lastEditDate) + ' day(s)'}}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -131,25 +134,25 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'submitted'">
-        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="experiments.submittedAndSigningExp.length"></span></div>
+        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" my-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr class="table-list">
-                        <th class="table-list__item table-list__item_header">Experiment ID</th>
-                        <th class="table-list__item table-list__item_header">Title</th>
-                        <th class="table-list__item table-list__item_header">Status</th>
-                        <th class="table-list__item table-list__item_header">Author</th>
-                        <th class="table-list__item table-list__item_header">Submitter</th>
-                        <th class="table-list__item table-list__item_header">Witness</th>
-                        <th class="table-list__item table-list__item_header">Creation Date</th>
-                        <th class="table-list__item table-list__item_header">Last Edit Date</th>
+                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="submitter.firstName" class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
+                        <th  class="table-list__item table-list__item_header">Witness</th>
+                        <th my-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Comments</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in experiments.submittedAndSigningExp track by $index">
+                    <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
                         <td class="table-list__item">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
@@ -176,5 +179,8 @@
                 </table>
             </div>
         </div>
+    </div>
+    <div class="text-center" ng-show="!!curExperiments.length">
+        <uib-pagination class="pagination-sm" total-items="totalItems" items-per-page="itemsPerPage" ng-model="page" ng-change="doPage()"></uib-pagination>
     </div>
 </div>

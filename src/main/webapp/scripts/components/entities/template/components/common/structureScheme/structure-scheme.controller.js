@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('StructureSchemeController', function ($scope, $q, $attrs, $http, $uibModal, $rootScope) {
+    .controller('StructureSchemeController', function ($scope, $q, $attrs, $http, $uibModal, $rootScope, Alert) {
         // structure types: molecule, reaction
         var type = $attrs.myStructureType;
         $scope.structureType = type;
@@ -123,7 +123,7 @@ angular.module('indigoeln')
                     }).success(function (structureId) {
                         setStructure(type, structure, structureId);
                     }).error(function () {
-                        console.info('Cannot save the structure.');
+                        Alert.error('Cannot save the structure!')
                     });
                 }
             });
@@ -177,6 +177,7 @@ angular.module('indigoeln')
             // set structure if picked
             modalInstance.result.then(function (structure) {
                 if ($scope.myAutosave) {
+                    setStructure(type, structure);
                     saveNewStructure(type, structure);
                 } else {
                     setStructure(type, structure);

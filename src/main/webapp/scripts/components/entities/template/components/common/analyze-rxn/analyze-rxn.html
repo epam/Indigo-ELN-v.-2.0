@@ -17,7 +17,7 @@
         <my-checklist my-items="model.databases" my-label="Choose catalog to search in"></my-checklist>
     </div>
     <div>
-        <button class="btn btn-info"
+        <button class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
                 type="button"
                 ng-click="search()">Search
         </button>

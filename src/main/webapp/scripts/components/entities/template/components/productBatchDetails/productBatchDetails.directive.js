@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/8/2016.
  */
 angular.module('indigoeln')
-    .directive('productBatchDetails', function (InfoEditor, AppValues, CalculationService, $filter, StoichTableCache) {
+    .directive('productBatchDetails', function (InfoEditor, AppValues, $timeout,  CalculationService, ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope, ProductBatchSummaryOperations) {
         return {
             restrict: 'E',
             replace: true,
@@ -14,20 +14,35 @@ angular.module('indigoeln')
                 $scope.share.stoichTable = StoichTableCache.getStoicTable();
 
                 if($scope.model.productBatchSummary){
-                    $scope.model.productBatchSummary.batches = $scope.model.productBatchSummary.batches || [];
+                    var _batches = $scope.model.productBatchSummary.batches || [];
+                    $scope.model.productBatchSummary.batches = _batches;
+                    ProductBatchSummaryCache.setProductBatchSummary(_batches);
                 }
-                $scope.detailTable = [];
-                $scope.selectControl = {};
-
+                $scope.init = function() {
+                    $timeout(function() {
+                        if (_batches && _batches.length > 0) {
+                            $scope.selectedBatch = _batches[0];
+                            $scope.onSelectBatch()
+                        }
+                    }, 1000)
+                }
                 $scope.onSelectBatch = function () {
                     if($scope.share.selectedRow){
                         $scope.share.selectedRow.$$selected = false;
                     }
-                    $scope.share.selectedRow = $scope.selectedBatch || null;
-                    $scope.share.selectedRow.$$selected = true;
-                    setProductBatchDetails($scope.share.selectedRow);
-                    $scope.detailTable[0] = $scope.share.selectedRow;
+                    var row = $scope.share.selectedRow = $scope.selectedBatch || null;
+                    if (row) {
+                        row.$$selected = true;
+                    }
+                    setProductBatchDetails(row);
+                    $scope.detailTable[0] = row;
+                    console.log('onSelectBatch', row)
+                    checkOnlySelectedBatch()
+                    $rootScope.$broadcast('batch-summary-row-selected', {row : row});
                 };
+                $scope.detailTable = [];
+                $scope.selectControl = {};
+
 
                 var grams = AppValues.getGrams();
                 var liters = AppValues.getLiters();
@@ -111,6 +126,7 @@ angular.module('indigoeln')
 
                 function setStoicTable(table) {
                     stoichTable = table;
+                    ProductBatchSummaryOperations.setStoicTable(stoichTable)
                 }
 
                 var getProductBatches = function () {
@@ -119,26 +135,91 @@ angular.module('indigoeln')
                 var setProductBatches = function (batches) {
                     productBatches = batches;
                 };
-
-                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
+                var onRowSelected = function(data, noevent) {
                     setProductBatchDetails(data.row);
-                    setStoicTable(data.stoichTable);
-                    setProductBatches(data.actualProducts);
+                    if (data.stoichTable)
+                        setStoicTable(data.stoichTable);
+                    if (data.actualProducts)
+                        setProductBatches(data.actualProducts);
                     $scope.detailTable[0] = data.row;
                     $scope.selectedBatch = data.row;
-                    $scope.selectControl.setSelection(data.row);
+                    checkOnlySelectedBatch()
+                    if ($scope.selectControl.setSelection) $scope.selectControl.setSelection(data.row);
+                    if (!noevent) {
+                        $rootScope.$broadcast('batch-summary-row-selected', data);
+                    }
+                }
+                function checkOnlySelectedBatch() {
+                    var batches = ProductBatchSummaryCache.getProductBatchSummary();
+                    batches.forEach(function(b) {
+                        b.select = false;
+                    })
+                    if ($scope.selectedBatch) $scope.selectedBatch.select = true;
+                }
+                var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
+                    onRowSelected(data, true)
                 });
-                var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
+                function onRowDeSelected() {
                     setProductBatchDetails({});
-                    $scope.detailTable[0] = {};
-                    $scope.selectedBatch = {};
+                    $scope.detailTable = [];
+                    $scope.selectedBatch = null;
                     $scope.selectControl.unSelect();
-                });
+                }
+
+                var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', onRowDeSelected);
+
                 $scope.$on('$destroy', function () {
                     onBatchSummaryRowSelectedEvent();
                     onBatchSummaryRowDeselectedEvent();
                 });
 
+                $scope.addNewBatch = function() {
+                    ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
+                         onRowSelected( { row : batch });
+                    });
+                } 
+                $scope.duplicateBatch = function() {
+                    ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
+                        onRowSelected( { row : batch });
+                    })
+                }  
+                $scope.deleteBatches = function() {
+                    var batches = $scope.model.productBatchSummary.batches;
+                    var ind = batches.indexOf($scope.selectedBatch) - 1;
+                    var deleted = ProductBatchSummaryOperations.deleteBatches()
+                    if (deleted > 0) {
+                        if (ind < 0) ind = 0;
+                        if (batches.length > 0) {
+                            $scope.selectedBatch = batches[ind];
+                            $scope.onSelectBatch()
+                        } else {
+                            onRowDeSelected()
+                        }
+                    }
+                } 
+                $scope.isIntendedSynced = function () {
+                    var intended = ProductBatchSummaryOperations.getIntendedNotInActual()
+                    return intended ? !intended.length : true;
+                };
+
+                $scope.syncWithIntendedProducts = function () {
+                    ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
+                        onRowSelected( { row : batch });
+                    })
+                }
+
+                $scope.registerBatches = function () {
+                    $scope.loading = ProductBatchSummaryOperations.registerBatches()
+                };
+
+                $scope.importSDFile = function() {
+                    ProductBatchSummaryOperations.importSDFile();
+                };
+
+                $scope.exportSDFile = function () {
+                    ProductBatchSummaryOperations.exportSDFile()
+                };
+                
                 $scope.editSolubility = function () {
                     var callback = function (result) {
                         getProductBatchDetails().solubility = result;
@@ -194,9 +275,6 @@ angular.module('indigoeln')
                         $scope.experimentForm.$setDirty();
                     };
                     InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
-                };
-                $scope.registerBatch = function () {
-                    AlertModal.info('not implemented yet');
                 };
                 $scope.recalculateSalt = function (reagent) {
                     CalculationService.recalculateSalt(reagent).then(function () {

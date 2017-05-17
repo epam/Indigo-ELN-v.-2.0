@@ -1,6 +1,6 @@
 angular.module('indigoeln')
     .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, Alert, Experiment, Notebook, Project, DialogService, AutoRecoverEngine) {
+                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService) {
 
 
 
@@ -43,12 +43,15 @@ angular.module('indigoeln')
                 $scope.onCloseAllTabs();
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
-                EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                    if (tab && userId !== data.user) {
-                    //if (tab) {
-                       $scope.onTabChanged(tab, data.entity);
-                    }
-                });
+                Principal.identity(true).then(function(user) {
+                    EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
+                        console.warn('entity-update', user.id, data, tab)
+                        if (tab && user.id != data.user) {
+                            $scope.onTabChanged(tab, data.entity);
+                            console.warn('entity-updated', data.entity)
+                        }
+                    });
+                })
             });
 
             $scope.$on('$destroy', function () {
@@ -103,7 +106,10 @@ angular.module('indigoeln')
         };
 
         $scope.onTabChanged = function(tab, entity) {
+            console.log(1)
             if (!EntitiesBrowser.updateCurrentEntity) return;
+            console.log(2)
+
             if (tab.dirty) {
                 AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept or Reject saved changes. "Accept" button reloads page to show saved data, "Reject" button leave entered data and allows you to save them.',
                     null,
@@ -118,8 +124,24 @@ angular.module('indigoeln')
                 Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
                 EntitiesBrowser.updateCurrentEntity()
             }
+            console.log(3)
         };
 
+        $scope.onUndo = function () {
+            AutoRecoverEngine.undoAction(EntitiesBrowser.activeExperiment);
+        }
+
+        $scope.onRedo = function () {
+            AutoRecoverEngine.redoAction(EntitiesBrowser.activeExperiment)
+        }
+
+        $scope.canUndo = function () {
+            AutoRecoverEngine.canUndo(EntitiesBrowser.activeExperiment)
+        }
+        
+        $scope.canRedo = function () {
+            AutoRecoverEngine.canRedo(EntitiesBrowser.activeExperiment)
+        }
 
         $scope.onCloseAllTabs = function () {
             var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });

@@ -132,7 +132,11 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO convert(String notebookName, ExperimentDTO experiment) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_EXPERIMENT);
-        result.setName(notebookName + "-" + experiment.getName());
+        if (experiment.getExperimentVersion() > 1 || !experiment.isLastVersion()) {
+            result.setName(notebookName + "-" + experiment.getName() + " v" + experiment.getExperimentVersion());
+        }else {
+            result.setName(notebookName + "-" + experiment.getName());
+        }
         result.setDetails(getDetails(experiment));
         return result;
     }

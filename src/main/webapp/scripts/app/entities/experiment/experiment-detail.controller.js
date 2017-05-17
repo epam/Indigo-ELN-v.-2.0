@@ -11,8 +11,10 @@ angular.module('indigoeln')
             }
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
+
             $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
             $timeout(function () {
+                EntitiesBrowser.setCurrentForm($scope.experimentForm)
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
                     $scope.experimentForm.$setDirty(pageInfo.dirty);
@@ -142,6 +144,12 @@ angular.module('indigoeln')
                     Alert.error('Experiment not refreshed due to server error!')
                 });
             };
+
+            //This is necessary for correct saving after attaching files
+            $scope.$on("refresh after attach", function() {
+                $scope.refresh();
+            });
+
             EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
 
             $scope.isStatusOpen = function () {

@@ -44,6 +44,11 @@ public final class BatchSearchAggregationBuilder extends AbstractSearchAggregati
         return this;
     }
 
+    public BatchSearchAggregationBuilder withLimit(Integer batchesLimit){
+        aggregationOperations.add(Aggregation.limit(batchesLimit));
+        return this;
+    }
+
     public Aggregation build() {
         return Aggregation.newAggregation(aggregationOperations);
     }
