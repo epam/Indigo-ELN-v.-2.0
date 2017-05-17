@@ -56,6 +56,7 @@ angular.module('indigoeln')
                     // CALLBACKS
                     uploader.onSuccessItem = function (fileItem, response) {
                         $scope.files.push(response);
+                        Alert.success("Attachments are saved successfully.");
                     };
                     $scope.remove = function (index) {
                         $scope.files.splice(index, 1);
@@ -68,7 +69,6 @@ angular.module('indigoeln')
             }).result.then(function (result) {
                 $scope.files = _.union($scope.files, result);
                 $rootScope.$broadcast("refresh after attach", 0);
-                Alert.success("Attachments are saved successfully.");
             });
         };
         $scope.delete = function (file) {
