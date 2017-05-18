@@ -26,6 +26,12 @@ angular.module('indigoeln')
             $scope.loadAll();
         }
         $scope.upload = function () {
+
+            if (!params.projectId) {
+                Alert.error("Pleas save project before attach files.");
+                return;
+            }
+
             $uibModal.open({
                 animation: true,
                 size: 'lg',
