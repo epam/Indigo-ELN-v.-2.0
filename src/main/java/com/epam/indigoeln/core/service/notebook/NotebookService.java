@@ -1,18 +1,15 @@
 package com.epam.indigoeln.core.service.notebook;
 
-import com.epam.indigoeln.core.model.Notebook;
-import com.epam.indigoeln.core.model.Project;
-import com.epam.indigoeln.core.model.User;
-import com.epam.indigoeln.core.model.UserPermission;
+import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
-import com.epam.indigoeln.web.rest.dto.NotebookDTO;
-import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
+import com.epam.indigoeln.web.rest.dto.*;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 @Service
@@ -44,6 +42,9 @@ public class NotebookService {
 
     @Autowired
     private SimpMessagingTemplate template;
+
+    @Autowired
+    private ExperimentService experimentService;
 
     private static List<Notebook> getNotebooksWithAccess(List<Notebook> notebooks, String userId) {
         return notebooks.stream().filter(notebook -> PermissionUtil.findPermissionsByUserId(
@@ -155,51 +156,63 @@ public class NotebookService {
     }
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, String projectId, User user) {
-        String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookDTO.getId());
-        Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
-                orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
+        Lock lock = experimentService.getLock(projectId);
+        try{
+            lock.lock();
+            String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookDTO.getId());
+            Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookDTO.getId()));
 
-        // Check of EntityAccess (User must have "Read Entity" permission in project access list and
-        // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
-        if (!PermissionUtil.isContentEditor(user)) {
-            Project project = projectRepository.findByNotebookId(fullNotebookId);
-            if (project == null) {
-                throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
+            // Check of EntityAccess (User must have "Read Entity" permission in project access list and
+            // "Update Entity" permission in notebook access list, or must have CONTENT_EDITOR authority)
+            if (!PermissionUtil.isContentEditor(user)) {
+                Project project = projectRepository.findByNotebookId(fullNotebookId);
+                if (project == null) {
+                    throw EntityNotFoundException.createWithNotebookChildId(notebookFromDB.getId());
+                }
+
+                if (!PermissionUtil.hasPermissions(user.getId(),
+                        project.getAccessList(), UserPermission.READ_ENTITY,
+                        notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
+                    throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
+                }
             }
 
-            if (!PermissionUtil.hasPermissions(user.getId(),
-                    project.getAccessList(), UserPermission.READ_ENTITY,
-                    notebookFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                throw OperationDeniedException.createNotebookUpdateOperation(notebookFromDB.getId());
+            Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
+            // check of user permissions's correctness in access control list
+            PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
+
+            if (!notebookFromDB.getName().equals(notebookDTO.getName())){
+                List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
+                if (!numbers.isEmpty()){
+                    throw OperationDeniedException.createNotebookUpdateNameOperation(numbers.toArray(new String[numbers.size()]));
+                }
+                notebookFromDB.setName(notebookDTO.getName());
             }
+            notebookFromDB.setDescription(notebookDTO.getDescription());
+            notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
+            notebookFromDB.setVersion(notebook.getVersion());
+            NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+
+            Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
+                    orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
+            // add all users as VIEWER to project
+            notebook.getAccessList().forEach(up ->
+                    PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
+            projectRepository.save(project);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("user", user.getId());
+            Map<String, Object> entity = new HashMap<>();
+            entity.put("projectId", projectId);
+            entity.put("notebookId", SequenceIdUtil.extractShortId(notebookFromDB));
+            data.put("entity", entity);
+            template.convertAndSend("/topic/entity_updated", data);
+
+            return result;
+        }finally {
+            lock.unlock();
         }
-
-        Notebook notebook = dtoMapper.convertFromDTO(notebookDTO);
-        // check of user permissions's correctness in access control list
-        PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
-
-        notebookFromDB.setName(notebookDTO.getName());
-        notebookFromDB.setDescription(notebookDTO.getDescription());
-        notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
-        notebookFromDB.setVersion(notebook.getVersion());
-        NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
-
-        Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
-                orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
-        // add all users as VIEWER to project
-        notebook.getAccessList().forEach(up ->
-                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
-        projectRepository.save(project);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("user", user.getId());
-        Map<String, Object> entity = new HashMap<>();
-        entity.put("projectId", projectId);
-        entity.put("notebookId", SequenceIdUtil.extractShortId(notebookFromDB));
-        data.put("entity", entity);
-        template.convertAndSend("/topic/entity_updated", data);
-
-        return result;
     }
 
     public void deleteNotebook(String projectId, String id) {
