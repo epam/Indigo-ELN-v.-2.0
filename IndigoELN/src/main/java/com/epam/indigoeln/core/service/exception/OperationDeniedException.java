@@ -4,7 +4,7 @@ import com.epam.indigoeln.web.rest.errors.CustomParametrizedException;
 
 public class OperationDeniedException extends CustomParametrizedException {
 
-    public OperationDeniedException(String message, String params) {
+    public OperationDeniedException(String message, String... params) {
         super(message, params);
     }
 
@@ -76,7 +76,11 @@ public class OperationDeniedException extends CustomParametrizedException {
                 entityName + " with id = " + entityId, entityId);
     }
 
-    public static OperationDeniedException versionExperiment(String entityId){
+    public static OperationDeniedException createVersionExperimentOperation(String entityId){
         return new OperationDeniedException("A new version of experiment can't be created while there is open experiment",entityId);
+    }
+
+    public static OperationDeniedException createNotebookUpdateNameOperation(String... entityIds){
+        return new OperationDeniedException("The notebook can't be updated if there is at least one batch",entityIds);
     }
 }
