@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('AutoRecoverEngine', function($rootScope, AlertModal, Principal, localStorageService, $q, $timeout) {
+    .factory('AutoRecoverEngine', function($rootScope, AlertModal, Principal, localStorageService, $q, $timeout, EntitiesBrowser) {
         var delay = 1000;
         var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
         var kinds = ['experiment', 'project', 'notebook'],
@@ -19,66 +19,88 @@ angular.module('indigoeln')
                 }
 
                 function getKey(kind, entity) {
-                    return subkey + kind + '.entity.' + entity.id;
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    var id = entity.id  || curtab.tmpId;
+                    return subkey + kind + '.entity.' + id;
                 }
                 clear = function(kind, entity) {
                     //console.log('clear entity', kind, entity)
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    var id = entity.id || curtab.tmpId;
                     var type = types[kind];
-                    var rec = type.recoveries[entity.id];
+                    var rec = type.recoveries[id];
                     if (!rec) return;
-                    delete type.recoveries[entity.id];
+                    delete type.recoveries[id];
                     localStorageService.remove(getKey(kind, entity));
                     localStorageService.set(subkey, angular.toJson(types))
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    delete curtab.tmpId;
+                    EntitiesBrowser.saveTabs()
                 }
                 save = function(kind, entity) {
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    var id = entity.id || curtab.tmpId;
                     var clone = angular.copy(entity);
                     servfields.forEach(function(field) {
                         delete clone[field];
                     })
                     var type = types[kind];
-                    var rec = type.recoveries[entity.id];
+                    var rec = type.recoveries[id];
                     if (!rec) {
-                        rec = type.recoveries[entity.id] = { id: entity.id, name: entity.name, kind: kind };
+                        rec = type.recoveries[id] = { id: id, name: entity.name, kind: kind };
                     }
                     rec.date = +new Date();
+        
                     delete rec.thisSession;
                     localStorageService.set(subkey, angular.toJson(types))
                     rec.thisSession = true;
                     localStorageService.set(getKey(kind, entity), angular.toJson(clone));
+                    //console.warn('save rec', rec, id, getKey(kind, entity))
                 };
                 get = function(kind, entity) {
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    var id = entity.id || curtab.tmpId;
                     var type = types[kind];
-                    var rec = type.recoveries[entity.id];
-                    if (!rec || rec.thisSession) return;
+                    var rec = type.recoveries[id];
+                    var curtab = EntitiesBrowser.getActiveTab();
+                    if (!rec) return;
                     return { entity: JSON.parse(localStorageService.get(getKey(kind, entity))), rec: rec }
                 }
                 deferred.resolve()
             });
-
+        function getFullId(entity) {
+            if (!entity) return false;
+            var curtab = EntitiesBrowser.getActiveTab()
+            return entity.fullId || curtab.tmpId;
+        }
         function canUndo(entity) {
             if (!entity) return false;
-            var state = states[entity.fullId];
+            var id = getFullId(entity);
+            var state = states[id];
+            console.warn(state && state.actions.length > 0 && state.aindex >= 0)
             return state && state.actions.length > 0 && state.aindex >= 0;
         }
 
         function canRedo(entity) {
             if (!entity) return false;
-            var state = states[entity.fullId];
+            var id = getFullId(entity);
+            var state = states[id];
             return state && state.actions.length > 0 && state.aindex < state.actions.length - 1;
         }
         function undoAction(entity) {
             if (!entity) return false;
-            var state = states[entity.fullId];
+            var id = getFullId(entity);
+            var state = states[id];
             if (state && state.aindex >= 0) {
                 var act = state.actions[state.aindex--];
-                console.log('undo', state.aindex, state.actions)
                 angular.extend(entity, act);
                 entity.$$undo = true;
             }
         }
         function redoAction(entity) {
+            var id = getFullId(entity);
             if (!entity) return false;
-            var state = states[entity.fullId];
+            var state = states[id];
             if (states && state.aindex < state.actions.length - 1) {
                 var act = (state.aindex < state.actions.length - 2) ? state.actions[state.aindex + 2] : state.last;
                 state.aindex++;
@@ -94,10 +116,19 @@ angular.module('indigoeln')
             redoAction : redoAction,
             trackEntityChanges: function(entity, form, $scope, kind) {
                 deferred.promise.then(function() {
-                    var state = states[entity.fullId] || { actions: [] };
-                    states[entity.fullId] = state;
+                    var curtab = EntitiesBrowser.getActiveTab()
+                    if (!entity.id && !curtab.tmpId) {
+                        curtab.tmpId = +new Date();
+                        EntitiesBrowser.saveTabs()
+                    }
+                    
+                    var fullId = getFullId(entity);
+                    console.warn(fullId)
+                    var state = states[fullId] || { actions: [] };
+                    states[fullId] = state;
                     var rec = get(kind, entity);
-                    if (rec) {
+                   // console.warn( kind, curtab.tmpId, rec, curtab)
+                    if (rec && !rec.rec.thisSession) {
                         $scope.restored = {
                             rec: rec,
                             resolve: function(val) {
@@ -109,6 +140,9 @@ angular.module('indigoeln')
                                 $scope.restored = null;
                             }
                         }
+                    } else if (rec && curtab.tmpId) {
+                        angular.extend(entity, rec.entity);
+                        form.$setDirty(true);
                     }
                     $scope.undoAction = function() {
                         undoAction(entity)
@@ -137,6 +171,7 @@ angular.module('indigoeln')
                                         state.actions = state.actions.slice(state.aindex)
                                     }
                                     state.actions.push(prev);
+                                    //console.warn('onChange', state.actions)
                                     state.aindex = state.actions.length - 1;
                                     state.last = angular.extend({}, entity);
                                 }
