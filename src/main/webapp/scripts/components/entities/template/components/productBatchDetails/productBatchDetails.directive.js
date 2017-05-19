@@ -180,7 +180,8 @@ angular.module('indigoeln')
                 } 
                 $scope.duplicateBatch = function() {
                     ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
-                        onRowSelected( { row : batch });
+                        $scope.selectedBatch = batch;
+                        $scope.onSelectBatch()
                     })
                 }  
                 $scope.deleteBatches = function() {
@@ -204,7 +205,8 @@ angular.module('indigoeln')
 
                 $scope.syncWithIntendedProducts = function () {
                     ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
-                        onRowSelected( { row : batch });
+                        $scope.selectedBatch = batch;
+                        $scope.onSelectBatch()
                     })
                 }
 
