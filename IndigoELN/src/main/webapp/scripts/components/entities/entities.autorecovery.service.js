@@ -77,7 +77,6 @@ angular.module('indigoeln')
             if (!entity) return false;
             var id = getFullId(entity);
             var state = states[id];
-            console.warn(state && state.actions.length > 0 && state.aindex >= 0)
             return state && state.actions.length > 0 && state.aindex >= 0;
         }
 
@@ -95,6 +94,7 @@ angular.module('indigoeln')
                 var act = state.actions[state.aindex--];
                 angular.extend(entity, act);
                 entity.$$undo = true;
+                
             }
         }
         function redoAction(entity) {
@@ -146,9 +146,11 @@ angular.module('indigoeln')
                     }
                     $scope.undoAction = function() {
                         undoAction(entity)
+                        form.$setDirty(true);
                     }
                     $scope.redoAction = function() {
                         redoAction(entity)
+                        form.$setDirty(true);
                     }
                     $scope.canUndo = function() {
                         return canUndo(entity);
@@ -162,6 +164,7 @@ angular.module('indigoeln')
                             $timeout.cancel(ctimeout);
                         } else {
                             prev = angular.extend({}, old);
+                            delete prev.version;
                         }
                         ctimeout = $timeout(function() {
                             if (form.$dirty) {
