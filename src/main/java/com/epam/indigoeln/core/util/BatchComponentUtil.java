@@ -9,7 +9,8 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
+import java.util.stream.Collectors;
+import com.epam.indigoeln.core.model.Notebook;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.springframework.util.StringUtils;
@@ -132,6 +133,18 @@ public final class BatchComponentUtil {
      */
     public static boolean isValidBatchNumber(String batchNumber) {
         return !StringUtils.isEmpty(batchNumber) && Pattern.compile(PATTERN_BATCH_NUMBER).matcher(batchNumber).matches();
+    }
+
+    public static List<String> hasBatches(Notebook notebook){
+        List<ComponentDTO> components = notebook.getExperiments().stream()
+                .flatMap(e -> e.getComponents().stream().map(ComponentDTO::new))
+                .collect(Collectors.toList());
+        return retrieveFullBatchNumbers(components);
+    }
+
+    public static List<String> retrieveFullBatchNumbers(Collection<ComponentDTO> components) {
+        return  retrieveBatches(components).stream().filter(b -> b.containsField(COMPONENT_FIELD_FULL_NBK_BATCH))
+                .map(b -> b.get(COMPONENT_FIELD_FULL_NBK_BATCH).toString()).collect(toList());
     }
 
 }
