@@ -205,7 +205,7 @@ public class ExperimentService {
 
         notebook.getExperiments().stream()
                 .filter(e -> experimentName.equals(e.getName()) && ExperimentStatus.OPEN.equals(e.getStatus()))
-                .findAny().ifPresent((e) ->{throw OperationDeniedException.versionExperiment(e.getId());});
+                .findAny().ifPresent((e) ->{throw OperationDeniedException.createVersionExperimentOperation(e.getId());});
 
         // Update previous version
         Experiment lastVersion = notebook.getExperiments().stream().filter(e -> e.isLastVersion() && experimentName.equals(e.getName()))
@@ -374,5 +374,9 @@ public class ExperimentService {
 
         fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
+    }
+
+    public Lock getLock(String projectId){
+        return locks.get(projectId);
     }
 }
