@@ -22,7 +22,7 @@ angular.module('indigoeln')
                     t[key].$$title = t[key].title
                 }
             }
-            saveTabs = function() {
+            EntitiesBrowser.saveTabs = saveTabs = function() {
                 var tabsToSave = angular.copy(tabs[id])
                 for (var key in tabsToSave) {
                     delete tabsToSave[key].dirty;
