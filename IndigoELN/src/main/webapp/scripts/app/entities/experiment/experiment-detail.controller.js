@@ -88,6 +88,7 @@ angular.module('indigoeln')
                 $scope.loading.then(function (result) {
                     $scope.experiment.version = result.version;
                     $scope.experimentForm.$setPristine();
+                    $scope.experimentForm.$dirty = false;
                 }, function () {
                     Alert.error('Experiment is not saved due to server error!')
                 });
