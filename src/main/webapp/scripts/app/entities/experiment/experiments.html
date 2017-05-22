@@ -52,7 +52,7 @@
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
                     <tr  my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
-                        <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
+                        <th my-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
                         <th my-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
                         <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
@@ -65,7 +65,7 @@
                     </thead>
                     <tbody class="main-table__body">
                     <tr ng-class=" {true : 'table-list', 'reaction-popup'  : !!exp.reactionImage}" ng-repeat="exp in curExperimentsPaged track by $index" ng-mouseenter="experimentEnter(exp)">
-                        <td class="table-list__item">
+                        <td class="table-list__item dash-exp-id">
                             <a  class = "ellipsis" ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
@@ -95,7 +95,7 @@
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
                     <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th my-sort-by="id"  class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="id"  class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
@@ -108,7 +108,7 @@
                     </thead>
                     <tbody class="main-table__body">
                     <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
-                        <td class="table-list__item">
+                        <td class="table-list__item dash-exp-id">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
                         <td class="table-list__item">{{exp.name}}</td>
@@ -140,7 +140,7 @@
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
                     <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th my-sort-by="id" class="table-list__item table-list__item_header">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th my-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
                         <th my-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
@@ -153,7 +153,7 @@
                     </thead>
                     <tbody class="main-table__body">
                     <tr class="table-list" ng-repeat="exp in curExperimentsPaged track by $index">
-                        <td class="table-list__item">
+                        <td class="table-list__item dash-exp-id">
                             <a href="{{signatureServiceUrl}}">{{exp.id}}</a>
                         </td>
                         <td class="table-list__item">{{exp.name}}</td>
