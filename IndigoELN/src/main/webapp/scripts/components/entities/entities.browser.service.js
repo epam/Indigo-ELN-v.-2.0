@@ -63,6 +63,9 @@ angular.module('indigoeln')
         EntitiesBrowser.setUpdateCurrentEntity = function(f) {
             EntitiesBrowser.updateCurrentEntity = f;
         }
+        EntitiesBrowser.setSaveCurrentEntity = function(f) {
+            EntitiesBrowser.saveCurrentEntity = f;
+        }
 
         EntitiesBrowser.saveCurrentEntity = function () {
             return $q.resolve();
@@ -109,6 +112,7 @@ angular.module('indigoeln')
 
         EntitiesBrowser.setActiveTab = function (tab) {
             EntitiesBrowser.updateCurrentEntity = null;
+            EntitiesBrowser.saveCurrentEntity = null;
             EntitiesBrowser.activeExperiment = null;
             EntitiesBrowser.activeTab = tab;
         };

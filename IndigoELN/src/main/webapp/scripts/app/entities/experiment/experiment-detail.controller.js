@@ -91,6 +91,7 @@ angular.module('indigoeln')
                 }, function () {
                     Alert.error('Experiment is not saved due to server error!')
                 });
+                return $scope.loading;
             };
 
             var unsubscribeExp = $scope.$watch('experiment', function () {
@@ -164,6 +165,9 @@ angular.module('indigoeln')
             });
 
             EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
+            EntitiesBrowser.setSaveCurrentEntity(function() {
+                return $scope.save($scope.experiment)
+            })
 
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';

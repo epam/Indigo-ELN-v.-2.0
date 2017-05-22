@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, $log, Alert, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, $log, Alert, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
         var stoichTable;
         var getSelectedNonEditableBatches = function() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
@@ -90,18 +90,18 @@ angular.module('indigoeln')
             }
         };
         var saveAndRegister = function(batchNumbers, success) {
-            EntitiesBrowser.updateCurrentEntity()
+            EntitiesBrowser.saveCurrentEntity()
                 .then(function(result) {
-                    console.warn('experiment saved', result.version);
-                    RegistrationService.register({}, batchNumbers).$promise.
-                    then(function() {
-                        Alert.success('Selected Batches successfully sent to Registration');
-                        success();
-                    }, function() {
-                        Alert.error('ERROR! Selected Batches registration failed');
-                    });
-                }, function() {
-                    Alert.error('Experiment save failed');
+                    console.warn('experiment saved', result);
+                    $timeout(function() {
+                        RegistrationService.register({}, batchNumbers).$promise.
+                        then(function() {
+                            Alert.success('Selected Batches successfully sent to Registration');
+                            success();
+                        }, function() {
+                            Alert.error('ERROR! Selected Batches registration failed');
+                        });
+                    }, 1000)
                 });
         }
 
