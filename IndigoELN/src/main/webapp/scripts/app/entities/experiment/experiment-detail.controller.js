@@ -136,8 +136,9 @@ angular.module('indigoeln')
                 ExperimentUtil.printExperiment(params);
             };
             $scope.refresh = function (noExtend) {
-               $scope.loading = Experiment.get($stateParams).$promise
-                .then(function (result) {
+                $scope.loading = Experiment.get($stateParams).$promise;
+                $scope.loading.then(function (result) {
+                    Alert.success('Experiment saved');
                     if (!noExtend) {
                         angular.extend($scope.experiment, result);
                         EntitiesBrowser.changeDirtyTab($stateParams, false);
@@ -149,6 +150,7 @@ angular.module('indigoeln')
                 }, function () {
                     Alert.error('Experiment not refreshed due to server error!')
                 });
+                return $scope.loading;
             };
 
             //This is necessary for correct saving after attaching files
