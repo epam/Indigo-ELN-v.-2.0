@@ -20,7 +20,7 @@
                 </form>
             </div>
             <div class="panel-footer text-right">
-                <button type="submit" class="btn btn-info" form="login-form">Sign in</button>
+                <button type="submit" class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}" form="login-form">Sign in</button>
             </div>
         </div>
             <div class="alert alert-danger" ng-show="authenticationError">
