@@ -17,24 +17,28 @@
                     </span>
                 </div>
                 <div class="clearfix m-b20">
-                    <div class="btn-group pull-right">
-                        <button class="btn btn-info"
-                                type="button"
-                                ng-click="removeFromMyReagentList()"
-                                ng-disabled="false">
-                            <i class="fa fa-trash"></i><span class="m-l5">Remove from My List</span>
-                        </button>
-                        <button class="btn btn-info"
-                                type="button"
-                                ng-click="addToStoichTable(myReagentList)"
-                                ng-disabled="false">
-                            <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
-                        </button>
-                    </div>
-                    <span class="semi-b">{{myReagentList.length}} reagents in my list</span>
+                     <span class="semi-b">{{myReagentList.length}} reagents in my list</span>
                 </div>
-                <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents"
-                                     my-editable-info="true"></search-result-table>
+                <div class="search-reagents-table m-b20">
+                    <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents" my-editable-info="true"></search-result-table>
+                </div>
+                <div class="btn-group pull-right">
+                     <button class="btn btn-info"
+                            type="button"
+                            ng-click="removeFromMyReagentList()"
+                            ng-disabled="false">
+                        <i class="fa fa-trash"></i><span class="m-l5">Remove from My List</span>
+                    </button>
+                    <button class="btn btn-info"
+                            type="button"
+                            ng-click="addToStoichTable(myReagentList)"
+                            ng-disabled="false">
+                        <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
+                    </button>
+                    <button class="btn btn-default" type="button" ng-click="cancel()">
+                        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                    </button>
+                </div>
             </div>
         </uib-tab>
         <uib-tab index="1" active="isActiveTab1" ng-click="isActiveTab0 = false; isActiveTab1 = true" heading="Reagent Catalog">
@@ -409,32 +413,27 @@
                         </button>
                     </div>
                     <div class="clearfix m-b20">
-                        <div class="btn-group pull-right">
-                            <button class="btn btn-info"
-                                    type="button"
-                                    ng-click="addToMyReagentList()"
-                                    ng-disabled="searchResults.length == 0">
-                                <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
-                            </button>
-                            <button class="btn btn-info"
-                                    type="button"
-                                    ng-click="addToStoichTable(searchResults)"
-                                    ng-disabled="false">
-                                <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
-                            </button>
-                        </div>
                         <span class="semi-b">{{searchResults.length}} results found</span>
                     </div>
-                    <search-result-table my-table-content="searchResults"
+                    <div class="search-reagents-table m-b20">
+                        <search-result-table my-table-content="searchResults"
                                          my-editable-info="false"></search-result-table>
+                    </div>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-info" type="button" ng-click="addToMyReagentList()" ng-disabled="searchResults.length == 0">
+                            <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
+                        </button>
+                        <button class="btn btn-info" type="button" ng-click="addToStoichTable(searchResults)" ng-disabled="false">
+                            <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
+                        </button>
+                        <button class="btn btn-default" type="button" ng-click="cancel()">
+                            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </uib-tab>
         </uib-tab>
     </uib-tabset>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
-    </button>
 </div>
