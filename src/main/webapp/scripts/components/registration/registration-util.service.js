@@ -14,11 +14,15 @@ angular.module('indigoeln')
             var notFullBatches = [];
             _.each(batches, function (batch) {
                 var notFullBatch = {nbkBatch: batch.fullNbkBatch, emptyFields: []};
+
                 if (!batch.totalWeight.value && !batch.totalVolume.value) {
                     notFullBatch.emptyFields.push('Total Weight or Volume should be grater then zero');
                 }
                 if (!batch.source || !batch.source.name) {
                     notFullBatch.emptyFields.push('Compound Source is required');
+                }
+                if (!batch.structure || !batch.structure.image) {
+                    notFullBatch.emptyFields.push('Structure is required');
                 }
                 if (!batch.sourceDetail || !batch.sourceDetail.name) {
                     notFullBatch.emptyFields.push('Source Detail is required');
