@@ -420,10 +420,10 @@
                                          my-editable-info="false"></search-result-table>
                     </div>
                     <div class="btn-group pull-right">
-                        <button class="btn btn-info" type="button" ng-click="addToMyReagentList()" ng-disabled="searchResults.length == 0">
+                        <button class="btn btn-info" type="button" ng-click="addToMyReagentList()"  ng-disabled="loading || searchResults.length == 0">
                             <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
                         </button>
-                        <button class="btn btn-info" type="button" ng-click="addToStoichTable(searchResults)" ng-disabled="searchResults.length == 0">
+                        <button class="btn btn-info" type="button" ng-click="addToStoichTable(searchResults)" ng-disabled="loading || searchResults.length == 0">
                             <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="cancel()">
