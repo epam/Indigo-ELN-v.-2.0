@@ -566,9 +566,9 @@ angular.module('indigoeln')
                     }
                     _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
                     var precursors = $scope.share.stoichTable.reactants.filter(function(r) { 
-                        return  (r.compoundId || r.fullNbkBatch && r.fullNbkBatch()) && r.rxnRole && r.rxnRole.name == 'REACTANT' 
+                        return  (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT' 
                     })                    
-                    .map(function(r) { return r.compoundId || r.fullNbkBatch() }).join(', ')
+                    .map(function(r) { return r.compoundId || r.fullNbkBatch }).join(', ')
                     _.each(getProductBatches(), function (batch) {
                         batch.precursors = precursors;
                     });
