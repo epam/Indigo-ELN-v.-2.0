@@ -140,7 +140,7 @@ angular.module('indigoeln')
             $scope.refresh = function (noExtend) {
                 $scope.loading = Experiment.get($stateParams).$promise;
                 $scope.loading.then(function (result) {
-                    Alert.success('Experiment saved');
+                    Alert.success('Experiment updated');
                     if (!noExtend) {
                         angular.extend($scope.experiment, result);
                         EntitiesBrowser.changeDirtyTab($stateParams, false);
