@@ -107,17 +107,21 @@ angular.module('indigoeln')
 
            return $q.resolve();
         };
-
+        var recalculatingStoich= false;
         var recalculateStoich = function (calcData) {
+            if (recalculatingStoich) return;
+            recalculatingStoich= true;
             var data = initDataForStoichCalculation(calcData);
             var requestData = {
                 stoicBatches: setDefaultValues(data.stoichTable.reactants),
                 intendedProducts: setDefaultValues(data.stoichTable.products),
                 actualProducts: setDefaultValues(data.actualProducts)
             };
+            console.warn('requestData', requestData)
             return $http.put('api/calculations/stoich/calculate', requestData).then(function (result) {
                 $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
                 $rootScope.$broadcast('stoic-table-recalculated', result.data);
+                recalculatingStoich= false;
             });
         };
 

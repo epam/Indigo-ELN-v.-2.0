@@ -13,7 +13,7 @@ angular.module('indigoeln')
             },
             controller: function ($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
                                   $log, $rootScope, AlertModal, $stateParams, SdImportService, SdExportService, $window, EntitiesBrowser,
-                                  RegistrationService, Alert, $q, $http, Notebook, Experiment, ProductBatchSummaryOperations, $filter, ProductBatchSummaryCache) {
+                                  RegistrationService, Alert, $q, $http, Notebook, Experiment, ProductBatchSummaryOperations, $filter, ProductBatchSummaryCache, $timeout) {
                 var stoichTable;
                 var unbinds = [];
 
@@ -705,6 +705,7 @@ angular.module('indigoeln')
                 }));
 
                 unbinds.push($scope.$on('product-batch-structure-changed', function (event, row) {
+
                     var resetMolInfo = function () {
                         row.formula = null;
                         row.molWeight = null;
@@ -731,9 +732,11 @@ angular.module('indigoeln')
                 }));
 
                 unbinds.push($scope.$on('product-batch-summary-recalculated', function (event, data) {
+                    //$timeout(function() {}, 500);
                     if (data.length === getProductBatches().length) {
                         _.each(getProductBatches(), function (batch, i) {
                             _.extend(batch, data[i]);
+                            console.warn('product-batch-summary-recalculated', batch.nbkBatch, batch.theoWeight.value,  data[i].theoWeight.value)
                         });
                     }
                 }));
