@@ -27,6 +27,6 @@ angular.module('indigoeln')
             if (uploader.queue.length === 1 && !uploader.queue[0].isUploading) {
                 uploader.queue[0].cancel();
             }
-            $uibModalInstance.dismiss();
+            $uibModalInstance.close();
         };
     });
