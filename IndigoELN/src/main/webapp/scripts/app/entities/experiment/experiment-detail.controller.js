@@ -88,9 +88,11 @@ angular.module('indigoeln')
                 $scope.loading.then(function (result) {
                     $scope.experiment.version = result.version;
                     $scope.experimentForm.$setPristine();
+                    $scope.experimentForm.$dirty = false;
                 }, function () {
                     Alert.error('Experiment is not saved due to server error!')
                 });
+                return $scope.loading;
             };
 
             var unsubscribeExp = $scope.$watch('experiment', function () {
@@ -136,8 +138,9 @@ angular.module('indigoeln')
                 ExperimentUtil.printExperiment(params);
             };
             $scope.refresh = function (noExtend) {
-               $scope.loading = Experiment.get($stateParams).$promise
-                .then(function (result) {
+                $scope.loading = Experiment.get($stateParams).$promise;
+                $scope.loading.then(function (result) {
+                    Alert.success('Experiment saved');
                     if (!noExtend) {
                         angular.extend($scope.experiment, result);
                         EntitiesBrowser.changeDirtyTab($stateParams, false);
@@ -149,6 +152,7 @@ angular.module('indigoeln')
                 }, function () {
                     Alert.error('Experiment not refreshed due to server error!')
                 });
+                return $scope.loading;
             };
 
             //This is necessary for correct saving after attaching files
@@ -162,6 +166,9 @@ angular.module('indigoeln')
             });
 
             EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
+            EntitiesBrowser.setSaveCurrentEntity(function() {
+                return $scope.save($scope.experiment)
+            })
 
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';

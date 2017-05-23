@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, $log, Alert, EntitiesBrowser, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, $log, Alert, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
         var stoichTable;
         var getSelectedNonEditableBatches = function() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
@@ -81,7 +81,7 @@ angular.module('indigoeln')
                 if (batchNumbers.length) {
                     return saveAndRegister(batchNumbers, function() {
                         _batches.forEach(function(b) {
-                            b.registrationStatus == 'IN_PROGRESS'; //EPMLSOPELN-403
+                            b.registrationStatus = 'IN_PROGRESS'; //EPMLSOPELN-403
                         })
                     })
                 } else {
@@ -90,19 +90,18 @@ angular.module('indigoeln')
             }
         };
         var saveAndRegister = function(batchNumbers, success) {
-            var experiment = EntitiesBrowser.getCurrentExperiment();
-            return loading = Experiment.update($stateParams, experiment).$promise
+            EntitiesBrowser.saveCurrentEntity()
                 .then(function(result) {
-                    console.warn('experiment saved', result.version);
-                    RegistrationService.register({}, batchNumbers).$promise.
-                    then(function() {
-                        Alert.success('Selected Batches successfully sent to Registration');
-                    }, function() {
-                        Alert.error('ERROR! Selected Batches registration failed');
-                    });
-                    success();
-                }, function() {
-                    Alert.error('Selected Batches save failed');
+                    console.warn('experiment saved', result);
+                    $timeout(function() {
+                        RegistrationService.register({}, batchNumbers).$promise.
+                        then(function() {
+                            Alert.success('Selected Batches successfully sent to Registration');
+                            success();
+                        }, function() {
+                            Alert.error('ERROR! Selected Batches registration failed');
+                        });
+                    }, 1000)
                 });
         }
 
