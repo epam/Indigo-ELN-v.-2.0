@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('StructureSchemeController', function ($scope, $q, $attrs, $http, $uibModal, $rootScope, Alert) {
+    .controller('StructureSchemeController', function ($scope, $q, $attrs, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
         // structure types: molecule, reaction
         var type = $attrs.myStructureType;
         $scope.structureType = type;
@@ -159,6 +159,7 @@ angular.module('indigoeln')
                     }
                 }
                 setStructure(type, structure);
+                EntitiesBrowser.getCurrentForm().$setDirty(true);
             });
         };
 
