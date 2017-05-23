@@ -28,7 +28,7 @@ angular.module('indigoeln')
         $scope.upload = function () {
 
             if (!params.projectId) {
-                Alert.error("Pleas save project before attach files.");
+                Alert.error("Please save project before attach files.");
                 return;
             }
 
