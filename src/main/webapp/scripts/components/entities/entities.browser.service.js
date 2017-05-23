@@ -22,7 +22,7 @@ angular.module('indigoeln')
                     t[key].$$title = t[key].title
                 }
             }
-            saveTabs = function() {
+            EntitiesBrowser.saveTabs = saveTabs = function() {
                 var tabsToSave = angular.copy(tabs[id])
                 for (var key in tabsToSave) {
                     delete tabsToSave[key].dirty;
@@ -62,6 +62,9 @@ angular.module('indigoeln')
 
         EntitiesBrowser.setUpdateCurrentEntity = function(f) {
             EntitiesBrowser.updateCurrentEntity = f;
+        }
+        EntitiesBrowser.setSaveCurrentEntity = function(f) {
+            EntitiesBrowser.saveCurrentEntity = f;
         }
 
         EntitiesBrowser.saveCurrentEntity = function () {
@@ -109,6 +112,7 @@ angular.module('indigoeln')
 
         EntitiesBrowser.setActiveTab = function (tab) {
             EntitiesBrowser.updateCurrentEntity = null;
+            EntitiesBrowser.saveCurrentEntity = null;
             EntitiesBrowser.activeExperiment = null;
             EntitiesBrowser.activeTab = tab;
         };

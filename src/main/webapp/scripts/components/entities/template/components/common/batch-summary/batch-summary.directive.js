@@ -565,11 +565,10 @@ angular.module('indigoeln')
                         return;
                     }
                     _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
-                    var precursors = _.filter(_.map($scope.share.stoichTable.reactants, function (item) {
-                        return item.compoundId || item.fullNbkBatch;
-                    }), function (val) {
-                        return !!val;
-                    }).join(', ');
+                    var precursors = $scope.share.stoichTable.reactants.filter(function(r) { 
+                        return  (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT' 
+                    })                    
+                    .map(function(r) { return r.compoundId || r.fullNbkBatch }).join(', ')
                     _.each(getProductBatches(), function (batch) {
                         batch.precursors = precursors;
                     });
