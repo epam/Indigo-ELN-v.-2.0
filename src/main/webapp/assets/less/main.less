@@ -906,12 +906,111 @@ ul.my-dropdown-list {
     visibility: visible;
 }
 
-.dash-table .ellipsis { display: block }
-.dash-table { table-layout: fixed; }
-.dash-table .dash-exp-name { width: 30%; }
-.dash-table .dash-proj-name {width: 20%;}
-.dash-table .dash-date {
-  width: 100px;
+.dash-table .ellipsis {
+    display: block
 }
-.dash-table .dash-exp-id { width: 150px}
-.search-reagents-table { max-height: 360px; overflow-y:auto }
+
+.dash-table {
+    table-layout: fixed;
+}
+
+.dash-table .dash-exp-name {
+    width: 30%;
+}
+
+.dash-table .dash-proj-name {
+    width: 20%;
+}
+
+.dash-table .dash-date {
+    width: 100px;
+}
+
+.dash-table .dash-exp-id {
+    width: 150px
+}
+
+
+.search-result-table {
+        max-height:500px; 
+        overflow-y:auto;
+    .search-table-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid #ccc;
+
+    }
+    .search-table-head {
+        font-weight: bold
+    }
+    .t-item {
+        padding: 2px 8px
+    }
+    .t-item .fa {
+        line-height: 20px
+    }
+    .search-table-row {
+        position: relative;
+        cursor:default;
+    }
+    .search-table-head {
+        position: absolute;
+        width: ~"calc(100% - 40px)";
+        background: #fff;
+        z-index: 1;
+        border:0;
+    }
+    .search-table-body {
+        padding-top: 35px
+    }
+    .search-table-row .search-table-popup {
+        visibility: hidden;
+        position: absolute;
+        width: 200px;
+        text-align: center;
+        height: 80px;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        left: 64px;
+        top: 44px;
+        background: #fff;
+        z-index: 1;
+        transition: visibility 0s ease-out, opacity 0.3s ease-out;
+        transition-delay: 0s;
+        opacity: 0;
+    }
+      .search-table-wrap:last-of-type .search-table-popup { top:-80px }
+    .t-item:nth-child(1) {
+        width: 30px
+    }
+    .t-item:nth-child(2) {
+        width: 30px
+    }
+    .t-item:nth-child(3) {
+        width: 100px
+    }
+    .t-item:nth-child(4) {
+        flex-grow: 1
+    }
+    .t-item:nth-child(5) {
+        flex-grow: 1
+    }
+    .t-item:nth-child(6) {
+        width: 150px
+    }
+    .search-table-row .search-table-popup img {
+        height: 100%
+    }
+    .search-table-row:hover .search-table-popup {
+        visibility: visible;
+        transition-delay: 0.5s;
+        opacity: 1;
+    }
+    .my-checkbox-wrapper {
+        margin: 0 !important;
+        padding: 0 !important
+    }
+}
+.search-result-table-label { padding:0 20px}
+.search-table-row-details { padding:20px}
