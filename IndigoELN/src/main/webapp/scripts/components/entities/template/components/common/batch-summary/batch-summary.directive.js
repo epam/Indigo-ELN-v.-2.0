@@ -736,7 +736,6 @@ angular.module('indigoeln')
                     if (data.length === getProductBatches().length) {
                         _.each(getProductBatches(), function (batch, i) {
                             _.extend(batch, data[i]);
-                            console.warn('product-batch-summary-recalculated', batch.nbkBatch, batch.theoWeight.value,  data[i].theoWeight.value)
                         });
                     }
                 }));

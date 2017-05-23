@@ -175,7 +175,8 @@ angular.module('indigoeln')
 
                 $scope.addNewBatch = function() {
                     ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
-                         onRowSelected( { row : batch });
+                        $scope.selectedBatch = batch;
+                        $scope.onSelectBatch()
                     });
                 } 
                 $scope.duplicateBatch = function() {
