@@ -16,7 +16,7 @@
             <tbody ng-repeat="item in solvents.data track by $index">
                 <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                     <td>
-                        <my-select my-dictionary="Solvent name"
+                        <my-select my-dictionary="Solvent Name"
                                    my-model="solvents.data[$index].name"></my-select></td>
                     <td>
                         <my-input my-model="solvents.data[$index].eq" my-type="number"></my-input>
