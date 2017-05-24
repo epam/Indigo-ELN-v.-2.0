@@ -19,7 +19,7 @@
                 <div class="clearfix m-b20">
                      <span class="semi-b">{{myReagentList.length}} reagents in my list</span>
                 </div>
-                <div class="search-reagents-table m-b20">
+                <div class="m-b20">
                     <search-result-table my-table-content="myReagentList" my-table-filter="filterMyReagents" my-editable-info="true"></search-result-table>
                 </div>
                 <div class="btn-group pull-right">
@@ -410,12 +410,14 @@
                                 ng-click="search()"
                                 ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
                                                             !model.restrictions.searchQuery">Search
-                        </button>
+                        </button> 
+                        <span class="semi-b search-result-table-label" ng-show="!loading"> {{searchResults.length}} results found</span>
+
                     </div>
                     <div class="clearfix m-b20">
-                        <span class="semi-b">{{searchResults.length}} results found</span>
+                        
                     </div>
-                    <div class="search-reagents-table m-b20">
+                    <div class="m-b20">
                         <search-result-table my-table-content="searchResults"
                                          my-editable-info="false"></search-result-table>
                     </div>

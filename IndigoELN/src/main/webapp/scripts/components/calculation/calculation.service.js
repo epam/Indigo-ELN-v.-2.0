@@ -71,7 +71,7 @@ angular.module('indigoeln')
                 method: 'POST',
                 data: molfile
             }).success(function (result) {
-                callback(result.image);
+                if (callback) callback(result.image);
             });
         };
 
