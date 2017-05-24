@@ -134,19 +134,25 @@ angular.module('indigoeln')
                         compoundNo: compoundId
                     };
                     RegistrationService.compounds(searchRequest, function (result) {
+                        result = result.slice(0, 20);
                         convertCompoundsToBatches(result).then(function (batches) {
                             if (batches.length === 1) {
                                 populateFetchedBatch(row, batches[0]);
                             } else if (batches.length > 1) {
-                                DialogService.structureValidation(batches, compoundId, function (selectedBatch) {
+                            DialogService.structureValidation(batches, compoundId, function (selectedBatch) {
                                     populateFetchedBatch(row, selectedBatch);
                                 });
+                            } else {
+                                alertCompoundWrongFormat()
                             }
                         });
                     });
                 }
                 var alertWrongFormat = function() {
                     Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"')
+                }
+                var alertCompoundWrongFormat = function() {
+                    Alert.error('Compound does not exist or in the wrong format')
                 }
                 $scope.reactantsColumns = [
                     {
@@ -200,8 +206,9 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             var row = data.row;
                             var nbkBatch = data.model;
+                            var bid = row.fullNbkBatch || '';
                             if (!row.$$populatedBatch) {
-                                row.fullNbkBatch = row.fullNbkBatch.replace(/[^0-9.-]/g, "").trim() || undefined;
+                                bid = bid.replace(/[^0-9.-]/g, "").trim();
                                 if (row.fullNbkBatch) {
                                     fetchBatchByNbkNumber(nbkBatch, function(result) {
                                         var pb = result[0];
@@ -209,12 +216,12 @@ angular.module('indigoeln')
                                             populateFetchedBatch(row, pb.details);
                                         } else {
                                             alertWrongFormat()
-                                            row.fullNbkBatch = row.$$fullNbkBatchOld || undefined;
+                                            row.fullNbkBatch = row.$$fullNbkBatchOld;
                                         }
                                     });
                                 } else {
                                     alertWrongFormat()
-                                    row.fullNbkBatch = row.$$fullNbkBatchOld || undefined;
+                                    row.fullNbkBatch = row.$$fullNbkBatchOld;
                                 }
                             }
                         }

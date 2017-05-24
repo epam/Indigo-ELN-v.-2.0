@@ -6,12 +6,11 @@ angular.module('indigoeln').controller('StructureValidationController',
         $scope.defaultSaltCodeName = AppValues.getDefaultSaltCode().name;
 
         $scope.selectBatch = function (batch) {
-            batch.$$isSelected = !batch.$$isSelected;
-            if (batch.$$isSelected) {
-                $scope.selectedBatch = batch;
-            } else {
-                $scope.selectedBatch = null;
+            if ($scope.selectedBatch) { 
+                $scope.selectedBatch.$$isSelected = false;
             }
+            batch.$$isSelected  = true;
+            $scope.selectedBatch = batch;
         };
 
         $scope.save = function () {

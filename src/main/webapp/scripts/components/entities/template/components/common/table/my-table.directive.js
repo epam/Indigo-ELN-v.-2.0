@@ -15,7 +15,9 @@ angular.module('indigoeln')
 		link: function ($scope, iElement, iAttrs, myTableCtrl) {
 			var oldVal, isChanged;
 			$scope.toggleEditable = function ($event) {
-				return myTableCtrl.toggleEditable($scope.myColumn.id, $scope.myRowIndex);
+				var val = myTableCtrl.toggleEditable($scope.myColumn.id, $scope.myRowIndex);
+				myTableCtrl.setClosePrevious($scope.closeThis);
+				return val;
 			};
 			$scope.isEditable = function () {
 				return myTableCtrl.isEditable($scope.myColumn.id, $scope.myRowIndex);
@@ -26,14 +28,17 @@ angular.module('indigoeln')
 			};
 			$scope.closeThis = function () {
 				var col = $scope.myColumn;
+				var val = $scope.myRow[col.id];
 				if ((col.type == 'scalar' || col.type == 'unit') && isChanged) {
-					var val = $scope.myRow[col.id];
 					var absv = Math.abs(val.value);
 					if (absv!=val.value) {
 						val.value = absv;
 						Alert.error('Total Amount made must more than zero.')
 					}
 				}
+				if (col.type == 'input' && val === '') {
+					$scope.myRow[col.id] = val = undefined;
+				} 
 				if (col.onClose && isChanged) {
 					col.onClose({
 						model: $scope.myRow[col.id],
@@ -43,7 +48,8 @@ angular.module('indigoeln')
 					});
 					isChanged = false;
 				}
-				return myTableCtrl.toggleEditable(null, null, null);
+				myTableCtrl.setClosePrevious(null);
+				return myTableCtrl.toggleEditable(null, null, null);;
 			};
 			var unbinds = [];
 			if ($scope.myColumn.onClose) {
@@ -165,10 +171,13 @@ angular.module('indigoeln')
 				};
 			});
 
-			var editableCell = null;
+			var editableCell = null, closePrev;
+			that.setClosePrevious = function(_closePrev) {
+				closePrev = _closePrev; 
+			}
 			that.toggleEditable = function (columnId, rowIndex) {
+				if (closePrev) closePrev();
 				editableCell = columnId + '-' + rowIndex;
-
 			};
 			that.isEditable = function (columnId, rowIndex) {
 				if ($scope.myEditable) {

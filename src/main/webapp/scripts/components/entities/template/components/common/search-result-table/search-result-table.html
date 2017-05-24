@@ -1,221 +1,185 @@
-<table class="table" id="my-reagent-list-table">
-    <thead class="search-table-head">
-    <tr>
-        <th style="width:8%"></th>
-        <th style="width:11%">Mol. Wt.</th>
-        <th style="width:16%">Molecular Formula</th>
-        <th>Chemical Name</th>
-        <th>Compound ID</th>
-        <th>Database</th>
-        <th style="width:18%">Structure</th>
-    </tr>
-    </thead>
-    <tbody ng-repeat="item in myTableContent | filter : myTableFilter track by $index">
-    <tr ng-class="{'search-table-row-highlight':item.$$isSelected}">
-        <td style="width:76px">
-            <a ng-click="item.$$isCollapsed = !item.$$isCollapsed">
-                 <span
-                       ng-class="{'fa fa-angle-right':item.$$isCollapsed,
-                                  'fa fa-angle-down':!item.$$isCollapsed}">
-                 </span></a>
-            <my-checkbox
-                    ng-if="!mySingleItemPerTab"
-                    style="padding:0"
-                    class="checkbox-inline"
-                    my-model="item.$$isSelected"></my-checkbox>
-            <my-checkbox
-                    ng-if="mySingleItemPerTab"
-                    style="padding:0"
-                    class="checkbox-inline"
-                    my-change="selectSingleItemtPerTab(myTab, item, $parent.$index, $index, !item.$$isSelected)"
-                    my-model="item.$$isSelected"></my-checkbox>
-        </td>
-        <td>{{item.molWeight.value | round}}</td>
-        <td>{{item.formula}}</td>
-        <td>{{item.chemicalName}}</td>
-        <td>{{item.compoundId}}</td>
-        <td>{{item.database}}</td>
-        <td>
-            <div>
-                <img style="padding:5px;margin:5px;max-height:70px;"
-                     class="img-responsive"
-                     ng-if="item.structure.image"
-                     uib-popover-html="item.$$popoverTemplate"
-                     popover-title="{{item.fullNbkBatch}}"
-                     popover-trigger="mouseenter"
-                     popover-placement="left"
-                     ng-src="data:image/svg+xml;base64,{{item.structure.image}}"
-                     alt="Image is unavailable.">
+<div class="search-result-table" id="my-reagent-list-table">
+    <div class="search-table-head search-table-row">
+        <div class="t-item t-head"></div>
+        <div class="t-item t-head"></div>
+        <div class="t-item t-head">Mol. Wt.</div>
+        <div class="t-item t-head">Molecular Formula</div>
+        <div class="t-item t-head">Chemical Name</div>
+        <div class="t-item t-head">Compound ID</div>
+        <!-- <th>Database</th> -->
+    </div>
+    <div class="search-table-body">
+        <div ng-repeat="item in myTableContent | filter : myTableFilter track by $index" class="search-table-wrap">
+            <div class="search-table-row" ng-class="{'search-table-row-highlight':item.$$isSelected}"  ng-click="item.$$isCollapsed = !item.$$isCollapsed">
+                <a class="t-item">
+                    <span ng-class="{'fa fa-angle-right':item.$$isCollapsed,
+                              'fa fa-angle-down':!item.$$isCollapsed}">
+                    </span>
+                </a>
+                <div class="t-item">
+                    <my-checkbox ng-if="!mySingleItemPerTab" ng-click="$event.stopPropagation()" class="checkbox-inline" my-model="item.$$isSelected"></my-checkbox>
+                    <my-checkbox ng-if="mySingleItemPerTab" ng-click="$event.stopPropagation()" class="checkbox-inline" my-change="selectSingleItemtPerTab(myTab, item, $parent.$index, $index, !item.$$isSelected)" my-model="item.$$isSelected"></my-checkbox>
+                </div>
+                <div class="t-item">{{item.molWeight.value | round}}</div>
+                <div class="t-item">{{item.formula}}</div>
+                <div class="t-item">{{item.chemicalName}}</div>
+                <div class="t-item">{{item.compoundId}}</div>
+                <div class="search-table-popup" ng-if="item.structure.image && item.$$isCollapsed">
+                    <img uib-popover-html="item.$$popoverTemplate" popover-title="{{item.fullNbkBatch}}" popover-trigger="mouseenter" popover-placement="left" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
+                </div>
+                <!-- <td>{{item.database}}</td> -->
             </div>
-        </td>
-    </tr>
-    <tr uib-collapse="item.$$isCollapsed">
-        <td colspan="7">
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="m-b20">
-                        <span class="semi-b">Reagent Information</span>
-                        <button class="btn btn-default btn-small m-l5"
-                                type="button"
-                                ng-if="myEditableInfo"
-                                ng-click="editInfo(item)"
-                                ng-disabled="isEditMode"><i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
-                        </button>
+            <div uib-collapse="item.$$isCollapsed" class="search-table-row-details">
+                <div class="row" ng-if="!item.$$isCollapsed">
+                    <div class="col-xs-6">
+                        <div class="m-b20">
+                            <span class="semi-b">Reagent Information</span>
+                            <button class="btn btn-default btn-small m-l5" type="button" ng-if="myEditableInfo" ng-click="editInfo(item)" ng-disabled="isEditMode"><i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
+                            </button>
+                        </div>
+                        <div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">Compound ID:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-readonly="true" my-model="item.compoundId"></my-input>
+                                    <p ng-if="!isEditMode">{{item.compoundId}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">Batch Number:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-readonly="true" my-model="item.fullNbkBatch"></my-input>
+                                    <p ng-if="!isEditMode">{{item.fullNbkBatch}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">Molecular Formula:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-readonly="true" my-model="item.formula"></my-input>
+                                    <p ng-if="!isEditMode">{{item.formula}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">Molecular Weight:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-readonly="true" my-model="item.molWeight.value | round"></my-input>
+                                    <p ng-if="!isEditMode">{{item.molWeight.value | round}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Reagent Type:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-select ng-if="isEditMode" my-items="rxnValues" my-model="item.rxnRole"></my-select>
+                                    <p ng-if="!isEditMode">{{item.rxnRole.name}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Chemical Name:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-model="item.chemicalName"></my-input>
+                                    <p ng-if="!isEditMode">{{item.chemicalName}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Salt Code:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-select ng-if="isEditMode" my-items="saltCodeValues" my-change="recalculateSalt(item)" my-model="item.saltCode"></my-select>
+                                    <p ng-if="!isEditMode">{{item.saltCode.name}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Salt EQ:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-type="number" my-change="recalculateSalt(item)" my-model="item.saltEq.value"></my-input>
+                                    <p ng-if="!isEditMode">{{item.saltEq.value}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        External #:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-model="item.externalNumber"></my-input>
+                                    <p ng-if="!isEditMode">{{item.externalNumber}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Compound State:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-select ng-if="isEditMode" my-dictionary="Compound State" my-model="item.compoundState"></my-select>
+                                    <p ng-if="!isEditMode">{{item.compoundState.name}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Batch Comment:</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-model="item.comments"></my-input>
+                                    <p ng-if="!isEditMode">{{item.comments}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <label class="control-label">
+                                        Batch&nbsp;Hazard&nbsp;Comment</label>
+                                </div>
+                                <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
+                                    <my-input ng-if="isEditMode" my-model="item.hazardComments"></my-input>
+                                    <p ng-if="!isEditMode">{{item.hazardComments}}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <label class="control-label">CAS Number:
+                                    </label>
+                                </div>
+                                <div class="col-xs-6">
+                                    <my-input ng-if="isEditMode" my-model="item.casNumber"></my-input>
+                                    <p ng-if="!isEditMode">{{item.casNumber}}</p>
+                                </div>
+                            </div>
+                            <div class="btn-group" ng-if="isEditMode">
+                                <button class="btn btn-primary" type="button" ng-click="finishEdit()" ng-disabled="false"><i class="fa fa-save"></i><span class="m-l5">Save</span>
+                                </button>
+                                <button class="btn btn-default" type="button" ng-click="cancelEdit($index)" ng-disabled="false"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <label class="control-label">Compound ID:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-readonly="true"
-                                          my-model="item.compoundId"></my-input>
-                                <p ng-if="!isEditMode">{{item.compoundId}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <label class="control-label">Batch Number:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-readonly="true"
-                                          my-model="item.fullNbkBatch"></my-input>
-                                <p ng-if="!isEditMode">{{item.fullNbkBatch}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <label class="control-label">Molecular Formula:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-readonly="true"
-                                          my-model="item.formula"></my-input>
-                                <p ng-if="!isEditMode">{{item.formula}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <label class="control-label">Molecular Weight:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-readonly="true"
-                                          my-model="item.molWeight.value | round"></my-input>
-                                <p ng-if="!isEditMode">{{item.molWeight.value | round}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Reagent Type:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-select ng-if="isEditMode"
-                                           my-items="rxnValues"
-                                           my-model="item.rxnRole"></my-select>
-                                <p ng-if="!isEditMode">{{item.rxnRole.name}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Chemical Name:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-model="item.chemicalName"></my-input>
-                                <p ng-if="!isEditMode">{{item.chemicalName}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Salt Code:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-select ng-if="isEditMode"
-                                           my-items="saltCodeValues"
-                                           my-change="recalculateSalt(item)"
-                                           my-model="item.saltCode"></my-select>
-                                <p ng-if="!isEditMode">{{item.saltCode.name}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Salt EQ:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-type="number"
-                                          my-change="recalculateSalt(item)"
-                                          my-model="item.saltEq.value"></my-input>
-                                <p ng-if="!isEditMode">{{item.saltEq.value}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                External #:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-model="item.externalNumber"></my-input>
-                                <p ng-if="!isEditMode">{{item.externalNumber}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Compound State:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-select ng-if="isEditMode"
-                                           my-dictionary="Compound State"
-                                           my-model="item.compoundState"></my-select>
-                                <p ng-if="!isEditMode">{{item.compoundState.name}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Batch Comment:</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-model="item.comments"></my-input>
-                                <p ng-if="!isEditMode">{{item.comments}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}"><label class="control-label">
-                                Batch&nbsp;Hazard&nbsp;Comment</label></div>
-                            <div class="col-xs-6" ng-class="{'info-col':!isEditMode}">
-                                <my-input ng-if="isEditMode"
-                                          my-model="item.hazardComments"></my-input>
-                                <p ng-if="!isEditMode">{{item.hazardComments}}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-6"><label class="control-label">CAS
-                                Number:</label></div>
-                            <div class="col-xs-6">
-                                <my-input ng-if="isEditMode"
-                                          my-model="item.casNumber"></my-input>
-                                <p ng-if="!isEditMode">{{item.casNumber}}</p>
-                            </div>
-                        </div>
-                        <div class="btn-group" ng-if="isEditMode">
-                            <button class="btn btn-primary"
-                                    type="button"
-                                    ng-click="finishEdit()"
-                                    ng-disabled="false"><i class="fa fa-save"></i><span class="m-l5">Save</span>
-                            </button>
-                            <button class="btn btn-default"
-                                    type="button"
-                                    ng-click="cancelEdit($index)"
-                                    ng-disabled="false"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
-                            </button>
+                    <div class="col-xs-6">
+                        <span class="semi-b">Structure</span>
+                        <div>
+                            <img style="padding:10px;margin:10px;border:1px solid black;" class="img-responsive" ng-if="item.structure.image" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-6">
-                    <span class="semi-b">Structure</span>
-                    <div>
-                        <img style="padding:10px;margin:10px;border:1px solid black;"
-                             class="img-responsive"
-                             ng-if="item.structure.image"
-                             ng-src="data:image/svg+xml;base64,{{item.structure.image}}"
-                             alt="Image is unavailable.">
-                    </div>
-                </div>
             </div>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        </div>
+    </div>
+</div>
