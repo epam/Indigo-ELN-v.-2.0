@@ -120,7 +120,7 @@ angular.module('indigoeln')
                     var stoichTable = StoichTableCache.getStoicTable();
                     var itemToImport = angular.copy(CalculationService.createBatch(stoichTable, true));
                     itemToImport.structure = itemToImport.structure || {};
-                    itemToImport.structure.image = result.image;
+                    itemToImport.structure.image = result;
                     itemToImport.structure.structureType = 'molecule';
                     itemToImport.structure.molfile = sdUnitToImport.mol;
                     itemToImport.structure.structureId = structureId;
@@ -131,6 +131,7 @@ angular.module('indigoeln')
                             if (callback && _.isFunction(callback)) {
                                 callback(batch);
                             }
+                            console.warn(batch.structure.image)
                             importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback, complete);
                         });
                     });
