@@ -68,7 +68,7 @@
                 <div class="col-lg-4 text-align-lg">
                     <span class="txt-small bold m-r5">SD File:</span>
                     <div class="btn-group">
-                        <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="myReadonly">
+                        <button type="button" class="btn btn-info btn-small  btn-can-loading {{(importLoading) ? 'btn-loading' : ''}}" ng-click="importSDFile()" ng-disabled="myReadonly">
                             <i class="fa fa-cloud-download"></i>
                             <span class="m-l5">Import</span>
                         </button>
