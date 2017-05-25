@@ -4,7 +4,7 @@ public class HtmlWrapper {
     private String html;
     private String header;
     private String fileName;
-    private double headerHeight;
+    private String headerHeight;
 
     public String getHtml() {
         return html;
@@ -30,11 +30,11 @@ public class HtmlWrapper {
         this.fileName = fileName;
     }
 
-    public double getHeaderHeight() {
+    public String getHeaderHeight() {
         return headerHeight;
     }
 
-    public void setHeaderHeight(double headerHeight) {
+    public void setHeaderHeight(String headerHeight) {
         this.headerHeight = headerHeight;
     }
 }
