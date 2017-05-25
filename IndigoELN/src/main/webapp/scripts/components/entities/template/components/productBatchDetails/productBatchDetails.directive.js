@@ -36,7 +36,6 @@ angular.module('indigoeln')
                     }
                     setProductBatchDetails(row);
                     $scope.detailTable[0] = row;
-                    console.log('onSelectBatch', row)
                     checkOnlySelectedBatch()
                     $rootScope.$broadcast('batch-summary-row-selected', {row : row});
                 };
@@ -216,7 +215,10 @@ angular.module('indigoeln')
                 };
 
                 $scope.importSDFile = function() {
-                    ProductBatchSummaryOperations.importSDFile();
+                    $scope.importLoading = true;
+                    ProductBatchSummaryOperations.importSDFile(function() {
+                        $scope.importLoading = false;
+                    });
                 };
 
                 $scope.exportSDFile = function () {

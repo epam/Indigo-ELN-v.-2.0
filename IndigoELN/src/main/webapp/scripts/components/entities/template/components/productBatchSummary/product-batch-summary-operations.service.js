@@ -1,6 +1,6 @@
 angular.module('indigoeln')
-    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, $log, Alert, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
-        var stoichTable;
+    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, $log, Alert, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+       
         var getSelectedNonEditableBatches = function() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
             return _.chain(batches).filter(function(item) {
@@ -32,6 +32,7 @@ angular.module('indigoeln')
                                 row.$$selected = false;
                             });
                             var batch = {};
+                            var stoichTable = StoichTableCache.getStoicTable();
                             if (stoichTable) {
                                 batch = angular.copy(CalculationService.createBatch(stoichTable, true));
                             }
@@ -145,6 +146,7 @@ angular.module('indigoeln')
         function syncWithIntendedProducts() {
             var syncingIntendedProducts = $q.defer();
             var batchesQueueToAdd = getIntendedNotInActual();
+             var stoichTable = StoichTableCache.getStoicTable();
             if (stoichTable && stoichTable.products && stoichTable.products.length) {
                 if (!batchesQueueToAdd.length) {
                     syncingIntendedProducts.resolve();
@@ -157,6 +159,7 @@ angular.module('indigoeln')
         };
 
         function getIntendedNotInActual() {
+            var stoichTable = StoichTableCache.getStoicTable();
             if (stoichTable) {
                 var intended = stoichTable.products;
                 var intendedCandidateHashes = _.pluck(intended, '$$batchHash');
@@ -183,7 +186,7 @@ angular.module('indigoeln')
             getSelectedNonEditableBatches: getSelectedNonEditableBatches,
             duplicateBatches: duplicateBatches,
             duplicateBatch: duplicateBatch,
-            setStoicTable: function(_table) { stoichTable = _table; },
+            setStoicTable: function(_table) { StoichTableCache.setStoicTable(_table)  },
             getIntendedNotInActual: getIntendedNotInActual,
             syncWithIntendedProducts: syncWithIntendedProducts,
             addNewBatch: function() {
@@ -193,8 +196,11 @@ angular.module('indigoeln')
                 })
                 return q;
             },
-            importSDFile: function() {
-                SdImportService.importFile(requestNbkBatchNumberAndAddToTable);
+            importSDFile: function(success) {
+                SdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
+                     EntitiesBrowser.getCurrentForm().$setDirty(true);
+                     if (success) success();
+                });
             },
             registerBatches: function() {
                 var nonEditableBatches = getSelectedNonEditableBatches();
