@@ -47,7 +47,7 @@ public class ExperimentSearchRepository implements InitializingBean {
 
     public Optional<Set<String>> withQuerySearch(String querySearch) {
         List<Criteria> searchCriteria = SEARCH_QUERY_FIELDS.stream().map(
-                field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
+                field -> Criteria.where(field).regex(".*" + querySearch + ".*","i")).
                 collect(toList());
         componentSearchRepository.withQuerySearch(querySearch)
                 .map(Criteria.where("components")::in).ifPresent(searchCriteria::add);
