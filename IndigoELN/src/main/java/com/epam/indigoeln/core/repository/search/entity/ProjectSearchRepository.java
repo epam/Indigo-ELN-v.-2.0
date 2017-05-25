@@ -51,7 +51,7 @@ public class ProjectSearchRepository implements InitializingBean {
 
     public Optional<Set<String>> withQuerySearch(String querySearch) {
         List<Criteria> searchCriteria = SEARCH_QUERY_FIELDS.stream().map(
-                field -> Criteria.where(field).regex(".*" + querySearch + ".*")).
+                field -> Criteria.where(field).regex(".*" + querySearch + ".*","i")).
                 collect(toList());
         return Optional.of(searchCriteria).map(ac ->
                         new Criteria().orOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))
