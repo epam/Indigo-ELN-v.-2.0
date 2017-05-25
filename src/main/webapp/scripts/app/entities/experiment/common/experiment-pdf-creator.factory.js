@@ -50,7 +50,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
                     console.warn('html', html)
                     var $origHeader = $('#print-form').find('.print-header').parent().html();
-                    header = '<style>'  + data + '</style> <div class="for-print-only">' +  $origHeader + '</div>';
+                    var header = '<style>'  + data + '</style> <div class="for-print-only">' +  $origHeader + '</div>';
                     console.warn('header',  header)
                     PdfService.create({
                         html: '<!DOCTYPE html>' + html + '</html>',
