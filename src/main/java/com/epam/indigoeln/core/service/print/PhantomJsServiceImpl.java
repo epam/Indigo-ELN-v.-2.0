@@ -2,24 +2,29 @@ package com.epam.indigoeln.core.service.print;
 
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang3.StringUtils;
-import org.openqa.selenium.OutputType;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.phantomjs.PhantomJSDriverService;
-import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.util.UUID;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class PhantomJsServiceImpl implements PhantomJsService {
@@ -36,6 +41,14 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     };
     private PhantomJSDriverService phantomJSDriverService;
     private PhantomJSDriver driver;
+    private String rasterize;
+    private FileAlterationMonitor fileMonitor;
+    private FileAlterationObserver fileObserver;
+    private int timeout = 30;
+
+    public PhantomJsServiceImpl() throws IOException {
+        rasterize = Resources.toString(Resources.getResource("phantomjs/rasterize.js"), Charsets.UTF_8);
+    }
 
     @PostConstruct
     public void init() {
@@ -52,9 +65,16 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             DesiredCapabilities capabilities = new DesiredCapabilities();
             capabilities.setJavascriptEnabled(false);
             capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_CLI_ARGS, commandLineArguments);
-            capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, true);
             driver = new PhantomJSDriver(phantomJSDriverService, capabilities);
             driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+
+            fileObserver = new FileAlterationObserver(
+                    FileUtils.getTempDirectory(),
+                    FileFilterUtils.and(FileFilterUtils.suffixFileFilter(TempFileUtil.TEMP_PDF_DONE_SUFFIX),
+                            FileFilterUtils.prefixFileFilter(TempFileUtil.TEMP_FILE_PREFIX)));
+            fileMonitor = new FileAlterationMonitor((long) 1000);
+            fileMonitor.addObserver(fileObserver);
+            fileMonitor.start();
         } catch (Exception e) {
             LOGGER.error("PhantomJs init error", e);
         }
@@ -74,45 +94,6 @@ public class PhantomJsServiceImpl implements PhantomJsService {
             LOGGER.error("PhantomJs destroy error", e);
         }
     }
-
-    @Override
-    public <T> T takesScreenshot(String html, OutputType<T> type) {
-        File tmpFile = null;
-        try {
-            tmpFile = new File(FileUtils.getTempDirectory(), String.format("%s%s.%s", TempFileUtil.TEMP_FILE_PREFIX, UUID.randomUUID().toString(), "html"));
-            FileUtils.writeStringToFile(tmpFile, html);
-            return takesScreenshot(tmpFile.toURI(), type);
-        } catch (Exception e) {
-            LOGGER.error("Take screenshot error", e);
-            throw new IndigoRuntimeException("Error creating snapshot from HTML");
-        } finally {
-            FileUtils.deleteQuietly(tmpFile);
-        }
-    }
-
-    @Override
-    public <T> T takesScreenshot(URI uri, OutputType<T> type) {
-        return getScreenshotAs(uri, type, 0, 5);
-    }
-
-    private <T> T getScreenshotAs(URI uri, OutputType<T> type, int count, int limit) {
-        try {
-            synchronized (this) {
-                driver.get(uri.toString());
-                return driver.getScreenshotAs(type);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Get screenshot error", e);
-            if (count < limit) {
-                destroy();
-                init();
-                return getScreenshotAs(uri, type, count + 1, limit);
-            } else {
-                throw new IndigoRuntimeException("Error creating snapshot from HTML");
-            }
-        }
-    }
-
     private static File getPhantomExecutable() {
         StringBuilder sb = new StringBuilder(22);
 
@@ -174,5 +155,77 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         } else {
             throw new IndigoRuntimeException("Operating system not recognized");
         }
+    }
+
+
+    @Override
+    public String createPdf(HtmlWrapper wrapper) {
+        String fileName = String.format("%s%s.pdf", TempFileUtil.TEMP_FILE_PREFIX, wrapper.getFileName());
+        String filePath = FileUtils.getFile(FileUtils.getTempDirectory(), fileName).getAbsolutePath();
+        AtomicBoolean isDone = new AtomicBoolean(false);
+        String doneFilePath = filePath + ".done";
+        FileAlterationListenerAdaptor listener = createFileListener(doneFilePath,isDone);
+        fileObserver.addListener(listener);
+        try {
+            LOGGER.info("Start of creation pdf");
+            createPdf(wrapper, filePath);
+            FutureTask<String> futureTask = new FutureTask<>(() -> {
+                while (true) {
+                    Thread.sleep(500);
+                    if (isDone.get()) {
+                        return fileName;
+                    }
+                }
+            });
+            futureTask.run();
+            String result = futureTask.get(timeout, TimeUnit.SECONDS);
+            return result;
+        } catch (TimeoutException e) {
+            LOGGER.error("Timeout error ", e);
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            LOGGER.error("Take pdf error", e);
+            throw new RuntimeException(e);
+        } finally {
+            fileObserver.removeListener(listener);
+            LOGGER.info("Listener was removed");
+            FileUtils.deleteQuietly(new File(doneFilePath));
+            LOGGER.info("Done file was deleted");
+        }
+    }
+
+    private void createPdf(HtmlWrapper wrapper, String to) {
+        createPdf(wrapper, to, 0, 5);
+    }
+
+    private void createPdf(HtmlWrapper wrapper, String to, int count, int limit) {
+        try {
+            synchronized (this) {
+                LOGGER.info("PhantomJS started execution of script");
+                driver.executePhantomJS(rasterize, wrapper.getHtml(), wrapper.getHeader(), to, wrapper.getHeaderHeight());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Create pdf error", e);
+            if (count < limit) {
+                destroy();
+                init();
+                createPdf(wrapper, to, count + 1, limit);
+            } else {
+                throw new IndigoRuntimeException("Error creating pdf from HTML");
+            }
+        }
+    }
+
+    private FileAlterationListenerAdaptor createFileListener(final String filePath, final AtomicBoolean isDone) {
+        return new FileAlterationListenerAdaptor() {
+            @Override
+            public void onFileCreate(File file) {
+                LOGGER.info("Done file was created: {}", file.getPath());
+                if (file.getPath().equals(filePath)) {
+                    LOGGER.info("File listener successfully detect done file: {}", file.getPath());
+                    isDone.set(true);
+                }
+            }
+        };
     }
 }
