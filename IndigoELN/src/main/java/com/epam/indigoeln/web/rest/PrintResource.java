@@ -1,7 +1,9 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.service.print.HtmlWrapper;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
+import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import com.itextpdf.text.*;
@@ -14,11 +16,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.OutputType;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.websocket.server.PathParam;
 import java.io.*;
 import java.util.Map;
-import java.util.UUID;
-
-import static com.epam.indigoeln.core.service.util.TempFileUtil.TEMP_FILE_PREFIX;
 
 @Api
 @RestController
@@ -52,69 +50,28 @@ public class PrintResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> createPdf(
             @ApiParam("HTML printout") @RequestBody HtmlWrapper wrapper) throws FileNotFoundException {
-        String fileName = String.format("%s.pdf", wrapper.getFileName());
-        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-            byte[] screenshot = phantomJsService.takesScreenshot(wrapper.getHtml(), OutputType.BYTES);
-            Image image = Image.getInstance(screenshot);
-            image.scalePercent(75);
-            Document document = new Document(new Rectangle(image.getScaledWidth(), image.getScaledHeight()), 0, 0, 0, 0);
-            PdfWriter.getInstance(document, fileOutputStream);
-            /** writer.setPageEvent(new HeaderFooter()); **/
-            document.open();
-            document.add(image);
-            document.close();
-        } catch (Exception e) {
-            LOGGER.error("Error occurred while creating pdf file.", e);
-        }
+        String fileName = phantomJsService.createPdf(wrapper);
         return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
     }
 
     @ApiOperation(value = "Returns file content by it's name.", produces = "application/json")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<InputStreamResource> download(
+    public ResponseEntity<byte[]> download(
             @ApiParam("File name") @PathParam("fileName") String fileName
         ) {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        try {  //NOSONAR: spring will close stream, after it will send bytes to client
-            InputStream is = new FileInputStream(file);
+        try (InputStream is = new FileInputStream(file)){
+            if (fileName.startsWith(TempFileUtil.TEMP_FILE_PREFIX)){
+                fileName = fileName.substring(TempFileUtil.TEMP_FILE_PREFIX.length());
+            }
+            byte[] bytes = IOUtils.toByteArray(is);
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(fileName);
-            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(is));
+            return ResponseEntity.ok().headers(headers).body(bytes);
         } catch (Exception e) {
             throw new IndigoRuntimeException(e);
         } finally {
             FileUtils.deleteQuietly(file);
-        }
-    }
-
-    public static class HtmlWrapper {
-        private String html;
-        private String header;
-        private String fileName;
-
-        public String getHtml() {
-            return html;
-        }
-
-        public void setHtml(String html) {
-            this.html = html;
-        }
-
-        public String getHeader() {
-            return header;
-        }
-
-        public void setHeader(String header) {
-            this.header = header;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public void setFileName(String fileName) {
-            this.fileName = fileName;
         }
     }
 

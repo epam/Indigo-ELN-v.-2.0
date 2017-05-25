@@ -13,8 +13,8 @@ import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -81,14 +81,14 @@ public class SDResource {
 
     @RequestMapping(value = "/download", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<InputStreamResource> downloadFile(
+    public ResponseEntity<byte[]> downloadFile(
             @ApiParam("File name") @PathParam("fileName") String fileName
     ) throws IOException {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        try {  //NOSONAR: spring will close stream, after it will send bytes to client
-            InputStream is = new FileInputStream(file);
+        try (InputStream is = new FileInputStream(file)){
+            byte[] bytes = IOUtils.toByteArray(is);
             HttpHeaders headers = HeaderUtil.createAttachmentDescription(EXPORT_FILE_NAME);
-            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(is));
+            return ResponseEntity.ok().headers(headers).body(bytes);
         } catch (Exception e) {
             throw new IndigoRuntimeException(e);
         } finally {
