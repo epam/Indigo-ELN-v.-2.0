@@ -3,6 +3,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
 
         var preparedPrintForm = function () {
             var $printFormClone = $('#print-form').clone();
+            $printFormClone.find('.print-header').remove();
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);
                 var $checkbox = $this.find('.need-to-print');
@@ -45,54 +46,23 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                 var $form = preparedPrintForm();
                // $.get('/assets/print.css', function (data) {
                    // var html = '<style>'  + data + '</style>'+ $form.html() + $form.html() + '<!--ADD_PAGE--><h1 style="page-break-before: always">Numbers</h1>' + $form.html() + '<div class="pb"> </div>' + $form.html() + '<div class="pb"> </div>' + $form.html();
-                    var data = '.for-print-only img {width:100%} .for-print-only {font-size: 10px; width: 570px; color: #000; } .for-print-only table {width: 100% } .for-print-only table td, .for-print-only table th {border: 1px solid #ccc; font-size: 10px } .pb {page-break-before: always } ';
+                    var data = '   .for-print-only img {width: 100% } .for-print-only {font-size: 13px; color: #000; font-family: arial; } .print-component {page-break-before: auto; page-break-inside: avoid; margin: 20px 0; } .print-component.first{  margin-top: 0 } .for-print-only table {width: 100%; border-spacing: 0;    border-collapse: collapse ; } table { page-break-after:auto } tr    { page-break-inside:avoid; page-break-after:auto } td, .pba    { page-break-inside:avoid; page-break-after:auto } thead { display:table-header-group } tfoot { display:table-footer-group } .for-print-only table td, .for-print-only table th {border: 1px solid #ccc; font-size: 13px; padding: 4px; }';
                     var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
-                    console.warn('start', html)
-                    var header = $('#print-form').find('.print-header').parent().html(); 
+                    console.warn('html', html)
+                    var $origHeader = $('#print-form').find('.print-header').parent().html();
+                    header = '<style>'  + data + '</style> <div class="for-print-only">' +  $origHeader + '</div>';
                     console.warn('header',  header)
                     PdfService.create({
                         html: '<!DOCTYPE html>' + html + '</html>',
-                        //header: header,
-                        fileName: fileName
+                        header: header,
+                        fileName: fileName,
+                        headerHeight : '85mm'
                     }).$promise.then(function (response) {
                         actionToApply(response);
                     });
                     var w = window.open('', 'wnd');
-                    w.document.body.innerHTML = html;
+                    w.document.body.innerHTML = header + html;
                 //});
-
-                // return;
-                // var $iframe = $('<iframe />', {
-                //     name: 'reportHolder',
-                //     id: 'reportHolder'
-                // });
-                // var iframeEl = $iframe.get(0);
-                // iframeEl.className = 'html2canvas-container';
-                // iframeEl.style.visibility = 'hidden';
-                // iframeEl.style.position = 'fixed';
-                // iframeEl.style.left = '-10000px';
-                // iframeEl.style.top = '0px';
-                // iframeEl.style.border = '0';
-                // $iframe.load(function () {
-                //     var callback = function ($iframeContents) {
-                //         $iframeContents.find('body').css({
-                //             'min-width': '960px',
-                //             'background-color': '#fff'
-                //         });
-                //         console.warn($iframeContents.find('body'))
-                //         var html = $iframeContents.find('html').html();
-                //         PdfService.create({
-                //             html: '<!DOCTYPE html>' + html + '</html>',
-                //             header: $iframeContents.find('.print-header').html(),
-                //             fileName: fileName
-                //         }).$promise.then(function (response) {
-                //             actionToApply(response);
-                //         });
-                //         $iframe.remove();
-                //     };
-                //     prepareIframe($iframe, callback);
-                // });
-                // $iframe.appendTo('body');
             }
         };
     });
