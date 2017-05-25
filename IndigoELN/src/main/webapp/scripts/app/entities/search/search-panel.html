@@ -35,7 +35,9 @@
                                         </my-select>
                                     </div>
                                     <div class="col-xs-3">
-                                        <my-input my-model="obj.value"></my-input>
+                                        <form ng-submit="search()">
+                                            <my-input my-model="obj.value"></my-input>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
