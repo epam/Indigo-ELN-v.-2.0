@@ -1,4 +1,62 @@
 <div class="panel panel-info">
+    <div id="css-for-print" style="display: none">
+        .for-print-only img {
+            width: 100%
+        }
+
+        .for-print-only {
+            font-size: 13px;
+            color: #000;
+            font-family: arial;
+        }
+
+        .print-component {
+            page-break-before: auto;
+            page-break-inside: avoid;
+            margin: 20px 0;
+        }
+
+        .print-component.first {
+            margin-top: 0
+        }
+
+        .for-print-only table {
+            width: 100%;
+            border-spacing: 0;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        table {
+            page-break-after: auto
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
+        .pba {
+            page-break-inside: avoid;
+        }
+
+        thead {
+            display: table-header-group
+        }
+
+        tfoot {
+            display: table-footer-group
+        }
+
+        .for-print-only table td,
+        .for-print-only table th {
+            border: 1px solid #ccc;
+            font-size: 13px;
+            padding: 4px;
+            word-wrap: break-word;
+            page-break-inside: avoid;
+        }
+
+    </div>
     <div class="panel-heading">Preview Experiment {{notebook.name + '-' + experiment.name}}</div>
     <div class="panel-body panel-experiment-preview">
         <form name="print-form" id="print-form" role="form" novalidate>
@@ -152,19 +210,19 @@
                             <th style="width:30%">Other Information</th>
                         </tr>
                         <tr ng-repeat="reactant in stoichTable.reactants track by $index">
-                            <td>
+                            <td style="width:30%">
                                 <div><img ng-if="reactant.structure.image"
                                           class="img-responsive"
                                           style="height:100px;"
                                           ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
                                           alt="Image is unavailable."></div>
                                 <p>{{reactant.fullNbkBatch}}</p></td>
-                            <td>{{reactant.molWeight.value | round}}</td>
-                            <td>{{reactant.weight.value + ' ' + reactant.weight.unit}}</td>
-                            <td>{{reactant.mol.value + ' ' + reactant.mol.unit}}</td>
-                            <td>{{reactant.volume.value + ' ' + reactant.volume.unit}}</td>
-                            <td>???</td>
-                            <td>
+                            <td style="width:8%">{{reactant.molWeight.value | round}}</td>
+                            <td style="width:8%">{{reactant.weight.value + ' ' + reactant.weight.unit}}</td>
+                            <td style="width:8%">{{reactant.mol.value + ' ' + reactant.mol.unit}}</td>
+                            <td style="width:8%">{{reactant.volume.value + ' ' + reactant.volume.unit}}</td>
+                            <td style="width:8%">???</td>
+                            <td style="width:30%">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td style="width:40%">Name:</td>
@@ -226,18 +284,18 @@
                             <th>Batch Information</th>
                         </tr>
                         <tr ng-repeat="batch in batchSummary.batches track by $index">
-                            <td>{{batch.nbkBatch}}</td>
-                            <td>
+                            <td style="width:10%">{{batch.nbkBatch}}</td>
+                            <td style="width:20%">
                                 <div><img ng-if="batch.structure.image"
                                           class="img-responsive"
                                           style="height:100px;"
                                           ng-src="data:image/svg+xml;base64,{{batch.structure.image}}"
                                           alt="Image is unavailable."></div>
                             </td>
-                            <td>???</td>
-                            <td>???</td>
-                            <td>{{batch.purity.asString}}</td>
-                            <td>
+                            <td style="width:10%">???</td>
+                            <td style="width:10%">???</td>
+                            <td style="width:10%">{{batch.purity.asString}}</td>
+                            <td >
                                 <table class="print-table-inner">
                                     <tr>
                                         <td style="width:40%">Mol Wgt:</td>
@@ -285,16 +343,16 @@
                     <strong class="pull-right">REGISTRATION SUMMARY</strong>
                     <table class="print-table">
                         <tr>
-                            <th style="width:40%">Nbk Batch</th>
-                            <th>Total Amount Made</th>
-                            <th>Registration Status</th>
-                            <th>Conversational Batch</th>
+                            <th style="width:30%">Nbk Batch</th>
+                            <th style="width:20%">Total Amount Made</th>
+                            <th style="width:30%">Registration Status</th>
+                            <th style="width:20%">Conversational Batch</th>
                         </tr>
                         <tr>  <!--ng-repeat=""-->
-                            <td>11111111-0011-001</td>
-                            <td>25 mg</td>
-                            <td>PASS</td>
-                            <td>STR-00000091-01-001</td>
+                            <td  style="width:30%">11111111-0011-001</td>
+                            <td  style="width:20%">25 mg</td>
+                            <td  style="width:30%">PASS</td>
+                            <td  style="width:20%">STR-00000091-01-001</td>
                         </tr>
                     </table>
                 </div>
@@ -313,91 +371,91 @@
                     <strong class="pull-right">BATCH DETAILS</strong>
                     <table class="print-table">
                         <tr>
-                            <th style="width:20%">For Notebook Batch:</th>
-                            <th>
+                            <th style="width:30%">For Notebook Batch:</th>
+                            <th style="width:70%">
                                 <span class="pull-left">&nbsp; {{batchDetails.fullNbkBatch}}</span>
                                 <span class="pull-right">#barcode &nbsp;</span>
                             </th>
                         </tr>
                         <tr>
                             <!--no such field!-->
-                            <td>Registered Date</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Registered Date</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
-                            <td>Structure Comments</td>
-                            <td>{{batchDetails.structureComments}}</td>
+                            <td style="width:30%">Structure Comments</td>
+                            <td style="width:70%">{{batchDetails.structureComments}}</td>
                         </tr>
                         <tr>
-                            <td>Compound Source</td>
-                            <td>{{batchDetails.source.name}}</td>
+                            <td style="width:30%">Compound Source</td>
+                            <td style="width:70%">{{batchDetails.source.name}}</td>
                         </tr>
                         <tr>
-                            <td>Source Detail</td>
-                            <td>{{batchDetails.sourceDetail.name}}</td>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td>Batch Owner</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Source Detail</td>
+                            <td style="width:70%">{{batchDetails.sourceDetail.name}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
-                            <td>Synthesized By</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Batch Owner</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
-                            <td>Lab Site</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Synthesized By</td>
+                            <td style="width:70%">{{}}</td>
+                        </tr>
+                        <tr>
+                            <!--no such field!-->
+                            <td style="width:30%">Lab Site</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
                             <!--no model-->
-                            <td>Calculated Batch MW</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Calculated Batch MW</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
-                            <td>Calculated Parent MW</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Calculated Parent MW</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
-                            <td>Residual Solvents</td>
-                            <td>{{batchDetails.residualSolvents.asString}}</td>
+                            <td style="width:30%">Residual Solvents</td>
+                            <td style="width:70%">{{batchDetails.residualSolvents.asString}}</td>
                         </tr>
                         <tr>
-                            <td>Solubility in Solvents</td>
-                            <td>{{batchDetails.solubilitySolvents.asString}}</td>
+                            <td style="width:30%">Solubility in Solvents</td>
+                            <td style="width:70%">{{batchDetails.solubilitySolvents.asString}}</td>
                         </tr>
                         <tr>
                             <!--no model-->
-                            <td>Calculated Batch MF</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Calculated Batch MF</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
-                            <td>Calculated Parent MF</td>
-                            <td>{{}}</td>
+                            <td style="width:30%">Calculated Parent MF</td>
+                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
-                            <td>Precursor/Reactant IDs</td>
-                            <td>{{batchDetails.precursors}}</td>
+                            <td style="width:30%">Precursor/Reactant IDs</td>
+                            <td style="width:70%">{{batchDetails.precursors}}</td>
                         </tr>
                         <tr>
-                            <td>External Supplier</td>
-                            <td>{{batchDetails.externalSupplier.asString}}</td>
+                            <td style="width:30%">External Supplier</td>
+                            <td style="width:70%">{{batchDetails.externalSupplier.asString}}</td>
                         </tr>
                         <tr>
-                            <td>Hazards</td>
-                            <td>{{batchDetails.healthHazards.asString}}</td>
+                            <td style="width:30%">Hazards</td>
+                            <td style="width:70%">{{batchDetails.healthHazards.asString}}</td>
                         </tr>
                         <tr>
-                            <td>Handling</td>
-                            <td>{{batchDetails.handlingPrecautions.asString}}</td>
+                            <td style="width:30%">Handling</td>
+                            <td style="width:70%">{{batchDetails.handlingPrecautions.asString}}</td>
                         </tr>
                         <tr>
-                            <td>Storage</td>
-                            <td>{{batchDetails.storageInstructions.asString}}</td>
+                            <td style="width:30%">Storage</td>
+                            <td style="width:70%">{{batchDetails.storageInstructions.asString}}</td>
                         </tr>
                     </table>
                 </div>
@@ -425,16 +483,16 @@
                             </td>
                         </tr>
                         <tr>
-                            <th>Project Code:</th>
-                            <td>{{conceptDetails.codeAndName.name}}</td>
-                            <th>Inventors:</th>   <!--Inventors: author + coauthors ?-->
-                            <td></td>
+                            <th style="width:20%">Project Code:</th>
+                            <td style="width:30%">{{conceptDetails.codeAndName.name}}</td>
+                            <th style="width:20%">Inventors:</th>   <!--Inventors: author + coauthors ?-->
+                            <td style="width:30%"></td>
                         </tr>
                         <tr>
-                            <th>Concept Keywords:</th>
-                            <td>{{conceptDetails.keywords}}</td>
-                            <th>Designers</th>
-                            <td>{{conceptDetails.designers}}</td>
+                            <th style="width:20%">Concept Keywords:</th>
+                            <td style="width:30%">{{conceptDetails.keywords}}</td>
+                            <th style="width:20%">Designers</th>
+                            <td style="width:30%">{{conceptDetails.designers}}</td>
                         </tr>
                     </table>
                 </div>
@@ -454,11 +512,11 @@
                     <strong class="pull-right">PREFERRED COMPOUNDS</strong>
                     <table class="print-table">
                         <tr>
-                            <th>Structure</th>
-                            <th>Notebook Batch #</th>
-                            <th>Mol Weight</th>
-                            <th>Mol Formula</th>
-                            <th>Structure Comments</th>
+                            <th style="width:20%">Structure</th>
+                            <th  style="width:20%">Notebook Batch #</th>
+                            <th  style="width:20%">Mol Weight</th>
+                            <th  style="width:20%">Mol Formula</th>
+                            <th  style="width:20%">Structure Comments</th>
                         </tr>
                         <tr>  <!--ng-repeat=""-->
                             <td>#image<br>#stereoisomer_code<br>#virtual_compound_id</td>
