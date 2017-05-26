@@ -71,12 +71,12 @@ angular.module('indigoeln')
             return $q.resolve();
         };
 
-        EntitiesBrowser.setCurrentExperiment = function (experiment) {
-            EntitiesBrowser.activeExperiment = experiment;
+        EntitiesBrowser.setCurrentEntity = function (experiment) {
+            EntitiesBrowser.activeEntity = experiment;
         };
 
-        EntitiesBrowser.getCurrentExperiment = function () {
-           return  EntitiesBrowser.activeExperiment;
+        EntitiesBrowser.getCurrentEntity = function () {
+           return  EntitiesBrowser.activeEntity;
         } 
 
         var curForm;
@@ -113,7 +113,7 @@ angular.module('indigoeln')
         EntitiesBrowser.setActiveTab = function (tab) {
             EntitiesBrowser.updateCurrentEntity = null;
             EntitiesBrowser.saveCurrentEntity = null;
-            EntitiesBrowser.activeExperiment = null;
+            EntitiesBrowser.activeEntity = null;
             EntitiesBrowser.activeTab = tab;
         };
 

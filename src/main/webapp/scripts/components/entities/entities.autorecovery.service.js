@@ -87,6 +87,7 @@ angular.module('indigoeln')
             return state && state.actions.length > 0 && state.aindex < state.actions.length - 1;
         }
         function undoAction(entity) {
+            console.log('entity', entity)
             if (!entity) return false;
             var id = getFullId(entity);
             var state = states[id];
@@ -123,7 +124,6 @@ angular.module('indigoeln')
                     }
                     
                     var fullId = getFullId(entity);
-                    console.warn(fullId)
                     var state = states[fullId] || { actions: [] };
                     states[fullId] = state;
                     var rec = get(kind, entity);
@@ -183,6 +183,7 @@ angular.module('indigoeln')
                             ctimeout = null;
                         }, 1000)
                     };
+                    console.warn('watch', kind)
                     var unbind = $scope.$watch(kind, onChange, true);
                     var unbindDirty = $scope.$watch(form.$name + '.$dirty', function(val, old) {
                         if (!val && old) {

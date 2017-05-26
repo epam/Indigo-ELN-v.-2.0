@@ -96,7 +96,7 @@ angular.module('indigoeln')
             };
 
             var unsubscribeExp = $scope.$watch('experiment', function () {
-                EntitiesBrowser.setCurrentExperiment($scope.experiment);
+                EntitiesBrowser.setCurrentEntity($scope.experiment);
             });
 
             var unsubscribe = $scope.$watch('experiment.status', function () {
