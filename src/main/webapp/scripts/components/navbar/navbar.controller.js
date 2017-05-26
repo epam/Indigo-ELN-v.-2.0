@@ -14,7 +14,18 @@ angular.module('indigoeln')
             $state.go('login');
         };
 
-
+        $scope.onSearchKeyup = function (e) {
+            if (e.keyCode == 13) {
+                $scope.search()
+                e.preventDefault()
+            }
+        }
+        $scope.search = function() {
+            $scope.query = $scope.query.trim().toLowerCase();
+            $state.go('entities.search-panel').then(function() {
+                $rootScope.$broadcast('toggle-search', {query: $scope.query});
+            });
+        }
         var unsubscribe = $scope.$watch(function () {
             return EntitiesBrowser.activeTab;
         }, function (value) {

@@ -30,7 +30,10 @@ angular.module('indigoeln')
                 });
             }
         };
-
+        $scope.$on('toggle-search', function(e, data) {
+            $scope.model.restrictions.searchQuery = data.query;
+            $scope.search()
+        })
         $scope.selectedUsersChange = function () {
             if($scope.domainModel === USERS_ENTITIES){
                 $scope.model.restrictions.advancedSearch.entityDomain.value = _.map($scope.selectedUsers, function(user){
