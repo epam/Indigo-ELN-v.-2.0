@@ -71,4 +71,10 @@ public class AccountResource {
                 role -> dtoMapper.convertToDTO(role)).collect(Collectors.toList()));
         return ResponseEntity.ok(result);
     }
+
+    @ApiOperation(value = "Prolongs user's session.")
+    @RequestMapping(value = "/prolong" , method = RequestMethod.GET)
+    public ResponseEntity<Void> prolongSession(){
+        return ResponseEntity.ok().build();
+    }
 }
