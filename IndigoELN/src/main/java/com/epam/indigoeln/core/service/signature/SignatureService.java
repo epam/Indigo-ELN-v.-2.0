@@ -12,11 +12,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,8 +66,12 @@ public class SignatureService {
 
     public List<Document> getDocumentsByUser(com.epam.indigoeln.core.model.User user) throws IOException {
         final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
-        final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
-        return wrapper.getDocuments();
+        if (!StringUtils.isBlank(content)) {
+            final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
+            return wrapper.getDocuments();
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     public byte[] downloadDocument(String documentId) {
@@ -140,8 +146,12 @@ public class SignatureService {
     public ISSStatus getStatus(String documentId) throws IOException {
         // get document's status
         String info = signatureRepository.getDocumentInfo(documentId);
-        int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
-        return ISSStatus.fromValue(docStatus);
+        if (!StringUtils.isBlank(info)) {
+            int docStatus = objectMapper.readValue(info, JsonNode.class).get("status").asInt();
+            return ISSStatus.fromValue(docStatus);
+        } else {
+            return ISSStatus.CANCELLED;
+        }
     }
 
     /**

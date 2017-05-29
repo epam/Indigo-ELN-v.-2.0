@@ -14,6 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -135,17 +136,20 @@ public class SignatureResource {
     @ApiOperation(value = "Returns signature document content.", produces = "application/json")
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<InputStreamResource> downloadDocument(
+    public ResponseEntity<?> downloadDocument(
             @ApiParam("Document id.") String documentId
         ) throws IOException {
 
         final String info = signatureService.getDocumentInfo(documentId);
-        String documentName = objectMapper.readValue(info, JsonNode.class).get("documentName").asText();
-
-        HttpHeaders headers = HeaderUtil.createAttachmentDescription(documentName);
-        final byte[] data = signatureService.downloadDocument(documentId);
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
-        return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
+        if (!StringUtils.isBlank(info)) {
+            String documentName = objectMapper.readValue(info, JsonNode.class).get("documentName").asText();
+            HttpHeaders headers = HeaderUtil.createAttachmentDescription(documentName);
+            final byte[] data = signatureService.downloadDocument(documentId);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            return ResponseEntity.ok().headers(headers).body(new InputStreamResource(inputStream));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }
