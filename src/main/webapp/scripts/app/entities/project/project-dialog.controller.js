@@ -18,7 +18,7 @@ angular.module('indigoeln')
                 }
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
-
+                    EntitiesBrowser.setCurrentForm($scope.createProjectForm)
                     if (EntitiesBrowser.getActiveTab().name == "New Project"){
                         $scope.isBtnSaveActive = true;
                     } else {
@@ -128,6 +128,13 @@ angular.module('indigoeln')
                     }, function () {
                         Alert.error('Project not refreshed due to server error!')
                     });
+            });
+            var unsubscribeExp = $scope.$watch('project', function () {
+                EntitiesBrowser.setCurrentEntity($scope.project);
+            });
+
+            $scope.$on('$destroy', function () {
+                unsubscribeExp();
             });
 
         });

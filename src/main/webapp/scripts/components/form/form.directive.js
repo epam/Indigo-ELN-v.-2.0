@@ -159,6 +159,7 @@ angular.module('indigoeln')
             formUtils.clearLabel(tAttrs, tElement);
             formUtils.setLabelColumns(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, $input);
+            $input.attr('title', '{{myModel}}')
             return {
                 post: function (scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);

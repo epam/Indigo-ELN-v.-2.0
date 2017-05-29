@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, CalculationService) {
+    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, Alert, CalculationService, StoichTableCache) {
 
         var auxPrefixes = [
             'COMPOUND_REGISTRATION_'
@@ -108,16 +108,19 @@ angular.module('indigoeln')
             }
         };
 
-        var importItems = function (sdUnitsToImport, dicts, i, addToTable, callback) {
+        var importItems = function (sdUnitsToImport, dicts, i, addToTable, callback, complete) {
             if (!sdUnitsToImport[i]) {
+                if (complete) complete();
+                Alert.info(sdUnitsToImport.length + ' batches successfully imported');
                 return;
             }
             var sdUnitToImport = sdUnitsToImport[i];
             saveMolecule(sdUnitToImport.mol).then(function (structureId) {
                 CalculationService.getImageForStructure(sdUnitToImport.mol, 'molecule', function (result) {
-                    var itemToImport = {};
+                    var stoichTable = StoichTableCache.getStoicTable();
+                    var itemToImport = angular.copy(CalculationService.createBatch(stoichTable, true));
                     itemToImport.structure = itemToImport.structure || {};
-                    itemToImport.structure.image = result.image;
+                    itemToImport.structure.image = result;
                     itemToImport.structure.structureType = 'molecule';
                     itemToImport.structure.molfile = sdUnitToImport.mol;
                     itemToImport.structure.structureId = structureId;
@@ -128,14 +131,14 @@ angular.module('indigoeln')
                             if (callback && _.isFunction(callback)) {
                                 callback(batch);
                             }
-                            importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback);
+                            importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback, complete);
                         });
                     });
                 });
             });
         };
 
-        var importFile = function (addToTable, callback) {
+        var importFile = function (addToTable, callback, complete) {
             $uibModal.open({
                 animation: true,
                 size: 'lg',
@@ -148,9 +151,10 @@ angular.module('indigoeln')
                 }
             }).result.then(function (result) {
                     Dictionary.all({}, function (dicts) {
-                        importItems(result, dicts, 0, addToTable, callback);
+                        importItems(result, dicts, 0, addToTable, callback, complete);
                     });
                 }, function () {
+                    complete();
                     AlertModal.error('This file cannot be imported. Error occurred.');
                 });
         };

@@ -8,8 +8,8 @@
     <div class="uui-header-tools">
         <form class="navbar-form">
             <div class="search-field search-field-main" ng-class="{'active': focused}">
-                <i class="fa fa-search"></i>
-                <input type="search" class="uui-search" placeholder="Search"  ng-focus="focused = true" ng-blur="focused = false">
+                <i class="fa fa-search" ng-mousedown="search()"></i>
+                <input type="search" class="uui-search" ng-keyup="onSearchKeyup($event)" placeholder="Search" ng-model="query" ng-focus="focused = true" ng-blur="focused = false">
             </div>
 
             <!--<div class="form-group search-field" >-->

@@ -13,12 +13,7 @@ if (arguments.length < 4) {
     page.viewportSize = { width: 600, height: 600 };
     page.paperSize = {
         format: 'A4',
-       margin: {
-            top: '0',
-            left: '1cm',
-            right: '1cm',
-            bottom: '1cm'
-          },
+       margin: '1cm',
         header: {
             height: headerHeight,
             contents: phantom.callback(function(pageNum, numPages) {
