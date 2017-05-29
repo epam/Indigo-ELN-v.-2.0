@@ -28,7 +28,7 @@ angular.module('indigoeln')
 							}
 						}
 					})
-				}, 300)
+				}, 0)
 				return val;
 			};
 			$scope.isEditable = function () {
