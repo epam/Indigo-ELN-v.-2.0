@@ -35,10 +35,10 @@
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-            <button type="button" class="btn btn-default" ng-show = "canUndo()" ng-click="undoAction()">
+           <button type="button" class="btn btn-default" ng-disabled = "!canUndo()" ng-click="undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
             </button>  
-            <button  type="button" class="btn btn-default" ng-show = "canRedo()" ng-click="redoAction()">
+            <button  type="button" class="btn btn-default" ng-disabled = "!canRedo()" ng-click="redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>

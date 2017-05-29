@@ -128,19 +128,19 @@ angular.module('indigoeln')
         };
 
         $scope.onUndo = function () {
-            AutoRecoverEngine.undoAction(EntitiesBrowser.activeExperiment);
+            AutoRecoverEngine.undoAction(EntitiesBrowser.activeEntity);
         }
 
         $scope.onRedo = function () {
-            AutoRecoverEngine.redoAction(EntitiesBrowser.activeExperiment)
+            AutoRecoverEngine.redoAction(EntitiesBrowser.activeEntity)
         }
 
         $scope.canUndo = function () {
-            AutoRecoverEngine.canUndo(EntitiesBrowser.activeExperiment)
+            AutoRecoverEngine.canUndo(EntitiesBrowser.activeEntity)
         }
         
         $scope.canRedo = function () {
-            AutoRecoverEngine.canRedo(EntitiesBrowser.activeExperiment)
+            AutoRecoverEngine.canRedo(EntitiesBrowser.activeEntity)
         }
 
         $scope.onCloseAllTabs = function () {
