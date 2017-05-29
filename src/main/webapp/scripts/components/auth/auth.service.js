@@ -1,5 +1,6 @@
 angular.module('indigoeln')
     .factory('Auth', function ($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
+        var prolongTimeout; 
         return {
             login: function (credentials, callback) {
                 var cb = callback || angular.noop;
@@ -19,7 +20,12 @@ angular.module('indigoeln')
 
                 return deferred.promise;
             },
-
+            prolong : function() {
+                if (prolongTimeout) clearTimeout(prolongTimeout); 
+                prolongTimeout = setTimeout(function() {
+                     AuthServerProvider.prolong()
+                }, 5000);
+            },
             logout: function () {
                 AuthServerProvider.logout();
                 Principal.authenticate(null);

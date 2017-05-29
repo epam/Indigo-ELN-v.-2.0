@@ -9,10 +9,10 @@
                 <span ng-disabled="myReadonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
                       title="Edit/Add {{myTitle}}" ng-click="openEditor($event)"></span>
     </div>
-    <div s-resizable max-height="300" min-height="50"
+    <div s-resizable max-height="300" min-height="50" ng-dblclick="openEditor($event)"
          class="panel-body text-center" ng-class="{'sizable-panel-body': image}" style="height: 150px">
-        <div ng-if="model[structureType].image" style="height: 100%;">
-            <img  class="img-responsive center-block" style="height: 100%;"
+        <div ng-if="model[structureType].image" style="height: 100%;" >
+            <img  class="img-responsive center-block" style="height: 100%;" 
             ng-src="data:image/svg+xml;base64,{{model[structureType].image}}" alt="Image is unavailable.">
             <span class="glyphicon glyphicon-option-horizontal" style="color: #B2EBF2"></span>
         </div>
