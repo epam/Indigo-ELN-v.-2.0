@@ -18,6 +18,10 @@ angular.module('indigoeln')
                 $http.post('api/logout').success(function (response) {
                     return response;
                 });
+            },
+            prolong: function () {
+                // ping server to prolong session
+                $http.post('api/accounts/prolong')
             }
         };
     });

@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('AutoRecoverEngine', function($rootScope, AlertModal, Principal, localStorageService, $q, $timeout, EntitiesBrowser) {
+    .factory('AutoRecoverEngine', function($rootScope, AlertModal, Principal, localStorageService, $q, $timeout, EntitiesBrowser, Auth) {
         var delay = 1000;
         var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent']
         var kinds = ['experiment', 'project', 'notebook'],
@@ -178,6 +178,7 @@ angular.module('indigoeln')
                                     state.aindex = state.actions.length - 1;
                                     state.last = angular.extend({}, entity);
                                 }
+                                Auth.prolong()
                             }
                             entity.$$undo = false;
                             ctimeout = null;
