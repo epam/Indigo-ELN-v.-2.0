@@ -13,7 +13,7 @@ angular.module('indigoeln')
         };
 
         function requestNbkBatchNumberAndAddToTable(duplicatedBatch, isSyncWithIntended) {
-            var experiment = EntitiesBrowser.getCurrentExperiment();
+            var experiment = EntitiesBrowser.getCurrentEntity();
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
             var latest = getLatestNbkBatch();
             var deferred = $q.defer();
