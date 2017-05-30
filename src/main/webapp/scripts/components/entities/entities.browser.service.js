@@ -59,7 +59,10 @@ angular.module('indigoeln')
             }
             saveTabs()
         }
-
+        EntitiesBrowser.getTabs = function(f) {
+            var id = Principal.getIdentity().id;
+            return EntitiesBrowser.tabs[id];
+        }
         EntitiesBrowser.setUpdateCurrentEntity = function(f) {
             EntitiesBrowser.updateCurrentEntity = f;
         }

@@ -124,7 +124,6 @@ angular.module('indigoeln')
                 Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
                 EntitiesBrowser.updateCurrentEntity()
             }
-            console.log(3)
         };
 
         $scope.onUndo = function () {
