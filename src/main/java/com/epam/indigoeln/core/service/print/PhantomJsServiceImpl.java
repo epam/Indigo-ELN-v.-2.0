@@ -21,9 +21,7 @@ import javax.annotation.PreDestroy;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
@@ -44,7 +42,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     private String rasterize;
     private FileAlterationMonitor fileMonitor;
     private FileAlterationObserver fileObserver;
-    private int timeout = 30;
+    private int timeout = 10;
 
     public PhantomJsServiceImpl() throws IOException {
         rasterize = Resources.toString(Resources.getResource("phantomjs/rasterize.js"), Charsets.UTF_8);
@@ -54,7 +52,6 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     public void init() {
         try {
             File file = getPhantomExecutable();
-
             phantomJSDriverService = new PhantomJSDriverService.Builder()
                     .usingPhantomJSExecutable(file)
                     .usingAnyFreePort()
@@ -84,22 +81,21 @@ public class PhantomJsServiceImpl implements PhantomJsService {
     @PreDestroy
     public void destroy() {
         try {
-            if (driver != null) {
-                driver.quit();
-            }
             if (phantomJSDriverService != null) {
                 phantomJSDriverService.stop();
+            }
+            if (driver != null) {
+                driver.quit();
             }
         } catch (Exception e) {
             LOGGER.error("PhantomJs destroy error", e);
         }
     }
+
     private static File getPhantomExecutable() {
         StringBuilder sb = new StringBuilder(22);
-
         String separator = "/";
         String os = getOs();
-
         sb.append("phantomjs").append(separator).append(os).append(separator);
 
         String arch = getArch(os);
@@ -114,7 +110,6 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         }
 
         File file = new File(System.getProperty("java.io.tmpdir") + "/" + sb.toString());
-
         if (!file.exists()) {
             try (InputStream is = PhantomJsServiceImpl.class.getClassLoader().getResourceAsStream(sb.toString())) {
                 FileUtils.copyToFile(is, file);
@@ -123,9 +118,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
                 throw new IndigoRuntimeException("Phantom executable path is incorrect");
             }
         }
-
         file.setExecutable(true);
-
         return file;
     }
 
@@ -169,28 +162,29 @@ public class PhantomJsServiceImpl implements PhantomJsService {
         try {
             LOGGER.info("Start of creation pdf");
             createPdf(wrapper, filePath);
-            FutureTask<String> futureTask = new FutureTask<>(() -> {
-                while (true) {
-                    Thread.sleep(500);
-                    if (isDone.get()) {
-                        return fileName;
-                    }
-                }
-            });
-            futureTask.run();
-            String result = futureTask.get(timeout, TimeUnit.SECONDS);
-            return result;
-        } catch (TimeoutException e) {
-            LOGGER.error("Timeout error ", e);
-            throw new RuntimeException(e);
-        } catch (Exception e) {
-            LOGGER.error("Take pdf error", e);
-            throw new RuntimeException(e);
+            waitForDone(isDone);
+            return fileName;
         } finally {
             fileObserver.removeListener(listener);
             LOGGER.info("Listener was removed");
             FileUtils.deleteQuietly(new File(doneFilePath));
             LOGGER.info("Done file was deleted");
+        }
+    }
+
+    private void waitForDone(AtomicBoolean isDone){
+        double time = 0;
+        while (!isDone.get()){
+            if (time > timeout){
+                LOGGER.error("Timeout error.");
+                throw new IndigoRuntimeException("Timeout error.");
+            }
+            try {
+                Thread.sleep(500);
+                time += 0.5;
+            } catch (InterruptedException e) {
+                LOGGER.error("Error during waiting for done file.");
+            }
         }
     }
 
@@ -211,7 +205,7 @@ public class PhantomJsServiceImpl implements PhantomJsService {
                 init();
                 createPdf(wrapper, to, count + 1, limit);
             } else {
-                throw new IndigoRuntimeException("Error creating pdf from HTML");
+                throw new IndigoRuntimeException("Error creating pdf from HTML",e);
             }
         }
     }
