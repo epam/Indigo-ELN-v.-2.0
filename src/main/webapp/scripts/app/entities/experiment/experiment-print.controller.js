@@ -15,6 +15,9 @@ angular.module('indigoeln').controller('ExperimentPrintController',
         $scope.molecule = $scope.experiment.components.molecule;
         $scope.experimentDescription = $scope.experiment.components.experimentDescription;
         $scope.stoichTable = $scope.experiment.components.stoichTable;
+        $scope.preferredCompounds = $scope.experiment.components.preferredCompoundSummary;
+        if ($scope.batchSummary)
+            $scope.registrationSummary = {batches : $scope.batchSummary.batches.filter(function(b) { return b.conversationalBatchNumber}) }
 
         $scope.currentDate = Date.now();
 
@@ -37,5 +40,16 @@ angular.module('indigoeln').controller('ExperimentPrintController',
             }
             experimentPdfCreator.createPDF(fileName, downloadReport);
         };
+        $scope.toDigits = function(o) {
+            if (!o || o.value == 0) return '';
+            var val = o.value ? Number(o.value) : Number(o);
+            if (!val) return '';
+            var unit = o.unit ? ' ' + o.unit : ''; 
+            return val.toFixed(3).replace(/\.000$/, '') + unit;
+        }
+        $scope.joinUsers = function(users) {
+            return users.map(function(u) { return u.name }).join(', ');
+        }
+        console.warn($scope.batchSummary)
 
     });
