@@ -21,7 +21,7 @@ angular.module('indigoeln')
             },
             prolong: function () {
                 // ping server to prolong session
-                $http.post('api/accounts/prolong')
+                $http.get('api/accounts/prolong')
             }
         };
     });
