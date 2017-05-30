@@ -82,10 +82,9 @@
                         <tr>
                             <td>Co-authors:</td>
                             <td>
-                                <!--to be added in details-->
-                                                    <span ng-repeat="user in experiment.coAuthors track by user.id">
-                                                        {{user.firstName + ' ' + user.lastName}}<span
-                                                            ng-if="!$last">, </span></span></td>
+                                <span ng-repeat="user in experiment.coAuthors track by user.id">
+                                    {{user.firstName + ' ' + user.lastName}}<span
+                                        ng-if="!$last">, </span></span></td>
                             <td>Status:</td>
                             <td>{{experiment.status | uppercase }}</td>
                         </tr>
@@ -149,23 +148,7 @@
                 </div>
             </div>
 
-            <!--EXPERIMENT DESCRIPTION-->
-            <div class="row print-component" ng-if="experimentDescription">
-                <div class="col-xs-1 need-to-print" ng-init="experimentDescription.needToPrint = true">
-                    <my-checkbox
-                            my-label="Print"
-                            my-model="experimentDescription.needToPrint"
-                            my-name="needToPrint"
-                            my-disabled="fullPrint"></my-checkbox>
-                </div>
-                <div class="col-xs-11">
-                    <strong class="pull-right">EXPERIMENT DESCRIPTION</strong>
-                    <my-text-editor my-model="experimentDescription.description"
-                                    my-name="experimentDescription"
-                                    my-readonly="true"></my-text-editor>
-                </div>
-            </div>
-
+           
             <!--SUMMARY REACTION-->
             <div class="row print-component" ng-if="reaction">
                 <div class="col-xs-1 need-to-print" ng-init="reaction.needToPrint = true">
@@ -217,11 +200,11 @@
                                           ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
                                           alt="Image is unavailable."></div>
                                 <p>{{reactant.fullNbkBatch}}</p></td>
-                            <td style="width:8%">{{reactant.molWeight.value | round}}</td>
-                            <td style="width:8%">{{reactant.weight.value + ' ' + reactant.weight.unit}}</td>
-                            <td style="width:8%">{{reactant.mol.value + ' ' + reactant.mol.unit}}</td>
-                            <td style="width:8%">{{reactant.volume.value + ' ' + reactant.volume.unit}}</td>
-                            <td style="width:8%">???</td>
+                            <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
+                            <td style="width:8%">{{toDigits(reactant.weight) }}</td>
+                            <td style="width:8%">{{toDigits(reactant.mol)}}</td>
+                            <td style="width:8%">{{toDigits(reactant.volume)}}</td>
+                            <td style="width:8%">{{reactant.eq.value}}</td>
                             <td style="width:30%">
                                 <table class="print-table-inner">
                                     <tr>
@@ -234,11 +217,11 @@
                                     </tr>
                                     <tr>
                                         <td>Purity:</td>
-                                        <td>{{reactant.purity}}</td>
+                                        <td>{{toDigits(reactant.stoicPurity)}}</td>
                                     </tr>
                                     <tr>
                                         <td>Molarity:</td>
-                                        <td>{{reactant.molarity.value + ' ' + reactant.molarity.unit}}</td>
+                                        <td> {{toDigits(reactant.molarity)}}</td>
                                     </tr>
                                     <tr>
                                         <td>Hazard:</td>
@@ -254,12 +237,29 @@
                                     </tr>
                                     <tr>
                                         <td>Salt EQ:</td>
-                                        <td>{{reactant.saltEq}}</td>
+                                        <td>{{toDigits(reactant.saltEq)}}</td>
                                     </tr>
                                 </table>
                             </td>
                         </tr>
                     </table>
+                </div>
+            </div>
+
+             <!--EXPERIMENT DESCRIPTION-->
+            <div class="row print-component" ng-if="experimentDescription">
+                <div class="col-xs-1 need-to-print" ng-init="experimentDescription.needToPrint = true">
+                    <my-checkbox
+                            my-label="Print"
+                            my-model="experimentDescription.needToPrint"
+                            my-name="needToPrint"
+                            my-disabled="fullPrint"></my-checkbox>
+                </div>
+                <div class="col-xs-11">
+                    <strong class="pull-right">EXPERIMENT DESCRIPTION</strong>
+                    <my-text-editor my-model="experimentDescription.description"
+                                    my-name="experimentDescription"
+                                    my-readonly="true"></my-text-editor>
                 </div>
             </div>
 
@@ -292,31 +292,31 @@
                                           ng-src="data:image/svg+xml;base64,{{batch.structure.image}}"
                                           alt="Image is unavailable."></div>
                             </td>
-                            <td style="width:10%">???</td>
-                            <td style="width:10%">???</td>
+                            <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
+                            <td style="width:10%">{{toDigits(batch.yield)}} </td>
                             <td style="width:10%">{{batch.purity.asString}}</td>
                             <td >
                                 <table class="print-table-inner">
                                     <tr>
                                         <td style="width:40%">Mol Wgt:</td>
-                                        <td>{{batch.molWeight.value | round}}</td>
+                                        <td>{{toDigits(batch.molWeight)}}</td>
                                     </tr>
                                     <tr>
                                         <td>Exact Mass:</td>
-                                        <td>???</td>
+                                        <td></td>
                                     </tr>
                                     <tr>
                                         <td>Salt Code:</td>
-                                        <td>{{batch.saltCode.name}}</td>
+                                        <td>{{batch.saltCode.value!=0 ? batch.saltCode.name : ''}}</td>
                                     </tr>
                                     <tr>
                                         <td>Salt EQ:</td>
-                                        <td>{{batch.saltEq}}</td>
+                                        <td>{{ toDigits(batch.saltEq) }}</td>
                                     </tr>
                                     <tr>
                                         <!--add field?-->
                                         <td>Batch Owner:</td>
-                                        <td>{{}}</td>
+                                        <td>{{ joinUsers(reactionDetails.batchOwner)}}</td>
                                     </tr>
                                     <tr>
                                         <td>Comments:</td>
@@ -330,7 +330,7 @@
             </div>
 
             <!--REGISTRATION SUMMARY--> <!--no such component-->
-            <div class="row print-component" ng-if="true">
+            <div class="row print-component" ng-if="registrationSummary">
                 <div class="col-xs-1 need-to-print"
                      ng-init="registrationSummary.needToPrint = true">
                     <my-checkbox
@@ -341,25 +341,25 @@
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">REGISTRATION SUMMARY</strong>
-                    <table class="print-table">
+                    <table class="print-table" >
                         <tr>
                             <th style="width:30%">Nbk Batch</th>
                             <th style="width:20%">Total Amount Made</th>
                             <th style="width:30%">Registration Status</th>
                             <th style="width:20%">Conversational Batch</th>
                         </tr>
-                        <tr>  <!--ng-repeat=""-->
-                            <td  style="width:30%">11111111-0011-001</td>
-                            <td  style="width:20%">25 mg</td>
-                            <td  style="width:30%">PASS</td>
-                            <td  style="width:20%">STR-00000091-01-001</td>
+                        <tr ng-repeat="batch in registrationSummary.batches track by $index" > 
+                            <td  style="width:30%">{{batch.fullNbkBatch}}</td>
+                            <td  style="width:20%">{{toDigits(batch.totalWeight)}}</td>
+                            <td  style="width:30%">{{batch.registrationStatus}}</td>
+                            <td  style="width:20%">{{batch.conversationalBatchNumber}}</td>
                         </tr>
                     </table>
                 </div>
             </div>
 
             <!--BATCH DETAILS-->
-            <div class="row print-component">
+            <div class="row print-component" ng-if="batchDetails">
                 <div class="col-xs-1 need-to-print" ng-init="batchDetails.needToPrint = true">
                     <my-checkbox
                             my-label="Print"
@@ -369,68 +369,58 @@
                 </div>
                 <div class="col-xs-11" ng-if="batchDetails">
                     <strong class="pull-right">BATCH DETAILS</strong>
-                    <table class="print-table">
+                    <table ng-repeat="batch in batchSummary.batches track by $index" class="print-table">
                         <tr>
                             <th style="width:30%">For Notebook Batch:</th>
                             <th style="width:70%">
-                                <span class="pull-left">&nbsp; {{batchDetails.fullNbkBatch}}</span>
+                                <span class="pull-left">&nbsp; {{batch.fullNbkBatch}}</span>
                                 <span class="pull-right">#barcode &nbsp;</span>
                             </th>
                         </tr>
                         <tr>
                             <!--no such field!-->
                             <td style="width:30%">Registered Date</td>
-                            <td style="width:70%">{{}}</td>
+                            <td style="width:70%">{{batch.registrationDate  | date:'MMM dd yyyy'}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Structure Comments</td>
-                            <td style="width:70%">{{batchDetails.structureComments}}</td>
+                            <td style="width:70%">{{batch.structureComments}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Compound Source</td>
-                            <td style="width:70%">{{batchDetails.source.name}}</td>
+                            <td style="width:70%">{{batch.source.name}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Source Detail</td>
-                            <td style="width:70%">{{batchDetails.sourceDetail.name}}</td>
+                            <td style="width:70%">{{batch.sourceDetail.name}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
                             <td style="width:30%">Batch Owner</td>
-                            <td style="width:70%">{{}}</td>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Synthesized By</td>
-                            <td style="width:70%">{{}}</td>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Lab Site</td>
-                            <td style="width:70%">{{}}</td>
+                            <td style="width:70%"> {{ joinUsers(reactionDetails.batchOwner) }}</td>
                         </tr>
                         <tr>
                             <!--no model-->
                             <td style="width:30%">Calculated Batch MW</td>
-                            <td style="width:70%">{{}}</td>
+                            <td style="width:70%">{{toDigits(batch.molWeight) }}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
                             <td style="width:30%">Calculated Parent MW</td>
-                            <td style="width:70%">{{}}</td>
+                            <td style="width:70%"></td>
                         </tr>
                         <tr>
                             <td style="width:30%">Residual Solvents</td>
-                            <td style="width:70%">{{batchDetails.residualSolvents.asString}}</td>
+                            <td style="width:70%">{{batch.residualSolvents.asString}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Solubility in Solvents</td>
-                            <td style="width:70%">{{batchDetails.solubilitySolvents.asString}}</td>
+                            <td style="width:70%">{{batch.solubility.asString}}</td>
                         </tr>
                         <tr>
                             <!--no model-->
                             <td style="width:30%">Calculated Batch MF</td>
-                            <td style="width:70%">{{}}</td>
+                            <td style="width:70%">{{batch.formula}}</td>
                         </tr>
                         <tr>
                             <!--no such field!-->
@@ -439,23 +429,23 @@
                         </tr>
                         <tr>
                             <td style="width:30%">Precursor/Reactant IDs</td>
-                            <td style="width:70%">{{batchDetails.precursors}}</td>
+                            <td style="width:70%">{{batch.precursors}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">External Supplier</td>
-                            <td style="width:70%">{{batchDetails.externalSupplier.asString}}</td>
+                            <td style="width:70%">{{batch.externalSupplier.asString}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Hazards</td>
-                            <td style="width:70%">{{batchDetails.healthHazards.asString}}</td>
+                            <td style="width:70%">{{batch.healthHazards.asString}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Handling</td>
-                            <td style="width:70%">{{batchDetails.handlingPrecautions.asString}}</td>
+                            <td style="width:70%">{{batch.handlingPrecautions.asString}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Storage</td>
-                            <td style="width:70%">{{batchDetails.storageInstructions.asString}}</td>
+                            <td style="width:70%">{{batch.storageInstructions.asString}}</td>
                         </tr>
                     </table>
                 </div>
@@ -492,7 +482,7 @@
                             <th style="width:20%">Concept Keywords:</th>
                             <td style="width:30%">{{conceptDetails.keywords}}</td>
                             <th style="width:20%">Designers</th>
-                            <td style="width:30%">{{conceptDetails.designers}}</td>
+                            <td style="width:30%">{{joinUsers(conceptDetails.designers)}}</td>
                         </tr>
                     </table>
                 </div>
@@ -500,7 +490,7 @@
 
             <!--PREFERRED COMPOUNDS-->
             <!--no such component yet ? concept(no fields), product-batch-summary?-->
-            <div class="row print-component" ng-if="true">
+            <div class="row print-component" ng-if="preferredCompounds">
                 <div class="col-xs-1 need-to-print" ng-init="preferredCompounds.needToPrint = true">
                     <my-checkbox
                             my-label="Print"
@@ -518,12 +508,20 @@
                             <th  style="width:20%">Mol Formula</th>
                             <th  style="width:20%">Structure Comments</th>
                         </tr>
-                        <tr>  <!--ng-repeat=""-->
-                            <td>#image<br>#stereoisomer_code<br>#virtual_compound_id</td>
-                            <td>11111111-0007-001</td>
-                            <td>283.4 mg</td>
-                            <td>C17 H21 N3 O</td>
-                            <td>comments</td>
+                        <tr ng-repeat="compound in preferredCompounds.compounds  track by $index"> 
+                            <td style="width:20%">
+                                   <div><img ng-if="compound.structure.image"
+                                          class="img-responsive"
+                                          style="height:100px;"
+                                          ng-src="data:image/svg+xml;base64,{{compound.structure.image}}"
+                                          alt="Image is unavailable."></div>
+
+                                <p>{{compound.virtualCompoundId}}</p>
+                            </td>
+                            <td style="width:20%">{{compound.fullNbkBatch}}</td>
+                            <td style="width:20%">{{toDigits(compound.molWeight) }}</td>
+                            <td style="width:20%">{{compound.formula}}</td>
+                            <td style="width:20%">{{compound.structureComments}}</td>
                         </tr>
                     </table>
                 </div>
