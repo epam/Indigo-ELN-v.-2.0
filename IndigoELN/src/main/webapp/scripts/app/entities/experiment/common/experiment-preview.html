@@ -81,10 +81,7 @@
                         </tr>
                         <tr>
                             <td>Co-authors:</td>
-                            <td>
-                                <span ng-repeat="user in experiment.coAuthors track by user.id">
-                                    {{user.firstName + ' ' + user.lastName}}<span
-                                        ng-if="!$last">, </span></span></td>
+                            <td>{{ joinArr(reactionDetails.coAuthors) }}</td>
                             <td>Status:</td>
                             <td>{{experiment.status | uppercase }}</td>
                         </tr>
@@ -128,19 +125,19 @@
                         </tr>
                         <tr>
                             <th>Continued From:</th>
-                            <td>{{reactionDetails.contFromRxn}}</td>
+                            <td>{{ joinArr(reactionDetails.contFromRxn, 'text') }}</td>
                             <th>Project Code:</th>
-                            <td>{{reactionDetails.codeAndName.name}}</td>
+                            <td>{{ reactionDetails.codeAndName.name}}</td>
                         </tr>
                         <tr>
                             <th>Continued To:</th>
-                            <td>{{reactionDetails.contToRxn}}</td>
+                            <td>{{  joinArr(reactionDetails.contToRxn, 'text')  }}</td>
                             <th>Project Alias</th>
                             <td>{{reactionDetails.projectAliasName}}</td>
                         </tr>
                         <tr>
                             <th>Linked&nbsp;Experiment:</th>
-                            <td>{{reactionDetails.linkedExperiment}}</td>
+                            <td>{{joinArr(reactionDetails.linkedExperiments, 'text')}}</td>
                             <th>Literature&nbsp;Reference:</th>
                             <td>{{reactionDetails.literature}}</td>
                         </tr>
@@ -162,7 +159,7 @@
                     <strong class="pull-right">REACTION SCHEME</strong>
                     <table class="print-table">
                         <tr>
-                            <td><img style=" "
+                            <td><img style="max-height:200px; margin: 0 auto"
                                      class="img-responsive center-block"
                                      ng-src="data:image/svg+xml;base64,{{reaction.image}}" alt="Image is unavailable.">
                             </td>
@@ -196,10 +193,10 @@
                             <td style="width:30%">
                                 <div><img ng-if="reactant.structure.image"
                                           class="img-responsive"
-                                          style="height:100px;"
+                                          style="max-height:200px; margin: 0 auto"
                                           ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
                                           alt="Image is unavailable."></div>
-                                <p>{{reactant.fullNbkBatch}}</p></td>
+                                <p>{{reactant.fullNbkBatch}} {{reactant.compoundId}} </p></td>
                             <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.weight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.mol)}}</td>
@@ -288,13 +285,14 @@
                             <td style="width:20%">
                                 <div><img ng-if="batch.structure.image"
                                           class="img-responsive"
-                                          style="height:100px;"
+                                          style="max-height:200px; margin: 0 auto"
                                           ng-src="data:image/svg+xml;base64,{{batch.structure.image}}"
-                                          alt="Image is unavailable."></div>
-                                <p>{{batch.stereoisomer.name }}</p> 
+                                          alt="Image is unavailable.">
+                                    <p style="text-align: center; margin-top: 20px">{{batch.stereoisomer.name }}</p> 
+                                </div>
                             </td>
                             <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
-                            <td style="width:10%">{{toDigits(batch.yield)}} </td>
+                            <td style="width:10%">{{ toDigits(batch.theoWeight)  }} {{toDigits(batch.yield)  }}%  </td>
                             <td style="width:10%">{{batch.purity.asString}}</td>
                             <td >
                                 <table class="print-table-inner">
@@ -308,7 +306,7 @@
                                     </tr>
                                     <tr>
                                         <td>Salt Code:</td>
-                                        <td>{{batch.saltCode.value!=0 ? batch.saltCode.name : ''}}</td>
+                                        <td>{{batch.saltCode ? batch.saltCode.name : '00 - Parent Structure'}}</td>
                                     </tr>
                                     <tr>
                                         <td>Salt EQ:</td>
@@ -317,7 +315,7 @@
                                     <tr>
                                         <!--add field?-->
                                         <td>Batch Owner:</td>
-                                        <td>{{ joinUsers(reactionDetails.batchOwner)}}</td>
+                                        <td>{{ joinArr(reactionDetails.batchOwner)}}</td>
                                     </tr>
                                     <tr>
                                         <td>Comments:</td>
@@ -398,7 +396,7 @@
                         <tr>
                             <!--no such field!-->
                             <td style="width:30%">Batch Owner</td>
-                            <td style="width:70%"> {{ joinUsers(reactionDetails.batchOwner) }}</td>
+                            <td style="width:70%"> {{ joinArr(reactionDetails.batchOwner) }}</td>
                         </tr>
                         <tr>
                             <!--no model-->
@@ -406,9 +404,9 @@
                             <td style="width:70%">{{toDigits(batch.molWeight) }}</td>
                         </tr>
                         <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Calculated Parent MW</td>
-                            <td style="width:70%"></td>
+                            <!--no model-->
+                            <td style="width:30%">Calculated Batch MF</td>
+                            <td style="width:70%">{{batch.formula}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Residual Solvents</td>
@@ -417,16 +415,6 @@
                         <tr>
                             <td style="width:30%">Solubility in Solvents</td>
                             <td style="width:70%">{{batch.solubility.asString}}</td>
-                        </tr>
-                        <tr>
-                            <!--no model-->
-                            <td style="width:30%">Calculated Batch MF</td>
-                            <td style="width:70%">{{batch.formula}}</td>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Calculated Parent MF</td>
-                            <td style="width:70%">{{}}</td>
                         </tr>
                         <tr>
                             <td style="width:30%">Precursor/Reactant IDs</td>
@@ -483,7 +471,7 @@
                             <th style="width:20%">Concept Keywords:</th>
                             <td style="width:30%">{{conceptDetails.keywords}}</td>
                             <th style="width:20%">Designers</th>
-                            <td style="width:30%">{{joinUsers(conceptDetails.designers)}}</td>
+                            <td style="width:30%">{{joinArr(conceptDetails.designers)}}</td>
                         </tr>
                     </table>
                 </div>
@@ -513,7 +501,7 @@
                             <td style="width:20%">
                                    <div><img ng-if="compound.structure.image"
                                           class="img-responsive"
-                                          style="height:100px;"
+                                          style="max-height:200px; margin: 0 auto"
                                           ng-src="data:image/svg+xml;base64,{{compound.structure.image}}"
                                           alt="Image is unavailable."></div>
 

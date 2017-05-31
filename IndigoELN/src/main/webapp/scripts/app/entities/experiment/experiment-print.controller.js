@@ -45,11 +45,11 @@ angular.module('indigoeln').controller('ExperimentPrintController',
             var val = o.value ? Number(o.value) : Number(o);
             if (!val) return '';
             var unit = o.unit ? ' ' + o.unit : ''; 
-            return val.toFixed(3).replace(/\.000$/, '') + unit;
+            return val.toFixed(3).replace(/0+$/,'') + unit;
         }
-        $scope.joinUsers = function(users) {
-            return users.map(function(u) { return u.name }).join(', ');
+        $scope.joinArr = function(users, fi) {
+            return users ? users.map(function(u) { return fi ? u[fi] : u.name }).join(', ') : null;
         }
-        console.warn($scope.batchSummary)
+        console.warn($scope.experiment)
 
     });
