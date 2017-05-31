@@ -204,7 +204,7 @@
                             <td style="width:8%">{{toDigits(reactant.weight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.mol)}}</td>
                             <td style="width:8%">{{toDigits(reactant.volume)}}</td>
-                            <td style="width:8%">{{reactant.eq.value}}</td>
+                            <td style="width:8%">{{toDigits(reactant.eq)}}</td>
                             <td style="width:30%">
                                 <table class="print-table-inner">
                                     <tr>
@@ -291,6 +291,7 @@
                                           style="height:100px;"
                                           ng-src="data:image/svg+xml;base64,{{batch.structure.image}}"
                                           alt="Image is unavailable."></div>
+                                <p>{{batch.stereoisomer.name }}</p> 
                             </td>
                             <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
                             <td style="width:10%">{{toDigits(batch.yield)}} </td>
