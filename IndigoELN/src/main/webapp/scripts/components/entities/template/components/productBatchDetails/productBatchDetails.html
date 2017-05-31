@@ -4,7 +4,7 @@
     </div>
     <div class="panel-body collapsible">
         <form class="form-inline form-batch-details" ng-init = "init()">
-            <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
+            <label>Notebook Batch #: <span>{{notebookId}}-</span></label>
             <my-select
                     my-model="selectedBatch"
                     my-items="model.productBatchSummary.batches"

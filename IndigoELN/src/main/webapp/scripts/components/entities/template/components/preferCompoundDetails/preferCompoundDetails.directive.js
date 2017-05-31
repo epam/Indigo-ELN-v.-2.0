@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .directive('preferredCompoundDetails', function (InfoEditor, AppValues, CalculationService) {
+    .directive('preferredCompoundDetails', function (InfoEditor, AppValues, CalculationService, EntitiesBrowser) {
         return {
             restrict: 'E',
             replace: true,
@@ -10,6 +10,8 @@ angular.module('indigoeln')
                 $scope.model.preferredCompoundSummary = $scope.model.preferredCompoundSummary || {};
                 $scope.showStructure = false;
                 $scope.showSummary =false;
+
+                $scope.notebookId = EntitiesBrowser.activeTab.$$title;
 
                 $scope.selectControl = {};
 
