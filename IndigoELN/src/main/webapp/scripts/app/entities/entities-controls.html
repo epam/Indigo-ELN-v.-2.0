@@ -1,45 +1,11 @@
 <div class="controls-row">
     <ul class="controls-list">
-        <li toggle-class-child="open-menu">
+        <li ng-if="!isDashboard" ui-sref="experiment">
             <a>
-                <i class="fa fa-arrow-circle-o-up"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
+                <i class="fa fa-home"></i>
+                <span class="tooltip-icon-header">Home</span>
             </a>
         </li>
-        <li toggle-class-child="open-menu">
-            <a>
-                <i class="fa fa-cog"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
-            </a>
-        </li>
-        <li uib-dropdown on-toggle="toggled(open)" id="opened-entities-dropdown" uib-dropdown-toggle>
-            <a>
-                <i class="fa fa-th-large"></i>
-                <span class="tooltip-icon-header">Opened Entities</span>
-            </a>
-            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
-                <li ng-click="onCloseAllTabs()">
-                    <a>Close All</a>
-                </li>
-                <li ng-repeat="entity in entities">
-                    <a>
-                        <span class="capitalized d-flex"   ng-click="onTabClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
-                            <span ng-bind="entity.name + ' '+ entity.$$title"></span>&nbsp;
-                            <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close top-3"
-                            ng-click="onCloseTabClick(entity, activeTab.tabKey);" ></em>
-
-                        </span>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li toggle-class-child="open-menu">
-            <a>
-                <i class="fa fa-question-circle"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
-            </a>
-        </li>
-        <li class="item-null"><a></a></li>
         <li uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
             <a>
                 <i class="fa fa-file-o"></i>
@@ -57,35 +23,39 @@
                 </li>
             </ul>
         </li>
-        <li ng-if="!isDashboard">
-            <a ng-disabled="canUndo()"  ng-click = "onUndo()">
-                <i class="fa fa-mail-reply"></i>
-                <span class="tooltip-icon-header">Undo</span>
-            </a>
-        </li>
-        <li ng-if="!isDashboard">
-            <a  ng-disabled="canRedo()" ng-click = "onRedo()">
-                <i class="fa fa-mail-forward"></i>
-                <span class="tooltip-icon-header">Redo</span>
-            </a>
-        </li>
-        <li ng-if="!isDashboard">
+        <li toggle-class-child="open-menu" ng-hide="true">
             <a>
-                <i class="fa fa-files-o"></i>
+                <i class="fa fa-arrow-circle-o-up"></i>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
-        <li ng-if="!isDashboard">
+        <li uib-dropdown on-toggle="toggled(open)" id="opened-entities-dropdown" uib-dropdown-toggle>
             <a>
-                <i class="fa fa-inbox"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
+                <i class="fa fa-th-large"></i>
+                <span class="tooltip-icon-header">Opened Entities</span>
+            </a>
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
+                <li ng-click="onCloseAllTabs()">
+                    <a>Close All</a>
+                </li>
+                <li ng-repeat="entity in entities">
+                    <a>
+                        <span class="capitalized d-flex" ng-click="onTabClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
+                            <span ng-bind="entity.name + ' '+ entity.$$title"></span>&nbsp;
+                        <em class="glyphicon glyphicon-remove text-muted pull-right clickable experiment-tab-close top-3" ng-click="onCloseTabClick(entity, activeTab.tabKey);"></em>
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">
+            <a>
+                <i class="fa fa-search"></i>
+                <span class="tooltip-icon-header">Search</span>
             </a>
         </li>
-        <li ng-if="!isDashboard">
-            <a>
-                <i class="fa fa-folder-open"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
-            </a>
+        <li class="item-null">
+            <a></a>
         </li>
         <li ng-if="!isDashboard">
             <a>
@@ -95,21 +65,53 @@
         </li>
         <li ng-if="!isDashboard">
             <a>
+                <i class="fa fa-files-o"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li ng-if="!isDashboard">
+            <a ng-disabled="canUndo()" ng-click="onUndo()">
+                <i class="fa fa-mail-reply"></i>
+                <span class="tooltip-icon-header">Undo</span>
+            </a>
+        </li>
+        <li ng-if="!isDashboard">
+            <a ng-disabled="canRedo()" ng-click="onRedo()">
+                <i class="fa fa-mail-forward"></i>
+                <span class="tooltip-icon-header">Redo</span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a>
+                <i class="fa fa-inbox"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li ng-if="false">
+            <a>
+                <i class="fa fa-folder-open"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
+            </a>
+        </li>
+        <li ng-if="!isDashboard">
+            <a>
                 <i class="fa fa-print"></i>
                 <span class="tooltip-icon-header">Print</span>
             </a>
         </li>
-        <li ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">
+        <li ng-if="!isDashboard" class="item-null">
+            <a></a>
+        </li>
+        <li toggle-class-child="open-menu">
             <a>
-                <i class="fa fa-search"></i>
-                <span class="tooltip-icon-header"  >Search</span>
+                <i class="fa fa-cog"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
-        <li ng-if="!isDashboard" class="item-null"><a></a></li>
-        <li ng-if="!isDashboard" ui-sref="experiment">
+        <li toggle-class-child="open-menu">
             <a>
-                <i class="fa fa-home"></i>
-                <span class="tooltip-icon-header">Home</span>
+                <i class="fa fa-question-circle"></i>
+                <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
     </ul>
