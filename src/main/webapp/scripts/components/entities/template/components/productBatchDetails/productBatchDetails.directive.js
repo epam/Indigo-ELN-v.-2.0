@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 2/8/2016.
  */
 angular.module('indigoeln')
-    .directive('productBatchDetails', function (InfoEditor, AppValues, $timeout,  CalculationService, ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope, ProductBatchSummaryOperations) {
+    .directive('productBatchDetails', function (InfoEditor, AppValues, $timeout,  CalculationService, ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope, ProductBatchSummaryOperations, EntitiesBrowser) {
         return {
             restrict: 'E',
             replace: true,
@@ -12,6 +12,7 @@ angular.module('indigoeln')
                 $scope.showSummary = false;
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
                 $scope.share.stoichTable = StoichTableCache.getStoicTable();
+                $scope.notebookId = EntitiesBrowser.activeTab.$$title;
 
                 if($scope.model.productBatchSummary){
                     var _batches = $scope.model.productBatchSummary.batches || [];
