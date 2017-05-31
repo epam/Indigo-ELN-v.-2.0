@@ -131,7 +131,6 @@ angular.module('indigoeln')
                             if (callback && _.isFunction(callback)) {
                                 callback(batch);
                             }
-                            console.warn(batch.structure.image)
                             importItems(sdUnitsToImport, dicts, i + 1, addToTable, callback, complete);
                         });
                     });

@@ -4,18 +4,32 @@ angular.module('indigoeln').factory('experimentPdfCreator',
         var preparedPrintForm = function () {
             var $printFormClone = $('#print-form').clone();
             $printFormClone.find('.print-header').remove();
+            var desc = $printFormClone.find('.simditor-body').html();
+
+            $printFormClone.find('.simditor').children().remove().html(desc);
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);
                 var $checkbox = $this.find('.need-to-print');
+                if (!$checkbox.find('.checked').length) {
+                    $this.remove();
+                } else if ($checkbox.length) {
+                    $checkbox.remove();
+                }
                 $checkbox.remove();
-                //$this.find('div.col-xs-11').removeClass('col-xs-11').addClass('col-xs-12');
-                // if (!$checkbox.find('.checked').length) {
-                //     $this.remove();
-                // } else if ($checkbox.length) {
-                //     $checkbox.remove();
-                // }
+                $this.find('.print-table').each(function() {
+                    var $table = $(this);
+                    var  $tr =  $table.children().children();
+                    $tr.each(function() {
+                        var $tb = $('<table>').insertBefore($table).append($(this))
+                        //var $td = $tb.find('td,th')
+                        //$td.css('width', Math.round(1/$td.length * 100) + '%')
+                        $tb.wrap('<div class="pba"><div>');
+                    })
+                })
 
             });
+            //$printFormClone.find('td').wrapInner('<div class="pba" />')
+            
             return $printFormClone;
         };
 
@@ -44,29 +58,25 @@ angular.module('indigoeln').factory('experimentPdfCreator',
         return {
             createPDF: function (fileName, actionToApply) {
                 var $form = preparedPrintForm();
-               // $.get('/assets/print.css', function (data) {
-                   // var html = '<style>'  + data + '</style>'+ $form.html() + $form.html() + '<!--ADD_PAGE--><h1 style="page-break-before: always">Numbers</h1>' + $form.html() + '<div class="pb"> </div>' + $form.html() + '<div class="pb"> </div>' + $form.html();
-                    var data = '.for-print-only img {width: 100% } .for-print-only {font-size: 13px; color: #000; font-family: arial; } .print-component {page-break-before: auto; page-break-inside: avoid; margin: 20px 0; } .print-component.first{  margin-top: 0 } .for-print-only table {width: 100%; border-spacing: 0;    border-collapse: collapse ; } table { page-break-after:auto } tr    { page-break-inside:avoid; page-break-after:auto } td, .pba    { page-break-inside:avoid; page-break-after:auto } thead { display:table-header-group } tfoot { display:table-footer-group } .for-print-only table td, .for-print-only table th {border: 1px solid #ccc; font-size: 13px; padding: 4px; }';
+                var cssForPrint =  $('#css-for-print').html()
+                
+                //BODY ZOOM FOR LINUX VERSION ONLY! SHOULD BE MOVED TO SERVER     
+                cssForPrint = 'body { zoom: 0.75; } ' + cssForPrint;
 
-                    //BODY ZOOM FOR LINUX VERSION ONLY! SHOULD BE MOVED TO SERVER     
-                    data = 'body { zoom: 0.75;} ' + data;
-
-                    var html = '<style>'  + data + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
-                    console.warn('html', html)
-                    var $origHeader = $('#print-form').find('.print-header').parent().html();
-                    var header = '<style>'  + data + '</style> <div class="for-print-only">' +  $origHeader + '</div>';
-                    console.warn('header',  header)
-                    PdfService.create({
-                        html: '<!DOCTYPE html>' + html + '</html>',
-                        header: header,
-                        fileName: fileName,
-                        headerHeight : '70mm'
-                    }).$promise.then(function (response) {
-                        actionToApply(response);
-                    });
-                    var w = window.open('', 'wnd');
-                    w.document.body.innerHTML = header + html;
-                //});
+                var html = '<style>'  + cssForPrint + '</style> <div class="for-print-only">' +  $form.html() + '</div>';
+                var $origHeader = $('#print-form').find('.print-header').parent().html();
+                var header = '<style>'  + cssForPrint + '</style> <div class="for-print-only">' +  $origHeader + '</div>';
+                //console.warn('header',  header)
+                PdfService.create({
+                    html: '<!DOCTYPE html>' + html + '</html>',
+                    header: header,
+                    fileName: fileName,
+                    headerHeight : '70mm'
+                }).$promise.then(function (response) {
+                    actionToApply(response);
+                });
+                var w = window.open('', 'wnd');
+                w.document.body.innerHTML = header + html;
             }
         };
     });

@@ -42,13 +42,13 @@ public final class AggregationUtils {
         final Criteria criteria = Criteria.where(prefix + field);
         switch (condition) {
             case "contains":
-                criteria.regex(".*" + value + ".*");
+                criteria.regex(".*" + value + ".*","i");
                 break;
             case "starts with":
-                criteria.regex(value + ".*");
+                criteria.regex(value + ".*","i");
                 break;
             case "ends with":
-                criteria.regex(".*" + value);
+                criteria.regex(".*" + value,"i");
                 break;
             case "in":
                 criteria.in(convertToCollection(value));
