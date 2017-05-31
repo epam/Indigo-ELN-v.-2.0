@@ -36,6 +36,7 @@ angular.module('indigoeln').controller('ExperimentNewController',
         }
 
         function cancelPressed() {
+            window.history.back();
             $uibModalInstance.dismiss();
         }
 
