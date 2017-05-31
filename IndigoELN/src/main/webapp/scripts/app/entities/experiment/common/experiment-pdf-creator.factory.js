@@ -16,12 +16,15 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     $checkbox.remove();
                 }
                 $checkbox.remove();
-                var  $tr =  $this.find('.print-table').children().children();
-                $tr.each(function() {
-                    var $tb = $('<table>').appendTo($this).append($(this))
-                    //var $td = $tb.find('td,th')
-                    //$td.css('width', Math.round(1/$td.length * 100) + '%')
-                    $tb.wrap('<div class="pba"><div>');
+                $this.find('.print-table').each(function() {
+                    var $table = $(this);
+                    var  $tr =  $table.children().children();
+                    $tr.each(function() {
+                        var $tb = $('<table>').insertBefore($table).append($(this))
+                        //var $td = $tb.find('td,th')
+                        //$td.css('width', Math.round(1/$td.length * 100) + '%')
+                        $tb.wrap('<div class="pba"><div>');
+                    })
                 })
 
             });

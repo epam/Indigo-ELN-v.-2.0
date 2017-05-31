@@ -196,7 +196,10 @@
                                           style="max-height:200px; margin: 0 auto"
                                           ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}"
                                           alt="Image is unavailable."></div>
-                                <p>{{reactant.fullNbkBatch}} {{reactant.compoundId}} </p></td>
+                                <p>{{reactant.fullNbkBatch}} </p>
+                                <p> {{reactant.compoundId}} </p>
+
+                            </td>
                             <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.weight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.mol)}}</td>
@@ -368,75 +371,81 @@
                 </div>
                 <div class="col-xs-11" ng-if="batchDetails">
                     <strong class="pull-right">BATCH DETAILS</strong>
-                    <table ng-repeat="batch in batchSummary.batches track by $index" class="print-table">
-                        <tr>
-                            <th style="width:30%">For Notebook Batch:</th>
-                            <th style="width:70%">
-                                <span class="pull-left">&nbsp; {{batch.fullNbkBatch}}</span>
-                                <span class="pull-right">#barcode &nbsp;</span>
-                            </th>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Registered Date</td>
-                            <td style="width:70%">{{batch.registrationDate  | date:'MMM dd yyyy'}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Structure Comments</td>
-                            <td style="width:70%">{{batch.structureComments}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Compound Source</td>
-                            <td style="width:70%">{{batch.source.name}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Source Detail</td>
-                            <td style="width:70%">{{batch.sourceDetail.name}}</td>
-                        </tr>
-                        <tr>
-                            <!--no such field!-->
-                            <td style="width:30%">Batch Owner</td>
-                            <td style="width:70%"> {{ joinArr(reactionDetails.batchOwner) }}</td>
-                        </tr>
-                        <tr>
-                            <!--no model-->
-                            <td style="width:30%">Calculated Batch MW</td>
-                            <td style="width:70%">{{toDigits(batch.molWeight) }}</td>
-                        </tr>
-                        <tr>
-                            <!--no model-->
-                            <td style="width:30%">Calculated Batch MF</td>
-                            <td style="width:70%">{{batch.formula}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Residual Solvents</td>
-                            <td style="width:70%">{{batch.residualSolvents.asString}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Solubility in Solvents</td>
-                            <td style="width:70%">{{batch.solubility.asString}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Precursor/Reactant IDs</td>
-                            <td style="width:70%">{{batch.precursors}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">External Supplier</td>
-                            <td style="width:70%">{{batch.externalSupplier.asString}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Hazards</td>
-                            <td style="width:70%">{{batch.healthHazards.asString}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Handling</td>
-                            <td style="width:70%">{{batch.handlingPrecautions.asString}}</td>
-                        </tr>
-                        <tr>
-                            <td style="width:30%">Storage</td>
-                            <td style="width:70%">{{batch.storageInstructions.asString}}</td>
-                        </tr>
-                    </table>
+                    <div class="pba" >
+                        <div style="margin-top:20px" ng-repeat="batch in batchSummary.batches track by $index" >
+                            <table class="print-table">
+                                <tr>
+                                    <th style="width:30%">For Notebook Batch:</th>
+                                    <th style="width:70%">
+                                        <span class="pull-left">&nbsp; {{batch.fullNbkBatch}}</span>
+                                        <span class="pull-right">#barcode &nbsp;</span>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <!--no such field!-->
+                                    <td style="width:30%">Registered Date</td>
+                                    <td style="width:70%">{{batch.registrationDate  | date:'MMM dd yyyy'}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Structure Comments</td>
+                                    <td style="width:70%">{{batch.structureComments}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Compound Source</td>
+                                    <td style="width:70%">{{batch.source.name}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Source Detail</td>
+                                    <td style="width:70%">{{batch.sourceDetail.name}}</td>
+                                </tr>
+                                <tr>
+                                    <!--no such field!-->
+                                    <td style="width:30%">Batch Owner</td>
+                                    <td style="width:70%"> {{ joinArr(reactionDetails.batchOwner) }}</td>
+                                </tr>
+                                <tr>
+                                    <!--no model-->
+                                    <td style="width:30%">Calculated Batch MW</td>
+                                    <td style="width:70%">{{toDigits(batch.molWeight) }}</td>
+                                </tr>
+                                <tr>
+                                    <!--no model-->
+                                    <td style="width:30%">Calculated Batch MF</td>
+                                    <td style="width:70%">{{batch.formula}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Residual Solvents</td>
+                                    <td style="width:70%">{{batch.residualSolvents.asString}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Solubility in Solvents</td>
+                                    <td style="width:70%">{{batch.solubility.asString}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Precursor/Reactant IDs</td>
+                                    <td style="width:70%">{{batch.precursors}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">External Supplier</td>
+                                    <td style="width:70%">{{batch.externalSupplier.asString}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Hazards</td>
+                                    <td style="width:70%">{{batch.healthHazards.asString}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Handling</td>
+                                    <td style="width:70%">{{batch.handlingPrecautions.asString}}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width:30%">Storage</td>
+                                    <td style="width:70%">{{batch.storageInstructions.asString}}</td>
+                                </tr>
+                            </table>
+                        </div>    
+                    
+                    </div>
+                    
                 </div>
             </div>
 
