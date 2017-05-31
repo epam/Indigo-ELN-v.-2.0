@@ -45,7 +45,7 @@ angular.module('indigoeln').controller('ExperimentPrintController',
             var val = o.value ? Number(o.value) : Number(o);
             if (!val) return '';
             var unit = o.unit ? ' ' + o.unit : ''; 
-            return val.toFixed(3).replace(/0+$/,'') + unit;
+            return val.toFixed(3).replace(/0+$/,'').replace(/\.+$/,'')+ unit;
         }
         $scope.joinArr = function(users, fi) {
             return users ? users.map(function(u) { return fi ? u[fi] : u.name }).join(', ') : null;
