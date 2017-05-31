@@ -49,6 +49,7 @@ angular.module('indigoeln')
                 }
 
                 self.dirtyListener = $scope.$watch(tabKind, function (oldValue, newValue) {
+                    EntitiesBrowser.setCurrentForm($scope.createNotebookForm)
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
                     if (EntitiesBrowser.getActiveTab().name == "New Notebook") {
                         $scope.isBtnSaveActive = true;
@@ -109,14 +110,20 @@ angular.module('indigoeln')
             };
 
             var onSaveSuccess = function (result) {
-
                 EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
-
                 $timeout(function(){
                     $rootScope.$broadcast('notebook-created', {id: result.id, projectId: $scope.projectId});
                     $state.go('entities.notebook-detail', {projectId: $scope.projectId, notebookId: result.id});
                 });
             };
+
+            var unsubscribeExp = $scope.$watch('notebook', function () {
+                EntitiesBrowser.setCurrentEntity($scope.notebook);
+            });
+
+            $scope.$on('$destroy', function () {
+                unsubscribeExp();
+            });
 
             var onSaveError = function (result) {
                 var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook is not saved due to server error';

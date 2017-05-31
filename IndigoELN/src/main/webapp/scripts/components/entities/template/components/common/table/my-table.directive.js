@@ -2,7 +2,7 @@
  * Created by Stepan_Litvinov on 3/1/2016.
  */
 angular.module('indigoeln')
-.directive('myTableVal', function ($sce, roundFilter, Alert) {
+.directive('myTableVal', function ($sce, roundFilter, Alert, $timeout) {
 	return {
 		restrict: 'E',
 		replace: true,
@@ -14,9 +14,21 @@ angular.module('indigoeln')
 		},
 		link: function ($scope, iElement, iAttrs, myTableCtrl) {
 			var oldVal, isChanged;
+
 			$scope.toggleEditable = function ($event) {
 				var val = myTableCtrl.toggleEditable($scope.myColumn.id, $scope.myRowIndex);
 				myTableCtrl.setClosePrevious($scope.closeThis);
+				$timeout(function() {
+					iElement.find('input').on('keypress', function(e) {
+						if (e.keyCode == 13) {
+							e.preventDefault();
+							if ($scope.isEditable()) {
+								$scope.toggleEditable();
+								$scope.closeThis()
+							}
+						}
+					})
+				}, 0)
 				return val;
 			};
 			$scope.isEditable = function () {
@@ -90,6 +102,7 @@ angular.module('indigoeln')
 			$scope.unitFormatters = [function (modelValue) {
                 return +roundFilter($u(modelValue).as($scope.myRow[$scope.myColumn.id].unit).val(), $scope.myRow[$scope.myColumn.id].sigDigits, $scope.myColumn, $scope.myRow);
 			}];
+			
 		},
 		templateUrl: 'scripts/components/entities/template/components/common/table/my-table-val.html'
 	};

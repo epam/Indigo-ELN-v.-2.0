@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, $log, Alert, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+    .factory('ProductBatchSummaryOperations', function($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, $log, Alert, $window, $timeout, EntitiesBrowser, RegistrationService, Experiment, SdImportService, SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
        
         var getSelectedNonEditableBatches = function() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
@@ -13,7 +13,7 @@ angular.module('indigoeln')
         };
 
         function requestNbkBatchNumberAndAddToTable(duplicatedBatch, isSyncWithIntended) {
-            var experiment = EntitiesBrowser.getCurrentExperiment();
+            var experiment = EntitiesBrowser.getCurrentEntity();
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
             var latest = getLatestNbkBatch();
             var deferred = $q.defer();
@@ -139,7 +139,16 @@ angular.module('indigoeln')
                 return item.select;
             });
             SdExportService.exportItems(selectedBatches).then(function(data) {
-                $window.open('api/sd/download?fileName=' + data.fileName);
+                console.log('download success', data)
+                //var w = window.open('api/sd/download?fileName='+ data.fileName, 'wnd');
+                var file_path = 'api/sd/download?fileName='+ data.fileName;
+                var a = document.createElement('A');
+                a.href = file_path;
+                a.download = file_path.substr(file_path.lastIndexOf('/') + 1);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                //$window.open('api/sd/download?fileName=' + data.fileName);
             });
         };
 
@@ -222,7 +231,6 @@ angular.module('indigoeln')
                     }
                     batches.concat([]).forEach(function(b, i) {
                         if (b.select && !RegistrationUtil.isRegistered(b)) {
-                            console.log('try delete', b, i)
                             deleted++;
                             batches.splice(batches.indexOf(b), 1)
                         }

@@ -74,8 +74,12 @@ public class SignatureRepository {
             return StringUtils.EMPTY;
         }
 
-        return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
-                String.class, Collections.singletonMap("id", documentId)).getBody();
+        try {
+            return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
+                    String.class, Collections.singletonMap("id", documentId)).getBody();
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
     }
 
     public String getDocumentsInfo(Collection<String> documentIds) {
@@ -83,9 +87,12 @@ public class SignatureRepository {
             return org.apache.commons.lang3.StringUtils.EMPTY;
         }
 
-
-        return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
-                Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
+        try {
+            return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
+                    Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
     }
 
     public String getDocuments(String username) {
@@ -93,8 +100,12 @@ public class SignatureRepository {
             return StringUtils.EMPTY;
         }
 
-        return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
-                String.class, Collections.singletonMap("username", username)).getBody();
+        try {
+            return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
+                    String.class, Collections.singletonMap("username", username)).getBody();
+        } catch (Exception e) {
+            return StringUtils.EMPTY;
+        }
     }
 
     public byte[] downloadDocument(String documentId) {
@@ -102,8 +113,12 @@ public class SignatureRepository {
             return new byte[0];
         }
 
-        return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
-                byte[].class, Collections.singletonMap("id", documentId)).getBody();
+        try {
+            return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
+                    byte[].class, Collections.singletonMap("id", documentId)).getBody();
+        } catch (Exception e) {
+            return new byte[0];
+        }
     }
 
     private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz,

@@ -117,6 +117,12 @@
                 <span class="m-l5" ng-show="!isSummary">Show Notebook Content</span>
                 <span class="m-l5" ng-show="isSummary">Hide Notebook Content</span>
             </a>
+             <button type="button" class="btn btn-default" ng-disabled = "!canUndo()" ng-click="undoAction()">
+                <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
+            </button>  
+            <button  type="button" class="btn btn-default" ng-disabled = "!canRedo()" ng-click="redoAction()">
+                <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
+            </button>
         </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!isCreateChildAllowed || !notebook.id"

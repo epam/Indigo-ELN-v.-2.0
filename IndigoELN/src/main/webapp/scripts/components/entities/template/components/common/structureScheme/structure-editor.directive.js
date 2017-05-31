@@ -20,7 +20,7 @@ angular.module('indigoeln')
             }
         };
     })
-    .directive('myEditor', function (editorUtils) {
+    .directive('myEditor', function (editorUtils, Auth) {
         return {
             restrict: 'E',
             replace: true,
@@ -39,8 +39,15 @@ angular.module('indigoeln')
                     if (scope.myStructure.molfile) {
                         edt.setMolecule(scope.myStructure.molfile);
                     }
+                    
+                    setTimeout(function() {
+                        var $frame = $(frame);
+                        $frame.contents().find('svg').on('click', function() {
+                           Auth.prolong()
+                        })
+                    }, 1000)
                 };
-
+        
                 // derive structure's mol representation when cursor leaves the directive area
                 element.on('mouseleave', function () {
                     if (edt !== null) {
