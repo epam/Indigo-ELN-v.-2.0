@@ -32,9 +32,14 @@ angular.module('indigoeln')
 				return val;
 			};
 			$scope.isEditable = function () {
-				return myTableCtrl.isEditable($scope.myColumn.id, $scope.myRowIndex);
+				var enabled = true;
+				if ($scope.myColumn.checkEnabled) {
+					enabled = $scope.myColumn.checkEnabled($scope.myRow, $scope.myColumn.id )
+				}
+				return enabled && myTableCtrl.isEditable($scope.myColumn.id, $scope.myRowIndex);
 			};
-			$scope.isEmpty = function (obj) {
+			$scope.isEmpty = function (obj, col) {
+				if (obj && col.showDefault) return false;
 				return obj === 0 || _.isNull(obj) || _.isUndefined(obj) ||
 					(_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0) || obj.value === '0');
 			};
