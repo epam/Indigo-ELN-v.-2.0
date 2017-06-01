@@ -135,7 +135,13 @@ angular.module('indigoeln')
             };
 
             $scope.printExperiment = function () {
-                ExperimentUtil.printExperiment(params);
+                if ($scope.experimentForm.$dirty) {
+                    $scope.save($scope.experiment).then(function() {
+                        ExperimentUtil.printExperiment(params);
+                    })
+                } else {
+                    ExperimentUtil.printExperiment(params);
+                }
             };
             $scope.refresh = function (noExtend) {
                 $scope.loading = Experiment.get($stateParams).$promise;
