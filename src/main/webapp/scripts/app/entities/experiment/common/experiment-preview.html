@@ -195,9 +195,10 @@
                         <tr ng-repeat="batch in batchSummary.batches track by $index">
                             <td style="width:10%">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
-                                <div><img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
-                                    <p style="text-align: center; margin-top: 20px">{{batch.stereoisomer.name }}</p>
-                                </div>
+                                <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
+                                    <p style="text-align: center; margin-top: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{batch.stereoisomer.name }} {{batch.stereoisomer.description }} 2342 32 4234 234 234 234 24 234 2342 423 sd fgerg ere ter ter ter ter</p>
+                                
                             </td>
                             <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
                             <td style="width:10%">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
