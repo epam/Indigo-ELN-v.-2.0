@@ -75,7 +75,7 @@
                     </button>
                     <ul class="dropdown-menu" uib-dropdown-menu>
                         <li ng-repeat="unit in myColumn.units track by unit.name"><a href=""
-                                                                                     ng-click="unit.onClick(myRow[myColumn.id])">{{unit.name}}</a>
+                                                                                     ng-click="unitChange(); unit.onClick(myRow[myColumn.id]);">{{unit.name}}</a>
                         </li>
                     </ul>
                 </div>

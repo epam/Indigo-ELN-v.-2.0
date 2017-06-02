@@ -82,6 +82,17 @@ angular.module('indigoeln')
 					};
 				}, true));
 			}
+			$scope.unitChange = function() {
+				myTableCtrl.setDirty()
+			}
+
+			// unbinds.push($scope.$watch(function () {
+			// 	var cell= $scope.myRow[$scope.myColumn.id];
+			// 	if (_.isObject(cell) && cell.unit) return cell.unit;
+			// }, function(newVal, prevVal) {
+			// 	if (!angular.equals(newVal, prevVal))
+			// }, true))
+
             if ($scope.myColumn.hasStructurePopover) {
 				var updatePopover = function () {
 					$scope.popoverTitle = $scope.myRow[$scope.myColumn.id];
@@ -129,9 +140,9 @@ angular.module('indigoeln')
 			myDraggableRows: '=',
 			myDraggableColumns: '=',
 			myHideColumnSettings:'=',
-			mySearchColumns: '='
+			mySearchColumns: '=',
 		},
-        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout, $filter) {
+        controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout, $filter, EntitiesBrowser) {
 			var that = this;
 
 			function getColumnsProps(myColumns) {
@@ -210,6 +221,12 @@ angular.module('indigoeln')
 				}
 				return editableCell === columnId + '-' + rowIndex;
 			};
+			that.setDirty = function() {
+				var form = EntitiesBrowser.getCurrentForm();
+				if (form) {
+					form.$setDirty(true)
+				}
+			}
 			
 			$scope.isColumnReadonly = function(col, rowId) {
 				var iseditable = !that.isEditable(col.id, rowId);
