@@ -25,6 +25,28 @@ angular.module('indigoeln')
                     $state.go('entities.search-panel')
                 };
 
+                $scope.canSave = function() {
+                    return !!EntitiesBrowser.saveCurrentEntity && !!EntitiesBrowser.getCurrentForm() && EntitiesBrowser.getCurrentForm().$dirty;
+                }
+                $scope.save = function() {
+                    EntitiesBrowser.saveCurrentEntity()   
+                }
+
+                $scope.canPrint = function() {
+                    var actions = EntitiesBrowser.getEntityActions();
+                    return actions && actions.print;   
+                }
+                $scope.print = function() {
+                    EntitiesBrowser.getEntityActions().print();
+                }
+                $scope.canDuplicate = function() {
+                    var actions = EntitiesBrowser.getEntityActions();
+                    return actions && actions.duplicate;   
+                }
+                $scope.duplicate = function() {
+                    EntitiesBrowser.getEntityActions().duplicate();
+                }
             }
         };
     })
+ 

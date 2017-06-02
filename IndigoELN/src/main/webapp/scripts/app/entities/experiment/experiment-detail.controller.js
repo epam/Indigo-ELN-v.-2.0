@@ -171,11 +171,9 @@ angular.module('indigoeln')
                     });
             });
 
-            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
-            EntitiesBrowser.setSaveCurrentEntity(function() {
-                return $scope.save($scope.experiment)
-            })
-
+            $scope.saveCurrent = function() {
+                return $scope.save($scope.experiment)  
+            }
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';
             };
@@ -197,5 +195,12 @@ angular.module('indigoeln')
             $scope.isStatusSigning = function () {
                 return $scope.experiment.status === 'Signing';
             };
+            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh);
+            EntitiesBrowser.setSaveCurrentEntity($scope.saveCurrent);
+            EntitiesBrowser.setEntityActions({
+                save : $scope.saveCurrent,
+                duplicate : $scope.repeatExperiment,
+                print : $scope.printExperiment,
+            })
 
         });
