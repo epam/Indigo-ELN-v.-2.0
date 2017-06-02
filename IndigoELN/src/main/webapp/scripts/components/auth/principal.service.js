@@ -22,17 +22,18 @@ angular.module('indigoeln')
                 });
             },
             hasAnyAuthority: function (authorities) {
-                if (!_authenticated || !_identity || !_identity.authorities) {
-                    return false;
-                }
-
-                for (var i = 0; i < authorities.length; i++) {
-                    if (_identity.authorities.indexOf(authorities[i]) !== -1) {
-                        return true;
+                return this.identity().then(function (_id) {
+                    if (!_id.authorities) {
+                        return false;
                     }
-                }
+                    for (var i = 0; i < authorities.length; i++) {
+                        if (_id.authorities.indexOf(authorities[i]) !== -1) {
+                            return true;
+                        }
+                    }
 
-                return false;
+                    return false;
+                })
             },
             hasAuthorityIdentitySafe: function (authority) {
                 return this.identity().then(function (_id) {
