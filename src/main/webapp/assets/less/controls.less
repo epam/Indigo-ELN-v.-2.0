@@ -15,7 +15,9 @@
   > li {
     float: left;
     position: relative;
-
+    > a.disabled {
+      opacity: 0.5; pointer-events: none;
+    }
     > a {
       color: @controls-list-item-color;
       display: block;
