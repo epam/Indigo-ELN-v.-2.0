@@ -2,6 +2,20 @@ angular
     .module('indigoeln')
     .controller('SidebarController', function ($scope, $state, $q, localStorageService, Project, Notebook, Experiment,
                                                AllProjects, AllNotebooks, AllExperiments, Principal, $rootScope, EntitiesBrowser, $uibTooltip, $timeout) {
+
+
+
+        $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
+        $scope.USER_EDITOR = 'USER_EDITOR';
+        $scope.ROLE_EDITOR = 'ROLE_EDITOR';
+        $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
+        $scope.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
+        $scope.POPOVER_TEMPLATE = 'scripts/components/sidebar/sidebar-popover-template.html';
+        $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR, $scope.TEMPLATE_EDITOR, $scope.DICTIONARY_EDITOR].join(',');
+        $scope.myBookmarks = {};
+        $scope.allProjects = {};
+        $scope.$state = $state;
+
         var etimeout, popExperiment;
         $scope.experimentEnter = function(experiment, notebook, project) {
             if (etimeout) $timeout.cancel(etimeout)
@@ -153,20 +167,6 @@ angular
         //------------localstorage----------------
         Principal.identity(true)
             .then(function (user) {
-
-
-                $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
-                $scope.USER_EDITOR = 'USER_EDITOR';
-                $scope.ROLE_EDITOR = 'ROLE_EDITOR';
-                $scope.TEMPLATE_EDITOR = 'TEMPLATE_EDITOR';
-                $scope.DICTIONARY_EDITOR = 'DICTIONARY_EDITOR';
-                $scope.POPOVER_TEMPLATE = 'scripts/components/sidebar/sidebar-popover-template.html';
-                $scope.ADMINISTRATION_AUTHORITIES = [$scope.USER_EDITOR, $scope.ROLE_EDITOR,
-                $scope.TEMPLATE_EDITOR, $scope.DICTIONARY_EDITOR].join(',');
-                $scope.myBookmarks = {};
-                $scope.allProjects = {};
-                $scope.$state = $state;
-                
                 var USER_PREFIX = user.id + '.';
                 var FIELD_NAME = 'name';
                 var FIELD_ID = 'id';
@@ -182,8 +182,6 @@ angular
                 var SIDEBAR_MYPROJECTS_EXPERIMENTS = USER_PREFIX + 'sidebar.myprojects.experiments';
 
                 var SIDEBAR_ADMINISTRATION = USER_PREFIX + 'sidebar.administration';
-
-
                 var saveInStorage = function (data, file, field) {
                     if (typeof (field) === 'undefined') {
                         field = FIELD_ID;
