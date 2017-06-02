@@ -65,6 +65,13 @@ angular.module('indigoeln')
                 success(EntitiesBrowser.tabs[user.id])
             })
         }
+        var entityActions;
+        EntitiesBrowser.setEntityActions = function(actions) {
+            entityActions = actions
+        } 
+        EntitiesBrowser.getEntityActions = function(actions) {
+            return entityActions
+        }
         EntitiesBrowser.setUpdateCurrentEntity = function(f) {
             EntitiesBrowser.updateCurrentEntity = f;
         }
@@ -120,6 +127,8 @@ angular.module('indigoeln')
             EntitiesBrowser.saveCurrentEntity = null;
             EntitiesBrowser.activeEntity = null;
             EntitiesBrowser.activeTab = tab;
+            entityActions = null;
+            curForm = null;
         };
 
         EntitiesBrowser.getActiveTab = function () {

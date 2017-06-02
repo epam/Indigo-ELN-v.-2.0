@@ -58,15 +58,15 @@
             <a></a>
         </li>
         <li ng-if="!isDashboard">
-            <a>
+            <a ng-click="save()" ng-class="{'disabled' : !canSave() }">
                 <i class="fa fa-floppy-o"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
+                <span class="tooltip-icon-header">Save</span>
             </a>
         </li>
         <li ng-if="!isDashboard">
-            <a>
+            <a ng-click="duplicate()" ng-class="{'disabled' : !canDuplicate() }">
                 <i class="fa fa-files-o"></i>
-                <span class="tooltip-icon-header">Fake Tooltip</span>
+                <span class="tooltip-icon-header">Duplicate</span>
             </a>
         </li>
         <li ng-if="!isDashboard">
@@ -94,7 +94,7 @@
             </a>
         </li>
         <li ng-if="!isDashboard">
-            <a>
+            <a ng-click="print()" ng-class="{'disabled' : !canPrint() }">
                 <i class="fa fa-print"></i>
                 <span class="tooltip-icon-header">Print</span>
             </a>

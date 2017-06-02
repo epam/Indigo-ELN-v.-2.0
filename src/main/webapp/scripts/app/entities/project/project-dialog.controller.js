@@ -133,6 +133,9 @@ angular.module('indigoeln')
                 EntitiesBrowser.setCurrentEntity($scope.project);
             });
 
+            EntitiesBrowser.setSaveCurrentEntity($scope.save);
+            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh);
+
             $scope.$on('$destroy', function () {
                 unsubscribeExp();
             });
