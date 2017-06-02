@@ -15,7 +15,9 @@ angular.module('indigoeln')
 	            $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
 	            $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
 	            $scope.ENTITY_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR, $scope.NOTEBOOK_CREATOR, $scope.EXPERIMENT_CREATOR].join(',');
-                $scope.entities = EntitiesBrowser.getTabs();
+                EntitiesBrowser.getTabs(function(tabs) {
+                    $scope.entities = tabs;
+                })
                 $scope.onTabClick = function(tab) {
                     EntitiesBrowser.goToTab(tab);
                 }

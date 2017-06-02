@@ -163,7 +163,7 @@ angular
         });
 
         //------------localstorage----------------
-        Principal.identity()
+        Principal.identity(true)
             .then(function (user) {
                 var USER_PREFIX = user.id + '.';
 
