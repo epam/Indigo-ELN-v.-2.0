@@ -204,7 +204,6 @@ angular.module('indigoeln')
             // override the $setDirty method on ngModelController
             if (scope.myNoDirty)
                 ngModelCtrl.$setDirty = angular.noop;
-            console.log(ngModelCtrl)
         }
     }
 })
