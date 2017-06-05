@@ -292,16 +292,15 @@ angular.module('indigoeln')
                 }
 
                 $scope.recalculateSalt = function (reagent) {
-                    CalculationService.recalculateSalt(reagent).then(function () {
-                        CalculationService.recalculateStoich();
-                    });
-
                     var o = $scope.model.productBatchDetails;
                     if (o.saltCode.value == 0) {
                         o.saltEq.value = null;
                     } else {
                         o.saltEq.value = Math.abs(o.saltEq.value)
                     }
+                    CalculationService.recalculateSalt(reagent).then(function () {
+                        CalculationService.recalculateStoich();
+                    });
                 };
 
                 var unsubscribe = $scope.$watch('share.stoichTable', function (stoichTable) {
