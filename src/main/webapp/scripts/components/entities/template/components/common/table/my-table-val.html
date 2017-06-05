@@ -45,7 +45,7 @@
                  ng-src="data:image/svg+xml;base64,{{myRow[myColumn.id].image}}" alt="Image is unavailable.">
         </div>
         <div ng-if="myColumn.type == 'boolean'" ng-class="{'entered-value': myRow[myColumn.id].entered}">
-            <my-checkbox my-model="myRow[myColumn.id]"
+            <my-checkbox my-model="myRow[myColumn.id]" my-no-dirty="myColumn.noDirty"
                          my-change="myColumn.onChange({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"
                          my-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})"></my-checkbox>
         </div>

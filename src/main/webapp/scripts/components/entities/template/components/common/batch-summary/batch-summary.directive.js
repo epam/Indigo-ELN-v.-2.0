@@ -110,6 +110,7 @@ angular.module('indigoeln')
                         id: 'select',
                         name: 'Select',
                         type: 'boolean',
+                        noDirty : true,
                         actions: [
                             {
                                 name: 'Select All',
