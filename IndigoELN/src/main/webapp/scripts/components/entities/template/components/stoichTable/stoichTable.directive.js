@@ -300,12 +300,16 @@ angular.module('indigoeln')
                         type: 'select',
                         values: function () {
                             return saltCodeValues;
-                        }
+                        },
+                        showDefault : true
                     },
                     {
                         id: 'saltEq',
                         name: 'Salt EQ',
-                        type: 'scalar'
+                        type: 'scalar',
+                        checkEnabled : function(o) { 
+                            return (o.saltCode && o.saltCode.value > 0 );
+                        }
                     },
                     {
                         id: 'loadFactor',
@@ -361,15 +365,20 @@ angular.module('indigoeln')
                         values: function () {
                             return saltCodeValues;
                         },
+                        showDefault : true,
                         onClose: function (data) {
                             CalculationService.setEntered(data);
                             recalculateSalt(data.row);
                         }
+
                     },
                     {
                         id: 'saltEq',
                         name: 'Salt EQ',
                         type: 'scalar',
+                        checkEnabled : function(o) { 
+                            return (o.saltCode && o.saltCode.value > 0 );
+                        },
                         onClose: function (data) {
                             CalculationService.setEntered(data);
                             recalculateSalt(data.row);

@@ -154,5 +154,8 @@ angular.module('indigoeln')
                     }, $scope.notebook, onSaveSuccess, onSaveError).$promise;
                 }
             };
+            
+            EntitiesBrowser.setSaveCurrentEntity($scope.save);
+            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh);
 
         });

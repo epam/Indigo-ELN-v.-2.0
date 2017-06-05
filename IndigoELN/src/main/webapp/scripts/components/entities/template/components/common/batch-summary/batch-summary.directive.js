@@ -196,6 +196,7 @@ angular.module('indigoeln')
                         id: 'saltCode',
                         name: 'Salt Code',
                         type: 'select',
+                        showDefault : true,
                         values: function () {
                             return saltCodeValues;
                         },
@@ -209,6 +210,9 @@ angular.module('indigoeln')
                         name: 'Salt EQ',
                         type: 'scalar',
                         bulkAssignment: true,
+                        checkEnabled : function(o) { 
+                            return (o.saltCode && o.saltCode.value > 0 );
+                        },
                         onClose: function (data) {
                             CalculationService.setEntered(data);
                             recalculateSalt(data.row);

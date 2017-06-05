@@ -117,7 +117,6 @@ angular.module('indigoeln')
                 intendedProducts: setDefaultValues(data.stoichTable.products),
                 actualProducts: setDefaultValues(data.actualProducts)
             };
-            console.warn('requestData', requestData)
             return $http.put('api/calculations/stoich/calculate', requestData).then(function (result) {
                 $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
                 $rootScope.$broadcast('stoic-table-recalculated', result.data);
@@ -160,6 +159,7 @@ angular.module('indigoeln')
                 changedField: data.column
             };
             return $http.put('api/calculations/product/calculate/batch', requestData).then(function (result) {
+                result.data.yield = Math.round(result.data.yield)
                 _.extend(data.row, result.data);
             });
         };

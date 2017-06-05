@@ -11,16 +11,16 @@ angular.module('indigoeln')
                     element.addClass('hidden');
                 };
                 var defineVisibility = function (reset) {
-                    var result;
                     if (reset) {
                         setVisible();
                     }
-                    result = Principal.hasAnyAuthority(authorities);
-                    if (result) {
-                        setVisible();
-                    } else {
-                        setHidden();
-                    }
+                    Principal.hasAnyAuthority(authorities).then(function(result) {
+                        if (result) {
+                            setVisible();
+                        } else {
+                            setHidden();
+                        }
+                    });
                 };
 
                 if (authorities.length > 0) {

@@ -15,7 +15,9 @@ angular.module('indigoeln')
 	            $scope.NOTEBOOK_CREATORS = [$scope.CONTENT_EDITOR, $scope.NOTEBOOK_CREATOR].join(',');
 	            $scope.EXPERIMENT_CREATORS = [$scope.CONTENT_EDITOR, $scope.EXPERIMENT_CREATOR].join(',');
 	            $scope.ENTITY_CREATORS = [$scope.CONTENT_EDITOR, $scope.PROJECT_CREATOR, $scope.NOTEBOOK_CREATOR, $scope.EXPERIMENT_CREATOR].join(',');
-                $scope.entities = EntitiesBrowser.getTabs();
+                EntitiesBrowser.getTabs(function(tabs) {
+                    $scope.entities = tabs;
+                })
                 $scope.onTabClick = function(tab) {
                     EntitiesBrowser.goToTab(tab);
                 }
@@ -23,6 +25,28 @@ angular.module('indigoeln')
                     $state.go('entities.search-panel')
                 };
 
+                $scope.canSave = function() {
+                    return !!EntitiesBrowser.saveCurrentEntity && !!EntitiesBrowser.getCurrentForm() && EntitiesBrowser.getCurrentForm().$dirty;
+                }
+                $scope.save = function() {
+                    EntitiesBrowser.saveCurrentEntity()   
+                }
+
+                $scope.canPrint = function() {
+                    var actions = EntitiesBrowser.getEntityActions();
+                    return actions && actions.print;   
+                }
+                $scope.print = function() {
+                    EntitiesBrowser.getEntityActions().print();
+                }
+                $scope.canDuplicate = function() {
+                    var actions = EntitiesBrowser.getEntityActions();
+                    return actions && actions.duplicate;   
+                }
+                $scope.duplicate = function() {
+                    EntitiesBrowser.getEntityActions().duplicate();
+                }
             }
         };
     })
+ 

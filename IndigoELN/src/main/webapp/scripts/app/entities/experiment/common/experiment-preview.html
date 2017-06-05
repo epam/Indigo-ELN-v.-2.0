@@ -1,6 +1,6 @@
 <div class="panel panel-info">
     <div id="css-for-print" style="display: none">
-        .for-print-only img { width: 100% } .for-print-only { font-size: 13px; color: #000; font-family: arial; } .print-component { page-break-before: auto; page-break-inside: avoid; margin: 20px 0; } .print-component.first { margin-top: 0 } .for-print-only table { width: 100%; border-spacing: 0; table-layout: fixed; border-collapse: collapse; } table { page-break-after: auto } tr { page-break-inside: avoid; } .pba { page-break-inside: avoid; } thead { display: table-header-group } tfoot { display: table-footer-group } .for-print-only table td, .for-print-only table th { border: 1px solid #ccc; font-size: 13px; padding: 4px; word-wrap: break-word; page-break-inside: avoid; }
+        .for-print-only img { width: 100% } .for-print-only { font-size: 13px; color: #000; font-family: arial; } .print-component { page-break-before: auto; page-break-inside: avoid; margin: 20px 0; } .print-component.first { margin-top: 0 } .for-print-only table { width: 100%; border-spacing: 0; table-layout: fixed; border-collapse: collapse; } table { page-break-after: auto } tr { page-break-inside: avoid; } .pba { page-break-inside: avoid; } thead { display: table-header-group } tfoot { display: table-footer-group } .for-print-only table td, .for-print-only table th { border: 1px solid #ccc; font-size: 13px; padding: 4px; word-wrap: break-word; page-break-inside: avoid; } .for-print-only table.print-table-inner td{border:0; } .print-table-inner-td {vertical-align: top;}
     </div>
     <div class="panel-heading">Preview Experiment {{notebook.name + '-' + experiment.name}}</div>
     <div class="panel-body panel-experiment-preview">
@@ -126,7 +126,7 @@
                             <td style="width:8%">{{toDigits(reactant.mol)}}</td>
                             <td style="width:8%">{{toDigits(reactant.volume)}}</td>
                             <td style="width:8%">{{toDigits(reactant.eq)}}</td>
-                            <td style="width:30%">
+                            <td style="width:30%" class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td style="width:40%">Name:</td>
@@ -195,14 +195,15 @@
                         <tr ng-repeat="batch in batchSummary.batches track by $index">
                             <td style="width:10%">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
-                                <div><img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
-                                    <p style="text-align: center; margin-top: 20px">{{batch.stereoisomer.name }}</p>
-                                </div>
+                                <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
+                                    <p style="text-align: center; margin-top: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{batch.stereoisomer.name }} {{batch.stereoisomer.description }}</p>
+                                
                             </td>
                             <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
                             <td style="width:10%">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
                             <td style="width:10%">{{batch.purity.asString}}</td>
-                            <td>
+                            <td class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td style="width:40%">Mol Wgt:</td>
@@ -339,78 +340,77 @@
                     </div>
                 </div>
             </div>
+            <!--CONCEPT DETAIL-->
+            <div class="row print-component" ng-if="conceptDetails">
+                <div class="col-xs-1 need-to-print" ng-init="conceptDetails.needToPrint = true">
+                    <my-checkbox my-label="Print" my-model="conceptDetails.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                </div>
+                <div class="col-xs-11">
+                    <strong class="pull-right">CONCEPT DETAILS</strong>
+                    <table style="border: 1px black solid" class="print-table-simple">
+                        <tr>
+                            <th style="width:20%">Therapeutic&nbsp;Area:</th>
+                            <td style="width:30%">{{conceptDetails.therapeuticArea.name}}</td>
+                            <th style="width:20%">Creation Date:</th>
+                            <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="width:20%">Project Code:</th>
+                            <td style="width:30%">{{conceptDetails.codeAndName.name}}</td>
+                            <th style="width:20%">Inventors:</th>
+                            <!--Inventors: author + coauthors ?-->
+                            <td style="width:30%"></td>
+                        </tr>
+                        <tr>
+                            <th style="width:20%">Concept Keywords:</th>
+                            <td style="width:30%">{{conceptDetails.keywords}}</td>
+                            <th style="width:20%">Designers</th>
+                            <td style="width:30%">{{joinArr(conceptDetails.designers)}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <!--PREFERRED COMPOUNDS-->
+            <!--no such component yet ? concept(no fields), product-batch-summary?-->
+            <div class="row print-component" ng-if="preferredCompounds">
+                <div class="col-xs-1 need-to-print" ng-init="preferredCompounds.needToPrint = true">
+                    <my-checkbox my-label="Print" my-model="preferredCompounds.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                </div>
+                <div class="col-xs-11">
+                    <strong class="pull-right">PREFERRED COMPOUNDS</strong>
+                    <table class="print-table">
+                        <tr>
+                            <th style="width:20%">Structure</th>
+                            <th style="width:20%">Notebook Batch #</th>
+                            <th style="width:20%">Mol Weight</th>
+                            <th style="width:20%">Mol Formula</th>
+                            <th style="width:20%">Structure Comments</th>
+                        </tr>
+                        <tr ng-repeat="compound in preferredCompounds.compounds  track by $index">
+                            <td style="width:20%">
+                                <div><img ng-if="compound.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{compound.structure.image}}" alt="Image is unavailable."></div>
+                                <p>{{compound.virtualCompoundId}}</p>
+                            </td>
+                            <td style="width:20%">{{compound.fullNbkBatch}}</td>
+                            <td style="width:20%">{{toDigits(compound.molWeight) }}</td>
+                            <td style="width:20%">{{compound.formula}}</td>
+                            <td style="width:20%">{{compound.structureComments}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </form>
     </div>
-    <!--CONCEPT DETAIL-->
-    <div class="row print-component" ng-if="conceptDetails">
-        <div class="col-xs-1 need-to-print" ng-init="conceptDetails.needToPrint = true">
-            <my-checkbox my-label="Print" my-model="conceptDetails.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
-        </div>
-        <div class="col-xs-11">
-            <strong class="pull-right">CONCEPT DETAILS</strong>
-            <table style="border: 1px black solid" class="print-table-simple">
-                <tr>
-                    <th style="width:20%">Therapeutic&nbsp;Area:</th>
-                    <td style="width:30%">{{conceptDetails.therapeuticArea.name}}</td>
-                    <th style="width:20%">Creation Date:</th>
-                    <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}
-                    </td>
-                </tr>
-                <tr>
-                    <th style="width:20%">Project Code:</th>
-                    <td style="width:30%">{{conceptDetails.codeAndName.name}}</td>
-                    <th style="width:20%">Inventors:</th>
-                    <!--Inventors: author + coauthors ?-->
-                    <td style="width:30%"></td>
-                </tr>
-                <tr>
-                    <th style="width:20%">Concept Keywords:</th>
-                    <td style="width:30%">{{conceptDetails.keywords}}</td>
-                    <th style="width:20%">Designers</th>
-                    <td style="width:30%">{{joinArr(conceptDetails.designers)}}</td>
-                </tr>
-            </table>
-        </div>
+    <div class="btn-bottom-block tab-content-pad experiment-preview-block" style="">
+        <button ng-click="print(experiment)" ng-if="!fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-primary">
+            <span class="fa fa-print"></span><span class="m-l5">Print</span>
+        </button>
+        <button ng-click="submit()" ng-if="fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
+            <i class="fa fa-save"></i><span class="m-l5">Submit</span>
+        </button>
+        <a class="btn btn-default" onclick="window.history.back()">
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
+        </a>
     </div>
-    <!--PREFERRED COMPOUNDS-->
-    <!--no such component yet ? concept(no fields), product-batch-summary?-->
-    <div class="row print-component" ng-if="preferredCompounds">
-        <div class="col-xs-1 need-to-print" ng-init="preferredCompounds.needToPrint = true">
-            <my-checkbox my-label="Print" my-model="preferredCompounds.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
-        </div>
-        <div class="col-xs-11">
-            <strong class="pull-right">PREFERRED COMPOUNDS</strong>
-            <table class="print-table">
-                <tr>
-                    <th style="width:20%">Structure</th>
-                    <th style="width:20%">Notebook Batch #</th>
-                    <th style="width:20%">Mol Weight</th>
-                    <th style="width:20%">Mol Formula</th>
-                    <th style="width:20%">Structure Comments</th>
-                </tr>
-                <tr ng-repeat="compound in preferredCompounds.compounds  track by $index">
-                    <td style="width:20%">
-                        <div><img ng-if="compound.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{compound.structure.image}}" alt="Image is unavailable."></div>
-                        <p>{{compound.virtualCompoundId}}</p>
-                    </td>
-                    <td style="width:20%">{{compound.fullNbkBatch}}</td>
-                    <td style="width:20%">{{toDigits(compound.molWeight) }}</td>
-                    <td style="width:20%">{{compound.formula}}</td>
-                    <td style="width:20%">{{compound.structureComments}}</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-    </form>
-</div>
-<div class="btn-bottom-block tab-content-pad experiment-preview-block" style="">
-    <button ng-click="print(experiment)" ng-if="!fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-primary">
-        <span class="fa fa-print"></span><span class="m-l5">Print</span>
-    </button>
-    <button ng-click="submit()" ng-if="fullPrint" ng-disabled="print-form.$invalid || isPrinting" class="btn btn-info">
-        <i class="fa fa-save"></i><span class="m-l5">Submit</span>
-    </button>
-    <a class="btn btn-default" onclick="window.history.back()">
-        <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
-    </a>
-</div>
 </div>
