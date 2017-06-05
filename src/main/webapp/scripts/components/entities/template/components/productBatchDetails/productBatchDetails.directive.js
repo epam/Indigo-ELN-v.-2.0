@@ -286,10 +286,22 @@ angular.module('indigoeln')
                     };
                     InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
                 };
+                $scope.canEditSaltEq = function() {
+                    var o = $scope.model.productBatchDetails;
+                    return o.saltCode && o.saltCode.value != 0 
+                }
+
                 $scope.recalculateSalt = function (reagent) {
                     CalculationService.recalculateSalt(reagent).then(function () {
                         CalculationService.recalculateStoich();
                     });
+
+                    var o = $scope.model.productBatchDetails;
+                    if (o.saltCode.value == 0) {
+                        o.saltEq.value = null;
+                    } else {
+                        o.saltEq.value = Math.abs(o.saltEq.value)
+                    }
                 };
 
                 var unsubscribe = $scope.$watch('share.stoichTable', function (stoichTable) {

@@ -204,6 +204,9 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             CalculationService.setEntered(data);
                             recalculateSalt(data.row);
+                            if (data.model.value == 0) {
+                                data.row.saltEq.value = 0;
+                            }
                         }
                     },
                     {
