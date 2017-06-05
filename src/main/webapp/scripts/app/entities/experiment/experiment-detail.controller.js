@@ -135,7 +135,13 @@ angular.module('indigoeln')
             };
 
             $scope.printExperiment = function () {
-                ExperimentUtil.printExperiment(params);
+                if ($scope.experimentForm.$dirty) {
+                    $scope.save($scope.experiment).then(function() {
+                        ExperimentUtil.printExperiment(params);
+                    })
+                } else {
+                    ExperimentUtil.printExperiment(params);
+                }
             };
             $scope.refresh = function (noExtend) {
                 $scope.loading = Experiment.get($stateParams).$promise;
@@ -165,11 +171,9 @@ angular.module('indigoeln')
                     });
             });
 
-            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh)
-            EntitiesBrowser.setSaveCurrentEntity(function() {
-                return $scope.save($scope.experiment)
-            })
-
+            $scope.saveCurrent = function() {
+                return $scope.save($scope.experiment)  
+            }
             $scope.isStatusOpen = function () {
                 return $scope.experiment.status === 'Open';
             };
@@ -191,5 +195,12 @@ angular.module('indigoeln')
             $scope.isStatusSigning = function () {
                 return $scope.experiment.status === 'Signing';
             };
+            EntitiesBrowser.setUpdateCurrentEntity($scope.refresh);
+            EntitiesBrowser.setSaveCurrentEntity($scope.saveCurrent);
+            EntitiesBrowser.setEntityActions({
+                save : $scope.saveCurrent,
+                duplicate : $scope.repeatExperiment,
+                print : $scope.printExperiment,
+            })
 
         });

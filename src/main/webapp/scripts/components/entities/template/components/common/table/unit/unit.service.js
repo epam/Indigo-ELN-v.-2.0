@@ -2,10 +2,11 @@
  * Created by Stepan_Litvinov on 3/15/2016.
  */
 angular.module('indigoeln')
-    .factory('unitService', function ($uibModal, CalculationService, RegistrationUtil) {
+    .factory('unitService', function ($uibModal, CalculationService, RegistrationUtil, EntitiesBrowser) {
 
         var setUnit = function (name, item) {
             item.unit = name;
+            setDirty()
         };
 
         var toUnitNameAction = function (unit) {
@@ -25,6 +26,13 @@ angular.module('indigoeln')
                 }
             };
         };
+
+        function setDirty() {
+            var form = EntitiesBrowser.getCurrentForm();
+            if (form) {
+                form.$setDirty(true)
+            }
+        }
 
         var setUnitValueAction = {
             action: function (id) {
@@ -49,6 +57,7 @@ angular.module('indigoeln')
                             row[id].unit = result.unit;
                             row[id].entered = true;
                             CalculationService.calculateProductBatch({row: row, column: id});
+                            setDirty()
                         }
                     });
                 }, function () {

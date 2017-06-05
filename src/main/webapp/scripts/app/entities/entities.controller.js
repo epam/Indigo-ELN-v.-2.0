@@ -1,12 +1,12 @@
 angular.module('indigoeln')
-    .controller('EntitiesController', function ($scope, EntitiesBrowser, $rootScope, $q,
-                                                $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService) {
+    .controller('EntitiesController', function($scope, EntitiesBrowser, $rootScope, $q,
+        $location, $state, Principal, EntitiesCache, AlertModal, AutoRecoverEngine, Alert, Experiment, Notebook, Project, DialogService) {
 
 
 
 
 
-        var init = function () {
+        var init = function() {
 
             $scope.CONTENT_EDITOR = 'CONTENT_EDITOR';
             $scope.PROJECT_CREATOR = 'PROJECT_CREATOR';
@@ -20,26 +20,25 @@ angular.module('indigoeln')
 
             $scope.Principal = Principal;
 
-            var userId =  Principal.getIdentity().id;
-            $scope.entities = EntitiesBrowser.tabs[userId];
+            EntitiesBrowser.getTabs(function(tabs) {
+                $scope.entities = tabs;
+                $scope.tabs = tabs;
+                $scope.activeTab = EntitiesBrowser.activeTab;
+            })
 
-
-            $scope.tabs = EntitiesBrowser.tabs[userId];
-            $scope.activeTab = EntitiesBrowser.activeTab;
-
-            var unsubscribe = $scope.$watch(function () {
+            var unsubscribe = $scope.$watch(function() {
                 return EntitiesBrowser.activeTab;
-            }, function (value) {
+            }, function(value) {
                 $scope.activeTab = value;
             });
 
-            var entityClickListener = $scope.$on('entity-clicked', function (event, tab) {
+            var entityClickListener = $scope.$on('entity-clicked', function(event, tab) {
                 $scope.onTabClick(tab);
             });
-            var entityCloseListener = $scope.$on('entity-closing', function (event, tab) {
+            var entityCloseListener = $scope.$on('entity-closing', function(event, tab) {
                 $scope.onCloseTabClick(tab);
             });
-            var entityCloseAllListener = $scope.$on('entity-close-all', function () {
+            var entityCloseAllListener = $scope.$on('entity-close-all', function() {
                 $scope.onCloseAllTabs();
             });
             var entityUpdatedListener = $rootScope.$on('entity-updated', function(event, data) {
@@ -54,7 +53,7 @@ angular.module('indigoeln')
                 })
             });
 
-            $scope.$on('$destroy', function () {
+            $scope.$on('$destroy', function() {
                 unsubscribe();
                 entityClickListener();
                 entityCloseListener();
@@ -64,13 +63,13 @@ angular.module('indigoeln')
 
         };
 
-        var onSaveTab = function (tab) {
+        var onSaveTab = function(tab) {
             EntitiesBrowser.close(tab.tabKey);
             EntitiesCache.removeByKey(tab.tabKey);
         };
 
         //TODO: need to inject service by name but app does't have root elem
-        var getService = function (kind) {
+        var getService = function(kind) {
             var service;
             switch (kind) {
                 case 'project':
@@ -88,14 +87,14 @@ angular.module('indigoeln')
         };
 
 
-        var saveEntity = function(tab){
+        var saveEntity = function(tab) {
             var entityPromise = EntitiesCache.getByKey(tab.tabKey);
             if (entityPromise) {
-                entityPromise.then(function (entity) {
+                entityPromise.then(function(entity) {
                     var service = getService(tab.kind);
                     if (service) {
                         return service.update(tab.params, entity).$promise
-                            .then(function () {
+                            .then(function() {
                                 onSaveTab(tab);
                                 clearRecovery(tab)
                             });
@@ -126,47 +125,49 @@ angular.module('indigoeln')
             }
         };
 
-        $scope.onUndo = function () {
+        $scope.onUndo = function() {
             AutoRecoverEngine.undoAction(EntitiesBrowser.activeEntity);
         }
 
-        $scope.onRedo = function () {
+        $scope.onRedo = function() {
             AutoRecoverEngine.redoAction(EntitiesBrowser.activeEntity)
         }
 
-        $scope.canUndo = function () {
+        $scope.canUndo = function() {
             AutoRecoverEngine.canUndo(EntitiesBrowser.activeEntity)
         }
-        
-        $scope.canRedo = function () {
+
+        $scope.canRedo = function() {
             AutoRecoverEngine.canRedo(EntitiesBrowser.activeEntity)
         }
 
-        $scope.onCloseAllTabs = function () {
-            var editTabs =_.filter($scope.tabs, function(o) { return o.dirty; });
-            if(editTabs.length){
-                DialogService.selectEntitiesToSave(editTabs, function (tabsToSave) {
+        $scope.onCloseAllTabs = function() {
+            var editTabs = _.filter($scope.tabs, function(o) {
+                return o.dirty;
+            });
+            if (editTabs.length) {
+                DialogService.selectEntitiesToSave(editTabs, function(tabsToSave) {
                     if (tabsToSave.length) {
                         var saveEntityPromises = [];
-                        _.each(tabsToSave, function (tabToSave) {
+                        _.each(tabsToSave, function(tabToSave) {
                             saveEntityPromises.push(saveEntity(tabToSave));
                         });
-                        $q.all(saveEntityPromises).then(function () {
+                        $q.all(saveEntityPromises).then(function() {
                             // close remained tabs
-                            _.each($scope.tabs, function(tab){
+                            _.each($scope.tabs, function(tab) {
                                 onSaveTab(tab);
                                 clearRecovery(tab)
                             });
                         });
                     } else {
-                        _.each($scope.tabs, function(tab){
+                        _.each($scope.tabs, function(tab) {
                             onSaveTab(tab);
                         });
                     }
                 });
                 return;
             }
-            _.each($scope.tabs, function(tab){
+            _.each($scope.tabs, function(tab) {
                 onSaveTab(tab);
             });
         };
@@ -174,14 +175,14 @@ angular.module('indigoeln')
         function clearRecovery(tab) {
             var entityPromise = EntitiesCache.getByKey(tab.tabKey);
             if (entityPromise) {
-                entityPromise.then(function (entity) {
-                     AutoRecoverEngine.clearRecovery(tab.kind, entity)
+                entityPromise.then(function(entity) {
+                    AutoRecoverEngine.clearRecovery(tab.kind, entity)
                 })
             }
         }
-        $scope.onCloseTabClick = function (tab) {
+        $scope.onCloseTabClick = function(tab) {
             if (tab.dirty) {
-                AlertModal.save('Do you want to save the changes?', null, function (isSave) {
+                AlertModal.save('Do you want to save the changes?', null, function(isSave) {
                     if (isSave) {
                         saveEntity(tab);
                         return;
@@ -195,13 +196,14 @@ angular.module('indigoeln')
             onSaveTab(tab);
         };
 
-        $scope.openSearch = function () {
+        $scope.openSearch = function() {
             $state.go('entities.search-panel')
         };
 
-        $scope.onTabClick = function (tab) {
+        $scope.onTabClick = function(tab) {
             EntitiesBrowser.goToTab(tab);
         };
+
 
         init();
 
