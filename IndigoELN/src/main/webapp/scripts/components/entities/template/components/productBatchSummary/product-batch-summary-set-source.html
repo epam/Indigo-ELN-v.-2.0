@@ -7,18 +7,18 @@
         <my-select my-label="Source" my-items="sourceValues" my-model="source" my-label-vertical="true"
         ></my-select>
         <my-select
+                ng-if="source.name == 'External'"
                 my-label="Source Details"
                 my-items="sourceDetailExternal"
                 my-model="sourceDetail"
-                my-label-vertical="true"
-                ng-show="source.name === 'External'"
-        ></my-select>
-        <my-select my-label="Source Details"
+                my-label-vertical="true">
+        </my-select>
+        <my-select ng-if="source.name == 'Internal'"
+                   my-label="Source Details"
                    my-items="sourceDetailInternal"
                    my-model="sourceDetail"
-                   my-label-vertical="true"
-                   ng-show="source.name === 'Internal'"
-        ></my-select>
+                   my-label-vertical="true">
+        </my-select>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
