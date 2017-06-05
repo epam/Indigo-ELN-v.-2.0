@@ -28,10 +28,7 @@ angular.module('indigoeln')
         };
 
         function setDirty() {
-            var form = EntitiesBrowser.getCurrentForm();
-            if (form) {
-                form.$setDirty(true)
-            }
+           EntitiesBrowser.setCurrentFormDirty();
         }
 
         var setUnitValueAction = {
