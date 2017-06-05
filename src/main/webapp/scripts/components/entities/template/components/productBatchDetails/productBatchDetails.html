@@ -4,7 +4,7 @@
     </div>
     <div class="panel-body collapsible">
         <form class="form-inline form-batch-details" ng-init = "init()">
-            <label>Notebook Batch #: <span>{{notebookId}}-</span></label>
+            <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
             <my-select
                     my-model="selectedBatch"
                     my-items="model.productBatchSummary.batches"
@@ -117,16 +117,26 @@
                 ></my-input>
                 <my-select my-label="Source"
                            my-label-vertical="true"
-                           my-model="model.productBatchDetails.source"
-                           my-dictionary="Source"
+                           my-model="source"
+                           my-items="sourceValues"
                            my-readonly="myReadonly"
                 ></my-select>
-                <my-select my-label="Source Detail"
+                <!--Source detail block-->
+                <my-select ng-if="source.name == 'Internal'"
+                           my-label="Source Detail"
                            my-label-vertical="true"
                            my-model="model.productBatchDetails.sourceDetail"
-                           my-dictionary="Source Details"
+                           my-items="sourceDetailInternal"
                            my-readonly="myReadonly"
                 ></my-select>
+                <my-select ng-if="source.name == 'External'"
+                           my-label="Source Detail"
+                           my-label-vertical="true"
+                           my-model="model.productBatchDetails.sourceDetail"
+                           my-items="sourceDetailExternal"
+                           my-readonly="myReadonly"
+                ></my-select>
+                <!--End block-->
                 <my-select my-label="Stereoisomer Code"
                            my-label-vertical="true"
                            my-dictionary="Stereoisomer Code"
