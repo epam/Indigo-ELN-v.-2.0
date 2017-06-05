@@ -7,12 +7,16 @@ angular.module('indigoeln')
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/productBatchDetails/productBatchDetails.html',
-            controller: function ($scope, $uibModal, AlertModal) {
+            controller: function ($scope, $uibModal, AlertModal, AppValues) {
                 $scope.model = $scope.model || {};
                 $scope.showSummary = false;
                 $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
                 $scope.share.stoichTable = StoichTableCache.getStoicTable();
                 $scope.notebookId = EntitiesBrowser.activeTab.$$title;
+
+                $scope.sourceValues = AppValues.getSourceValues();
+                $scope.sourceDetailExternal = AppValues.getSourceDetailExternal();
+                $scope.sourceDetailInternal = AppValues.getSourceDetailInternal();
 
                 if($scope.model.productBatchSummary){
                     var _batches = $scope.model.productBatchSummary.batches || [];
