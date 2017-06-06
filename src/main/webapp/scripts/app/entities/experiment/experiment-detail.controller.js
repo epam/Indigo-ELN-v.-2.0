@@ -56,7 +56,7 @@ angular.module('indigoeln')
             FileUploaderCash.setFiles([]);
 
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
-                $scope.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+                $scope.isEditAllowed = (isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
             });
 
             var setStatus = function (status) {
@@ -100,7 +100,7 @@ angular.module('indigoeln')
             });
 
             var unsubscribe = $scope.$watch('experiment.status', function () {
-                $scope.isEditAllowed = $scope.isStatusOpen();
+                $scope.isEditAllowed =( isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
             });
             
             $scope.$on('$destroy', function () {

@@ -5,8 +5,9 @@ angular.module('indigoeln').factory('experimentPdfCreator',
             var $printFormClone = $('#print-form').clone();
             $printFormClone.find('.print-header').remove();
             var desc = $printFormClone.find('.simditor-body').html();
-
-            $printFormClone.find('.simditor').children().remove().html(desc);
+            console.warn(desc)
+            $printFormClone.find('.simditor').children().remove()
+            $printFormClone.find('.simditor').html(desc);
             $printFormClone.find('div.print-component').each(function () {
                 var $this = $(this);
                 var $checkbox = $this.find('.need-to-print');
