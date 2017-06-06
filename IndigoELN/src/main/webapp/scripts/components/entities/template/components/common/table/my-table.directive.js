@@ -222,10 +222,7 @@ angular.module('indigoeln')
 				return editableCell === columnId + '-' + rowIndex;
 			};
 			that.setDirty = function() {
-				var form = EntitiesBrowser.getCurrentForm();
-				if (form) {
-					form.$setDirty(true)
-				}
+				EntitiesBrowser.setCurrentFormDirty();
 			}
 			
 			$scope.isColumnReadonly = function(col, rowId) {

@@ -164,7 +164,7 @@
                           my-change="recalculateSalt(model.productBatchDetails)"
                           my-type="number"
                           my-label-vertical="true"
-                          my-readonly="myReadonly"
+                          my-readonly = "myReadonly || !canEditSaltEq()"
                 ></my-input>
                 <my-text-area my-label="Structure comments"
                               my-model="model.productBatchDetails.structureComments"

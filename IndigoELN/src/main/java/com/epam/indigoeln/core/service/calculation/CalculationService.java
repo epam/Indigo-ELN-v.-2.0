@@ -222,10 +222,6 @@ public class CalculationService {
     public RendererResult getStructureWithImage(String structure, String structureType) {
         Indigo indigo = indigoProvider.indigo();
         IndigoObject io = isMolecule(structure) ? indigo.loadMolecule(structure) : indigo.loadReaction(structure);
-
-        // auto-generate coordinates as Bingo DB doesn't store them
-        io.layout();
-
         return new RendererResult(indigoProvider.renderer(indigo).renderToBuffer(io));
     }
 

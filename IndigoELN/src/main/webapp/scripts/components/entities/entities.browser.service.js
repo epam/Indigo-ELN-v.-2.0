@@ -96,6 +96,11 @@ angular.module('indigoeln')
             curForm = form;
         };
 
+         EntitiesBrowser.setCurrentFormDirty = function () {
+            if (curForm) 
+                curForm.$setDirty(true)
+        };
+
         EntitiesBrowser.getCurrentForm = function () {
            return curForm;
         }
