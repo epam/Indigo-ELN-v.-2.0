@@ -9,6 +9,7 @@ public final class ErrorConstants {
     public static final String ERR_URI_SYNTAX = "error.uriSyntax";
     public static final String ERR_IO = "error.io";
     public static final String ERR_DATABASE_ACCESS = "error.dataAccess";
+    public static final String ERR_FILE_SIZE_LIMIT = "error.fileSizeLimit";
 
     private ErrorConstants() {
     }
