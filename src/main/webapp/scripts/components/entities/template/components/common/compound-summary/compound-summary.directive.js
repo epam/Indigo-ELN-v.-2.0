@@ -105,7 +105,7 @@ angular.module('indigoeln')
                     return compounds && compounds.length > 0 && compounds[compounds.length - 1].nbkBatch ? compounds[compounds.length - 1].nbkBatch : 0;
                 }
 
-
+                var getNotebook;
                 function requestNbkBatchNumberAndAddToTable(duplicatedCompound) {
                     var latest = getLatestNbkBatch();
                     return $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
@@ -118,7 +118,16 @@ angular.module('indigoeln')
                                     notebookId: $stateParams.notebookId
                                 }).$promise);
                             }
-                            EntitiesCache.get($stateParams).then(function (notebook) {
+                            if (!getNotebook) {
+                                getNotebook = $q.defer();
+                                Notebook.get({
+                                    projectId: $stateParams.projectId,
+                                    notebookId: $stateParams.notebookId
+                                }).$promise.then(function(notebook) {
+                                    getNotebook.resolve(notebook);
+                                })
+                            }
+                            getNotebook.promise.then(function(notebook) {
                                 var fullNbkBatch = notebook.name + '-' + $scope.experimentName + '-' + batchNumber;
                                 var fullNbkImmutablePart = notebook.name + '-' + $scope.experimentName + '-';
                                 _.each(getCompounds(), function (row) {
@@ -132,7 +141,8 @@ angular.module('indigoeln')
                                 compound.$$selected = true;
                                 addCompound(compound);
                                 $scope.onRowSelected(compound);
-                            });
+                            })
+                            
                         });
                 }
 
