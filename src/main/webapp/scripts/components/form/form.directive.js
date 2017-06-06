@@ -197,7 +197,17 @@ angular.module('indigoeln')
             });
         }
     };
-}).directive('myCheckbox', function (formUtils) {
+}).directive('noDirty', function() {
+    return {
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModelCtrl) {
+            // override the $setDirty method on ngModelController
+            if (scope.myNoDirty)
+                ngModelCtrl.$setDirty = angular.noop;
+        }
+    }
+})
+.directive('myCheckbox', function (formUtils) {
     return {
         restrict: 'E',
         replace: true,
@@ -210,7 +220,8 @@ angular.module('indigoeln')
             myChange: '&',
             myClick: '&',
             myTooltip: '@',
-            myTooltipPlacement: '@'
+            myTooltipPlacement: '@',
+            myNoDirty : '='
         },
         compile: function (tElement, tAttrs) {
             formUtils.clearLabel(tAttrs, tElement);
@@ -228,7 +239,7 @@ angular.module('indigoeln')
         template: '<div class="my-checkbox-wrapper form-group {{myClasses}}">' +
         '<div class="checkbox">' +
         '<div class="checkbox-label-wrapper" uib-tooltip="{{myTooltip}}" tooltip-placement="{{myTooltipPlacement}}" >' +
-        '<checkbox id="{{myName}}" class="btn-info my-checkbox"></checkbox> ' +
+        '<checkbox id="{{myName}}" class="btn-info my-checkbox" no-dirty="{{myNoDirty}}" ></checkbox> ' +
         '<label for="{{myName}}" ng-click="!myDisabled ? myModel = !myModel : return; myChangeAsync();">{{myLabel}}</label>' +
         '</div>' +
         '</div> ' +

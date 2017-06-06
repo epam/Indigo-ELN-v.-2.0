@@ -109,6 +109,7 @@ angular.module('indigoeln')
                 myExperimentForm: '='
             },
             link: function(scope, element) {
+                if (!scope.myExperiment) return;
                 var id = scope.myExperiment.fullId, tc, preventFirstScroll;
                 $timeout(function() {
                     tc = element.find('.tab-content');

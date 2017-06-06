@@ -301,6 +301,11 @@ angular.module('indigoeln')
                         values: function () {
                             return saltCodeValues;
                         },
+                        onClose: function (data) {
+                            if (data.model.value == 0) {
+                                data.row.saltEq.value = 0
+                            }
+                        },
                         showDefault : true
                     },
                     {
@@ -369,6 +374,9 @@ angular.module('indigoeln')
                         onClose: function (data) {
                             CalculationService.setEntered(data);
                             recalculateSalt(data.row);
+                            if (data.model.value == 0) {
+                                data.row.saltEq.value = 0
+                            }
                         }
 
                     },
@@ -427,6 +435,9 @@ angular.module('indigoeln')
                             onClose: function (data) {
                                 CalculationService.setEntered(data);
                                 recalculateSalt(data.row);
+                                if (data.row.saltCode.value == 0) {
+                                    data.row.saltEq.value = 0
+                            }
                             }
                         });
                     }

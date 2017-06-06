@@ -53,6 +53,11 @@ angular.module('indigoeln')
                                     duplicatedBatch.theoWeight = duplicatedBatch.weight;
                                     // total moles can be calculated when total weight or total Volume are added, or manually
                                     duplicatedBatch.mol = null;
+                                    saveMolecule(duplicatedBatch.structure.molfile).then(function (structureId) {
+                                        duplicatedBatch.structure.structureId = structureId;
+                                    },function () {
+                                        Alert.error('Cannot save the structure!');
+                                    });
                                 }
                                 batch = duplicatedBatch;
                             }
@@ -190,6 +195,19 @@ angular.module('indigoeln')
                 array1[_.indexOf(array1, item)] = null;
             }
         }
+
+        function saveMolecule(mol) {
+            var deferred = $q.defer();
+            $http({
+                url: 'api/bingodb/molecule/',
+                method: 'POST',
+                data: mol
+            }).success(function (structureId) {
+                deferred.resolve(structureId);
+            });
+            return deferred.promise;
+        };
+
         return {
             exportSDFile: exportSDFile,
             getSelectedNonEditableBatches: getSelectedNonEditableBatches,
