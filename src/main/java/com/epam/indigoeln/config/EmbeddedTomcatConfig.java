@@ -1,4 +1,4 @@
-package com.epam.indigoeln;
+package com.epam.indigoeln.config;
 
 import org.apache.coyote.http11.AbstractHttp11Protocol;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
