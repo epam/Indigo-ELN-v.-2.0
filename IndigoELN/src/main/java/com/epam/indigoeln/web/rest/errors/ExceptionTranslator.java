@@ -13,16 +13,14 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import com.epam.indigo.IndigoException;
+import org.springframework.web.multipart.MultipartException;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures.
@@ -133,5 +131,12 @@ public class ExceptionTranslator {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDTO processDataAccessException() {
         return new ErrorDTO(ErrorConstants.ERR_DATABASE_ACCESS, "Internal Data Access error occurred");
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    @ResponseStatus(HttpStatus.PAYLOAD_TOO_LARGE)
+    @ResponseBody
+    public ErrorDTO processFileLimitException(MultipartException e) {
+        return new ErrorDTO(ErrorConstants.ERR_FILE_SIZE_LIMIT, e.getMessage());
     }
 }
