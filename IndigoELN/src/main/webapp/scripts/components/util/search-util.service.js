@@ -34,10 +34,10 @@ function searchUtilService() {
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
                 ]},
                 batchYield: {name: 'Batch Yield%', field: 'batchYield', condition: {name: '>'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
                 ]},
                 batchPurity: {name: 'Batch Purity%', field: 'purity', condition: {name: '>'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
                 ]},
                 subject: {name: 'Subject/Title', field: 'name', condition: {name: 'contains'}, $$conditionList : [
                     {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
