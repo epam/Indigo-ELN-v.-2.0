@@ -144,7 +144,6 @@ angular.module('indigoeln')
 		},
         controller: function ($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout, $filter, EntitiesBrowser) {
 			var that = this;
-
 			function getColumnsProps(myColumns) {
 				return _.map(myColumns, function (column) {
 					column.isVisible = _.isUndefined(column.isVisible) ? true : column.isVisible;
@@ -209,6 +208,7 @@ angular.module('indigoeln')
 				editableCell = columnId + '-' + rowIndex;
 			};
 			that.isEditable = function (columnId, rowIndex) {
+				if (that.isFormReadonly) return;
 				if ($scope.myEditable) {
 					var row = $scope.rowsForDisplay[rowIndex];
 					var editable = $scope.myEditable(row, columnId);
@@ -221,6 +221,12 @@ angular.module('indigoeln')
 				}
 				return editableCell === columnId + '-' + rowIndex;
 			};
+
+			that.isFormReadonly = function() {
+				var curForm = EntitiesBrowser.getCurrentForm()
+				return  (curForm && curForm.$$isReadOnly);
+			}
+				
 			that.setDirty = function() {
 				EntitiesBrowser.setCurrentFormDirty();
 			}
