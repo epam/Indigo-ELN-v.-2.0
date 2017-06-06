@@ -294,7 +294,7 @@ angular.module('indigoeln')
                 $scope.recalculateSalt = function (reagent) {
                     var o = $scope.model.productBatchDetails;
                     if (o.saltCode.value == 0) {
-                        o.saltEq.value = null;
+                        o.saltEq.value = 0;
                     } else {
                         o.saltEq.value = Math.abs(o.saltEq.value)
                     }
