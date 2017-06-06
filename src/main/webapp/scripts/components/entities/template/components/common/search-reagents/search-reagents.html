@@ -219,6 +219,9 @@
                                 ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
                                                             !model.restrictions.searchQuery">Search
                         </button>
+                        <button class="btn btn-default" type="button" ng-click="cancel()" ng-show="!isSearchResultFound">
+                            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                        </button>
                     </div>
                 </div>
                 <div ng-show="isSearchResultFound">
