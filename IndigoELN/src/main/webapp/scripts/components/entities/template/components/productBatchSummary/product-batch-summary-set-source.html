@@ -4,21 +4,21 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <my-select my-label="Source" my-items="sourceValues" my-model="source" my-label-vertical="true"
-        ></my-select>
-        <my-select
+        <indigo-select indigo-label="Source" indigo-items="sourceValues" indigo-model="source" indigo-label-vertical="true"
+        ></indigo-select>
+        <indigo-select
                 ng-if="source.name == 'External'"
-                my-label="Source Details"
-                my-items="sourceDetailExternal"
-                my-model="sourceDetail"
-                my-label-vertical="true">
-        </my-select>
-        <my-select ng-if="source.name == 'Internal'"
-                   my-label="Source Details"
-                   my-items="sourceDetailInternal"
-                   my-model="sourceDetail"
-                   my-label-vertical="true">
-        </my-select>
+                indigo-label="Source Details"
+                indigo-items="sourceDetailExternal"
+                indigo-model="sourceDetail"
+                indigo-label-vertical="true">
+        </indigo-select>
+        <indigo-select ng-if="source.name == 'Internal'"
+                       indigo-label="Source Details"
+                       indigo-items="sourceDetailInternal"
+                       indigo-model="sourceDetail"
+                       indigo-label-vertical="true">
+        </indigo-select>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">

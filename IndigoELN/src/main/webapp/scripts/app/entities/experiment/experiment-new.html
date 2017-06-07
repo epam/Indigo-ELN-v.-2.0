@@ -4,13 +4,13 @@
             <h5 class="modal-title">Experiment creation</h5>
         </div>
         <div class="modal-body">
-            <my-select
-                    my-label="Please select template for new experiment"
-                    my-name="template"
-                    my-model="template"
-                    my-items="templates"
-                    my-label-vertical="true"
-                    ></my-select>
+            <indigo-select
+                    indigo-label="Please select template for new experiment"
+                    indigo-name="template"
+                    indigo-model="template"
+                    indigo-items="templates"
+                    indigo-label-vertical="true"
+                    ></indigo-select>
         </div>
         <div class="modal-footer">
             <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"

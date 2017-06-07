@@ -4,10 +4,10 @@
 <div class="modal-body">
     <div class="long-content-popup">
         <div class="select-from-dictionary" ng-repeat="entity in entities track by entity.tabKey">
-            <my-checkbox
-                    my-model="entity.$$saveEntity"
-                    my-label="{{entity.name | capitalize}} {{entity.$$title}}"
-            ></my-checkbox>
+            <indigo-checkbox
+                    indigo-model="entity.$$saveEntity"
+                    indigo-label="{{entity.name | capitalize}} {{entity.$$title}}"
+            ></indigo-checkbox>
         </div>
     </div>
 </div>

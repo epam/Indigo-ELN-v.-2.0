@@ -4,11 +4,11 @@
 <div class="modal-body">
     <div class="long-content-popup">
         <div class="select-from-dictionary" ng-repeat="item in dictionary.words track by item.name">
-            <my-checkbox
-                    my-model="selectedItemsFlags[$index]"
-                    my-label="{{item.name}}"
-                    my-change="selectItem($index, item.name)"
-            ></my-checkbox>
+            <indigo-checkbox
+                    indigo-model="selectedItemsFlags[$index]"
+                    indigo-label="{{item.name}}"
+                    indigo-change="selectItem($index, item.name)"
+            ></indigo-checkbox>
         </div>
     </div>
 </div>
