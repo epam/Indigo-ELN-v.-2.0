@@ -1,7 +1,7 @@
 <div class="user-management">
     <div class="row m-b20">
         <div class="col-sm-6">
-            <button class="btn btn-primary" ng-disabled="myReadonly" ng-click="upload()">
+            <button class="btn btn-primary" ng-disabled="indigoReadonly" ng-click="upload()">
                 <span class="glyphicon glyphicon-flash"></span>
                 <span class="m-l5">Attach File</span>
             </button>
@@ -13,7 +13,7 @@
             </div>
         </div>
     </div>
-    <div class="table-responsive" my-scroller="x">
+    <div class="table-responsive" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
             <tr>
@@ -36,7 +36,7 @@
                         <span class="m-l5">Download</span>
                     </a>
                     <button type="submit"
-                            ng-disabled="myReadonly"
+                            ng-disabled="indigoReadonly"
                             ng-click="delete(file)"
                             class="btn btn-info btn-small">
                         <span class="fa fa-trash"></span>

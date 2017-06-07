@@ -1,5 +1,9 @@
-angular.module('indigoeln')
-    .directive('myFileUploader', function() {
+(function () {
+    angular
+        .module('indigoeln')
+        .directive('indigoFileUploader', indigoFileUploader);
+
+    function indigoFileUploader() {
         return {
             restrict: 'E',
             replace: true,
@@ -7,7 +11,8 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/fileuploader/file-uploader.html',
             scope: {
                 uploadUrl: '@',
-                myReadonly: '='
+                indigoReadonly: '='
             }
         };
-    });
+    }
+})();

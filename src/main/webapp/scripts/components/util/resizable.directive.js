@@ -1,17 +1,25 @@
-angular.module('indigoeln')
-    .directive('sResizable', function () {
+(function () {
+    angular
+        .module('indigoeln')
+        .directive('indigoResizable', indigoResizable);
+
+    function indigoResizable() {
         return {
             restrict: 'A',
             scope: {
                 maxHeight: '=',
                 minHeight: '='
             },
-            link: function (scope, elem) {
-                elem.resizable({
-                    handles: 's',
-                    maxHeight: scope.maxHeight,
-                    minHeight: scope.minHeight
-                });
-            }
+            link: link
         };
-    });
+    }
+
+    /* @ngInject */
+    function link($scope, $elem) {
+        $elem.resizable({
+            handles: 's',
+            maxHeight: $scope.maxHeight,
+            minHeight: $scope.minHeight
+        });
+    }
+})();

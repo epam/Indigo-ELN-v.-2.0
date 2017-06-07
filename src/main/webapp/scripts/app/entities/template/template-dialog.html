@@ -2,7 +2,7 @@
     <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
         <div class="row">
             <div class="col-sm-6">
-                <my-input my-label="Name" my-model="template.name" my-validation-required="!template.name.trim()"></my-input>
+                <indigo-input indigo-label="Name" indigo-model="template.name" indigo-validation-required="!template.name.trim()"></indigo-input>
             </div>
         </div>
     </form>
@@ -19,7 +19,7 @@
                         <input type="search" class="uui-search" placeholder="Search by name or description" id="searchRole" ng-model="search.$">
                     </div>
                     <div class="panel-body-content-nopad">
-                        <div class="list-group templates-holder palette animated" scroller dragula='"components"' dragula-model='components' indeln-scroll>
+                        <div class="list-group templates-holder palette animated" scroller dragula='"components"' dragula-model='components' indigo-indeln-scroll>
                             <a class="list-group-item draggable-component" data-id="{{component.id}}"
                                ng-repeat="component in components | filter:search track by $index">
                                 <h5 class="draggable-component">{{component.name}}</h5>

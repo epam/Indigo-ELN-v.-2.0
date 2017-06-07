@@ -2,13 +2,13 @@
     <h5 class="modal-title">External Supplier Information</h5>
 </div>
 <div class="modal-body">
-    <my-select my-items="externalSupplierCodeAndNameSelect"
-               my-label="External Supplier Code & Name"
-               my-label-vertical="true"
-               my-model="externalSupplier.codeAndName"></my-select>
-    <my-input my-model="externalSupplier.catalogRegistryNumber"
-              my-label="Supplier Catalog/Registry#"
-              my-label-vertical="true"> </my-input>
+    <indigo-select indigo-items="externalSupplierCodeAndNameSelect"
+                   indigo-label="External Supplier Code & Name"
+                   indigo-label-vertical="true"
+                   indigo-model="externalSupplier.codeAndName"></indigo-select>
+    <indigo-input indigo-model="externalSupplier.catalogRegistryNumber"
+                  indigo-label="Supplier Catalog/Registry#"
+                  indigo-label-vertical="true"> </indigo-input>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="cancel()">

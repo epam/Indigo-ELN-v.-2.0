@@ -50,7 +50,7 @@
             <!--reactionDetails DETAILS-->
             <div class="row print-component" ng-if="reactionDetails">
                 <div class="col-xs-1 need-to-print" ng-init="reactionDetails.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="reactionDetails.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="reactionDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">REACTION DETAILS</strong>
@@ -86,7 +86,7 @@
             <!--SUMMARY REACTION-->
             <div class="row print-component" ng-if="reaction">
                 <div class="col-xs-1 need-to-print" ng-init="reaction.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="reaction.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="reaction.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">REACTION SCHEME</strong>
@@ -101,7 +101,7 @@
             <!--STOICHIOMETRY-->
             <div class="row print-component" ng-if="stoichTable">
                 <div class="col-xs-1 need-to-print" ng-init="stoichTable.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="stoichTable.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="stoichTable.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">STOICHIOMETRY</strong>
@@ -169,17 +169,17 @@
             <!--EXPERIMENT DESCRIPTION-->
             <div class="row print-component" ng-if="experimentDescription">
                 <div class="col-xs-1 need-to-print" ng-init="experimentDescription.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="experimentDescription.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="experimentDescription.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">EXPERIMENT DESCRIPTION</strong>
-                    <my-text-editor my-model="experimentDescription.description" my-name="experimentDescription" my-readonly="true"></my-text-editor>
+                    <indigo-text-editor indigo-model="experimentDescription.description" indigo-name="experimentDescription" indigo-readonly="true"></indigo-text-editor>
                 </div>
             </div>
             <!--BATCH INFORMATION-->
             <div class="row print-component" ng-if="batchSummary">
                 <div class="col-xs-1 need-to-print" ng-init="batchSummary.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="batchSummary.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="batchSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">BATCH INFORMATION</strong>
@@ -240,7 +240,7 @@
             <!--no such component-->
             <div class="row print-component" ng-if="registrationSummary">
                 <div class="col-xs-1 need-to-print" ng-init="registrationSummary.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="registrationSummary.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="registrationSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">REGISTRATION SUMMARY</strong>
@@ -263,7 +263,7 @@
             <!--BATCH DETAILS-->
             <div class="row print-component" ng-if="batchDetails">
                 <div class="col-xs-1 need-to-print" ng-init="batchDetails.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="batchDetails.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="batchDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11" ng-if="batchDetails">
                     <strong class="pull-right">BATCH DETAILS</strong>
@@ -343,7 +343,7 @@
             <!--CONCEPT DETAIL-->
             <div class="row print-component" ng-if="conceptDetails">
                 <div class="col-xs-1 need-to-print" ng-init="conceptDetails.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="conceptDetails.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="conceptDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">CONCEPT DETAILS</strong>
@@ -373,7 +373,7 @@
             <!--no such component yet ? concept(no fields), product-batch-summary?-->
             <div class="row print-component" ng-if="preferredCompounds">
                 <div class="col-xs-1 need-to-print" ng-init="preferredCompounds.needToPrint = true">
-                    <my-checkbox my-label="Print" my-model="preferredCompounds.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
+                    <indigo-checkbox indigo-label="Print" indigo-model="preferredCompounds.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <strong class="pull-right">PREFERRED COMPOUNDS</strong>

@@ -24,28 +24,28 @@
                     <input style="display:none" type="text" name="fakeusernameremembered"/>
                     <input style="display:none" type="password" name="fakepasswordremembered"/>
                     <div class="col-xs-6">
-                        <my-input
-                                my-label="Name"
-                                my-name="name"
-                                my-type="text"
-                                my-model="role.name"
-                                my-validation-required="true"
-                                my-validation-maxlength="50"
-                        ></my-input>
+                        <indigo-input
+                                indigo-label="Name"
+                                indigo-name="name"
+                                indigo-type="text"
+                                indigo-model="role.name"
+                                indigo-validation-required="true"
+                                indigo-validation-maxlength="50"
+                        ></indigo-input>
                     </div>
                     <div class="col-xs-12 form-group">
                         <label>Authorities</label>
                         <div class="row">
                             <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
                                 <div>
-                                    <my-checkbox
-                                            my-label="{{authority.description}}"
-                                            my-disabled="authority.readonly"
-                                            my-model="authority.checked"
-                                            my-change="updateAuthoritySelection(authority)"
-                                            my-tooltip="{{authority.tooltip}}"
-                                            my-tooltip-placement="right"
-                                    ></my-checkbox>
+                                    <indigo-checkbox
+                                            indigo-label="{{authority.description}}"
+                                            indigo-disabled="authority.readonly"
+                                            indigo-model="authority.checked"
+                                            indigo-change="updateAuthoritySelection(authority)"
+                                            indigo-tooltip="{{authority.tooltip}}"
+                                            indigo-tooltip-placement="right"
+                                    ></indigo-checkbox>
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div my-scroller="x">
+                <div indigo-scroller="x">
                     <table class="table table-striped authorities-table">
                         <thead>
                         <tr>

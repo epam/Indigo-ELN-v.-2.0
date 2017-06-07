@@ -1,8 +1,18 @@
-angular.module('indigoeln')
-    .directive('myAutorecovery', function() {
+(function () {
+    angular
+        .module('indigoeln')
+        .directive('indigoAutorecovery', indigoAutorecovery);
+
+    function indigoAutorecovery() {
         return {
+            restrict: 'E',
             templateUrl: 'scripts/app/entities/autorecovery.html',
-            link: function ($scope) {
-            }
+            link: link
         };
-    })
+    }
+
+    /* @ngInject */
+    function link($scope) {
+    }
+
+})();

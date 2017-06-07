@@ -2031,3 +2031,7 @@ ul.my-dropdown-list {
 .autorecovery .btn {
   margin-left: 10px;
 }
+
+.autorecovery > span > span {
+  text-transform: capitalize;
+}

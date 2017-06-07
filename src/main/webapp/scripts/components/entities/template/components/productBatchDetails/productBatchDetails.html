@@ -1,26 +1,26 @@
-<div class="panel panel-info component" my-collapsible-component>
+<div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         Product Batch Details
     </div>
     <div class="panel-body collapsible">
         <form class="form-inline form-batch-details" ng-init = "init()">
             <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
-            <my-select
-                    my-model="selectedBatch"
-                    my-items="model.productBatchSummary.batches"
-                    my-change="onSelectBatch()"
-                    my-item-prop="nbkBatch"
-                    my-control = "selectControl"
+            <indigo-select
+                    indigo-model="selectedBatch"
+                    indigo-items="model.productBatchSummary.batches"
+                    indigo-change="onSelectBatch()"
+                    indigo-item-prop="nbkBatch"
+                    indigo-control = "selectControl"
                     class="select-inline"
-            ></my-select>
-            <my-checkbox
-                my-model="showSummary"
-                my-label="Show summary table"
-            ></my-checkbox>
+            ></indigo-select>
+            <indigo-checkbox
+                    indigo-model="showSummary"
+                    indigo-label="Show summary table"
+            ></indigo-checkbox>
         </form>
         <indigo-batch-summary ng-if="showSummary" my-tab-support="true"  model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
-        <my-table ng-if="!showSummary" my-id="product-detail-table" my-columns="productTableColumns"
-                  my-rows="detailTable" my-readonly="myReadonly" class="my-table-wrapper table-batch-details">
+        <indigo-table ng-if="!showSummary" indigo-id="product-detail-table" indigo-columns="productTableColumns"
+                      indigo-rows="detailTable" indigo-readonly="myReadonly" class="my-table-wrapper table-batch-details">
 
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
@@ -96,194 +96,194 @@
                     </button>
                 </div>
             </div>-->
-        </my-table>
+        </indigo-table>
 
         <div class="row">
             <div class="col-md-4 col-sm-6">
-                <my-select my-label="Status"
-                           my-label-vertical="true"
-                           my-model="model.productBatchDetails.regStatus"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-input my-label="Conversational Batch number"
-                          my-model="model.productBatchDetails.conversationalBatchNumber"
-                          my-label-vertical="true"
-                          my-readonly="true"
-                ></my-input>
-                <my-input my-label="Virtual Compound Id"
-                          my-model="model.productBatchDetails.virtualCompoundId"
-                          my-label-vertical="true"
-                          my-readonly="myReadonly"
-                ></my-input>
-                <my-select my-label="Source"
-                           my-label-vertical="true"
-                           my-model="source"
-                           my-items="sourceValues"
-                           my-readonly="myReadonly"
-                ></my-select>
+                <indigo-select indigo-label="Status"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.regStatus"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Conversational Batch number"
+                              indigo-model="model.productBatchDetails.conversationalBatchNumber"
+                              indigo-label-vertical="true"
+                              indigo-readonly="true"
+                ></indigo-input>
+                <indigo-input indigo-label="Virtual Compound Id"
+                              indigo-model="model.productBatchDetails.virtualCompoundId"
+                              indigo-label-vertical="true"
+                              indigo-readonly="myReadonly"
+                ></indigo-input>
+                <indigo-select indigo-label="Source"
+                               indigo-label-vertical="true"
+                               indigo-model="source"
+                               indigo-items="sourceValues"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
                 <!--Source detail block-->
-                <my-select ng-if="source.name == 'Internal'"
-                           my-label="Source Detail"
-                           my-label-vertical="true"
-                           my-model="model.productBatchDetails.sourceDetail"
-                           my-items="sourceDetailInternal"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-select ng-if="source.name == 'External'"
-                           my-label="Source Detail"
-                           my-label-vertical="true"
-                           my-model="model.productBatchDetails.sourceDetail"
-                           my-items="sourceDetailExternal"
-                           my-readonly="myReadonly"
-                ></my-select>
+                <indigo-select ng-if="source.name == 'Internal'"
+                               indigo-label="Source Detail"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.sourceDetail"
+                               indigo-items="sourceDetailInternal"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-select ng-if="source.name == 'External'"
+                               indigo-label="Source Detail"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.sourceDetail"
+                               indigo-items="sourceDetailExternal"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
                 <!--End block-->
-                <my-select my-label="Stereoisomer Code"
-                           my-label-vertical="true"
-                           my-dictionary="Stereoisomer Code"
-                           my-item-prop="name,description"
-                           my-model="model.productBatchDetails.stereoisomer"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-simple-text my-label="Calculated Batch MW"
-                                my-model="model.productBatchDetails.molWeight.value | round"
-                                my-empty-text="none"
-                ></my-simple-text>
-                <my-simple-text my-label="Calculated Batch MF"
-                                my-model="model.productBatchDetails.formula"
-                                my-empty-text="none">
-                </my-simple-text>
-                <my-select my-label="Salt Code & Name"
-                           my-label-vertical="true"
-                           my-items="saltCodeValues"
-                           my-model="model.productBatchDetails.saltCode"
-                           my-change="recalculateSalt(model.productBatchDetails)"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-input my-label="Salt Equivalent"
-                          my-model="model.productBatchDetails.saltEq.value"
-                          my-change="recalculateSalt(model.productBatchDetails)"
-                          my-type="number"
-                          my-label-vertical="true"
-                          my-readonly = "myReadonly || !canEditSaltEq()"
-                ></my-input>
-                <my-text-area my-label="Structure comments"
-                              my-model="model.productBatchDetails.structureComments"
-                              my-label-vertical="true"
-                              my-readonly="myReadonly"
-                ></my-text-area>
+                <indigo-select indigo-label="Stereoisomer Code"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Stereoisomer Code"
+                               indigo-item-prop="name,description"
+                               indigo-model="model.productBatchDetails.stereoisomer"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-simple-text indigo-label="Calculated Batch MW"
+                                    indigo-model="model.productBatchDetails.molWeight.value | round"
+                                    indigo-empty-text="none"
+                ></indigo-simple-text>
+                <indigo-simple-text indigo-label="Calculated Batch MF"
+                                    indigo-model="model.productBatchDetails.formula"
+                                    indigo-empty-text="none">
+                </indigo-simple-text>
+                <indigo-select indigo-label="Salt Code & Name"
+                               indigo-label-vertical="true"
+                               indigo-items="saltCodeValues"
+                               indigo-model="model.productBatchDetails.saltCode"
+                               indigo-change="recalculateSalt(model.productBatchDetails)"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Salt Equivalent"
+                              indigo-model="model.productBatchDetails.saltEq.value"
+                              indigo-change="recalculateSalt(model.productBatchDetails)"
+                              indigo-type="number"
+                              indigo-label-vertical="true"
+                              indigo-readonly = "myReadonly || !canEditSaltEq()"
+                ></indigo-input>
+                <indigo-text-area indigo-label="Structure comments"
+                                  indigo-model="model.productBatchDetails.structureComments"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="myReadonly"
+                ></indigo-text-area>
             </div>
             <div class="col-md-4 col-sm-6">
-                <my-select my-label="Compound State"
-                           my-label-vertical="true"
-                           my-dictionary="Compound State"
-                           my-model="model.productBatchDetails.compoundState"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-input my-label="Precursor/Reactant IDs"
-                          my-model="model.productBatchDetails.precursors"
-                          my-label-vertical="true"
-                          my-readonly="myReadonly || share.stoichTable"
-                ></my-input>
-                <my-input my-label="Purity"
-                          my-model="model.productBatchDetails.purity.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.purity.asString">
+                <indigo-select indigo-label="Compound State"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Compound State"
+                               indigo-model="model.productBatchDetails.compoundState"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Precursor/Reactant IDs"
+                              indigo-model="model.productBatchDetails.precursors"
+                              indigo-label-vertical="true"
+                              indigo-readonly="myReadonly || share.stoichTable"
+                ></indigo-input>
+                <indigo-input indigo-label="Purity"
+                              indigo-model="model.productBatchDetails.purity.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.purity.asString">
                     <button class="btn btn-info" type="button" ng-click="editPurity()" ng-disabled="myReadonly">
                         Edit
                     </button>
-                </my-input>
-                <my-input my-label="Melting Point"
-                          my-model="model.productBatchDetails.meltingPoint.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.meltingPoint.asString"
+                </indigo-input>
+                <indigo-input indigo-label="Melting Point"
+                              indigo-model="model.productBatchDetails.meltingPoint.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.meltingPoint.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="editMeltingPoint()"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
-                <my-input my-label="Residual Solvents"
-                          my-model="model.productBatchDetails.residualSolvents.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.residualSolvents.asString"
+                </indigo-input>
+                <indigo-input indigo-label="Residual Solvents"
+                              indigo-model="model.productBatchDetails.residualSolvents.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.residualSolvents.asString"
                 >
                     <button class="btn btn-info" ng-click="editResidualSolvents()" type="button"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
-                <my-input my-label="Solubility in Solvents"
-                          my-model="model.productBatchDetails.solubility.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.solubility.asString"
+                </indigo-input>
+                <indigo-input indigo-label="Solubility in Solvents"
+                              indigo-model="model.productBatchDetails.solubility.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.solubility.asString"
                 >
                     <button class="btn btn-info" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">
                         Edit
                     </button>
-                </my-input>
-                <my-input my-label="External Supplier"
-                          my-model="model.productBatchDetails.externalSupplier.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.externalSupplier.asString"
+                </indigo-input>
+                <indigo-input indigo-label="External Supplier"
+                              indigo-model="model.productBatchDetails.externalSupplier.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.externalSupplier.asString"
                 >
                     <button class="btn btn-info" ng-click="editExternalSupplier()" type="button"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
+                </indigo-input>
             </div>
             <div class="col-md-4 col-sm-6">
-                <my-select my-label="Compound Protection"
-                           my-model="model.productBatchDetails.compoundProtection"
-                           my-label-vertical="true"
-                           my-dictionary="Compound Protection"
-                           my-readonly="myReadonly"
-                ></my-select>
-                <my-input my-label="Health Hazards"
-                          my-model="model.productBatchDetails.healthHazards.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.healthHazards.asString"
+                <indigo-select indigo-label="Compound Protection"
+                               indigo-model="model.productBatchDetails.compoundProtection"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Compound Protection"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Health Hazards"
+                              indigo-model="model.productBatchDetails.healthHazards.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.healthHazards.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="editHealthHazards()"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
-                <my-input my-label="Handling Precautions"
-                          my-model="model.productBatchDetails.handlingPrecautions.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.handlingPrecautions.asString"
+                </indigo-input>
+                <indigo-input indigo-label="Handling Precautions"
+                              indigo-model="model.productBatchDetails.handlingPrecautions.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.handlingPrecautions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="editHandlingPrecautions()"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
-                <my-input my-label="Storage Instructions"
-                          my-model="model.productBatchDetails.storageInstructions.asString"
-                          my-label-vertical="true"
-                          my-input-group="append"
-                          my-readonly="true"
-                          my-tooltip="model.productBatchDetails.storageInstructions.asString"
+                </indigo-input>
+                <indigo-input indigo-label="Storage Instructions"
+                              indigo-model="model.productBatchDetails.storageInstructions.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.storageInstructions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="editStorageInstructions()"
                             ng-disabled="myReadonly">Edit
                     </button>
-                </my-input>
-                <my-text-area my-label="Batch Comments"
-                              my-model="model.productBatchDetails.comments"
-                              my-label-vertical="true"
-                              my-readonly="myReadonly"
-                ></my-text-area>
+                </indigo-input>
+                <indigo-text-area indigo-label="Batch Comments"
+                                  indigo-model="model.productBatchDetails.comments"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="myReadonly"
+                ></indigo-text-area>
             </div>
         </div>
     </div>

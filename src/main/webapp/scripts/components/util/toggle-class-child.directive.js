@@ -1,14 +1,22 @@
-angular.module('indigoeln')
-    .directive('toggleClassChild', function () {
+(function () {
+    angular
+        .module('indigoeln')
+        .directive('indigoToggleClassChild', indigoToggleClassChild);
+
+    function indigoToggleClassChild() {
         return {
             restrict: 'A',
-            link: function (scope, element, attrs) {
-                var toggledClass = attrs.toggleClassChild;
-                element.bind('click', function (e) {
-                    e.stopPropagation();
-                    var child = element.find('ul')[0];
-                    $(child).toggleClass(toggledClass);
-                });
-            }
+            link: link
         };
-    });
+    }
+
+    /* @ngInject */
+    function link($scope, $element, $attrs) {
+        var toggledClass = $attrs.toggleClassChild;
+        $element.bind('click', function (e) {
+            e.stopPropagation();
+            var child = $element.find('ul')[0];
+            $(child).toggleClass(toggledClass);
+        });
+    }
+})();

@@ -1,4 +1,4 @@
-<div class="panel panel-info component" my-collapsible-component>
+<div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         {{myTitle}}
                 <span ng-disabled="myReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp" title="Export {{myTitle}}"
@@ -9,7 +9,7 @@
                 <span ng-disabled="myReadonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
                       title="Edit/Add {{myTitle}}" ng-click="openEditor($event)"></span>
     </div>
-    <div s-resizable max-height="300" min-height="50" ng-dblclick="openEditor($event)"
+    <div indigo-resizable max-height="300" min-height="50" ng-dblclick="openEditor($event)"
          class="panel-body text-center" ng-class="{'sizable-panel-body': image}" style="height: 150px">
         <div ng-if="model[structureType].image" style="height: 100%;" >
             <img  class="img-responsive center-block" style="height: 100%;" 

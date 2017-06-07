@@ -1,12 +1,12 @@
-<div class="panel panel-info component" my-collapsible-component>
+<div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         Stoichiometry Table
     </div>
     <div class="panel-body collapsible">
-        <my-table my-id="reactants" my-tab-support="true"  my-columns="reactantsColumns" my-rows="model.stoichTable.reactants"
-                  my-draggable-columns="true"
-                  my-draggable-rows="true" my-on-row-selected="onRowSelected"
-                  my-readonly="myReadonly" my-label="Reactants, Reagents, Solvents">
+        <indigo-table indigo-id="reactants" indigo-tab-support="true"  indigo-columns="reactantsColumns" indigo-rows="model.stoichTable.reactants"
+                      indigo-draggable-columns="true"
+                      indigo-draggable-rows="true" indigo-on-row-selected="onRowSelected"
+                      indigo-readonly="myReadonly" indigo-label="Reactants, Reagents, Solvents">
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
                     <div class="btn-group">
@@ -97,8 +97,8 @@
                     <!--<span class="m-l5">MSDS Search</span>-->
                 <!--</button>-->
             <!--</div>-->
-        </my-table>
-        <my-table my-id="intended" my-columns="productsColumns" my-rows="model.stoichTable.products"
-                  my-readonly="myReadonly" my-label="Intended Reaction Products"></my-table>
+        </indigo-table>
+        <indigo-table indigo-id="intended" indigo-columns="productsColumns" indigo-rows="model.stoichTable.products"
+                      indigo-readonly="myReadonly" indigo-label="Intended Reaction Products"></indigo-table>
     </div>
 </div>

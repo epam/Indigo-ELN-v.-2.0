@@ -4,12 +4,12 @@
             <h5 class="modal-title">Project selection</h5>
         </div>
         <div class="modal-body">
-            <my-select my-label="Please select a project for new notebook"
-                       my-label-vertical="true"
-                       my-model="selectedParent"
-                       my-items="parents"
-                       my-item-prop="name"
-            ></my-select>
+            <indigo-select indigo-label="Please select a project for new notebook"
+                           indigo-label-vertical="true"
+                           indigo-model="selectedParent"
+                           indigo-items="parents"
+                           indigo-item-prop="name"
+            ></indigo-select>
             <div style="height: 100px;">
                 <table class="table table-striped" ng-show="selectedParent">
                     <thead>

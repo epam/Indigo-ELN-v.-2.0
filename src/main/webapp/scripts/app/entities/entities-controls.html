@@ -11,19 +11,19 @@
                 <i class="fa fa-file-o"></i>
                 <span class="tooltip-icon-header">New Entity</span>
             </a>
-            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown" has-any-authority="{{ENTITY_CREATORS}}">
-                <li has-any-authority="{{PROJECT_CREATORS}}">
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown" indigo-has-any-authority="{{ENTITY_CREATORS}}">
+                <li indigo-has-any-authority="{{PROJECT_CREATORS}}">
                     <a ui-sref="entities.project-new">New Project</a>
                 </li>
-                <li has-any-authority="{{NOTEBOOK_CREATORS}}">
+                <li indigo-has-any-authority="{{NOTEBOOK_CREATORS}}">
                     <a ui-sref="notebook.select-project">New Notebook</a>
                 </li>
-                <li has-any-authority="{{EXPERIMENT_CREATORS}}">
+                <li indigo-has-any-authority="{{EXPERIMENT_CREATORS}}">
                     <a ui-sref="experiment.select-notebook-template">New Experiment</a>
                 </li>
             </ul>
         </li>
-        <li toggle-class-child="open-menu" ng-hide="true">
+        <li indigo-toggle-class-child="open-menu" ng-hide="true">
             <a>
                 <i class="fa fa-arrow-circle-o-up"></i>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
@@ -48,7 +48,7 @@
                 </li>
             </ul>
         </li>
-        <li ng-click="openSearch()" has-authority="{{GLOBAL_SEARCH}}">
+        <li ng-click="openSearch()" indigo-has-authority="{{GLOBAL_SEARCH}}">
             <a>
                 <i class="fa fa-search"></i>
                 <span class="tooltip-icon-header">Search</span>
@@ -102,13 +102,13 @@
         <li ng-if="!isDashboard" class="item-null">
             <a></a>
         </li>
-        <li toggle-class-child="open-menu">
+        <li indigo-toggle-class-child="open-menu">
             <a>
                 <i class="fa fa-cog"></i>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
-        <li toggle-class-child="open-menu">
+        <li indigo-toggle-class-child="open-menu">
             <a>
                 <i class="fa fa-question-circle"></i>
                 <span class="tooltip-icon-header">Fake Tooltip</span>

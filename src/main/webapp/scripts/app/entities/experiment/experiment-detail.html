@@ -1,5 +1,5 @@
 <div class="experiments" cg-busy="{promise:loading, minDuration:700}">
-    <div my-autorecovery></div>
+    <indigo-autorecovery></indigo-autorecovery>
     <div class="tab-content-pad">
         <div ng-init="isCollapsed=true;">
             <div class="row m-b20">
@@ -27,11 +27,11 @@
     </div>
 
     <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="save(experiment)">
-        <my-components my-template="experiment.template.templateContent"
-                       my-readonly="!isEditAllowed"
-                       my-model="experiment.components"
-                       my-experiment-form="experimentForm"
-                       my-experiment="experiment"></my-components>
+        <indigo-components indigo-template="experiment.template.templateContent"
+                           indigo-readonly="!isEditAllowed"
+                           indigo-model="experiment.components"
+                           indigo-experiment-form="experimentForm"
+                           indigo-experiment="experiment"></indigo-components>
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">

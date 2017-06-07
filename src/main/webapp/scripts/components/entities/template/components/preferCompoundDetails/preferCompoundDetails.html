@@ -1,4 +1,4 @@
-<div class="compound-component panel panel-info component " my-collapsible-component>
+<div class="compound-component panel panel-info component " indigo-collapsible-component>
     <div class="panel-heading">
         Preferred Compound Details
     </div>
@@ -6,18 +6,18 @@
         <div class="panel-body">
             <form class="form-inline form-compound-details">
                 <label>Notebook ID #: <span>{{notebookId}}-</span></label>
-                <my-select
-                        my-model="selectedCompound"
-                        my-items="model.preferredCompoundSummary.compounds"
-                        my-change="onSelectCompound()"
-                        my-item-prop="nbkBatch"
-                        my-control = "selectControl"
+                <indigo-select
+                        indigo-model="selectedCompound"
+                        indigo-items="model.preferredCompoundSummary.compounds"
+                        indigo-change="onSelectCompound()"
+                        indigo-item-prop="nbkBatch"
+                        indigo-control = "selectControl"
                         class="select-inline"
-                ></my-select>
-                <my-checkbox
-                    my-model="showSummary"
-                    my-label="Show Summary"
-                ></my-checkbox>
+                ></indigo-select>
+                <indigo-checkbox
+                        indigo-model="showSummary"
+                        indigo-label="Show Summary"
+                ></indigo-checkbox>
             </form>
 
             <indigo-compound-summary ng-if="showSummary" model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-compound-summary>
@@ -41,7 +41,7 @@
                             <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
                         </div>
                         <ul uib-dropdown-menu role="menu"
-                            my-scroller="y"
+                            indigo-scroller="y"
                             my-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
                             <li role="menuitem"
                                 style="height: 26px"
@@ -53,8 +53,8 @@
                             <li ng-repeat="column in myColumns | filter : {id:'!show-hide-columns'}"
                                 role="menuitem"
                                 ng-click="$event.stopPropagation();">
-                                <my-checkbox my-label="{{column.name}}" my-model="column.isVisible"
-                                             my-change="saveInLocalStorage();"></my-checkbox>
+                                <indigo-checkbox indigo-label="{{column.name}}" indigo-model="column.isVisible"
+                                                 indigo-change="saveInLocalStorage();"></indigo-checkbox>
                             </li>
                         </ul>
                     </div>
@@ -111,40 +111,40 @@
             </div>
             <div class="row">
                 <div class="col-xs-6">
-                    <my-input my-label="Virtual Compound Id"
-                              my-model="model.preferCompoundDetails.virtualCompoundId"
-                              my-label-vertical="true"
-                              my-readonly="myReadonly">
-                    </my-input>
-                    <my-select my-label="Sterioisomer Code"
-                               my-label-vertical="true"
-                               my-dictionary="Stereoisomer Code"
-                               my-item-prop="name,description"
-                               my-model="model.preferCompoundDetails.stereoisomer"
-                               my-readonly="myReadonly">
-                    </my-select>
-                    <my-simple-text my-label="Calculated Compound MW"
-                                    my-model="model.preferCompoundDetails.molWeight.value | round"
-                                    my-empty-text="none">
-                    </my-simple-text>
-                    <my-simple-text my-label="Calculated Compound MF"
-                                    my-model="model.preferCompoundDetails.formula"
-                                    my-empty-text="none">
-                    </my-simple-text>
+                    <indigo-input indigo-label="Virtual Compound Id"
+                                  indigo-model="model.preferCompoundDetails.virtualCompoundId"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="myReadonly">
+                    </indigo-input>
+                    <indigo-select indigo-label="Sterioisomer Code"
+                                   indigo-label-vertical="true"
+                                   indigo-dictionary="Stereoisomer Code"
+                                   indigo-item-prop="name,description"
+                                   indigo-model="model.preferCompoundDetails.stereoisomer"
+                                   indigo-readonly="myReadonly">
+                    </indigo-select>
+                    <indigo-simple-text indigo-label="Calculated Compound MW"
+                                        indigo-model="model.preferCompoundDetails.molWeight.value | round"
+                                        indigo-empty-text="none">
+                    </indigo-simple-text>
+                    <indigo-simple-text indigo-label="Calculated Compound MF"
+                                        indigo-model="model.preferCompoundDetails.formula"
+                                        indigo-empty-text="none">
+                    </indigo-simple-text>
 
-                    <my-text-area my-label="Comments"
-                                  my-model="model.preferCompoundDetails.comments"
-                                  my-label-vertical="true"
-                                  my-readonly="myReadonly">
-                    </my-text-area>
+                    <indigo-text-area indigo-label="Comments"
+                                      indigo-model="model.preferCompoundDetails.comments"
+                                      indigo-label-vertical="true"
+                                      indigo-readonly="myReadonly">
+                    </indigo-text-area>
 
                 </div>
                 <div class="col-xs-6">
-                    <my-text-area my-label="Structure comments"
-                                  my-model="model.preferCompoundDetails.structureComments"
-                                  my-label-vertical="true"
-                                  my-readonly="myReadonly">
-                    </my-text-area>
+                    <indigo-text-area indigo-label="Structure comments"
+                                      indigo-model="model.preferCompoundDetails.structureComments"
+                                      indigo-label-vertical="true"
+                                      indigo-readonly="myReadonly">
+                    </indigo-text-area>
                 </div>
             </div>
 

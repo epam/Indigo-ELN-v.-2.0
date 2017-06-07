@@ -1,68 +1,68 @@
-<div class="panel panel-info component" my-collapsible-component>
+<div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         Concept Details
     </div>
     <div class="panel-body">
         <div class="row">
             <div class="col-xs-6">
-                <my-input my-label="Concept Subject / Title" my-label-vertical="true"
-                          my-name="conceptDetailsTitle"
-                          my-model="model.conceptDetails.title"
-                          my-readonly="myReadonly">
-                </my-input>
-                <my-select my-label="Therapeutic Area"
-                           my-dictionary="Therapeutic Area"
-                           my-model="model.conceptDetails.therapeuticArea"
-                           my-label-vertical="true"
-                           my-readonly="myReadonly">
-                </my-select>
-                <my-select my-label="Project Code & Name"
-                           my-dictionary="Project Code & Name"
-                           my-model="model.conceptDetails.codeAndName"
-                           my-label-vertical="true"
-                           my-readonly="myReadonly">
-                </my-select>
-                <my-select my-label="Co-authors"
-                           my-label-vertical="true"
-                           my-readonly="myReadonly"
-                           my-items="users"
-                           my-model="model.conceptDetails.coAuthors"
-                           my-multiple="true"
-                ></my-select>
+                <indigo-input indigo-label="Concept Subject / Title" indigo-label-vertical="true"
+                              indigo-name="conceptDetailsTitle"
+                              indigo-model="model.conceptDetails.title"
+                              indigo-readonly="myReadonly">
+                </indigo-input>
+                <indigo-select indigo-label="Therapeutic Area"
+                               indigo-dictionary="Therapeutic Area"
+                               indigo-model="model.conceptDetails.therapeuticArea"
+                               indigo-label-vertical="true"
+                               indigo-readonly="myReadonly">
+                </indigo-select>
+                <indigo-select indigo-label="Project Code & Name"
+                               indigo-dictionary="Project Code & Name"
+                               indigo-model="model.conceptDetails.codeAndName"
+                               indigo-label-vertical="true"
+                               indigo-readonly="myReadonly">
+                </indigo-select>
+                <indigo-select indigo-label="Co-authors"
+                               indigo-label-vertical="true"
+                               indigo-readonly="myReadonly"
+                               indigo-items="users"
+                               indigo-model="model.conceptDetails.coAuthors"
+                               indigo-multiple="true"
+                ></indigo-select>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if-->
-                <my-select ng-if="false"
-                           my-label="Experiment Creator (Author)"
-                           my-label-vertical="true"
-                           my-readonly="myReadonly"
-                           my-items="users"
-                           my-model="model.conceptDetails.experimentCreator"
-                ></my-select>
+                <indigo-select ng-if="false"
+                               indigo-label="Experiment Creator (Author)"
+                               indigo-label-vertical="true"
+                               indigo-readonly="myReadonly"
+                               indigo-items="users"
+                               indigo-model="model.conceptDetails.experimentCreator"
+                ></indigo-select>
             </div>
             <div class="col-xs-6">
-                <my-date-picker my-label="Creation Date" my-label-vertical="true"
-                                my-model="experiment.creationDate"
-                                my-readonly="true"></my-date-picker>
-                <my-tag-input my-label="Linked Experiment"
-                              my-model="model.conceptDetails.linkedExperiments"
-                              my-readonly="myReadonly"
-                              my-label-vertical="true"
-                              my-on-click="onLinkedExperimentClick"
-                              my-on-adding="onAddLinkedExperiment"
-                              my-source="getExperiments"
-                              my-placeholder="11112222-0003, 11112222-0005"
-                              my-classes="linkedExperiments"></my-tag-input>
-                <my-select my-label="Designers"
-                           my-label-vertical="true"
-                           my-readonly="myReadonly"
-                           my-items="users"
-                           my-model="model.conceptDetails.designers"
-                           my-multiple="true"
-                ></my-select>
+                <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
+                                    indigo-model="experiment.creationDate"
+                                    indigo-readonly="true"></indigo-date-picker>
+                <indigo-tag-input indigo-label="Linked Experiment"
+                                  indigo-model="model.conceptDetails.linkedExperiments"
+                                  indigo-readonly="myReadonly"
+                                  indigo-label-vertical="true"
+                                  indigo-on-click="onLinkedExperimentClick"
+                                  indigo-on-adding="onAddLinkedExperiment"
+                                  indigo-source="getExperiments"
+                                  indigo-placeholder="11112222-0003, 11112222-0005"
+                                  indigo-classes="linkedExperiments"></indigo-tag-input>
+                <indigo-select indigo-label="Designers"
+                               indigo-label-vertical="true"
+                               indigo-readonly="myReadonly"
+                               indigo-items="users"
+                               indigo-model="model.conceptDetails.designers"
+                               indigo-multiple="true"
+                ></indigo-select>
             </div>
         </div>
-        <my-text-area my-label="Concept Keywords" my-label-vertical="true"
-                      my-model="model.conceptDetails.keywords"
-                      my-readonly="myReadonly">
-        </my-text-area>
+        <indigo-text-area indigo-label="Concept Keywords" indigo-label-vertical="true"
+                          indigo-model="model.conceptDetails.keywords"
+                          indigo-readonly="myReadonly">
+        </indigo-text-area>
     </div>
 </div>

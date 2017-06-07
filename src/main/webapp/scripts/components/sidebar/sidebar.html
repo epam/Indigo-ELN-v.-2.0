@@ -1,4 +1,4 @@
-<div class="wrapper-list-experiment" my-scroller="y" my-scroller-theme="light">
+<div class="wrapper-list-experiment" indigo-scroller="y" my-scroller-theme="light">
     <ul class="sidebar-menu animated">
         <li class="open">
             <a ng-click="toggleBookmarksProjects(myBookmarks)">
@@ -41,7 +41,7 @@
                 </li>
             </ul>
         </li>
-        <li has-authority="{{CONTENT_EDITOR}}">
+        <li indigo-has-authority="{{CONTENT_EDITOR}}">
             <a ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-sitemap"></i>
@@ -79,26 +79,26 @@
                 </li>
             </ul>
         </li>
-        <li has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
+        <li indigo-has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
             <a ng-click="toggleAdministration()">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-cogs"></i>
                 <span>Administration</span>
             </a>
             <ul class="sub-menu animated" ng-if="adminToggled">
-                <li has-authority="{{USER_EDITOR}}" ng-class="{'activ': $state.includes('entities.user-management')}"
+                <li indigo-has-authority="{{USER_EDITOR}}" ng-class="{'activ': $state.includes('entities.user-management')}"
                     ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
                     <a class="type-of-experiment ">Users</a>
                 </li>
-                <li has-authority="{{ROLE_EDITOR}}" ng-class="{'activ': $state.includes('entities.role-management')}"
+                <li indigo-has-authority="{{ROLE_EDITOR}}" ng-class="{'activ': $state.includes('entities.role-management')}"
                     ng-click="toggleAuthorities(); $event.stopPropagation();">
                     <a class="type-of-experiment">Roles</a>
                 </li>
-                <li has-authority="{{TEMPLATE_EDITOR}}" ng-class="{'activ': $state.includes('entities.template')}"
+                <li indigo-has-authority="{{TEMPLATE_EDITOR}}" ng-class="{'activ': $state.includes('entities.template')}"
                     ng-click="toggleTemplates(); $event.stopPropagation();">
                     <a class="type-of-experiment">Templates</a>
                 </li>
-                <li has-authority="{{DICTIONARY_EDITOR}}" ng-class="{'activ': $state.includes('entities.dictionary-management')}"
+                <li indigo-has-authority="{{DICTIONARY_EDITOR}}" ng-class="{'activ': $state.includes('entities.dictionary-management')}"
                     ng-click="toggleDictionaries(); $event.stopPropagation();">
                     <a class="type-of-experiment">Dictionaries</a>
                 </li>

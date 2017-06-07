@@ -1,11 +1,11 @@
 <div cg-busy="{promise:loading, minDuration:700}">
-    <my-table my-id="product-batch-summary" my-tab-support="true" my-columns="columns" my-rows="model.productBatchSummary.batches"
-              my-draggable-columns="true"
-              my-search-columns="['nbkBatch']"
-              my-readonly="myReadonly"
-              my-editable="isEditable"
-              my-on-row-selected="onRowSelected"
-              my-hide-column-settings="isHideColumnSettings"
+    <indigo-table indigo-id="product-batch-summary" indigo-tab-support="true" indigo-columns="columns" indigo-rows="model.productBatchSummary.batches"
+                  indigo-draggable-columns="true"
+                  indigo-search-columns="['nbkBatch']"
+                  indigo-readonly="myReadonly"
+                  indigo-editable="isEditable"
+                  indigo-on-row-selected="onRowSelected"
+                  indigo-hide-column-settings="isHideColumnSettings"
               ng-class="{'product-batch-register': myReadonly || !isHasCheckedRows()}">
         <div class="row m-b20">
             <div class="col-lg-8 m-bt-lg">
@@ -49,5 +49,5 @@
                 </div>
             </div>
         </div>
-    </my-table>
+    </indigo-table>
 </div>
