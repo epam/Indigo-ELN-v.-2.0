@@ -49,13 +49,14 @@ angular.module('indigoeln')
             var params = {projectId: projectId, notebookId: notebookId, experimentId: experimentId};
             var isContentEditor = pageInfo.isContentEditor;
             var hasEditAuthority = pageInfo.hasEditAuthority;
-
+            var hasEditPermission; 
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor($scope.experiment.author);
             PermissionManagement.setAccessList($scope.experiment.accessList);
             FileUploaderCash.setFiles([]);
 
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (_hasEditPermission) {
+                hasEditPermission = _hasEditPermission
                 setReadOnly()
             });
 
