@@ -3,8 +3,6 @@ package com.epam.indigoeln.config;
 import com.epam.indigoeln.core.util.JSR310DateConverters.*;
 import com.github.mongobee.Mongobee;
 import com.mongodb.Mongo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
