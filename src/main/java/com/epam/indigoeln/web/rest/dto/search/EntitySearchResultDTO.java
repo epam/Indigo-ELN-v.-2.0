@@ -12,6 +12,12 @@ public class EntitySearchResultDTO {
 
     private Details details;
 
+    private String projectId;
+
+    private String notebookId;
+
+    private String experimentId;
+
     public String getKind() {
         return kind;
     }
@@ -34,6 +40,30 @@ public class EntitySearchResultDTO {
 
     public void setDetails(Details details) {
         this.details = details;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getNotebookId() {
+        return notebookId;
+    }
+
+    public void setNotebookId(String notebookId) {
+        this.notebookId = notebookId;
+    }
+
+    public String getExperimentId() {
+        return experimentId;
+    }
+
+    public void setExperimentId(String experimentId) {
+        this.experimentId = experimentId;
     }
 
     public static class Details {
