@@ -178,10 +178,31 @@
             </button>
             <button class="btn btn-secondary" type="button" ng-click="clear()">Clear</button>
         </div>
-
-        <my-table my-id="search-result-table" my-columns="columns" my-rows="searchResults"
-                  my-draggable-columns="false"  my-search-columns="['name']"
-                  my-readonly="true"  my-hide-column-settings="true">
-        </my-table>
+        <table class="main-table table table-striped table-condensed dash-table">
+            <thead class="main-table__header">
+                <th>Entity Type</th>
+                <th>Entity Name/Id</th>
+                <th>Creation Date</th>
+                <th>Author</th>
+                <th>Subject\Title</th>
+                <th>Actions</th>
+            </thead>
+            <tbody class="main-table__body">
+                <tr class="table-list" ng-repeat="entity in searchResultsPaged track by $index">
+                    <td class="table-list__item dash-exp-id">{{entity.kind}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.name}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.creationDate  | date:'MMM dd yyyy'}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.author}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.title}}</td>
+                    <td class="table-list__item dash-exp-id">
+                        <a class="search-action" ng-click="goTo(entity)">Open</a>
+                        <a class="search-action" ng-click="goTo(entity, true)">Print</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-center" ng-show="searchResults.length > searchResultsPaged.length">
+          <uib-pagination class="pagination-sm" total-items="searchResults.length" items-per-page="itemsPerPage" ng-model="page" ng-change="doPage()"></uib-pagination>
+      </div>
     </div>
 </div>
