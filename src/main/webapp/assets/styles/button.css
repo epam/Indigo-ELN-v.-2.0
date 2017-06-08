@@ -341,3 +341,26 @@ fieldset[disabled] .editable-buttons .btn.focus {
   color: #53c4f9;
   background-color: #fff;
 }
+.btn-can-loading {
+  transition: padding-left ease-out 0.5s;
+}
+.btn-loading {
+  padding-left: 40px;
+  position: relative;
+}
+.btn-loading:before {
+  background: url(../images/spin.svg) no-repeat center;
+  background-size: 36px;
+  height: 30px;
+  content: '';
+  width: 30px;
+  display: inline-block;
+  position: absolute;
+  margin-left: -40px;
+  top: 2px;
+}
+.btn-small.btn-loading:before {
+  height: 18px;
+  width: 18px;
+  margin-left: -35px;
+}
