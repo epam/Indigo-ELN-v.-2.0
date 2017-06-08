@@ -8,10 +8,7 @@ angular.module('indigoeln')
                 //building absolute path so that websocket doesn't fail when deploying with a context path
                 var loc = $window.location;
                 var url = '//' + loc.host + loc.pathname + 'websocket';
-                var url = 'http://ecse00100843.epam.com/websocket' 
                 var socket = new SockJS(url);
-
-
                 stompClient = Stomp.over(socket);
                 var headers = {};
                 headers['X-CSRF-TOKEN'] = $cookies.get($http.defaults.xsrfCookieName);
