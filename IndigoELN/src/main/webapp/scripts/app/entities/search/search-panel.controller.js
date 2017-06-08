@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .controller('SearchPanelController', function ($rootScope, $scope, $sce, $filter, SearchService, SearchUtilService, pageInfo) {
+    .controller('SearchPanelController', function ($rootScope, $scope, $sce, $filter, SearchService, $state, SearchUtilService, pageInfo) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         $scope.identity = pageInfo.identity;
@@ -68,50 +68,31 @@ angular.module('indigoeln')
             }
         };
 
-
-
-        $scope.columns = [
-            {
-                id: 'kind',
-                name: 'Entity Type'
-            },
-            {
-                id: 'name',
-                name: 'Entity Name/Id'
-            },
-            {
-                id: 'details',
-                name: 'Details',
-                type: 'html',
-                format: function (val) {
-                    var result = [];
-                    if (val.creationDate) {
-                        result.push('Creation date: ' + $filter('date')(val.creationDate, 'MMM DD, YYYY HH:mm:ss z'));
-                    }
-                    if (val.author) {
-                        result.push('Owner: ' + val.author);
-                    }
-                    if (val.title) {
-                        result.push('Subject\\Title: ' + val.title);
-                    }
-                    return $sce.trustAsHtml(result.join('<br/>'));
-                }
-            },
-            {
-                id: 'actions',
-                name: 'Actions'
-            }
-
-        ];
-
-
         $scope.search = function () {
             $scope.loading = true;
             var searchRequest = SearchUtilService.prepareSearchRequest($scope.model.restrictions);
             SearchService.searchAll(searchRequest, function (result) {
                 $scope.loading = false;
                 $scope.searchResults = result;
+                $scope.doPage(1)
+                console.log('result', result)
             });
         };
+        $scope.itemsPerPage= 10;
 
-    });
+        $scope.goTo = function(entity, print) {
+            var url = (print) ? entity.kind.toLowerCase() + '-print' : 'entities.' + entity.kind.toLowerCase() + '-detail';
+            $state.go(url, { experimentId  : entity.experimentId, notebookId  : entity.notebookId, projectId  : entity.projectId  });
+        }
+
+        $scope.doPage = function(page) {
+            if (page)
+                $scope.page = page;
+            else
+                page = $scope.page;
+            var ind = (page - 1) * $scope.itemsPerPage;
+            $scope.searchResultsPaged = $scope.searchResults.slice(ind, ind + $scope.itemsPerPage);
+            console.log($scope.searchResults, $scope.searchResultsPaged)
+        }
+
+   });
