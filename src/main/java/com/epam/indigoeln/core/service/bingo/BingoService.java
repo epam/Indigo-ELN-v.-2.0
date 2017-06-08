@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.bingo;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.config.bingo.BingoProperties;
 import com.epam.indigoeln.core.service.bingo.dto.BingoResponse;
 import com.epam.indigoeln.core.service.bingo.dto.BingoStructure;
@@ -31,7 +32,7 @@ public class BingoService {
         try {
             BingoResponse response = getResponse(HttpMethod.GET, "/structures/" + id, StringUtils.EMPTY);
 
-            if (response.getStructures() != null && response.getStructures().size() > 0) {
+            if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getStructure());
             }
         } catch (Exception e) {
@@ -45,7 +46,7 @@ public class BingoService {
         try {
             BingoResponse response = getResponse(HttpMethod.POST, "/structures", s);
 
-            if (response.getStructures() != null && response.getStructures().size() > 0) {
+            if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
@@ -59,7 +60,7 @@ public class BingoService {
         try {
             BingoResponse response = getResponse(HttpMethod.PUT, "/structures/" + id, s);
 
-            if (response.getStructures() != null && response.getStructures().size() > 0) {
+            if (response.getStructures() != null && !response.getStructures().isEmpty()) {
                 return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
@@ -91,20 +92,21 @@ public class BingoService {
 
     private BingoResponse getResponse(HttpMethod method, String endpoint, String body) {
         String basic = bingoProperties.getUsername() + ":" + bingoProperties.getPassword();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Basic " + Base64.encodeBase64String(basic.getBytes()));
+        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
         ResponseEntity<BingoResponse> resp = new RestTemplate().exchange(
                 bingoProperties.getApiUrl() + endpoint,
                 method,
-                new HttpEntity<>(body, new HttpHeaders() {{
-                    set("Authorization", "Basic " + Base64.encodeBase64String(basic.getBytes()));
-                }}),
+                requestEntity,
                 BingoResponse.class);
 
         if (resp.getStatusCode() == HttpStatus.OK) {
             return resp.getBody();
         }
 
-        throw new RuntimeException("Error executing BingoDB request");
+        throw new IndigoRuntimeException("Error executing BingoDB request");
     }
 
     /* Molecule */

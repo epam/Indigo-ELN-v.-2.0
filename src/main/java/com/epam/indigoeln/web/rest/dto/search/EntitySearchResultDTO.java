@@ -1,7 +1,5 @@
 package com.epam.indigoeln.web.rest.dto.search;
 
-import com.epam.indigoeln.core.model.User;
-
 import java.time.ZonedDateTime;
 
 public class EntitySearchResultDTO {
