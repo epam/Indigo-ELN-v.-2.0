@@ -15,7 +15,8 @@
         .for-print-only table.print-table-inner {width: auto;}
         .for-print-only table.print-table-inner td{border:0; padding: 0 0 5px;} .print-table-inner-td {vertical-align: top;}
         .for-print-only .pba:not(:first-of-type) tr td {border-top: none;}
-        .simditor {border : 1px solid #ccc; padding:10px}
+        .for-print-only .pba:not(:first-of-type) tr td p {text-align: center;}
+        .simditor {border : 1px solid #ccc; padding:10px; margin-bottom: 50px;}
     </div>
     <div class="panel-heading">Preview Experiment {{notebook.name + '-' + experiment.name}}</div>
     <div class="panel-body panel-experiment-preview">
@@ -135,14 +136,14 @@
                             <td style="width:30%">
                                 <div><img ng-if="reactant.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}" alt="Image is unavailable."></div>
                                 <p class="text-center m-t10">{{reactant.fullNbkBatch}} </p>
-                                <p> {{reactant.compoundId}} </p>
+                                <p class="text-center m-t10"> {{reactant.compoundId}} </p>
                             </td>
                             <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.weight) }}</td>
                             <td style="width:8%">{{toDigits(reactant.mol)}}</td>
                             <td style="width:8%">{{toDigits(reactant.volume)}}</td>
                             <td style="width:8%">{{toDigits(reactant.eq)}}</td>
-                            <td style="width:30%"  class="print-table-inner-td">
+                            <td style="width:30%" class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td>Name:</td>
@@ -188,7 +189,7 @@
                     <my-checkbox my-label="Print" my-model="experimentDescription.needToPrint" my-name="needToPrint" my-disabled="fullPrint"></my-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <span class="pull-left table-name">EXPERIMENT DESCRIPTION</span>
+                    <span class="table-name">EXPERIMENT DESCRIPTION</span>
                     <my-text-editor my-model="experimentDescription.description" my-name="experimentDescription" my-readonly="true"></my-text-editor>
                 </div>
             </div>
@@ -213,9 +214,9 @@
                             <td style="width:10%">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
                                 <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
-                                <p style="text-align: center; margin-top: 20px;">
+                                    <p style="text-align: center; margin-top: 20px;">
                                     {{batch.stereoisomer.name }} {{batch.stereoisomer.description }}</p>
-
+                                
                             </td>
                             <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
                             <td style="width:10%">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>

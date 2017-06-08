@@ -483,77 +483,78 @@ tags-input {
 
 //--------------------PRINT STYLES
 .experiment-preview {
-    font-family: @print-font;
+  font-family: @print-font;
+  color: @print-color;
+
+  table {
+    border: 1px solid @print-border-table-color;
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid @print-border-table-color;
+    }
+
+    th {
+      font-family: @print-header-row-font;
+      font-weight: 900;
+    }
+  }
+
+  .table-name {
+    display: inline-block;
+    margin-bottom: 5px;
     color: @print-color;
+    font-size: 14px;
+  }
+  .print-header {
+    margin-top: 20px;
+    border: none;
 
-    table {
-        border: 1px solid @print-border-table-color;
-
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid @print-border-table-color;
-        }
-
-        th {
-            font-family: @print-header-row-font;
-            font-weight: 900;
-        }
+    .logo {
+      background: url("../images/logo_new_blue.png") no-repeat;
+      background-size: cover;
+      margin: 0;
     }
 
-    .table-name {
-        margin-bottom: 5px;
-        color: @print-color;
-        font-size: 14px;
-    }
-    .print-header {
-        margin-top: 20px;
+    tr {
+      th {
         border: none;
+        height: 50px;
+        padding-left: 10px;
 
-        .logo {
-            background: url("../images/logo_new_blue.png") no-repeat;
-            background-size: cover;
-            margin: 0;
+        h2 {
+          margin: 0;
+          font-family: inherit;
+          font-style: italic;
+          font-weight: bold;
+          font-size: 16px;
+          text-align: right;
+          color: @print-header-color;
         }
 
-        tr {
-            th {
-                border: none;
-                height: 50px;
-                padding-left: 10px;
-
-                h2 {
-                    margin: 0;
-                    font-family: inherit;
-                    font-style: italic;
-                    font-weight: bold;
-                    font-size: 16px;
-                    text-align: right;
-                    color: @print-header-color;
-                }
-
-                &:last-child {
-                    border-left: none;
-                }
-            }
-
-            td {
-                &:nth-child(odd) {
-                    font-family: @print-header-row-font;
-                    font-weight: 900;
-                }
-            }
+        &:last-child {
+          border-left: none;
         }
+      }
+
+      td {
+        &:nth-child(odd) {
+          font-family: @print-header-row-font;
+          font-weight: 900;
+        }
+      }
     }
+  }
 
-    .print-table-inner {
-        border: none;
+  .print-table-inner {
+    border: none;
 
-        td {
-            padding: 0 0 5px;
-            border: none;
-        }
+    td {
+      padding: 0 0 5px;
+      border: none;
     }
+  }
 
 }
 
@@ -563,22 +564,27 @@ tags-input {
     padding: 5px;
 }
 
- .print-table { table-layout : fixed}
+.print-table { table-layout : fixed}
 
 .print-component .simditor-toolbar {
     display: none;
 }
 
-.print-component .simditor {
-    border-color: black;
-}
-
 .print-component{
     display: flex;
-    justify-content: flex-end;
+  justify-content: flex-end;
     .my-checkbox-wrapper{
         padding-top:7px;
     }
+  .simditor {
+    margin-bottom: 50px;
+    .simditor-body {
+      p,
+      li {
+        color: @print-color;
+      }
+    }
+  }
 }
 
 .print-table th, .print-table td {
