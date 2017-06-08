@@ -13,7 +13,7 @@
         .for-print-only .print-header tr th h2 {margin: 0; font-family: inherit; font-style: italic; font-size: 16px; text-align: right; font-weight: bold; color: #4252af;}
         .for-print-only .table-name {display: inline-block; margin-bottom: 10px; font-size: 14px;}
         .for-print-only table.print-table-inner {width: auto;}
-        .for-print-only table.print-table-inner td{border:0; padding: 0 0 5px;} .print-table-inner-td {vertical-align: top;}
+        .for-print-only table.print-table-inner td{border:0; padding: 0 0 5px; text-align: left;} .print-table-inner-td {vertical-align: top;}
         .for-print-only .pba:not(:first-of-type) tr td {border-top: none;}
         .for-print-only .pba:not(:first-of-type) tr td p {text-align: center;}
         .simditor {border : 1px solid #ccc; padding:10px; margin-bottom: 50px;}
@@ -123,14 +123,14 @@
                 <div class="col-xs-11">
                     <span class="pull-left table-name">STOICHIOMETRY</span>
                     <table class="print-table">
-                        <tr style="vertical-align:top">
-                            <th style="width:30%">Reagent</th>
-                            <th style="width:8%">Mol Wgh</th>
-                            <th style="width:8%">Weight</th>
-                            <th style="width:8%">Moles</th>
-                            <th style="width:8%">Volume</th>
-                            <th style="width:8%">EQ</th>
-                            <th style="width:30%">Other Information</th>
+                        <tr>
+                            <th style="width:30%; text-align: center;">Reagent</th>
+                            <th style="width:8%; text-align: center;">Mol Wgh</th>
+                            <th style="width:8%; text-align: center;">Weight</th>
+                            <th style="width:8%; text-align: center;">Moles</th>
+                            <th style="width:8%; text-align: center;">Volume</th>
+                            <th style="width:8%; text-align: center;">EQ</th>
+                            <th style="width:30%; text-align: center;">Other Information</th>
                         </tr>
                         <tr ng-repeat="reactant in stoichTable.reactants track by $index">
                             <td style="width:30%">
@@ -201,16 +201,15 @@
                 <div class="col-xs-11">
                     <span class="pull-left table-name">BATCH INFORMATION</span>
                     <table class="print-table">
-                        <tr style="vertical-align:top">
-                            <th style="width:10%">Nbk Batch</th>
-                            <th style="width:20%">Structure</th>
-                            <th style="width:10%">Amount Made</th>
-                            <th style="width:10%">Theoretical Yield</th>
-                            <th style="width:10%">Purity (%) Determined By</th>
-                            <th>Batch Information</th>
+                        <tr>
+                            <th style="width:10%; text-align: center;">Nbk Batch</th>
+                            <th style="width:20%; text-align: center;">Structure</th>
+                            <th style="width:10%; text-align: center;">Amount Made</th>
+                            <th style="width:10%; text-align: center;">Theoretical Yield</th>
+                            <th style="width:10%; text-align: center;">Purity (%) Determined By</th>
+                            <th style="text-align: center;">Batch Information</th>
                         </tr>
-                        <tr ng-repeat="batch in batchSummary.batches track by $index"
-                            style="vertical-align:top">
+                        <tr ng-repeat="batch in batchSummary.batches track by $index">
                             <td style="width:10%">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
                                 <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
