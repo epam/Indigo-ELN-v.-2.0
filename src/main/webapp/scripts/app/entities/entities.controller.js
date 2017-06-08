@@ -105,10 +105,7 @@ angular.module('indigoeln')
         };
 
         $scope.onTabChanged = function(tab, entity) {
-            console.log(1)
             if (!EntitiesBrowser.updateCurrentEntity) return;
-            console.log(2)
-
             if (tab.dirty) {
                 AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept or Reject saved changes. "Accept" button reloads page to show saved data, "Reject" button leave entered data and allows you to save them.',
                     null,
@@ -141,7 +138,7 @@ angular.module('indigoeln')
             AutoRecoverEngine.canRedo(EntitiesBrowser.activeEntity)
         }
 
-        $scope.onCloseAllTabs = function() {
+        $scope.onCloseAllTabs = function(exceptCurrent) {
             var editTabs = _.filter($scope.tabs, function(o) {
                 return o.dirty;
             });
@@ -168,6 +165,7 @@ angular.module('indigoeln')
                 return;
             }
             _.each($scope.tabs, function(tab) {
+                if (exceptCurrent && tab== EntitiesBrowser.activeTab) return;
                 onSaveTab(tab);
             });
         };

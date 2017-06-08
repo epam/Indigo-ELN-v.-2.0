@@ -35,9 +35,13 @@
                 <span class="tooltip-icon-header">Opened Entities</span>
             </a>
             <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
-                <li ng-click="onCloseAllTabs()">
+                <li ng-if="!isDashboard" ng-click="onCloseAllTabs()">
                     <a>Close All</a>
                 </li>
+                <li ng-if="!isDashboard" ng-click="onCloseAllTabs(true)">
+                    <a>Close All Except Active Entity</a>
+                </li>
+                
                 <li ng-repeat="entity in entities">
                     <a>
                         <span class="capitalized d-flex" ng-click="onTabClick(entity)" ng-class="{'active' : entity.tabKey === activeTab.tabKey}">
