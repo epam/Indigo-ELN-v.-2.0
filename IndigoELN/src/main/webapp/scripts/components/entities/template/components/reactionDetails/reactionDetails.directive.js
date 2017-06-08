@@ -9,14 +9,16 @@ angular.module('indigoeln')
             templateUrl: 'scripts/components/entities/template/components/reactionDetails/reactionDetails.html',
             controller: function ($scope, Principal, Dictionary, Users, Alert, $state, $q) {
                 $scope.model.reactionDetails = $scope.model.reactionDetails || {};
-                $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
-                    {name: Principal.getIdentity().fullName};
+                Principal.identity().then(function(user) {
+                    $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
+                        {name: user.fullName};
 
-                Users.get().then(function (dictionary) {
-                    $scope.users = dictionary.words;
-                    $scope.model.reactionDetails.batchOwner = $scope.model.reactionDetails.batchOwner ||
-                        _.where($scope.users, {name: Principal.getIdentity().fullName});
-                });
+                    Users.get().then(function (dictionary) {
+                        $scope.users = dictionary.words;
+                        $scope.model.reactionDetails.batchOwner = $scope.model.reactionDetails.batchOwner ||
+                            _.where($scope.users, {name: user.fullName});
+                    });
+                }) 
                 var deferred;
                 function init() {
                     if (deferred) return deferred.promise;
