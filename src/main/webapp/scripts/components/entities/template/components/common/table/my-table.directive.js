@@ -208,7 +208,7 @@ angular.module('indigoeln')
 				editableCell = columnId + '-' + rowIndex;
 			};
 			that.isEditable = function (columnId, rowIndex) {
-				if (that.isFormReadonly) return;
+				if (that.isFormReadonly()) return;
 				if ($scope.myEditable) {
 					var row = $scope.rowsForDisplay[rowIndex];
 					var editable = $scope.myEditable(row, columnId);

@@ -56,8 +56,7 @@ angular.module('indigoeln')
             FileUploaderCash.setFiles([]);
 
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
-                $scope.isEditAllowed = (isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
-                $scope.experimentForm.$$isReadOnly =  !$scope.isEditAllowed;
+                setReadOnly()
             });
 
             var setStatus = function (status) {
@@ -68,12 +67,16 @@ angular.module('indigoeln')
                 $scope.experiment.accessList = PermissionManagement.getAccessList();
             });
 
+            function setReadOnly() {
+                $scope.isEditAllowed =( isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
+                $scope.experimentForm.$$isReadOnly =  !$scope.isEditAllowed;
+            }
+
             var onExperimentStatusChangedEvent = $scope.$on('experiment-status-changed', function(event, data) {
                 _.each(data, function(status, id) {
                     if (id === $scope.experiment.fullId) {
                         setStatus(status);
-                        $scope.isEditAllowed =( isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
-                        $scope.experimentForm.$$isReadOnly =  !$scope.isEditAllowed;
+                        setReadOnly()
                     }
                 });
             });
@@ -103,8 +106,7 @@ angular.module('indigoeln')
             });
 
             var unsubscribe = $scope.$watch('experiment.status', function () {
-                $scope.isEditAllowed =( isContentEditor || hasEditAuthority && hasEditPermission) && $scope.isStatusOpen();
-                $scope.experimentForm.$$isReadOnly =  !$scope.isEditAllowed;
+                setReadOnly()
             });
             
             $scope.$on('$destroy', function () {
