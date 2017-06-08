@@ -245,6 +245,10 @@
   float: left;
   position: relative;
 }
+.controls-list > li > a.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 .controls-list > li > a {
   color: #7d7d7d;
   display: block;
