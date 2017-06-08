@@ -5,14 +5,24 @@ angular.module('indigoeln')
             link: function (scope, iElement) {
                 $timeout(function () {
                     var $element = $(iElement);
-                    $element.mCustomScrollbar({
-                        axis: 'x',
-                        theme: 'indigo',
-                        scrollInertia: 100,
-                    });
+                    var create = function() {
+
+                        $element.mCustomScrollbar({
+                            axis: 'x',
+                            theme: 'indigo',
+                            scrollInertia: 100
+                        });
+
+                    }
+                    create()
+                    var onTabsChanged = scope.$watchCollection('tabs', function () {
+                        $element.mCustomScrollbar("destroy"); 
+                        create()
+                    })
                     var onTabChanged = scope.$watch('activeTab', function () {
+                        console.log(2)
                         $element.mCustomScrollbar('update');
-                         $timeout(function () {
+                        $timeout(function () {
                             var l = $element.find('.active').position().left;
                             $element.mCustomScrollbar('scrollTo', l, {
                                 scrollInertia: 300
@@ -21,6 +31,7 @@ angular.module('indigoeln')
                     })
                     scope.$on('$destroy', function () {
                         onTabChanged()
+                        onTabsChanged()
                     })
                 }, 0, false);
             }
