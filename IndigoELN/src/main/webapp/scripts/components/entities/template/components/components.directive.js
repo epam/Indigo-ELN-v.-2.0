@@ -121,6 +121,7 @@ angular.module('indigoeln')
                     }
                     var stimeout, nostore;
                     tc.on('scroll', function(e) {
+                        element.trigger('click'); // will close some dropdowns EPMLSOPELN-437
                         if (nostore)  {
                             nostore = false;
                             return;
