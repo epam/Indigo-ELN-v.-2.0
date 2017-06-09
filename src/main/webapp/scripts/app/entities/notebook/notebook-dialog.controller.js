@@ -35,13 +35,17 @@ angular.module('indigoeln')
                             exp.fullName = $scope.notebook.name + '-' + exp.name;
                         }
                     });
+
                     $scope.experiments = data;
                     $scope.isSummary = true;
                 }, function() {
                     Alert.error('Cannot get summary right now due to server error');
                 });
             };
-
+            $scope.goToExp = function(exp) {
+                var ids = exp.fullId.split('-')
+                $state.go('entities.experiment-detail', { experimentId  : ids[2], notebookId  : ids[1], projectId  : ids[0]  });
+            }
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
