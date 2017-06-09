@@ -17,7 +17,7 @@ if (arguments.length < 4) {
         header: {
             height: headerHeight,
             contents: phantom.callback(function(pageNum, numPages) {
-                return header;
+                return header.replace('#pageNum', pageNum).replace('#numPages', numPages);
             })
         }
     };
