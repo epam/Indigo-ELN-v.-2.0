@@ -31,6 +31,10 @@ angular.module('indigoeln')
 				}, 0)
 				return val;
 			};
+			$scope.columnClick = function () {
+				if (!myTableCtrl.isFormReadonly())
+					$scope.myColumn.onClick({model: $scope.myRow[$scope.myColumn.id], row: $scope.myRow, column: $scope.myColumn.id})
+			}
 			$scope.isEditable = function () {
 				var enabled = true;
 				if ($scope.myColumn.checkEnabled) {
