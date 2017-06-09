@@ -18,7 +18,7 @@
             {{myRow[myColumn.id] | round:myColumn.sigDigits:myColumn:myRow}}
         </span>
         <a ng-if="!myRow[myColumn.id].readonly && myColumn.type === 'string'"
-           ng-click="myColumn.onClick({model: myRow[myColumn.id], row: myRow, column: myColumn.id})">
+           ng-click="columnClick()">
             {{myRow[myColumn.realId].asString || '&mdash;'}}</a>
         <a ng-if="isEmpty(myRow[myColumn.id], myColumn) && !myRow[myColumn.id].readonly && myColumn.type && myColumn.type!== 'image' && myColumn.type!== 'boolean' && myColumn.type !== 'string'"
            ng-click="toggleEditable()" toggleEditable>&mdash;</a>
