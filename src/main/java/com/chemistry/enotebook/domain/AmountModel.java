@@ -7,8 +7,8 @@ public class AmountModel extends Amount2 {
 
     public static final long serialVersionUID = 7526472295622776147L;
 
-    //This is a wrong constructor to use. Initialize with Unit Type.
     public AmountModel() {
+        //This is a wrong constructor to use. Initialize with Unit Type.
     }
 
     public AmountModel(UnitType unitType) {
@@ -31,6 +31,7 @@ public class AmountModel extends Amount2 {
         super(unitType, defaultVal);
     }
 
+    @Override
     public void deepCopy(Object source) {
         if (source instanceof AmountModel) {
             AmountModel src = (AmountModel) source;
@@ -45,8 +46,11 @@ public class AmountModel extends Amount2 {
         }
     }
 
+    @Override
     public boolean equals(Object amtObj) {
-        if (amtObj == null) return false;
+        if (amtObj == null){
+            return false;
+        }
         AmountModel amtModel = (AmountModel) amtObj;
         // vb 7/15 value was == so always returned false
         // isCalculated and sigDigits were not included
@@ -59,6 +63,17 @@ public class AmountModel extends Amount2 {
                 this.getUnit().getCode().equals(amtModel.getUnit().getCode());
     }
 
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + (this.getValue() != null ? this.getValue().hashCode() : 0);
+        result = 31 * result + (this.isCalculated() ? 1 : 0);
+        result = 31 * result + this.getSigDigits();
+        result = 31 * result + (this.getUnit().getCode() != null ? this.getUnit().getCode().hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public Object deepClone() {
 
         AmountModel amtModel = new AmountModel(getUnit().getType());
@@ -72,7 +87,9 @@ public class AmountModel extends Amount2 {
     }
 
     boolean equalsByValueAndUnits(Object amtObj) {
-        if (amtObj == null) return false;
+        if (amtObj == null) {
+            return false;
+        }
         AmountModel amtModel = (AmountModel) amtObj;
         // to avoid .10 not equal to .100 when compared by getValue()
         return this.GetValueForDisplay().equals(amtModel.GetValueForDisplay()) && this.getUnit().getStdCode().equals(amtModel.getUnit().getStdCode());
