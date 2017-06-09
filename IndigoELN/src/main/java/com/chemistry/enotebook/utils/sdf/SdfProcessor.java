@@ -20,7 +20,7 @@ public class SdfProcessor {
 
     private static final String M_END = "M  END";
 
-    public static String STRUCT_KEY = "molStructure";
+    public static final String STRUCT_KEY = "molStructure";
     protected List sduStringList;
     protected List maplist;
     protected Properties fieldMapping;
