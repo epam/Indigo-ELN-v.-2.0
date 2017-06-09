@@ -190,7 +190,7 @@
             <tbody class="main-table__body">
                 <tr class="table-list" ng-repeat="entity in searchResultsPaged track by $index">
                     <td class="table-list__item dash-exp-id">{{entity.kind}}</td>
-                    <td class="table-list__item dash-exp-id">{{entity.name}}</td>
+                    <td class="table-list__item dash-exp-id"><a ng-click="goTo(entity)">{{entity.name}}</a></td>
                     <td class="table-list__item dash-exp-id">{{entity.details.creationDate  | date:'MMM dd yyyy'}}</td>
                     <td class="table-list__item dash-exp-id">{{entity.details.author}}</td>
                     <td class="table-list__item dash-exp-id">{{entity.details.title}}</td>

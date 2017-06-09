@@ -81,7 +81,7 @@
                                             <!--<td class="table-list__item">-->
                                             <!--<a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>-->
                                             <!--</td>-->
-                                            <td class="table-list__item">{{exp.fullName}}</td>
+                                            <td class="table-list__item"> <a ng-click="goToExp(exp)">{{exp.fullName}}</a> </td>
                                             <td class="table-list__item">
                                                 <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
                                                 <p>Subject/Title: {{exp.reactionDetails.title || exp.conceptDetails.title}}</p>
