@@ -92,7 +92,7 @@ public class AmountModel extends Amount2 {
         }
         AmountModel amtModel = (AmountModel) amtObj;
         // to avoid .10 not equal to .100 when compared by getValue()
-        return this.GetValueForDisplay().equals(amtModel.GetValueForDisplay()) && this.getUnit().getStdCode().equals(amtModel.getUnit().getStdCode());
+        return this.getValueForDisplay().equals(amtModel.getValueForDisplay()) && this.getUnit().getStdCode().equals(amtModel.getUnit().getStdCode());
     }
 
 }

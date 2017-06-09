@@ -6,9 +6,9 @@ import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.datamodel.common.SignificantFigures;
 import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
 
@@ -199,8 +199,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public AmountModel getMolecularWeightAmount() {
-        double result = molecularWeightAmount.GetValueInStdUnitsAsDouble();
-        if (result == 0) {
+        double result = molecularWeightAmount.getValueInStdUnitsAsDouble();
+        if (doubleEqZero(result)) {
             result = this.getMolWgtCalculated();
         }
         molecularWeightAmount.setValue(result);
@@ -208,11 +208,9 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setMolecularWeightAmount(AmountModel molecularWeight) {
-        if (molecularWeightAmount != null) {
-            if (!this.molecularWeightAmount.equals(molecularWeight)) {
-                this.molecularWeightAmount.deepCopy(molecularWeight);
-                setModified(true);
-            }
+        if (molecularWeightAmount != null && !this.molecularWeightAmount.equals(molecularWeight)) {
+            this.molecularWeightAmount.deepCopy(molecularWeight);
+            setModified(true);
         }
     }
 
@@ -421,11 +419,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         // weight = weight/mole * moles
         // In this case moles are always mMoles and the default return of mole amount is in mmoles
         // Hence when we setValue for weight we are doing so in mg and no conversion is necessary.
-        double result = getMolWgt() * getMoleAmount().GetValueInStdUnitsAsDouble();
+        double result = getMolWgt() * getMoleAmount().getValueInStdUnitsAsDouble();
         if (loadingAmount.doubleValue() > 0.0) {
             // calc by loadingAmount mmol/g - doesn't use molWgt.
             // mg = 1000 mg/g * mmol/(mmol/g)
-            result = (1000 * getMoleAmount().GetValueInStdUnitsAsDouble() / loadingAmount.GetValueInStdUnitsAsDouble());
+            result = (1000 * getMoleAmount().getValueInStdUnitsAsDouble() / loadingAmount.getValueInStdUnitsAsDouble());
             amts.add(loadingAmount);
             amts.add(moleAmount);
         } else if (getPurityAmount().doubleValue() < 100d && getPurityAmount().doubleValue() > 0.0) {
@@ -443,7 +441,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
         // We just got the result for mg * purity),
         // Now we need to make sure the answer makes sense for the units of weight currently being used.
-        weightAmount.SetValueInStdUnits(result, true);
+        weightAmount.setValueInStdUnits(result, true);
     }
 
     private void updateMolesFromWeight() {
@@ -453,7 +451,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         // Weight = 9.82m/s^2 * mass
         if (loadingAmount.doubleValue() > 0.0) {
             // mmoles = (mmol/g) * (g/1000mg) * (weightAmount in std units = mg)
-            result = loadingAmount.GetValueInStdUnitsAsDouble() * (weightAmount.GetValueInStdUnitsAsDouble() / 1000);
+            result = loadingAmount.getValueInStdUnitsAsDouble() * (weightAmount.getValueInStdUnitsAsDouble() / 1000);
             amts.add(loadingAmount);
             amts.add(weightAmount);
         } else if (getMolWgt() > 0.0) {
@@ -461,7 +459,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             // standard units. Make sure this changes if the
             // users ever get the opportunity to change units of
             // MolWt.
-            result = weightAmount.GetValueInStdUnitsAsDouble() / getMolWgt();
+            result = weightAmount.getValueInStdUnitsAsDouble() / getMolWgt();
             amts.add(weightAmount);
             amts.add(molecularWeightAmount);
             // we just got the result for mg/mmole,
@@ -474,7 +472,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         }
         applySigFigRules(moleAmount, amts);
         amts.clear();
-        moleAmount.SetValueInStdUnits(result, true);
+        moleAmount.setValueInStdUnits(result, true);
     }
 
     public void recalcAmounts() {
@@ -504,7 +502,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
                 // Std unit for molar is mMolar
                 //
                 // mMoles = (mole/L) * mL
-                moleAmount.SetValueInStdUnits(molarAmount.GetValueInStdUnitsAsDouble() * volumeAmount.GetValueInStdUnitsAsDouble(),
+                moleAmount.setValueInStdUnits(molarAmount.getValueInStdUnitsAsDouble() * volumeAmount.getValueInStdUnitsAsDouble(),
                         true);
                 updateWeightFromMoles();
             } else if (densityAmount.doubleValue() > 0) {
@@ -514,8 +512,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
                 applySigFigRules(weightAmount, amts);
                 amts.clear();// important to clear the amts list
                 // mg = (mL * g/mL)/ (1000 mg/g)
-                weightAmount.SetValueInStdUnits(1000 * volumeAmount.GetValueInStdUnitsAsDouble()
-                        * densityAmount.GetValueInStdUnitsAsDouble(), true);
+                weightAmount.setValueInStdUnits(1000 * volumeAmount.getValueInStdUnitsAsDouble()
+                        * densityAmount.getValueInStdUnitsAsDouble(), true);
                 updateMolesFromWeight();
             }
             // SourceForge 3.4 bug 28030 - remove data not connected
@@ -545,7 +543,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
                 //				amts.clear();// important to clear the amts list
                 volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                volumeAmount.SetValueInStdUnits(moleAmount.GetValueInStdUnitsAsDouble() / molarAmount.GetValueInStdUnitsAsDouble(),
+                volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble() / molarAmount.getValueInStdUnitsAsDouble(),
                         true);
             } else if (densityAmount.doubleValue() > 0) {
                 // Due to artf60208 :Singleton: correct sig fig processing for Molarity in Stoich Table (CEN-705) comment sig fig calculation
@@ -556,8 +554,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
                 volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
                 // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
-                volumeAmount.SetValueInStdUnits(weightAmount.GetValueInStdUnitsAsDouble()
-                        / (1000 * densityAmount.GetValueInStdUnitsAsDouble()), true);
+                volumeAmount.setValueInStdUnits(weightAmount.getValueInStdUnitsAsDouble()
+                        / (1000 * densityAmount.getValueInStdUnitsAsDouble()), true);
             }
             if (!isVolumeConnectedToMass()) {
                 // set weight, moles and rxn equivs to default values.

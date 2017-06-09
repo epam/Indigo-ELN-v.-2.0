@@ -30,13 +30,15 @@ import org.apache.commons.logging.LogFactory;
  * @date Aug 9, 2004
  */
 public class GUIDUtil {
-    private static final Log log = LogFactory.getLog(GUIDUtil.class);
+    private static final Log LOGGER = LogFactory.getLog(GUIDUtil.class);
     // initialise the secure random instance
     private static final java.security.SecureRandom seeder = new java.security.SecureRandom();
     /**
      * Cached per JVM server IP.
      */
     private static String hexServerIP = null;
+
+    private GUIDUtil(){}
 
     /**
      * Same as generateGUID(Object o, String extraSeedInfo) except that extraSeedInfo is provided by class canonical name
@@ -69,7 +71,7 @@ public class GUIDUtil {
                 // get the inet address
                 localInetAddress = java.net.InetAddress.getLocalHost();
             } catch (java.net.UnknownHostException uhe) {
-                log.warn("generateGUID: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
+                LOGGER.warn("generateGUID: Could not get the local IP address using InetAddress.getLocalHost()!", uhe);
 
                 return null;
             }
