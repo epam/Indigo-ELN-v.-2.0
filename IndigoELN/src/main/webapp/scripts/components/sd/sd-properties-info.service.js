@@ -1,41 +1,34 @@
 angular.module('indigoeln')
-    .constant('sdPropertiesInfo', {
-            REGISTRATION_STATUS             :       "registrationStatus",
-            CONVERSATIONAL_BATCH_NUMBER     :       "conversationalBatchNumber",
-            VIRTUAL_COMPOUND_ID             :       "virtualCompoundId",
-            STRUCTURE_COMMENT               :       "structureComments",
-            PRECURSORS                      :       "precursors",
-            COMPOUND_SOURCE_CODE            :       {prop: 'source',        subProp: 'name',
-                                                        format: function (dicts, value) {
-                                                                    return getWord(dicts, 'Source', 'name', value);
-                                                                }
-                                                    },
-            COMPOUND_SOURCE_DETAIL_CODE     :       {prop: 'sourceDetail',  subProp: 'name',
-                                                        format: function (dicts, value) {
-                                                                    return getWord(dicts, 'Source Details', 'name', value);
-                                                                }
-                                                    },
-            STEREOISOMER_CODE               :       {prop: 'stereoisomer',  subProp: 'name',
-                                                        format: function (dicts, value) {
-                                                                    return getWord(dicts, 'Stereoisomer Code', 'name', value);
-                                                                }
-                                                    },
-            GLOBAL_SALT_CODE                :       {prop: 'saltCode',      subProp: 'regValue',
-                                                        format: function (dicts, value) {
-                                                                    return getItem(AppValues.getSaltCodeValues(), 'regValue', value);
-                                                                }
-                                                    },
-            GLOBAL_SALT_EQ                  :       {prop: 'saltEq',        subProp: 'value',
-                                                        format: function (dicts, value) {
-                                                                    return {
-                                                                        value: parseInt(value),
-                                                                        entered: false
-                                                                    };
-                                                                }
-                                                    },
-            COMPOUND_STATE                  :       {prop: 'compoundState', subProp: 'name',
-                                                        format: function (dicts, value) {
-                                                                    return getWord(dicts, 'Compound State', 'name', value);
-                                                                }
-                                                    }
+    .factory('sdPropertiesInfo', function(sdPropertiesConstants) {
+
+        var getProperty = function (item, prop, subProp) {
+            var subItem = item[prop];
+            if (subProp) {
+                return subItem[subProp];
+            }
+            return subItem;
+        };
+
+        var getExportProperties = function(item) {
+            var properties = { molfile: item.structure.molfile };
+            sdPropertiesConstants.forEach(function(prop, i, constants) {
+                var fields = prop.export;
+                properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
+            });
+
+            return properties;
+        };
+
+        var getImportProperties = function() {
+            var properties = {};
+            sdPropertiesConstants.forEach(function(prop, i, constants) {
+                //TODO: 
+            });
+
+            return properties;
+        };
+
+        var convert = function (items) {
+                        return _.map(items, getExportProperties(item));
+                    };
     });
