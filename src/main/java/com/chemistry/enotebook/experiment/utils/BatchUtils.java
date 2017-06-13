@@ -1,30 +1,31 @@
 package com.chemistry.enotebook.experiment.utils;
 
 import com.chemistry.enotebook.domain.AmountModel;
+import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class BatchUtils {
 
     public static boolean isUnitOnlyChanged(AmountModel from, AmountModel to) {
         boolean result;
-        result = (CeNNumberUtils.doubleEquals(from.GetValueInStdUnitsAsDouble(), to.GetValueInStdUnitsAsDouble()) && !(from
+        result = (CeNNumberUtils.doubleEquals(from.getValueInStdUnitsAsDouble(), to.getValueInStdUnitsAsDouble()) && !(from
                 .getUnit().equals(to.getUnit())));
 
         return result;
     }
 
     public static double calcMolesWithEquivalents(AmountModel reagentMoles, AmountModel equiv) {
-        if (reagentMoles.GetValueInStdUnitsAsDouble() == 0.0) {
-            return reagentMoles.GetValueInStdUnitsAsDouble();
+        if (doubleEqZero(reagentMoles.getValueInStdUnitsAsDouble())) {
+            return reagentMoles.getValueInStdUnitsAsDouble();
         }
-        return reagentMoles.GetValueInStdUnitsAsDouble() * equiv.GetValueInStdUnitsAsDouble();
+        return reagentMoles.getValueInStdUnitsAsDouble() * equiv.getValueInStdUnitsAsDouble();
 
     }
 
     public static double calcEquivalentsWithMoles(AmountModel moles, AmountModel reagentMoles) {
-        if (reagentMoles.GetValueInStdUnitsAsDouble() == 0.0) {
-            return moles.GetValueInStdUnitsAsDouble();
+        if (doubleEqZero(reagentMoles.getValueInStdUnitsAsDouble() )) {
+            return moles.getValueInStdUnitsAsDouble();
         }
-        return moles.GetValueInStdUnitsAsDouble() / reagentMoles.GetValueInStdUnitsAsDouble();
+        return moles.getValueInStdUnitsAsDouble() / reagentMoles.getValueInStdUnitsAsDouble();
     }
 
 }

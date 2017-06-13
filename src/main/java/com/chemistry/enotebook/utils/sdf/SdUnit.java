@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class SdUnit implements Serializable, Externalizable {
     static final long serialVersionUID = 42L;
@@ -136,7 +137,7 @@ public class SdUnit implements Serializable, Externalizable {
                 }
                 if (Math.abs(test) >= improbablyLargeValue)
                     return "Invalid Z coordinate";
-                if (test == 0.0D)
+                if (doubleEqZero(test))
                     continue;
                 returnString = "OK 3D";
             }

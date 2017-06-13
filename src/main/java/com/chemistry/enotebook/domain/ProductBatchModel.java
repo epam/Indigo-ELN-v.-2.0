@@ -6,9 +6,9 @@ import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
 import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
-
 import java.util.ArrayList;
 import java.util.List;
+import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class ProductBatchModel extends BatchModel {
 
@@ -44,10 +44,12 @@ public class ProductBatchModel extends BatchModel {
         this.modelChanged = true;
     }
 
+    @Override
     public AmountModel getTheoreticalMoleAmount() {
         return theoreticalMoleAmount;
     }
 
+    @Override
     public void setTheoreticalMoleAmount(AmountModel mtheoreticalMoleAmount) {
         if (!theoreticalMoleAmount.equals(mtheoreticalMoleAmount)) {
             boolean oldCalcFlag = theoreticalMoleAmount.isCalculated();
@@ -58,6 +60,7 @@ public class ProductBatchModel extends BatchModel {
         }
     }
 
+    @Override
     public AmountModel getTheoreticalWeightAmount() {
         return theoreticalWeightAmount;
     }
@@ -66,6 +69,7 @@ public class ProductBatchModel extends BatchModel {
      * @param theoreticalWeightAmount
      *            the theoreticalWeightAmount to set
      */
+    @Override
     public void setTheoreticalWeightAmount(AmountModel theoreticalWeightAmount) {
         this.theoreticalWeightAmount = theoreticalWeightAmount;
         this.modelChanged = true;
@@ -76,6 +80,7 @@ public class ProductBatchModel extends BatchModel {
      * <p>
      * For product batches this also recalculates TheoreticalYieldPercent
      */
+    @Override
     public void recalcAmounts() {
         // needs to be tested: Added isEditable() to prevent updates unnecessarily.
         // The test needs to be such that there were items that used to be calculated on the fly.
@@ -93,8 +98,8 @@ public class ProductBatchModel extends BatchModel {
                 // for weight
                 // amount
                 double yield = 100 * (this.getTotalWeight()
-                        .GetValueInStdUnitsAsDouble() / theoreticalWeightAmount
-                        .GetValueInStdUnitsAsDouble());
+                        .getValueInStdUnitsAsDouble() / theoreticalWeightAmount
+                        .getValueInStdUnitsAsDouble());
                 ArrayList<AmountModel> amts = new ArrayList<>();
                 amts.add(getWeightAmount());
                 amts.add(getTheoreticalWeightAmount());
@@ -104,7 +109,7 @@ public class ProductBatchModel extends BatchModel {
                 // applySigFigRules(getTheoreticalYieldPercentAmount(), amts);
                 amts.clear();
                 theoreticalYieldPercentAmount.setValue(yield);
-            } else if (theoreticalWeightAmount.doubleValue() == 0.0) {
+            } else if (doubleEqZero(theoreticalWeightAmount.doubleValue())) {
                 // If the theoreticalWeightAmount is 0 then yeild % is 0
                 theoreticalYieldPercentAmount.reset();
             }
@@ -123,12 +128,13 @@ public class ProductBatchModel extends BatchModel {
             theoreticalWeightAmount.setSigDigits(CeNNumberUtils
                     .getSmallestSigFigsFromAmountModelList(amts));
             amts.clear();
-            theoreticalWeightAmount.SetValueInStdUnits(theoreticalMoleAmount
-                    .GetValueInStdUnitsAsDouble()
+            theoreticalWeightAmount.setValueInStdUnits(theoreticalMoleAmount
+                    .getValueInStdUnitsAsDouble()
                     * getMolWgt());
         }
     }
 
+    @Override
     protected List<AmountModel> getCalculatedAmounts() {
         ArrayList<AmountModel> result = new ArrayList<>();
         result.add(getTheoreticalMoleAmount()); // Set by limiting reagent or by
@@ -169,21 +175,18 @@ public class ProductBatchModel extends BatchModel {
 
     public void setTotalMolarAmount(AmountModel totalMolarAmount) {
         if (totalMolarAmount != null
-                && totalMolarAmount.GetValueInStdUnitsAsDouble() != 0.0) {
-            if (totalMolarAmount.getUnitType().getOrdinal() == UnitType.MOLAR
-                    .getOrdinal()) {
+                && !doubleEqZero(totalMolarAmount.getValueInStdUnitsAsDouble())) {
+            if (totalMolarAmount.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal() &&
+                    getTotalMolarity() != null && !getTotalMolarity().equals(totalMolarAmount)) {
                 // Check to see if it is a unit change
-                if (getTotalMolarity() != null
-                        && !getTotalMolarity().equals(totalMolarAmount)) {
-                    boolean unitChange = BatchUtils.isUnitOnlyChanged(
-                            getTotalMolarity(), totalMolarAmount);
-                    getTotalMolarity().deepCopy(totalMolarAmount);
-                    if (!unitChange) {
-                        lastUpdatedProductType = BatchModel.UPDATE_TYPE_TOTAL_MOLARITY;
-                        //This includes recalcTotalAmounts() as well
-                        recalcAmounts();
-                        setModified(true);
-                    }
+                boolean unitChange = BatchUtils.isUnitOnlyChanged(
+                        getTotalMolarity(), totalMolarAmount);
+                getTotalMolarity().deepCopy(totalMolarAmount);
+                if (!unitChange) {
+                    lastUpdatedProductType = BatchModel.UPDATE_TYPE_TOTAL_MOLARITY;
+                    //This includes recalcTotalAmounts() as well
+                    recalcAmounts();
+                    setModified(true);
                 }
             }
         } else {
@@ -217,10 +220,10 @@ public class ProductBatchModel extends BatchModel {
                 // Update mole amount
                 // Std unit for molar is mMolar
                 // mMoles = (mole/L) * mL
-                this.getMoleAmount().SetValueInStdUnits(
-                        this.getMolarAmount().GetValueInStdUnitsAsDouble()
+                this.getMoleAmount().setValueInStdUnits(
+                        this.getMolarAmount().getValueInStdUnitsAsDouble()
                                 * this.getTotalVolume()
-                                .GetValueInStdUnitsAsDouble(), true);
+                                .getValueInStdUnitsAsDouble(), true);
                 getMoleAmount().setCalculated(true);
                 updateTotalWeightFromMoles();
             } else if (this.getDensityAmount().doubleValue() > 0) {
@@ -230,8 +233,8 @@ public class ProductBatchModel extends BatchModel {
                 applySigFigRules(this.getTotalWeight(), amts);
                 amts.clear();// important to clear the amts list
                 // mg = (mL * g/mL)/ (1000 mg/g)
-                this.getTotalWeight().SetValueInStdUnits(1000 * this.getTotalVolume().GetValueInStdUnitsAsDouble()
-                        * this.getDensityAmount().GetValueInStdUnitsAsDouble(), true);
+                this.getTotalWeight().setValueInStdUnits(1000 * this.getTotalVolume().getValueInStdUnitsAsDouble()
+                        * this.getDensityAmount().getValueInStdUnitsAsDouble(), true);
                 updateMolesFromTotalWeight();
             }
             updateTotalMolarity();
@@ -249,10 +252,10 @@ public class ProductBatchModel extends BatchModel {
                 else
                     applySigFigRules(this.getTotalVolume(), amts);
                 amts.clear();// important to clear the amts list
-                this.getTotalVolume().SetValueInStdUnits(
-                        this.getMoleAmount().GetValueInStdUnitsAsDouble()
+                this.getTotalVolume().setValueInStdUnits(
+                        this.getMoleAmount().getValueInStdUnitsAsDouble()
                                 / this.getMolarAmount()
-                                .GetValueInStdUnitsAsDouble(), true);
+                                .getValueInStdUnitsAsDouble(), true);
                 this.getTotalVolume().setCalculated(true);
             }
             // Calculate total Molarity
@@ -271,10 +274,10 @@ public class ProductBatchModel extends BatchModel {
                 else
                     applySigFigRules(this.getTotalVolume(), amts);
                 amts.clear();// important to clear the amts list
-                this.getTotalVolume().SetValueInStdUnits(
-                        this.getMoleAmount().GetValueInStdUnitsAsDouble()
+                this.getTotalVolume().setValueInStdUnits(
+                        this.getMoleAmount().getValueInStdUnitsAsDouble()
                                 / this.getTotalMolarAmount()
-                                .GetValueInStdUnitsAsDouble(), true);
+                                .getValueInStdUnitsAsDouble(), true);
                 this.getTotalVolume().setCalculated(true);
             } else if (this.getDensityAmount().doubleValue() > 0) {
                 amts.add(this.getTotalWeight());
@@ -283,20 +286,20 @@ public class ProductBatchModel extends BatchModel {
                 amts.clear();// important to clear the amts list
 
                 // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
-                getTotalVolume().SetValueInStdUnits(this.getTotalWeight().GetValueInStdUnitsAsDouble()
-                        / (1000 * this.getDensityAmount().GetValueInStdUnitsAsDouble()), true);
+                getTotalVolume().setValueInStdUnits(this.getTotalWeight().getValueInStdUnitsAsDouble()
+                        / (1000 * this.getDensityAmount().getValueInStdUnitsAsDouble()), true);
             }
         }
         inCalculation = false;
     }
 
     private void updateTotalMolarity() {
-        if (getMolarAmount().doubleValue() == 0.0
+        if (doubleEqZero(getMolarAmount().doubleValue())
                 && getMoleAmount().doubleValue() > 0.0
                 && getTotalVolume().doubleValue() > 0.0) {
-            double result = getMoleAmount().GetValueInStdUnitsAsDouble()
-                    / getTotalVolume().GetValueInStdUnitsAsDouble();
-            this.getTotalMolarAmount().SetValueInStdUnits(result, true);
+            double result = getMoleAmount().getValueInStdUnitsAsDouble()
+                    / getTotalVolume().getValueInStdUnitsAsDouble();
+            this.getTotalMolarAmount().setValueInStdUnits(result, true);
             this.getTotalMolarAmount().setCalculated(true);
         }
     }
@@ -304,9 +307,10 @@ public class ProductBatchModel extends BatchModel {
     /**
      * Do we apply sig fig rules to calculations?
      */
+    @Override
     public boolean shouldApplySigFigRules() {
-        return (!getTotalWeight().isCalculated() || !getTotalVolume()
-                .isCalculated());
+        return !getTotalWeight().isCalculated() || !getTotalVolume()
+                .isCalculated();
     }
 
     /**
@@ -328,10 +332,11 @@ public class ProductBatchModel extends BatchModel {
     /**
      *
      */
+    @Override
     public boolean shouldApplyDefaultSigFigs() {
-        return (!this.getRxnEquivsAmount().isCalculated()
+        return !this.getRxnEquivsAmount().isCalculated()
                 || !this.getMoleAmount().isCalculated() || !this
-                .getTotalMolarAmount().isCalculated());
+                .getTotalMolarAmount().isCalculated();
     }
 
     private void updateTotalWeightFromMoles() {
@@ -343,7 +348,7 @@ public class ProductBatchModel extends BatchModel {
         // Hence when we setValue for weight we are doing so in mg and no
         // conversion is necessary.
         double result = getMolWgt()
-                * getMoleAmount().GetValueInStdUnitsAsDouble();
+                * getMoleAmount().getValueInStdUnitsAsDouble();
         if (getPurityAmount().doubleValue() < 100d
                 && getPurityAmount().doubleValue() > 0.0) {
             result = result / (getPurityAmount().doubleValue() / 100);
@@ -361,7 +366,7 @@ public class ProductBatchModel extends BatchModel {
         // We just got the result for mg * purity),
         // Now we need to make sure the answer makes sense for the units of
         // weight currently being used.
-        this.getTotalWeight().SetValueInStdUnits(result, true);
+        this.getTotalWeight().setValueInStdUnits(result, true);
     }
 
     private void updateMolesFromTotalWeight() {
@@ -374,7 +379,7 @@ public class ProductBatchModel extends BatchModel {
             // standard units. Make sure this changes if the
             // users ever get the opportunity to change units of
             // MolWt.
-            result = this.getTotalWeight().GetValueInStdUnitsAsDouble()
+            result = this.getTotalWeight().getValueInStdUnitsAsDouble()
                     / getMolWgt();
             amts.add(this.getTotalWeight());
             amts.add(this.getMolecularWeightAmount());
@@ -390,13 +395,13 @@ public class ProductBatchModel extends BatchModel {
         applySigFigRules(this.getMoleAmount(), amts);
         Unit2 unit = this.getMoleAmount().getUnit();
         amts.clear();
-        this.getMoleAmount().SetValueInStdUnits(result, true);
+        this.getMoleAmount().setValueInStdUnits(result, true);
         this.getMoleAmount().setUnit(unit);
         this.getMoleAmount().setCalculated(true);
     }
 
     public void setTotalWeightAmount(AmountModel weight) {
-        if (weight != null /*&& weight.GetValueInStdUnitsAsDouble() != 0.0*/) {
+        if (weight != null /*&& weight.getValueInStdUnitsAsDouble() != 0.0*/) {
             if (weight.getUnitType().getOrdinal() == UnitType.MASS.getOrdinal()) {
                 boolean unitChange = false;
                 // Check to see if it is a unit change
@@ -428,7 +433,7 @@ public class ProductBatchModel extends BatchModel {
     }
 
     public void setTotalVolumeAmount(AmountModel volume) {
-        if (volume != null /*&& volume.GetValueInStdUnitsAsDouble() != 0.0*/) {
+        if (volume != null /*&& volume.getValueInStdUnitsAsDouble() != 0.0*/) {
             if (volume.getUnitType().getOrdinal() == UnitType.VOLUME
                     .getOrdinal()) {
                 boolean unitChange = false;
@@ -461,9 +466,15 @@ public class ProductBatchModel extends BatchModel {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         ProductBatchModel that = (ProductBatchModel) o;
 
