@@ -11,6 +11,7 @@
         .for-print-only .print-header {border: none;}
         .for-print-only .print-header tr th {border: none;}
         .for-print-only .print-header tr th h2 {margin: 0; font-family: inherit; font-style: italic; font-size: 16px; text-align: right; font-weight: bold; color: #4252af;}
+        .for-print-only .print-header tr:last-child td:last-child {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .for-print-only .table-name {display: inline-block; margin-bottom: 10px; font-size: 14px;}
         .for-print-only table.print-table-inner {width: auto;}
         .for-print-only table.print-table-inner td{border:0; padding: 0 0 5px; text-align: left;} .print-table-inner-td {vertical-align: top;}
@@ -41,25 +42,23 @@
                             <td style="width:30%">{{notebook.name + '-' + experiment.name}}</td>
                         </tr>
                         <tr>
-                            <td>Co-authors:</td>
-                            <td>{{ joinArr(reactionDetails.coAuthors) }}</td>
+                            <td>Project:</td>
+                            <td>{{project.name}}</td>
                             <td>Status:</td>
                             <td>{{experiment.status | uppercase }}</td>
                         </tr>
                         <tr>
-                            <td>Project:</td>
-                            <td>{{project.name}}
-                                <td>Printed Page:</td>
-                                <td>#pageNum of #numPages</td>
+                            <td>Printed Page:</td>
+                            <td>#pageNum of #numPages</td>
                                 <!--think about-->
+                            <td>Printed Date:</td>
+                            <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
                         </tr>
                         <tr>
                             <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
                             <!--what if no such component?-->
                             <td>Subject/Title:</td>
-                            <td>{{reactionDetails.title || conceptDetails.title}}</td>
-                            <td>Printed Date:</td>
-                            <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                            <td colspan="3">{{reactionDetails.title || conceptDetails.title}}</td>
                         </tr>
                     </table>
                 </div>
@@ -96,6 +95,10 @@
                             <td>{{joinArr(reactionDetails.linkedExperiments, 'text')}}</td>
                             <th>Literature&nbsp;Reference:</th>
                             <td>{{reactionDetails.literature}}</td>
+                        </tr>
+                        <tr>
+                            <th>Co-authors:</th>
+                            <td colspan="3">{{ joinArr(reactionDetails.coAuthors) }}</td>
                         </tr>
                     </table>
                 </div>
@@ -138,11 +141,11 @@
                                 <p class="text-center m-t10">{{reactant.fullNbkBatch}} </p>
                                 <p class="text-center m-t10"> {{reactant.compoundId}} </p>
                             </td>
-                            <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
-                            <td style="width:8%">{{toDigits(reactant.weight) }}</td>
-                            <td style="width:8%">{{toDigits(reactant.mol)}}</td>
-                            <td style="width:8%">{{toDigits(reactant.volume)}}</td>
-                            <td style="width:8%">{{toDigits(reactant.eq)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.molWeight) }}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.weight) }}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.mol)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.volume)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.eq)}}</td>
                             <td style="width:30%" class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
@@ -210,16 +213,16 @@
                             <th style="text-align: center;">Batch Information</th>
                         </tr>
                         <tr ng-repeat="batch in batchSummary.batches track by $index">
-                            <td style="width:10%">{{batch.nbkBatch}}</td>
+                            <td style="width:10%; text-align: center;">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
                                 <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
                                     <p style="text-align: center; margin-top: 20px;">
                                     {{batch.stereoisomer.name }} {{batch.stereoisomer.description }}</p>
                                 
                             </td>
-                            <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
-                            <td style="width:10%">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
-                            <td style="width:10%">{{batch.purity.asString}}</td>
+                            <td style="width:10%; text-align: center;">{{toDigits(batch.totalWeight)}} </td>
+                            <td style="width:10%; text-align: center;">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
+                            <td style="width:10%; text-align: center;">{{batch.purity.asString}}</td>
                             <td class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
@@ -263,16 +266,16 @@
                     <span class="pull-left table-name">REGISTRATION SUMMARY</span>
                     <table class="print-table">
                         <tr>
-                            <th style="width:30%">Nbk Batch</th>
-                            <th style="width:20%">Total Amount Made</th>
-                            <th style="width:30%">Registration Status</th>
-                            <th style="width:20%">Conversational Batch</th>
+                            <th style="width:30%; text-align: center;">Nbk Batch</th>
+                            <th style="width:20%; text-align: center;">Total Amount Made</th>
+                            <th style="width:30%; text-align: center;">Registration Status</th>
+                            <th style="width:20%; text-align: center;">Conversational Batch</th>
                         </tr>
                         <tr ng-repeat="batch in registrationSummary.batches track by $index">
-                            <td style="width:30%">{{batch.fullNbkBatch}}</td>
-                            <td style="width:20%">{{toDigits(batch.totalWeight)}}</td>
-                            <td style="width:30%">{{batch.registrationStatus}}</td>
-                            <td style="width:20%">{{batch.conversationalBatchNumber}}</td>
+                            <td style="width:30%; text-align: center;">{{batch.fullNbkBatch}}</td>
+                            <td style="width:20%; text-align: center;">{{toDigits(batch.totalWeight)}}</td>
+                            <td style="width:30%; text-align: center;">{{batch.registrationStatus}}</td>
+                            <td style="width:20%; text-align: center;">{{batch.conversationalBatchNumber}}</td>
                         </tr>
                     </table>
                 </div>
@@ -382,6 +385,10 @@
                             <td style="width:30%">{{conceptDetails.keywords}}</td>
                             <th style="width:20%">Designers</th>
                             <td style="width:30%">{{joinArr(conceptDetails.designers)}}</td>
+                        </tr>
+                        <tr>
+                            <th>Co-authors:</th>
+                            <td colspan="3">{{ joinArr(conceptDetails.coAuthors) }}</td>
                         </tr>
                     </table>
                 </div>
