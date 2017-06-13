@@ -1,14 +1,10 @@
 angular.module('indigoeln').controller('ExperimentNewController',
-    function ($scope, $rootScope, $stateParams, $state, $uibModalInstance, Experiment, pageInfo, Template) {
+    function ($scope, $rootScope, $stateParams, $state, $uibModalInstance, Experiment, pageInfo) {
 
         $scope.experiment = pageInfo.entity;
         $scope.notebookId = $stateParams.notebookId;
         $scope.projectId = $stateParams.projectId;
-        Template.query({
-            size: 100000, //prevent paging on backend
-        }, function (result, headers) {
-            $scope.templates = result;
-        });
+        $scope.templates = pageInfo.templates;
         $scope.mode = pageInfo.mode;
         $scope.template = $scope.experiment.template;
 
