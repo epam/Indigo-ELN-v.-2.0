@@ -1,6 +1,6 @@
 <div class="wrapper-list-experiment" my-scroller="y" my-scroller-theme="light">
     <ul class="sidebar-menu animated">
-        <li class="open">
+        <li ng-class="{'open': myBookmarks.projects.length}">
             <a ng-click="toggleBookmarksProjects(myBookmarks)">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-bookmark"></i>
@@ -41,7 +41,8 @@
                 </li>
             </ul>
         </li>
-        <li has-authority="{{CONTENT_EDITOR}}">
+        <li has-authority="{{CONTENT_EDITOR}}"
+            ng-class="{'open': allProjects.projects.length}">
             <a ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-sitemap"></i>
@@ -79,7 +80,8 @@
                 </li>
             </ul>
         </li>
-        <li has-any-authority="{{ADMINISTRATION_AUTHORITIES}}">
+        <li has-any-authority="{{ADMINISTRATION_AUTHORITIES}}"
+            ng-class="{'open': adminToggled}">
             <a ng-click="toggleAdministration()">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-cogs"></i>
