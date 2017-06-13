@@ -326,7 +326,7 @@ angular.module('indigoeln')
             return '<div class="form-group {{myClasses}}">' +
                 '<label>{{myLabel}}</label>' +
                 // '<div class="col-xs-10">' +
-                '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
+                '<ui-select ng-model="ctrl.selected" theme="bootstrap" onkeypress="return false;" ng-disabled="myReadonly" on-select="myChange()" on-remove="myRemove()" append-to-body="true">' +
                 '<ui-select-match placeholder="{{myPlaceHolder}}" >' + content + '</ui-select-match>' +
                 '<ui-select-choices repeat="item in myItems | filter: $select.search">' +
                 '</ui-select-choices>' +

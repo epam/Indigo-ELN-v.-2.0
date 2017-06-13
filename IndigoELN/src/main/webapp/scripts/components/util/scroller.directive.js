@@ -51,6 +51,7 @@ angular.module('indigoeln')
                
                 var $element = $(iElement);
                 $element.addClass('my-scroller-axis-' + iAttrs.myScroller);
+                var prev = [];
                 $element.mCustomScrollbar({
                     axis: iAttrs.myScroller,
                     theme: iAttrs.myScrollerTheme || 'indigo',
@@ -58,7 +59,11 @@ angular.module('indigoeln')
                     callbacks : {
                         onScroll : function(e) {
                             if (!key) return;
+                            if (prev && prev[0] ==  this.mcs.top && prev[1] ==  this.mcs.left) return;
+                            prev[0] =  this.mcs.top;
+                            prev[1] =  this.mcs.left
                             scrollCache[key] = [this.mcs.top, this.mcs.left];
+                            iElement.trigger('click') //// will close some popups EPMLSOPELN-437
                         }
                      }
                 });
