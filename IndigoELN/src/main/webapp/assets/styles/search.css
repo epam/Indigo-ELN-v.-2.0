@@ -231,6 +231,9 @@
   display: inline-block;
   padding-right: 10px;
 }
+.search-action {
+  margin-right: 20px;
+}
 .search-field {
   display: inline-block;
   height: 26px;

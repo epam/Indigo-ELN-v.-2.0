@@ -721,6 +721,9 @@ tr {
   display: inline-block;
   padding-right: 10px;
 }
+.search-action {
+  margin-right: 20px;
+}
 .search-field {
   display: inline-block;
   height: 26px;
@@ -2113,6 +2116,9 @@ ul.my-dropdown-list {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.37);
   margin-left: 16px;
   background-repeat: no-repeat;
+}
+.reaction-popup.slide-up .reaction-image {
+  margin-top: -150px;
 }
 .reaction-popup:hover .reaction-image {
   opacity: 1;
