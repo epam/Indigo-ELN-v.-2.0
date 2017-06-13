@@ -32,7 +32,9 @@ angular.module('indigoeln')
                             pageInfo: function ($q, $stateParams, Template) {
                                 var deferred = $q.defer();
                                 $q.all([
-                                    Template.query().$promise
+                                    Template.query({
+                                        size: 100000, //prevent paging on backend
+                                    }).$promise
                                 ]).then(function (results) {
                                     deferred.resolve({
                                         entity: {name: null, experimentNumber: null, template: null, id: null},
@@ -163,7 +165,9 @@ angular.module('indigoeln')
                                 return NotebooksForSubCreation.query().$promise;
                             },
                             templates: function (Template) {
-                                return Template.query().$promise;
+                                return Template.query({
+                                        size: 100000, //prevent paging on backend
+                                    }).$promise;
                             }
                         }
                     }).result.then(function (result) {
