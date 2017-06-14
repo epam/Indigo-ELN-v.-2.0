@@ -2,7 +2,9 @@ package com.epam.indigoeln.core.util;
 
 public class EqualsUtil {
 
-    private static double PRECISION = 0.00000001;
+    public static final double PRECISION = 0.00000001;
+
+    private EqualsUtil(){}
 
     public static boolean doubleEqZero(double number){
         return Math.abs(number - 0.0) < PRECISION ? true: false;
