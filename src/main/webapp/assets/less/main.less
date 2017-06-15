@@ -482,77 +482,119 @@ tags-input {
 }
 
 //--------------------PRINT STYLES
+.experiment-preview {
+  font-family: @print-font;
+  color: @print-color;
 
-.print-header {
-    color: grey;
-    margin-top: 20px;
+  table {
+    border: 1px solid @print-border-table-color;
 
-    tr:first-child{
-        background-color:@brand2;
-
-        th:first-child {
-            color:#fff;
-            padding:0;
-
-            h2{
-                margin: 10px 0px 10px 10px;
-            }
-        }
-
-        .logo{
-            margin:0px;
-        }
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid @print-border-table-color;
     }
+
+    th {
+      font-family: @print-header-row-font;
+      font-weight: 900;
+    }
+  }
+
+  .table-name {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: @print-color;
+    font-size: 14px;
+  }
+  .print-header {
+    margin-top: 20px;
+    border: none;
+
+    .logo {
+      background: url("../images/logo_new_blue.png") no-repeat;
+      background-size: cover;
+      margin: 0;
+    }
+
+    tr {
+      th {
+        border: none;
+        height: 50px;
+        padding-left: 10px;
+
+        h2 {
+          margin: 0;
+          font-family: inherit;
+          font-style: italic;
+          font-weight: bold;
+          font-size: 16px;
+          text-align: right;
+          color: @print-header-color;
+        }
+
+        &:last-child {
+          border-left: none;
+        }
+      }
+
+      td {
+        &:nth-child(odd) {
+          font-family: @print-header-row-font;
+          font-weight: 900;
+        }
+      }
+    }
+  }
+
+  .print-table-inner {
+    border: none;
+
+    td {
+      text-align: left;
+      padding: 0 0 5px;
+      border: none;
+    }
+  }
+
 }
 
 .print-header, .print-table, .print-table-simple, .print-box {
     width: 100%;
     margin-bottom: 50px;
     padding: 5px;
-    border: 1px black solid;
 }
 
- .print-table { table-layout : fixed}
+.print-table {
+  table-layout : fixed;
+}
 
 .print-component .simditor-toolbar {
     display: none;
 }
 
-.print-component .simditor {
-    border-color: black;
-}
-
 .print-component{
     display: flex;
-    justify-content: space-between;
+  justify-content: flex-end;
     .my-checkbox-wrapper{
         padding-top:7px;
     }
-}
-
-.print-header td, .print-header th, .print-table-simple td, .print-table-simple th {
-    padding: 5px;
-    border: none;
-}
-
-.print-table th {
-    text-align: center;
+  .simditor {
+    margin-bottom: 50px;
+    .simditor-body {
+      p,
+      li {
+        color: @print-color;
+      }
+    }
+  }
 }
 
 .print-table th, .print-table td {
-    border: 1px black solid;
     border-collapse: collapse;
     margin-bottom: 50px;
     padding: 8px;
     vertical-align: top;
-}
-
-.print-table-inner td {
-    border: none;
-}
-
-#print-form {
-    font-family:"Times New Roman",Georgia,Serif;
 }
 
 .need-to-print .checkbox label:before {
@@ -907,6 +949,10 @@ ul.my-dropdown-list {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.37);
     margin-left: 16px;
     background-repeat:  no-repeat;
+}
+
+.reaction-popup.slide-up .reaction-image {
+    margin-top: -150px;
 }
 
 .reaction-popup:hover .reaction-image {

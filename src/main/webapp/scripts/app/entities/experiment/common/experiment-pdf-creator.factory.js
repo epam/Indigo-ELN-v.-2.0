@@ -3,9 +3,10 @@ angular.module('indigoeln').factory('experimentPdfCreator',
 
         var preparedPrintForm = function () {
             var $printFormClone = $('#print-form').clone();
+            $printFormClone.find('#print-img-logo').appendTo($printFormClone).hide()
+            
             $printFormClone.find('.print-header').remove();
             var desc = $printFormClone.find('.simditor-body').html();
-            console.warn(desc)
             $printFormClone.find('.simditor').children().remove()
             $printFormClone.find('.simditor').html(desc);
             $printFormClone.find('div.print-component').each(function () {
@@ -72,7 +73,7 @@ angular.module('indigoeln').factory('experimentPdfCreator',
                     html: '<!DOCTYPE html>' + html + '</html>',
                     header: header,
                     fileName: fileName,
-                    headerHeight : '70mm'
+                    headerHeight : '85mm'
                 }).$promise.then(function (response) {
                     actionToApply(response);
                 });

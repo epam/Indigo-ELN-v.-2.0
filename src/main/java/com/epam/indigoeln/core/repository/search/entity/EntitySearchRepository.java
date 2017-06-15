@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.BasicDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
@@ -99,6 +100,7 @@ public class EntitySearchRepository {
         result.setKind(KIND_PROJECT);
         result.setName(project.getName());
         result.setDetails(getDetails(project));
+        result.setProjectId(project.getId());
         return result;
     }
 
@@ -115,6 +117,8 @@ public class EntitySearchRepository {
         result.setKind(KIND_NOTEBOOK);
         result.setName(notebook.getName());
         result.setDetails(getDetails(notebook));
+        result.setProjectId(notebook.getParentId());
+        result.setNotebookId(notebook.getId());
         return result;
     }
 
@@ -138,6 +142,9 @@ public class EntitySearchRepository {
             result.setName(notebookName + "-" + experiment.getName());
         }
         result.setDetails(getDetails(experiment));
+        result.setProjectId(SequenceIdUtil.extractFirstId(experiment));
+        result.setNotebookId(experiment.getParentId());
+        result.setExperimentId(experiment.getId());
         return result;
     }
 

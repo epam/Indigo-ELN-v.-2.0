@@ -336,6 +336,9 @@ textarea,
   background-color: #84d5fb;
   border-radius: 50%;
 }
+.input-group input {
+  text-overflow: ellipsis;
+}
 .input-group-btn .btn {
   height: 34px;
 }
