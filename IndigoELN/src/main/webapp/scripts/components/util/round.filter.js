@@ -13,9 +13,9 @@ angular.module('indigoeln')
             var indexOfDecimal = stringVal.indexOf('.');
             // March through string to find nonzero and sig zero characters.
             var finished = false;
-            for (let i = 0; !finished && i < stringVal.length; i++) {
+            for (var i = 0; !finished && i < stringVal.length; i++) {
                 if (i !== indexOfDecimal) {
-                    let number = parseInt(stringVal.charAt(i));
+                    var number = parseInt(stringVal.charAt(i));
                     // handle numbers like 123: item 1
                     if (number > 0) {
                         result = result + number;
