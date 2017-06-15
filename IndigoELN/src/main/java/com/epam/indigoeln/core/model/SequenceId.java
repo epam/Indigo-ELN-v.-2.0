@@ -25,7 +25,7 @@ public class SequenceId implements Serializable {
     @Version
     private Long version;
 
-    List<SequenceId> children;
+    private List<SequenceId> children;
 
 
     public SequenceId() {

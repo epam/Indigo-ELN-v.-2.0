@@ -1,11 +1,9 @@
 package com.epam.indigoeln.core.model;
 
-import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

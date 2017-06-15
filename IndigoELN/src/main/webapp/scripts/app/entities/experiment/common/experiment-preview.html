@@ -1,19 +1,37 @@
-<div class="panel panel-info">
+<div class="panel panel-info experiment-preview">
     <div id="css-for-print" style="display: none">
-        .for-print-only img { width: 100% } .for-print-only { font-size: 13px; color: #000; font-family: arial; } .print-component { page-break-before: auto; page-break-inside: avoid; margin: 20px 0; } .print-component.first { margin-top: 0 } .for-print-only table { width: 100%; border-spacing: 0; table-layout: fixed; border-collapse: collapse; } table { page-break-after: auto } tr { page-break-inside: avoid; } .pba { page-break-inside: avoid; } thead { display: table-header-group } tfoot { display: table-footer-group } .for-print-only table td, .for-print-only table th { border: 1px solid #ccc; font-size: 13px; padding: 4px; word-wrap: break-word; page-break-inside: avoid; } .for-print-only table.print-table-inner td{border:0; } .print-table-inner-td {vertical-align: top;} .simditor {border : 1px solid #ccc; padding:10px}
-.     </div>
+        .for-print-only img { width: 100% } .for-print-only { font-size: 13px; color: #666; font-family: Trebuchet MS,Helvetica,Arial,sans-serif; }
+        .print-component { page-break-before: auto; page-break-inside: avoid; margin: 20px 0; }
+        .print-component.first { margin-top: 0 } .for-print-only table { width: 100%; border-spacing: 0; border-collapse: collapse; }
+        table { page-break-after: auto;     table-layout: fixed; } tr { page-break-inside: avoid; }
+        .pba { page-break-inside: avoid; } thead { display: table-header-group }
+        tfoot { display: table-footer-group }
+        .for-print-only table td,.for-print-only table th { border: 1px solid #ccc; font-size: 13px; color: #666; padding: 10px; border-collapse: collapse; word-wrap: break-word; page-break-inside: avoid; }
+        .for-print-only table th, .for-print-only .print-header tr td:nth-child(odd) {font-family: Arial,sans-serif; font-weight: 900; text-align: left}
+        .for-print-only .print-header {border: none;}
+        .for-print-only .print-header tr th {border: none;}
+        .for-print-only .print-header tr th h2 {margin: 0; font-family: inherit; font-style: italic; font-size: 16px; text-align: right; font-weight: bold; color: #4252af;}
+        .for-print-only .print-header tr:last-child td:last-child {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .for-print-only .table-name {display: inline-block; margin-bottom: 10px; font-size: 14px;}
+        .for-print-only table.print-table-inner {width: auto;}
+        .for-print-only table.print-table-inner td{border:0; padding: 0 0 5px; text-align: left;} .print-table-inner-td {vertical-align: top;}
+        .for-print-only .pba:not(:first-of-type) tr td {border-top: none;}
+        .for-print-only .pba:not(:first-of-type) tr td p {text-align: center;}
+        .simditor {border : 1px solid #ccc; padding:10px; margin-bottom: 50px;}
+    </div>
     <div class="panel-heading">Preview Experiment {{notebook.name + '-' + experiment.name}}</div>
     <div class="panel-body panel-experiment-preview">
         <form name="print-form" id="print-form" role="form" novalidate>
             <!--HEADER-->
             <div class="row print-component">
-                <div class="col-xs-12">
+                <div class="col-xs-11">
                     <table class="print-header">
                         <tr>
                             <th colspan="2">
-                                <h2>CONFIDENTIAL</h2></th>
+                                <img id="print-img-logo" style="max-height:50px; margin-bottom: 15px; margin-top: 15px; width: auto;" class="img-responsive" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWYAAABxCAYAAADmggmBAAAcNElEQVR4nO2debwVdd3H35cLKAbiEgkq4C6idtUeXDKXq2ZqRpKBzxNqpBSau2Xm2pOZ6eOSmlmSSyYu4ZZrueA1l0SvG4kLgojihhKCmsAVuM8fn3Nizsz85sw5Z2bO9n2/XvePMzN3fr+zzHd+810+35bdRt2DUUALsD2wB7ATsCUwAOiX2/8hMAf4J/Aw8FdgXtaTNAyj/mlv6wzd3jPjedQyfYEfAkcCG0Qct2bub1vgu8By4G/ABchQG4ZhVESPak+gBmhBxngOcB7RRjmMVuDrQAfwIDAswbkZhtGENLthHghMAS4H1o447hPgTeBtoCviuD2BacDRSU3QMIzmo5kN89ZAJ9Aesm8+cCmwHzLY/YChwPrAasCmwPeRC2OF7397A78BrkSracMwjJJoVsO8NfAQMrRe3kN+5nWB41Bgb4HvmOXALGR49wU2B64LGeNw5HMei4y1YRhGLJrRMK8D3AN83rd9MvIP/w74rITzzQIOBXYD3vHt+wowKXfMgeVM1jCM5qPZDHMLMpSDfdt/AhwELKrg3I8A2wHTQ/YNBm4Bfp2bg2EYhpNmM8yHAXv5tp0CnJ/Q+ecBuyAXht/3DHA88LOExjIMo0FpJsPcBzjbt+02lCKXJAtRQHEQMvoLfftPB4YnPKZhGA1EMxnmCSg9Ls+HwHigO6Xx3gfORVWESz3bW1HetGEYRijNZJh/4Ht9NjLOaTIc+ZZX8W0flfK4hmHUMc1imL8MbOF5/TFwRcpjjgOeBr7o274cGWsrhzcMI5RmMQ7+1fIk4N8pjdWKdDOOD9n3IisNtmEYRijNYJg3Br7j23ZlSmOtBtwO7O3b3o2M9RkU+psNwzACNINhvhjo5Xn9KfBsCuOsgSoFd/Rt/xDdGP6WwpiGYTQgzWCYv+p7nYYA9VrA34GtfNufB74FvJ7CmIZhNCiNHvz7MYUZEd3ATxMeoz9aKfuN8hRUpm1G2TCMkmh0w3yU7/VrwOwEz98b+ZS3922/GSnTfZTgWIZhNAmN7MoYTFD0/qKEx7iCoGzoZORTXp7wWIZhNAmNZJjXAnZFQkIbAW2+/cuBLwEnIB3mqcCyCsb7MUp983IXcAhmlA3DqIB6N8xrIr3jQ4D/Ito104o0kvN8gnzDfwTupzQjvTMqt/byJFKoi+pwYhiGUZR69TEPAi4D3kXdQran9PfSFxiNsjReQVoavSL/Q6wJ3Ehhd5J3UJn14hLnYBiGEaDeDHMv4ExgJgrs+TUoymVj4PeoX9/uRY69nkI95y7gAHSTMAzDqJh6cmVsg9wOft9xniXAA8il0Am8hdpCLUEVeQNQG6gvIU3m7ULOsQXqdn0hkuz0dzI5E7WT8nJqbjzDMIxEaNltVBr1FonSCzgt9xd2I3kStYO6ndLS0zZEwvlHEt4h+wlgJGrMCvAF5LLwujA6UGfstKRDDcNoYNrbwtd0te7K2Ap4CnX98BvlGShXeEfgWkrPGX4daVdsAPyCoIbFTsCjrGzYejvBrtcnYUbZMIyEqVXD3BOtkJ9BLgwvK5Ag0DYoq6JSPkEuiq0JamgMA+5Dq+Iv+/b9PTc/wzCMRKlFw7wVyjE+G1XWeZmBUtVOQr7jJJmJjO8k3/bhwL2+bV2Y2L1hGClRS4bZu0r+km+fd5U8Neb5hiEdi1JYChyKfNZe/DeIK0i/+4lhGE1KrWRlDAf+RNAgA8xCBSRxDXIrcCJwIEEJzjh0o1S8NYH/Dtm/BFUPGoZhpEK1V8ytyC3xLEGj3A1cgtLjSlklPw78HzL05dKNMjamh+y7Ciu5NgwjRappmL1G1F8oMgtJZh6PhO2L0SN37HPADrn/8fuKS2Ux8D8ES7VfqvC8hmEYkVTDMOdXyc8jI+rFu0p+NOb5NkUZEr8GVs1tu4lkJDenow4oXsYncF7DMAwnWfuYh6HqPb9BBmklf4/4BrkHcCxwDtDHt29imfML4zxUhPK53OttkYrdIwmOYRj1TA9UVbsZUnbsn/tbhtJRPwBeRVlVc6s0x0pYG8XBNkM6PX3RIvBj9P7eRHo7M4j3hF+UrAxz3oieS7i+xeXAyehNxmFD4Brk7vAzHVUDJsV85Fc+1rNtNJUb5k1YWbzi5RPK76Ldh/Cbnpd/olL1rBgGDAzZvoT4sQM/vQnmlSfFcnTBzUeVnitSGicuPYGvOPZNZ2VlatasBYwB9kfzi5sBNRd4CPgLEhDzyx7UAi3oPY0G9gC2jPl/S9Fv+gHgBiroXpRFSfamwNWE/7jmoCBbR8xztQA/RKvYzzmOORYpziXJthQWn7yLjGolF+3FwHEh26cRLKophesJdgX38hgqmMlKnvSPwHdDtr9BsJFBXFqQURpe5v/HZQnwMvAwKjSaQmUa3uWwBu7UzFHIwGXJ9sgVeQCVL+z+hTrWXwy8V+G5kqAfUpk8GhiawPkeQTG0e3FUCFejJDsfkJtGuFG+HFXbxTXKG6I77WW4jfJi4LrSphmL55AhyTMIrXhrkfFEVyR+BX329Uw38NsMxlkV3ZRPQF3O30Tl+5/PYOxaYwtUafsk8G2SedpeGz0pv44MmOu6TpteKMV2LnA+yRhlkMvzbnQ9up56QknLMHsDcn7/7xz0eHAU8VwXLcD30SP47kWOnQwsLGGepTDF9zpMna4WWIxWUu9HHHM44av1euJPZN9TcRBwOoqHnEY8/e56pxfwS+AFYJ+UxlgVrcJfTnEMFyOQbbmQ0gvS4rItip1djfzTRUnaMLegC961Sr6S0lbJQ9Aj5ESCbyjMACcZ9PMzzfd66xTHqpS5qMAmyn93EfDVbKaTCp+gH3o1WB1JBnQS7I7eSGyAVBZPJSjglQaD0ar8nIzG+wnwDxQHyYLvofhRUduRpGHOuxouJrhKngt8Da18S1klTyfceFwL/Ny3bTr6kNPiVd/rQSmOlQSPIV+Zix7oCWPTbKaTCpdRXXW/NmS4vlnFOaTFCBTICqvGTZtTgNtYmf6aNL1R8sB5ZJ+Ztjm6Nv1NnAtIYlLFAnJXAj8i/mPnesAfCArSA8xDPtS7CRrhNFfLoECFlzVSHi8JJqJA4pGO/WugBrI7AIuymlSCvIYi+/tXcQ59kRE5FAVeG4Ed0FOtf4Hl4i0UIH0SLWDeR0+0vZF7YCOU2bAryqaJ4wIaieIIhxc7sER6ArcA34h5/DJUCPcYWvzNRtfKUvTkNACl0e2AjO2QGOdcHXkCvolDIbNSw7whepzcPWTfXGRE7y/hfOPQijvM13MDyrj4F3oU2MmzbymVV/oVw+8WqAfDDNKcdhlm0B38RvRDrcdS81Mo9P+fBKwbctwjSFO7GD3QhbM+MiYjKP5Y3QP5vJeii76e2RZds8WM8mfAn1FLtn8Q/eTiTT3Ia9AcgwKKLhaigGCStKAsoThGeQayRZMpnl46BQmftSADPR7p+/jFz7z0Am7tmDaivb2tM5DeW65hLrZKvhpFsktZJU9Ewvd+5gFHUJgW9APfMTeTvtqb/7PKOvBULnGM7b7ou/xxynNJg+kUapqMI9wwP0ewijMOayB//TG425rBSuM8m6Cud72wNrp5rV7kuFvRb2VOGWN8iIzYFUjy4HyCbsHlKId4Rhnnj+KnwNgix7yHfM/XU3o6bDdy/0xFzT3OBQ6OOL4PcEfHtBHbtLd1FqQLluNjHoISqMPS1t5Bj5WHE99wjUUR3zCjfDNatXiN8mrobuQlbTcGBNtPxS2GqRd+RHi+cbOzEBUYbYeMftQCoA9aRa6W/rRS4TqiU8UWAgehdLk5FY61Ahm/YeiJzcvRwIMVnt/PbihgG8VtyN5cR+WFRW8jO7UfWly6WAeY1DFtRIEtLsUwewNye4bsvxa9qbgVKwORwZ2EHm+8zEdVRWMI+nbHUOjqeJn4ZdyV4A+SvRF6VH0zkfKkUpuBFeg3/kWCGTpeNkFZBfXGIYTHdfLMRU0qJic87keoICr/tHYZco8kyaoo1hVl785BN5ykq2L/itwbUeJne+Lzpcc1zN60tX6+fflV8jji5xCPBV4kPJp9C6routnxv343RharZQhW483MaNws6Y1ulmGl4oZ4C62+otwVR5NdClYS9EV5vC7eRYGtNJUVL0R25PgUzn0y0QVhZ6G89LQyfN5AcbgwGeE8v+qYNmKt/ItihjlO2lopq+QByPBOQrX2XhYgn9NoJHoSRljQrxLd5VLY3fe6XD2LWmcd4A7q93E8CxahR9R3HftbUVFGvXA0ujbD6EIZEq9lMI97SD4AvQbRjS2uR/7gtPkA3Xj8HoA8a+O5KUUZ5vVxr5LnoeqyccRfJY9Gd9wDQ/bdgQz8TUXO4ZfcvJlsBHm2Ajb2vJ6PVvyNynYogNtS7YnUMPPQ79/FKJS1VOusioJdLk6mvhchR+Gu6JuNEguy4g2UVuni2I5pI/qB2zCPw71KvoFgQC6KAciATiaoMbAARS0PoLiIyaoEg35/iDmHSvF/mPdQ3cKGLDgIPd4Zbu5HAaMwWohOU6wVvkUwxpPneZIXBMuSHkTrpx9L9kH8e1GAOIz+5NrZ+Q3zesjoXEPwLpNfJY/FvRz3cwBaWX7bMcGtiJ+UP5rCH9CrZBP060/Qr90ohQSXEK2W9gsas6otSc6M2Bf2u681olZwZ1Kfue15dsGtYDiV+C7YpDkd9+d6MBQa5nHIiIalrZW6Sl4bGa/bCfquFqGa8a/j9tH5OZxgpHsi2axaf0ThTeo1goJG9crDFBczup7a1gWpNi/i1n7ZkMokXNOmD25hsBmowraeiRJESrp4pRRm4S522qVj2ogBPYheJc9HPuG4q+SeaHX5EuGawPciA//HGOcCiZo8h1JdvJkCXSjwmDabEvS/nUP1xdOT5HKiM1s+h8q2m1HqMi43ROzbNbNZlM7OhDeuAAXo691dt5dj+0Jki6rJNY7tLcBuPVA9etgqGTT5ONU3A5Ce6QuooucLIcdchFbJb8c433rojjKH8BXHraTfuaE3CkZ6f7gvk37pdzU4hmi30FD0mUeVmDYzURd5LeeFR63m78xsFunQinLOw7gPZXRVk4ci5rBzT7QiPgn5E/1lx4fm/t5EKlqvoIDdCpTuNhQlT29B8dS7E1Hw7mG0AnuAlQG/QbnzjEI5osWEqtPOXW5BNxi/5vJRZNf5I0u6kD+0E7cIy67ApWQbxa4X3kHXSNhnt3nGcykFVweYhUTn3NYDG+BeSPw9w3m4WIJEn8KeqIb1RE7oc1GHhisJl/kbQjzVpGIMQEG80RWc41XS/WD7ABcQTIW6jPg60vXI+yjQ9zjuHOYJ6Kkoi+4h9cY0wq+RjUO21Qqua3o69e+ui7JXtXLTeYlww7y5d4X8POrndTBS7Cq3cukzlBo3DVXUJK2pmmbQb28ksLKRb3snCgI2Os+jwKwrnQeUyfEyehQzVuLq/pxWV4wk8Ncn5ElDbqCD8vK6X8Ltao0i6nOfVcb50sD1m1nL735YgSrptkQ5zNcQL3NiOfJRnozcEAcj1ah+qAKqnEaLnxIUMvmMdHr6DUDZB/cRNMqzkG+8EV0YYUwmumqtFVVv1vJKsBq4qlWhdiViXYG/uOmwpXA3sg2l/oUpBcYhSiGvVgTIPnZs7++S/VyBjGLeMOaFrgejN9zCyhbvM3J/n4acZxnK2Tsd1aofgVpObYIel3vlzrU89/9voyqjiUjj9UIKI6t/IbqXXTmMRpkJYVkH+R5kURddI3IGSpEb6di/JooT7Ej9yJ+mTT1mMLhyadN4L1ejJ+isSv1dRg/CbVU1cMbl4uoxz879VcIsStP7XYWgDOUVFc7By1rIbTEmZN9iFAy9gOi+eY1KN3rqeQLdkMPYAj1lHEB9FyEkRVT5eloNgivFZbzSaOn0Icpo8hdrpcW/I/b1oza+E1dj1q60umQnwYEUaiC/RnJ+zT1RECvMKD+AotW/ojmNcp6P0Yo5Sn94f+pLrCdNwlJEobZbdrmeBAemNN5lKZ03jKin3HLdI0njd5vm+biWDXOYvGelj1i9kO/7QYJfTr4icW8qFwFvFGYjV0/UivhkineFaAZcF1kWqmzl4m8wnCeq5VMlvIDSZbMgKsCX1vsrFVe64pysO8TGZXOUz5znM+JXC7oYgrINwhL+70Nl33GKX5qNKSgH/ZKIY65C+tRPZTKj2sSf857n5UxnURqvOLZvhp4Ako7ngLqIhD1FbI375lYOH6Preb2QfTujgqlq0hd3B/KXanXF/H3f60qDfl9HqWB+o7wYadHuixnlKC5FxtfFKug7qpVHxKzZEree8dQsJ1IiT0Tsi+pmUglTUFzC/3dXCmM95tie1nsrhX1wdwt/rhYNc2+Cilflynu2oAyDuwhKG04H/gsVS9RjRD1rfkj0hTwIGee4Le8biVER+x7OahJlMAv3gqQR+j+6ZAaGUf1S+ShVvwdr0TAfQOHq43XKU3Prh/Q2ziIYMZ+I2tKn2Sqn0ehC2r1vRRwzAlWPNpPAfg/gMMe+2dROlZkLl2JkO7BtlhNJgTtxL7rSaGEVl+EocB7GO8D0WjTME3yvr6T08tChqLQ4TEv4hdwYS0qfWtPzHrpxLo445jsoINgsjMFd0ebqW1lLRCnjFesqXevMxe3OGIM7LpA2Z+NevFzb3tbZXWuGeRNgD8/rZSgxvRR2REEol4bwRWXMy1jJM/g6+oZwDvCNDOZSbVZDaZVhdBPtl68VnsDdJm0/1IeznnEJnrUgF2nWCRD743Z9dZOTA601w+xPkbuT0sq5R6FcZ1dO6ftErxCMeNyIhK9ctKDiE1dxSqNwHu4OGXdRH53Uu4kWjf8d0iWvV27CrUmxHfoOs2J9oheak9vbOmdCbRnm3gQV3Uqp9DsCaThEBZ9+S/NoXqTN6US35umHbqxrRxxTz3wXZfS4qCc3wE24c5r7I50LV9ZJrbMMVfG6OJFsejMW+xxXoHgYUFuGeSTBoJ9fxMjFWejOHvV+luSOMZJhOfInu3JhQXmpriBHPTOW6JXPjUiRsF7oIjoYthlSh0tC+tdFGmXgea5CnZBcXI4as6bFANS4ty3imEvb2zr/k4xQS4bZ78a4iuJBvxbkMz7Dt30xwbznSTSfGFHafIRuqLWgO5AFvVAJ+iTc184i1Hii3vgr0XKvWyJh990ijimHHsCpBGsXkmRF7vxRjYcvAX5P8ume26BEhO0jjpmDz4bVimHeiEIVueW4e2LlaUWujhN82xeiL8GvFndxJRM0nMwEDqL+hdWjaEGBsGeREYniKOq3WGkC0XIEA9HK+WKCdQHlMBw1vfgl6duiZ4DTihwzAa2s9yhyXBxWyY03lWgf/VJgdHtbZ4EUaa0Y5vEUpo/cjfL5XLQi3Wj/XfZt1BFgBIXv7X7ckWejcu6nPleJUayOSnf/F7lr7gG2KvI/f0BBz3plEcpVj5LMbEGd1Wehz2adMsbZGi28/olkgIvNKSnOJ/qpACQHMQXJNOxF6Tn5fdHNeSaKM7g0r/NMaG/rfNq/sRa0MnoRTNCP6unXgnKb/V24X0Pi/gsIpnNZilz6XIR8aFEVTdXkMJSDXYxeKHDp6u7h4kF0QdY7z6H+j3fjLhkGyeb+DD2CP4Ba0/0DaYP4DfsAZIx3Qa6vuPnDc0hWIKsb/T6/gApootg79zcXFap1oM9mLoVPh72RD35HZH/2J77m9AntbZ3Xhu2oBcM8ksK77pvoSw6jBTnqx/m2T0ePHx+gFlBendMX0YrOSJ8foBXHDtWeSAjlGNu4dKBipkaRib0fuW7uoLiR6QF8LfeX5yO00m1F3VvKEcd/FWncRFWalkMXMp63EE8zYzAKDOaDg13IXboYPVX1p3TPw4rc+Zy9M2vBlVFKpd8FBLs0e41yT+AY3/5LMC2MrFiKcsmj3FCNxr3oQq+VrhhJ8SAK9LlygKNYHRm0dSnPKE9BK9C0evN9ip6eymm80RutuIciP3upNnQRukYiGxpX2zAPJRj0c1VLnYlyDr14jTLoDQ/17J+PIuhGdryLvoel1Z5IyixHQauRNJ5RzvM0yiq4O6PxulB+/D5EN2hIaqwjgEPIrj3a4+jzvLPYgdU2zHGDfhOAn/u2vYYen7wpcH7D/TuidR2MdHgKfbeNylS0ojudxm+rtQCV148mebeCl/uQPvEviU5rS5pJyP12Y4pjfICuh12J2YSjmoa5J8Eg3ZUhx41EfmUvbyPnvdeI70ShlF8XRR4XjFSZhFxPjcK/0cW7O/qtBSLpDc4tKO3rSBQHSoJu5M9uR6vkainxvYeSCbZDXeKTSv18B/U53Yh4dRn/oZrBv/2Rhm+et1CSu5cdULmo9wayCH2Jft+Xv3LpRmBe5dNMjVkohzNse5Isc4wDcvWkyU+RH26TkH2laKCUwtNUVvDSjX5jXeg3+XrunM9SHfdMNb8/P0tQEcZEZEzHoiBhKSlz3Sin+B7gWvT51grPoZz8QagZ8bdQ6m1rCeeYj1b/16NslbJW/y27jYqSO0iVeymMiv4c5UXmGYIeib1f+hKUwuIVwF4XZWIcR+EH2IbyJA3DSJdhqOnEZkgCtR/KxliKUucWoFzwl1GpetY3lEroB3wZ9QncFNmjvqiE/CPgE6S7PRPdcF6khGSD9rbwyv1qrZiHolVvnhUUBv36olSddXzHjGWlUR6CfHzjCOZbTsGMsmFkxStEa6bUMx+jFfB9WQ5aLcPsD/rdy0rXRAtwHYpeejkOuA3diU9Dyl4u4ZNfJzZTwzCMjKmGYW4lWCDirfQ7lWCF1kQUyBuPtGNddfozgAsJ+qoNwzDqhmoY5v2QYHSet9CKGeTeOMt3/KMo4PAY8vWE0YkEr2+nscV0DMNoAqphmP3ynlejXNAhqLuINwNjLqq/n4oqbvw8C5yClVwbhtFAZG2YB6MVc55uZJh7orQ4v4uiD+GNPd8DfoJyZa3c2jCMhiJrw3w4hSvivwFvoP5xO4Uc79dU7kbFJqeSXRmlYRhGpmRpmFsJVvpNBPYkXrv72Sho+GiR4wzDMOqaLA3zvhQG/d5F/uOoXlx5rkNat1EC3oZhGA1BlloZflGbq4DfoMo9F0tRsPBQzCgbhtEkZLViXpfCbsndyEc8JuJ/5iHx8SdTnJdhGEbNkZVhPpxCHYtnUFaFixdR9kZSKlaGYRh1QxaGuQdBN8aWuNuEP45W15UohBmGYdQtWfiY90HFI15cRrkDqceZUTYMo2nJwjD7K/1cdNCYvdMMwzBKIm3DPJDCoJ+Lp1Cgz4yyYRhNT9qG+TCKq//PRG3KLR3OMAyDdA1zWNDPzwJUeFJPHQ0MwzBSJU3DvBdqM+NiOfBt1O3aMAzDyJGmYZ5QZP/JKOBnGIZheEjLMA8ERkbs/wtwUUpjG4Zh1DVpGebDcBevvIN8z6ajbBiGEUIahrkdNUp1cRjwrxTGNQzDaAiSNszjgYeAQY7915BxG3DDMIx6I0nDvD5wWZFjzkhwPMMwjIYkScN8ILCK53VX7s/LzgmOZxiG0ZAkaZj9QkUnAef7tg1NcDzDMIyGJEnZz7m+1+cSLMd+N8HxDMMwGpIkV8y3Uui66AP09rxeBNyT4HiGYRgNSZKGeS5womPfClQJ+GGC4xmGYTQkSafL/Ra1hJoKLAM+Q+lz7cCfEx7LMAyjIfl/wyWGgQIHXdoAAAAASUVORK5CYII=" alt="Logo">
+                            </th>
                             <th colspan="2">
-                                <div class="logo"></div>
+                                <h2>CONFIDENTIAL</h2>
                             </th>
                         </tr>
                         <tr>
@@ -24,25 +42,23 @@
                             <td style="width:30%">{{notebook.name + '-' + experiment.name}}</td>
                         </tr>
                         <tr>
-                            <td>Co-authors:</td>
-                            <td>{{ joinArr(reactionDetails.coAuthors) }}</td>
+                            <td>Project:</td>
+                            <td>{{project.name}}</td>
                             <td>Status:</td>
                             <td>{{experiment.status | uppercase }}</td>
                         </tr>
                         <tr>
-                            <td>Project</td>
-                            <td>{{project.name}}
-                                <td>Printed Page:</td>
-                                <td>x{{}} of y{{}}</td>
+                            <td>Printed Page:</td>
+                            <td>#pageNum of #numPages</td>
                                 <!--think about-->
+                            <td>Printed Date:</td>
+                            <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
                         </tr>
                         <tr>
                             <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
                             <!--what if no such component?-->
-                            <td>Subject/Title</td>
-                            <td>{{reactionDetails.title || conceptDetails.title}}</td>
-                            <td>Printed Date:</td>
-                            <td>{{currentDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                            <td>Subject/Title:</td>
+                            <td colspan="3">{{reactionDetails.title || conceptDetails.title}}</td>
                         </tr>
                     </table>
                 </div>
@@ -53,8 +69,8 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="reactionDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">REACTION DETAILS</strong>
-                    <table style="border: 1px black solid" class="print-table-simple">
+                    <span class="pull-left table-name">REACTION DETAILS</span>
+                    <table class="print-table-simple">
                         <tr>
                             <th style="width:20%">Creation Date:</th>
                             <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}
@@ -80,6 +96,10 @@
                             <th>Literature&nbsp;Reference:</th>
                             <td>{{reactionDetails.literature}}</td>
                         </tr>
+                        <tr>
+                            <th>Co-authors:</th>
+                            <td colspan="3">{{ joinArr(reactionDetails.coAuthors) }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -89,7 +109,7 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="reaction.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">REACTION SCHEME</strong>
+                    <span class="pull-left table-name">REACTION SCHEME</span>
                     <table class="print-table">
                         <tr>
                             <td><img style="max-height:200px; margin: 0 auto" class="img-responsive center-block" ng-src="data:image/svg+xml;base64,{{reaction.image}}" alt="Image is unavailable.">
@@ -104,32 +124,32 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="stoichTable.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">STOICHIOMETRY</strong>
+                    <span class="pull-left table-name">STOICHIOMETRY</span>
                     <table class="print-table">
                         <tr>
-                            <th style="width:30%">Reagent</th>
-                            <th style="width:8%">Mol Wgh</th>
-                            <th style="width:8%">Weight</th>
-                            <th style="width:8%">Moles</th>
-                            <th style="width:8%">Volume</th>
-                            <th style="width:8%">EQ</th>
-                            <th style="width:30%">Other Information</th>
+                            <th style="width:30%; text-align: center;">Reagent</th>
+                            <th style="width:8%; text-align: center;">Mol Wgh</th>
+                            <th style="width:8%; text-align: center;">Weight</th>
+                            <th style="width:8%; text-align: center;">Moles</th>
+                            <th style="width:8%; text-align: center;">Volume</th>
+                            <th style="width:8%; text-align: center;">EQ</th>
+                            <th style="width:30%; text-align: center;">Other Information</th>
                         </tr>
                         <tr ng-repeat="reactant in stoichTable.reactants track by $index">
                             <td style="width:30%">
                                 <div><img ng-if="reactant.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}" alt="Image is unavailable."></div>
-                                <p>{{reactant.fullNbkBatch}} </p>
-                                <p> {{reactant.compoundId}} </p>
+                                <p class="text-center m-t10">{{reactant.fullNbkBatch}} </p>
+                                <p class="text-center m-t10"> {{reactant.compoundId}} </p>
                             </td>
-                            <td style="width:8%">{{toDigits(reactant.molWeight) }}</td>
-                            <td style="width:8%">{{toDigits(reactant.weight) }}</td>
-                            <td style="width:8%">{{toDigits(reactant.mol)}}</td>
-                            <td style="width:8%">{{toDigits(reactant.volume)}}</td>
-                            <td style="width:8%">{{toDigits(reactant.eq)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.molWeight) }}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.weight) }}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.mol)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.volume)}}</td>
+                            <td style="width:8%; text-align: center;">{{toDigits(reactant.eq)}}</td>
                             <td style="width:30%" class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
-                                        <td style="width:40%">Name:</td>
+                                        <td>Name:</td>
                                         <td>{{reactant.chemicalName}}</td>
                                     </tr>
                                     <tr>
@@ -172,7 +192,7 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="experimentDescription.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">EXPERIMENT DESCRIPTION</strong>
+                    <span class="table-name">EXPERIMENT DESCRIPTION</span>
                     <indigo-text-editor indigo-model="experimentDescription.description" indigo-name="experimentDescription" indigo-readonly="true"></indigo-text-editor>
                 </div>
             </div>
@@ -182,31 +202,31 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="batchSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">BATCH INFORMATION</strong>
+                    <span class="pull-left table-name">BATCH INFORMATION</span>
                     <table class="print-table">
                         <tr>
-                            <th style="width:10%">Nbk Batch</th>
-                            <th style="width:20%">Structure</th>
-                            <th style="width:10%">Amount Made</th>
-                            <th style="width:10%">Theoretical Yield</th>
-                            <th style="width:10%">Purity (%) Determined By</th>
-                            <th>Batch Information</th>
+                            <th style="width:10%; text-align: center;">Nbk Batch</th>
+                            <th style="width:20%; text-align: center;">Structure</th>
+                            <th style="width:10%; text-align: center;">Amount Made</th>
+                            <th style="width:10%; text-align: center;">Theoretical Yield</th>
+                            <th style="width:10%; text-align: center;">Purity (%) Determined By</th>
+                            <th style="text-align: center;">Batch Information</th>
                         </tr>
                         <tr ng-repeat="batch in batchSummary.batches track by $index">
-                            <td style="width:10%">{{batch.nbkBatch}}</td>
+                            <td style="width:10%; text-align: center;">{{batch.nbkBatch}}</td>
                             <td style="width:20%">
                                 <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
                                     <p style="text-align: center; margin-top: 20px;">
                                     {{batch.stereoisomer.name }} {{batch.stereoisomer.description }}</p>
                                 
                             </td>
-                            <td style="width:10%">{{toDigits(batch.totalWeight)}} </td>
-                            <td style="width:10%">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
-                            <td style="width:10%">{{batch.purity.asString}}</td>
+                            <td style="width:10%; text-align: center;">{{toDigits(batch.totalWeight)}} </td>
+                            <td style="width:10%; text-align: center;">{{ toDigits(batch.theoWeight) }} {{toDigits(batch.yield) }}% </td>
+                            <td style="width:10%; text-align: center;">{{batch.purity.asString}}</td>
                             <td class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
-                                        <td style="width:40%">Mol Wgt:</td>
+                                        <td>Mol Wgt:</td>
                                         <td>{{toDigits(batch.molWeight)}}</td>
                                     </tr>
                                     <tr>
@@ -243,19 +263,19 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="registrationSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">REGISTRATION SUMMARY</strong>
+                    <span class="pull-left table-name">REGISTRATION SUMMARY</span>
                     <table class="print-table">
                         <tr>
-                            <th style="width:30%">Nbk Batch</th>
-                            <th style="width:20%">Total Amount Made</th>
-                            <th style="width:30%">Registration Status</th>
-                            <th style="width:20%">Conversational Batch</th>
+                            <th style="width:30%; text-align: center;">Nbk Batch</th>
+                            <th style="width:20%; text-align: center;">Total Amount Made</th>
+                            <th style="width:30%; text-align: center;">Registration Status</th>
+                            <th style="width:20%; text-align: center;">Conversational Batch</th>
                         </tr>
                         <tr ng-repeat="batch in registrationSummary.batches track by $index">
-                            <td style="width:30%">{{batch.fullNbkBatch}}</td>
-                            <td style="width:20%">{{toDigits(batch.totalWeight)}}</td>
-                            <td style="width:30%">{{batch.registrationStatus}}</td>
-                            <td style="width:20%">{{batch.conversationalBatchNumber}}</td>
+                            <td style="width:30%; text-align: center;">{{batch.fullNbkBatch}}</td>
+                            <td style="width:20%; text-align: center;">{{toDigits(batch.totalWeight)}}</td>
+                            <td style="width:30%; text-align: center;">{{batch.registrationStatus}}</td>
+                            <td style="width:20%; text-align: center;">{{batch.conversationalBatchNumber}}</td>
                         </tr>
                     </table>
                 </div>
@@ -266,8 +286,8 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="batchDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11" ng-if="batchDetails">
-                    <strong class="pull-right">BATCH DETAILS</strong>
-                    <div class="pba" style="margin-top:20px" ng-repeat="batch in batchSummary.batches track by $index">
+                    <span class="pull-left table-name">BATCH DETAILS</span>
+                    <div class="pba" ng-repeat="batch in batchSummary.batches track by $index">
                         <table class="print-table">
                             <tr>
                                 <th style="width:30%">For Notebook Batch:</th>
@@ -346,8 +366,8 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="conceptDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">CONCEPT DETAILS</strong>
-                    <table style="border: 1px black solid" class="print-table-simple">
+                    <span class="pull-right">CONCEPT DETAILS</span>
+                    <table class="print-table-simple">
                         <tr>
                             <th style="width:20%">Creation Date:</th>
                             <td style="width:30%">{{experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
@@ -366,6 +386,10 @@
                             <th style="width:20%">Designers</th>
                             <td style="width:30%">{{joinArr(conceptDetails.designers)}}</td>
                         </tr>
+                        <tr>
+                            <th>Co-authors:</th>
+                            <td colspan="3">{{ joinArr(conceptDetails.coAuthors) }}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -376,7 +400,7 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="preferredCompounds.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <strong class="pull-right">PREFERRED COMPOUNDS</strong>
+                    <span class="pull-right">PREFERRED COMPOUNDS</span>
                     <table class="print-table">
                         <tr>
                             <th style="width:20%">Structure</th>

@@ -13,7 +13,6 @@ import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;

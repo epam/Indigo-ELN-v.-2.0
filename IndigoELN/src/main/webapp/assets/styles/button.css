@@ -252,7 +252,8 @@
   border-color: #3f51b5;
 }
 .btn-info:focus {
-  border-color: #25a4b8;
+  border-color: #53c4f9;
+  background-color: #53c4f9;
 }
 .btn-info.status {
   border-radius: 25px;
@@ -287,25 +288,25 @@
   padding: 6px 12px;
   color: #fff;
   background-color: #53c4f9;
-  border-color: #5bc0de;
+  border-color: #53c4f9;
 }
 .editable-buttons .btn:focus,
 .editable-buttons .btn.focus {
   color: #fff;
   background-color: #22b3f7;
-  border-color: #1f7e9a;
+  border-color: #0789c6;
 }
 .editable-buttons .btn:hover {
   color: #fff;
   background-color: #22b3f7;
-  border-color: #2aabd2;
+  border-color: #18b0f7;
 }
 .editable-buttons .btn:active,
 .editable-buttons .btn.active,
 .open > .dropdown-toggle.editable-buttons .btn {
   color: #fff;
   background-color: #22b3f7;
-  border-color: #2aabd2;
+  border-color: #18b0f7;
 }
 .editable-buttons .btn:active:hover,
 .editable-buttons .btn.active:hover,
@@ -318,7 +319,7 @@
 .open > .dropdown-toggle.editable-buttons .btn.focus {
   color: #fff;
   background-color: #08a4ed;
-  border-color: #1f7e9a;
+  border-color: #0789c6;
 }
 .editable-buttons .btn:active,
 .editable-buttons .btn.active,
@@ -335,9 +336,32 @@ fieldset[disabled] .editable-buttons .btn:focus,
 .editable-buttons .btn[disabled].focus,
 fieldset[disabled] .editable-buttons .btn.focus {
   background-color: #53c4f9;
-  border-color: #5bc0de;
+  border-color: #53c4f9;
 }
 .editable-buttons .btn .badge {
   color: #53c4f9;
   background-color: #fff;
+}
+.btn-can-loading {
+  transition: padding-left ease-out 0.5s;
+}
+.btn-loading {
+  padding-left: 40px;
+  position: relative;
+}
+.btn-loading:before {
+  background: url(../images/spin.svg) no-repeat center;
+  background-size: 36px;
+  height: 30px;
+  content: '';
+  width: 30px;
+  display: inline-block;
+  position: absolute;
+  margin-left: -40px;
+  top: 2px;
+}
+.btn-small.btn-loading:before {
+  height: 18px;
+  width: 18px;
+  margin-left: -35px;
 }

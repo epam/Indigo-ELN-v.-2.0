@@ -9,10 +9,10 @@ class SaltFormModel extends GenericCodeModel {
 
     private static final long serialVersionUID = 8174943220379293210L;
 
-    private static final Log log = LogFactory.getLog(SaltFormModel.class);
+    private static final Log LOGGER = LogFactory.getLog(SaltFormModel.class);
 
-    private static final String parent = "00";
-    private static final String unknown = "99";
+    private static final String PARENT = "00";
+    private static final String UNKNOWN = "99";
     private String formula = "";
     private double molWgt = 0.0;
 
@@ -25,32 +25,28 @@ class SaltFormModel extends GenericCodeModel {
      * Extended this to treat the Parent Salt code and Unknown Salt form the same
      */
     private static boolean isParentCode(String testCode) {
-        return (StringUtils.isBlank(testCode) || testCode.trim().equalsIgnoreCase(parent) || testCode.trim().equalsIgnoreCase(unknown));
+        return StringUtils.isBlank(testCode) || testCode.trim().equalsIgnoreCase(PARENT) || testCode.trim().equalsIgnoreCase(UNKNOWN);
     }
 
     private void updateValuesBasedOnCode() {
         try {
             //TODO REWRITE
-//			SaltCodeCache scc = SaltCodeCache.getCache();
-//			setDescription(scc.getDescriptionGivenCode(getCode()));
-//			setFormula(scc.getMolFormulaGivenCode(getCode()));
-//			setMolWgt(scc.getMolWtGivenCode(getCode()));
-        } catch (Throwable e) {
-            log.warn("Failed to fetch salt metadata from SaltCodeCache.", e);
+        } catch (Exception e) {
+            LOGGER.warn("Failed to fetch salt metadata from SaltCodeCache.", e);
         }
     }
 
+    @Override
     public void setCode(String newCode) {
         if (newCode == null)
             newCode = "";
         if (!genericCode.equals(newCode)) {
             if (!isParentCode(newCode)) {
-                //setCode(newCode);
                 genericCode = newCode;
                 updateValuesBasedOnCode();
             } else {
                 //setCode("00");  // vb 11/16 to avoid stack overflow
-                genericCode = parent;
+                genericCode = PARENT;
                 setDescription("");
                 formula = "";
                 molWgt = 0.0;
@@ -62,6 +58,7 @@ class SaltFormModel extends GenericCodeModel {
         return molWgt;
     }
 
+    @Override
     public boolean equals(Object value) {
         boolean result = false;
         if (value instanceof SaltFormModel) {
@@ -69,5 +66,10 @@ class SaltFormModel extends GenericCodeModel {
             result = this.getCode().equals(sf.getCode());
         }
         return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getCode().hashCode();
     }
 }

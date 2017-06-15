@@ -39,7 +39,7 @@
                 return '<div class="form-group {{indigoClasses}}">' +
                     '<label>{{indigoLabel}}</label>' +
                     // '<div class="col-xs-10">' +
-                    '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="indigoReadonly" on-select="indigoChange()" on-remove="indigoRemove()" append-to-body="true">' +
+                    '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="indigoReadonly" onkeypress="return false;" on-select="indigoChange()" on-remove="indigoRemove()" append-to-body="true">' +
                     '<ui-select-match placeholder="{{indigoPlaceHolder}}" >' + content + '</ui-select-match>' +
                     '<ui-select-choices repeat="item in indigoItems | filter: $select.search">' +
                     '</ui-select-choices>' +
