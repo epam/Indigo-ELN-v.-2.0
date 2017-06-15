@@ -1,7 +1,6 @@
 package com.epam.indigoeln.config.security;
 
 import com.epam.indigoeln.core.security.*;
-import com.epam.indigoeln.web.rest.filter.CsrfCookieGeneratorFilter;
 import com.epam.indigoeln.web.rest.filter.SessionExpirationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -22,7 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -124,10 +123,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .csrf()
+                .csrfTokenRepository(cookieCsrfTokenRepository())
                 .ignoringAntMatchers("/api/authentication", "/api/logout", "/websocket/**") // For solving a problem with login after logout
                 .and()
                 .addFilterBefore(sessionExpirationFilter(), ConcurrentSessionFilter.class)
-                .addFilterAfter(new CsrfCookieGeneratorFilter(), CsrfFilter.class)
                 .exceptionHandling()
                 .accessDeniedHandler(new CustomAccessDeniedHandler())
                 .authenticationEntryPoint(authenticationEntryPoint)
@@ -259,6 +258,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public SessionExpirationFilter sessionExpirationFilter() {
         return new SessionExpirationFilter(sessionRegistry());
+    }
+
+    private CookieCsrfTokenRepository cookieCsrfTokenRepository(){
+        CookieCsrfTokenRepository cookieCsrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        cookieCsrfTokenRepository.setCookieName(CookieConstants.CSRF_TOKEN);
+        cookieCsrfTokenRepository.setHeaderName("X-CSRF-TOKEN");
+        return cookieCsrfTokenRepository;
     }
 
     @Bean
