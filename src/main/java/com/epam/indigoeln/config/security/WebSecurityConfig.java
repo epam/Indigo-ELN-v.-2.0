@@ -4,7 +4,7 @@ import com.epam.indigoeln.core.security.*;
 import com.epam.indigoeln.web.rest.filter.CsrfCookieGeneratorFilter;
 import com.epam.indigoeln.web.rest.filter.SessionExpirationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.ServletListenerRegistrationBean;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

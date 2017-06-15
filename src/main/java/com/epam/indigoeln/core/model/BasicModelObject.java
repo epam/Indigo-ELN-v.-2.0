@@ -135,6 +135,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Override
     public boolean isNew() {
-        return Long.valueOf(0L).equals(version);
+        return version == null;
     }
 }
