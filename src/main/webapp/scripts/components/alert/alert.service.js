@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Alert', Alert);
+    .factory('Alert', alert);
 
 /* @ngInject */
-function Alert() {
+function alert() {
 
     //TODO: move to file
     var common = {

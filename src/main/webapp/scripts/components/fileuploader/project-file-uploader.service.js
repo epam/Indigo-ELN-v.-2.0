@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('ProjectFileUploaderService', ProjectFileUploaderService);
+    .factory('ProjectFileUploaderService', projectFileUploaderService);
 
 /* @ngInject */
-function ProjectFileUploaderService($resource){
+function projectFileUploaderService($resource){
     return $resource('api/project_files/:id', {}, {
         'query': {method: 'GET', isArray: true},
         'get': {

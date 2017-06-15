@@ -1,8 +1,8 @@
 angular
     .module('indigoeln')
-    .factory('DateUtils', DateUtils);
+    .factory('DateUtils', dateUtils);
 
-function DateUtils(){
+function dateUtils(){
 
     return {
         convertLocaleDateToServer: convertLocaleDateToServer,

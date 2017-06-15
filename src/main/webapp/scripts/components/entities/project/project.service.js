@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Project', Project);
+    .factory('Project', project);
 
 /* @ngInject */
-function Project($resource, FileUploaderCash, PermissionManagement) {
+function project($resource, FileUploaderCash, PermissionManagement) {
 
     function transformRequest(data) {
         data = _.extend({}, data);

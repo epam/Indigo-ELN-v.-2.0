@@ -1,8 +1,8 @@
 angular.module('indigoeln')
-    .factory('FileUploaderCash', FileUploaderCash);
+    .factory('FileUploaderCash', fileUploaderCash);
 
 /* @ngInject */
-function FileUploaderCash() {
+function fileUploaderCash() {
     var _files;
     return {
         getFiles: getFiles,

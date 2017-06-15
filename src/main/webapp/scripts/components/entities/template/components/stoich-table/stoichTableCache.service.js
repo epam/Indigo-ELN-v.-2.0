@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('StoichTableCache', StoichTableCache);
+    .factory('StoichTableCache', stoichTableCache);
 
 /* @ngInject */
-function StoichTableCache() {
+function stoichTableCache() {
     var _stoichTable;
 
     return {
@@ -12,7 +12,9 @@ function StoichTableCache() {
     };
 
     function getStoicTable() {
-        if (!_stoichTable) _stoichTable = {"reactants": [], "products": null};
+        if (!_stoichTable) {
+            _stoichTable = {"reactants": [], "products": null};
+        }
         return _stoichTable;
     }
 

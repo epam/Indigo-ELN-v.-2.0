@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Principal', Principal);
+    .factory('Principal', principal);
 
 /* @ngInject */
-function Principal($q, Account) {
+function principal($q, Account) {
     var _identity, deferred,
         _authenticated = false;
 
@@ -51,7 +51,7 @@ function Principal($q, Account) {
             }
 
             return false;
-        })
+        });
     }
 
     function hasAuthorityIdentitySafe(authority) {

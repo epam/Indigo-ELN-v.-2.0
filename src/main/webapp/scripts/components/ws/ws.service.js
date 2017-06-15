@@ -1,8 +1,8 @@
 angular.module('indigoeln')
-    .factory('WSService', WSService);
+    .factory('WSService', wsService);
 
 /* @ngInject */
-function WSService($window, $cookies, $http, $q, $log) {
+function wsService($window, $cookies, $http, $q, $log) {
     var stompClient = null;
     var connected = $q.defer();
 

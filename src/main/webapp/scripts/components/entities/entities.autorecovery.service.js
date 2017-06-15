@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('AutoRecoverEngine', AutoRecoverEngine);
+    .factory('AutoRecoverEngine', autoRecoverEngine);
 
 /* @ngInject */
-function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBrowser, Auth){
+function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBrowser, Auth){
     var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent'];
     var kinds = ['experiment', 'project', 'notebook'],
         save, get, clear, states = {};
@@ -31,7 +31,7 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 types = {};
                 kinds.forEach(function(kind) {
                     types[kind] = { recoveries: {} };
-                })
+                });
             }
 
             function getKey(kind, entity) {
@@ -45,13 +45,15 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 var id = entity.id || curtab.tmpId;
                 var type = types[kind];
                 var rec = type.recoveries[id];
-                if (!rec) return;
+                if (!rec){
+                    return;
+                }
                 delete type.recoveries[id];
                 localStorageService.remove(getKey(kind, entity));
                 localStorageService.set(subkey, angular.toJson(types));
                 curtab = EntitiesBrowser.getActiveTab();
                 delete curtab.tmpId;
-                EntitiesBrowser.saveTabs()
+                EntitiesBrowser.saveTabs();
             };
 
             save = function(kind, entity) {
@@ -79,34 +81,44 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 var id = entity.id || curtab.tmpId;
                 var type = types[kind];
                 var rec = type.recoveries[id];
-                if (!rec) return;
-                return { entity: JSON.parse(localStorageService.get(getKey(kind, entity))), rec: rec }
+                if (!rec) {
+                    return;
+                }
+                return { entity: JSON.parse(localStorageService.get(getKey(kind, entity))), rec: rec };
             };
         });
     }
 
     function getFullId(entity) {
-        if (!entity) return false;
+        if (!entity){
+            return false;
+        }
         var curtab = EntitiesBrowser.getActiveTab();
         return entity.fullId || curtab.tmpId;
     }
 
     function canUndo(entity) {
-        if (!entity) return false;
+        if (!entity) {
+            return false;
+        }
         var id = getFullId(entity);
         var state = states[id];
         return state && state.actions.length > 0 && state.aindex >= 0;
     }
 
     function canRedo(entity) {
-        if (!entity) return false;
+        if (!entity) {
+            return false;
+        }
         var id = getFullId(entity);
         var state = states[id];
         return state && state.actions.length > 0 && state.aindex < state.actions.length - 1;
     }
 
     function undoAction(entity) {
-        if (!entity) return false;
+        if (!entity) {
+            return false;
+        }
         var id = getFullId(entity);
         var state = states[id];
         if (state && state.aindex >= 0) {
@@ -118,7 +130,9 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
     }
     function redoAction(entity) {
         var id = getFullId(entity);
-        if (!entity) return false;
+        if (!entity) {
+            return false;
+        }
         var state = states[id];
         if (states && state.aindex < state.actions.length - 1) {
             var act = (state.aindex < state.actions.length - 2) ? state.actions[state.aindex + 2] : state.last;
@@ -134,7 +148,7 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
             var curtab = EntitiesBrowser.getActiveTab();
             if (!entity.id && !curtab.tmpId) {
                 curtab.tmpId = +new Date();
-                EntitiesBrowser.saveTabs()
+                EntitiesBrowser.saveTabs();
             }
 
             var fullId = getFullId(entity);
@@ -152,7 +166,7 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                         form.$setDirty(true);
                         $scope.restored = null;
                     }
-                }
+                };
             } else if (rec && curtab.tmpId) {
                 angular.extend(entity, rec.entity);
                 form.$setDirty(true);
@@ -184,17 +198,17 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                         save(kind, entity);
                         if (!entity.$$undo) {
                             if (state.aindex < state.actions.length - 1) {
-                                state.actions = state.actions.slice(state.aindex)
+                                state.actions = state.actions.slice(state.aindex);
                             }
                             state.actions.push(prev);
                             state.aindex = state.actions.length - 1;
                             state.last = angular.extend({}, entity);
                         }
-                        Auth.prolong()
+                        Auth.prolong();
                     }
                     entity.$$undo = false;
                     ctimeout = null;
-                }, 1000)
+                }, 1000);
             };
             var unbind = $scope.$watch(kind, onChange, true);
             var unbindDirty = $scope.$watch(form.$name + '.$dirty', function(val, old) {
@@ -207,13 +221,13 @@ function AutoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 unbind();
                 unbindDirty();
             });
-        })
+        });
     }
 
     function clearRecovery(kind, entity) {
         resolvePrincipal(function() {
-            clear(kind, entity)
-        })
+            clear(kind, entity);
+        });
     }
 }
 

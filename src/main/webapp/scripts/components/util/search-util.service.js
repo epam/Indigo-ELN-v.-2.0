@@ -14,7 +14,9 @@ function searchUtilService() {
     };
 
     function getStoredOptions() {
-        if (storedOptions) return storedOptions;
+        if (storedOptions){
+            return storedOptions;
+        }
         storedOptions = {
             isCollapsed : true
         };
@@ -22,7 +24,9 @@ function searchUtilService() {
     }
 
     function getStoredModel(clear) {
-        if (storedModel && !clear) return storedModel;
+        if (storedModel && !clear){
+            return storedModel;
+        }
         storedModel = {};
         //TODO: move to file
         storedModel.restrictions = {

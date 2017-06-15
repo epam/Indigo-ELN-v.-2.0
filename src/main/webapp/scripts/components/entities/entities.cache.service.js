@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('EntitiesCache', EntitiesCache);
+    .factory('EntitiesCache', entitiesCache);
 
 /* @ngInject */
-function EntitiesCache(CacheFactory, TabKeyUtils) {
+function entitiesCache(CacheFactory, TabKeyUtils) {
     var entitiesCache = CacheFactory('entitiesCache');
 
     return {

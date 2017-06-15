@@ -1,7 +1,7 @@
 angular.module('indigoeln')
-    .factory('TabKeyUtils', TabKeyUtils);
+    .factory('TabKeyUtils', tabKeyUtils);
 
-function TabKeyUtils() {
+function tabKeyUtils() {
     return {
         getTabKeyFromTab: getTabKeyFromTab,
         getTabKeyFromName: getTabKeyFromName,

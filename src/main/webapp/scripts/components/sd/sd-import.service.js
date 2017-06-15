@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('SdImportService', SdImportService);
+    .factory('SdImportService', sdImportService);
 
 /* @ngInject */
-function SdImportService($http, $q, $uibModal, AppValues, Dictionary,
+function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                          AlertModal, Alert, CalculationService, StoichTableCache) {
 
     var auxPrefixes = [
@@ -140,7 +140,9 @@ function SdImportService($http, $q, $uibModal, AppValues, Dictionary,
 
     function importItems(sdUnitsToImport, dicts, i, addToTable, callback, complete) {
         if (!sdUnitsToImport[i]) {
-            if (complete) complete();
+            if (complete){
+                complete();
+            }
             Alert.info(sdUnitsToImport.length + ' batches successfully imported');
             return;
         }
