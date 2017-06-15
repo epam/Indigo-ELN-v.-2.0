@@ -22,8 +22,8 @@
         var scrollCache = this.scrollCache,
             EntitiesBrowser = this.EntitiesBrowser;
 
-        if (scope.myId && EntitiesBrowser.activeTab) {
-            var key = EntitiesBrowser.activeTab.$$title + scope.myId, val = scrollCache[key];
+        if (scope.indigoId && EntitiesBrowser.activeTab) {
+            var key = EntitiesBrowser.activeTab.$$title + scope.indigoId, val = scrollCache[key];
             setTimeout(function () {
                 $element.mCustomScrollbar('scrollTo', val || [0, 0], {callbacks: false, scrollInertia: 0});
             }, 500);
@@ -34,7 +34,7 @@
         var prev = [];
         $element.mCustomScrollbar({
             axis: iAttrs.indigoScroller,
-            theme: iAttrs.myScrollerTheme || 'indigo',
+            theme: iAttrs.indigoScrollerTheme || 'indigo',
             scrollInertia: 300,
             callbacks: {
                 onScroll: function (e) {
