@@ -9,7 +9,7 @@
         $scope.showSummary = false;
         $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
         $scope.share.stoichTable = StoichTableCache.getStoicTable();
-        $scope.notebookId = EntitiesBrowser.activeTab.$$title;
+        $scope.notebookId = EntitiesBrowser.getActiveTab().$$title;
 
         $scope.sourceValues = AppValues.getSourceValues();
         $scope.sourceDetailExternal = AppValues.getSourceDetailExternal();
@@ -121,18 +121,11 @@
 
         var stoichTable, productBatches;
 
-        function getStoicTable() {
-            return stoichTable;
-        }
-
         function setStoicTable(table) {
             stoichTable = table;
             ProductBatchSummaryOperations.setStoicTable(stoichTable);
         }
 
-        var getProductBatches = function () {
-            return productBatches;
-        };
         var setProductBatches = function (batches) {
             productBatches = batches;
         };

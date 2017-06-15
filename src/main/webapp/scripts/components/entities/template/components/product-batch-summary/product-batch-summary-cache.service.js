@@ -1,13 +1,21 @@
-angular.module('indigoeln')
-    .factory('ProductBatchSummaryCache', function () {
-        var _productBatchSummary;
-        return {
-            getProductBatchSummary: function () {
-                return _productBatchSummary;
-            },
-            setProductBatchSummary: function (batches) {
-                _productBatchSummary = batches;
-            }
-        };
-    })
-;
+angular
+    .module('indigoeln')
+    .factory('ProductBatchSummaryCache', ProductBatchSummaryCache);
+
+/* @ngInject */
+function ProductBatchSummaryCache() {
+    var _productBatchSummary;
+
+    return {
+        getProductBatchSummary: getProductBatchSummary,
+        setProductBatchSummary: setProductBatchSummary
+    };
+
+    function getProductBatchSummary () {
+        return _productBatchSummary;
+    }
+
+    function setProductBatchSummary (batches) {
+        _productBatchSummary = batches;
+    }
+}
