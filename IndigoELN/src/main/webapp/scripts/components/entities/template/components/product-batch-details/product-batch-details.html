@@ -1,0 +1,290 @@
+<div class="panel panel-info component" indigo-collapsible-component>
+    <div class="panel-heading">
+        Product Batch Details
+    </div>
+    <div class="panel-body collapsible">
+        <form class="form-inline form-batch-details" ng-init = "init()">
+            <label>Notebook Batch #: <span>{{model.productBatchDetails.fullNbkImmutablePart}}</span></label>
+            <indigo-select
+                    indigo-model="selectedBatch"
+                    indigo-items="model.productBatchSummary.batches"
+                    indigo-change="onSelectBatch()"
+                    indigo-item-prop="nbkBatch"
+                    indigo-control = "selectControl"
+                    class="select-inline"
+            ></indigo-select>
+            <indigo-checkbox
+                    indigo-model="showSummary"
+                    indigo-label="Show summary table"
+            ></indigo-checkbox>
+        </form>
+        <indigo-batch-summary ng-if="showSummary" my-tab-support="true"  model="model" share="share" experiment-name="experiment.name" is-hide-column-settings="true"></indigo-batch-summary>
+        <indigo-table ng-if="!showSummary" indigo-id="product-detail-table" indigo-columns="productTableColumns"
+                      indigo-rows="detailTable" indigo-readonly="myReadonly" class="my-table-wrapper table-batch-details">
+
+            <div class="row m-b20">
+                <div class="col-lg-8 m-bt-lg">
+                    <span class="txt-small bold m-r5">Batches:</span>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="addNewBatch()">
+                            <i class="fa fa-plus"></i>
+                            <span class="m-l5">Add</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="duplicateBatch()">
+                            <i class="fa fa-clone"></i>
+                            <span class="m-l5">Duplicate</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="deleteBatches()">
+                            <i class="fa fa-trash"></i>
+                            <span class="m-l5">Delete</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
+                            <i class="fa fa-refresh"></i>
+                            <span class="m-l5">Sync</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedBatch.nbkBatch" ng-click="registerBatches()">
+                            <i class="fa fa-floppy-o"></i>
+                            <span class="m-l5">Register</span>
+                        </button>
+                        <div class="batch-details-radio">
+                            <input type="radio"
+                                   name="batchDetailsRadio"
+                                   id="batchDetailsRadioIntermediate"
+                                   ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
+                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'; experimentForm.$setDirty()"  ng-checked="model.productBatchDetails.batchType == 'Intermediate'">
+                            <label for="batchDetailsRadioIntermediate">Intermediate</label>
+                        </div>
+                        <div class="batch-details-radio">
+                            <input type="radio"
+                                   name="batchDetailsRadio"
+                                   id="batchDetailsRadioTest"
+                                   ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
+                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'; experimentForm.$setDirty()" ng-checked="model.productBatchDetails.batchType =='Test Compound'">
+                            <label  for="batchDetailsRadioTest">Test Compound</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-align-lg">
+                    <span class="txt-small bold m-r5">SD File:</span>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info btn-small  btn-can-loading {{(importLoading) ? 'btn-loading' : ''}}" ng-click="importSDFile()" ng-disabled="myReadonly">
+                            <i class="fa fa-cloud-download"></i>
+                            <span class="m-l5">Import</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
+                                ng-disabled="myReadonly || !selectedBatch.nbkBatch">
+                            <i class="fa fa-cloud-upload"></i>
+                            <span class="m-l5">Export</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="text-right m-b20">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-info btn-small"
+                            ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
+                            type="button"
+                            ng-click="model.productBatchDetails.batchType = 'Intermediate'">
+                        Intermediate
+                    </button>
+                    <button class="btn btn-info btn-small"
+                            ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
+                            type="button"
+                            ng-click="model.productBatchDetails.batchType = 'Test Compound'">
+                        Test Compound
+                    </button>
+                </div>
+            </div>-->
+        </indigo-table>
+
+        <div class="row">
+            <div class="col-md-4 col-sm-6">
+                <indigo-select indigo-label="Status"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.regStatus"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Conversational Batch number"
+                              indigo-model="model.productBatchDetails.conversationalBatchNumber"
+                              indigo-label-vertical="true"
+                              indigo-readonly="true"
+                ></indigo-input>
+                <indigo-input indigo-label="Virtual Compound Id"
+                              indigo-model="model.productBatchDetails.virtualCompoundId"
+                              indigo-label-vertical="true"
+                              indigo-readonly="myReadonly"
+                ></indigo-input>
+                <indigo-select indigo-label="Source"
+                               indigo-label-vertical="true"
+                               indigo-model="source"
+                               indigo-items="sourceValues"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <!--Source detail block-->
+                <indigo-select ng-if="source.name == 'Internal'"
+                               indigo-label="Source Detail"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.sourceDetail"
+                               indigo-items="sourceDetailInternal"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-select ng-if="source.name == 'External'"
+                               indigo-label="Source Detail"
+                               indigo-label-vertical="true"
+                               indigo-model="model.productBatchDetails.sourceDetail"
+                               indigo-items="sourceDetailExternal"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <!--End block-->
+                <indigo-select indigo-label="Stereoisomer Code"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Stereoisomer Code"
+                               indigo-item-prop="name,description"
+                               indigo-model="model.productBatchDetails.stereoisomer"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-simple-text indigo-label="Calculated Batch MW"
+                                    indigo-model="model.productBatchDetails.molWeight.value | round"
+                                    indigo-empty-text="none"
+                ></indigo-simple-text>
+                <indigo-simple-text indigo-label="Calculated Batch MF"
+                                    indigo-model="model.productBatchDetails.formula"
+                                    indigo-empty-text="none">
+                </indigo-simple-text>
+                <indigo-select indigo-label="Salt Code & Name"
+                               indigo-label-vertical="true"
+                               indigo-items="saltCodeValues"
+                               indigo-model="model.productBatchDetails.saltCode"
+                               indigo-change="recalculateSalt(model.productBatchDetails)"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Salt Equivalent"
+                              indigo-model="model.productBatchDetails.saltEq.value"
+                              indigo-change="recalculateSalt(model.productBatchDetails)"
+                              indigo-type="number"
+                              indigo-label-vertical="true"
+                              indigo-readonly = "myReadonly || !canEditSaltEq()"
+                ></indigo-input>
+                <indigo-text-area indigo-label="Structure comments"
+                                  indigo-model="model.productBatchDetails.structureComments"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="myReadonly"
+                ></indigo-text-area>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <indigo-select indigo-label="Compound State"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Compound State"
+                               indigo-model="model.productBatchDetails.compoundState"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Precursor/Reactant IDs"
+                              indigo-model="model.productBatchDetails.precursors"
+                              indigo-label-vertical="true"
+                              indigo-readonly="myReadonly || share.stoichTable"
+                ></indigo-input>
+                <indigo-input indigo-label="Purity"
+                              indigo-model="model.productBatchDetails.purity.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.purity.asString">
+                    <button class="btn btn-info" type="button" ng-click="editPurity()" ng-disabled="myReadonly">
+                        Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="Melting Point"
+                              indigo-model="model.productBatchDetails.meltingPoint.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.meltingPoint.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editMeltingPoint()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="Residual Solvents"
+                              indigo-model="model.productBatchDetails.residualSolvents.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.residualSolvents.asString"
+                >
+                    <button class="btn btn-info" ng-click="editResidualSolvents()" type="button"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="Solubility in Solvents"
+                              indigo-model="model.productBatchDetails.solubility.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.solubility.asString"
+                >
+                    <button class="btn btn-info" ng-click="editSolubility()" type="button" ng-disabled="myReadonly">
+                        Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="External Supplier"
+                              indigo-model="model.productBatchDetails.externalSupplier.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.externalSupplier.asString"
+                >
+                    <button class="btn btn-info" ng-click="editExternalSupplier()" type="button"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <indigo-select indigo-label="Compound Protection"
+                               indigo-model="model.productBatchDetails.compoundProtection"
+                               indigo-label-vertical="true"
+                               indigo-dictionary="Compound Protection"
+                               indigo-readonly="myReadonly"
+                ></indigo-select>
+                <indigo-input indigo-label="Health Hazards"
+                              indigo-model="model.productBatchDetails.healthHazards.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.healthHazards.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editHealthHazards()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="Handling Precautions"
+                              indigo-model="model.productBatchDetails.handlingPrecautions.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.handlingPrecautions.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editHandlingPrecautions()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+                <indigo-input indigo-label="Storage Instructions"
+                              indigo-model="model.productBatchDetails.storageInstructions.asString"
+                              indigo-label-vertical="true"
+                              indigo-input-group="append"
+                              indigo-readonly="true"
+                              indigo-tooltip="model.productBatchDetails.storageInstructions.asString"
+                >
+                    <button class="btn btn-info" type="button" ng-click="editStorageInstructions()"
+                            ng-disabled="myReadonly">Edit
+                    </button>
+                </indigo-input>
+                <indigo-text-area indigo-label="Batch Comments"
+                                  indigo-model="model.productBatchDetails.comments"
+                                  indigo-label-vertical="true"
+                                  indigo-readonly="myReadonly"
+                ></indigo-text-area>
+            </div>
+        </div>
+    </div>
+</div>

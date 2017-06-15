@@ -1,0 +1,11 @@
+<div class="row">
+    <div class="col-xs-3">{{indigoLabel}}:</div>
+    <div class="col-xs-9 form-inline">
+        <indigo-checkbox indigo-model="allItemsSelected"
+                         indigo-change="selectAll()"
+                         indigo-label="All"></indigo-checkbox>
+        <indigo-checkbox ng-repeat="item in indigoItems"
+                         indigo-label="{{item.value}}"
+                         indigo-model="item.isChecked"></indigo-checkbox>
+    </div>
+</div>

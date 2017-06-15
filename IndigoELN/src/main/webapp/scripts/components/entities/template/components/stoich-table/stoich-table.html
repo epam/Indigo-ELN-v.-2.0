@@ -1,0 +1,104 @@
+<div class="panel panel-info component" indigo-collapsible-component>
+    <div class="panel-heading">
+        Stoichiometry Table
+    </div>
+    <div class="panel-body collapsible">
+        <indigo-table indigo-id="reactants" indigo-tab-support="true"  indigo-columns="reactantsColumns" indigo-rows="model.stoichTable.reactants"
+                      indigo-draggable-columns="true"
+                      indigo-draggable-rows="true" indigo-on-row-selected="onRowSelected"
+                      indigo-readonly="myReadonly" indigo-label="Reactants, Reagents, Solvents">
+            <div class="row m-b20">
+                <div class="col-lg-8 m-bt-lg">
+                    <div class="btn-group">
+                        <button type="button" ng-click="searchReagents(0)" class="btn btn-info btn-small" ng-disabled="myReadonly">
+                            <i class="fa fa-list"></i>
+                            <span class="m-l5">My Reagent List</span>
+                        </button>
+                        <button type="button" ng-click="searchReagents(1)" class="btn btn-info btn-small" ng-disabled="myReadonly">
+                            <i class="fa fa-search"></i>
+                            <span class="m-l5">Search DBs</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" disabled>
+                            <i class="fa fa-search"></i>
+                            <span class="m-l5">MSDS Search</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="appendRow()">
+                            <i class="fa fa-plus"></i>
+                            <span class="m-l5">Add</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="clear()">
+                            <i class="fa fa-eraser"></i>
+                            <span class="m-l5">Clear</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="removeRow()">
+                            <i class="fa fa-trash"></i>
+                            <span class="m-l5">Delete</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-align-lg">
+                    <div class="btn-group">
+                        <button type="button" ng-click="analyzeRxn()" ng-disabled="myReadonly || !model.stoichTable.products" class="btn btn-info btn-small">
+                            <i class="fa fa-line-chart"></i>
+                            <span class="m-l5">Analyze Rxn</span>
+                        </button>
+                        <button type="button" class="btn btn-info btn-small" ng-click="createRxn()" ng-disabled="myReadonly || noReactantsInStoic()">
+                            <i class="fa fa-plus"></i>
+                            <span class="m-l5">Create Rxn</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+            <!--<div class="btn-toolbar m-b10">-->
+                <!--&lt;!&ndash;<div class="btn-group">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<button type="button" ng-click="searchReagents(0)" class="btn btn-info btn-small" ng-disabled="myReadonly">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<i class="fa fa-list"></i>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<span class="m-l5">My Reagent List</span>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<button type="button" ng-click="searchReagents(1)" class="btn btn-info btn-small" ng-disabled="myReadonly">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<i class="fa fa-search"></i>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<span class="m-l5">Search DBs</span>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;<div class="btn-group">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<button type="button" ng-click="analyzeRxn()" ng-disabled="myReadonly || !model.stoichTable.products" class="btn btn-info btn-small">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<i class="fa fa-line-chart"></i>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<span class="m-l5">Analyze Rxn</span>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<button type="button" class="btn btn-info btn-small" ng-click="createRxn()" ng-disabled="myReadonly || noReactantsInStoic()">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<i class="fa fa-plus"></i>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<span class="m-l5">Create Rxn</span>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--</div>-->
+            <!--<div class="btn-group m-b20">-->
+                <!--<button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="appendRow()">-->
+                    <!--<i class="fa fa-plus"></i>-->
+                    <!--<span class="m-l5">Append Row</span>-->
+                <!--</button>-->
+                <!--<button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="clear()">-->
+                    <!--<i class="fa fa-eraser"></i>-->
+                    <!--<span class="m-l5">Clear</span>-->
+                <!--</button>-->
+                <!--<button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !selectedRow" ng-click="removeRow()">-->
+                    <!--<i class="fa fa-trash"></i>-->
+                    <!--<span class="m-l5">Delete</span>-->
+                <!--</button>-->
+                <!--<button type="button" class="btn btn-info btn-small" disabled>-->
+                    <!--<i class="fa fa-plus"></i>-->
+                    <!--<span class="m-l5">MSDS Search</span>-->
+                <!--</button>-->
+            <!--</div>-->
+        </indigo-table>
+        <indigo-table indigo-id="intended" indigo-columns="productsColumns" indigo-rows="model.stoichTable.products"
+                      indigo-readonly="myReadonly" indigo-label="Intended Reaction Products"></indigo-table>
+    </div>
+</div>

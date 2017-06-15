@@ -1,4 +1,4 @@
-<entities-controls  is-dashboard ="true"></entities-controls>
+<indigo-entities-controls  is-dashboard ="true"></indigo-entities-controls>
 <div class="main-page-content scroll-dashboard-full" >
     <div class="row">
         <div class="col-sm-8">
@@ -49,18 +49,18 @@
     <div class="panel panel-info panel-info-table" ng-if="dView === 'open'">
         <div class="panel-heading">Open experiments <span class="count" ng-bind="curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
-            <div class="table-responsive" my-scroller="x">
+            <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
-                    <tr  my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
-                        <th my-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
-                        <th my-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                    <tr  indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
+                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
+                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
                         <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
                         <th  class="table-list__item table-list__item_header">Co-authors</th>
-                        <th my-sort-by="project" class="table-list__item table-list__item_header">Project <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="project" class="table-list__item table-list__item_header">Project <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Idle Workdays </span></th>
                     </tr>
                     </thead>
@@ -92,18 +92,18 @@
     <div class="panel panel-info panel-info-table" ng-if="dView === 'wait'">
         <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
-            <div class="table-responsive" my-scroller="x">
+            <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th my-sort-by="id"  class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
+                    <tr indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th indigo-sort-by="id"  class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Witness</th>
-                        <th my-sort-by="creationDate"  class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="lastEditDate"  class="table-list__item table-list__item_header">Last Action Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="creationDate"  class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate"  class="table-list__item table-list__item_header">Last Action Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Idle Workdays</th>
                     </tr>
                     </thead>
@@ -137,18 +137,18 @@
     <div class="panel panel-info panel-info-table" ng-if="dView === 'submitted'">
         <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
-            <div class="table-responsive" my-scroller="x">
+            <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr my-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th my-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="submitter.firstName" class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
+                    <tr indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
+                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="submitter.firstName" class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
                         <th  class="table-list__item table-list__item_header">Witness</th>
-                        <th my-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th my-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
                         <th class="table-list__item table-list__item_header">Comments</th>
                     </tr>
                     </thead>
