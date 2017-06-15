@@ -11,7 +11,7 @@
         $scope.showStructure = false;
         $scope.showSummary = false;
 
-        $scope.notebookId = EntitiesBrowser.activeTab.$$title;
+        $scope.notebookId = EntitiesBrowser.getActiveTab().$$title;
 
         $scope.selectControl = {};
 
