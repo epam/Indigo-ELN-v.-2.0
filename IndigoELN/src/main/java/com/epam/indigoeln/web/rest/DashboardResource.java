@@ -152,8 +152,14 @@ public class DashboardResource {
      * @return entities for experiment including itself
      */
     private Triple<Project, Notebook, Experiment> getEntities(Experiment e) {
-        final Notebook notebook = notebookRepository.findByExperimentId(e.getId());
-        final Project project = projectRepository.findByNotebookId(notebook.getId());
+        Notebook notebook = null;
+        Project project = null;
+        if (e != null){
+            notebook = notebookRepository.findByExperimentId(e.getId());
+        }
+        if (notebook != null){
+            project= projectRepository.findByNotebookId(notebook.getId());
+        }
         return Triple.of(project, notebook, e);
     }
 
