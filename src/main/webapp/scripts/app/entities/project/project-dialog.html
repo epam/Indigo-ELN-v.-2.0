@@ -1,5 +1,5 @@
 <div class="experiments" cg-busy="{promise:loading, minDuration:700}">
-    <div my-autorecovery></div>
+    <indigo-autorecovery></indigo-autorecovery>
     <div class="tab-content-pad">
         <div ng-init="isCollapsed=true;">
             <div class="row m-b20">
@@ -33,28 +33,28 @@
             <div class="simple-tab-content">
                 <div class="row">
                     <div class="col-xs-12">
-                        <my-input my-label="Project Name"
-                                  my-readonly="!isEditAllowed"
-                                  my-name="projectName"
-                                  my-type="text"
-                                  my-label-vertical="true"
-                                  my-model="project.name"
-                                  my-validation-required="!project.name.trim()">
-                        </my-input>
-                        <my-tag-input my-label="Tags" my-model="project.tags" my-readonly="!isEditAllowed"
-                                      my-label-vertical="true"></my-tag-input>
-                        <my-input my-label="Project Keywords" my-label-vertical="true" my-readonly="!isEditAllowed"
-                                  my-model="project.keywords"></my-input>
-                        <my-input my-label="Literature" my-label-vertical="true" my-readonly="!isEditAllowed"
-                                  my-model="project.references"></my-input>
+                        <indigo-input indigo-label="Project Name"
+                                      indigo-readonly="!isEditAllowed"
+                                      indigo-name="projectName"
+                                      indigo-type="text"
+                                      indigo-label-vertical="true"
+                                      indigo-model="project.name"
+                                      indigo-validation-required="!project.name.trim()">
+                        </indigo-input>
+                        <indigo-tag-input indigo-label="Tags" indigo-model="project.tags" indigo-readonly="!isEditAllowed"
+                                          indigo-label-vertical="true"></indigo-tag-input>
+                        <indigo-input indigo-label="Project Keywords" indigo-label-vertical="true" indigo-readonly="!isEditAllowed"
+                                      indigo-model="project.keywords"></indigo-input>
+                        <indigo-input indigo-label="Literature" indigo-label-vertical="true" indigo-readonly="!isEditAllowed"
+                                      indigo-model="project.references"></indigo-input>
                         <label>Project Description</label>
-                        <my-text-editor my-model="project.description"
-                                        my-name="projectDescription"
-                                        my-readonly="!isEditAllowed"></my-text-editor>
+                        <indigo-text-editor indigo-model="project.description"
+                                            indigo-name="projectDescription"
+                                            indigo-readonly="!isEditAllowed"></indigo-text-editor>
                         <div class="m-t20">
-                            <my-file-uploader upload-url="api/project_files"
-                                              my-readonly="!isEditAllowed">
-                            </my-file-uploader>
+                            <indigo-file-uploader upload-url="api/project_files"
+                                              indigo-readonly="!isEditAllowed">
+                            </indigo-file-uploader>
                         </div>
                     </div>
                 </div>
