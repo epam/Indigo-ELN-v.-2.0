@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('AlertModal', AlertModal);
+    .factory('AlertModal', alertModal);
 
 /* @ngInject */
-function AlertModal($uibModal) {
+function alertModal($uibModal) {
 
     return {
         alert: alert,

@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Auth', Auth);
+    .factory('Auth', auth);
 
 /* @ngInject */
-function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) {
+function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, $log) {
     var prolongTimeout;
 
     return {
@@ -38,7 +38,7 @@ function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) 
             clearTimeout(prolongTimeout);
         }
         prolongTimeout = setTimeout(function () {
-            AuthServerProvider.prolong()
+            AuthServerProvider.prolong();
         }, 5000);
     }
 
@@ -51,6 +51,7 @@ function Auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService) 
         try {
             WSService.disconnect();
         } catch (e) {
+            $log.error("Error to disconnect");
         }
     }
 

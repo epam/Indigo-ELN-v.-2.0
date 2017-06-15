@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('AppValues', AppValues);
+    .factory('AppValues', appValues);
 
 /* @ngInject */
-function AppValues() {
+function appValues() {
     //TODO: move to file
     var grams = ['mg', 'g', 'kg'];
     var liters = ['ml', 'ul', 'l'];

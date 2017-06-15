@@ -1,20 +1,13 @@
 angular
     .module('indigoeln')
-    .factory('AutoSaveEntitiesEngine', AutoSaveEntitiesEngine);
+    .factory('AutoSaveEntitiesEngine', autoSaveEntitiesEngine);
 
 /* @ngInject */
-function AutoSaveEntitiesEngine($q){
+function autoSaveEntitiesEngine($q){
 
     return {
-        trackEntityChanges:  trackEntityChanges,
         autoRecover : autoRecover
     };
-
-
-    function trackEntityChanges (entity, form, $scope, kind) {
-        //replaced with autorecovery
-
-    }
 
     function autoRecover(service, params) {
         var deferred = $q.defer();

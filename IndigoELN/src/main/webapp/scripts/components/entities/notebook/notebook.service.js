@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Notebook', Notebook);
+    .factory('Notebook', notebook);
 
 /* @ngInject */
-function Notebook($resource, PermissionManagement) {
+function notebook($resource, PermissionManagement) {
 
     return $resource('api/projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'

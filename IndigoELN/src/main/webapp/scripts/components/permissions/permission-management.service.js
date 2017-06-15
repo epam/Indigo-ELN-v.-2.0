@@ -14,10 +14,10 @@ angular.module('indigoeln')
             'get': {method: 'GET'}
         });
     })
-    .factory('PermissionManagement', PermissionManagement);
+    .factory('PermissionManagement', permissionManagement);
 
 /* @ngInject */
-function PermissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
+function permissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
     var _accessList, _author, _entity, _entityId, _parentId;
 
     var VIEWER = ['READ_ENTITY'];

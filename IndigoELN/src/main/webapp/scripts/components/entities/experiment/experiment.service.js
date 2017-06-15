@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('Experiment', Experiment);
+    .factory('Experiment', experiment);
 
 /* @ngInject */
-function Experiment($resource, PermissionManagement, $rootScope) {
+function experiment($resource, PermissionManagement, $rootScope) {
 
     var interceptor = {
         response: function (config) {

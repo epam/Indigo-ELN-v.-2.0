@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('CalculationService', CalculationService);
+    .factory('CalculationService', calculationService);
 
 /* @ngInject */
-function CalculationService($rootScope, $http, $q, AppValues,
+function calculationService($rootScope, $http, $q, AppValues,
                             StoichTableCache, ProductBatchSummaryCache, capitalizeFilter) {
 
     var defaultBatch = AppValues.getDefaultBatch();
@@ -58,7 +58,8 @@ function CalculationService($rootScope, $http, $q, AppValues,
                     } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
                         batch[key] = {value: value, entered: false};
                     } else if (_.isNull(value)) {
-                        batch[key] = undefined; // because _.defaults omits nulls
+                        // because _.defaults omits nulls
+                        batch[key] = undefined;
                     }
                 });
                 return _.defaults(batch, defaultBatch);
@@ -70,7 +71,8 @@ function CalculationService($rootScope, $http, $q, AppValues,
                 } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
                     batches[key] = {value: value, entered: false};
                 } else if (_.isNull(value)) {
-                    batches[key] = undefined; // because _.defaults omits nulls
+                    // because _.defaults omits nulls
+                    batches[key] = undefined;
                 }
             });
             return _.defaults(batches, defaultBatch);
@@ -97,7 +99,9 @@ function CalculationService($rootScope, $http, $q, AppValues,
             method: 'POST',
             data: molfile
         }).success(function (result) {
-            if (callback) callback(result.image);
+            if (callback){
+                callback(result.image);
+            }
         });
     }
 
@@ -127,7 +131,8 @@ function CalculationService($rootScope, $http, $q, AppValues,
                     reagent.molWeight = reagent.molWeight || {};
                     reagent.molWeight.value = data.molecularWeight;
                     reagent.formula = getSaltFormula(data);
-                    reagent.lastUpdatedType = 'weight'; // for product batch summary
+                    // for product batch summary
+                    reagent.lastUpdatedType = 'weight';
                 });
         }
 
@@ -136,7 +141,9 @@ function CalculationService($rootScope, $http, $q, AppValues,
 
 
     function recalculateStoich(calcData) {
-        if (recalculatingStoich) return;
+        if (recalculatingStoich){
+            return;
+        }
         recalculatingStoich = true;
         var data = initDataForStoichCalculation(calcData);
         var requestData = {

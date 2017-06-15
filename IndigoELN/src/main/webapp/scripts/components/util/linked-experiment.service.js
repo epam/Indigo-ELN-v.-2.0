@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('LinkedExperimentUtils', LinkedExperimentUtils);
+    .factory('LinkedExperimentUtils', linkedExperimentUtils);
 
 /* @ngInject */
-function LinkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Project) {
+function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Project) {
 
     return {
         onLinkedExperimentClick: onLinkedExperimentClick

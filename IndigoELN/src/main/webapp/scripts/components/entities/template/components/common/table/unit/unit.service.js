@@ -28,7 +28,7 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
                         row[id].unit = result.unit;
                         row[id].entered = true;
                         CalculationService.calculateProductBatch({row: row, column: id});
-                        setDirty()
+                        setDirty();
                     }
                 });
             }, function () {
@@ -46,11 +46,6 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
     function processColumns(columns, rows) {
         _.each(columns, function (column) {
             if (column.type === 'unit') {
-                // uncomment this when needed si on the first place by default
-                // var $uInst = $u();
-                // column.unitItems = _.sortBy(column.unitItems, function (i, index) {
-                //     return $uInst.toBase(i) === i ? -1 : index;
-                // });
                 column.units = _.map(column.unitItems, toUnitNameAction);
                 var setValueAction = [];
                 if (!column.hideSetValue) {
@@ -75,7 +70,7 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
 
     function setUnit(name, item) {
         item.unit = name;
-        setDirty()
+        setDirty();
     }
 
     function toUnitNameAction(unit) {
@@ -93,6 +88,6 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
                     setUnit(unit, row[id]);
                 });
             }
-        }
+        };
     }
 }

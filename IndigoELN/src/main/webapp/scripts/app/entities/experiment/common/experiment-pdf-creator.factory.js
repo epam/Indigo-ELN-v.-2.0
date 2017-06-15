@@ -53,12 +53,10 @@ function experimentPdfCreator(PdfService) {
                 var $table = $(this);
                 var  $tr =  $table.children().children();
                 $tr.each(function() {
-                    var $tb = $('<table>').insertBefore($table).append($(this))
-                    //var $td = $tb.find('td,th')
-                    //$td.css('width', Math.round(1/$td.length * 100) + '%')
+                    var $tb = $('<table>').insertBefore($table).append($(this));
                     $tb.wrap('<div class="pba"><div>');
-                })
-            })
+                });
+            });
 
         });
         //$printFormClone.find('td').wrapInner('<div class="pba" />')

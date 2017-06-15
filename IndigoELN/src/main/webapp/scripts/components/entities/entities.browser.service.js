@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('EntitiesBrowser', EntitiesBrowser);
+    .factory('EntitiesBrowser', entitiesBrowser);
 
 /* @ngInject */
-function EntitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService) {
+function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService) {
 
     var tabs = {};
     var activeTab = {};
@@ -57,12 +57,12 @@ function EntitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function getTabs(success) {
         resolvePrincipal(function (user) {
-            success(tabs[user.id])
-        })
+            success(tabs[user.id]);
+        });
     }
 
     function setEntityActions(actions) {
-        entityActions = actions
+        entityActions = actions;
     }
 
     function getEntityActions() {
@@ -132,7 +132,7 @@ function EntitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         });
     }
 
-    function saveEntity(tab) {
+    function saveEntity() {
         return $q.resolve();
     }
 
@@ -171,13 +171,15 @@ function EntitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function saveTabs(user) {
-        if (!user) return;
+        if (!user){
+            return;
+        }
         var storageKey = user.id + '.current-tabs', id = user.id;
         var tabsToSave = angular.copy(tabs[id]);
         for (var key in tabsToSave) {
             delete tabsToSave[key].dirty;
         }
-        localStorageService.set(storageKey, angular.toJson(tabsToSave))
+        localStorageService.set(storageKey, angular.toJson(tabsToSave));
     }
 
     function changeDirtyTab(stateParams, dirty) {
@@ -232,6 +234,6 @@ function EntitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         } else if (keys.length === 1) {
             $state.go('experiment');
         }
-        saveTabs()
+        saveTabs();
     }
 }

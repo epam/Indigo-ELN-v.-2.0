@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('ExperimentFileUploaderService', ExperimentFileUploaderService);
+    .factory('ExperimentFileUploaderService', experimentFileUploaderService);
 
 /* @ngInject */
-function ExperimentFileUploaderService($resource){
+function experimentFileUploaderService($resource){
     return $resource('api/experiment_files/:id', {}, {
         'query': {method: 'GET', isArray: true},
         'get': {

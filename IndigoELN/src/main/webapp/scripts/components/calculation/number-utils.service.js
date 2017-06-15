@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('NumberUtil', NumberUtil);
+    .factory('NumberUtil', numberUtil);
 
 /* @ngInject */
-function NumberUtil() {
+function numberUtil() {
     return {
         floatEquals: floatEquals
     };

@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('SdExportService', SdExportService);
+    .factory('SdExportService', sdExportService);
 
 /* @ngInject */
-function SdExportService(SdService){
+function sdExportService(SdService){
 
     return {
         exportItems: exportItems

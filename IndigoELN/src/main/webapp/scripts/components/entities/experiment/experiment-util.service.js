@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('ExperimentUtil', ExperimentUtil);
+    .factory('ExperimentUtil', experimentUtil);
 
 /* @ngInject */
-function ExperimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement) {
+function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement) {
 
     return {
         printExperiment: printExperiment,
@@ -44,7 +44,7 @@ function ExperimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                 notebookId: params.notebookId,
                 name: result.name
             });
-            $rootScope.$broadcast('experiment-updated', experiment)
+            $rootScope.$broadcast('experiment-updated', experiment);
         }).$promise;
     }
 

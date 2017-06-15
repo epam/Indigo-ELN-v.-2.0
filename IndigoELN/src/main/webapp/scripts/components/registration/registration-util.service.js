@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('RegistrationUtil', RegistrationUtil);
+    .factory('RegistrationUtil', registrationUtil);
 
 /* @ngInject */
-function RegistrationUtil(AppValues) {
+function registrationUtil(AppValues) {
 
     var isStereoisomerNeedComment = function (stereoisomer) {
         var stereocodesWithComment = ['SNENU', 'LRCMX', 'ENENU', 'DSTRU', 'UNKWN', 'HSREG'];
