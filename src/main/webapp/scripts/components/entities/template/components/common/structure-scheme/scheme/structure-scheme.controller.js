@@ -137,7 +137,7 @@ angular.module('indigoeln')
             // open editor with pre-defined structure (prestructure)
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-editor-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/editor/structure-editor-modal.html',
                 controller: 'StructureEditorModalController',
                 windowClass: 'structure-editor-modal',
                 resolve: {
