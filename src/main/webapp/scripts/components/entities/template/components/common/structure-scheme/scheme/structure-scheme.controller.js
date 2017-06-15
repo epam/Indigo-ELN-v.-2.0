@@ -123,7 +123,7 @@ angular.module('indigoeln')
                     }).success(function (structureId) {
                         setStructure(type, structure, structureId);
                     }).error(function () {
-                        Alert.error('Cannot save the structure!')
+                        Alert.error('Cannot save the structure!');
                     });
                 }
             });
@@ -170,7 +170,7 @@ angular.module('indigoeln')
             }
             var modalInstance = $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-import-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/structure-import-modal.html',
                 controller: 'StructureImportModalController',
                 windowClass: 'structure-import-modal'
             });
@@ -193,7 +193,7 @@ angular.module('indigoeln')
             }
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/components/entities/template/components/common/structureScheme/structure-export-modal.html',
+                templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/structure-export-modal.html',
                 controller: 'StructureExportModalController',
                 windowClass: 'structure-export-modal',
                 resolve: {

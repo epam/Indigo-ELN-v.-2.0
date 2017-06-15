@@ -18,6 +18,7 @@
     "indent": 4,
     "quotmark": "single",
     "regexp": true,
+    "shadow": true,
     "unused": true,
     "smarttabs": true,
     "white": true,
