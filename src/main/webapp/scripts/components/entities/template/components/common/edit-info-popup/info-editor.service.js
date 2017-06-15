@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('InfoEditor', InfoEditor);
+    .factory('InfoEditor', infoEditor);
 
 /* @ngInject */
-function InfoEditor($uibModal) {
+function infoEditor($uibModal) {
 
     return {
         editSolubility: editSolubility,

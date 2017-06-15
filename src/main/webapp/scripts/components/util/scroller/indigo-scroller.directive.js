@@ -23,7 +23,7 @@
             EntitiesBrowser = this.EntitiesBrowser;
 
         if (scope.indigoId && EntitiesBrowser.activeTab) {
-            var key = EntitiesBrowser.activeTab.$$title + scope.indigoId, val = scrollCache[key];
+            var key = EntitiesBrowser.getActiveTab().$$title + scope.indigoId, val = scrollCache[key];
             setTimeout(function () {
                 $element.mCustomScrollbar('scrollTo', val || [0, 0], {callbacks: false, scrollInertia: 0});
             }, 500);
