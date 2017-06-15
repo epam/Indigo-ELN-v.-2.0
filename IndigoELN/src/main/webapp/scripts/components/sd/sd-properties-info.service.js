@@ -1,34 +1,48 @@
 angular.module('indigoeln')
-    .factory('sdPropertiesInfo', function(sdPropertiesConstants) {
+    .factory('sdPropertiesInfo', function(sdProperties) {
 
         var getProperty = function (item, prop, subProp) {
             var subItem = item[prop];
-            if (subProp) {
+            if (subItem && subProp) {
                 return subItem[subProp];
             }
             return subItem;
         };
 
-        var getExportProperties = function(item) {
+        var generateExportProperties = function(item) {
             var properties = { molfile: item.structure.molfile };
-            sdPropertiesConstants.forEach(function(prop, i, constants) {
+            sdProperties.constants.forEach(function(prop, i, constants) {
                 var fields = prop.export;
                 properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
             });
-
+            console.log("Export properties: ", properties);
             return properties;
+        };
+
+        var getExportProperties = function (items) {
+            return _.map(items, function(item){
+                    return generateExportProperties(item);
+                    });
         };
 
         var getImportProperties = function() {
             var properties = {};
-            sdPropertiesConstants.forEach(function(prop, i, constants) {
-                //TODO: 
+            sdProperties.constants.forEach(function(prop, i, constants) {
+                var fields = prop.import;
+                if (fields.format) {
+                    properties[fields.name] = {code : fields.code,
+                                               format : fields.format};
+                } else {
+                    properties[fields.name] = {code : fields.code};
+                }
             });
 
             return properties;
         };
 
-        var convert = function (items) {
-                        return _.map(items, getExportProperties(item));
-                    };
+        return {
+            getExportProperties: getExportProperties,
+            getImportProperties: getImportProperties
+        };
+
     });

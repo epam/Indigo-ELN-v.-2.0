@@ -1,89 +1,26 @@
 angular.module('indigoeln')
-    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, Alert, CalculationService, StoichTableCache, sdPropertiesInfo) {
+    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, Alert, CalculationService, StoichTableCache, sdProperties) {
 
         var auxPrefixes = [
             'COMPOUND_REGISTRATION_'
         ];
 
-        var getItem = function (list, prop, value) {
-            return _.find(list, function (item) {
-                return item[prop].toUpperCase() === value.toUpperCase();
-            });
+        var getImportProperties = function() {
+           var properties = {};
+           sdProperties.constants.forEach(function(prop, i, constants) {
+               var fields = prop.import;
+               if (fields.format) {
+                   properties[fields.name] = {code : fields.code,
+                                              format : fields.format};
+               } else {
+                   properties[fields.name] = {code : fields.code};
+               }
+           });
+
+           return properties;
         };
-
-        var getWord = function (dicts, dictName, prop, value) {
-            var dict = _.find(dicts, function (dict) {
-                return dict.name === dictName;
-            });
-            if (dict) {
-                return getItem(dict.words, prop, value);
-            }
-        };
-
-        var generateImportProperties = function(){
-
-            var keys = Object.keys(sdPropertiesInfo);
-            var properties = {};
-
-            keys.forEach(function(key, i, keys){
-                if (typeof(sdPropertiesInfo[key]) === 'object') {
-                    properties[sdPropertiesInfo[key].prop] = {code: key, format: sdPropertiesInfo[key].format};
-                } else {
-                    properties[sdPropertiesInfo[key]] = {code: key};
-                }
-            });
-
-            return properties;
-        };
-
-
-        var properties = generateImportProperties();
-//        var properties = {
-//            'registrationStatus': {code: 'REGISTRATION_STATUS'},
-//            'conversationalBatchNumber': {code: 'CONVERSATIONAL_BATCH_NUMBER'},
-//            'virtualCompoundId': {code: 'VIRTUAL_COMPOUND_ID'},
-//            'source': {
-//                format: function (dicts, value) {
-//                    return getWord(dicts, 'Source', 'name', value);
-//                },
-//                code: 'COMPOUND_SOURCE_CODE'
-//            },
-//            'sourceDetail': {
-//                format: function (dicts, value) {
-//                    return getWord(dicts, 'Source Details', 'name', value);
-//                },
-//                code: 'COMPOUND_SOURCE_DETAIL_CODE'
-//            },
-//            'stereoisomer': {
-//                format: function (dicts, value) {
-//                    return getWord(dicts, 'Stereoisomer Code', 'name', value);
-//                },
-//                code: 'STEREOISOMER_CODE'
-//            },
-//            'saltCode': {
-//                format: function (dicts, value) {
-//                    return getItem(AppValues.getSaltCodeValues(), 'regValue', value);
-//                },
-//                code: 'GLOBAL_SALT_CODE'
-//            },
-//            'saltEq': {
-//                format: function (dicts, value) {
-//                    return {
-//                        value: parseInt(value),
-//                        entered: false
-//                    };
-//                },
-//                code: 'GLOBAL_SALT_EQ'
-//            },
-//            'structureComments': {code: 'STRUCTURE_COMMENT'},
-//            'compoundState': {
-//                format: function (dicts, value) {
-//                    return getWord(dicts, 'Compound State', 'name', value);
-//                },
-//                code: 'COMPOUND_STATE'
-//            },
-//            'precursors': {code: 'PRECURSORS'}
-//        };
+        var properties = getImportProperties();
+        console.log("Import properties: ", properties);
 
         var saveMolecule = function (mol) {
             var deferred = $q.defer();
