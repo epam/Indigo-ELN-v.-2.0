@@ -7,6 +7,7 @@
 /node/
 /node_modules/
 /src/main/webapp/bower_components/
+#/src/main/webapp/assets/styles/
 
 /.tmp/
 /activemq-data/
