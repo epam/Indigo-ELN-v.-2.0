@@ -42,8 +42,8 @@ angular.module('indigoeln')
         return {
             restrict: 'A',
             link: function (scope, iElement, iAttrs) {
-                if (scope.myId && EntitiesBrowser.activeTab) {
-                    var key = EntitiesBrowser.activeTab.$$title + scope.myId, val = scrollCache[key];
+                if (scope.myId && EntitiesBrowser.getActiveTab()) {
+                    var key = EntitiesBrowser.getActiveTab().$$title + scope.myId, val = scrollCache[key];
                     setTimeout(function() { 
                         $element.mCustomScrollbar('scrollTo', val || [0,0], { callbacks:false, scrollInertia : 0 })
                     }, 500)

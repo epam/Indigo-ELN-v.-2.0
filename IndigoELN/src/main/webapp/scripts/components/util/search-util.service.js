@@ -10,20 +10,21 @@ function searchUtilService() {
         prepareSearchRequest: prepareSearchRequest,
         isAdvancedSearchFilled: isAdvancedSearchFilled,
         getStoredModel : getStoredModel,
-        getStoredOptions : getStoredOptions,
+        getStoredOptions : getStoredOptions
     };
 
     function getStoredOptions() {
         if (storedOptions) return storedOptions;
         storedOptions = {
             isCollapsed : true
-        }
+        };
         return storedOptions;
     }
 
     function getStoredModel(clear) {
         if (storedModel && !clear) return storedModel;
         storedModel = {};
+        //TODO: move to file
         storedModel.restrictions = {
             searchQuery: '',
             advancedSearch: {

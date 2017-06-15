@@ -27,7 +27,7 @@ angular.module('indigoeln')
             });
         }
         var unsubscribe = $scope.$watch(function () {
-            return EntitiesBrowser.activeTab;
+            return EntitiesBrowser.getActiveTab();
         }, function (value) {
             $scope.activeTab = value;
         });
