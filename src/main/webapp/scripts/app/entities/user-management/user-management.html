@@ -9,7 +9,8 @@
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
                 <i class="fa fa-search" ng-click="search()"></i>
-                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-change="search()" ng-model="searchText">
+                <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-change="search()"
+                       ng-model="searchText">
             </div>
         </div>
     </div>
@@ -22,7 +23,7 @@
                     <div class="col-xs-6">
                         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
                         <input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">
-                        <input style="display:none" type="password" name="fakepasswordremembered"/>
+                        <input class="indigo-display-none" type="password" name="fakepasswordremembered"/>
                         <indigo-input
                                 indigo-label="Login"
                                 indigo-name="login"
@@ -32,7 +33,7 @@
                                 indigo-validation-maxlength="50"
                                 indigo-validation-pattern="/^[a-z0-9]*$/"
                                 indigo-validation-pattern-text="Login should not contain symbols in upper case."
-                                ></indigo-input>
+                        ></indigo-input>
                         <indigo-input
                                 indigo-label="First Name"
                                 indigo-name="firstName"
@@ -40,7 +41,7 @@
                                 indigo-model="user.firstName"
                                 indigo-validation-required="user.firstName == null"
                                 indigo-validation-maxlength="50"
-                                ></indigo-input>
+                        ></indigo-input>
                         <indigo-input
                                 indigo-label="Last Name"
                                 indigo-name="lastName"
@@ -74,7 +75,7 @@
                                       indigo-model="user.password"
                                       indigo-validation-required="user.id == null"
                                       indigo-validation-maxlength="50"
-                                ></indigo-input>
+                        ></indigo-input>
                         <indigo-select indigo-label="Groups"
                                        indigo-items="[{name:'Group 1'}, {name:'Group 2'}]" indigo-model="user.group"
                         ></indigo-select>
@@ -100,7 +101,8 @@
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
                 <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </button>
-            <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length" class="btn btn-primary m-l5">
+            <button ng-click="save()" form="editForm" ng-disabled="editForm.$invalid || isSaving || !user.roles.length"
+                    class="btn btn-primary m-l5">
                 <i class="fa fa-save"></i><span class="m-l5">Save</span>
             </button>
         </div>
@@ -120,22 +122,20 @@
             </thead>
             <tbody>
             <tr ng-repeat="user in users track by user.id">
-                <td>{{user.login}}</td>
-                <td>{{user.firstName}}</td>
-                <td>{{user.lastName}}</td>
+                <td ng-bind="user.login"></td>
+                <td ng-bind="user.firstName"></td>
+                <td ng-bind="user.lastName"></td>
                 <td>
-                    <span ng-repeat="role in user.roles track by role.id">
-                        {{role.name}}<span ng-if="!$last">, </span>
+                    <span ng-repeat="role in user.roles track by role.id" ng-bind="role.name">
+                        <span ng-if="!$last">, </span>
                     </span>
                 </td>
-                <td>{{user.email}}</td>
+                <td ng-bind="user.email"></td>
                 <td>
-                        <span class="uui-label uui-label-red" ng-click="setActive(user, true)"
-                              ng-show="!user.system && !user.activated"
-                              style="cursor: pointer;">Deactivated</span>
-                        <span class="uui-label uui-label-green" ng-click="setActive(user, false)"
-                              ng-show="!user.system && user.activated"
-                              style="cursor: pointer;">Activated</span>
+                    <span role="button" class="uui-label uui-label-red" ng-click="setActive(user, true)"
+                          ng-show="!user.system && !user.activated">Deactivated</span>
+                    <span role="button" class="uui-label uui-label-green" ng-click="setActive(user, false)"
+                          ng-show="!user.system && user.activated">Activated</span>
                     <span class="uui-label uui-label-green" ng-show="user.system">Activated</span>
                 </td>
                 <td>
@@ -159,7 +159,8 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm" total-items="totalItems" items-per-page="itemsPerPage"  ng-model="page" ng-change="loadAll()"></uib-pagination>
+        <uib-pagination class="pagination-sm" total-items="totalItems" items-per-page="itemsPerPage" ng-model="page"
+                        ng-change="loadAll()"></uib-pagination>
     </div>
 </div>
 
