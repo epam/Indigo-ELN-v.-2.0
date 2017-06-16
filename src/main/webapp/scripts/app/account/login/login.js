@@ -11,8 +11,7 @@ angular.module('indigoeln')
                 views: {
                     'app_page@': {
                         templateUrl: 'scripts/app/account/login/login.html',
-                        controller: 'LoginController',
-                        controllerAs: 'vm'
+                        controller: 'LoginController'
                     }
                 },
                 resolve: {}

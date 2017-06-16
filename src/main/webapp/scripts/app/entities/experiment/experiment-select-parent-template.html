@@ -1,16 +1,16 @@
 <form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
     <div>
 		<div class="modal-header">
-            <h5 class="modal-title" ng-bind="vm.experimentCreationText"></h5>
+            <h5 class="modal-title">Experiment creation</h5>
 		</div>
 		<div class="modal-body">
-            <indigo-select indigo-label="{{vm.pleaseSelectTemplateLabelText}}"
+            <indigo-select indigo-label="Please select a Template for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="selectedTemplate"
                            indigo-items="templates"
                            indigo-item-prop="name"
                     ></indigo-select>
-            <indigo-select indigo-label="{{vm.pleaseSelectTemplateLabelText}}"
+            <indigo-select indigo-label="Please select a Notebook for new experiment"
                            indigo-label-vertical="true"
                            indigo-model="selectedParent"
                            indigo-items="parents"
@@ -20,10 +20,10 @@
                 <table class="table table-striped" ng-show="selectedParent">
                     <thead>
                     <tr>
-                        <th><span ng-bind="vm.notebookNameText"></span></th>
-                        <th><span ng-bind="vm.createdByText"></span></th>
-                        <th><span ng-bind="vm.creationDateText"></span></th>
-                        <th><span ng-bind="vm.lastEditDateText"></span></th>
+                        <th><span>Notebook name</span></th>
+                        <th><span>Created By</span></th>
+                        <th><span>Creation date</span></th>
+                        <th><span>Last Edit Date</span></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -39,11 +39,11 @@
 		</div>
 		<div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
-                <i class="fa fa-ban"></i><span class="m-l5" ng-bind="vm.cancelText"></span>
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </button>
             <button type="submit" form="select-parent-dialog"
-                    ng-disabled="!selectedParent.id || !selectedTemplate.id || isSaving" class="btn btn-primary"
-                    ng-bind="vm.okText">
+                    ng-disabled="!selectedParent.id || !selectedTemplate.id || isSaving" class="btn btn-primary">
+                OK
 			</button>
 		</div>
 	</div>

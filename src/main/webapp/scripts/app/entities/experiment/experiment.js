@@ -11,8 +11,7 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/experiments.html',
-                        controller: 'ExperimentController',
-                        controllerAs: 'vm'
+                        controller: 'ExperimentController'
                     }
                 },
                 resolve: {}
@@ -28,7 +27,6 @@ angular.module('indigoeln')
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/experiment-new.html',
                         controller: 'ExperimentNewController',
-                        controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
                             pageInfo: function ($q, $stateParams, Template) {
@@ -74,8 +72,7 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/experiment/experiment-detail.html',
-                        controller: 'ExperimentDetailController',
-                        controllerAs: 'vm'
+                        controller: 'ExperimentDetailController'
                     }
                 },
                 resolve: {
@@ -134,7 +131,6 @@ angular.module('indigoeln')
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/experiment/experiment-delete-dialog.html',
                         controller: 'ExperimentDeleteController',
-                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
                             entity: ['Experiment', function (Experiment) {
@@ -163,7 +159,6 @@ angular.module('indigoeln')
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/experiment-select-parent-template.html',
                         controller: 'ExperimentSelectParentTemplateController',
-                        controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
                             parents: function (NotebooksForSubCreation) {
@@ -216,8 +211,7 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
-                        controller: 'ExperimentPrintController',
-                        controllerAs: 'vm'
+                        controller: 'ExperimentPrintController'
                     }
                 },
                 resolve: {
@@ -254,8 +248,7 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
-                        controller: 'ExperimentSubmitController',
-                        controllerAs: 'vm'
+                        controller: 'ExperimentSubmitController'
                     }
                 },
                 resolve: {
