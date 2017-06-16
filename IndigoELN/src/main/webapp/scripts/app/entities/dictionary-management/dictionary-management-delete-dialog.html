@@ -3,19 +3,18 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
                 ng-click="dismiss()">&times;</button>
         <h5 class="modal-title">
-            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span
-                ng-bind="vm.confirmationTitle"></span>
+            <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span>Confirm delete operation</span>
         </h5>
     </div>
     <div class="modal-body">
-        <p ng-bind="vm.confirmationQuestion"></p>
-        <p ng-bind="vm.confirmationComment"></p>
+        <p>Are you sure you want to delete this Dictionary with its associated Words?</p>
+        <p><span class="semi-b">NOTE:</span> this dictionary can be in use. Setting words to be inactive instead of removing
+            dictionary is more reliable way.</p>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="dismiss()">
-            <i class="fa fa-ban"></i><span class="m-l5" ng-bind="vm.cancelButtonText"></span>
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
-        <button type="submit" ng-disabled="deleteForm.$invalid" class="btn btn-danger"
-            ng-bind="vm.deleteButtonText"></button>
+        <button type="submit" ng-disabled="deleteForm.$invalid" class="btn btn-danger">Delete</button>
     </div>
 </form>

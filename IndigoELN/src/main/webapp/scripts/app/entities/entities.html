@@ -5,8 +5,7 @@
             ng-repeat="tab in tabs  track by tab.tabKey" class="experiment-tab">
             <a ng-click="$event.stopPropagation(); onTabClick(tab)">
                 <i class="fa fa-remove pull-right clickable" ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></i>
-                <span ng-bind="tab.name"></span>
-                <span ng-bind="tab.$$title"></span>
+                {{tab.name}} {{tab.$$title}}
                 <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></i>
             </a>
         </li>

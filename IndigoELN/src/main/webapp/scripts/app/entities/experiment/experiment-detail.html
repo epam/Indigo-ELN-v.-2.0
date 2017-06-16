@@ -5,20 +5,20 @@
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
-                        <span class="txt-larger" ng-bind="vm.experimentMembersTitle"></span>
+                        <span class="txt-larger">Experiment Members:</span>
                         <button type="submit" ui-sref="entities.experiment-detail.permissions()" class="btn btn-default btn-small" ng-disabled="!isEditAllowed">
                             <i class="fa fa-pencil"></i>
-                            <span class="m-l5" ng-bind="vm.editButtonText"></span>
+                            <span class="m-l5">Edit</span>
                         </button>
                         <button type="button" class="btn btn-default btn-small" ui-sref="entities.experiment-detail.permissions-view()">
                             <i class="fa fa-eye"></i>
-                            <span class="m-l5" ng-bind="vm.viewMembersButtonText"></span>
+                            <span class="m-l5">View Members</span>
                         </button>
                     </div>
                 </div>
                 <div class="col-sm-6 col-xs-3">
                     <div class="row-inline">
-                        <span class="txt-larger" ng-bind="vm.statusTitle"></span>
+                        <span class="txt-larger">Status:</span>
                         <span class="uui-label" ng-bind="experiment.status"></span>
                     </div>
                 </div>
@@ -36,36 +36,38 @@
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
            <button type="button" class="btn btn-default" ng-disabled = "!canUndo()" ng-click="undoAction()">
-                <i class="fa fa-undo"></i><span class="m-l5" ng-bind="vm.undoActionButtonText"></span>
+                <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
             </button>  
             <button  type="button" class="btn btn-default" ng-disabled = "!canRedo()" ng-click="redoAction()">
-                <i class="fa fa-redo"></i><span class="m-l5" ng-bind="vm.redoActionButtonText"></span>
+                <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>
         <div class="btn-group dropup" uib-dropdown is-open="isopen">
 
             <button id="single-button" type="button" class="btn btn-info" uib-dropdown-toggle ng-disabled="disabled">
-                <span class="m-r10" ng-bind="vm.actionsButtonText"></span><i class="fa fa-angle-down"></i>
+                <span class="m-r10">Actions</span><i class="fa fa-angle-down"></i>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
-                <li role="menuitem"><a><em ng-bind="vm.statusTitle"></em><strong>{{ experiment.status}}</strong></a></li>
+                <li role="menuitem"><a><em>Status: </em><strong>{{ experiment.status}}</strong></a></li>
                 <li class="divider"></li>
-                <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperiment()"><a ng-bind="vm.completeExperimentButtonText"></a></li>
-                <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperimentAndSign()"><a ng-bind="vm.completeAndSignButtonText"></a></li>
-                <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="reopenExperiment()"><a ng-bind="vm.reopenForEditButtonText"></a></li>
-                <li role="menuitem" ng-click="repeatExperiment()"><a ng-bind="vm.repeatExperimentButtonText"></a></li>
-                <li role="menuitem"><a ng-click="printExperiment()" ng-bind="vm.printExperimentButtonText"></a></li>
+                <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperiment()"><a>Complete Experiment</a></li>
+                <li role="menuitem" ng-if="isStatusOpen()" ng-click="completeExperimentAndSign()"><a>Complete & Sign </a></li>
+                <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="reopenExperiment()"><a>Reopen Experiment for Edit</a></li>
+                <li role="menuitem" ng-click="repeatExperiment()"><a>Repeat Experiment</a></li>
+                <li role="menuitem"><a ng-click="printExperiment()">Print Experiment</a></li>
                 <li role="menuitem"
                     ng-if="experiment.lastVersion && (isStatusComplete() || isStatusSubmitFail() || isStatusSubmitted() || isStatusArchieved() || isStatusSigning() || isStatusSigned())"
-                    ng-click="versionExperiment()"><a ng-bind="vm.versionExperimentButtonText"></a></li>
+                    ng-click="versionExperiment()"><a>Version Experiment</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail()" ng-click="completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
                 <li role="menuitem" ng-if="isStatusSubmitFail() || isStatusSubmitted() || isStatusSigning() || isStatusSigned()">
-                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank"
-                        ng-bind="vm.viewRecordSubmittedForSignatureButtonText"></a>
+                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                        View Record Submitted for Signature
+                    </a>
                 </li>
                 <li role="menuitem" ng-if="isStatusArchieved()">
-                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank"
-                        ng-bind="vm.viewRecordArchivedButtonText"></a>
+                    <a href="api/signature/document/content?documentId={{experiment.documentId}}" target="_blank">
+                        View Record Archieved
+                    </a>
                 </li>
             </ul>
         </div>
@@ -77,13 +79,13 @@
 
 
         <button type="submit" form="experimentForm" ng-disabled="!isEditAllowed || experimentForm.$invalid || !isBtnSaveActive" class="btn btn-primary">
-            <i class="fa fa-save"></i><span class="m-l5" ng-bind="vm.saveButtonText"></span>
+            <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
         <a class="btn btn-default" ng-click="refresh()">
-            <i class="fa fa-refresh"></i><span class="m-l5" ng-bind="vm.resetButtonText"></span>
+            <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
         </a>
         <a class="btn btn-default" onclick="window.history.back()">
-            <i class="fa fa-mail-reply"></i><span class="m-l5" ng-bind="vm.backButtonText"></span>
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </a>
     </div>
 </div>

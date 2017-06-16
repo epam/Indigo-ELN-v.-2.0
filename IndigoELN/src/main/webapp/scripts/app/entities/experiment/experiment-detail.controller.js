@@ -2,27 +2,9 @@ angular.module('indigoeln')
     .controller('ExperimentDetailController',
         function ($scope, $rootScope, $state, Experiment, ExperimentUtil, PermissionManagement,
                   FileUploaderCash, AutoSaveEntitiesEngine, AutoRecoverEngine, pageInfo, $uibModal, EntitiesBrowser, $timeout, $stateParams, Alert) {
-            var vm = this;
 
-            vm.experimentMembersTitle = 'Experiment Members:';
-            vm.statusTitle = 'Status:';
-            vm.editButtonText = 'Edit';
-            vm.saveButtonText = 'Save';
-            vm.resetButtonText = 'Reset';
-            vm.backButtonText = 'Back';
-            vm.viewMembersButtonText = 'View Members';
-            vm.undoActionButtonText = 'Undo Action';
-            vm.redoActionButtonText = 'Redo Action';
-            vm.actionsButtonText = 'Actions';
-            vm.completeExperimentButtonText = 'Complete Experiment';
-            vm.completeAndSignButtonText = 'Complete & Sign';
-            vm.reopenForEditButtonText = 'Reopen Experiment for Edit';
-            vm.repeatExperimentButtonText = 'Repeat Experiment';
-            vm.printExperimentButtonText = 'Print Experiment';
-            vm.versionExperimentButtonText = 'Version Experiment';
-            vm.viewRecordSubmittedForSignatureButtonText = 'View Record Submitted for Signature';
-            vm.viewRecordArchivedButtonText = 'View Record Archieved';
 
+            var self = this;
             var tabName = pageInfo.notebook.name ? pageInfo.notebook.name + '-' + pageInfo.experiment.name : pageInfo.experiment.name;
             if (pageInfo.experiment.experimentVersion > 1 || !pageInfo.experiment.lastVersion) {
                 tabName += ' v' + pageInfo.experiment.experimentVersion;
@@ -37,7 +19,7 @@ angular.module('indigoeln')
                 if(pageInfo.dirty){
                     $scope.experimentForm.$setDirty(pageInfo.dirty);
                 }
-                vm.dirtyListener = $scope.$watch(tabKind, function () {
+                self.dirtyListener = $scope.$watch(tabKind, function () {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
                     $timeout(function() {
                             $scope.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
@@ -103,7 +85,7 @@ angular.module('indigoeln')
             $scope.$on('$destroy', function () {
                 onAccessListChangedEvent();
                 onExperimentStatusChangedEvent();
-                vm.dirtyListener();
+                self.dirtyListener();
             });
 
             $scope.save = function (experiment) {

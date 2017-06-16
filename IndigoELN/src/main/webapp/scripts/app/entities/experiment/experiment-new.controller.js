@@ -1,12 +1,5 @@
 angular.module('indigoeln').controller('ExperimentNewController',
     function ($scope, $rootScope, $stateParams, $state, $uibModalInstance, Experiment, pageInfo) {
-        var vm = this;
-
-        vm.experimentCreationTitle = 'Experiment creation';
-        vm.selectTemplateText = 'Please select template for new experiment';
-        vm.deleteButtonText = 'Delete';
-        vm.cancelButtonText = 'Cancel';
-        vm.okButtonText = 'OK';
 
         $scope.experiment = pageInfo.entity;
         $scope.notebookId = $stateParams.notebookId;
