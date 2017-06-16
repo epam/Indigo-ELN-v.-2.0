@@ -1,30 +1,28 @@
 <div class="col-xs-4 col-xs-offset-4 login-form">
     <div class="row">
         <div class="panel panel-info animated" ng-class="{'has-error': shake}">
-            <div class="panel-heading">
-                Sign in
-            </div>
+            <div class="panel-heading" ng-bind="vm.formTitle"></div>
             <div class="panel-body">
                 <form class="form" id="login-form" role="form" ng-submit="login($event)">
                     <div class="form-group">
-                        <label for="username">Login</label>
+                        <label for="username" ng-bind="vm.usernameTitle"></label>
                         <input type="text" class="form-control" id="username" placeholder="Your username"
                                ng-model="username">
                     </div>
                     <div class="form-group">
-                        <label for="password">Password</label>
+                        <label for="password" ng-bind="vm.passwordTitle"></label>
                         <input type="password" class="form-control" id="password" placeholder="Your password"
                                ng-model="password">
                     </div>
-                    <indigo-checkbox indigo-model="rememberMe" indigo-label="Remember me" ng-init="rememberMe = true"></indigo-checkbox>
+                    <indigo-checkbox indigo-model="rememberMe" indigo-label="{{vm.rememberMeTitle}}" ng-init="rememberMe = true"></indigo-checkbox>
                 </form>
             </div>
             <div class="panel-footer text-right">
-                <button type="submit" class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}" form="login-form">Sign in</button>
+                <button type="submit" class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}" form="login-form"
+                    ng-bind="vm.buttonTitle"></button>
             </div>
         </div>
-            <div class="alert alert-danger" ng-show="authenticationError">
-                <strong>Failed to sign in.</strong> Please check your credentials and try again.
-            </div>
+            <div class="alert alert-danger" ng-show="authenticationError"
+                ng-bind="vm.loginFailedMessage"></div>
     </div>
 </div>

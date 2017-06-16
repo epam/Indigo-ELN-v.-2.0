@@ -3,12 +3,12 @@
     <div class="row">
         <div class="col-sm-8">
             <div class="panel panel-info panel-main-h" cg-busy="{promise:loading, minDuration:700}">
-                <div class="panel-heading">experiments statistics</div>
+                <div class="panel-heading" ng-bind="vm.experimentsStatisticsText"></div>
                 <div class="panel-body panel-body-nopad" >
                     <div class="statistic-radio">
                         <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-change="onViewChange()" ng-value="'open'">
                         <div>
-                            <span class="statistic-txt">Open</span>
+                            <span class="statistic-txt" ng-bind="vm.openText"></span>
                             <span class="count pull-right" ng-bind="openExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((openExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
@@ -16,7 +16,7 @@
                     <div class="statistic-radio statistic-orange">
                         <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'wait'" ng-change="onViewChange()">
                         <div>
-                            <span class="statistic-txt">Waiting author’s signature</span>
+                            <span class="statistic-txt" ng-bind="vm.waitingAuthorsSignatureText"></span>
                             <span class="count pull-right" ng-bind="waitingExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((waitingExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
@@ -24,7 +24,7 @@
                     <div class="statistic-radio statistic-yellow">
                         <input type="radio" name="experimentsSwitcher" ng-model="dView" ng-value="'submitted'" ng-change="onViewChange()">
                         <div>
-                            <span class="statistic-txt">Submitted by author</span>
+                            <span class="statistic-txt" ng-bind="vm.submittedByAuthorText"></span>
                             <span class="count pull-right" ng-bind="submittedExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((submittedExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
                         </div>
@@ -34,12 +34,12 @@
         </div>
         <div class="col-sm-4">
             <div class="panel panel-info panel-main-h">
-                <div class="panel-heading">experiments</div>
+                <div class="panel-heading" ng-bind="vm.experimentsLCText"></div>
                 <div class="panel-body panel-body-nopad">
                     <div class="experiment-count-block">
                         <span ng-bind="(submittedExperimentsLength + openExperimentsLength)"></span>
-                        <span>Experiments</span>
-                        <span>(created during the last month)</span>
+                        <span ng-bind="vm.experimentsUCText"></span>
+                        <span>({{vm.experimentsCommentText}})</span>
                     </div>
                 </div>
             </div>
@@ -47,21 +47,21 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'open'">
-        <div class="panel-heading">Open experiments <span class="count" ng-bind="curExperiments.length"></span></div>
+        <div class="panel-heading">{{vm.openExperimentsText}} <span class="count" ng-bind="curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
                     <tr  indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)" class="table-list">
-                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span> </th>
-                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">{{vm.experimentIDText}} <span class="glyphicon glyphicon-sort"></span> </th>
+                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">{{vm.titleText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">{{vm.authorText}} <span class="glyphicon glyphicon-sort"></span></th>
                         <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
                         <th  class="table-list__item table-list__item_header">Co-authors</th>
-                        <th indigo-sort-by="project" class="table-list__item table-list__item_header">Project <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Idle Workdays </span></th>
+                        <th indigo-sort-by="project" class="table-list__item table-list__item_header">{{vm.projectText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">{{vm.creationDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">{{vm.lastEditDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th class="table-list__item table-list__item_header">{{vm.idleWorkdaysText}} </span></th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
@@ -90,21 +90,21 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'wait'">
-        <div class="panel-heading">Experiments Waiting Author’s Signature <span class="count count-orange" ng-bind="totalItems"></span></div>
+        <div class="panel-heading">{{vm.experimentsWaitingAuthorsSignatureText}} <span class="count count-orange" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
                     <tr indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th indigo-sort-by="id"  class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="status"  class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Witness</th>
-                        <th indigo-sort-by="creationDate"  class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="lastEditDate"  class="table-list__item table-list__item_header">Last Action Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Idle Workdays</th>
+                        <th indigo-sort-by="id"  class="table-list__item table-list__item_header dash-exp-id">{{vm.experimentIDText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="name"  class="table-list__item table-list__item_header">{{vm.titleText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="status"  class="table-list__item table-list__item_header">{{vm.statusText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">{{vm.authorText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="submitter.firstName"  class="table-list__item table-list__item_header">{{vm.submitterText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th class="table-list__item table-list__item_header">{{vm.witnessText}}</th>
+                        <th indigo-sort-by="creationDate"  class="table-list__item table-list__item_header">{{vm.creationDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate"  class="table-list__item table-list__item_header">{{vm.lastActionDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th class="table-list__item table-list__item_header">{{vm.idleWorkdaysText}}</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
@@ -135,21 +135,21 @@
     </div>
 
     <div class="panel panel-info panel-info-table" ng-if="dView === 'submitted'">
-        <div class="panel-heading">Experiments Submitted by Author <span class="count count-yellow" ng-bind="totalItems"></span></div>
+        <div class="panel-heading">{{vm.experimentsSubmittedByAuthorText}} <span class="count count-yellow" ng-bind="totalItems"></span></div>
         <div class="panel-body panel-body-nopad">
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
                     <tr indigo-sort="predicate" ascending="reverse" callback="sort(predicate, reverse)"  class="table-list">
-                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="submitter.firstName" class="table-list__item table-list__item_header">Submitter <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">{{vm.experimentIDText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="name" class="table-list__item table-list__item_header">{{vm.titleText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="status" class="table-list__item table-list__item_header">{{vm.statusText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="author.firstName" class="table-list__item table-list__item_header">{{vm.authorText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="submitter.firstName" class="table-list__item table-list__item_header">{{vm.submitterText}} <span class="glyphicon glyphicon-sort"></span></th>
                         <th  class="table-list__item table-list__item_header">Witness</th>
-                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">Creation Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">Last Edit Date <span class="glyphicon glyphicon-sort"></span></th>
-                        <th class="table-list__item table-list__item_header">Comments</th>
+                        <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header">{{vm.creationDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th indigo-sort-by="lastEditDate" class="table-list__item table-list__item_header">{{vm.lastEditDateText}} <span class="glyphicon glyphicon-sort"></span></th>
+                        <th class="table-list__item table-list__item_header">{{vm.commentsText}}</th>
                     </tr>
                     </thead>
                     <tbody class="main-table__body">

@@ -1,5 +1,16 @@
 angular.module('indigoeln')
     .controller('ExperimentSelectParentTemplateController', function ($scope, $rootScope, Template,  $state, $uibModalInstance, parents, templates, Experiment, Principal, localStorageService) {
+        var vm = this;
+        
+        vm.experimentCreationText = 'Experiment creation';
+        vm.pleaseSelectTemplateLabelText = 'Please select a Template for new experiment';
+        vm.notebookNameText = 'Notebook name';
+        vm.createdByText = 'Created By';
+        vm.creationDateText = 'Creation date';
+        vm.lastEditDateText = 'Last Edit Date';
+        vm.cancelText = 'Cancel';
+        vm.okText = 'OK';
+
         $scope.parents = parents;
         $scope.selectedParent = '';
         $scope.templates = templates;

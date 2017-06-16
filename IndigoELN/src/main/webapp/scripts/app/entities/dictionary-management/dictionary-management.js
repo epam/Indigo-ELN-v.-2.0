@@ -16,7 +16,8 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management.html',
-                        controller: 'DictionaryManagementController'
+                        controller: 'DictionaryManagementController',
+                        controllerAs: 'vm'
                     }
                 }
             })
@@ -32,6 +33,7 @@ angular.module('indigoeln')
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management-delete-dialog.html',
                         controller: 'DictionaryManagementDeleteController',
+                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
                             entity: function (Dictionary) {

@@ -1,5 +1,14 @@
 angular.module('indigoeln')
     .controller('LoginController', function ($rootScope, $scope, $state, $timeout, Auth, Principal) {
+        var vm = this;
+
+        vm.formTitle = 'Sign in';
+        vm.usernameTitle = 'Login';
+        vm.passwordTitle = 'Password';
+        vm.rememberMeTitle = 'Remember me';
+        vm.buttonTitle = 'Sign in';
+        vm.loginFailedMessage = '<strong>Failed to sign in.</strong> Please check your credentials and try again.';
+
         $scope.user = {};
         $scope.errors = {};
         $scope.rememberMe = true;
