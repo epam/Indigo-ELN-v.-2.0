@@ -71,7 +71,7 @@
             editableCell = columnId + '-' + rowIndex;
         };
         that.isEditable = function (columnId, rowIndex) {
-            if (that.isFormReadonly) return;
+            if (that.isFormReadonly()) return;
             if ($scope.indigoEditable) {
                 var row = $scope.rowsForDisplay[rowIndex];
                 var editable = $scope.indigoEditable(row, columnId);
