@@ -64,6 +64,9 @@ angular.module('indigoeln')
                         $scope.files.push(response);
                         Alert.success("Attachments are saved successfully.");
                     };
+                    uploader.onErrorItem = function () {
+                        Alert.error("Uploaded file size should be less than 10 Mb");
+                    };
                     $scope.remove = function (index) {
                         $scope.files.splice(index, 1);
                     };
