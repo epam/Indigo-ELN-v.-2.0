@@ -1,5 +1,30 @@
 angular.module('indigoeln')
     .controller('ExperimentController', function($rootScope, $scope, $state, Dashboard, CONFIG, $filter, $timeout, Experiment) {
+        var vm = this;
+
+        vm.experimentsStatisticsText = 'experiments statistics';
+        vm.openText = 'Open';
+        vm.waitingAuthorsSignatureText = 'Waiting author’s signature';
+        vm.submittedByAuthorText = 'Submitted by author';
+        vm.experimentsLCText = 'experiments';
+        vm.experimentsUCText = 'Experiments';
+        vm.experimentsCommentText = 'created during the last month';
+        vm.openExperimentsText = 'Open experiments';
+        vm.experimentIDText = 'Experiment ID';
+        vm.titleText = 'Title';
+        vm.authorText = 'Author';
+        vm.projectText = 'Project';
+        vm.creationDateText = 'Creation Date';
+        vm.lastEditDateText = 'Last Edit Date';
+        vm.idleWorkdaysText = 'Idle Workdays';
+        vm.statusText = 'Status';
+        vm.submitterText = 'Submitter';
+        vm.witnessText = 'Witness';
+        vm.lastActionDateText = 'Last Action Date';
+        vm.commentsText = 'Comments';
+        vm.experimentsWaitingAuthorsSignatureText = 'Experiments Waiting Author’s Signature';
+        vm.experimentsSubmittedByAuthorText = 'Experiments Submitted by Author';
+
         $scope.experiments = [];
         $scope.dView = 'open';
         $scope.itemsPerPage = 20;

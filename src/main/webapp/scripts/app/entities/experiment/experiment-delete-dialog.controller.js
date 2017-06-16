@@ -1,5 +1,11 @@
 angular.module('indigoeln')
     .controller('ExperimentDeleteController', function ($scope, $uibModalInstance, entity, Experiment, $stateParams) {
+        var vm = this;
+
+        vm.confirmationTitle = 'Confirm delete operation';
+        vm.confirmationQuestion = 'Are you sure you want to delete this Experiment?';
+        vm.cancelButtonText = 'Cancel';
+        vm.deleteButtonText = 'Delete';
 
         $scope.experiment = entity;
         $scope.clear = function () {

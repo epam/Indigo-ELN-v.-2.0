@@ -1,5 +1,13 @@
 angular.module('indigoeln')
     .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal, Alert) {
+        var vm = this;
+
+        vm.confirmationTitle = 'Confirm delete operation';
+        vm.areYouSureQuestion = 'Are you sure you want to delete this Word?';
+        vm.areYouSuewComment = '<span class="semi-b">NOTE:</span> this word can be in use. Setting words to be inactive instead of removing dictionary is more reliable way.';
+        vm.cancelButtonText = 'Cancel';
+        vm.deleteButtonText = 'Delete';
+
         $scope.dictionaries = [];
         $scope.selectedDictionaryId = null;
         $scope.selectedDictionary = null;
