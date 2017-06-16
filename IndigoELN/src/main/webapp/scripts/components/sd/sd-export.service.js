@@ -20,7 +20,7 @@ angular.module('indigoeln')
         };
 
         var getExportProperties = function (items) {
-            return _.map(items, function(item){
+            return _.map(items, function(item){console.log('item: ', item);
                     return generateExportProperties(item);
                     });
         };
