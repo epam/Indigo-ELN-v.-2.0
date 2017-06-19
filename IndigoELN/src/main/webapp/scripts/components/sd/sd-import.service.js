@@ -4,7 +4,7 @@ angular
 
 /* @ngInject */
 function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
-                         AlertModal, Alert, CalculationService, StoichTableCache) {
+                         AlertModal, Alert, CalculationService, StoichTableCache, sdProperties) {
 
         var auxPrefixes = [
             'COMPOUND_REGISTRATION_'
