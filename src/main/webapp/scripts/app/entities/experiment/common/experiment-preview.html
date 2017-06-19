@@ -366,7 +366,7 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="conceptDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <span class="pull-right">CONCEPT DETAILS</span>
+                    <span class="pull-left">CONCEPT DETAILS</span>
                     <table class="print-table-simple">
                         <tr>
                             <th style="width:20%">Creation Date:</th>
@@ -400,26 +400,26 @@
                     <indigo-checkbox indigo-label="Print" indigo-model="preferredCompounds.needToPrint" indigo-name="needToPrint" indigo-disabled="fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
-                    <span class="pull-right">PREFERRED COMPOUNDS</span>
+                    <span class="pull-left">PREFERRED COMPOUNDS</span>
                     <table class="print-table">
                         <tr>
-                            <th style="width:20%">Structure</th>
-                            <th style="width:20%">Notebook Batch #</th>
-                            <th style="width:20%">Mol Weight</th>
-                            <th style="width:20%">Mol Formula</th>
-                            <th style="width:20%">Structure Comments</th>
+                            <th style="width:20%; text-align: center;">Structure</th>
+                            <th style="width:20%; text-align: center;">Notebook Batch #</th>
+                            <th style="width:20%; text-align: center;">Mol Weight</th>
+                            <th style="width:20%; text-align: center;">Mol Formula</th>
+                            <th style="width:20%; text-align: center;">Structure Comments</th>
                         </tr>
-                        <tr ng-repeat="compound in preferredCompounds.compounds  track by $index">
-                            <td style="width:20%">
+                        <tr ng-repeat="compound in preferredCompounds.compounds  track by $index" style="vertical-align: top">
+                            <td style="width:20%; text-align: center;">
                                 <div><img ng-if="compound.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{compound.structure.image}}" alt="Image is unavailable."></div>
 
                                 <p style="text-align: center;margin-top: 20px">{{compound.virtualCompoundId}}</p>
                                 <p style="text-align: center;">{{compound.stereoisomer.name }} {{compound.stereoisomer.description }}</p>
                             </td>
-                            <td style="width:20%">{{compound.fullNbkBatch}}</td>
-                            <td style="width:20%">{{toDigits(compound.molWeight) }}</td>
-                            <td style="width:20%">{{compound.formula}}</td>
-                            <td style="width:20%">{{compound.structureComments}}</td>
+                            <td style="width:20%; text-align: center;">{{compound.fullNbkBatch}}</td>
+                            <td style="width:20%; text-align: center;">{{toDigits(compound.molWeight) }}</td>
+                            <td style="width:20%; text-align: center;">{{compound.formula}}</td>
+                            <td style="width:20%; text-align: center;">{{compound.structureComments}}</td>
                         </tr>
                     </table>
                 </div>
