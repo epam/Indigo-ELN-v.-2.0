@@ -1,0 +1,18 @@
+<div class="templates">
+    <div class="tab-content-pad">
+        <h3>Template <span ng-bind="templateDetailController.template.name"></span></h3>
+    </div>
+    <form>
+        <indigo-components indigo-template="templateDetailController.template.templateContent"
+                           indigo-readonly="true"
+                           indigo-model="{}"
+                           indigo-experiment="{}"
+        ></indigo-components>
+    </form>
+    <div class="btn-bottom-block tab-content-pad">
+        <button type="button" class="btn btn-default" onclick="window.history.back()">
+            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
+        </button>
+    </div>
+</div>
+
