@@ -1,169 +1,202 @@
-angular.module('indigoeln')
-    .controller('DictionaryManagementController', function ($scope, Dictionary, ParseLinks, $filter, $uibModal, Alert) {
-        $scope.dictionaries = [];
-        $scope.selectedDictionaryId = null;
-        $scope.selectedDictionary = null;
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('DictionaryManagementController', DictionaryManagementController);
 
-        $scope.page = 1;
-        $scope.itemsPerPage = 5;
-        $scope.searchText = '';
+    /* @ngInject */
+    function DictionaryManagementController($scope, $filter, $uibModal, Alert, Dictionary, ParseLinks) {
+        var self = this;
 
-        $scope.isCollapsed = true;
+        self.dictionaries = [];
+        self.selectedDictionaryId = null;
+        self.selectedDictionary = null;
+        self.page = 1;
+        self.itemsPerPage = 5;
+        self.searchText = '';
+        self.isCollapsed = true;
 
-        $scope.loadAllDictionaries = function () {
-            Dictionary.query({page: $scope.page - 1, size: $scope.itemsPerPage, search: $scope.searchText}, function (result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
-                $scope.dictionaries = result;
-                $scope.word = null;
-            });
-        };
+        self.loadAllDictionaries    = loadAllDictionaries;
+        self.saveDictionary         = saveDictionary;
+        self.createDictionary       = createDictionary;
+        self.editDictionary         = editDictionary;
+        self.searchDictionary       = searchDictionary;
+        self.clearDictionary        = clearDictionary;
+        self.setSelected            = setSelected;
+        self.clearSelection         = clearSelection;
+        self.addWord                = addWord;
+        self.clearWord              = clearWord;
+        self.saveWord               = saveWord;
+        self.editWord               = editWord;
+        self.deleteWord             = deleteWord;
 
-        $scope.loadAllDictionaries();
+        self.loadAllDictionaries();
 
-        var unsubscribe = $scope.$watch('selectedDictionaryId', function () {
-            if ($scope.selectedDictionaryId) {
-                $scope.isCollapsed = false;
-                $scope.selectedDictionary = _.find($scope.dictionaries, function (dict) {
-                    return dict.id === $scope.selectedDictionaryId;
-                });
-                // set sorting way by mean of rank value
-                $scope.selectedDictionary.words.sort(function(a,b){ return a.rank > b.rank;});
-            }
-        });
         $scope.$on('$destroy', function () {
             unsubscribe();
         });
-        var onSaveSuccess = function () {
-            $scope.isSaving = false;
-            $scope.isWordSaving = false;
-            $scope.dictionary = null;
-            $scope.loadAllDictionaries();
-        };
-
-        var onSaveError = function () {
-            $scope.isSaving = false;
-            $scope.isWordSaving = false;
-            $scope.loadAllDictionaries();
-           Alert.error('Dictionary is not saved due to server error!')
-     
-        };
-
-        var updateRanks = function (len) {
-            // check if an element removed
-            var modified = $scope.selectedDictionary.words.length !== len;
-            // update ranks
-            if ($scope.selectedDictionary) {
-                for (var i = 0; i < $scope.selectedDictionary.words.length; i++) {
-                    if ($scope.selectedDictionary.words[i].rank !== i) {
-                        $scope.selectedDictionary.words[i].rank = i;
-                        modified = true;
-                    }
-                }
-                if (modified) {
-                    Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
-                }
-            }
-        };
 
         $scope.$watchCollection('selectedDictionary.words', function () {
-            if ($scope.selectedDictionary) {
-                updateRanks($scope.selectedDictionary.words.length);
+            if (self.selectedDictionary) {
+                updateRanks(self.selectedDictionary.words.length);
             }
         });
 
-        $scope.saveDictionary = function () {
-            $scope.isSaving = true;
-            if ($scope.dictionary.id) {
-                Dictionary.update($scope.dictionary, onSaveSuccess, onSaveError);
-            } else {
-                Dictionary.save($scope.dictionary, onSaveSuccess, onSaveError);
-            }
-        };
+        function loadAllDictionaries() {
+            Dictionary.query({
+                page: self.page - 1,
+                size: self.itemsPerPage,
+                search: self.searchText
+            }, function (result, headers) {
+                self.links = ParseLinks.parse(headers('link'));
+                self.totalItems = headers('X-Total-Count');
+                self.dictionaries = result;
+                self.word = null;
+            });
+        }
 
-        $scope.createDictionary = function () {
-            $scope.dictionary = {
+        function saveDictionary() {
+            self.isSaving = true;
+            if (self.dictionary.id) {
+                Dictionary.update(self.dictionary, onSaveSuccess, onSaveError);
+            } else {
+                Dictionary.save(self.dictionary, onSaveSuccess, onSaveError);
+            }
+        }
+
+        function createDictionary() {
+            self.dictionary = {
                 id: null, name: null, description: null, words: []
             };
-        };
+        }
 
-        $scope.editDictionary = function (dictionary) {
-            $scope.loadAllDictionaries();
-            $scope.dictionary = _.extend({}, dictionary);
-        };
+        function editDictionary(dictionary) {
+            self.loadAllDictionaries();
+            self.dictionary = _.extend({}, dictionary);
+        }
 
-        $scope.searchDictionary = function () {
-            Dictionary.query({page: $scope.page - 1, size: $scope.itemsPerPage, search: $scope.searchText}, function (result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
-                $scope.dictionaries = $filter('filter')(result, $scope.searchText);
+        function searchDictionary() {
+            Dictionary.query({
+                page: self.page - 1,
+                size: self.itemsPerPage,
+                search: self.searchText
+            }, function (result, headers) {
+                self.links = ParseLinks.parse(headers('link'));
+                self.totalItems = headers('X-Total-Count');
+                self.dictionaries = $filter('filter')(result, self.searchText);
             });
-        };
+        }
 
-        $scope.clearDictionary = function () {
-            $scope.dictionary = null;
-        };
+        function clearDictionary() {
+            self.dictionary = null;
+        }
 
-        $scope.setSelected = function (id) {
-            $scope.selectedDictionaryId = id;
-        };
+        function setSelected(id) {
+            self.selectedDictionaryId = id;
+        }
 
-        $scope.clearSelection = function () {
-            $scope.word = null;
-            $scope.selectedDictionaryId = null;
-            $scope.selectedDictionary = null;
-        };
+        function clearSelection() {
+            self.word = null;
+            self.selectedDictionaryId = null;
+            self.selectedDictionary = null;
+        }
 
-        $scope.addWord = function () {
-            $scope.word = {
-                id: null, name: null, description: null, enable: true, rank: $scope.selectedDictionary.words.length
+        function addWord() {
+            self.word = {
+                id: null, name: null, description: null, enable: true, rank: self.selectedDictionary.words.length
             };
-        };
+        }
 
-        $scope.clearWord = function () {
-            $scope.word = null;
-        };
+        function clearWord() {
+            self.word = null;
+        }
 
-        $scope.saveWord = function () {
-            $scope.isWordSaving = true;
-            if ($scope.word.rank === $scope.selectedDictionary.words.length) {
+        function saveWord() {
+            self.isWordSaving = true;
+            if (self.word.rank === self.selectedDictionary.words.length) {
                 // add if this is a new one
-                $scope.selectedDictionary.words.push($scope.word);
+                self.selectedDictionary.words.push(self.word);
             } else {
                 // update if this is an edited one
-                _.each($scope.selectedDictionary.words, function (wrd) {
-                    if (wrd.rank === $scope.word.rank) {
-                        _.extend(wrd, $scope.word);
+                _.each(self.selectedDictionary.words, function (wrd) {
+                    if (wrd.rank === self.word.rank) {
+                        _.extend(wrd, self.word);
                         return false;
                     }
                 });
             }
-            Dictionary.update($scope.selectedDictionary, onSaveSuccess, onSaveError);
-        };
+            Dictionary.update(self.selectedDictionary, onSaveSuccess, onSaveError);
+        }
 
-        $scope.editWord = function (word) {
-            $scope.word = _.extend({}, word);
-        };
+        function editWord(word) {
+            self.word = _.extend({}, word);
+        }
 
-        $scope.deleteWord = function (word) {
-
+        function deleteWord(word) {
             $uibModal.open({
                 animation: true,
-                templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management-delete-word-dialog.html',
-                controller: function ($scope, $uibModalInstance) {
-                    $scope.dismiss = function () {$uibModalInstance.dismiss('cancel');};
-                    $scope.confirmDeleteWord = function () { $uibModalInstance.close(true);};
-                }
+                templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-word-dialog.html',
+                controller: 'DictionaryManagementDeleteWordController',
+                controllerAs: 'dictionaryManagementDeleteWordController'
             }).result.then(function () {
                 // remove the word
-                var len = $scope.selectedDictionary.words.length;
-                for(var i = 0; i < len; i++) {
-                    if($scope.selectedDictionary.words[i].rank === word.rank) {
-                        $scope.selectedDictionary.words.splice(i, 1);
+                var len = self.selectedDictionary.words.length;
+                for (var i = 0; i < len; i++) {
+                    if (self.selectedDictionary.words[i].rank === word.rank) {
+                        self.selectedDictionary.words.splice(i, 1);
                         break;
                     }
                 }
                 updateRanks(len);
             });
-        };
-    });
+        }
+
+        function unsubscribe() {
+            $scope.$watch(function () {
+                return self.selectedDictionaryId;
+            }, function () {
+                if (self.selectedDictionaryId) {
+                    self.isCollapsed = false;
+                    self.selectedDictionary = _.find(self.dictionaries, function (dict) {
+                        return dict.id === self.selectedDictionaryId;
+                    });
+                    // set sorting way by mean of rank value
+                    self.selectedDictionary.words.sort(function (a, b) {
+                        return a.rank > b.rank;
+                    });
+                }
+            });
+        }
+
+        function onSaveSuccess() {
+            self.isSaving = false;
+            self.isWordSaving = false;
+            self.dictionary = null;
+            self.loadAllDictionaries();
+        }
+
+        function onSaveError() {
+            self.isSaving = false;
+            self.isWordSaving = false;
+            self.loadAllDictionaries();
+            Alert.error('Dictionary is not saved due to server error!');
+
+        }
+
+        function updateRanks(len) {
+            // check if an element removed
+            var modified = self.selectedDictionary.words.length !== len;
+            // update ranks
+            if (self.selectedDictionary) {
+                for (var i = 0; i < self.selectedDictionary.words.length; i++) {
+                    if (self.selectedDictionary.words[i].rank !== i) {
+                        self.selectedDictionary.words[i].rank = i;
+                        modified = true;
+                    }
+                }
+                if (modified) {
+                    Dictionary.update(self.selectedDictionary, onSaveSuccess, onSaveError);
+                }
+            }
+        }
+    }
+})();

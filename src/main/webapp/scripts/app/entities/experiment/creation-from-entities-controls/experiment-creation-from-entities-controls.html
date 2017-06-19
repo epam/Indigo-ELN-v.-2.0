@@ -1,0 +1,50 @@
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="experimentCreationFromEntitiesControlsController.ok()" autocomplete="off">
+    <div>
+		<div class="modal-header">
+            <h5 class="modal-title">Experiment creation</h5>
+		</div>
+		<div class="modal-body">
+            <indigo-select indigo-label="Please select a Template for new experiment"
+                           indigo-label-vertical="true"
+                           indigo-model="experimentCreationFromEntitiesControlsController.selectedTemplate"
+                           indigo-items="experimentCreationFromEntitiesControlsController.templates"
+                           indigo-item-prop="name"
+                    ></indigo-select>
+            <indigo-select indigo-label="Please select a Notebook for new experiment"
+                           indigo-label-vertical="true"
+                           indigo-model="experimentCreationFromEntitiesControlsController.selectedParent"
+                           indigo-items="experimentCreationFromEntitiesControlsController.parents"
+                           indigo-item-prop="name"
+            ></indigo-select>
+            <div style="height: 100px;">
+                <table class="table table-striped" ng-show="experimentCreationFromEntitiesControlsController.selectedParent">
+                    <thead>
+                    <tr>
+                        <th><span>Notebook name</span></th>
+                        <th><span>Created By</span></th>
+                        <th><span>Creation date</span></th>
+                        <th><span>Last Edit Date</span></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td ng-bind="experimentCreationFromEntitiesControlsController.selectedParent.name"></td>
+                        <td ng-bind="experimentCreationFromEntitiesControlsController.selectedParent.author.firstName + ' ' + experimentCreationFromEntitiesControlsController.selectedParent.author.lastName"></td>
+                        <td ng-bind="experimentCreationFromEntitiesControlsController.selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                        <td ng-bind="experimentCreationFromEntitiesControlsController.selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+		</div>
+		<div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="experimentCreationFromEntitiesControlsController.cancel()">
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </button>
+            <button type="submit" form="select-parent-dialog"
+                    ng-disabled="!experimentCreationFromEntitiesControlsController.selectedParent.id || !experimentCreationFromEntitiesControlsController.selectedTemplate.id || experimentCreationFromEntitiesControlsController.isSaving" class="btn btn-primary">
+                OK
+			</button>
+		</div>
+	</div>
+</form>

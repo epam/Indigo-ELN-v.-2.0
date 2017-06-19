@@ -1,0 +1,57 @@
+<div class="tab-content-pad templates">
+    <div class="m-b20">
+        <button class="btn btn-primary" ui-sref="entities.template-new">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span class="m-l5">Create a new Template</span>
+        </button>
+    </div>
+    <div class="table-responsive" indigo-scroller="x">
+        <table class="table table-striped">
+            <thead>
+            <tr indigo-sort="templateController.predicate" ascending="templateController.reverse" callback="templateController.loadAll()">
+                <th indigo-sort-by="name"><span>Template name</span> <span class="glyphicon glyphicon-sort"></span></th>
+                <th><span>Created By</span></th>
+                <th><span>Creation date</span></th>
+                <th><span>Last Edit Date</span></th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="template in templateController.templates track by template.id">
+                <td ng-bind="template.name"></td>
+                <td ng-bind="template.author.login"></td>
+                <td ng-bind="template.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                <td ng-bind="template.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                <td>
+                    <div class="btn-group">
+                        <button type="submit"
+                                ui-sref="entities.template-detail({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <i class="fa fa-eye"></i>
+                            <span class="m-l5">View</span>
+                        </button>
+                        <button type="submit"
+                                ui-sref="entities.template-edit({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <i class="fa fa-pencil"></i>
+                            <span class="m-l5">Edit</span>
+                        </button>
+                        <button type="submit"
+                                ui-sref="entities.template.delete({id:template.id})"
+                                class="btn btn-info btn-small">
+                            <i class="fa fa-trash"></i>
+                            <span class="m-l5">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="text-center">
+        <uib-pagination class="pagination-sm" total-items="templateController.totalItems"
+                        items-per-page="templateController.itemsPerPage"
+                        ng-model="templateController.page"
+                        ng-change="templateController.loadAll()"></uib-pagination>
+    </div>
+</div>
