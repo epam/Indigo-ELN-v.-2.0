@@ -108,31 +108,31 @@ angular.module('indigoeln')
                 import : {  name: 'precursors',
                             code: 'PRECURSORS',
                             format: undefined}
-            },
-            {
-                export : {name: 'PURITY',
-                          prop: 'purity',
-                          subProp: 'asString'},
-                import : {}
-            },
-            {
-                export : {name: 'MELTING_POINT',
-                          prop: 'meltingPoint',
-                          subProp: 'asString'},
-                import : {}
-            },
-            {
-                export : {name: '',
-                          prop: '',
-                          subProp: ''},
-                import : {}
-            },
-            {
-                export : {name: '',
-                          prop: '',
-                          subProp: ''},
-                import : {}
-            }
+            }//,
+//            {
+//                export : {name: 'PURITY',
+//                          prop: 'purity',
+//                          subProp: 'data'},
+//                import : {}
+//            },
+//            {
+//                export : {name: 'MELTING_POINT',
+//                          prop: 'meltingPoint',
+//                          subProp: 'asString'},
+//                import : {}
+//            },
+//            {
+//                export : {name: '',
+//                          prop: '',
+//                          subProp: ''},
+//                import : {}
+//            },
+//            {
+//                export : {name: '',
+//                          prop: '',
+//                          subProp: ''},
+//                import : {}
+//            }
 
             //TODO:
         ];

@@ -63,8 +63,8 @@ angular.module('indigoeln').controller('TemplateDialogController',
             },
             moves: function (el, container, handle) {
                 return !handle.classList.contains('no-draggable');
-            }, 
-            copy: false
+            }
+//            ,copy: false
         });
 
         dragulaService.options($scope, 'tabs', {
