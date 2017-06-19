@@ -16,12 +16,12 @@
             <tbody ng-repeat="item in solvents.data track by $index">
                 <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                     <td>
-                        <my-select my-dictionary="Solvent Name"
-                                   my-model="solvents.data[$index].name"></my-select></td>
+                        <indigo-select indigo-dictionary="Solvent Name"
+                                       indigo-model="solvents.data[$index].name"></indigo-select></td>
                     <td>
-                        <my-input my-model="solvents.data[$index].eq" my-type="number"></my-input>
+                        <indigo-input indigo-model="solvents.data[$index].eq" indigo-type="number"></indigo-input>
                     </td>
-                    <td><my-input my-model="solvents.data[$index].comment"></my-input></td>
+                    <td><indigo-input indigo-model="solvents.data[$index].comment"></indigo-input></td>
                     <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
                 </tr>
             </tbody>

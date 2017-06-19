@@ -1,59 +1,41 @@
 angular.module('indigoeln')
-    .factory('ProjectFileUploaderService', function ($resource) {
-        return $resource('api/project_files/:id', {}, {
-            'query': {method: 'GET', isArray: true},
-            'get': {
-                method: 'GET',
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    return data;
-                }
-            },
-            'save': {method: 'POST'},
-            'update': {method: 'PUT'},
-            'delete': {method: 'DELETE'}
-        });
-    })
-    .factory('ExperimentFileUploaderService', function ($resource) {
-        return $resource('api/experiment_files/:id', {}, {
-            'query': {method: 'GET', isArray: true},
-            'get': {
-                method: 'GET',
-                transformResponse: function (data) {
-                    data = angular.fromJson(data);
-                    return data;
-                }
-            },
-            'save': {method: 'POST'},
-            'update': {method: 'PUT'},
-            'delete': {method: 'DELETE'}
-        });
-    })
-    .factory('FileUploaderCash', function () {
-        var _files;
+    .factory('FileUploaderCash', fileUploaderCash);
 
-        return {
-            getFiles: function() {
-                return _files;
-            },
-            setFiles: function(files) {
-                _files = files;
-            },
-            addFile: function(file) {
-                if (_files) {
-                    _files.push(file);
-                }
-            },
-            removeFile: function(file) {
-                if (_files) {
-                    _files = _.without(_files, file);
-                }
-            },
-            addFiles: function(files) {
-                if (_files) {
-                    _files = _.union(_files, files);
-                }
-            }
-        };
+/* @ngInject */
+function fileUploaderCash() {
+    var _files;
+    return {
+        getFiles: getFiles,
+        setFiles: setFiles,
+        addFile: addFile,
+        removeFile: removeFile,
+        addFiles: addFiles
+    };
 
-    });
+    function getFiles() {
+        return _files;
+    }
+
+    function setFiles(files) {
+        _files = files;
+    }
+
+    function addFile(file) {
+        if (_files) {
+            _files.push(file);
+        }
+    }
+
+    function removeFile(file) {
+        if (_files) {
+            _files = _.without(_files, file);
+        }
+    }
+
+    function addFiles(files) {
+        if (_files) {
+            _files = _.union(_files, files);
+        }
+    }
+}
+

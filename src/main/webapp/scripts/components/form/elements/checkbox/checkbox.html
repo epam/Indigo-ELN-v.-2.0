@@ -1,0 +1,9 @@
+<div class="my-checkbox-wrapper form-group {{indigoClasses}}">
+    <div class="checkbox">
+        <div class="checkbox-label-wrapper" uib-tooltip="{{indigoTooltip}}"
+             tooltip-placement="{{indigoTooltipPlacement}}">
+            <checkbox id="{{indigoName}}" class="btn-info my-checkbox" no-dirty="{{indigoNoDirty}}"></checkbox>
+            <label for="{{indigoName}}" ng-click="!indigoDisabled ? indigoModel = !indigoModel : return; indigoChangeAsync();">{{indigoLabel}}</label>
+        </div>
+    </div>
+</div>

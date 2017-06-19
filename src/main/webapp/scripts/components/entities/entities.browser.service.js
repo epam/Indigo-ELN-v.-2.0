@@ -1,189 +1,239 @@
-/**
- * Created by Stepan_Litvinov on 2/17/2016.
- */
-angular.module('indigoeln')
-    .factory('EntitiesBrowser', function ($rootScope, Experiment, Notebook, Project, $q, $state,
-                                          Principal, TabKeyUtils, localStorageService) {
-        var EntitiesBrowser = {};
-        var tabs = EntitiesBrowser.tabs =  {};
-        EntitiesBrowser.activeTab = {};
-        var saveTabs = function() {};
-        var resolvePrincipal = function (func) {
-            return Principal.identity().then(func);
-        };
+angular
+    .module('indigoeln')
+    .factory('EntitiesBrowser', entitiesBrowser);
 
-        resolvePrincipal(function(user) {
-            if (!user) return;
-            var strorageKey = user.id + '.current-tabs', id = user.id;
-            var oldTabs = JSON.parse(localStorageService.get(strorageKey));
-            if (oldTabs) {
-                var t = tabs[id] =  oldTabs;
-                for (var key in t) {
-                    t[key].$$title = t[key].title
-                }
+/* @ngInject */
+function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService) {
+
+    var tabs = {};
+    var activeTab = {};
+    var entityActions;
+    var updateCurrentEntityFunction;
+    var saveCurrentEntityFunction;
+    var activeEntity;
+    var curForm;
+
+    var resolvePrincipal = function (func) {
+        return Principal.identity().then(func);
+    };
+
+    return {
+        getTabs: getTabs,
+        setEntityActions: setEntityActions,
+        getEntityActions: getEntityActions,
+        setUpdateCurrentEntity: setUpdateCurrentEntity,
+        getUpdateCurrentEntityFunc: getUpdateCurrentEntityFunc,
+        callUpdateCurrentEntity: callUpdateCurrentEntity,
+        setSaveCurrentEntity: setSaveCurrentEntity,
+        getSaveCurrentEntityFunc: getSaveCurrentEntityFunc,
+        callSaveCurrentEntity: callSaveCurrentEntity,
+        saveCurrentEntity: saveCurrentEntity,
+        setCurrentEntity: setCurrentEntity,
+        getCurrentEntity: getCurrentEntity,
+        setCurrentForm: setCurrentForm,
+        setCurrentFormDirty: setCurrentFormDirty,
+        getCurrentForm: getCurrentForm,
+        goToTab: goToTab,
+        saveEntity: saveEntity,
+        close: close,
+        setActiveTab: setActiveTab,
+        getActiveTab: getActiveTab,
+        setCurrentTabTitle: setCurrentTabTitle,
+        changeDirtyTab: changeDirtyTab,
+        addTab: addTab,
+        getTabByParams: getTabByParams,
+        saveTabs: saveTabs
+    };
+
+    function getUserId() {
+        var id = Principal.getIdentity().id;
+        tabs[id] = tabs[id] || {};
+        return id;
+    }
+
+    function getTabKey(tab) {
+        return tab && tab.tabKey ? tab.tabKey : TabKeyUtils.getTabKeyFromTab(tab);
+    }
+
+    function getTabs(success) {
+        resolvePrincipal(function (user) {
+            success(tabs[user.id]);
+        });
+    }
+
+    function setEntityActions(actions) {
+        entityActions = actions;
+    }
+
+    function getEntityActions() {
+        return entityActions;
+    }
+
+
+    function setUpdateCurrentEntity(f) {
+        updateCurrentEntityFunction = f;
+    }
+
+    function getUpdateCurrentEntityFunc() {
+        return updateCurrentEntityFunction;
+    }
+
+    function callUpdateCurrentEntity() {
+        updateCurrentEntityFunction();
+    }
+
+    function setSaveCurrentEntity(f) {
+        saveCurrentEntityFunction = f;
+    }
+
+    function getSaveCurrentEntityFunc() {
+        return saveCurrentEntityFunction;
+    }
+
+    function callSaveCurrentEntity(b) {
+        saveCurrentEntityFunction(b);
+    }
+
+    function saveCurrentEntity() {
+        return $q.resolve();
+    }
+
+    function setCurrentEntity(entity) {
+        activeEntity = entity;
+    }
+
+    function getCurrentEntity() {
+        return activeEntity;
+    }
+
+    function setCurrentForm(form) {
+        curForm = form;
+    }
+
+    function setCurrentFormDirty() {
+        if (curForm) {
+            curForm.$setDirty(true);
+        }
+    }
+
+    function getCurrentForm() {
+        return curForm;
+    }
+
+
+    function goToTab(tab) {
+        var curTab = tab;
+        return resolvePrincipal(function () {
+            var userId = getUserId();
+            var tabKey = getTabKey(curTab);
+            if (tabs[userId][tabKey]) {
+                $state.go(tab.state, tab.params);
             }
-            EntitiesBrowser.saveTabs = saveTabs = function() {
-                var tabsToSave = angular.copy(tabs[id])
-                for (var key in tabsToSave) {
-                    delete tabsToSave[key].dirty;
-                }
-                localStorageService.set(strorageKey, angular.toJson(tabsToSave))
+        });
+    }
+
+    function saveEntity() {
+        return $q.resolve();
+    }
+
+
+    function close(tabKey) {
+        return resolvePrincipal(function () {
+            var userId = getUserId();
+            deleteClosedTabAndGoToActive(userId, tabKey);
+        });
+    }
+
+    function setActiveTab(tab) {
+        updateCurrentEntityFunction = null;
+        saveCurrentEntityFunction = null;
+        activeEntity = null;
+        activeTab = tab;
+        entityActions = null;
+        curForm = null;
+    }
+
+    function getActiveTab() {
+        return activeTab;
+    }
+
+
+    function setCurrentTabTitle(tabTitle, stateParams) {
+        return resolvePrincipal(function (user) {
+            var userId = getUserId();
+            var result = TabKeyUtils.getTabKeyFromParams(stateParams);
+            var t = tabs[userId][result];
+            if (t) {
+                t.$$title = t.title = tabTitle;
+                saveTabs(user);
             }
-        })
+        });
+    }
 
-        var getUserId = function () {
-            var id = Principal.getIdentity().id;
-            EntitiesBrowser.tabs[id] = EntitiesBrowser.tabs[id] || {};
-            return id;
-        };
+    function saveTabs(user) {
+        if (!user){
+            return;
+        }
+        var storageKey = user.id + '.current-tabs', id = user.id;
+        var tabsToSave = angular.copy(tabs[id]);
+        for (var key in tabsToSave) {
+            delete tabsToSave[key].dirty;
+        }
+        localStorageService.set(storageKey, angular.toJson(tabsToSave));
+    }
 
-        var getTabKey = function (tab) {
-            return tab && tab.tabKey ? tab.tabKey : TabKeyUtils.getTabKeyFromTab(tab);
-        };
-
-        function deleteClosedTabAndGoToActive(userId, tabKey) {
-            var keys = _.keys(EntitiesBrowser.tabs[userId]);
-            var positionForClose = _.indexOf(keys, tabKey);
-            var curPosition = _.indexOf(keys, EntitiesBrowser.activeTab.tabKey);
-            var nextKey;
-            if (curPosition === positionForClose) {
-                nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
-            } else {
-                nextKey = keys[curPosition];
+    function changeDirtyTab(stateParams, dirty) {
+        return resolvePrincipal(function () {
+            var userId = getUserId();
+            var result = TabKeyUtils.getTabKeyFromParams(stateParams);
+            if (tabs[userId][result]) {
+                tabs[userId][result].dirty = dirty;
             }
-            delete EntitiesBrowser.tabs[userId][tabKey];
-            if (keys.length > 1 && EntitiesBrowser.tabs[userId][nextKey]) {
-                EntitiesBrowser.goToTab(EntitiesBrowser.tabs[userId][nextKey]);
-            } else if (keys.length === 1) {
-                $state.go('experiment');
-            }
-            saveTabs()
-        }
-        
-        EntitiesBrowser.getTabs = function(success) {
-            resolvePrincipal(function(user) {
-                success(EntitiesBrowser.tabs[user.id])
-            })
-        }
-        var entityActions;
-        EntitiesBrowser.setEntityActions = function(actions) {
-            entityActions = actions
-        } 
-        EntitiesBrowser.getEntityActions = function(actions) {
-            return entityActions
-        }
-        EntitiesBrowser.setUpdateCurrentEntity = function(f) {
-            EntitiesBrowser.updateCurrentEntity = f;
-        }
-        EntitiesBrowser.setSaveCurrentEntity = function(f) {
-            EntitiesBrowser.saveCurrentEntity = f;
-        }
+        });
+    }
 
-        EntitiesBrowser.saveCurrentEntity = function () {
-            return $q.resolve();
-        };
 
-        EntitiesBrowser.setCurrentEntity = function (experiment) {
-            EntitiesBrowser.activeEntity = experiment;
-        };
-
-        EntitiesBrowser.getCurrentEntity = function () {
-           return  EntitiesBrowser.activeEntity;
-        } 
-
-        var curForm;
-        EntitiesBrowser.setCurrentForm = function (form) {
-            curForm = form;
-        };
-
-         EntitiesBrowser.setCurrentFormDirty = function () {
-            if (curForm) 
-                curForm.$setDirty(true)
-        };
-
-        EntitiesBrowser.getCurrentForm = function () {
-           return curForm;
-        }
-
-        EntitiesBrowser.goToTab = function (tab) {
-            var curTab = tab;
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                var tabKey = getTabKey(curTab);
-                if (EntitiesBrowser.tabs[userId][tabKey]) {
-                    $state.go(tab.state, tab.params);
-                }
-            });
-        };
-
-        EntitiesBrowser.saveEntity = function (tab) {
-            return $q.resolve();
-        };
-        // close tab
-        EntitiesBrowser.close = function (tabKey) {
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                deleteClosedTabAndGoToActive(userId, tabKey);
-            });
-        };
-
-        EntitiesBrowser.setActiveTab = function (tab) {
-            EntitiesBrowser.updateCurrentEntity = null;
-            EntitiesBrowser.saveCurrentEntity = null;
-            EntitiesBrowser.activeEntity = null;
-            EntitiesBrowser.activeTab = tab;
-            entityActions = null;
-            curForm = null;
-        };
-
-        EntitiesBrowser.getActiveTab = function () {
-            return EntitiesBrowser.activeTab;
-        };
-
-        EntitiesBrowser.setCurrentTabTitle = function (tabTitle, stateParams) {
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                var result = TabKeyUtils.getTabKeyFromParams(stateParams);
-                var t = EntitiesBrowser.tabs[userId][result];
-                if (t) {
-                    t.$$title = t.title = tabTitle;
+    function addTab(tab) {
+        var curTab = tab;
+        return resolvePrincipal(function () {
+            var userId = getUserId();
+            var tabKey = TabKeyUtils.getTabKeyFromTab(curTab);
+            if (!tabs[userId][tabKey]) {
+                curTab.tabKey = tabKey;
+                tabs[userId][tabKey] = curTab;
+                if (saveTabs) {
                     saveTabs();
                 }
-            });
-        };
+            }
+            setActiveTab(tabs[userId][tabKey]);
+        });
+    }
 
-        EntitiesBrowser.changeDirtyTab = function (stateParams, dirty) {
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                var result = TabKeyUtils.getTabKeyFromParams(stateParams);
-                if (EntitiesBrowser.tabs[userId][result]) {
-                    EntitiesBrowser.tabs[userId][result].dirty = dirty;
-                }
-            });
-        };
+    function getTabByParams(params) {
+        return resolvePrincipal(function () {
+            var userId = getUserId();
+            var tabKey = TabKeyUtils.getTabKeyFromParams(params);
+            return tabs[userId][tabKey];
+        });
+    }
 
-        EntitiesBrowser.addTab = function (tab) {
-            var self = this;
-            var curTab = tab;
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                var tabKey = TabKeyUtils.getTabKeyFromTab(curTab);
-                if(!EntitiesBrowser.tabs[userId][tabKey]){
-                    curTab.tabKey = tabKey;
-                    EntitiesBrowser.tabs[userId][tabKey] = curTab;
-                    if (saveTabs) saveTabs()
-                }
-                self.setActiveTab(EntitiesBrowser.tabs[userId][tabKey]);
-            });
-        };
 
-        EntitiesBrowser.getTabByParams = function (params) {
-            return resolvePrincipal(function () {
-                var userId = getUserId();
-                var tabKey = TabKeyUtils.getTabKeyFromParams(params);
-                return EntitiesBrowser.tabs[userId][tabKey];
-            });
-        };
-
-        return EntitiesBrowser;
-    });
+    function deleteClosedTabAndGoToActive(userId, tabKey) {
+        var keys = _.keys(tabs[userId]);
+        var positionForClose = _.indexOf(keys, tabKey);
+        var curPosition = _.indexOf(keys, activeTab.tabKey);
+        var nextKey;
+        if (curPosition === positionForClose) {
+            nextKey = keys[positionForClose - 1] || keys[positionForClose + 1];
+        } else {
+            nextKey = keys[curPosition];
+        }
+        delete tabs[userId][tabKey];
+        if (keys.length > 1 && tabs[userId][nextKey]) {
+            goToTab(tabs[userId][nextKey]);
+        } else if (keys.length === 1) {
+            $state.go('experiment');
+        }
+        saveTabs();
+    }
+}

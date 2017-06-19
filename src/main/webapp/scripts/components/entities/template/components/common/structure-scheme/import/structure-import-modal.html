@@ -1,0 +1,23 @@
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title">Import Structure</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label>Select File:</label>
+            <input type="file" indigo-file-reader="showContent($fileContent)" />
+        </div>
+        <div >
+            <indigo-text-area indigo-label="Input Structure" indigo-label-vertical="true" indigo-model="content"
+                              indigo-trim="false"></indigo-text-area>
+            <!--the next component required to avoid floating out of modal body-->
+            <span class="clear-elem"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" type="button" ng-click="cancel()">
+            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        </button>
+        <button class="btn btn-primary" type="button" ng-click="import()">Import</button>
+    </div>
+</div>

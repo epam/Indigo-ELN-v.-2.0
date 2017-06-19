@@ -1,16 +1,8 @@
 package com.epam.indigoeln.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Objects;
 import com.mongodb.BasicDBList;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Document(collection = UserReagents.COLLECTION_NAME)
 public class UserReagents {

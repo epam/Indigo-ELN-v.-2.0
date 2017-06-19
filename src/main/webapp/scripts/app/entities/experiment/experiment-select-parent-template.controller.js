@@ -1,10 +1,9 @@
 angular.module('indigoeln')
-    .controller('ExperimentSelectParentTemplateController', function ($scope, $rootScope, $state, $uibModalInstance, parents, templates, Experiment, Principal, localStorageService) {
+    .controller('ExperimentSelectParentTemplateController', function ($scope, $rootScope, Template,  $state, $uibModalInstance, parents, templates, Experiment, Principal, localStorageService) {
         $scope.parents = parents;
         $scope.selectedParent = '';
         $scope.templates = templates;
         $scope.selectedTemplate = '';
-
         $scope.experiment = {name: null, experimentNumber: null, template: null, id: null};
 
         var onSaveSuccess = function (result) {

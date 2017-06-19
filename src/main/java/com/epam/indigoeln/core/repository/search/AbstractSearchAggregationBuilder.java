@@ -1,11 +1,9 @@
 package com.epam.indigoeln.core.repository.search;
 
-import com.epam.indigoeln.core.repository.search.entity.StructureSearchType;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +21,8 @@ public class AbstractSearchAggregationBuilder {
         aggregationOperations = new ArrayList<>();
     }
 
-    public AbstractSearchAggregationBuilder withBingoIds(StructureSearchType type, List<Integer> bingoIds) {
-        return this;
+    public AbstractSearchAggregationBuilder withBingoIds(List<String> bingoIds){
+        throw new UnsupportedOperationException("This method should be implemented in subclasses");
     }
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {

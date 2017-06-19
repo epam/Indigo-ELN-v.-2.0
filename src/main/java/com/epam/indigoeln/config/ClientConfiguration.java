@@ -2,17 +2,10 @@ package com.epam.indigoeln.config;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.*;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.StreamSupport;
 
 @Component
 public class ClientConfiguration implements InitializingBean {
@@ -36,19 +29,13 @@ public class ClientConfiguration implements InitializingBean {
 
     private Set<String> getPropertyNames() {
         Set<String> propertyNames = new HashSet<>();
-        if (environment instanceof ConfigurableEnvironment) {
-            Iterator<PropertySource<?>> iterator = ((ConfigurableEnvironment) environment).getPropertySources().iterator();
-            while (iterator.hasNext()) {
-                PropertySource<?> propertySource = iterator.next();
-                if (propertySource instanceof EnumerablePropertySource) {
-                    String[] propertyNamesArray = ((EnumerablePropertySource) propertySource).getPropertyNames();
-                    for (String propertyName : propertyNamesArray) {
-                        if (propertyName.startsWith(PREFIX)) {
-                            propertyNames.add(propertyName);
-                        }
-                    }
-                }
-            }
+        if (environment instanceof ConfigurableEnvironment){
+            MutablePropertySources propertySources = ((ConfigurableEnvironment) environment).getPropertySources();
+            StreamSupport.stream(propertySources.spliterator(), false)
+                    .filter(p -> p instanceof EnumerablePropertySource)
+                    .flatMap(p -> Arrays.stream(((EnumerablePropertySource) p).getPropertyNames()))
+                    .filter(s -> s.startsWith(PREFIX))
+                    .forEach(propertyNames::add);
         }
         return propertyNames;
     }

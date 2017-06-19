@@ -1,6 +1,16 @@
-angular.module('indigoeln')
-    .factory('SdExportService', function (SdService, sdProperties) {
+angular
+    .module('indigoeln')
+    .factory('SdExportService', sdExportService);
 
+/* @ngInject */
+function sdExportService(SdService){
+
+   function getSubProperty(item, prop, subProp) {
+        var subItem = item[prop];
+        if (subItem) {
+            return subItem[subProp];
+        }
+    }
         var getProperty = function (item, prop, subProp) {
             var subItem = item[prop];
             if (subItem && subProp) {

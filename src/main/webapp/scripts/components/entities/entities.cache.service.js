@@ -1,30 +1,41 @@
-angular.module('indigoeln')
-    .factory('EntitiesCache', function (CacheFactory, TabKeyUtils) {
-        var entitiesCache = CacheFactory('entitiesCache');
+angular
+    .module('indigoeln')
+    .factory('EntitiesCache', entitiesCache);
 
-        return {
-            put: function (stateParams, data) {
-                entitiesCache.put(TabKeyUtils.getTabKeyFromParams(stateParams), data);
-            },
+/* @ngInject */
+function entitiesCache(CacheFactory, TabKeyUtils) {
+    var entitiesCache = CacheFactory('entitiesCache');
 
-            get: function (stateParams) {
-                return entitiesCache.get(TabKeyUtils.getTabKeyFromParams(stateParams));
-            },
+    return {
+        put: put,
+        get: get,
+        getByKey: getByKey,
+        removeByKey: removeByKey,
+        removeByParams: removeByParams,
+        clearAll: clearAll
+    };
 
-            getByKey: function (key) {
-                return entitiesCache.get(key);
-            },
+    function put(stateParams, data) {
+        entitiesCache.put(TabKeyUtils.getTabKeyFromParams(stateParams), data);
+    }
 
-            removeByKey: function (key) {
-                entitiesCache.remove(key);
-            },
+    function get(stateParams) {
+        return entitiesCache.get(TabKeyUtils.getTabKeyFromParams(stateParams));
+    }
 
-            removeByParams: function (stateParams) {
-                entitiesCache.remove(TabKeyUtils.getTabKeyFromParams(stateParams));
-            },
+    function getByKey(key) {
+        return entitiesCache.get(key);
+    }
 
-            clearAll: function () {
-                CacheFactory.clearAll();
-            }
-        }
-    });
+    function removeByKey(key) {
+        entitiesCache.remove(key);
+    }
+
+    function removeByParams(stateParams) {
+        entitiesCache.remove(TabKeyUtils.getTabKeyFromParams(stateParams));
+    }
+
+    function clearAll() {
+        CacheFactory.clearAll();
+    }
+}

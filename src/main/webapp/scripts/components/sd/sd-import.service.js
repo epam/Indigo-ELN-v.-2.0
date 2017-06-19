@@ -1,5 +1,10 @@
-angular.module('indigoeln')
-    .factory('SdImportService', function ($http, $q, $uibModal, AppValues, Dictionary, AlertModal, Alert, CalculationService, StoichTableCache, sdProperties) {
+angular
+    .module('indigoeln')
+    .factory('SdImportService', sdImportService);
+
+/* @ngInject */
+function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
+                         AlertModal, Alert, CalculationService, StoichTableCache) {
 
         var auxPrefixes = [
             'COMPOUND_REGISTRATION_'
@@ -115,5 +120,4 @@ angular.module('indigoeln')
         return {
             importFile: importFile
         };
-
-    });
+}

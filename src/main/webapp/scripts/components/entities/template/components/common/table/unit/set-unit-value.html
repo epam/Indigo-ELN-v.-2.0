@@ -4,8 +4,8 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <my-input my-label="Value" my-model="value" my-input-group="append"
-                  my-type="number" my-validation-required="true">
+        <indigo-input indigo-label="Value" indigo-model="value" indigo-input-group="append"
+                      indigo-type="number" indigo-validation-required="true">
             <div class="btn-group" uib-dropdown ng-init="initUnit()">
                 <button type="button" class="btn btn-info"
                         aria-haspopup="true"
@@ -18,7 +18,7 @@
                     </li>
                 </ul>
             </div>
-        </my-input>
+        </indigo-input>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">

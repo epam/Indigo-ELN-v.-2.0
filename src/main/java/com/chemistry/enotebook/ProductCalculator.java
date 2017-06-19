@@ -42,7 +42,7 @@ public class ProductCalculator {
     }
 
     private static void setTotalMoles(BatchModel batch, AmountModel totalMolesAmountModel) {
-        double totalWeightInStdUnits = totalMolesAmountModel.GetValueInStdUnitsAsDouble() * batch.getMolWgt();
+        double totalWeightInStdUnits = totalMolesAmountModel.getValueInStdUnitsAsDouble() * batch.getMolWgt();
         AmountModel newTotalWeightAmountModel = new AmountModel(MASS, totalWeightInStdUnits);
         newTotalWeightAmountModel.setUnit(batch.getTotalWeight().getUnit()); //Do not change unit based on moles. Total wt unit takes precedence.
         newTotalWeightAmountModel.setSigDigits(batch.getTotalWeight().getSigDigits());

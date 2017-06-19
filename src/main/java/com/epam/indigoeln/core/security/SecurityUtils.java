@@ -100,20 +100,23 @@ public final class SecurityUtils {
             for (Object principal : allPrincipals) {
                 UserDetails userDetails = (UserDetails) principal;
                 if (modifiedUser.getLogin().equals(userDetails.getUsername())) {
-                    Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
-                            collect(Collectors.toSet());
-                    Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).
-                            collect(Collectors.toSet());
-                    // Invalidate session if user's authorities set has been changed
-                    if (!CollectionUtils.isEqualCollection(newAuthorities, existingAuthorities)) {
-                        List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
-                        sessions.forEach(SessionInformation::expireNow);
-                    }
+                    checkAndInvalidate(sessionRegistry, modifiedUser, userDetails);
                 }
             }
         }
     }
 
+    private static void checkAndInvalidate(SessionRegistry sessionRegistry, com.epam.indigoeln.core.model.User modifiedUser, UserDetails userDetails) {
+        Set<String> newAuthorities = modifiedUser.getAuthorities().stream().map(Authority::getAuthority).
+                collect(Collectors.toSet());
+        Set<String> existingAuthorities = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).
+                collect(Collectors.toSet());
+        // Invalidate session if user's authorities set has been changed
+        if (!CollectionUtils.isEqualCollection(newAuthorities, existingAuthorities)) {
+            List<SessionInformation> sessions = sessionRegistry.getAllSessions(userDetails, false);
+            sessions.forEach(SessionInformation::expireNow);
+        }
+    }
 
     /**
      * Check for significant changes of authorities and perform logout for user, if these exist

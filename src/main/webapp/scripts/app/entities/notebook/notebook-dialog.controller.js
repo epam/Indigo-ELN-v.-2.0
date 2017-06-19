@@ -35,13 +35,17 @@ angular.module('indigoeln')
                             exp.fullName = $scope.notebook.name + '-' + exp.name;
                         }
                     });
+
                     $scope.experiments = data;
                     $scope.isSummary = true;
                 }, function() {
                     Alert.error('Cannot get summary right now due to server error');
                 });
             };
-
+            $scope.goToExp = function(exp) {
+                var ids = exp.fullId.split('-')
+                $state.go('entities.experiment-detail', { experimentId  : ids[2], notebookId  : ids[1], projectId  : ids[0]  });
+            }
             $timeout(function () {
                 var tabKind = $state.$current.data.tab.kind;
                 if(pageInfo.dirty){
@@ -125,11 +129,20 @@ angular.module('indigoeln')
                 unsubscribeExp();
             });
 
+
+            $scope.hasError = false;
             var onSaveError = function (result) {
                 var mess =  (result.status == 400) ? 'This Notebook name is already in use in the system' : 'Notebook is not saved due to server error';
+                if (result.data.params.length > 1) {
+                    mess = 'This Notebook name cannot be changed because batches are created within its experiments';
+                };
+                $timeout(function(){
+                    $scope.hasError = true;
+                });
                 Alert.error(mess);
             };
             $scope.refresh = function () {
+               $scope.hasError = false;
                $scope.loading = Notebook.get($stateParams).$promise
                 .then(function (result) {
                     angular.extend($scope.notebook, result);
@@ -141,6 +154,7 @@ angular.module('indigoeln')
                 });
             };
             $scope.save = function () {
+                $scope.hasError = false;
                 if ($scope.notebook.id) {
                     $scope.loading = Notebook.update($stateParams, $scope.notebook).$promise
                         .then(function (result) {

@@ -1,5 +1,5 @@
 <div class="notebooks" ng-class="{'notebook-create': !notebook.id}" cg-busy="{promise:loading, minDuration:700}">
-    <div my-autorecovery></div>
+    <indigo-autorecovery></indigo-autorecovery>
     <div class="tab-content-pad">
         <div ng-init="isCollapsed=true;">
             <div class="row m-b20">
@@ -42,30 +42,30 @@
             </div>
         </div>
     </div>
-    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()" autocomplete="off">
+    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()" autocomplete="off" ng-class="hasError ? 'has-error' : ''">
         <div class="inner-tabs">
             <div class="simple-tab-content">
                 <div class="row">
                     <div class="col-xs-12">
-                        <my-input my-label="Notebook Name"
-                                  my-name="notebookName"
-                                  my-model="notebook.name"
-                                  my-readonly="!isEditAllowed"
-                                  my-label-vertical="true"
-                                  my-validation-pattern="/^\d{8}$/"
-                                  my-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
-                                  my-validation-required="true">
-                        </my-input>
+                        <indigo-input indigo-label="Notebook Name"
+                                      indigo-name="notebookName"
+                                      indigo-model="notebook.name"
+                                      indigo-readonly="!isEditAllowed"
+                                      indigo-label-vertical="true"
+                                      indigo-validation-pattern="/^\d{8}$/"
+                                      indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
+                                      indigo-validation-required="true">
+                        </indigo-input>
                         <label>Notebook Description</label>
-                        <my-text-editor my-name="notebookDescription"
-                                        my-model="notebook.description"
-                                        my-readonly="!isEditAllowed"></my-text-editor>
+                        <indigo-text-editor indigo-name="notebookDescription"
+                                            indigo-model="notebook.description"
+                                            indigo-readonly="!isEditAllowed"></indigo-text-editor>
 
                        
                         <div ng-if="isSummary && experiments.length" class="panel panel-info panel-info-table m-t20">
                             <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
                             <div class="panel-body panel-body-nopad">
-                                <div class="table-responsive" my-scroller="x">
+                                <div class="table-responsive" indigo-scroller="x">
                                     <table class="main-table table table-striped table-condensed">
                                         <thead class="main-table__header">
                                         <tr class="table-list">
@@ -81,7 +81,7 @@
                                             <!--<td class="table-list__item">-->
                                             <!--<a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>-->
                                             <!--</td>-->
-                                            <td class="table-list__item">{{exp.fullName}}</td>
+                                            <td class="table-list__item"> <a ng-click="goToExp(exp)">{{exp.fullName}}</a> </td>
                                             <td class="table-list__item">
                                                 <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
                                                 <p>Subject/Title: {{exp.reactionDetails.title || exp.conceptDetails.title}}</p>

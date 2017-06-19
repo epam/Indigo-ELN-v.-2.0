@@ -35,13 +35,13 @@ angular.module('indigoeln').controller('EditSolubilityController',
 
         var resultToString = function () {
             var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
-                let solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
-                let type = solubility.type && solubility.type.name ? solubility.type.name : null;
-                let value = solubility.value && solubility.value.value ? solubility.value : null;
+                var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
+                var type = solubility.type && solubility.type.name ? solubility.type.name : null;
+                var value = solubility.value && solubility.value.value ? solubility.value : null;
                 if (!type || !value || !solvent) {
                     return '';
                 }
-                let result = '';
+                var result = '';
                 if (type === 'Quantitative') {
                     result = value.operator.name + ' ' + value.value + ' ' + value.unit.name; // > 5 g/mL
                 } else {

@@ -78,6 +78,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
                     String.class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
+            LOGGER.error("Couldn't get document info, document id = " + documentId,e);
             return StringUtils.EMPTY;
         }
     }
@@ -91,6 +92,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
                     Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
         } catch (Exception e) {
+            LOGGER.error("Couldn't get documents info, document ids = " + documentIds.stream().reduce("",(s1,s2) -> s1 + ", " + s2),e);
             return StringUtils.EMPTY;
         }
     }
@@ -104,6 +106,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
                     String.class, Collections.singletonMap("username", username)).getBody();
         } catch (Exception e) {
+            LOGGER.error("Couldn't get documents, username = " + username,e);
             return StringUtils.EMPTY;
         }
     }
@@ -117,6 +120,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
                     byte[].class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
+            LOGGER.error("Couldn't download document, document id = " + documentId,e);
             return new byte[0];
         }
     }
@@ -155,20 +159,15 @@ public class SignatureRepository {
         ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureProperties.getUrl() + "/loginProcess", o,
                 Object.class);
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            HttpHeaders headers = responseEntity.getHeaders();
-            if (headers.containsKey(HttpHeaders.SET_COOKIE)) {
-                String cookieHeader = headers.get(HttpHeaders.SET_COOKIE).get(0);
-                String[] splitted = cookieHeader.split(";");
-
-                for (String s : splitted) {
-                    String[] map = s.split(",");
-                    for (String m : map) {
-                        if (m.contains("JSESSIONID")) {
-                            return m.split("=")[1];
-                        }
-                    }
-                }
-            }
+            Optional<String> jsessionid = responseEntity.getHeaders().entrySet().stream()
+                    .filter(e -> e.getKey().equals(HttpHeaders.SET_COOKIE))
+                    .map(e -> e.getValue().get(0))
+                    .flatMap(s -> Arrays.stream(s.split(";")))
+                    .flatMap(s -> Arrays.stream(s.split(",")))
+                    .filter(s -> s.contains("JSESSIONID"))
+                    .findAny()
+                    .map(s -> s.split("=")[1]);
+            return jsessionid.get();
         }
         return null;
     }
