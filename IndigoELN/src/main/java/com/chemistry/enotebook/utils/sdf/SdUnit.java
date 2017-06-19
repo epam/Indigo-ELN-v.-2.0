@@ -13,6 +13,8 @@
  ***************************************************************************/
 package com.chemistry.enotebook.utils.sdf;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class SdUnit implements Serializable, Externalizable {
     static final long serialVersionUID = 42L;
@@ -31,6 +34,7 @@ public class SdUnit implements Serializable, Externalizable {
     private List<String> keyList;
     private boolean valid;
     private String validString;
+    private static final Log LOGGER = LogFactory.getLog(SdUnit.class);
 
     public SdUnit(String molecule, boolean molFilePortionOnly) {
         this(molecule, true, molFilePortionOnly);
@@ -136,7 +140,7 @@ public class SdUnit implements Serializable, Externalizable {
                 }
                 if (Math.abs(test) >= improbablyLargeValue)
                     return "Invalid Z coordinate";
-                if (test == 0.0D)
+                if (doubleEqZero(test))
                     continue;
                 returnString = "OK 3D";
             }
@@ -146,7 +150,7 @@ public class SdUnit implements Serializable, Externalizable {
                 if (line == null)
                     return "Incorrect number of atoms and/or bonds";
                 if (line.startsWith("M")) {
-                    System.out.println(mol);
+                    LOGGER.info(mol);
                     return "Incorrect number of atoms and/or bonds";
                 }
                 if (line.length() < 12)
@@ -171,6 +175,7 @@ public class SdUnit implements Serializable, Externalizable {
             if (line == null)
                 return "Molecule has too few lines";
         } catch (Exception e) {
+            LOGGER.error("Unexpected error parsing molecule",e);
             return "Unexpected error parsing molecule";
         }
         if (returnString.startsWith("OK"))
@@ -210,7 +215,7 @@ public class SdUnit implements Serializable, Externalizable {
             else
                 validString = validString + " AND " + e.getMessage();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("SDUnit init error",e);
         }
     }
 
@@ -308,6 +313,7 @@ public class SdUnit implements Serializable, Externalizable {
             try {
                 molPortion = createConsistentLineTermination(mol);
             } catch (Exception e) {
+                LOGGER.error("SDUnit setMol error");
             }
     }
 

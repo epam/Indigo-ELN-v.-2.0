@@ -5,6 +5,7 @@ angular.module('indigoeln')
                 user.group = user.group.name;
             }
         }
+
         return $resource('api/users/:login', {}, {
             'query': {method: 'GET', isArray: true},
             'get': {
@@ -30,14 +31,14 @@ angular.module('indigoeln')
             },
             'delete': {method: 'DELETE'}
         });
-    }).factory('Users', function($q, Dictionary) {
-        var deferred;
-        return {
-            get: function(force) {
-                if (!deferred || force) {
-                    deferred = Dictionary.get({ id: 'users' });
-                } 
-                return deferred.$promise;
+    }).factory('Users', function ($q, Dictionary) {
+    var deferred;
+    return {
+        get: function (force) {
+            if (!deferred || force) {
+                deferred = Dictionary.get({id: 'users'});
             }
+            return deferred.$promise;
         }
-    });
+    };
+});

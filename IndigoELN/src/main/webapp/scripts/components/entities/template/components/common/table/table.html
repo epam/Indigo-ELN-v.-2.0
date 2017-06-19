@@ -1,0 +1,93 @@
+<div>
+    <div class="row m-b20">
+        <div class="col-xs-4" ng-if="indigoLabel">
+            {{indigoLabel}}
+        </div>
+        <div ng-class="{'col-xs-8 text-right':indigoLabel, 'col-xs-12 text-right':!indigoLabel}" class="is-hidden">
+            <div ng-if="filteredRows.length < indigoRows.length" class="search-info"> <b>{{filteredRows.length}}</b>  of {{indigoRows.length}} are shown </div>
+            <div class="search-field">
+                <i class="fa fa-search"></i>
+                <input type="search" class="uui-search" placeholder="Search" ng-change="search()" id="searchUser" ng-model="searchText">
+            </div>
+
+            <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body ng-if="!indigoHideColumnSettings">
+                <div id="show-hide-button" class="btn btn-info"
+                     uib-dropdown-toggle
+                     ng-disabled="disabled"
+                     uib-tooltip="Column settings">
+                    <span class="fa fa-columns no-draggable" aria-hidden="true"></span> &nbsp;<span> Columns</span>
+                </div>
+                <ul uib-dropdown-menu role="menu"
+                    indigo-scroller="y"
+                    indigo-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
+                    <li role="menuitem"
+                        style="height: 26px"
+                        ng-click="$event.stopPropagation();">
+                        <button type="button" class="btn btn-default btn-small m-t5"
+                                ng-click="resetColumns()">Set default columns set
+                        </button>
+                    </li>
+                    <li ng-repeat="column in indigoColumns | filter : {id:'!show-hide-columns'}"
+                        role="menuitem"
+                        ng-click="$event.stopPropagation();">
+                        <indigo-checkbox indigo-label="{{column.name}}" indigo-model="column.isVisible"
+                                         indigo-change="saveInLocalStorage();"></indigo-checkbox>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <span class="transclude"></span>
+    <div class="table-responsive" indigo-scroller="x">
+        <table class="table table-striped product">
+            <thead>
+            <tr>
+                <th ng-repeat="column in indigoColumns track by $index" ng-show="column.isVisible">
+                    <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;"
+                         ng-if="!column.actions.length && column.id!=='show-hide-columns'">
+                        <a href class="btn btn-transparent" ng-disabled="indigoReadonly">
+                            {{column.name}}
+                        </a>
+                    </div>
+                    <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;" uib-dropdown
+                         dropdown-append-to-body
+                         ng-if="column.actions.length">
+                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="indigoReadonly">
+                            <span>{{column.name}} <span class="caret"></span></span>
+                        </a>
+                        <ul uib-dropdown-menu class="no-draggable">
+                            <li ng-repeat="action in column.actions track by $index" class="no-draggable">
+                                <a href="" ng-click="action.action(column.id)" class="no-draggable"
+                                   ng-disabled="indigoReadonly">{{action.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-if="indigoRows.length" ng-repeat="row in rowsForDisplay track by $index"
+                ng-class="{'success':row.$$selected}">
+                <td ng-repeat="column in indigoColumns track by $index" class="text-center readonly-{{!indigoEditable(row, $index, columnId)}}"
+                    ng-click="onRowSelect($event, row)"
+                    ng-show="column.isVisible"
+                    ng-style="column.id!=='show-hide-columns'?{'min-width': '150px'}:{'min-width': '56px'}" col-read-only="{{isColumnReadonly(column, $parent.$index)}}">
+                    <indigo-table-val indigo-column="column" indigo-row="row" indigo-row-index="$parent.$index"></indigo-table-val>
+                </td>
+            </tr>
+            <tr ng-if="!indigoRows.length" >
+                <td colspan={{indigoColumns.length}} class="text-muted text-center">
+                    <h3 style="margin: 50px">empty</h3>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row" ng-if="pagination.pageSize < indigoRows.length">
+        <div class="col-xs-12 text-center">
+            <uib-pagination total-items="indigoRows.length" ng-change="onPageChanged(pagination.page)"
+                            ng-model="pagination.page" items-per-page="pagination.pageSize" class="pagination-sm"
+                            boundary-link-numbers="true" rotate="false"></uib-pagination>
+        </div>
+    </div>
+</div>

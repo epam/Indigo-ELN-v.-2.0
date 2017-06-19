@@ -23,11 +23,11 @@ angular.module('indigoeln')
             EntitiesBrowser.getTabs(function(tabs) {
                 $scope.entities = tabs;
                 $scope.tabs = tabs;
-                $scope.activeTab = EntitiesBrowser.activeTab;
-            })
+                $scope.activeTab = EntitiesBrowser.getActiveTab();
+            });
 
             var unsubscribe = $scope.$watch(function() {
-                return EntitiesBrowser.activeTab;
+                return EntitiesBrowser.getActiveTab();
             }, function(value) {
                 $scope.activeTab = value;
             });
@@ -105,43 +105,41 @@ angular.module('indigoeln')
         };
 
         $scope.onTabChanged = function(tab, entity) {
-            console.log(1)
-            if (!EntitiesBrowser.updateCurrentEntity) return;
-            console.log(2)
+            if (!EntitiesBrowser.getUpdateCurrentEntityFunc()) return;
 
             if (tab.dirty) {
                 AlertModal.alert('Warning', tab.name + ' ' + tab.$$title + ' has been changed by another user while you have not applied changes. You can Accept or Reject saved changes. "Accept" button reloads page to show saved data, "Reject" button leave entered data and allows you to save them.',
                     null,
                     function() {
-                        EntitiesBrowser.updateCurrentEntity()
+                        EntitiesBrowser.callUpdateCurrentEntity();
                     },
                     function() {
-                        EntitiesBrowser.updateCurrentEntity(true)
+                        EntitiesBrowser.callUpdateCurrentEntity(true)
                     }, 'Accept', true, 'Reject'
                 );
             } else {
                 Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded')
-                EntitiesBrowser.updateCurrentEntity()
+                EntitiesBrowser.callUpdateCurrentEntity()
             }
         };
 
         $scope.onUndo = function() {
-            AutoRecoverEngine.undoAction(EntitiesBrowser.activeEntity);
-        }
+            AutoRecoverEngine.undoAction(EntitiesBrowser.getCurrentEntity());
+        };
 
         $scope.onRedo = function() {
-            AutoRecoverEngine.redoAction(EntitiesBrowser.activeEntity)
-        }
+            AutoRecoverEngine.redoAction(EntitiesBrowser.getCurrentEntity())
+        };
 
         $scope.canUndo = function() {
-            AutoRecoverEngine.canUndo(EntitiesBrowser.activeEntity)
-        }
+            AutoRecoverEngine.canUndo(EntitiesBrowser.getCurrentEntity())
+        };
 
         $scope.canRedo = function() {
-            AutoRecoverEngine.canRedo(EntitiesBrowser.activeEntity)
-        }
+            AutoRecoverEngine.canRedo(EntitiesBrowser.getCurrentEntity())
+        };
 
-        $scope.onCloseAllTabs = function() {
+        $scope.onCloseAllTabs = function(exceptCurrent) {
             var editTabs = _.filter($scope.tabs, function(o) {
                 return o.dirty;
             });
@@ -168,6 +166,7 @@ angular.module('indigoeln')
                 return;
             }
             _.each($scope.tabs, function(tab) {
+                if (exceptCurrent && tab== EntitiesBrowser.activeTab) return;
                 onSaveTab(tab);
             });
         };

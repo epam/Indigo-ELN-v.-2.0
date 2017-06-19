@@ -4,8 +4,8 @@
         <h5 class="modal-title">Set value for {{name}}</h5>
     </div>
     <div class="modal-body">
-        <my-select ng-if="!dictionary" my-items="values" my-model="wrapper.value"></my-select>
-        <my-select ng-if="dictionary" my-dictionary="{{dictionary}}" my-model="wrapper.value"></my-select>
+        <indigo-select ng-if="!dictionary" indigo-items="values" indigo-model="wrapper.value"></indigo-select>
+        <indigo-select ng-if="dictionary" indigo-dictionary="{{dictionary}}" indigo-model="wrapper.value"></indigo-select>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">

@@ -7,9 +7,9 @@
                     <div class="row">
                         <div class="col-xs-9">
                             <form ng-submit="search()">
-                                <my-input my-model="model.restrictions.searchQuery"
-                                          my-label="Type in your search query"
-                                          my-label-vertical="true"></my-input>
+                                <indigo-input indigo-model="model.restrictions.searchQuery"
+                                              indigo-label="Type in your search query"
+                                              indigo-label-vertical="true"></indigo-input>
                             </form>
                         </div>
                         <div class="col-xs-3">
@@ -30,13 +30,13 @@
                                 <div ng-if="!obj.$$skipList">
                                     <div class="col-xs-3"><label class="control-label" ng-bind="::obj.name"></label></div>
                                     <div class="col-xs-3">
-                                        <my-select my-items="obj.$$conditionList"
-                                                   my-model="obj.condition">
-                                        </my-select>
+                                        <indigo-select indigo-items="obj.$$conditionList"
+                                                       indigo-model="obj.condition">
+                                        </indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <form ng-submit="search()">
-                                            <my-input my-model="obj.value"></my-input>
+                                            <indigo-input indigo-model="obj.value"></indigo-input>
                                         </form>
                                     </div>
                                 </div>
@@ -46,18 +46,18 @@
                             <h5>Entity Type Criteria:</h5>
                             <div class="row">
                                 <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedEntitiesFlags['Project']"
-                                                 my-change="selectEntity('Project')" my-label="Project"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedEntitiesFlags['Project']"
+                                                     indigo-change="selectEntity('Project')" indigo-label="Project"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedEntitiesFlags['Notebook']"
-                                                 my-change="selectEntity('Notebook')" my-label="Notebook"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedEntitiesFlags['Notebook']"
+                                                     indigo-change="selectEntity('Notebook')" indigo-label="Notebook"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedEntitiesFlags['Experiment']"
-                                                 my-change="selectEntity('Experiment')" my-label="Experiment"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedEntitiesFlags['Experiment']"
+                                                     indigo-change="selectEntity('Experiment')" indigo-label="Experiment"></indigo-checkbox>
 
                                 </div>
                             </div>
@@ -78,47 +78,47 @@
                                     </label>
                                 </div>
                             </div>
-                            <my-select class="m-b20"
-                                       my-label-vertical="true"
-                                       my-readonly="myReadonly"
-                                       my-items="users"
-                                       my-change = "selectedUsersChange()"
-                                       my-remove = "selectedUsersChange()"
-                                       my-model="selectedUsers"
-                                       my-multiple="true">
-                            </my-select>
+                            <indigo-select class="m-b20"
+                                           indigo-label-vertical="true"
+                                           indigo-readonly="myReadonly"
+                                           indigo-items="users"
+                                           indigo-change = "selectedUsersChange()"
+                                           indigo-remove = "selectedUsersChange()"
+                                           indigo-model="selectedUsers"
+                                           indigo-multiple="true">
+                            </indigo-select>
                         </div>
                         <div class="criteria-search-block">
                             <h5>Experiment Status Criteria:</h5>
                             <div class="row">
 
                                 <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedItemsFlags['OPEN']"
-                                                 my-change="selectItem('OPEN')" my-label="Open"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['OPEN']"
+                                                     indigo-change="selectItem('OPEN')" indigo-label="Open"></indigo-checkbox>
 
-                                    <my-checkbox my-model="selectedItemsFlags['SINGING']"
-                                                 my-change="selectItem('SINGING')"
-                                                 my-label="Signing"></my-checkbox>
-
-                                </div>
-                                <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedItemsFlags['COMPLETED']"
-                                                 my-change="selectItem('COMPLETED')"
-                                                 my-label="Completed"></my-checkbox>
-
-                                    <my-checkbox my-model="selectedItemsFlags['SUBMIT_FAIL']"
-                                                 my-change="selectItem('SUBMIT_FAIL')"
-                                                 my-label="Submit Fail"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['SINGING']"
+                                                     indigo-change="selectItem('SINGING')"
+                                                     indigo-label="Signing"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
-                                    <my-checkbox my-model="selectedItemsFlags['SUBMITTED']"
-                                                 my-change="selectItem('SUBMITTED')"
-                                                 my-label="Submitted"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['COMPLETED']"
+                                                     indigo-change="selectItem('COMPLETED')"
+                                                     indigo-label="Completed"></indigo-checkbox>
 
-                                    <my-checkbox my-model="selectedItemsFlags['ARCHIVED']"
-                                                 my-change="selectItem('ARCHIVED')"
-                                                 my-label="Archived"></my-checkbox>
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['SUBMIT_FAIL']"
+                                                     indigo-change="selectItem('SUBMIT_FAIL')"
+                                                     indigo-label="Submit Fail"></indigo-checkbox>
+
+                                </div>
+                                <div class="col-xs-2">
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['SUBMITTED']"
+                                                     indigo-change="selectItem('SUBMITTED')"
+                                                     indigo-label="Submitted"></indigo-checkbox>
+
+                                    <indigo-checkbox indigo-model="selectedItemsFlags['ARCHIVED']"
+                                                     indigo-change="selectItem('ARCHIVED')"
+                                                     indigo-label="Archived"></indigo-checkbox>
 
                                 </div>
                             </div>
@@ -135,8 +135,8 @@
                         <label class="control-label">Search</label>
                     </div>
                     <div class="col-xs-4">
-                        <my-select my-items="structureTypes"
-                                   my-model="model.restrictions.structure.type"></my-select>
+                        <indigo-select indigo-items="structureTypes"
+                                       indigo-model="model.restrictions.structure.type"></indigo-select>
                     </div>
                 </div>
                 <div class="row">
@@ -144,31 +144,31 @@
                         <label class="control-label">Similarity criteria</label>
                     </div>
                     <div class="col-xs-4">
-                        <my-select my-items="conditionSimilarity"
-                                   my-model="model.restrictions.structure.similarityCriteria"></my-select>
+                        <indigo-select indigo-items="conditionSimilarity"
+                                       indigo-model="model.restrictions.structure.similarityCriteria"></indigo-select>
                     </div>
                     <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
-                        <my-input class="col-xs-1"
-                                  my-name="similarityValue"
-                                  my-validation-pattern="/^\d{1,2}(?!\d)|100$/"
-                                  my-validation-max-length="3"
-                                  my-validation-required="true"
-                                  my-validation-pattern-text="Enter 1-100"
-                                  my-model="model.restrictions.structure.similarityValue"></my-input>
+                        <indigo-input class="col-xs-1"
+                                      indigo-name="similarityValue"
+                                      indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
+                                      indigo-validation-max-length="3"
+                                      indigo-validation-required="true"
+                                      indigo-validation-pattern-text="Enter 1-100"
+                                      indigo-model="model.restrictions.structure.similarityValue"></indigo-input>
                         <div style="position:relative">
                             <span style="position:absolute;top:7px;">%</span>
                         </div>
                     </div>
                 </div>
                 <div class="m-t5">
-                    <structure-scheme class="search-structure-scheme" my-structure-type="molecule"
+                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="molecule"
                                       my-title="Structure or reaction" my-model="scheme"
                                       my-autosave="false"
-                                      ng-if="model.restrictions.structure.type.name == 'Product'"></structure-scheme>
-                    <structure-scheme class="search-structure-scheme" my-structure-type="reaction"
+                                      ng-if="model.restrictions.structure.type.name == 'Product'"></indigo-structure-scheme>
+                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="reaction"
                                       my-title="Structure or reaction" my-model="scheme"
                                       my-autosave="false"
-                                      ng-if="model.restrictions.structure.type.name == 'Reaction'"></structure-scheme>
+                                      ng-if="model.restrictions.structure.type.name == 'Reaction'"></indigo-structure-scheme>
                 </div>
             </div>
         </div>
@@ -178,10 +178,31 @@
             </button>
             <button class="btn btn-secondary" type="button" ng-click="clear()">Clear</button>
         </div>
-
-        <my-table my-id="search-result-table" my-columns="columns" my-rows="searchResults"
-                  my-draggable-columns="false"  my-search-columns="['name']"
-                  my-readonly="true"  my-hide-column-settings="true">
-        </my-table>
+        <table class="main-table table table-striped table-condensed dash-table">
+            <thead class="main-table__header">
+                <th>Entity Type</th>
+                <th>Entity Name/Id</th>
+                <th>Creation Date</th>
+                <th>Author</th>
+                <th>Subject\Title</th>
+                <th>Actions</th>
+            </thead>
+            <tbody class="main-table__body">
+                <tr class="table-list" ng-repeat="entity in searchResultsPaged track by $index">
+                    <td class="table-list__item dash-exp-id">{{entity.kind}}</td>
+                    <td class="table-list__item dash-exp-id"><a ng-click="goTo(entity)">{{entity.name}}</a></td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.creationDate  | date:'MMM dd yyyy'}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.author}}</td>
+                    <td class="table-list__item dash-exp-id">{{entity.details.title}}</td>
+                    <td class="table-list__item dash-exp-id">
+                        <a class="search-action" ng-click="goTo(entity)">Open</a>
+                        <a class="search-action" ng-click="goTo(entity, true)">Print</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="text-center" ng-show="searchResults.length > searchResultsPaged.length">
+          <uib-pagination class="pagination-sm" total-items="searchResults.length" items-per-page="itemsPerPage" ng-model="page" ng-change="doPage()"></uib-pagination>
+      </div>
     </div>
 </div>

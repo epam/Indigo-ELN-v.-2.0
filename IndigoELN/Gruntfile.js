@@ -83,17 +83,16 @@ module.exports = function (grunt) {
             },
             server: '.tmp'
         },
-        //jshint: {
-        //    options: {
-        //        jshintrc: '.jshintrc'
-        //    },
-        //    all: [
-        //        'Gruntfile.js',
-        //        'src/main/webapp/scripts/app.js',
-        //        'src/main/webapp/scripts/app/**/*.js',
-        //        'src/main/webapp/scripts/components/**/*.js'
-        //    ]
-        //},
+        jshint: {
+           options: {
+               jshintrc: '.jshintrc',
+               reporter: require('jshint-stylish')
+           },
+           all: [
+               'Gruntfile.js',
+               'src/main/webapp/scripts/**/*.js'
+           ]
+        },
         concat: {
             // src and dest is configured in a subtask called "generated" by usemin
         },

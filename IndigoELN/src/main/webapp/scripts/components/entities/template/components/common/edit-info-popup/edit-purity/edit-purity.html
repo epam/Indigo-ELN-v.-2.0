@@ -3,11 +3,11 @@
 </div>
 <div class="modal-body">
     <div class="m-b20">
-        <my-two-toggle my-label="Purity % Information"
-                       my-first="Purity Available"
-                       my-second="{{unknownPurity}}"
-                       my-model="purity.property"
-        ></my-two-toggle>
+        <indigo-two-toggle indigo-label="Purity % Information"
+                           indigo-first="Purity Available"
+                           indigo-second="{{unknownPurity}}"
+                           indigo-model="purity.property"
+        ></indigo-two-toggle>
     </div>
     <div class="long-content-popup">
         <table class="table" id="search-result-table">
@@ -22,16 +22,16 @@
             <tbody>
                 <tr ng-repeat="item in dictionary.words track by item.name" ng-init="purity.data[$index].determinedBy = item.name">
                     <td>{{purity.data[$index].determinedBy}}</td>
-                    <td><my-select my-items="operatorSelect"
-                                   my-readonly="isInknownPurity()"
-                                   my-model="purity.data[$index].operator"></my-select></td>
+                    <td><indigo-select indigo-items="operatorSelect"
+                                       indigo-readonly="isInknownPurity()"
+                                       indigo-model="purity.data[$index].operator"></indigo-select></td>
                     <td>
-                        <my-input my-model="purity.data[$index].value" my-readonly="isInknownPurity()"
-                                  my-type="number"></my-input>
+                        <indigo-input indigo-model="purity.data[$index].value" indigo-readonly="isInknownPurity()"
+                                      indigo-type="number"></indigo-input>
                     </td>
                     <td>
-                        <my-input my-model="purity.data[$index].comments"
-                                  my-readonly="isInknownPurity()"></my-input>
+                        <indigo-input indigo-model="purity.data[$index].comments"
+                                      indigo-readonly="isInknownPurity()"></indigo-input>
                     </td>
                 </tr>
             </tbody>

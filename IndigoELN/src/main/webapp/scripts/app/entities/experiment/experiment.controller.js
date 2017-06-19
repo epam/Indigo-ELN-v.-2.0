@@ -2,7 +2,7 @@ angular.module('indigoeln')
     .controller('ExperimentController', function($rootScope, $scope, $state, Dashboard, CONFIG, $filter, $timeout, Experiment) {
         $scope.experiments = [];
         $scope.dView = 'open';
-        $scope.itemsPerPage = 18;
+        $scope.itemsPerPage = 20;
         var openExperiments, waitingExperiments, submittedExperiments
         $scope.loadAll = function() {
             $scope.loading = Dashboard.get({}, function(result) {
