@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('ProductBatchSummaryOperations', ProductBatchSummaryOperations);
+    .factory('ProductBatchSummaryOperations', productBatchSummaryOperations);
 
 /* @ngInject */
-function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache,
+function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache,
                                        $log, Alert, $timeout, EntitiesBrowser, RegistrationService, SdImportService,
                                        SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
 
@@ -59,12 +59,12 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         }
         var batchToCopy = batchesQueueToAdd[i];
         var batchToDuplicate = angular.copy(batchToCopy);
-        var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended)
-        p.then(function (batch) {
+        var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended);
+        p.then(function () {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
             duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
         });
-        return p
+        return p;
     }
 
     function duplicateBatch() {
@@ -76,7 +76,7 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function setStoicTable(_table) {
-        StoichTableCache.setStoicTable(_table)
+        StoichTableCache.setStoicTable(_table);
     }
 
     function getIntendedNotInActual() {
@@ -127,10 +127,12 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
 
-    function importSDFile() {
+    function importSDFile(success) {
         SdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function () {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
-            if (success) success();
+            if (success){
+                success();
+            }
         });
     }
 
@@ -209,19 +211,21 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             if (nonEditableBatches && nonEditableBatches.length > 0) {
                 Alert.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
             }
-            batches.concat([]).forEach(function (b, i) {
+            batches.concat([]).forEach(function (b) {
                 if (b.select && !RegistrationUtil.isRegistered(b)) {
                     deleted++;
-                    batches.splice(batches.indexOf(b), 1)
+                    batches.splice(batches.indexOf(b), 1);
                 }
-            })
+            });
         } else {
             if (!RegistrationUtil.isRegistered(b)) {
-                batches.splice(batches.indexOf(), 1)
+                batches.splice(batches.indexOf(), 1);
             }
 
         }
-        if (deleted > 0) EntitiesBrowser.getCurrentForm().$setDirty(true);
+        if (deleted > 0) {
+            EntitiesBrowser.getCurrentForm().$setDirty(true);
+        }
         return deleted;
     }
 
@@ -262,8 +266,8 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 return saveAndRegister(batchNumbers, function () {
                     _batches.forEach(function (b) {
                         b.registrationStatus = 'IN_PROGRESS'; //EPMLSOPELN-403
-                    })
-                })
+                    });
+                });
             } else {
                 Alert.warning('No Batches was selected for Registration');
             }
@@ -272,7 +276,7 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function saveAndRegister(batchNumbers, success) {
         EntitiesBrowser.saveCurrentEntity()
-            .then(function (result) {
+            .then(function () {
                 $timeout(function () {
                     RegistrationService.register({}, batchNumbers).$promise.
                     then(function () {
@@ -281,7 +285,7 @@ function ProductBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                     }, function () {
                         Alert.error('ERROR! Selected Batches registration failed');
                     });
-                }, 1000)
+                }, 1000);
             });
     }
 }
