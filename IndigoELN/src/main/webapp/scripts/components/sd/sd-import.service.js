@@ -61,6 +61,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                     }
                     if (value) {
                         itemToImport[name] = value;
+
+                        console.log('item to import [name] = ', itemToImport[name], name);
                     }
                 });
             }

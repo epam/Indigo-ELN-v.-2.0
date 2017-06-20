@@ -129,7 +129,7 @@ angular.module('indigoeln')
                           prop: ['purity', 'data', '0', 'determinedBy'],
                           subProp: ''},
                 import : {name: 'purity1',
-                          code: 'PURITY_0_COMENTS',
+                          code: 'PURITY_0_DETERMINED',
                           format: function (dicts, value) {
                                        return {
                                            value: value
