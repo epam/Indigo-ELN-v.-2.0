@@ -5,27 +5,32 @@ angular
 /* @ngInject */
 function sdExportService(SdService, sdProperties){
 
-    var getProperty = function (item, prop, subProp) {
+    var getProperty = function (item, props, subProp) {
+        var i = 0;
+        var prop = props[i++];
         var subItem = item[prop];
-        if (subItem && subProp) {
-            return subItem[subProp];
-        }
+        while (props[i]) {
+            prop = props[i++];
+            subItem = subItem[prop];
+        };
         return subItem;
     };
 
+
     var generateExportProperties = function(item) {
-        var properties = { molfile: item.structure.molfile };
+        var properties = {};
         sdProperties.constants.forEach(function(prop, i, constants) {
             var fields = prop.export;
             properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
         });
-        console.log("Export properties: ", properties);
         return properties;
     };
 
     var getExportProperties = function (items) {
         return _.map(items, function(item){console.log('item: ', item);
-                return generateExportProperties(item);
+                var properties = { molfile: item.structure.molfile,
+                                   properties: generateExportProperties(item)};console.log("Export properties: ", properties);
+                return properties;
                 });
     };
 
