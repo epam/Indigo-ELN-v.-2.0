@@ -56,8 +56,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                             }).
                             value();
                     }
-                    if (value && _.isFunction(property.format)) {
-                        value = property.format(dicts, value);
+                    if (value && _.isFunction(property.format)) {console.log('value1: ', value);
+                        value = property.format(dicts, value);console.log('value2: ', value);
                     }
                     if (value) {
                         itemToImport[name] = value;
