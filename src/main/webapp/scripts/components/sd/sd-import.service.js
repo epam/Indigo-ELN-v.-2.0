@@ -60,9 +60,12 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                         value = property.format(dicts, value);console.log('value2: ', value);
                     }
                     if (value) {
-                        itemToImport[name] = value;
-
-                        console.log('item to import [name] = ', itemToImport[name], name);
+                        if (itemToImport[name]){
+                            _.extend(itemToImport[name], value); console.log('object exist')
+                        } else {
+                            itemToImport[name] = value; console.log('object not exist')
+                        }
+                        console.log('item to import [name] = ', itemToImport, name);
                     }
                 });
             }
