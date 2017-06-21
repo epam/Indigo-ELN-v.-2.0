@@ -399,6 +399,16 @@ tags-input {
     box-sizing: content-box;
 }
 
+.structure-scheme {
+  &__img {
+    height: 150px;
+  }
+
+  &__option {
+    color: #b2ebf2;
+  }
+}
+
 .select-structure {
     border: 0px;
     outline: 0px;
@@ -493,6 +503,7 @@ tags-input {
     td {
       padding: 10px;
       border: 1px solid @print-border-table-color;
+      word-break: break-word;
     }
 
     th {
@@ -1072,5 +1083,13 @@ ul.my-dropdown-list {
 .indigo {
   &-display-none {
     display: none;
+  }
+}
+
+.search-result-table {
+  &__img-structure {
+    padding:10px;
+    margin:10px;
+    border:1px solid black;
   }
 }
