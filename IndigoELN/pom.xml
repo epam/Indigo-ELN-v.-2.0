@@ -81,7 +81,7 @@
             <artifactId>spring-security-data</artifactId>
         </dependency>
 
-        <!-- Test -->
+        <!-- Testing -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
