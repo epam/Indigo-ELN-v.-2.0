@@ -119,7 +119,7 @@ angular.module('indigoeln')
                           code: 'PURITY_0_COMENTS',
                           format: function (dicts, value) {
                                        return {
-                                           value: value
+                                           comments: value
                                        };
                                    }
                           }
@@ -128,11 +128,11 @@ angular.module('indigoeln')
                 export : {name: 'PURITY_0_DETERMINED',
                           prop: ['purity', 'data', '0', 'determinedBy'],
                           subProp: ''},
-                import : {name: 'purity1',
+                import : {name: 'purity',
                           code: 'PURITY_0_DETERMINED',
                           format: function (dicts, value) {
                                        return {
-                                           value: value
+                                           determinedBy: value
                                        };
                                    }
                           }
