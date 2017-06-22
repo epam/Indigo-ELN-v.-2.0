@@ -1,15 +1,29 @@
-angular.module('indigoeln')
-    .controller('user-managementDeleteController', function ($scope, $uibModalInstance, entity, User) {
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('UserManagementDeleteController', UserManagementDeleteController);
 
-        $scope.user = entity;
-        $scope.clear = function () {
+    /* @ngInject */
+    function UserManagementDeleteController($uibModalInstance, entity, User) {
+        var vm = this;
+
+        vm.user = entity;
+
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear() {
             $uibModalInstance.dismiss('cancel');
-        };
-        $scope.confirmDelete = function (login) {
+        }
+
+        function confirmDelete(login) {
             User.delete({login: login},
                 function () {
                     $uibModalInstance.close(true);
+                },
+                function () {
+                    $uibModalInstance.close(false);
                 });
-        };
-
-    });
+        }
+    }
+})();

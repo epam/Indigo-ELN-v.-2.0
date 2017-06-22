@@ -1,4 +1,4 @@
-<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="ok()" autocomplete="off">
+<form id="select-parent-dialog" name="selectParentDialog" role="form" novalidate ng-submit="vm.ok()" autocomplete="off">
     <div>
         <div class="modal-header">
             <h5 class="modal-title">Project selection</h5>
@@ -6,12 +6,12 @@
         <div class="modal-body">
             <indigo-select indigo-label="Please select a project for new notebook"
                            indigo-label-vertical="true"
-                           indigo-model="selectedParent"
-                           indigo-items="parents"
+                           indigo-model="vm.selectedParent"
+                           indigo-items="vm.parents"
                            indigo-item-prop="name"
             ></indigo-select>
             <div style="height: 100px;">
-                <table class="table table-striped" ng-show="selectedParent">
+                <table class="table table-striped" ng-show="vm.selectedParent">
                     <thead>
                     <tr>
                         <th><span>Project name</span></th>
@@ -22,20 +22,20 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td>{{selectedParent.name}}</td>
-                        <td>{{selectedParent.author.firstName + ' ' + selectedParent.author.lastName}}</td>
-                        <td>{{selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
-                        <td>{{selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                        <td>{{vm.selectedParent.name}}</td>
+                        <td>{{vm.selectedParent.author.firstName + ' ' + vm.selectedParent.author.lastName}}</td>
+                        <td>{{vm.selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
+                        <td>{{vm.selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'}}</td>
                     </tr>
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="cancel()">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">
                 <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </button>
-            <button type="submit" form="select-parent-dialog" ng-disabled="!selectedParent.id" class="btn btn-primary">
+            <button type="submit" form="select-parent-dialog" ng-disabled="!vm.selectedParent.id" class="btn btn-primary">
                 Ok
             </button>
         </div>

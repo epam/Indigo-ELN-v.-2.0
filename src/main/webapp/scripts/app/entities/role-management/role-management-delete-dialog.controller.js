@@ -1,11 +1,20 @@
-angular.module('indigoeln')
-    .controller('role-managementDeleteController', function ($scope, $uibModalInstance, Role, entity) {
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('RoleManagementDeleteController', RoleManagementDeleteController);
 
-        $scope.clear = function () {
+    /* @ngInject */
+    function RoleManagementDeleteController($uibModalInstance, Role, entity) {
+        var vm = this;
+
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
+
+        function clear() {
             $uibModalInstance.dismiss('cancel');
-        };
+        }
 
-        $scope.confirmDelete = function () {
+        function confirmDelete() {
             Role.delete({id: entity.id},
                 function () {
                     $uibModalInstance.close(true);
@@ -13,5 +22,6 @@ angular.module('indigoeln')
                 function () {
                     $uibModalInstance.close(false);
                 });
-        };
-    });
+        }
+    }
+})();

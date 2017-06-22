@@ -35,7 +35,8 @@ angular.module('indigoeln')
                                 var deferred = $q.defer();
                                 $q.all([
                                     Template.query({
-                                        size: 100000 //prevent paging on backend
+                                        //prevent paging on backend
+                                        size: 100000
                                     }).$promise
                                 ]).then(function (results) {
                                     deferred.resolve({
@@ -48,14 +49,14 @@ angular.module('indigoeln')
                             }
                         }
                     }).result.then(function (result) {
-                            $state.go('entities.experiment-detail', {
-                                notebookId: result.notebookId,
-                                projectId: result.projectId,
-                                experimentId: result.id
+                        $state.go('entities.experiment-detail', {
+                            notebookId: result.notebookId,
+                            projectId: result.projectId,
+                            experimentId: result.id
                         });
-                        }, function () {
-                            $state.go('^');
-                        });
+                    }, function () {
+                        $state.go('^');
+                    });
                 }
             })
             .state('entities.experiment-detail', {
@@ -65,9 +66,9 @@ angular.module('indigoeln')
                     pageTitle: 'Experiment',
                     tab: {
                         name: 'Experiment',
-                        service:'Experiment',
+                        service: 'Experiment',
                         kind: 'experiment',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.experiment-detail'
                     }
                 },
@@ -89,7 +90,7 @@ angular.module('indigoeln')
                             experimentId: $stateParams.experimentId
                         };
 
-                        if(!EntitiesCache.get(params)){
+                        if (!EntitiesCache.get(params)) {
                             EntitiesCache.put(params, AutoSaveEntitiesEngine.autoRecover(Experiment, params));
                         }
 
@@ -98,8 +99,8 @@ angular.module('indigoeln')
                             notebookId: $stateParams.notebookId
                         };
 
-                        if(!EntitiesCache.get(notebookParams)){
-                            EntitiesCache.put(notebookParams,  Notebook.get(notebookParams).$promise);
+                        if (!EntitiesCache.get(notebookParams)) {
+                            EntitiesCache.put(notebookParams, Notebook.get(notebookParams).$promise);
                         }
 
                         $q.all([
@@ -114,7 +115,7 @@ angular.module('indigoeln')
                                 notebook: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
-                                dirty: results[4] ? results[4].dirty :false,
+                                dirty: results[4] ? results[4].dirty : false,
                                 experimentId: $stateParams.experimentId,
                                 notebookId: $stateParams.notebookId,
                                 projectId: $stateParams.projectId
@@ -171,16 +172,17 @@ angular.module('indigoeln')
                             },
                             templates: function (Template) {
                                 return Template.query({
-                                        size: 100000 //prevent paging on backend
-                                    }).$promise;
+                                    //prevent paging on backend
+                                    size: 100000
+                                }).$promise;
                             }
                         }
                     }).result.then(function (result) {
-                            $state.go('entities.experiment-detail', {
-                                notebookId: result.notebookId,
-                                projectId: result.projectId,
-                                experimentId: result.id
-                            });
+                        $state.go('entities.experiment-detail', {
+                            notebookId: result.notebookId,
+                            projectId: result.projectId,
+                            experimentId: result.id
+                        });
                     }, function () {
                         $state.go('^');
                     });
@@ -222,7 +224,7 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
+                    pageInfo: function ($q, $stateParams, Experiment, Notebook, Project) {
                         var deferred = $q.defer();
                         $q.all([
                             //EntitiesBrowser.getCurrentEntity($stateParams),
@@ -234,7 +236,7 @@ angular.module('indigoeln')
                             Project.get($stateParams).$promise
 
 
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
