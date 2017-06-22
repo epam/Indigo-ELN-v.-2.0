@@ -47,21 +47,27 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <div class="batch-details-radio">
+                        <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioIntermediate"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Intermediate'"
-                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'; experimentForm.$setDirty()"  ng-checked="model.productBatchDetails.batchType == 'Intermediate'">
-                            <label for="batchDetailsRadioIntermediate">Intermediate</label>
+                                   ng-click="model.productBatchDetails.batchType = 'Intermediate'; experimentForm.$setDirty()"
+                                   ng-checked="model.productBatchDetails.batchType == 'Intermediate'"
+                                   class="product-batch-details__input">
+                            <label for="batchDetailsRadioIntermediate"
+                                   class="product-batch-details__label">Intermediate</label>
                         </div>
-                        <div class="batch-details-radio">
+                        <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioTest"
                                    ng-disabled="myReadonly || model.productBatchDetails.batchType == 'Test Compound'"
-                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'; experimentForm.$setDirty()" ng-checked="model.productBatchDetails.batchType =='Test Compound'">
-                            <label  for="batchDetailsRadioTest">Test Compound</label>
+                                   ng-click="model.productBatchDetails.batchType = 'Test Compound'; experimentForm.$setDirty()"
+                                   ng-checked="model.productBatchDetails.batchType =='Test Compound'"
+                                   class="product-batch-details__input">
+                            <label  for="batchDetailsRadioTest"
+                                    class="product-batch-details__label">Test Compound</label>
                         </div>
                     </div>
                 </div>
