@@ -1,7 +1,7 @@
 <header ui-view="navbar" class="uui-header" ng-cloak></header>
-<div id="page-wrapper" ng-class="{'open': toggle, 'hide-menu':!toggle}" class="main-container">
+<div id="page-wrapper" ng-class="{'open': $ctrl.toggle, 'hide-menu': !$ctrl.toggle}" class="main-container">
     <aside ui-view="sidebar" id="sidebar-wrapper" ng-cloak class="uui-side"
-         msd-wheel="onMouseWheel($event, $delta, $deltaX, $deltaY)"></aside>
+         msd-wheel="$ctrl.onMouseWheel($event, $delta, $deltaX, $deltaY)"></aside>
     <div id="content-wrapper">
         <div class="page-content animated" ui-view="content" ng-cloak></div>
     </div>
