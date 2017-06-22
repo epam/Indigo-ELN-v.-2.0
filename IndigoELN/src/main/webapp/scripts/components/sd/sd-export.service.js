@@ -3,43 +3,45 @@ angular
     .factory('SdExportService', sdExportService);
 
 /* @ngInject */
-function sdExportService(SdService){
+function sdExportService(SdService, sdProperties){
+
+    var getProperty = function (item, props, subProp) {
+        var i = 0;
+        var prop = props[i++];
+        var subItem = item[prop];
+        while (props[i]) {
+            if (subItem === undefined) {return;}
+            prop = props[i++];
+            subItem = subItem[prop];
+        };
+        if (subItem && !_.isObject(subItem)){
+            return subItem;
+        }
+    };
+
+
+    var generateExportProperties = function(item) {
+        var properties = {};
+        sdProperties.constants.forEach(function(prop, i, constants) {
+            var fields = prop.export;
+            properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
+        });
+        return properties;
+    };
+
+    var getExportProperties = function (items) {
+        return _.map(items, function(item){console.log('item: ', item);
+                var properties = { molfile: item.structure.molfile,
+                                   properties: generateExportProperties(item)}; console.log("Export properties: ", properties);
+                return properties;
+                });
+    };
+
+    var exportItems = function (items) {
+        return SdService.export({}, getExportProperties(items)).$promise;
+    };
 
     return {
         exportItems: exportItems
     };
-
-    function exportItems(items) {
-        return SdService.export({}, convert(items)).$promise;
-    }
-
-   function getSubProperty(item, prop, subProp) {
-        var subItem = item[prop];
-        if (subItem) {
-            return subItem[subProp];
-        }
-    }
-
-    function convert(items) {
-        return _.map(items, function (item) {
-            return {
-                molfile: item.structure.molfile,
-                properties: {
-                    REGISTRATION_STATUS: item.registrationStatus,
-                    CONVERSATIONAL_BATCH_NUMBER: item.conversationalBatchNumber,
-                    VIRTUAL_COMPOUND_ID: item.virtualCompoundId,
-                    COMPOUND_SOURCE_CODE: getSubProperty(item, 'source', 'name'),
-                    COMPOUND_SOURCE_DETAIL_CODE: getSubProperty(item, 'sourceDetail', 'name'),
-                    STEREOISOMER_CODE: getSubProperty(item, 'stereoisomer', 'name'),
-                    GLOBAL_SALT_CODE: getSubProperty(item, 'saltCode', 'regValue'),
-                    GLOBAL_SALT_EQ: getSubProperty(item, 'saltEq', 'value'),
-                    STRUCTURE_COMMENT: item.structureComments,
-                    COMPOUND_STATE: getSubProperty(item, 'compoundState', 'name'),
-                    PRECURSORS: item.precursors
-                    //TODO: other properties
-                }
-            };
-        });
-
-    }
 }
