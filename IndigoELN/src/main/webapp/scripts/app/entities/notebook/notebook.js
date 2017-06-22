@@ -8,10 +8,10 @@ angular.module('indigoeln')
             .state('entities.notebook-new', {
                 url: '/project/{parentId}/notebook/new',
                 views: {
-
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
-                        controller: 'NotebookDialogController'
+                        controller: 'NotebookDialogController',
+                        controllerAs: 'vm'
                     }
                 },
                 data: {
@@ -19,9 +19,9 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'New Notebook',
-                        service:'Notebook',
+                        service: 'Notebook',
                         kind: 'notebook',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.notebook-new'
                     }
                 },
@@ -33,7 +33,7 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 notebook: {},
                                 identity: results[0],
@@ -52,7 +52,8 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
-                        controller: 'NotebookDialogController'
+                        controller: 'NotebookDialogController',
+                        controllerAs: 'vm'
                     }
                 },
                 data: {
@@ -60,17 +61,17 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'Notebook',
-                        service:'Notebook',
+                        service: 'Notebook',
                         kind: 'notebook',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.notebook-detail'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
-                                       AutoSaveEntitiesEngine, EntitiesBrowser) {
+                    pageInfo: function ($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
+                                        AutoSaveEntitiesEngine, EntitiesBrowser) {
                         var deferred = $q.defer();
-                        if(!EntitiesCache.get($stateParams)){
+                        if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
                         }
                         $q.all([
@@ -80,7 +81,7 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
                             EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 notebook: results[0],
                                 identity: results[1],
@@ -146,11 +147,12 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
-                onEnter: function($state, $uibModal, $window) {
+                onEnter: function ($state, $uibModal, $window) {
                     $uibModal.open({
                         animation: true,
                         templateUrl: 'scripts/app/entities/notebook/notebook-select-parent.html',
                         controller: 'NotebookSelectParentController',
+                        controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
                             parents: function (ProjectsForSubCreation) {
@@ -159,7 +161,7 @@ angular.module('indigoeln')
                         }
                     }).result.then(function (projectId) {
                         $state.go('entities.notebook-new', {parentId: projectId});
-                    }, function() {
+                    }, function () {
                         $window.history.back();
                     });
                 }

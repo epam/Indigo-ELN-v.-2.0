@@ -3,7 +3,6 @@ angular.module('indigoeln')
         
         Principal.identity().then(function(user) {
             $scope.user =  user;
-            console.warn('user', user)
         })
 
         $scope.logout = function () {
