@@ -10,10 +10,13 @@ function sdExportService(SdService, sdProperties){
         var prop = props[i++];
         var subItem = item[prop];
         while (props[i]) {
+            if (subItem === undefined) {return;}
             prop = props[i++];
             subItem = subItem[prop];
         };
-        return subItem;
+        if (subItem && !_.isObject(subItem)){
+            return subItem;
+        }
     };
 
 
@@ -29,7 +32,7 @@ function sdExportService(SdService, sdProperties){
     var getExportProperties = function (items) {
         return _.map(items, function(item){console.log('item: ', item);
                 var properties = { molfile: item.structure.molfile,
-                                   properties: generateExportProperties(item)};console.log("Export properties: ", properties);
+                                   properties: generateExportProperties(item)}; console.log("Export properties: ", properties);
                 return properties;
                 });
     };
