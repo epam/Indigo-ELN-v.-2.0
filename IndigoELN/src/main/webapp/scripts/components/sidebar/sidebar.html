@@ -1,28 +1,35 @@
 <div class="wrapper-list-experiment" indigo-scroller="y" indigo-scroller-theme="light">
     <ul class="sidebar-menu animated">
-        <li ng-class="{'open': myBookmarks.projects.length}">
-            <a ng-click="toggleBookmarksProjects(myBookmarks)">
+        <li ng-class="{'open': myBookmarks.projects.length}"
+            class="sidebar-menu__section">
+            <a ng-click="toggleBookmarksProjects(myBookmarks)"
+               class="sidebar-menu__link-section">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-bookmark"></i>
                 <span>My Bookmarks</span>
             </a>
-            <ul class="sub-menu animated" ng-if="myBookmarks.projects.length">
+            <ul class="sidebar-menu__sub-menu animated" ng-if="myBookmarks.projects.length">
                 <li ng-repeat="project in myBookmarks.projects track by $index"
                     ng-click="toggleBookmarksNotebooks(project); $event.stopPropagation();"
-                    ng-class="{'activ': project.fullId == activeMenuItem}">
+                    ng-class="{'active': project.fullId == activeMenuItem}"
+                    class="sidebar-menu__sub-menu-item">
                     <a>{{project.name}}</a>
-                    <ul class="sub-menu animated" ng-if="project.children.length && project.isOpen">
-                        <li class=""></li>
+                    <ul class="sidebar-menu__sub-menu animated" ng-if="project.children.length && project.isOpen">
                         <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleBookmarksExperiments(notebook, project); $event.stopPropagation();"
-                            ng-class="{'activ': notebook.fullId == activeMenuItem}">
-                            <a>{{notebook.name}}</a>
-                            <ul class="sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
+                            ng-class="{'active': notebook.fullId == activeMenuItem}"
+                            class="sidebar-menu__sub-menu-item">
+                            <a class="link-name">{{notebook.name}}</a>
+                            <ul class="sidebar-menu__sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-repeat="experiment in notebook.children track by $index" 
-                                    ng-class="{'activ': experiment.fullId == activeMenuItem}"
-                                    ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();" >
-                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)" ng-mouseleave="experimentLeave()" >
-                                        <span  uib-popover-template="POPOVER_TEMPLATE" popover-placement="right" popover-class="sidebar-popover-basis" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
+                                    ng-class="{'active': experiment.fullId == activeMenuItem}"
+                                    ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
+                                    class="sidebar-menu__sub-menu-item">
+                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)"
+                                       ng-mouseleave="experimentLeave()"
+                                       class="link-experiment"
+                                    >
+                                        <span uib-popover-template="POPOVER_TEMPLATE" popover-placement="right" popover-class="sidebar-popover-basis" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
                                         <em class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',
@@ -42,27 +49,34 @@
             </ul>
         </li>
         <li indigo-has-authority="{{CONTENT_EDITOR}}"
-            ng-class="{'open': allProjects.projects.length}">
-            <a ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();">
+            ng-class="{'open': allProjects.projects.length}"
+            class="sidebar-menu__section">
+            <a ng-click="toggleMyprojects(allProjects, true); $event.stopPropagation();"
+               class="sidebar-menu__link-section">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-sitemap"></i>
                 <span>All Projects</span>
             </a>
-            <ul class="sub-menu animated" ng-if="allProjects.projects.length">
+            <ul class="sidebar-menu__sub-menu animated" ng-if="allProjects.projects.length">
                 <li ng-repeat="project in allProjects.projects track by $index"
                     ng-click="toggleMyprojectsNotebooks(project, true); $event.stopPropagation();"
-                    ng-class="{'activ': project.fullId == activeMenuItem}">
+                    ng-class="{'active': project.fullId == activeMenuItem}"
+                    class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">{{project.name}}</a>
-                    <ul class="sub-menu animated" ng-if="project.children.length && project.isOpen">
+                    <ul class="sidebar-menu__sub-menu animated" ng-if="project.children.length && project.isOpen">
                         <li ng-repeat="notebook in project.children track by $index"
                             ng-click="notebook.projectId = project.id; toggleMyprojectsExperiments(notebook, project, true); $event.stopPropagation();"
-                            ng-class="{'activ': notebook.fullId == activeMenuItem}">
-                            <a>{{notebook.name}}</a>
-                            <ul class="sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
+                            ng-class="{'active': notebook.fullId == activeMenuItem}"
+                            class="sidebar-menu__sub-menu-item">
+                            <a class="link-name">{{notebook.name}}</a>
+                            <ul class="sidebar-menu__sub-menu animated" ng-if="notebook.children.length && notebook.isOpen">
                                 <li ng-repeat="experiment in notebook.children track by $index"
                                     ng-click="onExperimentClick(experiment, notebook, project); $event.stopPropagation();"
-                                    ng-class="{'activ': experiment.fullId == activeMenuItem}">
-                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)" ng-mouseleave="experimentLeave()">
+                                    ng-class="{'active': experiment.fullId == activeMenuItem}"
+                                    class="sidebar-menu__sub-menu-item">
+                                    <a ng-mouseenter="experimentEnter(experiment, notebook, project)"
+                                       ng-mouseleave="experimentLeave()"
+                                       class="link-experiment">
                                         <span uib-popover-template="POPOVER_TEMPLATE" popover-class="sidebar-popover-basis" popover-placement="right" popover-is-open="isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
                                         <em class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
@@ -81,27 +95,37 @@
             </ul>
         </li>
         <li indigo-has-any-authority="{{ADMINISTRATION_AUTHORITIES}}"
-            ng-class="{'open': adminToggled}">
-            <a ng-click="toggleAdministration()">
+            ng-class="{'open': adminToggled}"
+            class="sidebar-menu__section">
+            <a ng-click="toggleAdministration()"
+               class="sidebar-menu__link-section">
                 <i class="fa fa-angle-down arrow"></i>
                 <i class="fa fa-cogs"></i>
                 <span>Administration</span>
             </a>
-            <ul class="sub-menu animated" ng-if="adminToggled">
-                <li indigo-has-authority="{{USER_EDITOR}}" ng-class="{'activ': $state.includes('entities.user-management')}"
-                    ng-click="toggleUsersAndRoles(); $event.stopPropagation();">
+            <ul class="sidebar-menu__sub-menu animated" ng-if="adminToggled">
+                <li indigo-has-authority="{{USER_EDITOR}}"
+                    ng-class="{'active': $state.includes('entities.user-management')}"
+                    ng-click="toggleUsersAndRoles(); $event.stopPropagation();"
+                    class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment ">Users</a>
                 </li>
-                <li indigo-has-authority="{{ROLE_EDITOR}}" ng-class="{'activ': $state.includes('entities.role-management')}"
-                    ng-click="toggleAuthorities(); $event.stopPropagation();">
+                <li indigo-has-authority="{{ROLE_EDITOR}}"
+                    ng-class="{'active': $state.includes('entities.role-management')}"
+                    ng-click="toggleAuthorities(); $event.stopPropagation();"
+                    class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Roles</a>
                 </li>
-                <li indigo-has-authority="{{TEMPLATE_EDITOR}}" ng-class="{'activ': $state.includes('entities.template')}"
-                    ng-click="toggleTemplates(); $event.stopPropagation();">
+                <li indigo-has-authority="{{TEMPLATE_EDITOR}}"
+                    ng-class="{'active': $state.includes('entities.template')}"
+                    ng-click="toggleTemplates(); $event.stopPropagation();"
+                    class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Templates</a>
                 </li>
-                <li indigo-has-authority="{{DICTIONARY_EDITOR}}" ng-class="{'activ': $state.includes('entities.dictionary-management')}"
-                    ng-click="toggleDictionaries(); $event.stopPropagation();">
+                <li indigo-has-authority="{{DICTIONARY_EDITOR}}"
+                    ng-class="{'active': $state.includes('entities.dictionary-management')}"
+                    ng-click="toggleDictionaries(); $event.stopPropagation();"
+                    class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Dictionaries</a>
                 </li>
             </ul>

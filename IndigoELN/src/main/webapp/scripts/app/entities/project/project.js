@@ -9,8 +9,8 @@ angular.module('indigoeln')
                 url: '/project/new',
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/entities/project/project-dialog.html',
-                        controller: 'ProjectDialogController'
+                        templateUrl: 'scripts/app/entities/project/project.html',
+                        controller: 'ProjectController'
                     }
                 },
                 data: {
@@ -49,8 +49,8 @@ angular.module('indigoeln')
                 url: '/project/{projectId}',
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/entities/project/project-dialog.html',
-                        controller: 'ProjectDialogController'
+                        templateUrl: 'scripts/app/entities/project/project.html',
+                        controller: 'ProjectController'
                     }
                 },
                 data: {

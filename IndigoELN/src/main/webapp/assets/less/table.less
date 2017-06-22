@@ -98,9 +98,12 @@ tr {
   }
 
   &.product {
-    &> thead > tr > th .btn-group {
-      justify-content: center;
+    .product-header {
+      .btn-group {
+        justify-content: center;
+      }
     }
+
     .btn-group {
       .btn {
         color: @table-th-color;
@@ -121,16 +124,12 @@ tr {
 }
 .product-batch-register {
   .product {
-    tbody {
-      tr {
-        td{
-          a {
-            cursor: default;
-            &:hover {
-              color: #337ab7;
-              text-decoration: none;
-            }
-          }
+    indigo-table-val {
+      a {
+        cursor: default;
+        &:hover {
+          color: #337ab7;
+          text-decoration: none;
         }
       }
     }

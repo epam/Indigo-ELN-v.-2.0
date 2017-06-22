@@ -11,7 +11,8 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/experiments.html',
-                        controller: 'ExperimentController'
+                        controller: 'ExperimentController',
+                        controllerAs: 'experimentController'
                     }
                 },
                 resolve: {}
@@ -25,15 +26,16 @@ angular.module('indigoeln')
                 onEnter: function ($state, $uibModal) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/experiment-new.html',
-                        controller: 'ExperimentNewController',
+                        templateUrl: 'scripts/app/entities/experiment/creation-from-notebook/experiment-creation-from-notebook.html',
+                        controller: 'ExperimentCreationFromNotebookController',
+                        controllerAs: 'experimentCreationFromNotebookController',
                         size: 'lg',
                         resolve: {
                             pageInfo: function ($q, $stateParams, Template) {
                                 var deferred = $q.defer();
                                 $q.all([
                                     Template.query({
-                                        size: 100000, //prevent paging on backend
+                                        size: 100000 //prevent paging on backend
                                     }).$promise
                                 ]).then(function (results) {
                                     deferred.resolve({
@@ -71,8 +73,9 @@ angular.module('indigoeln')
                 },
                 views: {
                     'tabContent': {
-                        templateUrl: 'scripts/app/entities/experiment/experiment-detail.html',
-                        controller: 'ExperimentDetailController'
+                        templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
+                        controller: 'ExperimentDetailController',
+                        controllerAs: 'experimentDetailController'
                     }
                 },
                 resolve: {
@@ -129,8 +132,9 @@ angular.module('indigoeln')
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
-                        templateUrl: 'scripts/app/entities/experiment/experiment-delete-dialog.html',
+                        templateUrl: 'scripts/app/entities/experiment/delete-dialog/experiment-delete-dialog.html',
                         controller: 'ExperimentDeleteController',
+                        controllerAs: 'experimentDeleteController',
                         size: 'md',
                         resolve: {
                             entity: ['Experiment', function (Experiment) {
@@ -157,8 +161,9 @@ angular.module('indigoeln')
                 onEnter: function ($state, $uibModal) {
                     $uibModal.open({
                         animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/experiment-select-parent-template.html',
-                        controller: 'ExperimentSelectParentTemplateController',
+                        templateUrl: 'scripts/app/entities/experiment/creation-from-entities-controls/experiment-creation-from-entities-controls.html',
+                        controller: 'ExperimentCreationFromEntitiesControlsController',
+                        controllerAs: 'experimentCreationFromEntitiesControlsController',
                         size: 'lg',
                         resolve: {
                             parents: function (NotebooksForSubCreation) {
@@ -166,7 +171,7 @@ angular.module('indigoeln')
                             },
                             templates: function (Template) {
                                 return Template.query({
-                                        size: 100000, //prevent paging on backend
+                                        size: 100000 //prevent paging on backend
                                     }).$promise;
                             }
                         }
@@ -201,17 +206,19 @@ angular.module('indigoeln')
                     {id: 'OWNER', name: 'OWNER (read and update experiment)'}
                 ]
             }))
-            .state('experiment-print', {
+            .state('experiment-preview-print', {
                 parent: 'entity',
-                url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/experiment-print',
+                url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/experiment-preview-print',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    isFullPrint: false
                 },
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
-                        controller: 'ExperimentPrintController'
+                        templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
+                        controller: 'ExperimentPreviewController',
+                        controllerAs: 'experimentPreviewController'
                     }
                 },
                 resolve: {
@@ -243,12 +250,14 @@ angular.module('indigoeln')
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/preview-submit',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
-                    pageTitle: 'indigoeln'
+                    pageTitle: 'indigoeln',
+                    isFullPrint: true
                 },
                 views: {
                     'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/common/experiment-preview.html',
-                        controller: 'ExperimentSubmitController'
+                        templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
+                        controller: 'ExperimentPreviewController',
+                        controllerAs: 'experimentPreviewController'
                     }
                 },
                 resolve: {

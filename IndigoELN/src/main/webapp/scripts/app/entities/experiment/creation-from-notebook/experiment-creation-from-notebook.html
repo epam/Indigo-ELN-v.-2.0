@@ -1,0 +1,26 @@
+<form id="editForm" name="editForm" role="form" novalidate ng-submit="experimentCreationFromNotebookController.ok()">
+    <div>
+        <div class="modal-header">
+            <h5 class="modal-title">Experiment creation</h5>
+        </div>
+        <div class="modal-body">
+            <indigo-select
+                    indigo-label="Please select template for new experiment"
+                    indigo-name="template"
+                    indigo-model="experimentCreationFromNotebookController.template"
+                    indigo-items="experimentCreationFromNotebookController.templates"
+                    indigo-label-vertical="true"
+                    ></indigo-select>
+        </div>
+        <div class="modal-footer">
+            <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
+               ng-if="mode == 'edit'">Delete</a>
+            <a class="btn btn-default" data-dismiss="modal" ng-click="experimentCreationFromNotebookController.cancel()">
+                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+            </a>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary">OK</button>
+        </div>
+    </div>
+</form>
+
+

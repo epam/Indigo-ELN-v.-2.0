@@ -17,18 +17,18 @@
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/component.html'
         };
-    }
 
-    /* @ngInject */
-    function link(scope, iElement, iAttrs) {
-        scope.myComponent = iAttrs.indigoComponent;
-        //for capability
-        scope.model = scope.indigoModel;
-        //for capability
-        scope.experimentForm = scope.indigoExperimentForm;
-        //for readonly
-        scope.experiment = _.extend({}, scope.indigoExperiment);
-        //for communication between components
-        scope.share = scope.indigoShare;
+        /* @ngInject */
+        function link(scope, iElement, iAttrs) {
+            scope.myComponent = iAttrs.indigoComponent;
+            //for capability
+            scope.model = scope.indigoModel;
+            //for capability
+            scope.experimentForm = scope.indigoExperimentForm;
+            //for readonly
+            scope.experiment = _.extend({}, scope.indigoExperiment);
+            //for communication between components
+            scope.share = scope.indigoShare;
+        }
     }
 })();
