@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .controller('StructureSchemeController', structureSchemeController);
+    .controller('structureSchemeController', structureSchemeController);
 
 /* @ngInject */
 function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {

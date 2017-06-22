@@ -7,7 +7,7 @@
         return {
             restrict: 'E',
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/scheme/structure-scheme.html',
-            controller: structureSchemeController,
+            controller: 'structureSchemeController',
             scope: {
                 structureType: '=ssStructureType',
                 title: '=ssTitle',
