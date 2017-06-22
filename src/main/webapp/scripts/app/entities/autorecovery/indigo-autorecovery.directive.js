@@ -6,12 +6,10 @@
     function indigoAutorecovery() {
         return {
             restrict: 'E',
-            templateUrl: 'scripts/app/entities/autorecovery/autorecovery.html',
-            link: link
+            scope: {
+                indigoRestored: '='
+            },
+            templateUrl: 'scripts/app/entities/autorecovery/autorecovery.html'
         };
-    }
-
-    /* @ngInject */
-    function link($scope) {
     }
 })();

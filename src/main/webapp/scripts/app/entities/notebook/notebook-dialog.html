@@ -96,7 +96,7 @@
                                             </td>
                                             <td class="table-list__item">
                                                 <a ui-sref="entities.experiment-detail({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">OPEN</a><span>, </span>
-                                                <a ui-sref="experiment-print({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">PRINT</a><span>, </span>
+                                                <a ui-sref="experiment-preview-print({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">PRINT</a><span>, </span>
                                                 <a ng-click="repeatExperiment(exp, {projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">REPEAT</a>
                                             </td>
                                         </tr>

@@ -16,7 +16,7 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
 
 
     function printExperiment(params) {
-        $state.go('experiment-print', {
+        $state.go('experiment-preview-print', {
             experimentId: params.experimentId,
             notebookId: params.notebookId,
             projectId: params.projectId
@@ -132,7 +132,7 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
     function openCompleteConfirmationModal(experiment, notebookName) {
         return $uibModal.open({
             animation: true,
-            templateUrl: 'scripts/app/entities/experiment/experiment-complete-modal.html',
+            templateUrl: 'scripts/app/entities/experiment/complete-modal/experiment-complete-modal.html',
             resolve: {
                 fullExperimentName: function () {
                     var fullName = notebookName + '-' + experiment.name;
@@ -142,15 +142,8 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                     return fullName;
                 }
             },
-            controller: function ($scope, $uibModalInstance, fullExperimentName) {
-                $scope.fullExperimentName = fullExperimentName;
-                $scope.dismiss = function () {
-                    $uibModalInstance.dismiss('cancel');
-                };
-                $scope.confirmCompletion = function () {
-                    $uibModalInstance.close(true);
-                };
-            }
+            controller: 'ExperimentCompleteModalController',
+            controllerAs: 'experimentCompleteModalController'
         });
     }
 

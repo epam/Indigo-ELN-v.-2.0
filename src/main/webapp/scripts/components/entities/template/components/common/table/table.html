@@ -42,7 +42,9 @@
         <table class="table table-striped product">
             <thead>
             <tr>
-                <th ng-repeat="column in indigoColumns track by $index" ng-show="column.isVisible">
+                <th ng-repeat="column in indigoColumns track by $index"
+                    ng-show="column.isVisible"
+                    class="product-header">
                     <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;"
                          ng-if="!column.actions.length && column.id!=='show-hide-columns'">
                         <a href class="btn btn-transparent" ng-disabled="indigoReadonly">

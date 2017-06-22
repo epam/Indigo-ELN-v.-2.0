@@ -134,7 +134,8 @@
 
 <script src="scripts/app/entities/dictionary-management/dictionary-management.controller.js"></script>
 <script src="scripts/app/entities/dictionary-management/dictionary-management.js"></script>
-<script src="scripts/app/entities/dictionary-management/dictionary-management-delete-dialog.controller.js"></script>
+<script src="scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-dialog.controller.js"></script>
+<script src="scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-word-dialog.controller.js"></script>
 
 <script src="scripts/app/entities/role-management/role-management.controller.js"></script>
 <script src="scripts/app/entities/role-management/role-management.js"></script>
@@ -177,12 +178,13 @@
 <script src="scripts/components/form/elements/checklist/indigo-checklist.directive.js"></script>
 <script src="scripts/app/error/error.js"></script>
 <script src="scripts/components/util/indigo-toggle-class-child.directive.js"></script>
-<script src="scripts/app/entities/project/project-dialog.controller.js"></script>
-<script src="scripts/app/entities/template/template.js"></script>
-<script src="scripts/app/entities/template/template.controller.js"></script>
-<script src="scripts/app/entities/template/template-dialog.controller.js"></script>
-<script src="scripts/app/entities/template/template-delete-dialog.controller.js"></script>
-<script src="scripts/app/entities/template/template-detail.controller.js"></script>
+<script src="scripts/app/entities/project/project.controller.js"></script>
+<script src="scripts/app/entities/template-management/template.js"></script>
+<script src="scripts/app/entities/template-management/template.controller.js"></script>
+<script src="scripts/app/entities/template-management/modal/template-modal.controller.js"></script>
+<script src="scripts/components/util/indigo-focus-on-create.directive.js"></script>
+<script src="scripts/app/entities/template-management/delete-dialog/template-delete-dialog.controller.js"></script>
+<script src="scripts/app/entities/template-management/detail/template-detail.controller.js"></script>
 <script src="scripts/components/entities/template/template.service.js"></script>
 <script src="scripts/components/util/sort/indigo-sort.directive.js"></script>
 <script src="scripts/components/util/sort/indigo-sort-by.directive.js"></script>
@@ -195,11 +197,12 @@
 <script src="scripts/components/text-editor/indigo-text-editor.directive.js"></script>
 <script src="scripts/app/entities/experiment/experiment.js"></script>
 <script src="scripts/app/entities/experiment/experiment.controller.js"></script>
-<script src="scripts/app/entities/experiment/experiment-new.controller.js"></script>
-<script src="scripts/app/entities/experiment/experiment-delete-dialog.controller.js"></script>
-<script src="scripts/app/entities/experiment/experiment-detail.controller.js"></script>
-<script src="scripts/app/entities/experiment/experiment-select-parent-template.controller.js"></script>
-<script src="scripts/app/entities/experiment/experiment-print.controller.js"></script>
+<script src="scripts/app/entities/experiment/creation-from-notebook/experiment-creation-from-notebook.controller.js"></script>
+<script src="scripts/app/entities/experiment/delete-dialog/experiment-delete-dialog.controller.js"></script>
+<script src="scripts/app/entities/experiment/detail/experiment-detail.controller.js"></script>
+<script src="scripts/app/entities/experiment/creation-from-entities-controls/experiment-creation-from-entities-controls.controller.js"></script>
+<script src="scripts/app/entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.controller.js"></script>
+<script src="scripts/app/entities/experiment/preview/experiment-preview.controller.js"></script>
 <script src="scripts/components/entities/experiment/experiment.service.js"></script>
 <script src="scripts/components/entities/template/components/concept-details/indigo-concept-details.controller.js"></script>
 <script src="scripts/components/entities/template/components/concept-details/indigo-concept-details.directive.js"></script>
@@ -271,8 +274,7 @@
 <script src="scripts/components/entities/template/components/common/search-reagents/search-reagents.controller.js"></script>
 <script src="scripts/components/signature/signature.service.js"></script>
 <script src="scripts/components/registration/registration.service.js"></script>
-<script src="scripts/app/entities/experiment/common/experiment-pdf-creator.factory.js"></script>
-<script src="scripts/app/entities/experiment/experiment-submit.controller.js"></script>
+<script src="scripts/app/entities/experiment/experiment-pdf-creator.factory.js"></script>
 <script src="scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.controller.js"></script>
 <script src="scripts/components/entities/template/components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.controller.js"></script>
 <script src="scripts/components/entities/template/components/common/edit-info-popup/edit-solubility/edit-solubility.controller.js"></script>
@@ -306,6 +308,7 @@
 <script src="scripts/components/entities/template/components/common/table/input/set-input-value.controller.js"></script>
 <script src="scripts/components/entities/template/components/common/table/scalar/scalar.service.js"></script>
 <script src="scripts/components/entities/template/components/common/table/scalar/set-scalar-value.controller.js"></script>
+<script src="scripts/app/entities/experiment/complete-modal/experiment-complete-modal.controller.js"></script>
 <script src="scripts/components/entities/experiment/experiment-util.service.js"></script>
 <script src="scripts/components/entities/template/components/stoich-table/stoichTableCache.service.js"></script>
 <script src="scripts/components/entities/template/components/attachments/indigo-attachments.directive.js"></script>
