@@ -76,7 +76,8 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         $uibModal.open({
             animation: true,
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/export/structure-export-modal.html',
-            controller: 'StructureExportModalController',
+            controller: 'structureExportModalController',
+            controllerAs: '$ctrl',
             windowClass: 'structure-export-modal',
             resolve: {
                 structureToSave: function() {
