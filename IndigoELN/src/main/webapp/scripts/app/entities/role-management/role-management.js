@@ -16,19 +16,22 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/role-management/role-management.html',
-                        controller: 'RoleManagementController'
+                        controller: 'RoleManagementController',
+                        controllerAs: "vm"
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, Role, AccountRole) {
+                    pageInfo: function($q, Role, AccountRole, Auth) {
                         var deferred = $q.defer();
                         $q.all([
                             Role.query().$promise,
-                            AccountRole.query().$promise
+                            AccountRole.query().$promise,
+                            Auth.getAuthorities()
                         ]).then(function(results){
                             deferred.resolve({
                                 roles: results[0],
-                                accountRoles: results[1]
+                                accountRoles: results[1],
+                                authorities: results[2].data
                             });
                         });
                         return deferred.promise;
@@ -47,7 +50,8 @@ angular.module('indigoeln')
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/role-management/role-management-delete-dialog.html',
-                        controller: 'role-managementDeleteController',
+                        controller: 'RoleManagementDeleteController',
+                        controllerAs: "vm",
                         size: 'md',
                         resolve: {
                             entity: ['Role', function (Role) {

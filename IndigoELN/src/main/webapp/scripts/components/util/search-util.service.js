@@ -79,8 +79,6 @@ function searchUtilService() {
                 },
 
                 statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
-
-
             },
             users : [],
             entityType: 'Project',

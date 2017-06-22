@@ -1,40 +1,40 @@
-<div class="notebooks" ng-class="{'notebook-create': !notebook.id}" cg-busy="{promise:loading, minDuration:700}">
+<div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
     <indigo-autorecovery></indigo-autorecovery>
     <div class="tab-content-pad">
-        <div ng-init="isCollapsed=true;">
+        <div ng-init="vm.isCollapsed=true;">
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
                         <span class="txt-larger">Notebook Members:</span>
                         <button type="submit"
-                                ui-sref="entities.notebook-new.permissions({projectId:projectId})"
-                                ng-if="!notebook.id"
+                                ui-sref="entities.notebook-new.permissions({projectId:vm.projectId})"
+                                ng-if="!vm.notebook.id"
                                 class="btn btn-default btn-small"
-                                ng-disabled="!isEditAllowed">
+                                ng-disabled="!vm.isEditAllowed">
                             <i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
                         </button>
                         <button type="submit"
-                                ui-sref="entities.notebook-detail.permissions({projectId:projectId, notebookId:notebook.id})"
-                                ng-if="notebook.id"
+                                ui-sref="entities.notebook-detail.permissions({projectId:vm.projectId, notebookId:vm.notebook.id})"
+                                ng-if="vm.notebook.id"
                                 class="btn btn-default btn-small"
-                                ng-disabled="!isEditAllowed">
+                                ng-disabled="!vm.isEditAllowed">
                             <i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
                         </button>
-                        <button type="button" class="btn btn-default btn-small"  ng-if="!notebook.id"
-                                ui-sref="entities.notebook-new.permissions-view({projectId:projectId})">
+                        <button type="button" class="btn btn-default btn-small"  ng-if="!vm.notebook.id"
+                                ui-sref="entities.notebook-new.permissions-view({projectId:vm.projectId})">
                             <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
                         </button>
-                        <button type="button" class="btn btn-default btn-small"  ng-if="notebook.id"
-                                ui-sref="entities.notebook-detail.permissions-view({projectId:projectId, notebookId:notebook.id})">
+                        <button type="button" class="btn btn-default btn-small"  ng-if="vm.notebook.id"
+                                ui-sref="entities.notebook-detail.permissions-view({projectId:vm.projectId, notebookId:vm.notebook.id})">
                             <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
                         </button>
                     </div>
                 </div>
             </div>
-            <div uib-collapse="isCollapsed">
+            <div uib-collapse="vm.isCollapsed">
                 <hr>
                 <ul id="triple-list" class="list-triple members">
-                    <li class="members" ng-repeat="member in notebook.accessList track by $index">
+                    <li class="members" ng-repeat="member in vm.notebook.accessList track by $index">
                         {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
                         + ')' }}
                     </li>
@@ -42,15 +42,15 @@
             </div>
         </div>
     </div>
-    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="save()" autocomplete="off" ng-class="hasError ? 'has-error' : ''">
+    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()" autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
         <div class="inner-tabs">
             <div class="simple-tab-content">
                 <div class="row">
                     <div class="col-xs-12">
                         <indigo-input indigo-label="Notebook Name"
                                       indigo-name="notebookName"
-                                      indigo-model="notebook.name"
-                                      indigo-readonly="!isEditAllowed"
+                                      indigo-model="vm.notebook.name"
+                                      indigo-readonly="!vm.isEditAllowed"
                                       indigo-label-vertical="true"
                                       indigo-validation-pattern="/^\d{8}$/"
                                       indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
@@ -58,11 +58,11 @@
                         </indigo-input>
                         <label>Notebook Description</label>
                         <indigo-text-editor indigo-name="notebookDescription"
-                                            indigo-model="notebook.description"
-                                            indigo-readonly="!isEditAllowed"></indigo-text-editor>
+                                            indigo-model="vm.notebook.description"
+                                            indigo-readonly="!vm.isEditAllowed"></indigo-text-editor>
 
                        
-                        <div ng-if="isSummary && experiments.length" class="panel panel-info panel-info-table m-t20">
+                        <div ng-if="vm.isSummary && vm.experiments.length" class="panel panel-info panel-info-table m-t20">
                             <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
                             <div class="panel-body panel-body-nopad">
                                 <div class="table-responsive" indigo-scroller="x">
@@ -77,11 +77,8 @@
                                         </tr>
                                         </thead>
                                         <tbody class="main-table__body">
-                                        <tr class="table-list" ng-repeat="exp in experiments track by $index">
-                                            <!--<td class="table-list__item">-->
-                                            <!--<a ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})">{{exp.id}}</a>-->
-                                            <!--</td>-->
-                                            <td class="table-list__item"> <a ng-click="goToExp(exp)">{{exp.fullName}}</a> </td>
+                                        <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
+                                            <td class="table-list__item"> <a ng-click="vm.goToExp(exp)">{{exp.fullName}}</a> </td>
                                             <td class="table-list__item">
                                                 <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
                                                 <p>Subject/Title: {{exp.reactionDetails.title || exp.conceptDetails.title}}</p>
@@ -95,9 +92,9 @@
                                                      alt="Image is unavailable.">
                                             </td>
                                             <td class="table-list__item">
-                                                <a ui-sref="entities.experiment-detail({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">OPEN</a><span>, </span>
-                                                <a ui-sref="experiment-preview-print({projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">PRINT</a><span>, </span>
-                                                <a ng-click="repeatExperiment(exp, {projectId: projectId, notebookId: notebook.id, experimentId: exp.id})">REPEAT</a>
+                                                <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">OPEN</a><span>, </span>
+                                                <a ui-sref="experiment-preview-print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">PRINT</a><span>, </span>
+                                                <a ng-click="repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">REPEAT</a>
                                             </td>
                                         </tr>
                                         </tbody>
@@ -113,27 +110,27 @@
 
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-            <a class="btn btn-info" ng-click="showSummary()">
-                <span class="m-l5" ng-show="!isSummary">Show Notebook Content</span>
-                <span class="m-l5" ng-show="isSummary">Hide Notebook Content</span>
+            <a class="btn btn-info" ng-click="vm.showSummary()">
+                <span class="m-l5" ng-show="!vm.isSummary">Show Notebook Content</span>
+                <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
             </a>
-             <button type="button" class="btn btn-default" ng-disabled = "!canUndo()" ng-click="undoAction()">
+             <button type="button" class="btn btn-default" ng-disabled = "!vm.canUndo()" ng-click="vm.undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
             </button>  
-            <button  type="button" class="btn btn-default" ng-disabled = "!canRedo()" ng-click="redoAction()">
+            <button  type="button" class="btn btn-default" ng-disabled = "!vm.canRedo()" ng-click="vm.redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>
         <button class="btn btn-info" type="button"
-                ng-disabled="!isCreateChildAllowed || !notebook.id"
-                ui-sref="experiment.new({projectId:projectId, notebookId:notebook.id})">Create Experiment
+                ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
+                ui-sref="experiment.new({projectId:vm.projectId, notebookId:vm.notebook.id})">Create Experiment
         </button>
         <button type="submit" form="createNotebookForm"
-                ng-disabled="!isEditAllowed || createNotebookForm.$invalid || isSaving || !isBtnSaveActive"
+                ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
-        <a class="btn btn-default" ng-click="refresh()">
+        <a class="btn btn-default" ng-click="vm.refresh()">
             <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
         </a>
         <button type="button" class="btn btn-default" onclick="window.history.back()">

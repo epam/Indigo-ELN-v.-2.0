@@ -2,7 +2,7 @@
         <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
     <div class="row m-b20">
         <div class="col-sm-6">
-            <button class="btn btn-primary" ng-click="create()">
+            <button class="btn btn-primary" ng-click="vm.create()">
                 <i class="fa fa-plus" aria-hidden="true"></i>
                 <span class="m-l5">Create new Role</span>
             </button>
@@ -10,14 +10,14 @@
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
                 <i class="fa fa-search"></i>
-                <input type="search" class="uui-search" placeholder="Search" ng-change="search()" id="searchRole" ng-model="searchText">
+                <input type="search" class="uui-search" placeholder="Search" ng-change="vm.search()" id="searchRole" ng-model="vm.searchText">
             </div>
         </div>
     </div>
-    <div ng-if="role" class="panel panel-info edit-form animated">
+    <div ng-if="vm.role" class="panel panel-info edit-form animated">
         <div class="panel-heading">Create/Update Role</div>
         <div class="panel-body ">
-            <form id="editForm" name="editForm" role="form" novalidate ng-submit="save()" autocomplete="off">
+            <form id="editForm" name="editForm" role="form" novalidate ng-submit="vm.save()" autocomplete="off">
 
                 <div class="row">
                     <!-- fake fields are a workaround for chrome autofill getting the wrong fields -->
@@ -28,7 +28,7 @@
                                 indigo-label="Name"
                                 indigo-name="name"
                                 indigo-type="text"
-                                indigo-model="role.name"
+                                indigo-model="vm.role.name"
                                 indigo-validation-required="true"
                                 indigo-validation-maxlength="50"
                         ></indigo-input>
@@ -36,13 +36,13 @@
                     <div class="col-xs-12 form-group">
                         <label>Authorities</label>
                         <div class="row">
-                            <div class="col-xs-3" ng-repeat="authority in authorities track by $index">
+                            <div class="col-xs-3" ng-repeat="authority in vm.authorities track by $index">
                                 <div>
                                     <indigo-checkbox
                                             indigo-label="{{authority.description}}"
                                             indigo-disabled="authority.readonly"
                                             indigo-model="authority.checked"
-                                            indigo-change="updateAuthoritySelection(authority)"
+                                            indigo-change="vm.updateAuthoritySelection(authority)"
                                             indigo-tooltip="{{authority.tooltip}}"
                                             indigo-tooltip-placement="right"
                                     ></indigo-checkbox>
@@ -55,11 +55,11 @@
             </form>
         </div>
         <div class="panel-footer text-right">
-            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+            <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
                 <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </button>
-            <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="resetAuthorities()">Reset</button>
-            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || isSaving" class="btn btn-primary m-l5">
+            <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">Reset</button>
+            <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
                 <i class="fa fa-save"></i><span class="m-l5">Save</span>
             </button>
         </div>
@@ -73,7 +73,7 @@
                                 <th><p>Role name</p></th>
                             </tr>
                         <tbody>
-                            <tr ng-repeat="role in roles track by role.id">
+                            <tr ng-repeat="role in vm.roles track by role.id">
                                 <td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>
                             </tr>
                         </tbody>
@@ -84,20 +84,20 @@
                         <thead>
                         <tr>
                             <!--<th><p>Role name</p></th>-->
-                            <th ng-repeat="authority in authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
+                            <th ng-repeat="authority in vm.authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
                             <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="role in roles track by role.id">
+                        <tr ng-repeat="role in vm.roles track by role.id">
                             <!--<td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>-->
-                            <td ng-repeat="authority in authorities track by $index">
-                                <span ng-class="{'glyphicon glyphicon-ok-sign': hasAuthority(role, authority)}"
+                            <td ng-repeat="authority in vm.authorities track by $index">
+                                <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                              class="role-check-icon"></span>
                             </td>
                             <td>
                                 <button type="submit"
-                                        ng-click="edit(role)"
+                                        ng-click="vm.edit(role)"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
                                     <i class="fa fa-pencil"></i>
