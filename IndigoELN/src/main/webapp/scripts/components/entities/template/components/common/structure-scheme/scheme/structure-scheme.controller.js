@@ -58,7 +58,7 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         var modalInstance = $uibModal.open({
             animation: true,
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/import/structure-import-modal.html',
-            controller: 'StructureImportModalController',
+            controller: 'structureImportModalController',
             windowClass: 'structure-import-modal'
         });
 

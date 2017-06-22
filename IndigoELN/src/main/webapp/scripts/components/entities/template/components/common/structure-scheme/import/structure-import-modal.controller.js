@@ -1,6 +1,5 @@
 angular.module('indigoeln')
-    .controller('StructureImportModalController', function ($scope, $uibModalInstance) {
-
+    .controller('structureImportModalController', function ($scope, $uibModalInstance) {
         $scope.import = function() {
             $uibModalInstance.close($scope.content);
         };
@@ -8,5 +7,4 @@ angular.module('indigoeln')
         $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         };
-
 });
