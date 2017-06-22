@@ -5,6 +5,10 @@
 
     /* @ngInject */
     function IndigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert, Dictionary, CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache, $timeout) {
+
+        console.log("IndigoStoichTableController", $scope.model);
+        console.log("IndigoStoichTableController", $scope.share);
+
         $scope.model = $scope.model || {};
         $scope.model.stoichTable = $scope.model.stoichTable || {};
         $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
@@ -524,6 +528,9 @@
 
         var unbinds = [];
         unbinds.push($scope.$watch('share.reaction', function (newMolFile) {
+
+            console.log("share.reaction");
+
             if (newMolFile) {
                 getReactionProductsAndReactants(newMolFile);
                 CalculationService.recalculateStoich();

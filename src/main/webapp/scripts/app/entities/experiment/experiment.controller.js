@@ -37,7 +37,6 @@
                 self.openExperimentsLength = openExperiments.length;
                 self.waitingExperimentsLength = waitingExperiments.length;
                 self.submittedExperimentsLength = submittedExperiments.length;
-                console.log(self.openExperimentsLength);
                 self.onViewChange();
             }).$promise;
         }
