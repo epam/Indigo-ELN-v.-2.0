@@ -12,13 +12,18 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
 
         var getImportProperties = function() {
            var properties = {};
-           sdProperties.constants.forEach(function(prop, i, constants) {
+           _.each(sdProperties.constants, function(prop, i, constants) {
                var fields = prop.import;
                if (fields.format) {
-                   properties[fields.name] = {code : fields.code,
-                                              format : fields.format};
+                    if (properties[fields.name]){
+                        properties[fields.name][properties[fields.name].length] = {code : fields.code,
+                                                                                  format : fields.format};
+                    } else {
+                        properties[fields.name] = [{code : fields.code,
+                                                   format : fields.format}];
+                    }
                } else {
-                   properties[fields.name] = {code : fields.code};
+                    properties[fields.name] = [{code : fields.code}];
                }
            });
 
@@ -42,33 +47,37 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
         var fillProperties = function (sdUnitToImport, itemToImport, dicts) {
             if (sdUnitToImport.properties) {
                 _.each(properties, function (property, name) {
-                    var value = sdUnitToImport.properties[property.code];
-                    if (!value) {
-                        value = _.chain(auxPrefixes)
-                            .map(function (auxPrefix) {
-                                return auxPrefix + property.code;
-                            })
-                            .map(function (code) {
-                                return sdUnitToImport.properties[code];
-                            })
-                            .find(function (val) {
-                                return !_.isUndefined(val);
-                            }).
-                            value();
-                    }
-                    if (value && _.isFunction(property.format)) {console.log('value1: ', value);
-                        value = property.format(dicts, value);console.log('value2: ', value);
-                    }
-                    if (value) {
-                        if (itemToImport[name]){
-                            _.extend(itemToImport[name], value); console.log('object exist')
-                        } else {
-                            itemToImport[name] = value; console.log('object not exist')
+                    _.each(property, function(item) {
+                        var value = sdUnitToImport.properties[item.code];
+                        if (!value) {
+                            value = _.chain(auxPrefixes)
+                                .map(function (auxPrefix) {
+                                    return auxPrefix + item.code;
+                                })
+                                .map(function (code) {
+                                    return sdUnitToImport.properties[code];
+                                })
+                                .find(function (val) {
+                                    return !_.isUndefined(val);
+                                }).
+                                value();
                         }
-                        console.log('item to import [name] = ', itemToImport, name);
-                    }
+                        if (value && _.isFunction(item.format)) {
+                            value = item.format(dicts, value);
+                        }
+                        if (value) { console.log('it is value', value);
+                            if (itemToImport[name]){
+                                //$.extend(true, itemToImport[name], value);
+                                //_.defaultsDeep(itemToImport[name], value);
+                                angular.merge(itemToImport[name], value);
+                            } else {
+                                itemToImport[name] = value;
+                            }
+                        }
+                    });
                 });
             }
+            console.log('it is item to import: ', itemToImport);
         };
 
         var importItems = function (sdUnitsToImport, dicts, i, addToTable, callback, complete) {
