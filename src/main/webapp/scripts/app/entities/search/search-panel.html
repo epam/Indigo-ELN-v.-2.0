@@ -15,7 +15,7 @@
                         <div class="col-xs-3">
                             <a class="link-advanced-search" ng-click="$$isCollapsed = !$$isCollapsed">
                                 Advanced search
-                            <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
+                                <span ng-class="{'glyphicon glyphicon-chevron-down':$$isCollapsed,
                                                  'glyphicon glyphicon-chevron-up':!$$isCollapsed}"></span>
                             </a>
                         </div>
@@ -28,7 +28,8 @@
                             <h5>Field Search Criteria:</h5>
                             <div class="row" ng-repeat="(key, obj) in model.restrictions.advancedSearch">
                                 <div ng-if="!obj.$$skipList">
-                                    <div class="col-xs-3"><label class="control-label" ng-bind="::obj.name"></label></div>
+                                    <div class="col-xs-3"><label class="control-label" ng-bind="::obj.name"></label>
+                                    </div>
                                     <div class="col-xs-3">
                                         <indigo-select indigo-items="obj.$$conditionList"
                                                        indigo-model="obj.condition">
@@ -47,17 +48,20 @@
                             <div class="row">
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="selectedEntitiesFlags['Project']"
-                                                     indigo-change="selectEntity('Project')" indigo-label="Project"></indigo-checkbox>
+                                                     indigo-change="selectEntity('Project')"
+                                                     indigo-label="Project"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="selectedEntitiesFlags['Notebook']"
-                                                     indigo-change="selectEntity('Notebook')" indigo-label="Notebook"></indigo-checkbox>
+                                                     indigo-change="selectEntity('Notebook')"
+                                                     indigo-label="Notebook"></indigo-checkbox>
 
                                 </div>
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="selectedEntitiesFlags['Experiment']"
-                                                     indigo-change="selectEntity('Experiment')" indigo-label="Experiment"></indigo-checkbox>
+                                                     indigo-change="selectEntity('Experiment')"
+                                                     indigo-label="Experiment"></indigo-checkbox>
 
                                 </div>
                             </div>
@@ -67,13 +71,15 @@
                             <div class="row m-b15">
                                 <div class="col-xs-2">
                                     <label class="radio-inline">
-                                        <input checked="checked" name="domain" type="radio" value="OWN_ENTITY"  ng-change="changeDomain()" ng-model="domainModel">
+                                        <input checked="checked" name="domain" type="radio" value="OWN_ENTITY"
+                                               ng-change="changeDomain()" ng-model="domainModel">
                                         <span style="line-height: 1.5;">In My Own Entity</span>
                                     </label>
                                 </div>
                                 <div class="col-xs-10">
                                     <label class="radio-inline">
-                                        <input  name="domain" type="radio" value="USERS_ENTITIES" ng-change="changeDomain()" ng-model="domainModel">
+                                        <input name="domain" type="radio" value="USERS_ENTITIES"
+                                               ng-change="changeDomain()" ng-model="domainModel">
                                         <span style="line-height: 1.5;">In Entities of These Users</span>
                                     </label>
                                 </div>
@@ -82,8 +88,8 @@
                                            indigo-label-vertical="true"
                                            indigo-readonly="myReadonly"
                                            indigo-items="users"
-                                           indigo-change = "selectedUsersChange()"
-                                           indigo-remove = "selectedUsersChange()"
+                                           indigo-change="selectedUsersChange()"
+                                           indigo-remove="selectedUsersChange()"
                                            indigo-model="selectedUsers"
                                            indigo-multiple="true">
                             </indigo-select>
@@ -94,7 +100,8 @@
 
                                 <div class="col-xs-2">
                                     <indigo-checkbox indigo-model="selectedItemsFlags['OPEN']"
-                                                     indigo-change="selectItem('OPEN')" indigo-label="Open"></indigo-checkbox>
+                                                     indigo-change="selectItem('OPEN')"
+                                                     indigo-label="Open"></indigo-checkbox>
 
                                     <indigo-checkbox indigo-model="selectedItemsFlags['SINGING']"
                                                      indigo-change="selectItem('SINGING')"
@@ -161,48 +168,56 @@
                     </div>
                 </div>
                 <div class="m-t5">
-                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="molecule"
-                                      my-title="Structure or reaction" my-model="scheme"
-                                      my-autosave="false"
-                                      ng-if="model.restrictions.structure.type.name == 'Product'"></indigo-structure-scheme>
-                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="reaction"
-                                      my-title="Structure or reaction" my-model="scheme"
-                                      my-autosave="false"
-                                      ng-if="model.restrictions.structure.type.name == 'Reaction'"></indigo-structure-scheme>
+                    <indigo-structure-scheme class="search-structure-scheme"
+                                             ss-structure-type="'molecule'"
+                                             ss-title="'Structure or reaction'"
+                                             ss-model="model"
+                                             ss-autosave="false"
+                                             ng-if="model.restrictions.structure.type.name == 'Product'">
+                    </indigo-structure-scheme>
+                    <indigo-structure-scheme class="search-structure-scheme"
+                                             ss-structure-type="'reaction'"
+                                             ss-title="'Structure or reaction'"
+                                             ss-model="model"
+                                             ss-autosave="false"
+                                             ng-if="model.restrictions.structure.type.name == 'Reaction'">
+                    </indigo-structure-scheme>
                 </div>
             </div>
         </div>
         <div class="btn-bottom-block">
-            <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}" type="button" ng-click="search()" ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
+            <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}" type="button"
+                    ng-click="search()" ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
                     !model.restrictions.searchQuery">Search
             </button>
             <button class="btn btn-secondary" type="button" ng-click="clear()">Clear</button>
         </div>
         <table class="main-table table table-striped table-condensed dash-table">
             <thead class="main-table__header">
-                <th>Entity Type</th>
-                <th>Entity Name/Id</th>
-                <th>Creation Date</th>
-                <th>Author</th>
-                <th>Subject\Title</th>
-                <th>Actions</th>
+            <th>Entity Type</th>
+            <th>Entity Name/Id</th>
+            <th>Creation Date</th>
+            <th>Author</th>
+            <th>Subject\Title</th>
+            <th>Actions</th>
             </thead>
             <tbody class="main-table__body">
-                <tr class="table-list" ng-repeat="entity in searchResultsPaged track by $index">
-                    <td class="table-list__item dash-exp-id">{{entity.kind}}</td>
-                    <td class="table-list__item dash-exp-id"><a ng-click="goTo(entity)">{{entity.name}}</a></td>
-                    <td class="table-list__item dash-exp-id">{{entity.details.creationDate  | date:'MMM dd yyyy'}}</td>
-                    <td class="table-list__item dash-exp-id">{{entity.details.author}}</td>
-                    <td class="table-list__item dash-exp-id">{{entity.details.title}}</td>
-                    <td class="table-list__item dash-exp-id">
-                        <a class="search-action" ng-click="goTo(entity)">Open</a>
-                        <a class="search-action" ng-click="goTo(entity, true)">Print</a>
-                    </td>
-                </tr>
+            <tr class="table-list" ng-repeat="entity in searchResultsPaged track by $index">
+                <td class="table-list__item dash-exp-id">{{entity.kind}}</td>
+                <td class="table-list__item dash-exp-id"><a ng-click="goTo(entity)">{{entity.name}}</a></td>
+                <td class="table-list__item dash-exp-id">{{entity.details.creationDate | date:'MMM dd yyyy'}}</td>
+                <td class="table-list__item dash-exp-id">{{entity.details.author}}</td>
+                <td class="table-list__item dash-exp-id">{{entity.details.title}}</td>
+                <td class="table-list__item dash-exp-id">
+                    <a class="search-action" ng-click="goTo(entity)">Open</a>
+                    <a class="search-action" ng-click="goTo(entity, true)">Print</a>
+                </td>
+            </tr>
             </tbody>
         </table>
         <div class="text-center" ng-show="searchResults.length > searchResultsPaged.length">
-          <uib-pagination class="pagination-sm" total-items="searchResults.length" items-per-page="itemsPerPage" ng-model="page" ng-change="doPage()"></uib-pagination>
-      </div>
+            <uib-pagination class="pagination-sm" total-items="searchResults.length" items-per-page="itemsPerPage"
+                            ng-model="page" ng-change="doPage()"></uib-pagination>
+        </div>
     </div>
 </div>
