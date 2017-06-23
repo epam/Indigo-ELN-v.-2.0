@@ -58,7 +58,7 @@
     "spaced-comment": [1, "always"],
     "angular/no-service-method": 1,
     "angular/angularelement": 0,
-    "angular/controller-as-vm": [1, "self"],
+    "angular/controller-as-vm": [1, "vm"],
     "angular/controller-name": [2, "/^[a-zA-Z0-9]*Controller/"],
     "angular/no-private-call": 1
   },
