@@ -6,8 +6,13 @@
         <div nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
             <div ng-show="uploader.isHTML5" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
                 <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
-                    <input type="file" nv-file-select="" uploader="uploader" multiple/>
-                    <div class="semi-b">Drop files here</div>
+                    <input
+                        type="file"
+                        nv-file-select=""
+                        uploader="uploader"
+                        multiple
+                        class="my-drop-zone-input"/>
+                    <div class="semi-b my-drop-zone-file">Drop files here</div>
                 </div>
             </div>
             <h5>Upload queue:</h5>
