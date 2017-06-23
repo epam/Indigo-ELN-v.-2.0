@@ -1,39 +1,20 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
-        .controller('IndigoStoichTableController', IndigoStoichTableController);
+        .controller('indigoStoichTableController', indigoStoichTableController);
 
     /* @ngInject */
-    function IndigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert, Dictionary, CalculationService, SearchService, RegistrationService, DialogService, StoichTableCache, $timeout) {
+    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert,
+                                         Dictionary, CalculationService, SearchService, RegistrationService,
+                                         DialogService, StoichTableCache, $timeout) {
 
-        console.log("IndigoStoichTableController", $scope.model);
-        console.log("IndigoStoichTableController", $scope.share);
+        console.log("indigoStoichTableController", $scope.model);
+        console.log("indigoStoichTableController", $scope.share);
 
         $scope.model = $scope.model || {};
         $scope.model.stoichTable = $scope.model.stoichTable || {};
         $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];
         $scope.model.stoichTable.products = $scope.model.stoichTable.products || [];
-
-        var getStoicTable = function () {
-            return $scope.model.stoichTable;
-        };
-        var getStoicReactants = function () {
-            return $scope.model.stoichTable.reactants;
-        };
-        var getIntendedProducts = function () {
-            return $scope.model.stoichTable.products;
-        };
-
-        var setStoicReactants = function (reactants) {
-            $scope.model.stoichTable.reactants = reactants;
-        };
-        var setIntendedProducts = function (products) {
-            $scope.model.stoichTable.products = products;
-        };
-
-        var addStoicReactant = function (reactant) {
-            $scope.model.stoichTable.reactants.push(reactant);
-        };
 
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -45,7 +26,7 @@
         var loadFactorUnits = AppValues.getLoadFactorUnits();
         var reactionReactants, actualProducts;
 
-        var populateFetchedBatch = function (row, source) {
+        var populateFetchedBatch = function(row, source) {
             row.$$populatedBatch = source;
             _.extend(row, source);
             row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
@@ -56,6 +37,34 @@
 
         var ftimeout;
 
+        function init() {
+            bindEvents();
+        }
+
+        function getStoicTable() {
+            return $scope.model.stoichTable;
+        }
+
+        function getStoicReactants() {
+            return $scope.model.stoichTable.reactants;
+        }
+
+        function getIntendedProducts() {
+            return $scope.model.stoichTable.products;
+        }
+
+        function setStoicReactants(reactants) {
+            $scope.model.stoichTable.reactants = reactants;
+        }
+
+        function setIntendedProducts(products) {
+            $scope.model.stoichTable.products = products;
+        }
+
+        function addStoicReactant(reactant) {
+            $scope.model.stoichTable.reactants.push(reactant);
+        }
+
         function fetchBatchByNbkNumber(nbkBatch, success) {
             var searchRequest = {
                 advancedSearch: [{
@@ -64,19 +73,19 @@
                 databases: ['Indigo ELN']
             };
             $timeout.cancel(ftimeout);
-            ftimeout = $timeout(function () {
-                SearchService.search(searchRequest, function (result) {
+            ftimeout = $timeout(function() {
+                SearchService.search(searchRequest, function(result) {
                     success(result.slice(0, 5));
                 });
             }, 500);
         }
 
         function getWord(dicts, dictName, wordName) {
-            var dict = _.find(dicts, function (dict) {
+            var dict = _.find(dicts, function(dict) {
                 return dict.name === dictName;
             });
             if (dict) {
-                return _.find(dict.words, function (word) {
+                return _.find(dict.words, function(word) {
                     return word.name === wordName;
                 });
             }
@@ -84,8 +93,8 @@
 
         function convertCompoundsToBatches(compounds) {
             var deferred = $q.defer();
-            Dictionary.all(function (dicts) {
-                var result = _.map(compounds, function (c) {
+            Dictionary.all(function(dicts) {
+                var result = _.map(compounds, function(c) {
                     return {
                         chemicalName: c.chemicalName,
                         compoundId: c.compoundNo,
@@ -98,7 +107,7 @@
                         },
                         formula: c.formula,
                         stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
-                        saltCode: _.find(saltCodeValues, function (sc) {
+                        saltCode: _.find(saltCodeValues, function(sc) {
                             return sc.regValue === c.saltCode;
                         }),
                         saltEq: {value: c.saltEquivs, entered: false},
@@ -106,13 +115,13 @@
                     };
                 });
                 var queries = [];
-                _.each(result, function (item) {
+                _.each(result, function(item) {
                     queries.push(CalculationService.getMoleculeInfo(item));
                 });
-                _.each(result, function (item) {
+                _.each(result, function(item) {
                     queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
                 });
-                $q.all(queries).then(function (data) {
+                $q.all(queries).then(function(data) {
                     var i = 0;
                     for (i = 0; i < result.length; i++) {
                         var item = result[i];
@@ -130,17 +139,21 @@
             return deferred.promise;
         }
 
+        function alertCompoundWrongFormat() {
+            Alert.error('Compound does not exist or in the wrong format');
+        }
+
         function fetchBatchByCompoundId(compoundId, row) {
             var searchRequest = {
                 compoundNo: compoundId
             };
-            RegistrationService.compounds(searchRequest, function (result) {
+            RegistrationService.compounds(searchRequest, function(result) {
                 result = result.slice(0, 20);
-                convertCompoundsToBatches(result).then(function (batches) {
+                convertCompoundsToBatches(result).then(function(batches) {
                     if (batches.length === 1) {
                         populateFetchedBatch(row, batches[0]);
                     } else if (batches.length > 1) {
-                        DialogService.structureValidation(batches, compoundId, function (selectedBatch) {
+                        DialogService.structureValidation(batches, compoundId, function(selectedBatch) {
                             populateFetchedBatch(row, selectedBatch);
                         });
                     } else {
@@ -150,19 +163,17 @@
             });
         }
 
-        var alertWrongFormat = function () {
+        function alertWrongFormat() {
             Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
-        };
-        var alertCompoundWrongFormat = function () {
-            Alert.error('Compound does not exist or in the wrong format');
-        };
+        }
+
         $scope.reactantsColumns = [
             {
                 id: 'compoundId',
                 name: 'Compound ID',
                 type: 'input',
                 hasStructurePopover: true,
-                onClose: function (data) {
+                onClose: function(data) {
                     var row = data.row;
                     var compoundId = data.model;
                     fetchBatchByCompoundId(compoundId, row);
@@ -184,37 +195,42 @@
                 type: 'input',
                 hasStructurePopover: true,
                 hasPopup: true,
-                popItemClick: function (row, item) {
+                popItemClick: function(row, item) {
                     row.fullNbkBatch = item.details.fullNbkBatch;
                     populateFetchedBatch(row, item.details);
                 },
-                onChange: function (data) {
+                onChange: function(data) {
                     var row = data.row;
                     if (row) {
-                        if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) row.$$fullNbkBatchOld = data.oldVal;
+                        if (!row.$$fullNbkBatchOld && row.fullNbkImmutablePart) {
+                            row.$$fullNbkBatchOld = data.oldVal;
+                        }
                         var nbkBatch = data.model;
                         row.$$popItems = null;
                         row.$$populatedBatch = null;
-                        fetchBatchByNbkNumber(nbkBatch, function (result) {
+                        fetchBatchByNbkNumber(nbkBatch, function(result) {
                             if (result[0]) {
-                                row.$$popItems = result.map(function (r) {
-                                    return {item: r, title: r.details.fullNbkBatch}
+                                row.$$popItems = result.map(function(r) {
+                                    return {
+                                        item: r,
+                                        title: r.details.fullNbkBatch
+                                    };
                                 });
                             }
                             else {
-                                alertWrongFormat()
+                                alertWrongFormat();
                             }
                         });
                     }
                 },
-                onClose: function (data) {
+                onClose: function(data) {
                     var row = data.row;
                     var nbkBatch = data.model;
                     var bid = row.fullNbkBatch || '';
                     if (!row.$$populatedBatch) {
                         bid = bid.replace(/[^0-9.-]/g, "").trim();
                         if (row.fullNbkBatch) {
-                            fetchBatchByNbkNumber(nbkBatch, function (result) {
+                            fetchBatchByNbkNumber(nbkBatch, function(result) {
                                 var pb = result[0];
                                 if (pb && pb.details.fullNbkBatch == row.fullNbkBatch) {
                                     populateFetchedBatch(row, pb.details);
@@ -263,7 +279,7 @@
                 id: 'limiting',
                 name: 'Limiting',
                 type: 'boolean',
-                onClick: function (data) {
+                onClick: function(data) {
                     CalculationService.setEntered(data);
                     CalculationService.recalculateStoichBasedOnBatch(data);
                 }
@@ -272,7 +288,7 @@
                 id: 'rxnRole',
                 name: 'Rxn Role',
                 type: 'select',
-                values: function () {
+                values: function() {
                     return rxnValues;
                 }
             },
@@ -302,10 +318,10 @@
                 id: 'saltCode',
                 name: 'Salt Code',
                 type: 'select',
-                values: function () {
+                values: function() {
                     return saltCodeValues;
                 },
-                onClose: function (data) {
+                onClose: function(data) {
                     if (data.model.value == 0) {
                         data.row.saltEq.value = 0;
                     }
@@ -316,7 +332,7 @@
                 id: 'saltEq',
                 name: 'Salt EQ',
                 type: 'scalar',
-                checkEnabled: function (o) {
+                checkEnabled: function(o) {
                     return (o.saltCode && o.saltCode.value > 0 );
                 }
             },
@@ -371,11 +387,11 @@
                 id: 'saltCode',
                 name: 'Salt Code',
                 type: 'select',
-                values: function () {
+                values: function() {
                     return saltCodeValues;
                 },
                 showDefault: true,
-                onClose: function (data) {
+                onClose: function(data) {
                     CalculationService.setEntered(data);
                     recalculateSalt(data.row);
                     if (data.model.value == 0) {
@@ -388,10 +404,10 @@
                 id: 'saltEq',
                 name: 'Salt EQ',
                 type: 'scalar',
-                checkEnabled: function (o) {
+                checkEnabled: function(o) {
                     return (o.saltCode && o.saltCode.value > 0 );
                 },
-                onClose: function (data) {
+                onClose: function(data) {
                     CalculationService.setEntered(data);
                     recalculateSalt(data.row);
                 }
@@ -419,14 +435,14 @@
             }
         }
 
-        _.each($scope.reactantsColumns, function (column, i) {
+        _.each($scope.reactantsColumns, function(column, i) {
             var columnsToRecalculateStoic = ['molWeight', 'weight', 'volume', 'density', 'mol', 'eq',
                 'rxnRole', 'molarity', 'stoicPurity', 'loadFactor'];
             var columnsToRecalculateSalt = ['saltCode', 'saltEq'];
 
             if (_.contains(columnsToRecalculateStoic, column.id)) {
                 $scope.reactantsColumns[i] = _.extend(column, {
-                    onClose: function (data) {
+                    onClose: function(data) {
                         CalculationService.setEntered(data);
                         if (column.id === 'rxnRole') {
                             onRxnRoleChange(data);
@@ -436,7 +452,7 @@
                 });
             } else if (_.contains(columnsToRecalculateSalt, column.id)) {
                 $scope.reactantsColumns[i] = _.extend(column, {
-                    onClose: function (data) {
+                    onClose: function(data) {
                         CalculationService.setEntered(data);
                         recalculateSalt(data.row);
                         if (data.row.saltCode.value == 0) {
@@ -447,7 +463,7 @@
             }
         });
 
-        $scope.clear = function () {
+        $scope.clear = function() {
             for (var key in $scope.selectedRow) {
                 if ($scope.selectedRow.hasOwnProperty(key) && !_.contains(['$$hashKey', 'selected'], key)) {
                     delete $scope.selectedRow[key];
@@ -455,30 +471,34 @@
             }
             $scope.selectedRow.rxnRole = AppValues.getRxnRoleReactant();
         };
-        $scope.appendRow = function () {
+
+        $scope.appendRow = function() {
             var reactant = CalculationService.createBatch(getStoicTable());
             addStoicReactant(reactant);
         };
-        $scope.removeRow = function () {
+
+        $scope.removeRow = function() {
             setStoicReactants(_.without(getStoicReactants(), $scope.selectedRow));
             $rootScope.$broadcast('stoich-rows-changed');
         };
-        $scope.onRowSelected = function (row) {
+
+        $scope.onRowSelected = function(row) {
             $scope.selectedRow = row || null;
             $log.debug(row);
         };
-        var recalculateSalt = function (reagent) {
-            CalculationService.recalculateSalt(reagent).then(function () {
+
+        function recalculateSalt(reagent) {
+            CalculationService.recalculateSalt(reagent).then(function() {
                 CalculationService.recalculateAmounts({row: reagent});
             });
-        };
+        }
 
         function getDefaultChemicalName(index) {
             return 'P' + index;
         }
 
         function moleculeInfoResponseCallback(results, isIntended) {
-            return _.map(results, function (result, index) {
+            return _.map(results, function(result, index) {
                 var batch = AppValues.getDefaultBatch();
                 batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.data.name;
                 batch.formula = result.data.molecularFormula;
@@ -494,30 +514,30 @@
         }
 
         function getPromisesForMoleculeInfoRequest(reactionProperties, target) {
-            return _.map(reactionProperties.data[target], function (reactionProperty) {
+            return _.map(reactionProperties.data[target], function(reactionProperty) {
                 return CalculationService.getMoleculeInfo(reactionProperty);
             });
         }
 
         function getStructureImagesForIntendedProducts() {
-            _.each(getIntendedProducts(), function (item) {
-                CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function (image) {
+            _.each(getIntendedProducts(), function(item) {
+                CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
                     item.structure.image = image;
                 });
             });
         }
 
         function getReactionProductsAndReactants(molFile) {
-            $http.put('api/calculations/reaction/extract', molFile).then(function (reactionProperties) {
+            $http.put('api/calculations/reaction/extract', molFile).then(function(reactionProperties) {
                     if (reactionProperties.data.products && reactionProperties.data.products.length) {
                         var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
                         var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
-                        $q.all(productPromises).then(function (results) {
+                        $q.all(productPromises).then(function(results) {
                             setIntendedProducts(moleculeInfoResponseCallback(results, true));
                             getStructureImagesForIntendedProducts();
                             CalculationService.recalculateStoich();
                         });
-                        $q.all(reactantPromises).then(function (results) {
+                        $q.all(reactantPromises).then(function(results) {
                             reactionReactants = moleculeInfoResponseCallback(results);
                             CalculationService.recalculateStoich();
                         });
@@ -526,81 +546,74 @@
             );
         }
 
-        var unbinds = [];
-        unbinds.push($scope.$watch('share.reaction', function (newMolFile) {
+        function bindEvents() {
+            $scope.$watch('share.reaction', function(newMolFile) {
 
-            console.log("share.reaction");
+                console.log("share.reaction");
 
-            if (newMolFile) {
-                getReactionProductsAndReactants(newMolFile);
-                CalculationService.recalculateStoich();
-            } else {
-                setIntendedProducts(null);
-            }
-        }));
-        unbinds.push($scope.$watch('share.actualProducts', function (products) {
-            actualProducts = products;
-        }, true));
-
-        unbinds.push($scope.$watch('model.stoichTable', function (stoichTable) {
-            _.each(stoichTable.products, function (batch) {
-                if (!batch.$$batchHash) {
-                    batch.$$batchHash = batch.formula + batch.exactMass;
+                if (newMolFile) {
+                    getReactionProductsAndReactants(newMolFile);
+                    CalculationService.recalculateStoich();
+                } else {
+                    setIntendedProducts(null);
                 }
             });
-            $scope.share.stoichTable = stoichTable;
-            StoichTableCache.setStoicTable(stoichTable);
-        }, true));
 
-        $scope.$on('$destroy', function () {
-            _.each(unbinds, function (unbind) {
-                unbind();
+            $scope.$watch('share.actualProducts', function(products) {
+                actualProducts = products;
+            }, true);
+
+            $scope.$watch('model.stoichTable', function(stoichTable) {
+                _.each(stoichTable.products, function(batch) {
+                    if (!batch.$$batchHash) {
+                        batch.$$batchHash = batch.formula + batch.exactMass;
+                    }
+                });
+                $scope.share.stoichTable = stoichTable;
+                StoichTableCache.setStoicTable(stoichTable);
+            }, true);
+
+            $scope.$on('stoich-rows-changed', function(event, data) {
+                if (data) {
+                    setStoicReactants(_.union(getStoicReactants(), data));
+                }
+                CalculationService.recalculateStoich();
             });
-        });
 
-        var onNewStoichRows = $scope.$on('stoich-rows-changed', function (event, data) {
-            if (data) {
-                setStoicReactants(_.union(getStoicReactants(), data));
-            }
-            CalculationService.recalculateStoich();
-        });
-        var onStoicTableRecalculated = $scope.$on('stoic-table-recalculated', function (event, data) {
-            var newReactants = data.stoicBatches;
-            var newProducts = data.intendedProducts;
-            if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
-                _.each(getStoicReactants(), function (reactant, i) {
-                    _.extend(reactant, newReactants[i]);
-                });
-            }
-            if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
-                _.each(getIntendedProducts(), function (product, i) {
-                    _.extend(product, newProducts[i]);
-                });
-            }
-        });
-        $scope.$on('$destroy', function () {
-            onNewStoichRows();
-            onStoicTableRecalculated();
-        });
+            $scope.$on('stoic-table-recalculated', function(event, data) {
+                var newReactants = data.stoicBatches;
+                var newProducts = data.intendedProducts;
+                if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
+                    _.each(getStoicReactants(), function(reactant, i) {
+                        _.extend(reactant, newReactants[i]);
+                    });
+                }
+                if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
+                    _.each(getIntendedProducts(), function(product, i) {
+                        _.extend(product, newProducts[i]);
+                    });
+                }
+            });
+        }
 
-        var getMissingReactionReactantsInStoic = function (callback) {
+        function getMissingReactionReactantsInStoic(callback) {
             var batchesToSearch = [];
             var stoicReactants = [];
-            _.each(getStoicReactants(), function (item) {
+            _.each(getStoicReactants(), function(item) {
                 if (_.findWhere(item, AppValues.getRxnRoleReactant()) && item.structure) {
                     stoicReactants.push(item);
                 }
             });
             var isReactantAlreadyInStoic;
             var allPromises = [];
-            _.each(reactionReactants, function (reactionReactant) {
+            _.each(reactionReactants, function(reactionReactant) {
                 var stoicAndReactionReactantsEqualityPromises = [];
-                _.each(stoicReactants, function (stoicReactant) {
+                _.each(stoicReactants, function(stoicReactant) {
                     stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
                 });
-                allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function () {
+                allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function() {
                     if (stoicAndReactionReactantsEqualityPromises.length) {
-                        isReactantAlreadyInStoic = _.some(stoicAndReactionReactantsEqualityPromises, function (result) {
+                        isReactantAlreadyInStoic = _.some(stoicAndReactionReactantsEqualityPromises, function(result) {
                             return !!result.$$state.value.data;
                         });
                     } else {
@@ -611,36 +624,42 @@
                     }
                 }));
             });
-            $q.all(allPromises).then(function () {
+            $q.all(allPromises).then(function() {
                 callback(batchesToSearch);
             });
-        };
+        }
 
-        $scope.noReactantsInStoic = function () {
+        $scope.noReactantsInStoic = function() {
             var REACTANT = AppValues.getRxnRoleReactant().name;
-            var rxnRoleReactant = _.filter(getStoicReactants(), function (batch) {
+            var rxnRoleReactant = _.filter(getStoicReactants(), function(batch) {
                 return batch.rxnRole.name === REACTANT && batch.structure && batch.structure.molfile;
             });
             return rxnRoleReactant.length === 0;
         };
 
-        $scope.analyzeRxn = function () {
-            getMissingReactionReactantsInStoic(function (batchesToSearch) {
+        $scope.analyzeRxn = function() {
+            getMissingReactionReactantsInStoic(function(batchesToSearch) {
                 if (batchesToSearch.length) {
                     $uibModal.open({
                         animation: true,
                         size: 'lg',
-                        controller: 'AnalyzeRxnController',
+                        controller: 'analyzeRxnController',
                         templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                         resolve: {
-                            reactants: function () {
-                                return _.map(batchesToSearch, function (batch) {
+                            reactants: function() {
+                                return _.map(batchesToSearch, function(batch) {
                                     var batchCopy = angular.copy(batch);
-                                    CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function (image) {
+                                    CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function(image) {
                                         batchCopy.structure.image = image;
                                     });
                                     return batchCopy;
                                 });
+                            },
+                            onStoichRowsChanged: function() {
+                                // TODO: it imitates function expression of component
+                                return function(StoichRows) {
+                                    $rootScope.$broadcast('stoich-rows-changed', StoichRows);
+                                };
                             }
                         }
                     });
@@ -650,16 +669,16 @@
             });
         };
 
-        $scope.createRxn = function () {
+        $scope.createRxn = function() {
             var REACTANT = AppValues.getRxnRoleReactant().name;
-            var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function (batch) {
+            var stoicReactantsMolfiles = _.compact(_.map(getStoicReactants(), function(batch) {
                 return batch.rxnRole.name === REACTANT && batch.structure.molfile;
             }));
-            var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function (batch) {
+            var intendedProductsMolfiles = _.compact(_.map(getIntendedProducts(), function(batch) {
                 return batch.structure.molfile;
             }));
-            CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles).then(function (result) {
-                CalculationService.getImageForStructure(result.data.structure, 'reaction', function (image) {
+            CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles).then(function(result) {
+                CalculationService.getImageForStructure(result.data.structure, 'reaction', function(image) {
                     $rootScope.$broadcast('new-reaction-scheme', {
                         image: image,
                         molfile: result.data.structure
@@ -668,18 +687,20 @@
             });
         };
 
-        $scope.searchReagents = function (activeTab) {
+        $scope.searchReagents = function(activeTab) {
             $uibModal.open({
                 animation: true,
                 size: 'lg',
                 controller: 'SearchReagentsController',
                 templateUrl: 'scripts/components/entities/template/components/common/search-reagents/search-reagents.html',
                 resolve: {
-                    activeTab: function () {
+                    activeTab: function() {
                         return activeTab;
                     }
                 }
             });
         };
+
+        init();
     }
 })();
