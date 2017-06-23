@@ -32,7 +32,7 @@ function sdExportService(SdService, sdProperties){
     var getExportProperties = function (items) {
         return _.map(items, function(item){console.log('item: ', item);
                 var properties = { molfile: item.structure.molfile,
-                                   properties: generateExportProperties(item)}; console.log("Export properties: ", properties);
+                                   properties: generateExportProperties(item)};
                 return properties;
                 });
     };

@@ -30,7 +30,6 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
            return properties;
         };
         var properties = getImportProperties();
-        console.log("Import properties: ", properties);
 
         var saveMolecule = function (mol) {
             var deferred = $q.defer();
@@ -65,10 +64,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                         if (value && _.isFunction(item.format)) {
                             value = item.format(dicts, value);
                         }
-                        if (value) { console.log('it is value', value);
+                        if (value) {
                             if (itemToImport[name]){
-                                //$.extend(true, itemToImport[name], value);
-                                //_.defaultsDeep(itemToImport[name], value);
                                 angular.merge(itemToImport[name], value);
                             } else {
                                 itemToImport[name] = value;
@@ -77,7 +74,6 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                     });
                 });
             }
-            console.log('it is item to import: ', itemToImport);
         };
 
         var importItems = function (sdUnitsToImport, dicts, i, addToTable, callback, complete) {
