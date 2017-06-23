@@ -7,13 +7,10 @@
   },
   "parserOptions": {
     "ecmaVersion": 5,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "jsx": true
-    }
+    "sourceType": "module"
   },
   "extends": [
-    "eslint:recommended",
+    "airbnb-base/legacy",
     "angular"
   ],
   "rules": {
