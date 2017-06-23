@@ -1,30 +1,37 @@
-angular.module('indigoeln')
-    .controller('LoginController', function ($rootScope, $scope, $state, $timeout, Auth, Principal) {
-        $scope.user = {};
-        $scope.errors = {};
-        $scope.rememberMe = true;
-        $timeout(function () {
-            angular.element('[ng-model="username"]').focus();
-        }, 0, false);
-        $scope.login = function (event) {
-            $scope.loading = true;
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('LoginController', LoginController);
+
+    /* @ngInject */
+    function LoginController($state, Auth, Principal) {
+        var vm = this;
+
+        vm.user = {};
+        vm.errors = {};
+        vm.rememberMe = true;
+
+        vm.login = login;
+
+        function login(event) {
+            vm.loading = true;
             event.preventDefault();
+
             Auth.login({
-                username: $scope.username,
-                password: $scope.password,
-                rememberMe: $scope.rememberMe
+                username: vm.username,
+                password: vm.password,
+                rememberMe: vm.rememberMe
             }).then(function () {
-                $scope.authenticationError = false;
-                console.log('$state', $state)
-                //$rootScope.back();
-                Principal.identity(true).then(function(user) {
+                vm.authenticationError = false;
+                Principal.identity(true).then(function () {
                     $state.go('experiment');
-                    $scope.loading = false;
-                })
+                    vm.loading = false;
+                });
             }).catch(function () {
-                $scope.authenticationError = true;
-                $scope.shake = !$scope.shake;
-                $scope.loading = false;
+                vm.authenticationError = true;
+                vm.shake = !vm.shake;
+                vm.loading = false;
             });
-        };
-    });
+        }
+    }
+})();
