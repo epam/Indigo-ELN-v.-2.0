@@ -23,7 +23,9 @@
 
         /* @ngInject */
         function link(scope, element) {
-            if (!scope.indigoExperiment) return;
+            if (!scope.indigoExperiment){
+                return;
+            }
             var id = scope.indigoExperiment.fullId, tc, preventFirstScroll;
             $timeout(function () {
                 tc = element.find('.tab-content');
@@ -35,7 +37,8 @@
                 }
                 var stimeout, nostore;
                 tc.on('scroll', function (e) {
-                    element.trigger('click'); // will close some dropdowns EPMLSOPELN-437
+                    // will close some dropdowns EPMLSOPELN-437
+                    element.trigger('click');
                     if (nostore) {
                         nostore = false;
                         return;
