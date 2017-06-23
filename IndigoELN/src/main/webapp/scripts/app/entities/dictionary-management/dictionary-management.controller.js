@@ -182,7 +182,6 @@
             vm.isWordSaving = false;
             vm.loadAllDictionaries();
             Alert.error('Dictionary is not saved due to server error!');
-
         }
 
         function updateRanks(len) {
