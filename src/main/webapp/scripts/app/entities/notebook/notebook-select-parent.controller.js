@@ -1,36 +1,46 @@
-angular.module('indigoeln')
-    .controller('NotebookSelectParentController', function ($scope, $uibModalInstance, parents, Principal, localStorageService) {
-        $scope.parents = parents;
-        $scope.selectedParent = '';
+(function () {
+    angular.module('indigoeln')
+        .controller('NotebookSelectParentController', NotebookSelectParentController);
 
-        $scope.ok = okPressed;
-        $scope.cancel = cancelPressed;
+    function NotebookSelectParentController($scope, $uibModalInstance, parents, Principal, localStorageService) {
+        var vm = this;
+        vm.parents = parents;
+        vm.selectedParent = '';
 
-        function okPressed () {
-            $uibModalInstance.close($scope.selectedParent.id);
+        vm.ok = okPressed;
+        vm.cancel = cancelPressed;
+
+        init();
+
+        function okPressed() {
+            $uibModalInstance.close(vm.selectedParent.id);
         }
 
-        function cancelPressed () {
+        function cancelPressed() {
             $uibModalInstance.dismiss();
         }
 
-        //EPMLSOPELN-415 Remember last selected parent and template
-        Principal.identity()
-            .then(function(user) {
-                var pkey = user.id + '.' + 'lastSelectedProjectId',
-                    pval = localStorageService.get(pkey);
-                if (pval) {
-                    $scope.selectedParent = parents.filter(function(p) {
-                        return p.id == pval;
-                    })[0]
-                }
-                var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
-                    if ($scope.selectedParent) {
-                        localStorageService.set(pkey, $scope.selectedParent.id)
+        function init() {
+            //EPMLSOPELN-415 Remember last selected parent and template
+            Principal.identity()
+                .then(function (user) {
+                    var pkey = user.id + '.' + 'lastSelectedProjectId',
+                        pval = localStorageService.get(pkey);
+                    if (pval) {
+                        vm.selectedParent = parents.filter(function (p) {
+                            return p.id === pval;
+                        })[0];
                     }
-                })
-                $scope.$on('$destroy', function() {
-                    unsubscribe();
+                    var unsubscribe = $scope.$watchGroup(['selectedParent'], function () {
+                        if (vm.selectedParent) {
+                            localStorageService.set(pkey, vm.selectedParent.id);
+                        }
+                    });
+                    $scope.$on('$destroy', function () {
+                        unsubscribe();
+                    });
                 });
-            });
-    });
+        }
+    }
+})();
+

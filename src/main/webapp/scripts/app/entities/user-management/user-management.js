@@ -16,7 +16,8 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/user-management/user-management.html',
-                        controller: 'UserManagementController'
+                        controller: 'UserManagementController',
+                        controllerAs: "vm"
                     }
                 },
                 resolve: {
@@ -45,7 +46,8 @@ angular.module('indigoeln')
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/user-management/user-management-delete-dialog.html',
-                        controller: 'user-managementDeleteController',
+                        controller: 'UserManagementDeleteController',
+                        controllerAs: "vm",
                         size: 'md',
                         resolve: {
                             entity: ['User', function (User) {
@@ -53,8 +55,7 @@ angular.module('indigoeln')
                             }]
                         }
                     }).result.then(function () {
-                            //$state.go('entities.user-management', null, {reload: true});
-                            $state.reload('entities.user-management');
+                            $state.go('entities.user-management', null, {reload: true});
                         }, function () {
                             $state.go('^');
                         });

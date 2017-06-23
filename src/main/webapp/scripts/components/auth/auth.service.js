@@ -3,14 +3,15 @@ angular
     .factory('Auth', auth);
 
 /* @ngInject */
-function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, $log) {
+function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, $log, $http) {
     var prolongTimeout;
 
     return {
         login: login,
         prolong: prolong,
         logout: logout,
-        authorize: authorize
+        authorize: authorize,
+        getAuthorities: getAuthorities
     };
 
 
@@ -81,5 +82,10 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
                     }
                 }
             });
+    }
+
+
+    function getAuthorities(){
+        return $http.get('assets/data/authorities.json');
     }
 }

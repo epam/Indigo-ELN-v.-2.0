@@ -1,7 +1,7 @@
-<form name="saveForm" ng-submit="confirmSave()">
+<form name="saveForm" ng-submit="vm.confirmSave()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="clear()">&times;</button>
+                ng-click="vm.clear()">&times;</button>
         <h5 class="modal-title">Confirm save operation</h5>
     </div>
     <div class="modal-body">
@@ -10,7 +10,7 @@
             Are you sure, you want to continue?</p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
         <button type="submit" ng-disabled="saveForm.$invalid" class="btn btn-info">

@@ -87,18 +87,8 @@
         $scope.$on("activate button", function () {
             $timeout(function () {
                 self.isBtnSaveActive = true;
-            }, 10); //If put 0, then save button isn't activated
-        });
-
-        $scope.$on('$destroy', function () {
-            onAccessListChangedEvent();
-            onExperimentStatusChangedEvent();
-            self.dirtyListener();
-        });
-
-        $scope.$on('$destroy', function () {
-            unsubscribe();
-            unsubscribeExp();
+                //If put 0, then save button isn't activated
+            }, 10);
         });
 
         //This is necessary for correct saving after attaching files
@@ -151,21 +141,6 @@
             return self.loading;
         }
 
-        function unsubscribeExp() {
-            $scope.$watch(function () {
-                return self.experiment;
-            }, function () {
-                EntitiesBrowser.setCurrentEntity(self.experiment);
-            });
-        }
-
-        function unsubscribe() {
-            $scope.$watch(function () {
-                return self.experiment.status;
-            }, function () {
-                setReadOnly();
-            });
-        }
 
         function completeExperiment() {
             self.loading = ExperimentUtil.completeExperiment(self.experiment, params, self.notebook.name);
@@ -253,5 +228,40 @@
         function isStatusSigning() {
             return self.experiment.status === 'Signing';
         }
+
+        var unsubscribeExp = $scope.$watch(function () {
+            return self.experiment;
+        }, function () {
+            EntitiesBrowser.setCurrentEntity(self.experiment);
+        });
+
+
+        var unsubscribe = $scope.$watch(function () {
+            return self.experiment.status;
+        }, function () {
+            setReadOnly();
+        });
+
+        var accessListChangeListener = $scope.$on('access-list-changed', function () {
+            self.experiment.accessList = PermissionManagement.getAccessList();
+        });
+
+        var experimentStatusChangeListener = $scope.$on('experiment-status-changed', function (event, data) {
+            _.each(data, function (status, id) {
+                if (id === self.experiment.fullId) {
+                    setStatus(status);
+                    setReadOnly();
+                }
+            });
+        });
+
+
+        $scope.$on('$destroy', function () {
+            unsubscribe();
+            unsubscribeExp();
+            accessListChangeListener();
+            experimentStatusChangeListener();
+            self.dirtyListener();
+        });
     }
 })();

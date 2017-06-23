@@ -1,21 +1,21 @@
 <div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
-        {{myTitle}}
+        {{vm.myTitle}}
                 <span ng-disabled="myReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp" title="Export {{myTitle}}"
-                      ng-click="exportStructure($event)"></span>
+                      ng-click="vm.exportStructure($event)"></span>
                 <span ng-disabled="myReadonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
                       title="Import {{myTitle}}"
-                      ng-click="importStructure($event)"></span>
+                      ng-click="vm.importStructure($event)"></span>
                 <span ng-disabled="myReadonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
-                      title="Edit/Add {{myTitle}}" ng-click="openEditor($event)"></span>
+                      title="Edit/Add {{myTitle}}" ng-click="vm.openEditor($event)"></span>
     </div>
-    <div indigo-resizable max-height="300" min-height="50" ng-dblclick="openEditor($event)"
+    <div indigo-resizable max-height="300" min-height="50" ng-dblclick="vm.openEditor($event)"
          class="panel-body text-center structure-scheme__img" ng-class="{'sizable-panel-body': image}">
-        <div ng-if="model[structureType].image" class="h-100" >
+        <div ng-if="vm.model[vm.structureType].image" class="h-100" >
             <img  class="img-responsive center-block h-100"
-            ng-src="data:image/svg+xml;base64,{{model[structureType].image}}" alt="Image is unavailable.">
+            ng-src="data:image/svg+xml;base64,{{vm.model[vm.structureType].image}}" alt="Image is unavailable.">
             <span class="glyphicon glyphicon-option-horizontal structure-scheme__option"></span>
         </div>
-        <h3 ng-if="!model[structureType].image" class="text-muted">empty</h3>
+        <h3 ng-if="!vm.model[vm.structureType].image" class="text-muted">empty</h3>
     </div>
 </div>
