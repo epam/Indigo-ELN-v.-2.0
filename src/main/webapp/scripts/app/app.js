@@ -104,22 +104,12 @@ angular.module('indigoeln',
             abstract: true,
             views: {
                 'app_page@': {
-                    templateUrl: 'scripts/components/app_page/app_page.html',
-                    controller: 'AppPageController'
+                    template: '<app-page></app-page>'
                 }
             },
             resolve: {
                 authorize: function (Auth) {
                     return Auth.authorize();
-                },
-                experimentStatusSubscriber: function (WSService) {
-                    return WSService.subscribe('experiment_status');
-                },
-                batchStatusSubscriber: function (WSService) {
-                    return WSService.subscribe('registration_status');
-                },
-                entityChangedSubscriber: function (WSService) {
-                    return WSService.subscribe('entity_updated');
                 }
             }
         }).state('navbar', {
