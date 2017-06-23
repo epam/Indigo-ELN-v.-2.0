@@ -3,19 +3,21 @@ angular
     .directive('appPage', function() {
         return {
             restrict: 'E',
-            controller: AppPageController,
-            controllerAs: '$ctrl',
+            controller: appPageController,
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/app-page/app-page.component.html',
             bindToController: true
-        }
+        };
     });
 
-function AppPageController($rootScope, $scope, $cookieStore, $window, WSService, $timeout) {
-    var self = this;
+function appPageController($rootScope, $scope, $cookieStore, $window, WSService, $timeout) {
+    var vm = this;
     var mobileViewWidth = 992;
     var updateToggle;
     var windowElement;
     var subscribers = [];
+
+    init();
 
     function init() {
         windowElement = angular.element($window);
@@ -24,7 +26,7 @@ function AppPageController($rootScope, $scope, $cookieStore, $window, WSService,
         bindEvents();
     }
 
-    self.onMouseWheel = function($event) {
+    vm.onMouseWheel = function($event) {
         var prevent = function() {
             $event.stopPropagation();
             $event.preventDefault();
@@ -66,16 +68,14 @@ function AppPageController($rootScope, $scope, $cookieStore, $window, WSService,
             $timeout(function() {
                 if (windowElement.width() >= mobileViewWidth) {
                     if (angular.isDefined($cookieStore.get('toggle'))) {
-                        self.toggle = $cookieStore.get('toggle');
+                        vm.toggle = $cookieStore.get('toggle');
                     } else {
-                        self.toggle = true;
+                        vm.toggle = true;
                     }
                 } else {
-                    self.toggle = false;
+                    vm.toggle = false;
                 }
             });
         });
     }
-
-    init();
 }
