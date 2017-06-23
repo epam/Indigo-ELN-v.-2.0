@@ -3,7 +3,7 @@ angular
     .factory('SdExportService', sdExportService);
 
 /* @ngInject */
-function sdExportService(SdService, sdProperties){
+function sdExportService(SdService, sdProperties, Alert){
 
     var getProperty = function (item, props, subProp) {
         var i = 0;
@@ -30,15 +30,21 @@ function sdExportService(SdService, sdProperties){
     };
 
     var getExportProperties = function (items) {
-        return _.map(items, function(item){console.log('item: ', item);
+        return _.map(items, function(item){
                 var properties = { molfile: item.structure.molfile,
                                    properties: generateExportProperties(item)};
-                return properties;
+                    if (properties.molfile) {
+                        return properties;
+                    }
                 });
     };
 
     var exportItems = function (items) {
-        return SdService.export({}, getExportProperties(items)).$promise;
+        var properties = getExportProperties(items); console.log('properties', properties);
+        if (properties[0]) {
+            return SdService.export({}, properties).$promise;
+        }
+        Alert.error('Please add Batch structure before export sd file');
     };
 
     return {
