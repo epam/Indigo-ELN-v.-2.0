@@ -1,5 +1,5 @@
 <div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
-    <indigo-autorecovery></indigo-autorecovery>
+    <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
     <div class="tab-content-pad">
         <div ng-init="vm.isCollapsed=true;">
             <div class="row m-b20">

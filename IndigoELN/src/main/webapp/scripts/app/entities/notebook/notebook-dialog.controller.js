@@ -2,6 +2,7 @@
     angular.module('indigoeln')
         .controller('NotebookDialogController', NotebookDialogController);
 
+    /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
                                       AutoRecoverEngine, NotebookSummaryExperiments) {

@@ -1,12 +1,12 @@
-<div class="experiments" cg-busy="{promise:experimentDetailController.loading, minDuration:700}">
-    <indigo-autorecovery indigo-restored="experimentDetailController.restored"></indigo-autorecovery>
+<div class="experiments" cg-busy="{promise:vm.loading, minDuration:700}">
+    <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
     <div class="tab-content-pad">
-        <div ng-init="experimentDetailController.isCollapsed=true;">
+        <div ng-init="vm.isCollapsed=true;">
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
                         <span class="txt-larger">Experiment Members:</span>
-                        <button type="submit" ui-sref="entities.experiment-detail.permissions()" class="btn btn-default btn-small" ng-disabled="!experimentDetailController.isEditAllowed">
+                        <button type="submit" ui-sref="entities.experiment-detail.permissions()" class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
@@ -19,26 +19,26 @@
                 <div class="col-sm-6 col-xs-3">
                     <div class="row-inline">
                         <span class="txt-larger">Status:</span>
-                        <span class="uui-label" ng-bind="experimentDetailController.experiment.status"></span>
+                        <span class="uui-label" ng-bind="vm.experiment.status"></span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="experimentDetailController.save(experimentDetailController.experiment)">
-        <indigo-components indigo-template="experimentDetailController.experiment.template.templateContent"
-                           indigo-readonly="!experimentDetailController.isEditAllowed"
-                           indigo-model="experimentDetailController.experiment.components"
+    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save(vm.experiment)">
+        <indigo-components indigo-template="vm.experiment.template.templateContent"
+                           indigo-readonly="!vm.isEditAllowed"
+                           indigo-model="vm.experiment.components"
                            indigo-experiment-form="experimentForm"
-                           indigo-experiment="experimentDetailController.experiment"></indigo-components>
+                           indigo-experiment="vm.experiment"></indigo-components>
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-           <button type="button" class="btn btn-default" ng-disabled = "!experimentDetailController.canUndo()" ng-click="experimentDetailController.undoAction()">
+           <button type="button" class="btn btn-default" ng-disabled = "!vm.canUndo()" ng-click="vm.undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
             </button>  
-            <button  type="button" class="btn btn-default" ng-disabled = "!experimentDetailController.canRedo()" ng-click="experimentDetailController.redoAction()">
+            <button  type="button" class="btn btn-default" ng-disabled = "!vm.canRedo()" ng-click="vm.redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>
@@ -48,24 +48,24 @@
                 <span class="m-r10">Actions</span><i class="fa fa-angle-down"></i>
             </button>
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
-                <li role="menuitem"><a><em>Status: </em><strong ng-bind="experimentDetailController.experiment.status"></strong></a></li>
+                <li role="menuitem"><a><em>Status: </em><strong ng-bind="vm.experiment.status"></strong></a></li>
                 <li class="divider"></li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusOpen()" ng-click="experimentDetailController.completeExperiment()"><a>Complete Experiment</a></li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusOpen()" ng-click="experimentDetailController.completeExperimentAndSign()"><a>Complete & Sign </a></li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusSubmitFail()" ng-click="experimentDetailController.reopenExperiment()"><a>Reopen Experiment for Edit</a></li>
-                <li role="menuitem" ng-click="experimentDetailController.repeatExperiment()"><a>Repeat Experiment</a></li>
-                <li role="menuitem"><a ng-click="experimentDetailController.printExperiment()">Print Experiment</a></li>
+                <li role="menuitem" ng-if="vm.isStatusOpen()" ng-click="vm.completeExperiment()"><a>Complete Experiment</a></li>
+                <li role="menuitem" ng-if="vm.isStatusOpen()" ng-click="vm.completeExperimentAndSign()"><a>Complete & Sign </a></li>
+                <li role="menuitem" ng-if="vm.isStatusSubmitFail()" ng-click="vm.reopenExperiment()"><a>Reopen Experiment for Edit</a></li>
+                <li role="menuitem" ng-click="vm.repeatExperiment()"><a>Repeat Experiment</a></li>
+                <li role="menuitem"><a ng-click="vm.printExperiment()">Print Experiment</a></li>
                 <li role="menuitem"
-                    ng-if="experimentDetailController.experiment.lastVersion && (experimentDetailController.isStatusComplete() || experimentDetailController.isStatusSubmitFail() || experimentDetailController.isStatusSubmitted() || experimentDetailController.isStatusArchieved() || experimentDetailController.isStatusSigning() || experimentDetailController.isStatusSigned())"
-                    ng-click="experimentDetailController.versionExperiment()"><a>Version Experiment</a></li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusSubmitFail()" ng-click="experimentDetailController.completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusSubmitFail() || experimentDetailController.isStatusSubmitted() || experimentDetailController.isStatusSigning() || experimentDetailController.isStatusSigned()">
-                    <a href="api/signature/document/content?documentId={{experimentDetailController.experiment.documentId}}" target="_blank">
+                    ng-if="vm.experiment.lastVersion && (vm.isStatusComplete() || vm.isStatusSubmitFail() || vm.isStatusSubmitted() || vm.isStatusArchieved() || vm.isStatusSigning() || vm.isStatusSigned())"
+                    ng-click="vm.versionExperiment()"><a>Version Experiment</a></li>
+                <li role="menuitem" ng-if="vm.isStatusSubmitFail()" ng-click="vm.completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
+                <li role="menuitem" ng-if="vm.isStatusSubmitFail() || vm.isStatusSubmitted() || vm.isStatusSigning() || vm.isStatusSigned()">
+                    <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank">
                         View Record Submitted for Signature
                     </a>
                 </li>
-                <li role="menuitem" ng-if="experimentDetailController.isStatusArchieved()">
-                    <a href="api/signature/document/content?documentId={{experimentDetailController.experiment.documentId}}" target="_blank">
+                <li role="menuitem" ng-if="vm.isStatusArchieved()">
+                    <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank">
                         View Record Archieved
                     </a>
                 </li>
@@ -78,10 +78,10 @@
         </div>-->
 
 
-        <button type="submit" form="experimentForm" ng-disabled="!experimentDetailController.isEditAllowed || experimentForm.$invalid || !experimentDetailController.isBtnSaveActive" class="btn btn-primary">
+        <button type="submit" form="experimentForm" ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isBtnSaveActive" class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
-        <a class="btn btn-default" ng-click="experimentDetailController.refresh()">
+        <a class="btn btn-default" ng-click="vm.refresh()">
             <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
         </a>
         <a class="btn btn-default" onclick="window.history.back()">

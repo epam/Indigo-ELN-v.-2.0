@@ -5,12 +5,12 @@
 
     /* @ngInject */
     function ExperimentCompleteModalController($uibModalInstance, fullExperimentName) {
-        var self = this;
+        var vm = this;
 
-        self.fullExperimentName = fullExperimentName;
+        vm.fullExperimentName = fullExperimentName;
 
-        self.dismiss = dismiss;
-        self.confirmCompletion = confirmCompletion;
+        vm.dismiss = dismiss;
+        vm.confirmCompletion = confirmCompletion;
 
         function dismiss() {
             $uibModalInstance.dismiss('cancel');
