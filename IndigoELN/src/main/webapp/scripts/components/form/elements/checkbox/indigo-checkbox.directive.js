@@ -20,25 +20,23 @@
                 indigoTooltipPlacement: '@',
                 indigoNoDirty: '='
             },
-            compile: angular.bind({formUtils: formUtils}, compile),
+            compile: compile,
             templateUrl: 'scripts/components/form/elements/checkbox/checkbox.html'
         };
-    }
 
-    /* @ngInject */
-    function compile(tElement, tAttrs) {
-        var formUtils = this.formUtils;
-
-        formUtils.clearLabel(tAttrs, tElement);
-        var $checkbox = tElement.find('checkbox');
-        formUtils.addDirectivesByAttrs(tAttrs, $checkbox);
-        if (tAttrs.indigoModel) {
-            $checkbox.removeAttr('ng-model-options');
-        }
-        return {
-            post: function (scope) {
-                formUtils.addOnChange(scope);
+        /* @ngInject */
+        function compile(tElement, tAttrs) {
+            formUtils.clearLabel(tAttrs, tElement);
+            var $checkbox = tElement.find('checkbox');
+            formUtils.addDirectivesByAttrs(tAttrs, $checkbox);
+            if (tAttrs.indigoModel) {
+                $checkbox.removeAttr('ng-model-options');
             }
-        };
+            return {
+                post: function (scope) {
+                    formUtils.addOnChange(scope);
+                }
+            };
+        }
     }
 })();

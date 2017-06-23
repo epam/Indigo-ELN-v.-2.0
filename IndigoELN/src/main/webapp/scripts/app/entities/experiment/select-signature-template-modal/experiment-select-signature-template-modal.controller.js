@@ -5,19 +5,19 @@
 
     /* @ngInject */
     function ExperimentSelectSignatureTemplateModalController($uibModalInstance, result) {
-        var self = this;
+        var vm = this;
 
-        self.items = result.Templates;
+        vm.items = result.Templates;
 
-        self.dismiss                        = dismiss;
-        self.selectSignatureTemplateModal   = selectSignatureTemplateModal;
+        vm.dismiss = dismiss;
+        vm.selectSignatureTemplateModal = selectSignatureTemplateModal;
 
         function dismiss() {
             $uibModalInstance.dismiss('cancel');
         }
 
         function selectSignatureTemplateModal() {
-            $uibModalInstance.close(self.selectedTemplate);
+            $uibModalInstance.close(vm.selectedTemplate);
         }
     }
 })();

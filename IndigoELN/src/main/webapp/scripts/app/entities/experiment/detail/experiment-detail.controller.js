@@ -7,162 +7,108 @@
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil, PermissionManagement,
                                         FileUploaderCash, AutoRecoverEngine, pageInfo, EntitiesBrowser, Alert) {
 
-        var self = this,
-            tabName = pageInfo.notebook.name ? pageInfo.notebook.name + '-' + pageInfo.experiment.name : pageInfo.experiment.name,
-            experimentId = pageInfo.experimentId,
-            projectId = pageInfo.projectId,
-            notebookId = pageInfo.notebookId,
-            params = {projectId: projectId, notebookId: notebookId, experimentId: experimentId},
-            isContentEditor = pageInfo.isContentEditor,
-            hasEditAuthority = pageInfo.hasEditAuthority,
-            hasEditPermission;
+        var vm = this;
+        var tabName = pageInfo.notebook.name ? pageInfo.notebook.name + '-' + pageInfo.experiment.name : pageInfo.experiment.name;
+        var experimentId = pageInfo.experimentId;
+        var projectId = pageInfo.projectId;
+        var notebookId = pageInfo.notebookId;
+        var params = {projectId: projectId, notebookId: notebookId, experimentId: experimentId};
+        var isContentEditor = pageInfo.isContentEditor;
+        var hasEditAuthority = pageInfo.hasEditAuthority;
+        var hasEditPermission;
 
-
-        if (pageInfo.experiment.experimentVersion > 1 || !pageInfo.experiment.lastVersion) {
-            tabName += ' v' + pageInfo.experiment.experimentVersion;
-        }
-
-        EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
 
         // TODO: the Action drop up button should be disable in case of there is unsaved data.
-        self.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
-        self.experiment = pageInfo.experiment;
-        self.notebook = pageInfo.notebook;
-        self.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
+        vm.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
+        vm.experiment = pageInfo.experiment;
+        vm.notebook = pageInfo.notebook;
+        vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
 
-        self.save                       = save;
-        self.completeExperiment         = completeExperiment;
-        self.completeExperimentAndSign  = completeExperimentAndSign;
-        self.reopenExperiment           = reopenExperiment;
-        self.repeatExperiment           = repeatExperiment;
-        self.versionExperiment          = versionExperiment;
-        self.printExperiment            = printExperiment;
-        self.refresh                    = refresh;
-        self.saveCurrent                = saveCurrent;
-        self.isStatusOpen               = isStatusOpen;
-        self.isStatusComplete           = isStatusComplete;
-        self.isStatusSubmitFail         = isStatusSubmitFail;
-        self.isStatusSubmitted          = isStatusSubmitted;
-        self.isStatusArchieved          = isStatusArchieved;
-        self.isStatusSigned             = isStatusSigned;
-        self.isStatusSigning            = isStatusSigning;
+        vm.save = save;
+        vm.completeExperiment = completeExperiment;
+        vm.completeExperimentAndSign = completeExperimentAndSign;
+        vm.reopenExperiment = reopenExperiment;
+        vm.repeatExperiment = repeatExperiment;
+        vm.versionExperiment = versionExperiment;
+        vm.printExperiment = printExperiment;
+        vm.refresh = refresh;
+        vm.saveCurrent = saveCurrent;
+        vm.isStatusOpen = isStatusOpen;
+        vm.isStatusComplete = isStatusComplete;
+        vm.isStatusSubmitFail = isStatusSubmitFail;
+        vm.isStatusSubmitted = isStatusSubmitted;
+        vm.isStatusArchieved = isStatusArchieved;
+        vm.isStatusSigned = isStatusSigned;
+        vm.isStatusSigning = isStatusSigning;
 
-        $timeout(function () {
-            EntitiesBrowser.setCurrentForm($scope.experimentForm);
-            var tabKind = $state.$current.data.tab.kind;
-            if (pageInfo.dirty) {
-                $scope.experimentForm.$setDirty(pageInfo.dirty);
+        init();
+
+        function init() {
+            initPermissions();
+            FileUploaderCash.setFiles([]);
+
+            if (pageInfo.experiment.experimentVersion > 1 || !pageInfo.experiment.lastVersion) {
+                tabName += ' v' + pageInfo.experiment.experimentVersion;
             }
-            self.dirtyListener = $scope.$watch(function () {
-                return self.experiment;
-            }, function () {
-                EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
-                $timeout(function () {
-                    self.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                }, 0);
-            }, true);
 
-            AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind, self);
-        }, 0, false);
+            EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
+            EntitiesBrowser.setUpdateCurrentEntity(refresh);
+            EntitiesBrowser.setSaveCurrentEntity(saveCurrent);
+            EntitiesBrowser.setEntityActions({
+                save: saveCurrent,
+                duplicate: repeatExperiment,
+                print: printExperiment
+            });
 
-        FileUploaderCash.setFiles([]);
-        PermissionManagement.setEntity('Experiment');
-        PermissionManagement.setAuthor(self.experiment.author);
-        PermissionManagement.setAccessList(self.experiment.accessList);
-        PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (_hasEditPermission) {
-            hasEditPermission = _hasEditPermission;
-            setReadOnly();
-        });
-
-        EntitiesBrowser.setUpdateCurrentEntity(self.refresh);
-        EntitiesBrowser.setSaveCurrentEntity(self.saveCurrent);
-        EntitiesBrowser.setEntityActions({
-            save: self.saveCurrent,
-            duplicate: self.repeatExperiment,
-            print: self.printExperiment
-        });
-
-
-        //Activate save button when change permission
-        $scope.$on("activate button", function () {
-            $timeout(function () {
-                self.isBtnSaveActive = true;
-                //If put 0, then save button isn't activated
-            }, 10);
-        });
-
-        //This is necessary for correct saving after attaching files
-        $scope.$on("refresh after attach", function () {
-            self.loading = Experiment.get($stateParams).$promise
-                .then(function (result) {
-                    self.experiment.version = result.version;
-                }, function () {
-                    Alert.error('Experiment not refreshed due to server error!');
-                });
-        });
-
-        function setStatus(status) {
-            self.experiment.status = status;
+            initDirtyListener();
+            initEventListeners();
         }
 
-        function onAccessListChangedEvent() {
-            $scope.$on('access-list-changed', function () {
-                self.experiment.accessList = PermissionManagement.getAccessList();
-            });
+        function setStatus(status) {
+            vm.experiment.status = status;
         }
 
         function setReadOnly() {
-            self.isEditAllowed = ( isContentEditor || hasEditAuthority && hasEditPermission) && self.isStatusOpen();
-            $scope.experimentForm.$$isReadOnly = !self.isEditAllowed;
-        }
-
-        function onExperimentStatusChangedEvent() {
-            $scope.$on('experiment-status-changed', function (event, data) {
-                _.each(data, function (status, id) {
-                    if (id === self.experiment.fullId) {
-                        setStatus(status);
-                        setReadOnly();
-                    }
-                });
-            });
+            vm.isEditAllowed = ( isContentEditor || hasEditAuthority && hasEditPermission) && vm.isStatusOpen();
+            $scope.experimentForm.$$isReadOnly = !vm.isEditAllowed;
         }
 
         function save(experiment) {
             var experimentForSave = _.extend({}, experiment);
-            self.loading = (experiment.template !== null) ? Experiment.update($stateParams, self.experiment).$promise
+            vm.loading = (experiment.template !== null) ? Experiment.update($stateParams, vm.experiment).$promise
                 : Experiment.save(experimentForSave).$promise;
-            self.loading.then(function (result) {
-                self.experiment.version = result.version;
+            vm.loading.then(function (result) {
+                vm.experiment.version = result.version;
                 $scope.experimentForm.$setPristine();
                 $scope.experimentForm.$dirty = false;
             }, function () {
                 Alert.error('Experiment is not saved due to server error!');
             });
-            return self.loading;
+            return vm.loading;
         }
 
 
         function completeExperiment() {
-            self.loading = ExperimentUtil.completeExperiment(self.experiment, params, self.notebook.name);
+            vm.loading = ExperimentUtil.completeExperiment(vm.experiment, params, vm.notebook.name);
         }
 
         function completeExperimentAndSign() {
-            ExperimentUtil.completeExperimentAndSign(self.experiment, params, self.notebook.name);
+            ExperimentUtil.completeExperimentAndSign(vm.experiment, params, vm.notebook.name);
         }
 
         function reopenExperiment() {
-            self.loading = ExperimentUtil.reopenExperiment(self.experiment, params);
+            vm.loading = ExperimentUtil.reopenExperiment(vm.experiment, params);
         }
 
         function repeatExperiment() {
-            self.loading = ExperimentUtil.repeatExperiment(self.experiment, params);
+            vm.loading = ExperimentUtil.repeatExperiment(vm.experiment, params);
         }
 
         function versionExperiment() {
-            var original = self.experiment;
+            var original = vm.experiment;
 
-            self.loading = ExperimentUtil.versionExperiment(self.experiment, params);
-            self.loading.then(function () {
+            vm.loading = ExperimentUtil.versionExperiment(vm.experiment, params);
+            vm.loading.then(function () {
                 Experiment.get($stateParams).$promise.then(function (result) {
                     angular.extend(original, result);
                 });
@@ -171,7 +117,7 @@
 
         function printExperiment() {
             if ($scope.experimentForm.$dirty) {
-                self.save(self.experiment).then(function () {
+                vm.save(vm.experiment).then(function () {
                     ExperimentUtil.printExperiment(params);
                 });
             } else {
@@ -180,88 +126,137 @@
         }
 
         function refresh(noExtend) {
-            self.loading = Experiment.get($stateParams).$promise;
-            self.loading.then(function (result) {
+            vm.loading = Experiment.get($stateParams).$promise;
+            vm.loading.then(function (result) {
                 Alert.success('Experiment updated');
                 if (!noExtend) {
-                    angular.extend(self.experiment, result);
+                    angular.extend(vm.experiment, result);
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                     $scope.experimentForm.$setPristine();
                     $scope.experimentForm.$dirty = false;
                 } else {
-                    self.experiment.version = result.version;
+                    vm.experiment.version = result.version;
                 }
             }, function () {
                 Alert.error('Experiment not refreshed due to server error!');
             });
-            return self.loading;
+            return vm.loading;
         }
 
         function saveCurrent() {
-            return self.save(self.experiment);
+            return vm.save(vm.experiment);
         }
 
         function isStatusOpen() {
-            return self.experiment.status === 'Open';
+            return vm.experiment.status === 'Open';
         }
 
         function isStatusComplete() {
-            return self.experiment.status === 'Completed';
+            return vm.experiment.status === 'Completed';
         }
 
         function isStatusSubmitFail() {
-            return self.experiment.status === 'Submit_Fail';
+            return vm.experiment.status === 'Submit_Fail';
         }
 
         function isStatusSubmitted() {
-            return self.experiment.status === 'Submitted';
+            return vm.experiment.status === 'Submitted';
         }
 
         function isStatusArchieved() {
-            return self.experiment.status === 'Archived';
+            return vm.experiment.status === 'Archived';
         }
 
         function isStatusSigned() {
-            return self.experiment.status === 'Signed';
+            return vm.experiment.status === 'Signed';
         }
 
         function isStatusSigning() {
-            return self.experiment.status === 'Signing';
+            return vm.experiment.status === 'Signing';
         }
 
-        var unsubscribeExp = $scope.$watch(function () {
-            return self.experiment;
-        }, function () {
-            EntitiesBrowser.setCurrentEntity(self.experiment);
-        });
-
-
-        var unsubscribe = $scope.$watch(function () {
-            return self.experiment.status;
-        }, function () {
-            setReadOnly();
-        });
-
-        var accessListChangeListener = $scope.$on('access-list-changed', function () {
-            self.experiment.accessList = PermissionManagement.getAccessList();
-        });
-
-        var experimentStatusChangeListener = $scope.$on('experiment-status-changed', function (event, data) {
-            _.each(data, function (status, id) {
-                if (id === self.experiment.fullId) {
-                    setStatus(status);
-                    setReadOnly();
-                }
+        function initPermissions() {
+            PermissionManagement.setEntity('Experiment');
+            PermissionManagement.setAuthor(vm.experiment.author);
+            PermissionManagement.setAccessList(vm.experiment.accessList);
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (_hasEditPermission) {
+                hasEditPermission = _hasEditPermission;
+                setReadOnly();
             });
-        });
+        }
 
+        function initDirtyListener() {
+            $timeout(function () {
+                EntitiesBrowser.setCurrentForm($scope.experimentForm);
+                var tabKind = $state.$current.data.tab.kind;
+                if (pageInfo.dirty) {
+                    $scope.experimentForm.$setDirty(pageInfo.dirty);
+                }
+                vm.dirtyListener = $scope.$watch(function () {
+                    return vm.experiment;
+                }, function () {
+                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
+                    $timeout(function () {
+                        vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
+                    }, 0);
+                }, true);
 
-        $scope.$on('$destroy', function () {
-            unsubscribe();
-            unsubscribeExp();
-            accessListChangeListener();
-            experimentStatusChangeListener();
-            self.dirtyListener();
-        });
+                AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind, vm);
+            }, 0, false);
+
+        }
+
+        function initEventListeners() {
+            var unsubscribeExp = $scope.$watch(function () {
+                return vm.experiment;
+            }, function () {
+                EntitiesBrowser.setCurrentEntity(vm.experiment);
+            });
+
+            var unsubscribe = $scope.$watch(function () {
+                return vm.experiment.status;
+            }, function () {
+                setReadOnly();
+            });
+
+            var accessListChangeListener = $scope.$on('access-list-changed', function () {
+                vm.experiment.accessList = PermissionManagement.getAccessList();
+            });
+
+            var experimentStatusChangeListener = $scope.$on('experiment-status-changed', function (event, data) {
+                _.each(data, function (status, id) {
+                    if (id === vm.experiment.fullId) {
+                        setStatus(status);
+                        setReadOnly();
+                    }
+                });
+            });
+
+            //Activate save button when change permission
+            $scope.$on("activate button", function () {
+                $timeout(function () {
+                    vm.isBtnSaveActive = true;
+                    //If put 0, then save button isn't activated
+                }, 10);
+            });
+
+            //This is necessary for correct saving after attaching files
+            $scope.$on("refresh after attach", function () {
+                vm.loading = Experiment.get($stateParams).$promise
+                    .then(function (result) {
+                        vm.experiment.version = result.version;
+                    }, function () {
+                        Alert.error('Experiment not refreshed due to server error!');
+                    });
+            });
+
+            $scope.$on('$destroy', function () {
+                unsubscribe();
+                unsubscribeExp();
+                accessListChangeListener();
+                experimentStatusChangeListener();
+                vm.dirtyListener();
+            });
+        }
     }
 })();

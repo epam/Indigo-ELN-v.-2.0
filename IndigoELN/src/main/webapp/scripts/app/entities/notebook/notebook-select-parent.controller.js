@@ -2,6 +2,7 @@
     angular.module('indigoeln')
         .controller('NotebookSelectParentController', NotebookSelectParentController);
 
+    /* @ngInject */
     function NotebookSelectParentController($scope, $uibModalInstance, parents, Principal, localStorageService) {
         var vm = this;
         vm.parents = parents;

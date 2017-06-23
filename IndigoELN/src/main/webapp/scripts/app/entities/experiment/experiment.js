@@ -12,7 +12,7 @@ angular.module('indigoeln')
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/experiments.html',
                         controller: 'ExperimentController',
-                        controllerAs: 'experimentController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {}
@@ -28,7 +28,7 @@ angular.module('indigoeln')
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/creation-from-notebook/experiment-creation-from-notebook.html',
                         controller: 'ExperimentCreationFromNotebookController',
-                        controllerAs: 'experimentCreationFromNotebookController',
+                        controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
                             pageInfo: function ($q, $stateParams, Template) {
@@ -76,7 +76,7 @@ angular.module('indigoeln')
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
                         controller: 'ExperimentDetailController',
-                        controllerAs: 'experimentDetailController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
@@ -135,7 +135,7 @@ angular.module('indigoeln')
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/experiment/delete-dialog/experiment-delete-dialog.html',
                         controller: 'ExperimentDeleteController',
-                        controllerAs: 'experimentDeleteController',
+                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
                             entity: ['Experiment', function (Experiment) {
@@ -164,7 +164,7 @@ angular.module('indigoeln')
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/creation-from-entities-controls/experiment-creation-from-entities-controls.html',
                         controller: 'ExperimentCreationFromEntitiesControlsController',
-                        controllerAs: 'experimentCreationFromEntitiesControlsController',
+                        controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
                             parents: function (NotebooksForSubCreation) {
@@ -220,7 +220,7 @@ angular.module('indigoeln')
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
                         controller: 'ExperimentPreviewController',
-                        controllerAs: 'experimentPreviewController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
@@ -259,7 +259,7 @@ angular.module('indigoeln')
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
                         controller: 'ExperimentPreviewController',
-                        controllerAs: 'experimentPreviewController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
