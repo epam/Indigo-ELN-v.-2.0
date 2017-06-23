@@ -5,17 +5,17 @@
 
 
     function TemplateDetailController($stateParams, Template) {
-        var self = this;
+        var vm = this;
 
-        self.load = load;
+        vm.load = load;
 
         if ($stateParams.id) {
-            self.load($stateParams.id);
+            vm.load($stateParams.id);
         }
 
         function load(id) {
             Template.get({id: id}, function (result) {
-                self.template = result;
+                vm.template = result;
             });
         }
     }

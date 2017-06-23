@@ -6,42 +6,42 @@
     /* @ngInject */
     function ExperimentPreviewController($state, $rootScope, $uibModal, pageInfo,
                                          experimentPdfCreator, SignatureTemplates, SignatureDocument, EntitiesCache) {
-        var self = this;
+        var vm = this;
 
-        self.fullPrint = $state.current.data.isFullPrint;
-        self.experiment = pageInfo.experiment;
-        self.notebook = pageInfo.notebook;
-        self.project = pageInfo.project;
+        vm.fullPrint = $state.current.data.isFullPrint;
+        vm.experiment = pageInfo.experiment;
+        vm.notebook = pageInfo.notebook;
+        vm.project = pageInfo.project;
 
-        self.batchDetails = self.experiment.components.productBatchDetails;
-        self.batchSummary = self.experiment.components.productBatchSummary;
-        self.conceptDetails = self.experiment.components.conceptDetails;
-        self.reactionDetails = self.experiment.components.reactionDetails;
-        self.reaction = self.experiment.components.reaction;
-        self.molecule = self.experiment.components.molecule;
-        self.experimentDescription = self.experiment.components.experimentDescription;
-        self.stoichTable = self.experiment.components.stoichTable;
-        self.preferredCompounds = self.experiment.components.preferredCompoundSummary;
-        self.currentDate = Date.now();
+        vm.batchDetails = vm.experiment.components.productBatchDetails;
+        vm.batchSummary = vm.experiment.components.productBatchSummary;
+        vm.conceptDetails = vm.experiment.components.conceptDetails;
+        vm.reactionDetails = vm.experiment.components.reactionDetails;
+        vm.reaction = vm.experiment.components.reaction;
+        vm.molecule = vm.experiment.components.molecule;
+        vm.experimentDescription = vm.experiment.components.experimentDescription;
+        vm.stoichTable = vm.experiment.components.stoichTable;
+        vm.preferredCompounds = vm.experiment.components.preferredCompoundSummary;
+        vm.currentDate = Date.now();
 
-        self.print      = print;
-        self.toDigits   = toDigits;
-        self.joinArr    = joinArr;
-        self.submit     = submit;
+        vm.print = print;
+        vm.toDigits = toDigits;
+        vm.joinArr = joinArr;
+        vm.submit = submit;
 
-        if (self.batchSummary) {
-            self.registrationSummary = {
-                batches: self.batchSummary.batches.filter(function (b) {
+        if (vm.batchSummary) {
+            vm.registrationSummary = {
+                batches: vm.batchSummary.batches.filter(function (b) {
                     return b.conversationalBatchNumber;
                 })
             };
         }
 
         function print() {
-            self.isPrinting = true;
-            var fileName = self.notebook.name + '-' + self.experiment.name;
-            if (self.experiment.experimentVersion > 1 || !self.experiment.lastVersion) {
-                fileName += ' v' + self.experiment.experimentVersion;
+            vm.isPrinting = true;
+            var fileName = vm.notebook.name + '-' + vm.experiment.name;
+            if (vm.experiment.experimentVersion > 1 || !vm.experiment.lastVersion) {
+                fileName += ' v' + vm.experiment.experimentVersion;
             }
             experimentPdfCreator.createPDF(fileName, downloadReport);
         }
@@ -66,9 +66,9 @@
         }
 
         function submit() {
-            var fileName = self.notebook.name + '-' + self.experiment.name;
-            if (self.experiment.experimentVersion > 1 || !self.experiment.lastVersion) {
-                fileName += ' v' + self.experiment.experimentVersion;
+            var fileName = vm.notebook.name + '-' + vm.experiment.name;
+            if (vm.experiment.experimentVersion > 1 || !vm.experiment.lastVersion) {
+                fileName += ' v' + vm.experiment.experimentVersion;
             }
             experimentPdfCreator.createPDF(fileName, selectTemplate);
         }
@@ -81,12 +81,12 @@
                 $('body').append(hiddenDownloader);
             }
             hiddenDownloader.attr('src', 'api/print?fileName=' + response.fileName);
-            self.isPrinting = false;
+            vm.isPrinting = false;
         }
 
         function onCompleteSuccess(status) {
             var statuses = {};
-            statuses[self.experiment.fullId] = status;
+            statuses[vm.experiment.fullId] = status;
             $rootScope.$broadcast('experiment-status-changed', statuses);
         }
 
@@ -97,7 +97,7 @@
                     animation: true,
                     templateUrl: 'scripts/app/entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html',
                     controller: 'ExperimentSelectSignatureTemplateModalController',
-                    controllerAs: 'experimentSelectSignatureTemplateModalController',
+                    controllerAs: 'vm',
                     resolve: {
                         result: function () {
                             return result;
@@ -109,17 +109,17 @@
                             {
                                 fileName: filename.fileName,
                                 templateId: template.id,
-                                experimentId: self.experiment.id,
-                                notebookId: self.notebook.id,
-                                projectId: self.project.id
+                                experimentId: vm.experiment.id,
+                                notebookId: vm.notebook.id,
+                                projectId: vm.project.id
                             }, {},
                             function () {
                                 onCompleteSuccess('Submitted');
 
                                 var params = {
-                                    projectId: self.project.id,
-                                    notebookId: self.notebook.id,
-                                    experimentId: self.experiment.id
+                                    projectId: vm.project.id,
+                                    notebookId: vm.notebook.id,
+                                    experimentId: vm.experiment.id
                                 };
 
                                 //reload experiment

@@ -9,29 +9,29 @@
             restrict: 'A',
             scope: false,
             controller: controller,
-            link: angular.bind({$parse: $parse}, link)
+            link: link
         };
-    }
 
-    /* @ngInject */
-    function link($scope, $element, $attrs) {
-        var showFunc = this.$parse($attrs.indigoFileReader);
+        /* @ngInject */
+        function link($scope, $element, $attrs) {
+            var showFunc = $parse($attrs.indigoFileReader);
 
-        $element.on('change', function (onChangeEvent) {
-            var reader = new FileReader();
-            reader.onload = function (onLoadEvent) {
-                $scope.$apply(function () {
-                    showFunc($scope, {$fileContent: onLoadEvent.target.result});
-                });
+            $element.on('change', function (onChangeEvent) {
+                var reader = new FileReader();
+                reader.onload = function (onLoadEvent) {
+                    $scope.$apply(function () {
+                        showFunc($scope, {$fileContent: onLoadEvent.target.result});
+                    });
+                };
+                reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
+            });
+        }
+
+        /* @ngInject */
+        function controller($scope) {
+            $scope.showContent = function ($fileContent) {
+                $scope.content = $fileContent;
             };
-            reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
-        });
-    }
-
-    /* @ngInject */
-    function controller($scope) {
-        $scope.showContent = function ($fileContent) {
-            $scope.content = $fileContent;
-        };
+        }
     }
 })();
