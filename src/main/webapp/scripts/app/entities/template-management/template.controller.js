@@ -5,45 +5,45 @@
 
     /* @ngInject */
     function TemplateController(Template, ParseLinks) {
-        var self = this;
+        var vm = this;
 
-        self.templates = [];
-        self.predicate = 'id';
-        self.reverse = true;
-        self.page = 1;
-        self.itemsPerPage = 10;
+        vm.templates = [];
+        vm.predicate = 'id';
+        vm.reverse = true;
+        vm.page = 1;
+        vm.itemsPerPage = 10;
 
-        self.loadAll    = loadAll;
-        self.loadPage   = loadPage;
-        self.refresh    = refresh;
-        self.clear      = clear;
+        vm.loadAll = loadAll;
+        vm.loadPage = loadPage;
+        vm.refresh = refresh;
+        vm.clear = clear;
 
-        self.loadAll();
+        vm.loadAll();
 
         function loadAll() {
             Template.query({
-                page: self.page - 1,
-                size: self.itemsPerPage,
-                sort: [self.predicate + ',' + (self.reverse ? 'asc' : 'desc'), 'id']
+                page: vm.page - 1,
+                size: vm.itemsPerPage,
+                sort: [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'), 'id']
             }, function (result, headers) {
-                self.links = ParseLinks.parse(headers('link'));
-                self.totalItems = headers('X-Total-Count');
-                self.templates = result;
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.templates = result;
             });
         }
 
         function loadPage() {
-            self.page = page;
-            self.loadAll();
+            vm.page = page;
+            vm.loadAll();
         }
 
         function refresh() {
-            self.loadAll();
-            self.clear();
+            vm.loadAll();
+            vm.clear();
         }
 
         function clear() {
-            self.template = {
+            vm.template = {
                 name: null,
                 id: null
             };
