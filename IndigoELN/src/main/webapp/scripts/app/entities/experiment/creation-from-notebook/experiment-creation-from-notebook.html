@@ -10,11 +10,9 @@
                     indigo-model="vm.template"
                     indigo-items="vm.templates"
                     indigo-label-vertical="true"
-                    ></indigo-select>
+            ></indigo-select>
         </div>
         <div class="modal-footer">
-            <a class="btn btn-danger" ui-sref="experiment.delete({id:experiment.id,notebookId:notebookId})"
-               ng-if="mode == 'edit'">Delete</a>
             <a class="btn btn-default" data-dismiss="modal" ng-click="vm.cancel()">
                 <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </a>

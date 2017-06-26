@@ -3,7 +3,7 @@
         .module('indigoeln')
         .controller('TemplateDetailController', TemplateDetailController);
 
-
+    /* @ngInject */
     function TemplateDetailController($stateParams, Template) {
         var vm = this;
 
