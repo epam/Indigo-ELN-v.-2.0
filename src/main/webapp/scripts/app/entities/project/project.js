@@ -10,7 +10,8 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/project/project.html',
-                        controller: 'ProjectController'
+                        controller: 'ProjectController',
+                        controllerAs: 'vm'
                     }
                 },
                 data: {
@@ -18,28 +19,28 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'New Project',
-                        service:'Project',
+                        service: 'Project',
                         kind: 'project',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.project-new'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q,Principal) {
+                    pageInfo: function ($q, Principal) {
                         var deferred = $q.defer();
                         $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
-                        ]).then(function(results){
-                           deferred.resolve({
-                               project: {},
-                               identity: results[0],
-                               isContentEditor: results[1],
-                               hasEditAuthority: results[2],
-                               hasCreateChildAuthority: results[3]
-                           });
+                        ]).then(function (results) {
+                            deferred.resolve({
+                                project: {},
+                                identity: results[0],
+                                isContentEditor: results[1],
+                                hasEditAuthority: results[2],
+                                hasCreateChildAuthority: results[3]
+                            });
                         });
                         return deferred.promise;
                     }
@@ -50,7 +51,8 @@ angular.module('indigoeln')
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/project/project.html',
-                        controller: 'ProjectController'
+                        controller: 'ProjectController',
+                        controllerAs: 'vm'
                     }
                 },
                 data: {
@@ -58,17 +60,17 @@ angular.module('indigoeln')
                     pageTitle: 'indigoeln',
                     tab: {
                         name: 'Project',
-                        service:'Project',
+                        service: 'Project',
                         kind: 'project',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.project-detail'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
+                    pageInfo: function ($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
 
                         var deferred = $q.defer();
-                        if(!EntitiesCache.get($stateParams)){
+                        if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Project, $stateParams));
                         }
                         $q.all([
@@ -78,14 +80,14 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 project: results[0],
                                 identity: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
                                 hasCreateChildAuthority: results[4],
-                                dirty: results[5]? results[5].dirty : false
+                                dirty: results[5] ? results[5].dirty : false
                             });
                         });
                         return deferred.promise;

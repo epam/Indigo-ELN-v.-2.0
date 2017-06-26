@@ -1,10 +1,21 @@
-angular.module('indigoeln')
-    .controller('role-managementSaveController', function ($scope, $uibModalInstance) {
-        $scope.clear = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('RoleManagementSaveController', RoleManagementSaveController);
 
-        $scope.confirmSave = function () {
+    /* @ngInject */
+    function RoleManagementSaveController($uibModalInstance) {
+        var vm = this;
+
+        vm.clear = clear;
+        vm.confirmSave = confirmSave;
+
+        function clear() {
+            $uibModalInstance.dismiss('cancel');
+        }
+
+        function confirmSave() {
             $uibModalInstance.close(true);
-        };
-    });
+        }
+    }
+})();

@@ -13,10 +13,12 @@
                 title: '=ssTitle',
                 autosave: '=ssautosave',
                 model: '=ssModel',
-                readonly: '=ssReadonly'
+                readonly: '=ssReadonly',
+                share: '=ssShare',
+                onChange: '&'
             },
             bindToController: true,
-            controllerAs: '$ctrl'
+            controllerAs: 'vm'
         };
     }
 })();

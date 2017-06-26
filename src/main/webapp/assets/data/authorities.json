@@ -1,0 +1,79 @@
+[
+  {
+    "name": "USER_EDITOR",
+    "description": "User editor",
+    "tooltip": "Allow to read / create / update / remove users"
+  },
+  {
+    "name": "ROLE_EDITOR",
+    "description": "Role editor",
+    "tooltip": "Allow to read / create / update / remove roles"
+  },
+  {
+    "name": "CONTENT_EDITOR",
+    "description": "Content editor",
+    "tooltip": "Allow to read / create / update / remove entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity"
+  },
+  {
+    "name": "TEMPLATE_EDITOR",
+    "description": "Template editor",
+    "tooltip": "Allow to read / create / update / remove template"
+  },
+  {
+    "name": "DICTIONARY_EDITOR",
+    "description": "Dictionary editor",
+    "tooltip": "Allow to read / create / update / remove dictionary"
+  },
+  {
+    "name": "PROJECT_READER",
+    "description": "Project reader",
+    "tooltip": "Allow to read Project. This is required minimal authority for each Role, which cannot be removed",
+    "readonly": true,
+    "checked": true
+  },
+  {
+    "name": "PROJECT_CREATOR",
+    "description": "Project creator",
+    "tooltip": "Allow to create / update Project"
+  },
+  {
+    "name": "PROJECT_REMOVER",
+    "description": "Project remover",
+    "tooltip": "Allow to remove Project"
+  },
+  {
+    "name": "NOTEBOOK_READER",
+    "description": "Notebook reader",
+    "tooltip": "Allow to read Notebook"
+  },
+  {
+    "name": "NOTEBOOK_CREATOR",
+    "description": "Notebook creator",
+    "tooltip": "Allow to create / update Notebook"
+  },
+  {
+    "name": "NOTEBOOK_REMOVER",
+    "description": "Notebook remover",
+    "tooltip": "Allow to remove Notebook"
+  },
+  {
+    "name": "EXPERIMENT_READER",
+    "description": "Experiment reader",
+    "tooltip": "Allow to read Experiment"
+  },
+  {
+    "name": "EXPERIMENT_CREATOR",
+    "description": "Experiment creator",
+    "tooltip": "Allow to create / update Experiment"
+  },
+  {
+    "name": "EXPERIMENT_REMOVER",
+    "description": "Experiment remover",
+    "tooltip": "Allow to remove Experiment"
+  },
+  {
+    "name": "GLOBAL_SEARCH",
+    "description": "Search within the system",
+    "tooltip": "Allow to search for projects, notebooks and experiment among the system"
+  }
+]

@@ -19,31 +19,29 @@
                 indigoValidationRequired: '=',
                 indigoClasses: '@'
             },
-            compile: angular.bind({formUtils: formUtils}, compile),
+            compile: compile,
             templateUrl: 'scripts/components/form/elements/date-picker/date-picker.html'
         };
-    }
 
-    /* @ngInject */
-    function compile(tElement, tAttrs) {
-        var formUtils = this.formUtils;
-
-        formUtils.doVertical(tAttrs, tElement);
-        tElement.find('input').attr('timezone', jstz.determine().name());
-        return {
-            post: function (scope, iElement, iAttrs, formCtrl) {
-                if (scope.indigoModel) {
-                    scope.ctrl = {};
-                    scope.ctrl.model = moment(scope.indigoModel);
-                    var unsubscribe = scope.$watch('ctrl.model', function (date) {
-                        scope.indigoModel = date ? date.toISOString() : null;
-                    });
-                    scope.$on('$destroy', function () {
-                        unsubscribe();
-                    });
+        /* @ngInject */
+        function compile(tElement, tAttrs) {
+            formUtils.doVertical(tAttrs, tElement);
+            tElement.find('input').attr('timezone', jstz.determine().name());
+            return {
+                post: function (scope, iElement, iAttrs, formCtrl) {
+                    if (scope.indigoModel) {
+                        scope.ctrl = {};
+                        scope.ctrl.model = moment(scope.indigoModel);
+                        var unsubscribe = scope.$watch('ctrl.model', function (date) {
+                            scope.indigoModel = date ? date.toISOString() : null;
+                        });
+                        scope.$on('$destroy', function () {
+                            unsubscribe();
+                        });
+                    }
+                    formUtils.showValidation(iElement, scope, formCtrl);
                 }
-                formUtils.showValidation(iElement, scope, formCtrl);
-            }
-        };
+            };
+        }
     }
 })();

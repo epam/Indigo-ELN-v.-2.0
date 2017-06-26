@@ -5,58 +5,57 @@
 
     /* @ngInject */
     function ExperimentController($scope, Dashboard, CONFIG, $filter, $timeout, Experiment) {
-        var self = this,
-            openExperiments,
-            waitingExperiments,
-            submittedExperiments,
-            etimeout;
+        var vm = this;
+        var openExperiments;
+        var waitingExperiments;
+        var submittedExperiments;
+        var etimeout;
 
-        self.experiments = [];
-        self.dView = 'open';
-        self.itemsPerPage = 20;
-        self.signatureServiceUrl = CONFIG['indigoeln.client.signatureservice.url'];
+        vm.experiments = [];
+        vm.dView = 'open';
+        vm.itemsPerPage = 20;
+        vm.signatureServiceUrl = CONFIG['indigoeln.client.signatureservice.url'];
 
-        self.loadAll            = loadAll;
-        self.onViewChange       = onViewChange;
-        self.sort               = sort;
-        self.doPage             = doPage;
-        self.refresh            = refresh;
-        self.getIdleWorkdays    = getIdleWorkdays;
-        self.experimentEnter    = experimentEnter;
-        self.clear              = clear;
+        vm.loadAll = loadAll;
+        vm.onViewChange = onViewChange;
+        vm.sort = sort;
+        vm.doPage = doPage;
+        vm.refresh = refresh;
+        vm.getIdleWorkdays = getIdleWorkdays;
+        vm.experimentEnter = experimentEnter;
+        vm.clear = clear;
 
-        self.loadAll();
+        vm.loadAll();
 
         function loadAll() {
-            self.loading = Dashboard.get({}, function (result) {
+            vm.loading = Dashboard.get({}, function (result) {
                 openExperiments = result.openAndCompletedExp.filter(function (e) {
                     return e.status === 'Open';
                 });
                 waitingExperiments = result.waitingSignatureExp;
                 submittedExperiments = result.submittedAndSigningExp;
-                self.openExperimentsLength = openExperiments.length;
-                self.waitingExperimentsLength = waitingExperiments.length;
-                self.submittedExperimentsLength = submittedExperiments.length;
-                console.log(self.openExperimentsLength);
-                self.onViewChange();
+                vm.openExperimentsLength = openExperiments.length;
+                vm.waitingExperimentsLength = waitingExperiments.length;
+                vm.submittedExperimentsLength = submittedExperiments.length;
+                vm.onViewChange();
             }).$promise;
         }
 
         function onViewChange() {
-            if (self.dView === 'open') {
-                self.curExperiments = openExperiments;
-            } else if (self.dView === 'wait') {
-                self.curExperiments = waitingExperiments;
-            } else if (self.dView === 'submitted') {
-                self.curExperiments = submittedExperiments;
+            if (vm.dView === 'open') {
+                vm.curExperiments = openExperiments;
+            } else if (vm.dView === 'wait') {
+                vm.curExperiments = waitingExperiments;
+            } else if (vm.dView === 'submitted') {
+                vm.curExperiments = submittedExperiments;
             }
-            self.totalItems = self.curExperiments.length;
-            self.sort('lastEditDate', true, true);
+            vm.totalItems = vm.curExperiments.length;
+            vm.sort('lastEditDate', true, true);
         }
 
         function sort(predicate, reverse, noDigest) {
-            self.curExperiments = $filter('orderBy')(self.curExperiments, predicate, reverse);
-            self.doPage(1);
+            vm.curExperiments = $filter('orderBy')(vm.curExperiments, predicate, reverse);
+            vm.doPage(1);
             if (!noDigest) {
                 $scope.$apply();
             }
@@ -64,19 +63,19 @@
 
         function doPage(page) {
             if (page) {
-                self.page = page;
+                vm.page = page;
             }
             else {
-                page = self.page;
+                page = vm.page;
             }
 
-            var ind = (page - 1) * self.itemsPerPage;
-            self.curExperimentsPaged = self.curExperiments.slice(ind, ind + self.itemsPerPage);
+            var ind = (page - 1) * vm.itemsPerPage;
+            vm.curExperimentsPaged = vm.curExperiments.slice(ind, ind + vm.itemsPerPage);
         }
 
         function refresh() {
-            self.loadAll();
-            self.clear();
+            vm.loadAll();
+            vm.clear();
         }
 
         function getIdleWorkdays(creationDate) {
@@ -106,7 +105,7 @@
         }
 
         function clear() {
-            self.experiment = {
+            vm.experiment = {
                 name: null,
                 experimentNumber: null,
                 templateId: null,

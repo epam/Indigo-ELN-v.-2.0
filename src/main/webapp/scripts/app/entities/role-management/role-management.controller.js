@@ -1,154 +1,62 @@
-angular.module('indigoeln')
-    .controller('RoleManagementController', function ($scope, Role, AccountRole, ParseLinks, $filter, $uibModal, pageInfo, Alert) {
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('RoleManagementController', RoleManagementController);
+
+    /* @ngInject */
+    function RoleManagementController($scope, Role, AccountRole, $filter, $uibModal, pageInfo, Alert) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
+        var vm = this;
+        vm.roles = pageInfo.roles;
+        vm.accountRoles = pageInfo.accountRoles;
+        vm.authorities = pageInfo.authorities;
 
-        $scope.roles = pageInfo.roles;
-        $scope.accountRoles = pageInfo.accountRoles;
-        $scope.authorities = [
-            {
-                name: 'USER_EDITOR',
-                description: 'User editor',
-                tooltip: 'Allow to read / create / update / remove users'
-            },
-            {
-                name: 'ROLE_EDITOR',
-                description: 'Role editor',
-                tooltip: 'Allow to read / create / update / remove roles'
-            },
-            {
-                name: 'CONTENT_EDITOR',
-                description: 'Content editor',
-                tooltip: 'Allow to read / create / update / remove entity (Project, Notebook or Experiment) in spite of absence in ACL for this entity or some restrictions by ACL for this entity'
-            },
-            {
-                name: 'TEMPLATE_EDITOR',
-                description: 'Template editor',
-                tooltip: 'Allow to read / create / update / remove template'
-            },
-            {
-                name: 'DICTIONARY_EDITOR',
-                description: 'Dictionary editor',
-                tooltip: 'Allow to read / create / update / remove dictionary'
-            },
-            {
-                name: 'PROJECT_READER',
-                description: 'Project reader',
-                tooltip: 'Allow to read Project. This is required minimal authority for each Role, which cannot be removed',
-                readonly: true,
-                checked: true
-            },
-            {name: 'PROJECT_CREATOR', description: 'Project creator', tooltip: 'Allow to create / update Project'},
-            {name: 'PROJECT_REMOVER', description: 'Project remover', tooltip: 'Allow to remove Project'},
-            {name: 'NOTEBOOK_READER', description: 'Notebook reader', tooltip: 'Allow to read Notebook'},
-            {name: 'NOTEBOOK_CREATOR', description: 'Notebook creator', tooltip: 'Allow to create / update Notebook'},
-            {name: 'NOTEBOOK_REMOVER', description: 'Notebook remover', tooltip: 'Allow to remove Notebook'},
-            {name: 'EXPERIMENT_READER', description: 'Experiment reader', tooltip: 'Allow to read Experiment'},
-            {
-                name: 'EXPERIMENT_CREATOR',
-                description: 'Experiment creator',
-                tooltip: 'Allow to create / update Experiment'
-            },
-            {name: 'EXPERIMENT_REMOVER', description: 'Experiment remover', tooltip: 'Allow to remove Experiment'},
-            {
-                name: 'GLOBAL_SEARCH',
-                description: 'Search within the system',
-                tooltip: 'Allow to search for projects, notebooks and experiment among the system'
-            }
-        ];
+        vm.search = search;
+        vm.hasAuthority = hasAuthority;
+        vm.updateAuthoritySelection = updateAuthoritySelection;
+        vm.clear = clear;
+        vm.save = prepareSave;
+        vm.create = create;
+        vm.edit = edit;
+        vm.resetAuthorities = resetAuthorities;
 
-        function initAuthorities(role) {
-            _.each($scope.authorities, function (authority) {
-                authority.checked = $scope.hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
-            });
-        }
 
-        var unsubscribe = $scope.$watch('role', function (role) {
-            initAuthorities(role);
-        });
-        $scope.$on('$destroy', function () {
-            unsubscribe();
-        });
-        function isLastRoleWithRoleEditor() {
-            var roleEditorCount = 0;
-            var lastRoleWithRoleEditorAuthority = false;
-            $scope.accountRoles.forEach(function(accountRole) {
-                if (accountRole.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
-                    roleEditorCount++;
-                    if (roleEditorCount > 1) {
-                        lastRoleWithRoleEditorAuthority = false;
-                        return;
-                    }
-                    if ($scope.role.id === accountRole.id &&
-                        $scope.role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) === -1) {
-                        lastRoleWithRoleEditorAuthority = true;
-                    }
-                }
-            });
-
-            return lastRoleWithRoleEditorAuthority;
-        }
-
-        var loadAll = function () {
-            AccountRole.query({}, function (result) {
-                $scope.accountRoles = result;
-            });
+        function search() {
             Role.query({}, function (result) {
-                $scope.roles = result;
+                vm.roles = $filter('filter')(result, {name: vm.searchText});
             });
+        }
 
-        };
-
-        $scope.hasAuthority = function(role, authority) {
+        function hasAuthority(role, authority) {
             return role && role.authorities.indexOf(authority.name) !== -1;
-        };
+        }
 
-        var updateAuthorities = function(action, authority) {
-            if (action === 'add' && !$scope.hasAuthority($scope.role, authority)) {
-                $scope.role.authorities.push(authority.name);
-            }
-            if (action === 'remove' && $scope.hasAuthority($scope.role, authority)) {
-                $scope.role.authorities.splice(
-                    $scope.role.authorities.indexOf(authority.name), 1);
-            }
-        };
-
-        $scope.updateAuthoritySelection = function (authority) {
+        function updateAuthoritySelection(authority) {
             var action = (authority.checked ? 'add' : 'remove');
             updateAuthorities(action, authority);
-        };
+        }
 
-
-        $scope.clear = function () {
-            $scope.role = null;
-        };
-
-        var onSaveSuccess = function () {
-            $scope.isSaving = false;
-            $scope.role = null;
-            loadAll();
-        };
-
-        var onSaveError = function () {
-            $scope.isSaving = false;
-            Alert.error('Role is not saved due to server error!')
-            loadAll();
-        };
-
-        var save = function () {
-            $scope.isSaving = true;
-            if ($scope.role.id !== null) {
-                Role.update($scope.role, onSaveSuccess, onSaveError);
-            } else {
-                Role.save($scope.role, onSaveSuccess, onSaveError);
+        function updateAuthorities(action, authority) {
+            if (action === 'add' && !vm.hasAuthority(vm.role, authority)) {
+                vm.role.authorities.push(authority.name);
             }
-        };
+            if (action === 'remove' && vm.hasAuthority(vm.role, authority)) {
+                vm.role.authorities.splice(
+                    vm.role.authorities.indexOf(authority.name), 1);
+            }
+        }
 
-        $scope.save = function () {
+        function clear() {
+            vm.role = null;
+        }
+
+        function prepareSave() {
             if (isLastRoleWithRoleEditor()) {
                 $uibModal.open({
                     animation: true,
-                    templateUrl: 'scripts/app/admin/role-management/role-management-save-dialog.html',
-                    controller: 'role-managementSaveController',
+                    templateUrl: 'scripts/app/entities/role-management/role-management-save-dialog.html',
+                    controller: 'RoleManagementSaveController',
+                    controllerAs: 'vm',
                     size: 'md',
                     resolve: {}
                 }).result.then(function (result) {
@@ -159,34 +67,89 @@ angular.module('indigoeln')
             } else {
                 save();
             }
-        };
+        }
 
-        $scope.create = function () {
-            $scope.role = {
+        function save() {
+            vm.isSaving = true;
+            if (vm.role.id !== null) {
+                Role.update(vm.role, onSaveSuccess, onSaveError);
+            } else {
+                Role.save(vm.role, onSaveSuccess, onSaveError);
+            }
+        }
+
+
+        function onSaveSuccess() {
+            vm.isSaving = false;
+            vm.role = null;
+            loadAll();
+        }
+
+        function onSaveError() {
+            vm.isSaving = false;
+            Alert.error('Role is not saved due to server error!');
+            loadAll();
+        }
+
+        function loadAll() {
+            AccountRole.query({}, function (result) {
+                vm.accountRoles = result;
+            });
+            Role.query({}, function (result) {
+                vm.roles = result;
+            });
+
+        }
+
+        function create() {
+            vm.role = {
                 id: null, name: null, authorities: ['PROJECT_READER']
             };
-        };
+        }
 
-        $scope.edit = function (role) {
+        function edit(role) {
             loadAll();
-            $scope.role = _.extend({}, role);
-        };
+            vm.role = _.extend({}, role);
+        }
 
-        $scope.resetAuthorities = function () {
-            $scope.role.authorities = ['PROJECT_READER'];
-            initAuthorities($scope.role);
-        };
+        function resetAuthorities() {
+            vm.role.authorities = ['PROJECT_READER'];
+            initAuthorities(vm.role);
+        }
 
-        $scope.search = function () {
-            Role.query({}, function (result) {
-                $scope.roles = $filter('filter')(result, {name: $scope.searchText});
+        function initAuthorities(role) {
+            _.each(vm.authorities, function (authority) {
+                authority.checked = hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
             });
-        };
+        }
 
-//        var roleTable = document.getElementById('roleTable');
-//        roleTable.onscroll = function() {
-//            console.log(roleTable);
-//        }
-//        console.log(roleTable.x);
+        function isLastRoleWithRoleEditor() {
+            var roleEditorCount = 0;
+            var lastRoleWithRoleEditorAuthority = false;
+            vm.accountRoles.forEach(function (accountRole) {
+                if (accountRole.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
+                    roleEditorCount++;
+                    if (roleEditorCount > 1) {
+                        lastRoleWithRoleEditorAuthority = false;
+                        return;
+                    }
+                    if (vm.role.id === accountRole.id &&
+                        vm.role.authorities.indexOf(ROLE_EDITOR_AUTHORITY) === -1) {
+                        lastRoleWithRoleEditorAuthority = true;
+                    }
+                }
+            });
 
-    });
+            return lastRoleWithRoleEditorAuthority;
+        }
+
+        var unsubscribe = $scope.$watch('vm.role', function (role) {
+            initAuthorities(role);
+        });
+
+        $scope.$on('$destroy', function () {
+            unsubscribe();
+        });
+    }
+})();
+

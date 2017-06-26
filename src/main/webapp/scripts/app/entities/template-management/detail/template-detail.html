@@ -1,9 +1,9 @@
 <div class="templates">
     <div class="tab-content-pad">
-        <h3>Template <span ng-bind="templateDetailController.template.name"></span></h3>
+        <h3>Template <span ng-bind="vm.template.name"></span></h3>
     </div>
     <form>
-        <indigo-components indigo-template="templateDetailController.template.templateContent"
+        <indigo-components indigo-template="vm.template.templateContent"
                            indigo-readonly="true"
                            indigo-model="{}"
                            indigo-experiment="{}"

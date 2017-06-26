@@ -21,36 +21,34 @@
                 indigoTooltip: '=',
                 indigoTrim: '='
             },
-            compile: angular.bind({formUtils: formUtils}, compile),
+            compile: compile,
             templateUrl: 'scripts/components/form/elements/text-area/text-area.html'
         };
-    }
 
-    /* @ngInject */
-    function compile(tElement, tAttrs) {
-        var formUtils = this.formUtils;
-
-        if (tAttrs.indigoInputGroup) {
-            var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
-            var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
-            if (tAttrs.indigoInputGroup === 'append') {
-                inputGroup.append(element);
-            } else if (tAttrs.indigoInputGroup === 'prepend') {
-                inputGroup.prepend(element);
+        /* @ngInject */
+        function compile(tElement, tAttrs) {
+            if (tAttrs.indigoInputGroup) {
+                var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
+                var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
+                if (tAttrs.indigoInputGroup === 'append') {
+                    inputGroup.append(element);
+                } else if (tAttrs.indigoInputGroup === 'prepend') {
+                    inputGroup.prepend(element);
+                }
             }
-        }
-        if (tAttrs.indigoRowsNum) {
-            tElement.find('textarea').attr('rows', tAttrs.indigoRowsNum);
-        }
-        formUtils.doVertical(tAttrs, tElement);
-        formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
+            if (tAttrs.indigoRowsNum) {
+                tElement.find('textarea').attr('rows', tAttrs.indigoRowsNum);
+            }
+            formUtils.doVertical(tAttrs, tElement);
+            formUtils.addDirectivesByAttrs(tAttrs, tElement.find('textarea'));
 
-        if (tAttrs.indigoTrim) {
-            tElement.find('textarea').attr('ng-trim', tAttrs.indigoTrim);
-        }
+            if (tAttrs.indigoTrim) {
+                tElement.find('textarea').attr('ng-trim', tAttrs.indigoTrim);
+            }
 
-        if (tAttrs.indigoNoElastic) {
-            tElement.find('textarea').removeAttr('msd-elastic');
+            if (tAttrs.indigoNoElastic) {
+                tElement.find('textarea').removeAttr('msd-elastic');
+            }
         }
     }
 })();
