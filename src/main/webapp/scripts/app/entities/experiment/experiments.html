@@ -110,7 +110,7 @@
                     <tbody class="main-table__body">
                     <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index">
                         <td class="table-list__item dash-exp-id">
-                            <a href="{{signatureServiceUrl}}" ng-bind="exp.id"></a>
+                            <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
                         </td>
                         <td class="table-list__item" ng-bind="exp.name"></td>
                         <td class="table-list__item" ng-bind="exp.status"></td>
