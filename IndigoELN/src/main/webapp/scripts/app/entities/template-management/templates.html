@@ -8,7 +8,7 @@
     <div class="table-responsive" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
-            <tr indigo-sort="templateController.predicate" ascending="templateController.reverse" callback="templateController.loadAll()">
+            <tr indigo-sort="vm.predicate" ascending="vm.reverse" callback="vm.loadAll()">
                 <th indigo-sort-by="name"><span>Template name</span> <span class="glyphicon glyphicon-sort"></span></th>
                 <th><span>Created By</span></th>
                 <th><span>Creation date</span></th>
@@ -17,7 +17,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="template in templateController.templates track by template.id">
+            <tr ng-repeat="template in vm.templates track by template.id">
                 <td ng-bind="template.name"></td>
                 <td ng-bind="template.author.login"></td>
                 <td ng-bind="template.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
@@ -49,9 +49,9 @@
         </table>
     </div>
     <div class="text-center">
-        <uib-pagination class="pagination-sm" total-items="templateController.totalItems"
-                        items-per-page="templateController.itemsPerPage"
-                        ng-model="templateController.page"
-                        ng-change="templateController.loadAll()"></uib-pagination>
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems"
+                        items-per-page="vm.itemsPerPage"
+                        ng-model="vm.page"
+                        ng-change="vm.loadAll()"></uib-pagination>
     </div>
 </div>
