@@ -14,15 +14,17 @@
                 indigoEditorName: '@'
             },
             bindToController: true,
-            controllerAs: '$ctrl',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/editor/structure-editor-template.html',
-            link: function($scope, $element, $attrs, vm) {
+            link: function($scope, $element, $attrs, controller) {
+                var vm = controller;
                 var frame = $element[0];
                 var editorInstance = null;
 
+
                 // derive structure's mol representation when cursor leaves the directive area
                 $element.on('mouseleave', function() {
-                    if (editorInstance !== null) {
+                    if (angular.isDefined(editorInstance)) {
                         vm.indigoStructure.molfile = editorInstance.getMolfile();
                     }
                 });
