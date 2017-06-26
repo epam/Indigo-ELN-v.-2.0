@@ -99,7 +99,7 @@
             </a>
         </li>
         <li ng-if="!vm.isDashboard">
-            <a ng-click="print()" ng-class="{'disabled' : !canPrint() }">
+            <a ng-click="vm.print()" ng-class="{'disabled' : !vm.canPrint() }">
                 <i class="fa fa-print"></i>
                 <span class="tooltip-icon-header">Print</span>
             </a>
