@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('login', {
                 parent: 'account',

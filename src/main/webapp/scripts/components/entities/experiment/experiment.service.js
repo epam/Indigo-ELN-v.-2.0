@@ -4,11 +4,11 @@ angular
 
 /* @ngInject */
 function experiment($resource, PermissionManagement, $rootScope) {
-
     var interceptor = {
-        response: function (config) {
+        response: function(config) {
             var _data = _.extend({}, config.data);
             $rootScope.$broadcast('experiment-updated', toModel(_data));
+
             return config.data;
         }
     };
@@ -19,65 +19,75 @@ function experiment($resource, PermissionManagement, $rootScope) {
             notebookId: '@notebookId',
             experimentId: '@experimentId'
         }, {
-            'query': {
-                method: 'GET', isArray: true,
-                transformResponse: function (data) {
+            query: {
+                method: 'GET',
+                isArray: true,
+                transformResponse: function(data) {
                     data = angular.fromJson(data);
-                    _.each(data, function (item, key) {
+                    _.each(data, function(item, key) {
                         data[key] = toModel(item);
                     });
+
                     return data;
                 }
             },
-            'get': {
+            get: {
                 method: 'GET',
-                transformResponse: function (data) {
+                transformResponse: function(data) {
                     data = angular.fromJson(data);
                     data = toModel(data);
                     $rootScope.$broadcast('experiment-updated', data);
+
                     return data;
                 }
             },
-            'save': {
+            save: {
                 method: 'POST',
-                transformRequest: function (data) {
+                transformRequest: function(data) {
                     data = transformRequest(data);
+
                     return angular.toJson(data);
                 },
                 interceptor: interceptor
             },
-            'version': {
+            version: {
                 method: 'POST',
                 url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/version'
             },
-            'update': {
+            update: {
                 method: 'PUT',
                 url: 'api/projects/:projectId/notebooks/:notebookId/experiments',
-                transformRequest: function (data) {
+                transformRequest: function(data) {
                     data = transformRequest(data);
+
                     return angular.toJson(data);
                 },
                 interceptor: interceptor
             },
-            'delete': {method: 'DELETE'}
+            delete: {
+                method: 'DELETE'
+            }
         });
 
 
     function toModel(experiment) {
         var components = experiment.components;
         if (_.isArray(components)) {
-            experiment.components = _.object(_.map(components, function (component) {
+            experiment.components = _.object(_.map(components, function(component) {
                 return [component.name, component.content];
             }));
-            return experiment;
-        } else {
+
             return experiment;
         }
+
+        return experiment;
     }
 
     function toComponents(model) {
-        return _.map(model, function (val, key) {
-            return {name: key, content: val};
+        return _.map(model, function(val, key) {
+            return {
+                name: key, content: val
+            };
         });
     }
 
@@ -85,7 +95,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
         data = _.extend({}, data);
         data.components = toComponents(data.components);
         data.accessList = PermissionManagement.expandPermission(data.accessList);
+
         return data;
     }
-
 }

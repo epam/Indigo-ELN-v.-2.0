@@ -1,13 +1,16 @@
 angular.module('indigoeln')
-    .factory('SignatureTemplates', function ($resource) {
+    .factory('SignatureTemplates', function($resource) {
         return $resource('api/signature/template', {}, {
-            'query': {method: 'GET'}
+            query: {
+                method: 'GET'
+            }
         });
     })
-    .factory('SignatureDocument', function ($resource) {
+    .factory('SignatureDocument', function($resource) {
         return $resource('api/signature/document', {}, {
-            'upload': {method: 'POST'}
+            upload: {
+                method: 'POST'
+            }
         });
     });
-
 

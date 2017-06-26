@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('UserManagementController', UserManagementController);
@@ -23,7 +23,9 @@
         vm.loadAll();
 
         function loadAll() {
-            User.query({page: vm.page - 1, size: vm.itemsPerPage}, function (result, headers) {
+            User.query({
+                page: vm.page - 1, size: vm.itemsPerPage
+            }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.users = result;
@@ -32,7 +34,7 @@
 
         function setActive(user, isActivated) {
             user.activated = isActivated;
-            User.update(user, function () {
+            User.update(user, function() {
                 loadAll();
                 clear();
             });
@@ -78,7 +80,9 @@
 
         function edit(user) {
             if (user.group) {
-                user.group = {name: user.group};
+                user.group = {
+                    name: user.group
+                };
             }
             loadAll();
             vm.user = _.extend({}, user);
@@ -86,7 +90,9 @@
 
 
         function search() {
-            User.query({page: vm.page - 1, size: 20}, function (result, headers) {
+            User.query({
+                page: vm.page - 1, size: 20
+            }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.users = $filter('filter')(result, vm.searchText);
@@ -99,7 +105,7 @@
                 size: 'sm',
                 templateUrl: 'scripts/app/entities/user-management/user-management-password-dialog.html',
                 controllerAs: 'vm',
-                controller: function ($scope, $uibModalInstance) {
+                controller: function($scope, $uibModalInstance) {
                     var vm = this;
                     vm.cancel = cancel;
                     vm.ok = ok;
@@ -111,7 +117,7 @@
                         $uibModalInstance.close(vm.password);
                     }
                 }
-            }).result.then(function (password) {
+            }).result.then(function(password) {
                 vm.user.password = password;
             });
         }

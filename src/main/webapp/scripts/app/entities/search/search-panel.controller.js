@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('SearchPanelController', SearchPanelController);
@@ -9,13 +9,25 @@
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var vm = this;
         vm.identity = pageInfo.identity;
-        vm.users = _.map(pageInfo.users.words, function (item) {
-            return {name: item.name, id: item.id};
+        vm.users = _.map(pageInfo.users.words, function(item) {
+            return {
+                name: item.name, id: item.id
+            };
         });
         vm.model = SearchUtilService.getStoredModel();
         vm.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
-        vm.structureTypes = [{name: 'Reaction'}, {name: 'Product'}];
-        vm.conditionSimilarity = [{name: 'equal'}, {name: 'substructure'}, {name: 'similarity'}];
+        vm.structureTypes = [{
+            name: 'Reaction'
+        }, {
+            name: 'Product'
+        }];
+        vm.conditionSimilarity = [{
+            name: 'equal'
+        }, {
+            name: 'substructure'
+        }, {
+            name: 'similarity'
+        }];
         vm.selectedItemsFlags = {};
         vm.selectedEntitiesFlags = {};
         vm.selectedUsers = [];
@@ -46,7 +58,7 @@
             if (vm.domainModel === OWN_ENTITY) {
                 vm.model.restrictions.advancedSearch.entityDomain.value.push(vm.identity.id);
             } else if (vm.domainModel === USERS_ENTITIES) {
-                vm.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.selectedUsers, function (user) {
+                vm.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.selectedUsers, function(user) {
                     return user.id;
                 });
             }
@@ -54,7 +66,7 @@
 
         function selectedUsersChange() {
             if (vm.domainModel === USERS_ENTITIES) {
-                vm.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.selectedUsers, function (user) {
+                vm.model.restrictions.advancedSearch.entityDomain.value = _.map(vm.selectedUsers, function(user) {
                     return user.id;
                 });
             }
@@ -85,7 +97,7 @@
         function search() {
             vm.loading = true;
             var searchRequest = SearchUtilService.prepareSearchRequest(vm.model.restrictions);
-            SearchService.searchAll(searchRequest, function (result) {
+            SearchService.searchAll(searchRequest, function(result) {
                 vm.loading = false;
                 vm.searchResults = result;
                 doPage(1);

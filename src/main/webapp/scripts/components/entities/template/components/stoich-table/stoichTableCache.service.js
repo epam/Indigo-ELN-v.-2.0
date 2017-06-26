@@ -13,14 +13,16 @@ function stoichTableCache() {
 
     function getStoicTable() {
         if (!_stoichTable) {
-            _stoichTable = {"reactants": [], "products": null};
+            _stoichTable = {
+                reactants: [], products: null
+            };
         }
+
         return _stoichTable;
     }
 
     function setStoicTable(table) {
         _stoichTable = table;
     }
-
 }
 

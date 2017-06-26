@@ -18,7 +18,7 @@
                 vm.user = user;
             });
 
-            //TODO: Do we really need this watcher?
+            // TODO: Do we really need this watcher?
             var unsubscribe = $scope.$watch(function() {
                 return EntitiesBrowser.getActiveTab();
             }, function(value) {
@@ -34,7 +34,9 @@
             var userId = Principal.getIdentity().id;
             Auth.logout();
             EntitiesCache.clearAll();
-            $rootScope.$broadcast('user-logout', {id: userId});
+            $rootScope.$broadcast('user-logout', {
+                id: userId
+            });
             $state.go('login');
         }
 
@@ -48,7 +50,9 @@
         function search() {
             vm.query = vm.query.trim().toLowerCase();
             $state.go('entities.search-panel').then(function() {
-                $rootScope.$broadcast('toggle-search', {query: vm.query});
+                $rootScope.$broadcast('toggle-search', {
+                    query: vm.query
+                });
             });
         }
     }

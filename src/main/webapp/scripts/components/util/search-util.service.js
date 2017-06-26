@@ -3,70 +3,96 @@ angular.module('indigoeln')
 
 /* @ngInject */
 function searchUtilService() {
-    var storedModel, storedOptions;
-
+    var storedModel,
+        storedOptions;
 
     return {
         prepareSearchRequest: prepareSearchRequest,
         isAdvancedSearchFilled: isAdvancedSearchFilled,
-        getStoredModel : getStoredModel,
-        getStoredOptions : getStoredOptions
+        getStoredModel: getStoredModel,
+        getStoredOptions: getStoredOptions
     };
 
     function getStoredOptions() {
-        if (storedOptions){
+        if (storedOptions) {
             return storedOptions;
         }
         storedOptions = {
-            isCollapsed : true
+            isCollapsed: true
         };
+
         return storedOptions;
     }
 
     function getStoredModel(clear) {
-        if (storedModel && !clear){
+        if (storedModel && !clear) {
             return storedModel;
         }
         storedModel = {};
-        //TODO: move to file
+        // TODO: move to file
         storedModel.restrictions = {
             searchQuery: '',
             advancedSearch: {
-                therapeuticArea: {name: 'Therapeutic Area', field: 'therapeuticArea', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                projectCode: {name: 'Project Code', field: 'projectCode', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                batchYield: {name: 'Batch Yield%', field: 'batchYield', condition: {name: '>'}, $$conditionList : [
-                    {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
-                ]},
-                batchPurity: {name: 'Batch Purity%', field: 'purity', condition: {name: '>'}, $$conditionList : [
-                    {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
-                ]},
-                subject: {name: 'Subject/Title', field: 'name', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                entityDescription: {name: 'Entity Description', field: 'description', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                compoundId: {name: 'Compound ID', field: 'compoundId', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                literatureRef: {name: 'Literature Ref', field: 'references', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                entityKeywords: {name: 'Entity Keywords', field: 'keywords', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
-                chemicalName: {name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList : [
-                    {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
-                ]},
+                therapeuticArea: {
+                    name: 'Therapeutic Area',
+                    field: 'therapeuticArea',
+                    condition: {name: 'contains'},
+                    $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                projectCode: {
+                    name: 'Project Code', field: 'projectCode', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                batchYield: {
+                    name: 'Batch Yield%', field: 'batchYield', condition: {name: '>'}, $$conditionList: [
+                        {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
+                    ]
+                },
+                batchPurity: {
+                    name: 'Batch Purity%', field: 'purity', condition: {name: '>'}, $$conditionList: [
+                        {name: '>'}, {name: '<'}, {name: '='}, {name: '~'}
+                    ]
+                },
+                subject: {
+                    name: 'Subject/Title', field: 'name', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                entityDescription: {
+                    name: 'Entity Description', field: 'description', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                compoundId: {
+                    name: 'Compound ID', field: 'compoundId', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                literatureRef: {
+                    name: 'Literature Ref', field: 'references', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                entityKeywords: {
+                    name: 'Entity Keywords', field: 'keywords', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
+                chemicalName: {
+                    name: 'Chemical Name', field: 'chemicalName', condition: {name: 'contains'}, $$conditionList: [
+                        {name: 'contains'}, {name: 'starts with'}, {name: 'ends with'}, {name: 'between'}
+                    ]
+                },
                 entityTypeCriteria: {
                     name: 'Entity Type Criteria',
                     $$skipList: true,
                     field: 'kind',
-                    condition: {name: 'in'},
+                    condition: {
+                        name: 'in'
+                    },
                     value: []
                 },
 
@@ -74,22 +100,37 @@ function searchUtilService() {
                     name: 'Entity Searching Domain',
                     $$skipList: true,
                     field: 'author._id',
-                    condition: {name: 'in'},
+                    condition: {
+                        name: 'in'
+                    },
                     value: []
                 },
 
-                statusCriteria: {name: 'Status', $$skipList: true, field: 'status', condition: {name: 'in'}, value: []}
+                statusCriteria: {
+                    name: 'Status',
+                    $$skipList: true,
+                    field: 'status',
+                    condition: {
+                        name: 'in'
+                    },
+                    value: []
+                }
             },
-            users : [],
+            users: [],
             entityType: 'Project',
             structure: {
                 name: 'Reaction Scheme',
-                similarityCriteria: {name: 'equal'},
+                similarityCriteria: {
+                    name: 'equal'
+                },
                 similarityValue: null,
                 image: null,
-                type: {name: 'Product'}
+                type: {
+                    name: 'Product'
+                }
             }
         };
+
         return storedModel;
     }
 
@@ -104,13 +145,14 @@ function searchUtilService() {
         }
         structure.searchMode = searchMode;
         structure.similarity = restrictions.structure.similarityValue / 100;
+
         return structure;
     }
 
     function prepareAdvancedSearch(restrictions) {
         var advancedSearch = restrictions.advancedSearch;
         var advancedSummary = restrictions.advancedSummary = [];
-        _.each(advancedSearch, function (restriction) {
+        _.each(advancedSearch, function(restriction) {
             var value = _.isArray(restriction.value) && restriction.value.length === 0 ? null : restriction.value;
             if (value) {
                 var restrictionCopy = angular.copy(restriction);
@@ -125,13 +167,15 @@ function searchUtilService() {
                 advancedSummary.push(restrictionCopy);
             }
         });
+
         return advancedSummary.length ? advancedSummary : null;
     }
 
     function prepareDatabases(databases) {
-        return _.pluck(_.where(databases, {isChecked: true}), 'value');
+        return _.pluck(_.where(databases, {
+            isChecked: true
+        }), 'value');
     }
-
 
     function prepareSearchRequest(restrictions, databases) {
         var searchRequest = {};
@@ -149,11 +193,12 @@ function searchUtilService() {
             searchRequest.structure = structure;
         }
         searchRequest.databases = prepareDatabases(databases);
+
         return searchRequest;
     }
 
     function isAdvancedSearchFilled(advancedSearch) {
-        return !!_.compact(_.map(advancedSearch, function (restriction) {
+        return !!_.compact(_.map(advancedSearch, function(restriction) {
             return restriction.value;
         })).length;
     }

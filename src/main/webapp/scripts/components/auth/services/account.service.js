@@ -1,10 +1,13 @@
-angular.module('indigoeln')
-    .factory('Account', function ($resource) {
+angular
+    .module('indigoeln')
+    .factory('Account', function($resource) {
         return $resource('api/accounts/account', {}, {
-            'get': {
-                method: 'GET', params: {}, isArray: false,
+            get: {
+                method: 'GET',
+                params: {},
+                isArray: false,
                 interceptor: {
-                    response: function (response) {
+                    response: function(response) {
                         // expose response
                         return response;
                     }

@@ -4,7 +4,6 @@ angular
 
 /* @ngInject */
 function scalarService($uibModal, RegistrationUtil, CalculationService) {
-
     var setScalarValueAction = {
         action: action
     };
@@ -20,12 +19,12 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
             controller: 'SetScalarValueController',
             size: 'sm',
             resolve: {
-                name: function () {
+                name: function() {
                     return that.title;
                 }
             }
-        }).result.then(function (result) {
-            _.each(that.rows, function (row) {
+        }).result.then(function(result) {
+            _.each(that.rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
                     row[id].value = result;
                     row[id].entered = true;
@@ -34,20 +33,19 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
                     }
                 }
             });
-
-        }, function () {
+        }, function() {
 
         });
     }
 
     function recalculateSalt(reagent) {
-        CalculationService.recalculateSalt(reagent).then(function () {
+        CalculationService.recalculateSalt(reagent).then(function() {
             CalculationService.recalculateStoich();
         });
     }
 
     function processColumns(columns, rows) {
-        _.each(columns, function (column) {
+        _.each(columns, function(column) {
             if (column.type === 'scalar' && column.bulkAssignment) {
                 column.actions = (column.actions || [])
                     .concat([_.extend({}, setScalarValueAction, {

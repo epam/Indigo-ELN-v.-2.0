@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoCollapsibleComponent', indigoCollapsibleComponent);
@@ -12,7 +12,7 @@
 
         /* @ngInject */
         function link(scope, iElement) {
-            var extractParams = function (obj) {
+            var extractParams = function(obj) {
                 return {
                     projectId: obj.projectId,
                     notebookId: obj.notebookId,
@@ -32,12 +32,13 @@
                 if (params.experimentId) {
                     paramsArr.push(params.experimentId);
                 }
+
                 return paramsArr.join('-');
             }
 
 
             Principal.identity()
-                .then(function (user) {
+                .then(function(user) {
                     var isCollapsed = false;
                     var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
@@ -55,7 +56,7 @@
                     if (isCollapsed) {
                         $collapsible.hide();
                     }
-                    $heading.on('click', function () {
+                    $heading.on('click', function() {
                         if (isCollapsed) {
                             // expand the panel
                             $collapsible.slideDown();

@@ -12,9 +12,15 @@ function editExternalSupplierController($uibModalInstance, data) {
         vm.externalSupplier = data || {};
 
         vm.externalSupplierCodeAndNameSelect = [
-            {name: 'SPP1 - Supplier 1'},
-            {name: 'SPP2 - Supplier 2'},
-            {name: 'SPP3 - Supplier 3'}];
+            {
+                name: 'SPP1 - Supplier 1'
+            },
+            {
+                name: 'SPP2 - Supplier 2'
+            },
+            {
+                name: 'SPP3 - Supplier 3'
+            }];
 
         vm.resultToString = resultToString;
         vm.cancel = cancel;

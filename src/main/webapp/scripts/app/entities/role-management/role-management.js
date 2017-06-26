@@ -1,5 +1,6 @@
-angular.module('indigoeln')
-    .config(function ($stateProvider) {
+angular
+    .module('indigoeln')
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities.role-management', {
                 url: '/role-management',
@@ -10,14 +11,14 @@ angular.module('indigoeln')
                         name: 'Roles',
                         kind: 'management',
                         state: 'entities.role-management',
-                        type:'entity'
+                        type: 'entity'
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/role-management/role-management.html',
                         controller: 'RoleManagementController',
-                        controllerAs: "vm"
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
@@ -27,13 +28,14 @@ angular.module('indigoeln')
                             Role.query().$promise,
                             AccountRole.query().$promise,
                             Auth.getAuthorities()
-                        ]).then(function(results){
+                        ]).then(function(results) {
                             deferred.resolve({
                                 roles: results[0],
                                 accountRoles: results[1],
                                 authorities: results[2].data
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -44,25 +46,29 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['ROLE_EDITOR'],
                     tab: {
-                        type:''
+                        type: ''
                     }
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/role-management/role-management-delete-dialog.html',
                         controller: 'RoleManagementDeleteController',
-                        controllerAs: "vm",
+                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['Role', function (Role) {
-                                return Role.get({id: $stateParams.id}).$promise;
+                            entity: ['Role', function(Role) {
+                                return Role.get({
+                                    id: $stateParams.id
+                                }).$promise;
                             }]
                         }
-                    }).result.then(function () {
-                            $state.go('entities.role-management', null, {reload: true});
-                        }, function () {
-                            $state.go('entities.role-management');
+                    }).result.then(function() {
+                        $state.go('entities.role-management', null, {
+                            reload: true
                         });
+                    }, function() {
+                        $state.go('entities.role-management');
+                    });
                 }]
             });
     });

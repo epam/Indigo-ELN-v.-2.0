@@ -18,7 +18,11 @@
         var sourceDetailExternal = AppValues.getSourceDetailExternal();
         var sourceDetailInternal = AppValues.getSourceDetailInternal();
         var compoundProtectionValues = AppValues.getCompoundProtectionValues();
-        var compounds = [{name: 'Intermediate'}, {name: 'Test Compound'}];
+        var compounds = [{
+            name: 'Intermediate'
+        }, {
+            name: 'Test Compound'
+        }];
         var setSelectSourceValueAction = {
             action: openProductBatchSummaryModal
         };
@@ -30,7 +34,9 @@
             vm.model = vm.model || {};
             vm.model.productBatchSummary = vm.model.productBatchSummary || {};
             vm.model.productBatchSummary.batches = vm.model.productBatchSummary.batches || [];
-            vm.share.selectedRow = _.findWhere(getProductBatches(), {$$selected: true});
+            vm.share.selectedRow = _.findWhere(getProductBatches(), {
+                $$selected: true
+            });
             vm.columns = getDefaultColumns();
 
             RegistrationService.info({}, function(info) {
@@ -111,7 +117,9 @@
                     id: 'nbkBatch',
                     name: 'Nbk Batch #'
                 },
-                {id: 'registrationStatus', name: 'Registration Status'},
+                {
+                    id: 'registrationStatus', name: 'Registration Status'
+                },
                 {
                     id: 'select',
                     name: 'Select',
@@ -189,7 +197,9 @@
                     hideSetValue: true,
                     readonly: true
                 },
-                {id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2, readonly: true},
+                {
+                    id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2, readonly: true
+                },
                 {
                     id: 'compoundState',
                     name: 'Compound State',
@@ -597,7 +607,9 @@
             if (!getStoicTable()) {
                 return;
             }
-            _.findWhere(vm.columns, {id: 'precursors'}).readonly = true;
+            _.findWhere(vm.columns, {
+                id: 'precursors'
+            }).readonly = true;
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
                 return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT';
             })
@@ -630,7 +642,9 @@
         function onRowSelected(row) {
             vm.share.selectedRow = row || null;
             if (row) {
-                $rootScope.$broadcast('batch-summary-row-selected', {row: row});
+                $rootScope.$broadcast('batch-summary-row-selected', {
+                    row: row
+                });
             } else {
                 $rootScope.$broadcast('batch-summary-row-deselected');
             }
@@ -734,22 +748,32 @@
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
-                _.findWhere(vm.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
-                _.findWhere(vm.columns, {id: 'registrationDate'}).isVisible = val;
-                _.findWhere(vm.columns, {id: 'registrationStatus'}).isVisible = val;
+                _.findWhere(vm.columns, {
+                    id: 'conversationalBatchNumber'
+                }).isVisible = val;
+                _.findWhere(vm.columns, {
+                    id: 'registrationDate'
+                }).isVisible = val;
+                _.findWhere(vm.columns, {
+                    id: 'registrationStatus'
+                }).isVisible = val;
             });
 
             $scope.$watch(function() {
                 return vm.showStructuresColumn.isVisible;
             }, function(val) {
-                vm.onShowStructure({isVisible: val});
+                vm.onShowStructure({
+                    isVisible: val
+                });
             });
 
             $scope.$on('product-batch-structure-changed', function(event, row) {
                 var resetMolInfo = function() {
                     row.formula = null;
                     row.molWeight = null;
-                    CalculationService.calculateProductBatch({row: row, column: 'totalWeight'});
+                    CalculationService.calculateProductBatch({
+                        row: row, column: 'totalWeight'
+                    });
                 };
 
                 var getInfoCallback = function(molInfo) {
@@ -757,7 +781,9 @@
                     row.molWeight = row.molWeight || {};
                     row.molWeight.value = molInfo.data.molecularWeight;
                     CalculationService.recalculateStoich();
-                    CalculationService.calculateProductBatch({row: row, column: 'totalWeight'});
+                    CalculationService.calculateProductBatch({
+                        row: row, column: 'totalWeight'
+                    });
                 };
                 if (row.structure && row.structure.molfile) {
                     CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
@@ -789,7 +815,9 @@
 
             unbinds.push($rootScope.$on('batch-registration-status-changed', function(event, statuses) {
                 _.each(statuses, function(status, fullNbkBatch) {
-                    var batch = _.find(getProductBatches(), {fullNbkBatch: fullNbkBatch});
+                    var batch = _.find(getProductBatches(), {
+                        fullNbkBatch: fullNbkBatch
+                    });
 
                     if (batch) {
                         batch.registrationStatus = status.status;

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('TemplateModalController', TemplateModalController);
@@ -8,7 +8,7 @@
                                      Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
         var vm = this;
 
-        vm.components = Components.map(function (c) {
+        vm.components = Components.map(function(c) {
             return c;
         });
         vm.template = pageInfo.entity || {};
@@ -27,50 +27,50 @@
                 vm.addTab();
             }
 
-            //TODO: remove whole object or remove multiple properties
+            // TODO: remove whole object or remove multiple properties
             var drag = dragulaService.options($scope, 'components', {
-                //removeOnSpill: true,
-                copy: function (el, source) {
+                // removeOnSpill: true,
+                copy: function(el, source) {
                     return source.classList.contains('palette');
                 },
-                accepts: function () {
+                accepts: function() {
                     return true;
                 },
-                moves: function (el, container, handle) {
+                moves: function(el, container, handle) {
                     return !handle.classList.contains('no-draggable');
-                }//,
-                //copy: false
+                }// ,
+                // copy: false
             });
 
             dragulaService.options($scope, 'tabs', {
-                //removeOnSpill: true,
-                moves: function (el, container, handle) {
+                moves: function(el, container, handle) {
                     return !handle.classList.contains('draggable-component') && !handle.classList.contains('no-draggable');
                 }
             });
 
 
-            //dragula autoscroller
-            var lastIndex, up = true,
-                interval;
-            $scope.$on('components.out', function (e, el) {
+            // dragula autoscroller
+            var lastIndex;
+            var up = true;
+            var interval;
+            $scope.$on('components.out', function(e, el) {
                 var $el = $(el),
                     $cont = $el.parents('[scroller]').eq(0),
                     top = $cont.scrollTop();
-                interval = setInterval(function () {
+                interval = setInterval(function() {
                     $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
                 }, 10);
             });
 
-            $scope.$on('components.over', function () {
+            $scope.$on('components.over', function() {
                 clearInterval(interval);
             });
 
-            $scope.$on('components.dragend', function () {
+            $scope.$on('components.dragend', function() {
                 clearInterval(interval);
             });
 
-            $scope.$on('components.shadow', function (e, el) {
+            $scope.$on('components.shadow', function(e, el) {
                 var $el = $(el),
                     index = $el.index();
                 if (!lastIndex) {
@@ -89,8 +89,6 @@
             if (vm.template.id) {
                 Template.update(vm.template, onSaveSuccess, onSaveError);
             } else {
-
-
                 console.log('vm.template');
                 console.log(vm.template);
                 Template.save(vm.template, onSaveSuccess, onSaveError).$promise;
@@ -124,7 +122,7 @@
         }
 
         function sortComponents() {
-            vm.components.sort(function (b, a) {
+            vm.components.sort(function(b, a) {
                 return (a.name < b.name) ? 1 : (a.name > b.name) ? -1 : 0;
             });
         }

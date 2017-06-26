@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('ExperimentCreationFromNotebookController', ExperimentCreationFromNotebookController);
@@ -19,7 +19,9 @@
 
         function save() {
             vm.isSaving = true;
-            vm.experiment = _.extend(vm.experiment, {template: vm.template});
+            vm.experiment = _.extend(vm.experiment, {
+                template: vm.template
+            });
             Experiment.save({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId

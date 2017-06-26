@@ -1,9 +1,11 @@
 angular.module('indigoeln')
-    .factory('UserReagents', function ($resource) {
+    .factory('UserReagents', function($resource) {
         return $resource('api/user_reagents', {}, {
-            'get': {
+            get: {
                 method: 'GET', isArray: true
             },
-            'save': {method: 'POST'}
+            save: {
+                method: 'POST'
+            }
         });
     });

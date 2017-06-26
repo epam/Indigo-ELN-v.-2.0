@@ -7,12 +7,16 @@
     function IndigoReactionDetailsController($scope, Principal, Dictionary, Users, Alert, $state, $q) {
         $scope.model.reactionDetails = $scope.model.reactionDetails || {};
         $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
-            {name: Principal.getIdentity().fullName};
+            {
+                name: Principal.getIdentity().fullName
+            };
 
         Users.get().then(function(dictionary) {
             $scope.users = dictionary.words;
             $scope.model.reactionDetails.batchOwner = $scope.model.reactionDetails.batchOwner ||
-                _.where($scope.users, {name: Principal.getIdentity().fullName});
+                _.where($scope.users, {
+                    name: Principal.getIdentity().fullName
+                });
         });
         var deferred;
 
@@ -22,10 +26,13 @@
             }
 
             deferred = $q.defer();
-            Dictionary.get({id: 'experiments'}, function(dictionary) {
+            Dictionary.get({
+                id: 'experiments'
+            }, function(dictionary) {
                 deferred.resolve(dictionary.words);
                 console.log('inited', dictionary.words);
             });
+
             return deferred.promise;
         }
 
@@ -36,6 +43,7 @@
                 });
                 if (!experiment) {
                     Alert.error('Can not find a experiment with the name: ' + tag.text);
+
                     return;
                 }
                 $state.go('entities.experiment-detail', {
@@ -52,6 +60,7 @@
                     return experiment.name === tag.text;
                 })));
             });
+
             return _deferred.promise;
         };
 
@@ -65,6 +74,7 @@
                 }).value();
                 _deferred.resolve(filtered);
             });
+
             return _deferred.promise;
         };
     }

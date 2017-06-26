@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoComponents', indigoComponents);
@@ -23,24 +23,28 @@
 
         /* @ngInject */
         function link(scope, element) {
-            if (!scope.indigoExperiment){
+            if (!scope.indigoExperiment) {
                 return;
             }
-            var id = scope.indigoExperiment.fullId, tc, preventFirstScroll;
-            $timeout(function () {
+            var id = scope.indigoExperiment.fullId;
+            var tc;
+            var preventFirstScroll;
+            $timeout(function() {
                 tc = element.find('.tab-content');
                 if (scrollCache[id]) {
-                    setTimeout(function () {
+                    setTimeout(function() {
                         nostore = true;
                         tc[0].scrollTop = scrollCache[id];
                     }, 100);
                 }
-                var stimeout, nostore;
-                tc.on('scroll', function (e) {
+                var stimeout,
+                    nostore;
+                tc.on('scroll', function(e) {
                     // will close some dropdowns EPMLSOPELN-437
                     element.trigger('click');
                     if (nostore) {
                         nostore = false;
+
                         return;
                     }
                     if (!preventFirstScroll) {
@@ -50,7 +54,7 @@
                         tc[0].scrollTop = scrollCache[id] || 0;
                     }
                     clearTimeout(stimeout);
-                    stimeout = setTimeout(function () {
+                    stimeout = setTimeout(function() {
                         preventFirstScroll = true;
                     }, 300);
                     preventFirstScroll = false;
@@ -58,7 +62,7 @@
                 });
             }, 100);
 
-            //for communication between components
+            // for communication between components
             scope.share = {};
         }
     }

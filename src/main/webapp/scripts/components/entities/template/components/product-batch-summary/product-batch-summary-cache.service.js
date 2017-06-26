@@ -11,11 +11,11 @@ function ProductBatchSummaryCache() {
         setProductBatchSummary: setProductBatchSummary
     };
 
-    function getProductBatchSummary () {
+    function getProductBatchSummary() {
         return _productBatchSummary;
     }
 
-    function setProductBatchSummary (batches) {
+    function setProductBatchSummary(batches) {
         _productBatchSummary = batches;
     }
 }
