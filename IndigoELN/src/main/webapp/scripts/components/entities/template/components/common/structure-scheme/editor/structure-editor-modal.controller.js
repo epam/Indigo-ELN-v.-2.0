@@ -1,16 +1,20 @@
 angular.module('indigoeln')
-    .controller('StructureEditorModalController', function ($scope, $uibModalInstance, prestructure, editor) {
+    .controller('structureEditorModalController', structureEditorModalController);
 
-        // set attributes
-        $scope.structure = {molfile: prestructure};
-        $scope.editor = editor;
+/* @ngInject */
+function structureEditorModalController($uibModalInstance, prestructure, editor) {
+    var vm = this;
+    // set attributes
+    vm.structure = {
+        molfile: prestructure
+    };
+    vm.editor = editor;
 
-        $scope.ok = function() {
-            $uibModalInstance.close($scope.structure.molfile);
-        };
+    vm.ok = function() {
+        $uibModalInstance.close(vm.structure.molfile);
+    };
 
-        $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
-
-    });
+    vm.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
