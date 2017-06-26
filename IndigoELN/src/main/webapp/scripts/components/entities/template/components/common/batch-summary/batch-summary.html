@@ -1,34 +1,47 @@
-<div cg-busy="{promise:loading, minDuration:700}">
-    <indigo-table indigo-id="product-batch-summary" indigo-tab-support="true" indigo-columns="columns" indigo-rows="model.productBatchSummary.batches"
+<div cg-busy="{promise: vm.loading, minDuration:700}">
+    <indigo-table indigo-id="product-batch-summary"
+                  indigo-tab-support="true"
+                  indigo-columns="vm.columns"
+                  indigo-rows="vm.model.productBatchSummary.batches"
                   indigo-draggable-columns="true"
                   indigo-search-columns="['nbkBatch']"
-                  indigo-readonly="myReadonly"
-                  indigo-editable="isEditable"
-                  indigo-on-row-selected="onRowSelected"
-                  indigo-hide-column-settings="isHideColumnSettings"
-              ng-class="{'product-batch-register': myReadonly || !isHasCheckedRows()}">
+                  indigo-readonly="indigoReadonly"
+                  indigo-editable="vm.isEditable"
+                  indigo-on-row-selected="vm.onRowSelected"
+                  indigo-hide-column-settings="vm.isHideColumnSettings"
+              ng-class="{'product-batch-register': indigoReadonly || !vm.isHasCheckedRows()}">
         <div class="row m-b20">
             <div class="col-lg-8 m-bt-lg">
                 <span class="txt-small bold m-r5">Batches:</span>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly" ng-click="addNewBatch()">
+                    <button type="button" class="btn btn-info btn-small"
+                            ng-disabled="indigoReadonly"
+                            ng-click="vm.addNewBatch()">
                         <i class="fa fa-plus"></i>
                         <span class="m-l5">Add</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="duplicateBatch()">
+                    <button type="button" class="btn btn-info btn-small"
+                            ng-disabled="indigoReadonly || !vm.isHasCheckedRows()"
+                            ng-click="vm.duplicateBatch()">
                         <i class="fa fa-clone"></i>
                         <span class="m-l5">Duplicate</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-click="deleteBatches()">
+                    <button type="button" class="btn btn-info btn-small"
+                            ng-disabled="indigoReadonly || !vm.isHasCheckedRows()"
+                            ng-click="vm.deleteBatches()">
                         <i class="fa fa-trash"></i>
                         <span class="m-l5">Delete</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || isIntendedSynced()" ng-click="syncWithIntendedProducts()">
+                    <button type="button" class="btn btn-info btn-small"
+                            ng-disabled="indigoReadonly || vm.isIntendedSynced()"
+                            ng-click="vm.syncWithIntendedProducts()">
                         <i class="fa fa-refresh"></i>
                         <span class="m-l5">Sync</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
-                    <button type="button" class="btn btn-info btn-small" ng-disabled="myReadonly || !isHasCheckedRows()" ng-show="isHasRegService" ng-click="registerBatches()">
+                    <button type="button" class="btn btn-info btn-small"
+                            ng-disabled="indigoReadonly || !vm.isHasCheckedRows()" ng-show="vm.isHasRegService"
+                            ng-click="vm.registerBatches()">
                         <i class="fa fa-floppy-o"></i>
                         <span class="m-l5">Register</span>
                     </button>
@@ -37,12 +50,15 @@
             <div class="col-lg-4 text-align-lg">
                 <span class="txt-small bold m-r5">SD File:</span>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-info btn-small btn-can-loading {{(importLoading) ? 'btn-loading' : ''}}" ng-click="importSDFile()" ng-disabled="myReadonly">
+                    <button type="button"
+                            class="btn btn-info btn-small btn-can-loading}}"
+                            ng-class="{'btn-loading': importLoading}"
+                            ng-click="vm.importSDFile()" ng-disabled="indigoReadonly">
                         <i class="fa fa-cloud-download"></i>
                         <span class="m-l5">Import</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
-                            ng-disabled="myReadonly || !isHasCheckedRows()">
+                    <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
+                            ng-disabled="indigoReadonly || !vm.isHasCheckedRows()">
                         <i class="fa fa-cloud-upload"></i>
                         <span class="m-l5">Export</span>
                     </button>

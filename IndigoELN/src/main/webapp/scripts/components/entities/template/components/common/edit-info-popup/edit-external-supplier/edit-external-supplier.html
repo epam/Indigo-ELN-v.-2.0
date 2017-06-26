@@ -2,19 +2,19 @@
     <h5 class="modal-title">External Supplier Information</h5>
 </div>
 <div class="modal-body">
-    <indigo-select indigo-items="externalSupplierCodeAndNameSelect"
+    <indigo-select indigo-items="vm.externalSupplierCodeAndNameSelect"
                    indigo-label="External Supplier Code & Name"
                    indigo-label-vertical="true"
-                   indigo-model="externalSupplier.codeAndName"></indigo-select>
-    <indigo-input indigo-model="externalSupplier.catalogRegistryNumber"
+                   indigo-model="vm.externalSupplier.codeAndName"></indigo-select>
+    <indigo-input indigo-model="vm.externalSupplier.catalogRegistryNumber"
                   indigo-label="Supplier Catalog/Registry#"
                   indigo-label-vertical="true"> </indigo-input>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-click="save()">
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
         <i class="fa fa-save"></i><span class="m-l5">Save</span>
     </button>
 </div>
