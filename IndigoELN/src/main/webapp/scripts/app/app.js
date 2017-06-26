@@ -118,7 +118,8 @@ angular.module('indigoeln',
             views: {
                 'navbar@app_page': {
                     templateUrl: 'scripts/components/navbar/navbar.html',
-                    controller: 'NavbarController'
+                    controller: 'NavbarController',
+                    controllerAs: 'vm'
                 }
             }
         }).state('sidebar', {

@@ -3,12 +3,12 @@
 </div>
 <div class="modal-body">
     <div>
-        <div nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
-            <div ng-show="uploader.isHTML5" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
-                <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
+        <div nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+            <div ng-show="vm.uploader.isHTML5" nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+                <div class="well my-drop-zone" nv-file-over="" uploader="vm.uploader">
                     <input type="file"
                            nv-file-select=""
-                           uploader="uploader"
+                           uploader="vm.uploader"
                            class="my-drop-zone-input"/>
                     <div class="semi-b my-drop-zone-file">Drop file here</div>
                 </div>
@@ -18,15 +18,15 @@
                     <thead>
                     <tr>
                         <th style="width:50%">Name</th>
-                        <th ng-show="uploader.isHTML5">Size</th>
-                        <th ng-show="uploader.isHTML5">Progress</th>
+                        <th ng-show="vm.uploader.isHTML5">Size</th>
+                        <th ng-show="vm.uploader.isHTML5">Progress</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in uploader.queue track by $index">
-                        <td><strong>{{ item.file.name }}</strong></td>
-                        <td ng-show="uploader.isHTML5">{{ item.file.size/1024/1024|number:2 }} MB</td>
-                        <td ng-show="uploader.isHTML5">
+                    <tr ng-repeat="item in vm.uploader.queue track by $index">
+                        <td><strong ng-bind="item.file.name"></strong></td>
+                        <td ng-show="vm.uploader.isHTML5"><span ng-bind="item.file.size/1024/1024|number:2"></span> MB</td>
+                        <td ng-show="vm.uploader.isHTML5">
                             <div class="progress" style="margin-bottom: 0;">
                                 <div class="progress-bar" role="progressbar"
                                      ng-style="{ 'width': item.progress + '%' }"></div>
@@ -40,7 +40,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
 </div>

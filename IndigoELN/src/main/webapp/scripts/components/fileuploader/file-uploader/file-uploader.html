@@ -1,15 +1,15 @@
 <div class="user-management">
     <div class="row m-b20">
         <div class="col-sm-6">
-            <button class="btn btn-primary" ng-disabled="indigoReadonly" ng-click="upload()">
+            <button class="btn btn-primary" ng-disabled="vm.indigoReadonly" ng-click="vm.upload()">
                 <span class="glyphicon glyphicon-flash"></span>
                 <span class="m-l5">Attach File</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <i class="fa fa-search" ng-click="search()"></i>
-                <input type="search" class="uui-search" placeholder="File name" id="searchFile" ng-model="searchText">
+                <i class="fa fa-search" ng-click="vm.search()"></i>
+                <input type="search" class="uui-search" placeholder="File name" id="searchFile" ng-model="vm.searchText">
             </div>
         </div>
     </div>
@@ -25,19 +25,19 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="file in files track by file.id">
-                <td>{{file.filename}}</td>
-                <td>{{file.author.login  || file.author.firstName}}</td>
-                <td>{{file.length | prettyBytes}}</td>
-                <td>{{file.uploadDate | date:'d MMMM yyyy' : 'UTC'}}</td>
+            <tr ng-repeat="file in vm.files track by file.id">
+                <td ng-bind="file.filename"></td>
+                <td ng-bind="file.author.login  || file.author.firstName"></td>
+                <td ng-bind="file.length | prettyBytes"></td>
+                <td ng-bind="file.uploadDate | date:'d MMMM yyyy' : 'UTC'"></td>
                 <td>
                     <a class="btn btn-info btn-small" href="api/project_files/{{file.id}}" target="_self">
                         <span class="glyphicon glyphicon-download"></span>
                         <span class="m-l5">Download</span>
                     </a>
                     <button type="submit"
-                            ng-disabled="indigoReadonly"
-                            ng-click="delete(file)"
+                            ng-disabled="vm.indigoReadonly"
+                            ng-click="vm.deleteFile(file)"
                             class="btn btn-info btn-small">
                         <span class="fa fa-trash"></span>
                         <span class="m-l5">Delete</span>
@@ -48,8 +48,8 @@
         </table>
     </div>
     <div class="text-center">
-    <uib-pagination class="pagination-sm" total-items="totalItems" ng-model="page"
-                    ng-change="loadAll()"></uib-pagination>
+    <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
+                    ng-change="vm.loadAll()"></uib-pagination>
     </div>
 </div>
 

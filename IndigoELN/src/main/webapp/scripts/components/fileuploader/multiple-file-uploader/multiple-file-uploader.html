@@ -3,35 +3,35 @@
 </div>
 <div class="modal-body">
     <div>
-        <div nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
-            <div ng-show="uploader.isHTML5" nv-file-drop="" uploader="uploader" filters="queueLimit, customFilter">
-                <div class="well my-drop-zone" nv-file-over="" uploader="uploader">
+        <div nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+            <div ng-show="vm.uploader.isHTML5" nv-file-drop="" uploader="vm.uploader" filters="queueLimit, customFilter">
+                <div class="well my-drop-zone" nv-file-over="" uploader="vm.uploader">
                     <input
                         type="file"
                         nv-file-select=""
-                        uploader="uploader"
+                        uploader="vm.uploader"
                         multiple
                         class="my-drop-zone-input"/>
                     <div class="semi-b my-drop-zone-file">Drop files here</div>
                 </div>
             </div>
             <h5>Upload queue:</h5>
-            <p class="semi-b">Queue length:&nbsp;&nbsp;{{ uploader.queue.length }}</p>
+            <p class="semi-b"><span>Queue length:&nbsp;&nbsp;</span><span ng-bind="vm.uploader.queue.length"></span></p>
             <div class="table-responsive" indigo-scroller="x">
                 <table class="table table-striped">
                     <thead>
                     <tr>
                         <th class="td-40p">Name</th>
-                        <th ng-show="uploader.isHTML5">Size</th>
-                        <th ng-show="uploader.isHTML5">Progress</th>
+                        <th ng-show="vm.uploader.isHTML5">Size</th>
+                        <th ng-show="vm.uploader.isHTML5">Progress</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="item in uploader.queue track by $index">
-                        <td><span class="semi-b">{{ item.file.name }}</span></td>
-                        <td ng-show="uploader.isHTML5">{{ item.file.size/1024/1024|number:2 }} MB</td>
-                        <td ng-show="uploader.isHTML5">
+                    <tr ng-repeat="item in vm.uploader.queue track by $index">
+                        <td><span class="semi-b" ng-bind="vm.item.file.name"></span></td>
+                        <td ng-show="vm.uploader.isHTML5"><span ng-bind="vm.item.file.size/1024/1024|number:2"></span> MB</td>
+                        <td ng-show="vm.uploader.isHTML5">
                             <div class="progress" style="margin-bottom: 0;">
                                 <div class="progress-bar" role="progressbar"
                                      ng-style="{ 'width': item.progress + '%' }"></div>
@@ -60,21 +60,21 @@
             <p class="semi-b">Queue progress:</p>
             <div class="progress" style="">
                 <div class="progress-bar" role="progressbar"
-                     ng-style="{ 'width': uploader.progress + '%' }"></div>
+                     ng-style="{ 'width': vm.uploader.progress + '%' }"></div>
             </div>
             <div class="btn-group">
-                <button type="button" class="btn btn-primary" ng-click="uploader.uploadAll()"
-                        ng-disabled="!uploader.getNotUploadedItems().length">
+                <button type="button" class="btn btn-primary" ng-click="vm.uploader.uploadAll()"
+                        ng-disabled="!vm.uploader.getNotUploadedItems().length">
                     <span class="glyphicon glyphicon-upload"></span>
                     <span class="m-l5">Upload all</span>
                 </button>
-                <button type="button" class="btn btn-default" ng-click="uploader.cancelAll()"
-                        ng-disabled="!uploader.isUploading">
+                <button type="button" class="btn btn-default" ng-click="vm.uploader.cancelAll()"
+                        ng-disabled="!vm.uploader.isUploading">
                     <i class="fa fa-ban"></i>
                     <span class="m-l5">Cancel all</span>
                 </button>
-                <button type="button" class="btn btn-danger" ng-click="uploader.clearQueue()"
-                        ng-disabled="!uploader.queue.length">
+                <button type="button" class="btn btn-danger" ng-click="vm.uploader.clearQueue()"
+                        ng-disabled="!vm.uploader.queue.length">
                     <i class="fa fa-trash"></i>
                     <span class="m-l5">Remove all</span>
                 </button>
@@ -83,5 +83,5 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">Close</button>
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">Close</button>
 </div>

@@ -112,6 +112,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                 size: 'lg',
                 templateUrl: 'scripts/components/fileuploader/single-file-uploader/single-file-uploader-modal.html',
                 controller: 'SingleFileUploaderController',
+                controllerAs: 'vm',
                 resolve: {
                     url: function () {
                         return 'api/sd/import';

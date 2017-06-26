@@ -1,17 +1,19 @@
-angular.module('indigoeln')
-    .controller('PermissionViewManagementController',
-        function ($scope, $uibModalInstance, PermissionManagement) {
+(function() {
+    angular
+        .module('indigoeln')
+        .controller('PermissionViewManagementController', PermissionViewManagementController);
 
-            $scope.accessList = PermissionManagement.getAccessList();
-            $scope.entity = PermissionManagement.getEntity();
+    /* @ngInject */
+    function PermissionViewManagementController($uibModalInstance, PermissionManagement) {
+        var vm = this;
 
+        vm.accessList = PermissionManagement.getAccessList();
+        vm.entity = PermissionManagement.getEntity();
 
-            $scope.close = function() {
-                $uibModalInstance.dismiss('cancel');
-            };
+        vm.close = close;
 
-            $scope.clear = function() {
-              $uibModalInstance.dismiss('cancel');
-            };
-
-    });
+        function close() {
+            $uibModalInstance.dismiss('cancel');
+        }
+    }
+})();

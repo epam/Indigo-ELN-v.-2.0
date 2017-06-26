@@ -1,9 +1,9 @@
 <div name="permissionsForm">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="clear()">&times;</button>
+                ng-click="vm.close()">&times;</button>
         <h5 class="modal-title">
-            {{entity}} Members
+            <span ng-bind="vm.entity"></span> Members
         </h5>
     </div>
     <div class="modal-body">
@@ -19,13 +19,11 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="member in accessList track by $index">
-                    <td>{{ member.user.lastName }}</td>
-                    <td>{{ member.user.firstName }}</td>
-                    <td>{{ member.user.login }}</td>
-                    <td>
-                        {{ member.permissionView }}
-                    </td>
+                <tr ng-repeat="member in vm.accessList track by $index">
+                    <td ng-bind="member.user.lastName"></td>
+                    <td ng-bind="member.user.firstName"></td>
+                    <td ng-bind="member.user.login"></td>
+                    <td ng-bind="member.permissionView"></td>
                 </tr>
                 </tbody>
             </table>
@@ -33,7 +31,7 @@
     </div>
 
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="close()">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.close()">
             <i class="fa fa-ban"></i><span class="m-l5">Close</span>
         </button>
     </div>
