@@ -19,7 +19,7 @@
         .for-print-only .pba:not(:first-of-type) tr td p {text-align: center;}
         .simditor {border : 1px solid #ccc; padding:10px; margin-bottom: 50px;}
     </div>
-    <div class="panel-heading">Preview Experiment <span ng-bind="experimentPreviewController.notebook.name + '-' + experimentPreviewController.experiment.name"></span></div>
+    <div class="panel-heading">Preview Experiment <span ng-bind="vm.notebook.name + '-' + vm.experiment.name"></span></div>
     <div class="panel-body panel-experiment-preview">
         <form name="print-form" id="print-form" role="form" novalidate>
             <!--HEADER-->
@@ -36,92 +36,92 @@
                         </tr>
                         <tr>
                             <td style="width:20%">Author:</td>
-                            <td style="width:30%" ng-bind="experimentPreviewController.experiment.author.firstName + ' ' + experimentPreviewController.experiment.author.lastName">
+                            <td style="width:30%" ng-bind="vm.experiment.author.firstName + ' ' + vm.experiment.author.lastName">
                             </td>
                             <td style="width:20%">Notebook&nbsp;Experiment:</td>
-                            <td style="width:30%" ng-bind="experimentPreviewController.notebook.name + '-' + experimentPreviewController.experiment.name"></td>
+                            <td style="width:30%" ng-bind="vm.notebook.name + '-' + vm.experiment.name"></td>
                         </tr>
                         <tr>
                             <td>Project:</td>
-                            <td ng-bind="experimentPreviewController.project.name"></td>
+                            <td ng-bind="vm.project.name"></td>
                             <td>Status:</td>
-                            <td ng-bind="experimentPreviewController.experiment.status | uppercase "></td>
+                            <td ng-bind="vm.experiment.status | uppercase "></td>
                         </tr>
                         <tr>
                             <td>Printed Page:</td>
                             <td>#pageNum of #numPages</td>
                                 <!--think about-->
                             <td>Printed Date:</td>
-                            <td ng-bind="experimentPreviewController.currentDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                            <td ng-bind="vm.currentDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
                         </tr>
                         <tr>
                             <!--Experiment Subject / Title in Reaction Details and in Concept Subject / Title-->
                             <!--what if no such component?-->
                             <td>Subject/Title:</td>
-                            <td colspan="3" ng-bind="experimentPreviewController.reactionDetails.title || experimentPreviewController.conceptDetails.title"></td>
+                            <td colspan="3" ng-bind="vm.reactionDetails.title || vm.conceptDetails.title"></td>
                         </tr>
                     </table>
                 </div>
             </div>
             <!--reactionDetails DETAILS-->
-            <div class="row print-component" ng-if="experimentPreviewController.reactionDetails">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.reactionDetails.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.reactionDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.reactionDetails">
+                <div class="col-xs-1 need-to-print" ng-init="vm.reactionDetails.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.reactionDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left table-name">REACTION DETAILS</span>
                     <table class="print-table-simple">
                         <tr>
                             <th style="width:20%">Creation Date:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'">
+                            <td style="width:30%" ng-bind="vm.experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'">
                             </td>
                             <th style="width:20%">Therapeutic&nbsp;Area:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.reactionDetails.therapeuticArea.name"></td>
+                            <td style="width:30%" ng-bind="vm.reactionDetails.therapeuticArea.name"></td>
                         </tr>
                         <tr>
                             <th>Continued From:</th>
-                            <td ng-bind="experimentPreviewController.joinArr(experimentPreviewController.reactionDetails.contFromRxn, 'text')"></td>
+                            <td ng-bind="vm.joinArr(vm.reactionDetails.contFromRxn, 'text')"></td>
                             <th>Project Code:</th>
-                            <td ng-bind="experimentPreviewController.reactionDetails.codeAndName.name"></td>
+                            <td ng-bind="vm.reactionDetails.codeAndName.name"></td>
                         </tr>
                         <tr>
                             <th>Continued To:</th>
-                            <td ng-bind="experimentPreviewController.joinArr(experimentPreviewController.reactionDetails.contToRxn, 'text')"></td>
+                            <td ng-bind="vm.joinArr(vm.reactionDetails.contToRxn, 'text')"></td>
                             <th>Project Alias</th>
-                            <td ng-bind="experimentPreviewController.reactionDetails.projectAliasName"></td>
+                            <td ng-bind="vm.reactionDetails.projectAliasName"></td>
                         </tr>
                         <tr>
                             <th>Linked&nbsp;Experiment:</th>
-                            <td ng-bind="experimentPreviewController.joinArr(experimentPreviewController.reactionDetails.linkedExperiments, 'text')"></td>
+                            <td ng-bind="vm.joinArr(vm.reactionDetails.linkedExperiments, 'text')"></td>
                             <th>Literature&nbsp;Reference:</th>
-                            <td ng-bind="experimentPreviewController.reactionDetails.literature"></td>
+                            <td ng-bind="vm.reactionDetails.literature"></td>
                         </tr>
                         <tr>
                             <th>Co-authors:</th>
-                            <td colspan="3" ng-bind="experimentPreviewController.joinArr(experimentPreviewController.reactionDetails.coAuthors)"></td>
+                            <td colspan="3" ng-bind="vm.joinArr(vm.reactionDetails.coAuthors)"></td>
                         </tr>
                     </table>
                 </div>
             </div>
             <!--SUMMARY REACTION-->
-            <div class="row print-component" ng-if="experimentPreviewController.reaction">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.reaction.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.reaction.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.reaction">
+                <div class="col-xs-1 need-to-print" ng-init="vm.reaction.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.reaction.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left table-name">REACTION SCHEME</span>
                     <table class="print-table">
                         <tr>
-                            <td><img style="max-height:200px; margin: 0 auto" class="img-responsive center-block" ng-src="data:image/svg+xml;base64,{{experimentPreviewController.reaction.image}}" alt="Image is unavailable.">
+                            <td><img style="max-height:200px; margin: 0 auto" class="img-responsive center-block" ng-src="data:image/svg+xml;base64,{{vm.reaction.image}}" alt="Image is unavailable.">
                             </td>
                         </tr>
                     </table>
                 </div>
             </div>
             <!--STOICHIOMETRY-->
-            <div class="row print-component" ng-if="experimentPreviewController.stoichTable">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.stoichTable.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.stoichTable.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.stoichTable">
+                <div class="col-xs-1 need-to-print" ng-init="vm.stoichTable.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.stoichTable.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left table-name">STOICHIOMETRY</span>
@@ -135,50 +135,50 @@
                             <th style="width:8%; text-align: center;">EQ</th>
                             <th style="width:30%; text-align: center;">Other Information</th>
                         </tr>
-                        <tr ng-repeat="reactant in experimentPreviewController.stoichTable.reactants track by $index" style="vertical-align: top">
+                        <tr ng-repeat="reactant in vm.stoichTable.reactants track by $index" style="vertical-align: top">
                             <td style="width:30%">
                                 <div><img ng-if="reactant.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{reactant.structure.image}}" alt="Image is unavailable."></div>
                                 <p class="text-center m-t10" ng-bind="reactant.fullNbkBatch"></p>
                                 <p class="text-center m-t10" ng-bind="reactant.compoundId"></p>
                             </td>
-                            <td style="width:8%; text-align: center;" ng-bind="experimentPreviewController.toDigits(reactant.molWeight)"></td>
-                            <td style="width:8%; text-align: center;" ng-bind="experimentPreviewController.toDigits(reactant.weight)"></td>
-                            <td style="width:8%; text-align: center;" ng-bind="experimentPreviewController.toDigits(reactant.mol)"></td>
-                            <td style="width:8%; text-align: center;" ng-bind="experimentPreviewController.toDigits(reactant.volume)"></td>
-                            <td style="width:8%; text-align: center;" ng-bind="experimentPreviewController.toDigits(reactant.eq)"></td>
+                            <td style="width:8%; text-align: center;" ng-bind="vm.toDigits(reactant.molWeight)"></td>
+                            <td style="width:8%; text-align: center;" ng-bind="vm.toDigits(reactant.weight)"></td>
+                            <td style="width:8%; text-align: center;" ng-bind="vm.toDigits(reactant.mol)"></td>
+                            <td style="width:8%; text-align: center;" ng-bind="vm.toDigits(reactant.volume)"></td>
+                            <td style="width:8%; text-align: center;" ng-bind="vm.toDigits(reactant.eq)"></td>
                             <td style="width:30%" class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td>Name:</td>
-                                        <td ng-bind="experimentPreviewController.reactant.chemicalName"></td>
+                                        <td ng-bind="vm.reactant.chemicalName"></td>
                                     </tr>
                                     <tr>
                                         <td>Rxn Role:</td>
-                                        <td ng-bind="experimentPreviewController.reactant.rxnRole.name"></td>
+                                        <td ng-bind="vm.reactant.rxnRole.name"></td>
                                     </tr>
                                     <tr>
                                         <td>Purity:</td>
-                                        <td ng-bind="experimentPreviewController.toDigits(reactant.stoicPurity)"></td>
+                                        <td ng-bind="vm.toDigits(reactant.stoicPurity)"></td>
                                     </tr>
                                     <tr>
                                         <td>Molarity:</td>
-                                        <td ng-bind="experimentPreviewController.toDigits(reactant.molarity)"></td>
+                                        <td ng-bind="vm.toDigits(reactant.molarity)"></td>
                                     </tr>
                                     <tr>
                                         <td>Hazard:</td>
-                                        <td ng-bind="experimentPreviewController.reactant.hazardComments"></td>
+                                        <td ng-bind="vm.reactant.hazardComments"></td>
                                     </tr>
                                     <tr>
                                         <td>Comments:</td>
-                                        <td ng-bind="experimentPreviewController.reactant.comments"></td>
+                                        <td ng-bind="vm.reactant.comments"></td>
                                     </tr>
                                     <tr>
                                         <td>Salt Code:</td>
-                                        <td ng-bind="experimentPreviewController.reactant.saltCode.name"></td>
+                                        <td ng-bind="vm.reactant.saltCode.name"></td>
                                     </tr>
                                     <tr>
                                         <td>Salt EQ:</td>
-                                        <td ng-bind="experimentPreviewController.toDigits(reactant.saltEq)"></td>
+                                        <td ng-bind="vm.toDigits(reactant.saltEq)"></td>
                                     </tr>
                                 </table>
                             </td>
@@ -187,19 +187,19 @@
                 </div>
             </div>
             <!--EXPERIMENT DESCRIPTION-->
-            <div class="row print-component" ng-if="experimentPreviewController.experimentDescription">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.experimentDescription.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.experimentDescription.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.experimentDescription">
+                <div class="col-xs-1 need-to-print" ng-init="vm.experimentDescription.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.experimentDescription.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="table-name">EXPERIMENT DESCRIPTION</span>
-                    <indigo-text-editor indigo-model="experimentPreviewController.experimentDescription.description" indigo-name="experimentDescription" indigo-readonly="true"></indigo-text-editor>
+                    <indigo-text-editor indigo-model="vm.experimentDescription.description" indigo-name="experimentDescription" indigo-readonly="true"></indigo-text-editor>
                 </div>
             </div>
             <!--BATCH INFORMATION-->
-            <div class="row print-component" ng-if="experimentPreviewController.batchSummary">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.batchSummary.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.batchSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.batchSummary">
+                <div class="col-xs-1 need-to-print" ng-init="vm.batchSummary.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.batchSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left table-name">BATCH INFORMATION</span>
@@ -212,20 +212,20 @@
                             <th style="width:10%; text-align: center;">Purity (%) Determined By</th>
                             <th style="text-align: center;">Batch Information</th>
                         </tr>
-                        <tr ng-repeat="batch in experimentPreviewController.batchSummary.batches track by $index" style="vertical-align: top">
+                        <tr ng-repeat="batch in vm.batchSummary.batches track by $index" style="vertical-align: top">
                             <td style="width:10%; text-align: center;" ng-bind="batch.nbkBatch"></td>
                             <td style="width:20%">
                                 <img ng-if="batch.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{batch.structure.image}}" alt="Image is unavailable.">
                                     <p style="text-align: center; margin-top: 20px;" ng-bind="batch.stereoisomer.name + ' ' + batch.stereoisomer.description"></p>
                             </td>
-                            <td style="width:10%; text-align: center;" ng-bind="experimentPreviewController.toDigits(batch.totalWeight)"></td>
-                            <td style="width:10%; text-align: center;" ng-bind="experimentPreviewController.toDigits(batch.theoWeight) + ' ' + experimentPreviewController.toDigits(batch.yield) + '%'"></td>
+                            <td style="width:10%; text-align: center;" ng-bind="vm.toDigits(batch.totalWeight)"></td>
+                            <td style="width:10%; text-align: center;" ng-bind="vm.toDigits(batch.theoWeight) + ' ' + vm.toDigits(batch.yield) + '%'"></td>
                             <td style="width:10%; text-align: center;" ng-bind="batch.purity.asString"></td>
                             <td class="print-table-inner-td">
                                 <table class="print-table-inner">
                                     <tr>
                                         <td>Mol Wgt:</td>
-                                        <td ng-bind="experimentPreviewController.toDigits(batch.molWeight)"></td>
+                                        <td ng-bind="vm.toDigits(batch.molWeight)"></td>
                                     </tr>
                                     <tr>
                                         <td>Exact Mass:</td>
@@ -237,12 +237,12 @@
                                     </tr>
                                     <tr>
                                         <td>Salt EQ:</td>
-                                        <td ng-bind="experimentPreviewController.toDigits(batch.saltEq)"></td>
+                                        <td ng-bind="vm.toDigits(batch.saltEq)"></td>
                                     </tr>
                                     <tr>
                                         <!--add field?-->
                                         <td>Batch Owner:</td>
-                                        <td ng-bind="experimentPreviewController.joinArr(reactionDetails.batchOwner)"></td>
+                                        <td ng-bind="vm.joinArr(reactionDetails.batchOwner)"></td>
                                     </tr>
                                     <tr>
                                         <td>Comments:</td>
@@ -256,9 +256,9 @@
             </div>
             <!--REGISTRATION SUMMARY-->
             <!--no such component-->
-            <div class="row print-component" ng-if="experimentPreviewController.registrationSummary">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.registrationSummary.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.registrationSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.registrationSummary">
+                <div class="col-xs-1 need-to-print" ng-init="vm.registrationSummary.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.registrationSummary.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left table-name">REGISTRATION SUMMARY</span>
@@ -269,9 +269,9 @@
                             <th style="width:30%; text-align: center;">Registration Status</th>
                             <th style="width:20%; text-align: center;">Conversational Batch</th>
                         </tr>
-                        <tr ng-repeat="batch in experimentPreviewController.registrationSummary.batches track by $index" style="vertical-align: top">
+                        <tr ng-repeat="batch in vm.registrationSummary.batches track by $index" style="vertical-align: top">
                             <td style="width:30%; text-align: center;" ng-bind="batch.fullNbkBatch"></td>
-                            <td style="width:20%; text-align: center;" ng-bind="experimentPreviewController.toDigits(batch.totalWeight)"></td>
+                            <td style="width:20%; text-align: center;" ng-bind="vm.toDigits(batch.totalWeight)"></td>
                             <td style="width:30%; text-align: center;" ng-bind="batch.registrationStatus"></td>
                             <td style="width:20%; text-align: center;" ng-bind="batch.conversationalBatchNumber"></td>
                         </tr>
@@ -279,13 +279,13 @@
                 </div>
             </div>
             <!--BATCH DETAILS-->
-            <div class="row print-component" ng-if="experimentPreviewController.batchDetails">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.batchDetails.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.batchDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.batchDetails">
+                <div class="col-xs-1 need-to-print" ng-init="vm.batchDetails.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.batchDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
-                <div class="col-xs-11" ng-if="experimentPreviewController.batchDetails">
+                <div class="col-xs-11" ng-if="vm.batchDetails">
                     <span class="pull-left table-name">BATCH DETAILS</span>
-                    <div class="pba" ng-repeat="batch in experimentPreviewController.batchSummary.batches track by $index">
+                    <div class="pba" ng-repeat="batch in vm.batchSummary.batches track by $index">
                         <table class="print-table">
                             <tr>
                                 <th style="width:30%">For Notebook Batch:</th>
@@ -314,12 +314,12 @@
                             <tr>
                                 <!--no such field!-->
                                 <td style="width:30%">Batch Owner</td>
-                                <td style="width:70%" ng-bind="experimentPreviewController.joinArr(experimentPreviewController.reactionDetails.batchOwner)"></td>
+                                <td style="width:70%" ng-bind="vm.joinArr(vm.reactionDetails.batchOwner)"></td>
                             </tr>
                             <tr>
                                 <!--no model-->
                                 <td style="width:30%">Calculated Batch MW</td>
-                                <td style="width:70%" ng-bind="experimentPreviewController.toDigits(batch.molWeight)"></td>
+                                <td style="width:70%" ng-bind="vm.toDigits(batch.molWeight)"></td>
                             </tr>
                             <tr>
                                 <!--no model-->
@@ -359,43 +359,43 @@
                 </div>
             </div>
             <!--CONCEPT DETAIL-->
-            <div class="row print-component" ng-if="experimentPreviewController.conceptDetails">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.conceptDetails.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.conceptDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.conceptDetails">
+                <div class="col-xs-1 need-to-print" ng-init="vm.conceptDetails.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.conceptDetails.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left">CONCEPT DETAILS</span>
                     <table class="print-table-simple">
                         <tr>
                             <th style="width:20%">Creation Date:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                            <td style="width:30%" ng-bind="vm.experiment.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
                             <th style="width:20%">Therapeutic&nbsp;Area:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.conceptDetails.therapeuticArea.name"></td>
+                            <td style="width:30%" ng-bind="vm.conceptDetails.therapeuticArea.name"></td>
                         </tr>
                         <tr>
                             <th style="width:20%">Linked Experiment:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.joinArr(experimentPreviewController.conceptDetails.linkedExperiments, 'text')"></td>
+                            <td style="width:30%" ng-bind="vm.joinArr(vm.conceptDetails.linkedExperiments, 'text')"></td>
                             <th style="width:20%">Project Code:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.conceptDetails.codeAndName.name"></td>
+                            <td style="width:30%" ng-bind="vm.conceptDetails.codeAndName.name"></td>
                         </tr>
                         <tr>
                             <th style="width:20%">Concept Keywords:</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.conceptDetails.keywords"></td>
+                            <td style="width:30%" ng-bind="vm.conceptDetails.keywords"></td>
                             <th style="width:20%">Designers</th>
-                            <td style="width:30%" ng-bind="experimentPreviewController.joinArr(experimentPreviewController.conceptDetails.designers)"></td>
+                            <td style="width:30%" ng-bind="vm.joinArr(vm.conceptDetails.designers)"></td>
                         </tr>
                         <tr>
                             <th>Co-authors:</th>
-                            <td colspan="3" ng-bind="experimentPreviewController.joinArr(experimentPreviewController.conceptDetails.coAuthors)"></td>
+                            <td colspan="3" ng-bind="vm.joinArr(vm.conceptDetails.coAuthors)"></td>
                         </tr>
                     </table>
                 </div>
             </div>
             <!--PREFERRED COMPOUNDS-->
             <!--no such component yet ? concept(no fields), product-batch-summary?-->
-            <div class="row print-component" ng-if="experimentPreviewController.preferredCompounds">
-                <div class="col-xs-1 need-to-print" ng-init="experimentPreviewController.preferredCompounds.needToPrint = true">
-                    <indigo-checkbox indigo-label="Print" indigo-model="experimentPreviewController.preferredCompounds.needToPrint" indigo-name="needToPrint" indigo-disabled="experimentPreviewController.fullPrint"></indigo-checkbox>
+            <div class="row print-component" ng-if="vm.preferredCompounds">
+                <div class="col-xs-1 need-to-print" ng-init="vm.preferredCompounds.needToPrint = true">
+                    <indigo-checkbox indigo-label="Print" indigo-model="vm.preferredCompounds.needToPrint" indigo-name="needToPrint" indigo-disabled="vm.fullPrint"></indigo-checkbox>
                 </div>
                 <div class="col-xs-11">
                     <span class="pull-left">PREFERRED COMPOUNDS</span>
@@ -407,7 +407,7 @@
                             <th style="width:20%; text-align: center;">Mol Formula</th>
                             <th style="width:20%; text-align: center;">Structure Comments</th>
                         </tr>
-                        <tr ng-repeat="compound in experimentPreviewController.preferredCompounds.compounds  track by $index" style="vertical-align: top">
+                        <tr ng-repeat="compound in vm.preferredCompounds.compounds  track by $index" style="vertical-align: top">
                             <td style="width:20%; text-align: center;">
                                 <div><img ng-if="compound.structure.image" class="img-responsive" style="max-height:200px; margin: 0 auto" ng-src="data:image/svg+xml;base64,{{compound.structure.image}}" alt="Image is unavailable."></div>
 
@@ -415,7 +415,7 @@
                                 <p style="text-align: center;" ng-bind="compound.stereoisomer.name + ' ' + compound.stereoisomer.description"></p>
                             </td>
                             <td style="width:20%; text-align: center;" ng-bind="compound.fullNbkBatch"></td>
-                            <td style="width:20%; text-align: center;" ng-bind="experimentPreviewController.toDigits(compound.molWeight)"></td>
+                            <td style="width:20%; text-align: center;" ng-bind="vm.toDigits(compound.molWeight)"></td>
                             <td style="width:20%; text-align: center;" ng-bind="compound.formula"></td>
                             <td style="width:20%; text-align: center;" ng-bind="compound.structureComments"></td>
                         </tr>
@@ -425,10 +425,10 @@
         </form>
     </div>
     <div class="btn-bottom-block tab-content-pad experiment-preview-block" style="">
-        <button ng-click="experimentPreviewController.print(experiment)" ng-if="!experimentPreviewController.fullPrint" ng-disabled="print-form.$invalid || experimentPreviewController.isPrinting" class="btn btn-primary">
+        <button ng-click="vm.print(experiment)" ng-if="!vm.fullPrint" ng-disabled="print-form.$invalid || vm.isPrinting" class="btn btn-primary">
             <span class="fa fa-print"></span><span class="m-l5">Print</span>
         </button>
-        <button ng-click="experimentPreviewController.submit()" ng-if="experimentPreviewController.fullPrint" ng-disabled="print-form.$invalid || experimentPreviewController.isPrinting" class="btn btn-info">
+        <button ng-click="vm.submit()" ng-if="vm.fullPrint" ng-disabled="print-form.$invalid || vm.isPrinting" class="btn btn-info">
             <i class="fa fa-save"></i><span class="m-l5">Submit</span>
         </button>
         <a class="btn btn-default" onclick="window.history.back()">

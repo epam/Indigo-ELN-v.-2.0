@@ -144,7 +144,7 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
     }
 
     //TODO: remove $scope
-    function trackEntityChanges(entity, form, $scope, kind, self) {
+    function trackEntityChanges(entity, form, $scope, kind, vm) {
         resolvePrincipal(function () {
             var curtab = EntitiesBrowser.getActiveTab();
             if (!entity.id && !curtab.tmpId) {
@@ -157,7 +157,7 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
             states[fullId] = state;
             var rec = get(kind, entity);
             if (rec && !rec.rec.thisSession) {
-                self.restored = {
+                vm.restored = {
                     rec: rec,
                     resolve: function (val) {
                         if (val) {
@@ -165,25 +165,25 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                         }
                         clear(kind, entity);
                         form.$setDirty(true);
-                        self.restored = null;
+                        vm.restored = null;
                     }
                 };
             } else if (rec && curtab.tmpId) {
                 angular.extend(entity, rec.entity);
                 form.$setDirty(true);
             }
-            self.undoAction = function () {
+            vm.undoAction = function () {
                 undoAction(entity);
                 form.$setDirty(true);
             };
-            self.redoAction = function () {
+            vm.redoAction = function () {
                 redoAction(entity);
                 form.$setDirty(true);
             };
-            self.canUndo = function () {
+            vm.canUndo = function () {
                 return canUndo(entity);
             };
-            self.canRedo = function () {
+            vm.canRedo = function () {
                 return canRedo(entity);
             };
             var ctimeout, prev;
@@ -212,12 +212,12 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 }, 1000);
             };
             var unbind = $scope.$watch(function () {
-                return self[kind];
+                return vm[kind];
             }, onChange, true);
             var unbindDirty = $scope.$watch(form.$name + '.$dirty', function (val, old) {
                 if (!val && old) {
                     clear(kind, entity);
-                    self.restored = null;
+                    vm.restored = null;
                 }
             }, true);
             $scope.$on('$destroy', function () {

@@ -7,7 +7,7 @@
     function indigoHasAuthority(Principal) {
         return {
             restrict: 'A',
-            link: function link($scope, $element, $attrs) {
+            link: function($scope, $element, $attrs) {
                 var authority = $attrs.indigoHasAuthority.replace(/\s+/g, '');
 
                 if (authority.length > 0) {

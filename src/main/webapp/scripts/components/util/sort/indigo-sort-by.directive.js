@@ -2,7 +2,7 @@
     angular
         .module('indigoeln')
         .directive('indigoSortBy', indigoSortBy);
-    
+
     function indigoSortBy() {
         return {
             restrict: 'A',
@@ -10,13 +10,13 @@
             require: '^indigoSort',
             link: link
         };
-    }
 
-    /* @ngInject */
-    function link(scope, element, attrs, parentCtrl) {
-        element.bind('click', function () {
-            parentCtrl.sort(attrs.indigoSortBy);
-            parentCtrl.applyClass(element);
-        });
+        /* @ngInject */
+        function link(scope, element, attrs, parentCtrl) {
+            element.bind('click', function () {
+                parentCtrl.sort(attrs.indigoSortBy);
+                parentCtrl.applyClass(element);
+            });
+        }
     }
 })();

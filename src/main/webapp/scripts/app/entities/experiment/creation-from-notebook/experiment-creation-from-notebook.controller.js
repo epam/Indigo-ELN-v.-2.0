@@ -5,25 +5,25 @@
 
     /* @ngInject */
     function ExperimentCreationFromNotebookController($rootScope, $stateParams, $uibModalInstance, Experiment, pageInfo) {
-        var self = this;
+        var vm = this;
 
-        self.experiment = pageInfo.entity;
-        self.notebookId = $stateParams.notebookId;
-        self.projectId = $stateParams.projectId;
-        self.templates = pageInfo.templates;
-        self.mode = pageInfo.mode;
-        self.template = self.experiment.template;
+        vm.experiment = pageInfo.entity;
+        vm.notebookId = $stateParams.notebookId;
+        vm.projectId = $stateParams.projectId;
+        vm.templates = pageInfo.templates;
+        vm.mode = pageInfo.mode;
+        vm.template = vm.experiment.template;
 
-        self.ok     = save;
-        self.cancel = cancelPressed;
+        vm.ok = save;
+        vm.cancel = cancelPressed;
 
         function save() {
-            self.isSaving = true;
-            self.experiment = _.extend(self.experiment, {template: self.template});
+            vm.isSaving = true;
+            vm.experiment = _.extend(vm.experiment, {template: vm.template});
             Experiment.save({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
-            }, self.experiment, onSaveSuccess, onSaveError);
+            }, vm.experiment, onSaveSuccess, onSaveError);
         }
 
         function cancelPressed() {
@@ -32,7 +32,7 @@
         }
 
         function onSaveSuccess(result) {
-            self.isSaving = false;
+            vm.isSaving = false;
             $rootScope.$broadcast('experiment-created', {
                 projectId: $stateParams.projectId,
                 notebookId: $stateParams.notebookId,
@@ -46,7 +46,7 @@
         }
 
         function onSaveError() {
-            self.isSaving = false;
+            vm.isSaving = false;
         }
     }
 })();

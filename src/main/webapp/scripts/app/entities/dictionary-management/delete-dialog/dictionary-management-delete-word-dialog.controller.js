@@ -5,10 +5,10 @@
 
     /* @ngInject */
     function DictionaryManagementDeleteWordController($uibModalInstance) {
-        var self = this;
+        var vm = this;
 
-        self.dismiss = dismiss;
-        self.confirmDeleteWord = confirmDeleteWord;
+        vm.dismiss = dismiss;
+        vm.confirmDeleteWord = confirmDeleteWord;
 
         function dismiss() {
             $uibModalInstance.dismiss('cancel');

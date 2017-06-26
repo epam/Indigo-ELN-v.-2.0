@@ -5,11 +5,11 @@
 
     /* @ngInject */
     function ExperimentDeleteController($uibModalInstance, $stateParams, entity, Experiment) {
-        var self = this;
-        self.experiment = entity;
+        var vm = this;
+        vm.experiment = entity;
 
-        self.clear          = clear;
-        self.confirmDelete  = confirmDelete;
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
 
         function clear() {
             $uibModalInstance.dismiss('cancel');

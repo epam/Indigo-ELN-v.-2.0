@@ -143,7 +143,7 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                 }
             },
             controller: 'ExperimentCompleteModalController',
-            controllerAs: 'experimentCompleteModalController'
+            controllerAs: 'vm'
         });
     }
 
