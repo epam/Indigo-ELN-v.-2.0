@@ -4,14 +4,13 @@ angular
 
 /* @ngInject */
 function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
-
     return {
         responseError: responseError
     };
 
     function responseError(httpResponse) {
         var i;
-        var addErrorAlert = function () {
+        var addErrorAlert = function() {
             $log.error(JSON.stringify(arguments));
         };
         switch (httpResponse.status) {
@@ -27,17 +26,20 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 if (angular.isString(errorAlertHeader)) {
                     $log.error(errorAlertHeader);
                 } else if (errorHeader) {
-                    addErrorAlert(errorHeader, {entityName: entityKey});
+                    addErrorAlert(errorHeader, {
+                        entityName: entityKey
+                    });
                 } else if (httpResponse.data && httpResponse.data.fieldErrors) {
                     for (i = 0; i < httpResponse.data.fieldErrors.length; i++) {
                         var fieldError = httpResponse.data.fieldErrors[i];
                         // convert 'something[14].other[4].id' to 'something[].other[].id' so translations can be written to it
                         var convertedField = fieldError.field.replace(/\[\d*\]/g, '[]');
                         var fieldName = convertedField.charAt(0).toUpperCase() + convertedField.slice(1);
-                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {fieldName: fieldName});
+                        addErrorAlert('Field ' + fieldName + ' cannot be empty', 'error.' + fieldError.message, {
+                            fieldName: fieldName
+                        });
                     }
                 } else if (httpResponse.data && httpResponse.data.message) {
-
                     $log.error(httpResponse.data.message);
                 } else {
                     addErrorAlert(httpResponse.data);
@@ -63,6 +65,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                     addErrorAlert(JSON.stringify(httpResponse));
                 }
         }
+
         return $q.reject(httpResponse);
     }
 }

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('DictionaryManagementDeleteWordController', DictionaryManagementDeleteWordController);

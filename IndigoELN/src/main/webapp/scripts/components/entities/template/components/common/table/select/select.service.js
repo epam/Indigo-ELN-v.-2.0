@@ -6,7 +6,6 @@ angular
 function selectService($uibModal, RegistrationUtil) {
     var setSelectValueAction = {
         action: action
-
     };
 
     return {
@@ -20,29 +19,29 @@ function selectService($uibModal, RegistrationUtil) {
             controller: 'SetSelectValueController',
             size: 'sm',
             resolve: {
-                name: function () {
+                name: function() {
                     return that.title;
                 },
-                values: function () {
+                values: function() {
                     return that.values;
                 },
-                dictionary: function () {
+                dictionary: function() {
                     return that.dictionary;
                 }
             }
-        }).result.then(function (result) {
-            _.each(that.rows, function (row) {
+        }).result.then(function(result) {
+            _.each(that.rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
                     row[id] = result;
                 }
             });
-        }, function () {
+        }, function() {
 
         });
     }
 
     function processColumns(columns, rows) {
-        _.each(columns, function (column) {
+        _.each(columns, function(column) {
             if (column.type === 'select' && !column.hideSelectValue) {
                 column.actions = (column.actions || [])
                     .concat([_.extend({}, setSelectValueAction, {

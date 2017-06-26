@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('project', {
                 abstract: true,
@@ -8,7 +8,7 @@ angular.module('indigoeln')
             .state('entities.project-new', {
                 url: '/project/new',
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/project/project.html',
                         controller: 'ProjectController',
                         controllerAs: 'vm'
@@ -26,14 +26,14 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, Principal) {
+                    pageInfo: function($q, Principal) {
                         var deferred = $q.defer();
                         $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 project: {},
                                 identity: results[0],
@@ -42,6 +42,7 @@ angular.module('indigoeln')
                                 hasCreateChildAuthority: results[3]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -49,7 +50,7 @@ angular.module('indigoeln')
             .state('entities.project-detail', {
                 url: '/project/{projectId}',
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/project/project.html',
                         controller: 'ProjectController',
                         controllerAs: 'vm'
@@ -67,8 +68,7 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
-
+                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
                         var deferred = $q.defer();
                         if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Project, $stateParams));
@@ -80,7 +80,7 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 project: results[0],
                                 identity: results[1],
@@ -90,6 +90,7 @@ angular.module('indigoeln')
                                 dirty: results[5] ? results[5].dirty : false
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -100,9 +101,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read project)'},
-                    {id: 'USER', name: 'USER (read project, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read project)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read project, create notebooks)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
+                    }
                 ]
             }))
             .state('entities.project-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
@@ -111,9 +118,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read project)'},
-                    {id: 'USER', name: 'USER (read project, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read project)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read project, create notebooks)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
+                    }
                 ]
             }))
             .state('entities.project-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
@@ -121,10 +134,16 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                'permissions': [
-                    {id: 'VIEWER', name: 'VIEWER (read project)'},
-                    {id: 'USER', name: 'USER (read project, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                permissions: [
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read project)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read project, create notebooks)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
+                    }
                 ]
             }))
             .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
@@ -132,10 +151,16 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                'permissions': [
-                    {id: 'VIEWER', name: 'VIEWER (read project)'},
-                    {id: 'USER', name: 'USER (read project, create notebooks)'},
-                    {id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'}
+                permissions: [
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read project)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read project, create notebooks)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
+                    }
                 ]
             }))
         ;

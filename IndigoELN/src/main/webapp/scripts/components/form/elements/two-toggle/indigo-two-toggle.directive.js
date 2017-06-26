@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoTwoToggle', indigoTwoToggle);
@@ -29,6 +29,7 @@
             }
 
             var active = 'active';
+
             return active;
         }
     }

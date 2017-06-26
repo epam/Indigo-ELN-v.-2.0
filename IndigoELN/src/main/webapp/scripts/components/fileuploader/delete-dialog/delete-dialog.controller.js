@@ -12,7 +12,11 @@
 
         function deleteFile() {
             if (params.projectId) {
-                UploaderService.delete({id: file.id}).$promise.then(
+                UploaderService
+                    .delete({
+                        id: file.id
+                    })
+                    .$promise.then(
                     function() {
                         $uibModalInstance.close(file);
                     },

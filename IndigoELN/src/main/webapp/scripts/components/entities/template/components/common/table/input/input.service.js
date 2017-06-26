@@ -6,7 +6,6 @@ angular
 function inputService($uibModal, RegistrationUtil) {
     var setInputValueAction = {
         action: action
-
     };
 
     return {
@@ -20,23 +19,23 @@ function inputService($uibModal, RegistrationUtil) {
             controller: 'SetInputValueController',
             size: 'sm',
             resolve: {
-                name: function () {
+                name: function() {
                     return that.title;
                 }
             }
-        }).result.then(function (result) {
-            _.each(that.rows, function (row) {
+        }).result.then(function(result) {
+            _.each(that.rows, function(row) {
                 if (!RegistrationUtil.isRegistered(row)) {
                     row[id] = result;
                 }
             });
-        }, function () {
+        }, function() {
 
         });
     }
 
     function processColumns(columns, rows) {
-        _.each(columns, function (column) {
+        _.each(columns, function(column) {
             if (column.type === 'input' && column.bulkAssignment) {
                 column.actions = (column.actions || [])
                     .concat([_.extend({}, setInputValueAction, {

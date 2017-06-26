@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('TemplateDeleteController', TemplateDeleteController);
@@ -15,8 +15,10 @@
         }
 
         function confirmDelete() {
-            Template.delete({id: $stateParams.id},
-                function () {
+            Template.delete({
+                id: $stateParams.id
+            },
+                function() {
                     $uibModalInstance.close(true);
                 });
         }

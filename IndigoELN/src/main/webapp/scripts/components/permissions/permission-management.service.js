@@ -1,24 +1,34 @@
 angular.module('indigoeln')
-    .factory('UserWithAuthority', function ($resource) {
+    .factory('UserWithAuthority', function($resource) {
         return $resource('api/users/permission-management', {}, {
-            'query': {method: 'GET', isArray: true}
+            query: {
+                method: 'GET', isArray: true
+            }
         });
     })
-    .factory('UserRemovableFromProject', function ($resource) {
+    .factory('UserRemovableFromProject', function($resource) {
         return $resource('api/projects/permissions/user-removable', {}, {
-            'get': {method: 'GET'}
+            get: {
+                method: 'GET'
+            }
         });
     })
-    .factory('UserRemovableFromNotebook', function ($resource) {
+    .factory('UserRemovableFromNotebook', function($resource) {
         return $resource('api/notebooks/permissions/user-removable', {}, {
-            'get': {method: 'GET'}
+            get: {
+                method: 'GET'
+            }
         });
     })
     .factory('PermissionManagement', permissionManagement);
 
 /* @ngInject */
 function permissionManagement($q, Principal, UserRemovableFromProject, UserRemovableFromNotebook) {
-    var _accessList, _author, _entity, _entityId, _parentId;
+    var _accessList;
+    var _author;
+    var _entity;
+    var _entityId;
+    var _parentId;
 
     var VIEWER = ['READ_ENTITY'];
     var USER = ['READ_ENTITY', 'CREATE_SUB_ENTITY'];
@@ -46,7 +56,7 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     };
 
     function expandPermission(list) {
-        _.each(list, function (item) {
+        _.each(list, function(item) {
             if (item.permissionView === 'OWNER') {
                 item.permissions = OWNER;
             } else if (item.permissionView === 'USER') {
@@ -55,6 +65,7 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
                 item.permissions = VIEWER;
             }
         });
+
         return list;
     }
 
@@ -62,16 +73,18 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         if (!accessList && !_accessList) {
             return $q.when(false);
         }
-        var list = accessList ? accessList : _accessList;
-        return Principal.identity().then(function (identity) {
+        var list = accessList || _accessList;
+
+        return Principal.identity().then(function(identity) {
             var hasPermission = false;
-            _.each(list, function (item) {
+            _.each(list, function(item) {
                 if (item.user.id === identity.id && _.contains(item.permissions, permission)) {
                     hasPermission = true;
                 }
             });
+
             return hasPermission;
-        }, function () {
+        }, function() {
             return false;
         });
     }
@@ -89,10 +102,11 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
                 permissions: ['READ_ENTITY'],
                 permissionView: 'VIEWER'
             };
+
             return [experimentCreatorPermissions, projectCreatorPermissions];
-        } else {
-            return [experimentCreatorPermissions];
         }
+
+        return [experimentCreatorPermissions];
     }
 
     function getAccessList() {
@@ -141,15 +155,15 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         var projectViewerAuthoritySet = ['PROJECT_READER'];
 
         if (permission === 'OWNER') {
-            return _.every(projectOwnerAuthoritySet, function (authority) {
+            return _.every(projectOwnerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         } else if (permission === 'USER') {
-            return _.every(projectUserAuthoritySet, function (authority) {
+            return _.every(projectUserAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
-            return _.every(projectViewerAuthoritySet, function (authority) {
+            return _.every(projectViewerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         }
@@ -161,15 +175,15 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         var notebookViewerAuthoritySet = ['NOTEBOOK_READER'];
 
         if (permission === 'OWNER') {
-            return _.every(notebookOwnerAuthoritySet, function (authority) {
+            return _.every(notebookOwnerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         } else if (permission === 'USER') {
-            return _.every(notebookUserAuthoritySet, function (authority) {
+            return _.every(notebookUserAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
-            return _.every(notebookViewerAuthoritySet, function (authority) {
+            return _.every(notebookViewerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         }
@@ -181,11 +195,11 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         var experimentViewerAuthoritySet = ['EXPERIMENT_READER'];
 
         if (permission === 'OWNER') {
-            return _.every(experimentOwnerAuthoritySet, function (authority) {
+            return _.every(experimentOwnerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
-            return _.every(experimentViewerAuthoritySet, function (authority) {
+            return _.every(experimentViewerAuthoritySet, function(authority) {
                 return _.contains(member.user.authorities, authority);
             });
         }
@@ -202,24 +216,31 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
     }
 
     function isUserRemovableFromAccessList(member) {
-        var agent, params;
+        var agent;
+        var params;
         var deferred = $q.defer();
         if (_entity === 'Experiment' || !_entityId) {
             deferred.resolve(true);
+
             return deferred.promise;
         }
         if (_entity === 'Project') {
             agent = UserRemovableFromProject;
-            params = {projectId: _entityId, userId: member.user.id};
+            params = {
+                projectId: _entityId, userId: member.user.id
+            };
         } else if (_entity === 'Notebook') {
             agent = UserRemovableFromNotebook;
-            params = {projectId: _parentId, notebookId: _entityId, userId: member.user.id};
+            params = {
+                projectId: _parentId, notebookId: _entityId, userId: member.user.id
+            };
         }
         if (agent) {
-            agent.get(params).$promise.then(function (result) {
+            agent.get(params).$promise.then(function(result) {
                 deferred.resolve(result.isUserRemovable);
             });
         }
+
         return deferred.promise;
     }
 }

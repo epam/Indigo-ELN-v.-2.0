@@ -95,7 +95,9 @@ function infoEditor($uibModal) {
                     return data;
                 },
                 dictionary: function(Dictionary) {
-                    return Dictionary.get({id: 'purity'}).$promise;
+                    return Dictionary.get({
+                        id: 'purity'
+                    }).$promise;
                 }
             }
         }).result.then(function(result) {
@@ -132,7 +134,9 @@ function infoEditor($uibModal) {
                     return model;
                 },
                 dictionary: function(Dictionary) {
-                    return Dictionary.get({id: dictionary}).$promise;
+                    return Dictionary.get({
+                        id: dictionary
+                    }).$promise;
                 },
                 title: function() {
                     return title;

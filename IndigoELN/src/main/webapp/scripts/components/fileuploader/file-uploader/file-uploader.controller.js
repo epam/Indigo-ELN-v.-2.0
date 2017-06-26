@@ -46,9 +46,9 @@
         }
 
         function upload() {
-
             if (!params.projectId) {
-                Alert.error("Please save project before attach files.");
+                Alert.error('Please save project before attach files.');
+
                 return;
             }
 
@@ -68,7 +68,7 @@
                 }
             }).result.then(function(result) {
                 vm.files = _.union(vm.files, result);
-                $rootScope.$broadcast("refresh after attach", 0);
+                $rootScope.$broadcast('refresh after attach', 0);
             });
         }
 

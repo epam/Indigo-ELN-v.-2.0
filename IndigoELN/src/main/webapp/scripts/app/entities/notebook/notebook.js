@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('notebook', {
                 abstract: true,
@@ -8,7 +8,7 @@ angular.module('indigoeln')
             .state('entities.notebook-new', {
                 url: '/project/{parentId}/notebook/new',
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
                         controller: 'NotebookDialogController',
                         controllerAs: 'vm'
@@ -26,14 +26,14 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal) {
+                    pageInfo: function($q, $stateParams, Principal) {
                         var deferred = $q.defer();
                         $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 notebook: {},
                                 identity: results[0],
@@ -44,13 +44,14 @@ angular.module('indigoeln')
                                 projectId: $stateParams.parentId
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
             }).state('entities.notebook-detail', {
                 url: '/project/{projectId}/notebook/{notebookId}',
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/notebook/notebook-dialog.html',
                         controller: 'NotebookDialogController',
                         controllerAs: 'vm'
@@ -68,7 +69,7 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
+                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
                                         AutoSaveEntitiesEngine, EntitiesBrowser) {
                         var deferred = $q.defer();
                         if (!EntitiesCache.get($stateParams)) {
@@ -81,7 +82,7 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
                             EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 notebook: results[0],
                                 identity: results[1],
@@ -92,6 +93,7 @@ angular.module('indigoeln')
                                 projectId: $stateParams.projectId
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -102,9 +104,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
-                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
-                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read notebook)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read notebook, create experiments)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
+                    }
                 ]
             }))
             .state('entities.notebook-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
@@ -113,9 +121,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
-                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
-                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read notebook)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read notebook, create experiments)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
+                    }
                 ]
             }))
             .state('entities.notebook-detail.permissions', _.extend({}, PermissionManagementConfig, {
@@ -124,9 +138,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
-                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
-                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read notebook)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read notebook, create experiments)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
+                    }
                 ]
             }))
             .state('entities.notebook-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
@@ -135,9 +155,15 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read notebook)'},
-                    {id: 'USER', name: 'USER (read notebook, create experiments)'},
-                    {id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read notebook)'
+                    },
+                    {
+                        id: 'USER', name: 'USER (read notebook, create experiments)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
+                    }
                 ]
             }))
             .state('notebook.select-project', {
@@ -147,7 +173,7 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
-                onEnter: function ($state, $uibModal, $window) {
+                onEnter: function($state, $uibModal, $window) {
                     $uibModal.open({
                         animation: true,
                         templateUrl: 'scripts/app/entities/notebook/notebook-select-parent.html',
@@ -155,13 +181,15 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
-                            parents: function (ProjectsForSubCreation) {
+                            parents: function(ProjectsForSubCreation) {
                                 return ProjectsForSubCreation.query().$promise;
                             }
                         }
-                    }).result.then(function (projectId) {
-                        $state.go('entities.notebook-new', {parentId: projectId});
-                    }, function () {
+                    }).result.then(function(projectId) {
+                        $state.go('entities.notebook-new', {
+                            parentId: projectId
+                        });
+                    }, function() {
                         $window.history.back();
                     });
                 }

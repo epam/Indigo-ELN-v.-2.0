@@ -12,22 +12,42 @@ function editSolubilityController($uibModalInstance, data) {
         vm.solubility.data = vm.solubility.data || [];
 
         vm.solubilityTypeSelect = [
-            {name: 'Quantitative'},
-            {name: 'Qualitative'}];
+            {
+                name: 'Quantitative'
+            },
+            {
+                name: 'Qualitative'
+            }];
 
         vm.qualitativeSolubilitySelect = [
-            {name: 'Soluble'},
-            {name: 'Unsoluble'},
-            {name: 'Precipitate'}];
+            {
+                name: 'Soluble'
+            },
+            {
+                name: 'Unsoluble'
+            },
+            {
+                name: 'Precipitate'
+            }];
 
         vm.unitSelect = [
-            {name: 'g/ml'}];
+            {
+                name: 'g/ml'
+            }];
 
         vm.operatorSelect = [
-            {name: '>'},
-            {name: '<'},
-            {name: '='},
-            {name: '~'}];
+            {
+                name: '>'
+            },
+            {
+                name: '<'
+            },
+            {
+                name: '='
+            },
+            {
+                name: '~'
+            }];
 
         vm.save = save;
         vm.cancel = cancel;
@@ -37,7 +57,12 @@ function editSolubilityController($uibModalInstance, data) {
     }
 
     function addSolvent() {
-        vm.solubility.data.push({solventName: {}, type: {}, value: {}, comment: ''});
+        vm.solubility.data.push({
+            solventName: {},
+            type: {},
+            value: {},
+            comment: ''
+        });
     }
 
     function remove(solvent) {

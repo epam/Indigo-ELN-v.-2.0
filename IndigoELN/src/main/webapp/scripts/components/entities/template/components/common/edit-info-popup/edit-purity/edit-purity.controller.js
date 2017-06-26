@@ -14,10 +14,18 @@ function editPurityController($scope, $uibModalInstance, data, dictionary) {
         vm.dictionary = dictionary;
 
         vm.operatorSelect = [
-            {name: '>'},
-            {name: '<'},
-            {name: '='},
-            {name: '~'}];
+            {
+                name: '>'
+            },
+            {
+                name: '<'
+            },
+            {
+                name: '='
+            },
+            {
+                name: '~'
+            }];
 
         vm.unknownPurity = 'Purity Unknown';
 

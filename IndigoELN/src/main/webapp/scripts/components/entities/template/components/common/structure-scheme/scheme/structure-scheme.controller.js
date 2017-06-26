@@ -180,7 +180,6 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
             }
             setStructure(vm.structureType, structure);
             EntitiesBrowser.setCurrentFormDirty();
-
         });
     }
 

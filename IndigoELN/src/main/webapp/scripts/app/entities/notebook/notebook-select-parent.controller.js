@@ -1,5 +1,6 @@
-(function () {
-    angular.module('indigoeln')
+(function() {
+    angular
+        .module('indigoeln')
         .controller('NotebookSelectParentController', NotebookSelectParentController);
 
     /* @ngInject */
@@ -22,22 +23,22 @@
         }
 
         function init() {
-            //EPMLSOPELN-415 Remember last selected parent and template
+            // EPMLSOPELN-415 Remember last selected parent and template
             Principal.identity()
-                .then(function (user) {
-                    var pkey = user.id + '.' + 'lastSelectedProjectId',
-                        pval = localStorageService.get(pkey);
+                .then(function(user) {
+                    var pkey = user.id + '.' + 'lastSelectedProjectId';
+                    var pval = localStorageService.get(pkey);
                     if (pval) {
-                        vm.selectedParent = parents.filter(function (p) {
+                        vm.selectedParent = parents.filter(function(p) {
                             return p.id === pval;
                         })[0];
                     }
-                    var unsubscribe = $scope.$watchGroup(['selectedParent'], function () {
+                    var unsubscribe = $scope.$watchGroup(['selectedParent'], function() {
                         if (vm.selectedParent) {
                             localStorageService.set(pkey, vm.selectedParent.id);
                         }
                     });
-                    $scope.$on('$destroy', function () {
+                    $scope.$on('$destroy', function() {
                         unsubscribe();
                     });
                 });

@@ -3,13 +3,12 @@
  */
 angular.module('indigoeln')
     .controller('ProductBatchSummaryController',
-    function ($scope) {
-            $scope.model = $scope.model || {};
-            $scope.structureSize = 0.3;
+    function($scope) {
+        $scope.model = $scope.model || {};
+        $scope.structureSize = 0.3;
 
-            $scope.showStructure = function(value){
-                $scope.isStructure = value;
-            }
-
-        }
+        $scope.showStructure = function(value) {
+            $scope.isStructure = value;
+        };
+    }
     );

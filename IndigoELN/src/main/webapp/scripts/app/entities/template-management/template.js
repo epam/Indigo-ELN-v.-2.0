@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities.template', {
                 parent: 'entities',
@@ -15,7 +15,7 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/template-management/templates.html',
                         controller: 'TemplateController',
                         controllerAs: 'vm'
@@ -36,22 +36,25 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/template-management/modal/template-modal.html',
                         controller: 'TemplateModalController',
                         controllerAs: 'vm'
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q) {
+                    pageInfo: function($q) {
                         var deferred = $q.defer();
                         $q.all([
-                            $q.when({name: null, id: null})
-                        ]).then(function (results) {
+                            $q.when({
+                                name: null, id: null
+                            })
+                        ]).then(function(results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -75,22 +78,25 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/template-management/detail/template-detail.html',
                         controller: 'TemplateDetailController',
                         controllerAs: 'vm'
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Template) {
+                    pageInfo: function($q, $stateParams, Template) {
                         var deferred = $q.defer();
                         $q.all([
-                            Template.get({id: $stateParams.id}).$promise
-                        ]).then(function (results) {
+                            Template.get({
+                                id: $stateParams.id
+                            }).$promise
+                        ]).then(function(results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -108,7 +114,7 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/template-management/modal/template-modal.html',
                         controller: 'TemplateModalController',
                         controllerAs: 'vm'
@@ -116,15 +122,18 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Template) {
+                    pageInfo: function($q, $stateParams, Template) {
                         var deferred = $q.defer();
                         $q.all([
-                            Template.get({id: $stateParams.id}).$promise
-                        ]).then(function (results) {
+                            Template.get({
+                                id: $stateParams.id
+                            }).$promise
+                        ]).then(function(results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -135,19 +144,20 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['TEMPLATE_EDITOR'],
                     tab: {
-                        //override parent type
                         type: ''
                     }
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/template-management/delete-dialog/template-delete-dialog.html',
                         controller: 'TemplateDeleteController',
                         controllerAs: 'vm',
                         size: 'md'
-                    }).result.then(function () {
-                        $state.go('entities.template', null, {reload: true});
-                    }, function () {
+                    }).result.then(function() {
+                        $state.go('entities.template', null, {
+                            reload: true
+                        });
+                    }, function() {
                         $state.go('^');
                     });
                 }]

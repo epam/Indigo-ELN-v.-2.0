@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('DictionaryManagementController', DictionaryManagementController);
@@ -32,27 +32,27 @@
         init();
 
         function init() {
-            var unsubscribe = $scope.$watch(function () {
+            var unsubscribe = $scope.$watch(function() {
                 return vm.selectedDictionaryId;
-            }, function () {
+            }, function() {
                 if (vm.selectedDictionaryId) {
                     vm.isCollapsed = false;
-                    vm.selectedDictionary = _.find(vm.dictionaries, function (dict) {
+                    vm.selectedDictionary = _.find(vm.dictionaries, function(dict) {
                         return dict.id === vm.selectedDictionaryId;
                     });
                     // set sorting way by mean of rank value
-                    vm.selectedDictionary.words.sort(function (a, b) {
+                    vm.selectedDictionary.words.sort(function(a, b) {
                         return a.rank > b.rank;
                     });
                 }
             });
 
-            $scope.$on('$destroy', function () {
+            $scope.$on('$destroy', function() {
                 unsubscribe();
             });
 
 
-            $scope.$watchCollection('vm.selectedDictionary.words', function () {
+            $scope.$watchCollection('vm.selectedDictionary.words', function() {
                 if (vm.selectedDictionary) {
                     updateRanks(vm.selectedDictionary.words.length);
                 }
@@ -66,7 +66,7 @@
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 search: vm.searchText
-            }, function (result, headers) {
+            }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.dictionaries = result;
@@ -99,7 +99,7 @@
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 search: vm.searchText
-            }, function (result, headers) {
+            }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.dictionaries = $filter('filter')(result, vm.searchText);
@@ -137,9 +137,10 @@
                 vm.selectedDictionary.words.push(vm.word);
             } else {
                 // update if this is an edited one
-                _.each(vm.selectedDictionary.words, function (wrd) {
+                _.each(vm.selectedDictionary.words, function(wrd) {
                     if (wrd.rank === vm.word.rank) {
                         _.extend(wrd, vm.word);
+
                         return false;
                     }
                 });
@@ -157,7 +158,7 @@
                 templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-word-dialog.html',
                 controller: 'DictionaryManagementDeleteWordController',
                 controllerAs: 'vm'
-            }).result.then(function () {
+            }).result.then(function() {
                 // remove the word
                 var len = self.selectedDictionary.words.length;
                 for (var i = 0; i < len; i++) {

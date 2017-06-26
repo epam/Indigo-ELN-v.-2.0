@@ -4,8 +4,7 @@ angular
 
 /* @ngInject */
 function alert() {
-
-    //TODO: move to file
+    // TODO: move to file
     var common = {
         allow_dismiss: true,
         offset: {
@@ -33,27 +32,32 @@ function alert() {
     function success(msg) {
         $.notify({
             message: msg
-        }, _.extend(common, {type: 'success'}));
+        }, _.extend(common, {
+            type: 'success'
+        }));
     }
 
     function error(msg) {
         $.notify({
             message: msg
-        }, _.extend(common, {type: 'danger'}));
-
+        }, _.extend(common, {
+            type: 'danger'
+        }));
     }
 
     function warning(msg) {
         $.notify({
             message: msg
-        }, _.extend(common, {type: 'warning'}));
-
+        }, _.extend(common, {
+            type: 'warning'
+        }));
     }
 
     function info(msg) {
         $.notify({
             message: msg
-        }, _.extend(common, {type: 'info'}));
+        }, _.extend(common, {
+            type: 'info'
+        }));
     }
-
 }

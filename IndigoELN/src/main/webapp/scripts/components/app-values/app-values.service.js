@@ -4,7 +4,7 @@ angular
 
 /* @ngInject */
 function appValues() {
-    //TODO: move to file
+    // TODO: move to file
     var grams = ['mg', 'g', 'kg'];
     var liters = ['ml', 'ul', 'l'];
     var moles = ['mmol', 'umol', 'mol'];
