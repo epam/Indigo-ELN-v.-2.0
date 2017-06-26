@@ -7,7 +7,8 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/entities.html',
-                        controller: 'EntitiesController'
+                        controller: 'EntitiesController',
+                        controllerAs: 'vm'
                     }
                 }
             });

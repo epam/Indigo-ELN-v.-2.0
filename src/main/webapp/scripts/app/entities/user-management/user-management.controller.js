@@ -65,8 +65,14 @@
 
         function create() {
             vm.user = {
-                id: null, login: null, firstName: null, lastName: null, email: null,
-                activated: true, roles: null, group: null
+                id: null,
+                login: null,
+                firstName: null,
+                lastName: null,
+                email: null,
+                activated: true,
+                roles: null,
+                group: null
             };
         }
 
