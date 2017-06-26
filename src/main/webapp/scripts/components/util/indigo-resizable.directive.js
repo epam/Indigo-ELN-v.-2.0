@@ -12,14 +12,14 @@
             },
             link: link
         };
-    }
 
-    /* @ngInject */
-    function link($scope, $elem) {
-        $elem.resizable({
-            handles: 's',
-            maxHeight: $scope.maxHeight,
-            minHeight: $scope.minHeight
-        });
+        /* @ngInject */
+        function link($scope, $elem) {
+            $elem.resizable({
+                handles: 's',
+                maxHeight: $scope.maxHeight,
+                minHeight: $scope.minHeight
+            });
+        }
     }
 })();

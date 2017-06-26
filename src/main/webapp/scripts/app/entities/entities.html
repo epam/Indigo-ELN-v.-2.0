@@ -1,10 +1,11 @@
-<indigo-entities-controls></indigo-entities-controls>
+<indigo-entities-controls on-close-tab="vm.onCloseTabClick($event, tab)"
+                          on-close-all-tabs="vm.onCloseAllTabs(exceptCurrent)"></indigo-entities-controls>
 <div class="main-tabs" indigo-tab-scroller>
     <ul class="nav nav-tabs">
-        <li role="presentation"  ng-class="{'active' : tab.tabKey === activeTab.tabKey}"
-            ng-repeat="tab in tabs  track by tab.tabKey" class="experiment-tab">
-            <a ng-click="$event.stopPropagation(); onTabClick(tab)">
-                <i class="fa fa-remove pull-right clickable" ng-click="$event.stopPropagation(); onCloseTabClick(tab);"></i>
+        <li role="presentation" ng-repeat="tab in vm.tabs  track by tab.tabKey"
+            ng-class="{'active' : tab.tabKey === vm.activeTab.tabKey}" class="experiment-tab">
+            <a ng-click="vm.onTabClick($event, tab)">
+                <i class="fa fa-remove pull-right clickable" ng-click="vm.onCloseTabClick($event, tab);"></i>
                 {{tab.name}} {{tab.$$title}}
                 <i class="fa fa-asterisk entity-changed" aria-hidden="true" ng-if="tab.dirty"></i>
             </a>
@@ -13,7 +14,7 @@
 </div>
 <div class="entities-content tab-content animated">
     <div class="tab-pane active">
-        <div ui-view="tabContent" class="tab-content animated" ></div>
+        <div ui-view="tabContent" class="tab-content animated"></div>
     </div>
 </div>
 

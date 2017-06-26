@@ -17,21 +17,19 @@
                 indigoClasses: '@',
                 indigoReadonly: '='
             },
-            compile: angular.bind({formUtils: formUtils}, compile),
+            compile: compile,
             templateUrl: 'scripts/components/form/elements/two-toggle/two-toggle.html'
         };
-    }
 
-    /* @ngInject */
-    function compile(tElement, tAttrs) {
-        var formUtils = this.formUtils;
+        /* @ngInject */
+        function compile(tElement, tAttrs) {
+            formUtils.doVertical(tAttrs, tElement);
+            if (tAttrs.indigoLabelVertical) {
+                $('<br/>').insertAfter(tElement.find('label').first());
+            }
 
-        formUtils.doVertical(tAttrs, tElement);
-        if (tAttrs.indigoLabelVertical) {
-            $('<br/>').insertAfter(tElement.find('label').first());
+            var active = 'active';
+            return active;
         }
-
-        var active = 'active';
-        return active;
     }
 })();

@@ -6,13 +6,18 @@ angular
 function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                          AlertModal, Alert, CalculationService, StoichTableCache, sdProperties) {
 
+        var properties = getImportProperties();
         var auxPrefixes = [
             'COMPOUND_REGISTRATION_'
         ];
 
-        var getImportProperties = function() {
+        return {
+            importFile: importFile
+        };
+
+        function getImportProperties() {
            var properties = {};
-           _.each(sdProperties.constants, function(prop, i, constants) {
+           _.each(sdProperties.constants, function(prop) {
                var fields = prop.import;
                if (fields.format) {
                     if (properties[fields.name]){
@@ -29,10 +34,9 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
 
            return properties;
         };
-        var properties = getImportProperties();
-        console.log("Import properties: ", properties);
 
-        var saveMolecule = function (mol) {
+
+        function saveMolecule(mol) {
             var deferred = $q.defer();
             $http({
                 url: 'api/bingodb/molecule/',
@@ -44,7 +48,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
             return deferred.promise;
         };
 
-        var fillProperties = function (sdUnitToImport, itemToImport, dicts) {
+        function fillProperties(sdUnitToImport, itemToImport, dicts) {
             if (sdUnitToImport.properties) {
                 _.each(properties, function (property, name) {
                     _.each(property, function(item) {
@@ -65,10 +69,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                         if (value && _.isFunction(item.format)) {
                             value = item.format(dicts, value);
                         }
-                        if (value) { console.log('it is value', value);
+                        if (value) {
                             if (itemToImport[name]){
-                                //$.extend(true, itemToImport[name], value);
-                                //_.defaultsDeep(itemToImport[name], value);
                                 angular.merge(itemToImport[name], value);
                             } else {
                                 itemToImport[name] = value;
@@ -77,12 +79,13 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                     });
                 });
             }
-            console.log('it is item to import: ', itemToImport);
         };
 
-        var importItems = function (sdUnitsToImport, dicts, i, addToTable, callback, complete) {
+        function importItems(sdUnitsToImport, dicts, i, addToTable, callback, complete) {
             if (!sdUnitsToImport[i]) {
-                if (complete) complete();
+                if (complete) {
+                    complete();
+                }
                 Alert.info(sdUnitsToImport.length + ' batches successfully imported');
                 return;
             }
@@ -110,7 +113,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
             });
         };
 
-        var importFile = function (addToTable, callback, complete) {
+        function importFile(addToTable, callback, complete) {
             $uibModal.open({
                 animation: true,
                 size: 'lg',
@@ -129,9 +132,5 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                     complete();
                     AlertModal.error('This file cannot be imported. Error occurred.');
                 });
-        };
-
-        return {
-            importFile: importFile
         };
 }
