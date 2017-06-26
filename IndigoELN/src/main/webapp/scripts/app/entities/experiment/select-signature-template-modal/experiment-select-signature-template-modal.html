@@ -1,7 +1,7 @@
-<form name="completeAndSignExperimentForm" ng-submit="experimentSelectSignatureTemplateModalController.selectSignatureTemplateModal()">
+<form name="completeAndSignExperimentForm" ng-submit="vm.selectSignatureTemplateModal()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="experimentSelectSignatureTemplateModalController.dismiss()">&times;</button>
+                ng-click="vm.dismiss()">&times;</button>
         <h5 class="modal-title">
             <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span>Signature Template Selection</span>
         </h5>
@@ -11,14 +11,14 @@
         <indigo-select
                 indigo-label="Template:"
                 indigo-name="signatureTemplates"
-                indigo-items="experimentSelectSignatureTemplateModalController.items"
-                indigo-model="experimentSelectSignatureTemplateModalController.selectedTemplate"
+                indigo-items="vm.items"
+                indigo-model="vm.selectedTemplate"
         ></indigo-select>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="experimentSelectSignatureTemplateModalController.dismiss()">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
-        <button type="submit" class="btn btn-primary" ng-disabled="!experimentSelectSignatureTemplateModalController.selectedTemplate">Ok</button>
+        <button type="submit" class="btn btn-primary" ng-disabled="!vm.selectedTemplate">Ok</button>
     </div>
 </form>

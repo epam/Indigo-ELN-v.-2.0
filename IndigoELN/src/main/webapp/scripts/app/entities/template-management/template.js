@@ -11,14 +11,14 @@ angular.module('indigoeln')
                         name: 'Templates',
                         kind: 'management',
                         state: 'entities.template',
-                        type:'entity'
+                        type: 'entity'
                     }
                 },
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/template-management/templates.html',
                         controller: 'TemplateController',
-                        controllerAs: 'templateController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {}
@@ -32,22 +32,22 @@ angular.module('indigoeln')
                         name: 'New Template',
                         kind: 'management',
                         state: 'entities.template-new',
-                        type:'entity'
+                        type: 'entity'
                     }
                 },
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/template-management/modal/template-modal.html',
                         controller: 'TemplateModalController',
-                        controllerAs: 'templateModalController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q) {
+                    pageInfo: function ($q) {
                         var deferred = $q.defer();
                         $q.all([
-                            $q.when({ name: null, id: null })
-                        ]).then(function(results){
+                            $q.when({name: null, id: null})
+                        ]).then(function (results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
@@ -66,7 +66,7 @@ angular.module('indigoeln')
                         name: 'Templates',
                         kind: 'management',
                         state: 'template.detail',
-                        type:'',
+                        type: '',
                         id: null,
                         cache: true,
                         service: 'Template',
@@ -78,15 +78,15 @@ angular.module('indigoeln')
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/template-management/detail/template-detail.html',
                         controller: 'TemplateDetailController',
-                        controllerAs: 'templateDetailController'
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Template) {
+                    pageInfo: function ($q, $stateParams, Template) {
                         var deferred = $q.defer();
                         $q.all([
                             Template.get({id: $stateParams.id}).$promise
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
@@ -103,7 +103,7 @@ angular.module('indigoeln')
                     tab: {
                         name: 'Edit Template',
                         kind: 'management',
-                        type:'entity',
+                        type: 'entity',
                         state: 'entities.template-edit'
                     }
                 },
@@ -111,16 +111,16 @@ angular.module('indigoeln')
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/template-management/modal/template-modal.html',
                         controller: 'TemplateModalController',
-                        controllerAs: 'templateModalController'
+                        controllerAs: 'vm'
 
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Template) {
+                    pageInfo: function ($q, $stateParams, Template) {
                         var deferred = $q.defer();
                         $q.all([
                             Template.get({id: $stateParams.id}).$promise
-                        ]).then(function(results){
+                        ]).then(function (results) {
                             deferred.resolve({
                                 entity: results[0]
                             });
@@ -136,20 +136,20 @@ angular.module('indigoeln')
                     authorities: ['TEMPLATE_EDITOR'],
                     tab: {
                         //override parent type
-                        type:''
+                        type: ''
                     }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/template-management/delete-dialog/template-delete-dialog.html',
                         controller: 'TemplateDeleteController',
-                        controllerAs: 'templateDeleteController',
+                        controllerAs: 'vm',
                         size: 'md'
                     }).result.then(function () {
-                            $state.go('entities.template', null, {reload: true});
-                        }, function () {
-                            $state.go('^');
-                        });
+                        $state.go('entities.template', null, {reload: true});
+                    }, function () {
+                        $state.go('^');
+                    });
                 }]
             });
     });

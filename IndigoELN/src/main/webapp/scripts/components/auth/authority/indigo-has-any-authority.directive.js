@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoHasAnyAuthority', indigoHasAnyAuthority);
@@ -7,38 +7,28 @@
     function indigoHasAnyAuthority(Principal) {
         return {
             restrict: 'A',
-            link: angular.bind({Principal: Principal}, link)
-        };
-    }
+            link: function link($scope, $element, $attrs) {
+                var authorities = $attrs.indigoHasAnyAuthority.replace(/\s+/g, '').split(',');
 
-    /* @ngInject */
-    function link($scope, $element, $attrs) {
-        var Principal = this.Principal,
-            authorities = $attrs.indigoHasAnyAuthority.replace(/\s+/g, '').split(',');
+                if (authorities.length > 0) {
+                    defineVisibility(true);
+                }
 
-        var setVisible = function () {
-            $element.removeClass('hidden');
-        };
-        var setHidden = function () {
-            $element.addClass('hidden');
-        };
-        var defineVisibility = function (reset) {
-            if (reset) {
-                setVisible();
-            }
+                function setVisible() {
+                    $element.removeClass('hidden');
+                }
 
-            Principal.hasAnyAuthority(authorities)
-                .then(function (result) {
-                    if (result) {
+                function defineVisibility(reset) {
+                    if (reset) {
                         setVisible();
-                    } else {
-                        setHidden();
                     }
-                });
-        };
 
-        if (authorities.length > 0) {
-            defineVisibility(true);
-        }
+                    Principal.hasAnyAuthority(authorities).then(function(result) {
+                        // TODO: should remove element if hasn't access
+                        $element.toggleClass('hidden', !result);
+                    });
+                }
+            }
+        };
     }
 })();

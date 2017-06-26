@@ -10,14 +10,14 @@ angular.module('indigoeln')
                         name: 'Dictionaries',
                         kind: 'management',
                         state: 'entities.dictionary-management',
-                        type:'entity'
+                        type: 'entity'
                     }
                 },
                 views: {
                     'tabContent': {
                         templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management.html',
                         controller: 'DictionaryManagementController',
-                        controllerAs: 'dictionaryManagementController'
+                        controllerAs: 'vm'
                     }
                 }
             })
@@ -26,14 +26,14 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['DICTIONARY_EDITOR'],
                     tab: {
-                        type:''
+                        type: ''
                     }
                 },
                 onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-dialog.html',
                         controller: 'DictionaryManagementDeleteController',
-                        controllerAs: 'dictionaryManagementDeleteController',
+                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
                             entity: function (Dictionary) {

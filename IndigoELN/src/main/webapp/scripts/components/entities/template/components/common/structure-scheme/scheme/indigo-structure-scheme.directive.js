@@ -6,16 +6,19 @@
     function indigoStructureScheme() {
         return {
             restrict: 'E',
-            replace: true,
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/scheme/structure-scheme.html',
+            controller: 'structureSchemeController',
             scope: {
-                model: '=',
-                share: '=',
+                structureType: '=ssStructureType',
+                title: '=ssTitle',
+                autosave: '=ssautosave',
+                model: '=ssModel',
+                readonly: '=ssReadonly',
+                share: '=ssShare',
                 onChange: '&'
             },
-            controllerAs: 'vm',
-            controller: 'StructureSchemeController'
-
+            bindToController: true,
+            controllerAs: 'vm'
         };
     }
 })();

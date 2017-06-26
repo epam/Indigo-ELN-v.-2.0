@@ -1,7 +1,7 @@
-<form name="deleteForm" ng-submit="dictionaryManagementDeleteWordController.confirmDeleteWord()">
+<form name="deleteForm" ng-submit="vm.confirmDeleteWord()">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="dictionaryManagementDeleteWordController.dismiss()">&times;</button>
+                ng-click="vm.dismiss()">&times;</button>
         <h5 class="modal-title">
             <span class="glyphicon glyphicon-warning-sign"></span>&nbsp;<span>Confirm delete operation</span>
         </h5>
@@ -12,7 +12,7 @@
             is more reliable way.</p>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="dictionaryManagementDeleteWordController.dismiss()">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.dismiss()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
         <button type="submit" ng-disabled="deleteForm.$invalid" class="btn btn-danger">Delete</button>

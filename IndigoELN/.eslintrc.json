@@ -1,0 +1,75 @@
+// See: http://eslint.org/
+// See: https://www.npmjs.com/package/eslint-plugin-angular
+// severity for a rule should be one of the following: 0 = off, 1 = warning, 2 = error
+{
+  "env": {
+    "browser": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 5,
+    "sourceType": "module"
+  },
+  "extends": [
+    "airbnb-base/legacy",
+    "angular"
+  ],
+  "rules": {
+    // os/git options
+    // we want to run on all OSes
+    "linebreak-style": 0,
+    "indent": [
+      2,
+      4,
+      {"SwitchCase": 1} // https://github.com/eslint/eslint/issues/1797
+    ],
+    "quotes": [
+      2,
+      "single"
+    ],
+    "semi": [
+      2,
+      "always"
+    ],
+    "no-await-in-loop": 2,
+    "no-template-curly-in-string": 2,
+    "require-jsdoc": [1, {
+      "require": {
+        "FunctionDeclaration": false,
+        "MethodDefinition": false,
+        "ClassDeclaration": false,
+        "ArrowFunctionExpression": false
+      }
+    }
+    ],
+    "valid-jsdoc": [1, {
+      "requireReturn": false
+    }],
+    "block-scoped-var": 2,
+    "complexity": [2, 4],
+    "curly": [2, "all"],
+    "space-before-function-paren": [2, "never"],
+    "max-len": [1, 120],
+    "wrap-iife": [2, "inside"],
+    "func-names": 0,
+    "vars-on-top": 1,
+    "eqeqeq": 1,
+    "no-shadow": 2,
+    "line-comment-position": [1, { "position": "above" }],
+    "newline-after-var": [0, "never"],
+    "newline-before-return": 1,
+    "spaced-comment": [1, "always"],
+    "angular/no-service-method": 1,
+    "angular/angularelement": 0,
+    "angular/controller-as-vm": [1, "vm"],
+    "angular/controller-name": [2, "/^[a-zA-Z0-9]*Controller/"],
+    "angular/no-private-call": 1
+  },
+  "globals": {
+    "angular": false,
+    "_": false,
+    "$": false,
+    "afterEach": false,
+    "beforeEach": false,
+    "angularDragula": false
+  }
+}

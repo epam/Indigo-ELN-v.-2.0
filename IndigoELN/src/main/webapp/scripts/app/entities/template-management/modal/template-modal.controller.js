@@ -3,92 +3,102 @@
         .module('indigoeln')
         .controller('TemplateModalController', TemplateModalController);
 
+    /* @ngInject */
     function TemplateModalController($scope, $stateParams, Template, Alert, $state, dragulaService,
                                      Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
-        var self = this;
+        var vm = this;
 
-        self.components = Components.map(function (c) {
+        vm.components = Components.map(function (c) {
             return c;
         });
-        self.template = pageInfo.entity || {};
-        self.template.templateContent = self.template.templateContent || [];
+        vm.template = pageInfo.entity || {};
+        vm.template.templateContent = vm.template.templateContent || [];
 
-        self.save               = save;
-        self.close              = close;
-        self.addTab             = addTab;
-        self.removeTab          = removeTab;
-        self.removeComponent    = removeComponent;
+        vm.save = save;
+        vm.close = close;
+        vm.addTab = addTab;
+        vm.removeTab = removeTab;
+        vm.removeComponent = removeComponent;
 
-        sortComponents();
+        init();
 
-        //TODO: remove whole object or remove multiple properties
-        var drag = dragulaService.options($scope, 'components', {
-            //removeOnSpill: true,
-            copy: function (el, source) {
-                return source.classList.contains('palette');
-            },
-            accepts: function () {
-                return true;
-            },
-            moves: function (el, container, handle) {
-                return !handle.classList.contains('no-draggable');
-            },
-            copy: false
-        });
-
-        dragulaService.options($scope, 'tabs', {
-            //removeOnSpill: true,
-            moves: function (el, container, handle) {
-                return !handle.classList.contains('draggable-component') && !handle.classList.contains('no-draggable');
+        function init() {
+            if (!vm.template.templateContent.length) {
+                vm.addTab();
             }
-        });
 
-        if (!self.template.templateContent.length) {
-            self.addTab();
+            //TODO: remove whole object or remove multiple properties
+            var drag = dragulaService.options($scope, 'components', {
+                //removeOnSpill: true,
+                copy: function (el, source) {
+                    return source.classList.contains('palette');
+                },
+                accepts: function () {
+                    return true;
+                },
+                moves: function (el, container, handle) {
+                    return !handle.classList.contains('no-draggable');
+                }//,
+                //copy: false
+            });
+
+            dragulaService.options($scope, 'tabs', {
+                //removeOnSpill: true,
+                moves: function (el, container, handle) {
+                    return !handle.classList.contains('draggable-component') && !handle.classList.contains('no-draggable');
+                }
+            });
+
+
+            //dragula autoscroller
+            var lastIndex, up = true,
+                interval;
+            $scope.$on('components.out', function (e, el) {
+                var $el = $(el),
+                    $cont = $el.parents('[scroller]').eq(0),
+                    top = $cont.scrollTop();
+                interval = setInterval(function () {
+                    $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
+                }, 10);
+            });
+
+            $scope.$on('components.over', function () {
+                clearInterval(interval);
+            });
+
+            $scope.$on('components.dragend', function () {
+                clearInterval(interval);
+            });
+
+            $scope.$on('components.shadow', function (e, el) {
+                var $el = $(el),
+                    index = $el.index();
+                if (!lastIndex) {
+                    lastIndex = index;
+                } else {
+                    up = lastIndex > index;
+                    lastIndex = index;
+                }
+            });
+
+            sortComponents();
         }
 
-        //dragula autoscroller
-        var lastIndex, up = true,
-            interval;
-        $scope.$on('components.out', function (e, el) {
-            var $el = $(el),
-                $cont = $el.parents('[scroller]').eq(0),
-                top = $cont.scrollTop();
-            interval = setInterval(function () {
-                $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
-            }, 10);
-        });
-
-        $scope.$on('components.over', function () {
-            clearInterval(interval);
-        });
-
-        $scope.$on('components.dragend', function () {
-            clearInterval(interval);
-        });
-
-        $scope.$on('components.shadow', function (e, el) {
-            var $el = $(el),
-                index = $el.index();
-            if (!lastIndex) {
-                lastIndex = index;
-            } else {
-                up = lastIndex > index;
-                lastIndex = index;
-            }
-        });
-
         function save() {
-            self.isSaving = true;
-            if (self.template.id) {
-                Template.update(self.template, onSaveSuccess, onSaveError);
+            vm.isSaving = true;
+            if (vm.template.id) {
+                Template.update(vm.template, onSaveSuccess, onSaveError);
             } else {
-                Template.save(self.template, onSaveSuccess, onSaveError).$promise;
+
+
+                console.log('vm.template');
+                console.log(vm.template);
+                Template.save(vm.template, onSaveSuccess, onSaveError).$promise;
             }
         }
 
         function close() {
-            if (!self.template.id) {
+            if (!vm.template.id) {
                 var tabName = $state.$current.data.tab.name;
                 EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
             } else {
@@ -97,35 +107,35 @@
         }
 
         function addTab() {
-            self.template.templateContent.push({
-                name: 'Tab ' + (self.template.templateContent.length + 1),
+            vm.template.templateContent.push({
+                name: 'Tab ' + (vm.template.templateContent.length + 1),
                 components: []
             });
         }
 
         function removeTab(tab) {
-            self.template.templateContent = _.without(self.template.templateContent, tab);
+            vm.template.templateContent = _.without(vm.template.templateContent, tab);
         }
 
         function removeComponent() {
             tab.components = _.without(tab.components, component);
-            self.components.push(component);
+            vm.components.push(component);
             sortComponents();
         }
 
         function sortComponents() {
-            self.components.sort(function (b, a) {
+            vm.components.sort(function (b, a) {
                 return (a.name < b.name) ? 1 : (a.name > b.name) ? -1 : 0;
             });
         }
 
         function onSaveSuccess() {
-            self.isSaving = false;
-            self.close();
+            vm.isSaving = false;
+            vm.close();
         }
 
         function onSaveError(result) {
-            self.isSaving = false;
+            vm.isSaving = false;
             var mess = result.status === 400 ? 'Error saving, template name already exists.' : 'Template is not saved due to server error!';
             Alert.error(mess);
         }

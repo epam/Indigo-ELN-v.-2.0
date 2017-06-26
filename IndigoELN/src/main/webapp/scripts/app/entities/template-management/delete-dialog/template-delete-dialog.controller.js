@@ -5,10 +5,10 @@
 
     /* @ngInject */
     function TemplateDeleteController($uibModalInstance, $stateParams, Template) {
-        var self = this;
+        var vm = this;
 
-        self.clear          = clear;
-        self.confirmDelete  = confirmDelete;
+        vm.clear = clear;
+        vm.confirmDelete = confirmDelete;
 
         function clear() {
             $uibModalInstance.dismiss('cancel');

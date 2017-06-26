@@ -2,7 +2,7 @@
     <form class="m-b10" name="createTemplateForm" novalidate autocomplete="off">
         <div class="row">
             <div class="col-sm-6">
-                <indigo-input indigo-label="Name" indigo-model="templateModalController.template.name" indigo-validation-required="!templateModalController.template.name.trim()"></indigo-input>
+                <indigo-input indigo-label="Name" indigo-model="vm.template.name" indigo-validation-required="!vm.template.name.trim()"></indigo-input>
             </div>
         </div>
     </form>
@@ -19,9 +19,8 @@
                         <input type="search" class="uui-search" placeholder="Search by name or description" id="searchRole" ng-model="search.$">
                     </div>
                     <div class="panel-body-content-nopad">
-                        <div class="list-group templates-holder palette animated" scroller dragula='"components"' dragula-model='templateModalController.components' indigo-indeln-scroll>
-                            <a class="list-group-item draggable-component" data-id="{{component.id}}"
-                               ng-repeat="component in templateModalController.components | filter:search track by $index">
+                        <div class="list-group templates-holder palette animated" scroller dragula='"components"' dragula-model='vm.components' indigo-indeln-scroll>
+                            <a class="list-group-item draggable-component" ng-repeat="component in vm.components | filter:search track by $index" data-id="{{component.id}}">
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
@@ -33,22 +32,22 @@
         <div class="col-xs-6">
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <button class="btn btn-default btn-small pull-right" ng-click="templateModalController.addTab()">
+                    <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                         <span class="m-l5">Create new tab</span>
                     </button>
                     Template Builder
                 </div>
-                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" scroller dragula='"tabs"' dragula-model='templateModalController.template.templateContent'>
+                <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" scroller dragula='"tabs"' dragula-model='vm.template.templateContent'>
                     <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
-                         ng-if="!templateModalController.template.templateContent.length">
+                         ng-if="!vm.template.templateContent.length">
                         <h3 class="no-draggable text-muted">Please add tabs</h3>
                     </div>
-                    <div class="list-group list-group-drug tab" ng-repeat="tab in templateModalController.template.templateContent" >
+                    <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
-                            <i class="fa fa-trash pull-right" ng-click="templateModalController.removeTab(tab)"></i>
-                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b">
-                                {{ tab.name }} <i class="fa fa-pencil m-l5"></i>
+                            <i class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></i>
+                            <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b" ng-bind="tab.name">
+                                <i class="fa fa-pencil m-l5"></i>
                             </span>
                             <!--<em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeTab(tab)"></em>-->
                         </span>
@@ -63,7 +62,7 @@
                             <a class="list-group-item draggable-component component"
                                ng-repeat="component in tab.components">
                                 <h5 class="draggable-component" ng-bind="component.name">
-                                    <em class="fa fa-remove pull-right text-muted" title="Remove" ng-click="templateModalController.removeComponent(tab, component)"></em>
+                                    <em class="fa fa-remove pull-right text-muted" title="Remove" ng-click="vm.removeComponent(tab, component)"></em>
                                 </h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
@@ -74,13 +73,13 @@
         </div>
     </div>
         <div class="panel panel-info panel-info-collapse">
-            <div class="panel-heading" style="cursor: pointer" ng-init="templateModalController.showPreview = false" ng-click="templateModalController.showPreview = !templateModalController.showPreview">
-                <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !templateModalController.isCollapsed, 'glyphicon-chevron-up': templateModalController.isCollapsed}"
-                    ng-click="templateModalController.isCollapsed = !templateModalController.isCollapsed"></em>
+            <div class="panel-heading" style="cursor: pointer" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
+                <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
+                    ng-click="vm.isCollapsed = !vm.isCollapsed"></em>
                 Show Preview
             </div>
-            <div class="preview-components panel-body panel-body-nopad" ng-if="templateModalController.showPreview && templateModalController.template.templateContent.length">
-                <indigo-components indigo-template="templateModalController.template.templateContent"
+            <div class="preview-components panel-body panel-body-nopad" ng-if="vm.showPreview && vm.template.templateContent.length">
+                <indigo-components indigo-template="vm.template.templateContent"
                                    indigo-readonly="true"
                                    indigo-model="{}"
                 ></indigo-components>
@@ -89,15 +88,14 @@
     </div>
 </div>
 
-
-    <div class="btn-bottom-block tab-content-pad">
-        <button ng-click="templateModalController.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
-            <i class="fa fa-save"></i><span class="m-l5">Save</span>
-        </button>
-        <button type="button" class="btn btn-default" ng-click="templateModalController.close()">
-            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
-        </button>
-    </div>
+<div class="btn-bottom-block tab-content-pad">
+    <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
+        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+    </button>
+    <button type="button" class="btn btn-default" ng-click="vm.close()">
+        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+    </button>
+</div>
 
 
 

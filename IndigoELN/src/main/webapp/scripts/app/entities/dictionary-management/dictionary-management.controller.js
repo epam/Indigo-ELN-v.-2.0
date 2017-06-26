@@ -5,130 +5,150 @@
 
     /* @ngInject */
     function DictionaryManagementController($scope, $filter, $uibModal, Alert, Dictionary, ParseLinks) {
-        var self = this;
+        var vm = this;
 
-        self.dictionaries = [];
-        self.selectedDictionaryId = null;
-        self.selectedDictionary = null;
-        self.page = 1;
-        self.itemsPerPage = 5;
-        self.searchText = '';
-        self.isCollapsed = true;
+        vm.dictionaries = [];
+        vm.selectedDictionaryId = null;
+        vm.selectedDictionary = null;
+        vm.page = 1;
+        vm.itemsPerPage = 5;
+        vm.searchText = '';
+        vm.isCollapsed = true;
 
-        self.loadAllDictionaries    = loadAllDictionaries;
-        self.saveDictionary         = saveDictionary;
-        self.createDictionary       = createDictionary;
-        self.editDictionary         = editDictionary;
-        self.searchDictionary       = searchDictionary;
-        self.clearDictionary        = clearDictionary;
-        self.setSelected            = setSelected;
-        self.clearSelection         = clearSelection;
-        self.addWord                = addWord;
-        self.clearWord              = clearWord;
-        self.saveWord               = saveWord;
-        self.editWord               = editWord;
-        self.deleteWord             = deleteWord;
+        vm.loadAllDictionaries = loadAllDictionaries;
+        vm.saveDictionary = saveDictionary;
+        vm.createDictionary = createDictionary;
+        vm.editDictionary = editDictionary;
+        vm.searchDictionary = searchDictionary;
+        vm.clearDictionary = clearDictionary;
+        vm.setSelected = setSelected;
+        vm.clearSelection = clearSelection;
+        vm.addWord = addWord;
+        vm.clearWord = clearWord;
+        vm.saveWord = saveWord;
+        vm.editWord = editWord;
+        vm.deleteWord = deleteWord;
 
-        self.loadAllDictionaries();
+        init();
 
-        $scope.$on('$destroy', function () {
-            unsubscribe();
-        });
+        function init() {
+            var unsubscribe = $scope.$watch(function () {
+                return vm.selectedDictionaryId;
+            }, function () {
+                if (vm.selectedDictionaryId) {
+                    vm.isCollapsed = false;
+                    vm.selectedDictionary = _.find(vm.dictionaries, function (dict) {
+                        return dict.id === vm.selectedDictionaryId;
+                    });
+                    // set sorting way by mean of rank value
+                    vm.selectedDictionary.words.sort(function (a, b) {
+                        return a.rank > b.rank;
+                    });
+                }
+            });
 
-        $scope.$watchCollection('selectedDictionary.words', function () {
-            if (self.selectedDictionary) {
-                updateRanks(self.selectedDictionary.words.length);
-            }
-        });
+            $scope.$on('$destroy', function () {
+                unsubscribe();
+            });
+
+
+            $scope.$watchCollection('vm.selectedDictionary.words', function () {
+                if (vm.selectedDictionary) {
+                    updateRanks(vm.selectedDictionary.words.length);
+                }
+            });
+
+            vm.loadAllDictionaries();
+        }
 
         function loadAllDictionaries() {
             Dictionary.query({
-                page: self.page - 1,
-                size: self.itemsPerPage,
-                search: self.searchText
+                page: vm.page - 1,
+                size: vm.itemsPerPage,
+                search: vm.searchText
             }, function (result, headers) {
-                self.links = ParseLinks.parse(headers('link'));
-                self.totalItems = headers('X-Total-Count');
-                self.dictionaries = result;
-                self.word = null;
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.dictionaries = result;
+                vm.word = null;
             });
         }
 
         function saveDictionary() {
-            self.isSaving = true;
-            if (self.dictionary.id) {
-                Dictionary.update(self.dictionary, onSaveSuccess, onSaveError);
+            vm.isSaving = true;
+            if (vm.dictionary.id) {
+                Dictionary.update(vm.dictionary, onSaveSuccess, onSaveError);
             } else {
-                Dictionary.save(self.dictionary, onSaveSuccess, onSaveError);
+                Dictionary.save(vm.dictionary, onSaveSuccess, onSaveError);
             }
         }
 
         function createDictionary() {
-            self.dictionary = {
+            vm.dictionary = {
                 id: null, name: null, description: null, words: []
             };
         }
 
         function editDictionary(dictionary) {
-            self.loadAllDictionaries();
-            self.dictionary = _.extend({}, dictionary);
+            vm.loadAllDictionaries();
+            vm.dictionary = _.extend({}, dictionary);
         }
 
         function searchDictionary() {
             Dictionary.query({
-                page: self.page - 1,
-                size: self.itemsPerPage,
-                search: self.searchText
+                page: vm.page - 1,
+                size: vm.itemsPerPage,
+                search: vm.searchText
             }, function (result, headers) {
-                self.links = ParseLinks.parse(headers('link'));
-                self.totalItems = headers('X-Total-Count');
-                self.dictionaries = $filter('filter')(result, self.searchText);
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.dictionaries = $filter('filter')(result, vm.searchText);
             });
         }
 
         function clearDictionary() {
-            self.dictionary = null;
+            vm.dictionary = null;
         }
 
         function setSelected(id) {
-            self.selectedDictionaryId = id;
+            vm.selectedDictionaryId = id;
         }
 
         function clearSelection() {
-            self.word = null;
-            self.selectedDictionaryId = null;
-            self.selectedDictionary = null;
+            vm.word = null;
+            vm.selectedDictionaryId = null;
+            vm.selectedDictionary = null;
         }
 
         function addWord() {
-            self.word = {
-                id: null, name: null, description: null, enable: true, rank: self.selectedDictionary.words.length
+            vm.word = {
+                id: null, name: null, description: null, enable: true, rank: vm.selectedDictionary.words.length
             };
         }
 
         function clearWord() {
-            self.word = null;
+            vm.word = null;
         }
 
         function saveWord() {
-            self.isWordSaving = true;
-            if (self.word.rank === self.selectedDictionary.words.length) {
+            vm.isWordSaving = true;
+            if (vm.word.rank === vm.selectedDictionary.words.length) {
                 // add if this is a new one
-                self.selectedDictionary.words.push(self.word);
+                vm.selectedDictionary.words.push(vm.word);
             } else {
                 // update if this is an edited one
-                _.each(self.selectedDictionary.words, function (wrd) {
-                    if (wrd.rank === self.word.rank) {
-                        _.extend(wrd, self.word);
+                _.each(vm.selectedDictionary.words, function (wrd) {
+                    if (wrd.rank === vm.word.rank) {
+                        _.extend(wrd, vm.word);
                         return false;
                     }
                 });
             }
-            Dictionary.update(self.selectedDictionary, onSaveSuccess, onSaveError);
+            Dictionary.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
         }
 
         function editWord(word) {
-            self.word = _.extend({}, word);
+            vm.word = _.extend({}, word);
         }
 
         function deleteWord(word) {
@@ -136,7 +156,7 @@
                 animation: true,
                 templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-word-dialog.html',
                 controller: 'DictionaryManagementDeleteWordController',
-                controllerAs: 'dictionaryManagementDeleteWordController'
+                controllerAs: 'vm'
             }).result.then(function () {
                 // remove the word
                 var len = self.selectedDictionary.words.length;
@@ -150,51 +170,33 @@
             });
         }
 
-        function unsubscribe() {
-            $scope.$watch(function () {
-                return self.selectedDictionaryId;
-            }, function () {
-                if (self.selectedDictionaryId) {
-                    self.isCollapsed = false;
-                    self.selectedDictionary = _.find(self.dictionaries, function (dict) {
-                        return dict.id === self.selectedDictionaryId;
-                    });
-                    // set sorting way by mean of rank value
-                    self.selectedDictionary.words.sort(function (a, b) {
-                        return a.rank > b.rank;
-                    });
-                }
-            });
-        }
-
         function onSaveSuccess() {
-            self.isSaving = false;
-            self.isWordSaving = false;
-            self.dictionary = null;
-            self.loadAllDictionaries();
+            vm.isSaving = false;
+            vm.isWordSaving = false;
+            vm.dictionary = null;
+            vm.loadAllDictionaries();
         }
 
         function onSaveError() {
-            self.isSaving = false;
-            self.isWordSaving = false;
-            self.loadAllDictionaries();
+            vm.isSaving = false;
+            vm.isWordSaving = false;
+            vm.loadAllDictionaries();
             Alert.error('Dictionary is not saved due to server error!');
-
         }
 
         function updateRanks(len) {
             // check if an element removed
-            var modified = self.selectedDictionary.words.length !== len;
+            var modified = vm.selectedDictionary.words.length !== len;
             // update ranks
-            if (self.selectedDictionary) {
-                for (var i = 0; i < self.selectedDictionary.words.length; i++) {
-                    if (self.selectedDictionary.words[i].rank !== i) {
-                        self.selectedDictionary.words[i].rank = i;
+            if (vm.selectedDictionary) {
+                for (var i = 0; i < vm.selectedDictionary.words.length; i++) {
+                    if (vm.selectedDictionary.words[i].rank !== i) {
+                        vm.selectedDictionary.words[i].rank = i;
                         modified = true;
                     }
                 }
                 if (modified) {
-                    Dictionary.update(self.selectedDictionary, onSaveSuccess, onSaveError);
+                    Dictionary.update(vm.selectedDictionary, onSaveSuccess, onSaveError);
                 }
             }
         }
