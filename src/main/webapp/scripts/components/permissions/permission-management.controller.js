@@ -1,88 +1,117 @@
-angular.module('indigoeln')
-    .controller('PermissionManagementController',
-        function ($scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal, $rootScope) {
+(function() {
+    angular
+        .module('indigoeln')
+        .controller('PermissionManagementController', PermissionManagementController);
 
-            $scope.accessList = PermissionManagement.getAccessList();
-            $scope.permissions = permissions;
-            $scope.entity = PermissionManagement.getEntity();
-            $scope.entityId = PermissionManagement.getEntityId();
-            $scope.parentId = PermissionManagement.getParentId();
-            $scope.author = PermissionManagement.getAuthor();
-            $scope.users = _.filter(users, function(user) {
-                if (user.id !== $scope.author.id  && PermissionManagement.hasAuthorityForPermission({user:user}, $scope.permissions[0].id)){
+    /* @ngInject */
+    function PermissionManagementController($rootScope, $scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal) {
+        var vm = this;
+
+        vm.accessList = PermissionManagement.getAccessList();
+        vm.permissions = permissions;
+        vm.entity = PermissionManagement.getEntity();
+        vm.entityId = PermissionManagement.getEntityId();
+        vm.parentId = PermissionManagement.getParentId();
+        vm.author = PermissionManagement.getAuthor();
+        vm.users = filterUsers(users);
+
+        vm.addMember = addMember;
+        vm.removeMember = removeMember;
+        vm.isAuthor = isAuthor;
+        vm.show = show;
+        vm.saveOldPermission = saveOldPermission;
+        vm.checkAuthority = checkAuthority;
+        vm.ok = ok;
+        vm.clear = clear;
+
+        init();
+
+        function init() {
+            var unsubscribe = $scope.$watch('vm.selectedMembers', function(user) {
+                vm.addMember(user);
+            });
+            $scope.$on('$destroy', function() {
+                unsubscribe();
+            });
+        }
+
+        function addMember(member) {
+            if (member) {
+                var members = _.pluck(vm.accessList, 'user');
+                var memberIds = _.pluck(members, 'id');
+                if (!_.contains(memberIds, member.id)) {
+                    vm.accessList.push({
+                        user: member,
+                        permissions: [],
+                        permissionView: vm.permissions[0].id
+                    });
+                }
+            }
+        }
+
+        function removeMember(member) {
+            var message;
+            var callback = function() {
+                vm.accessList = _.without(vm.accessList, member);
+            };
+
+            if (vm.entity === 'Project') {
+                message = 'You are trying to remove USER who has access to notebooks or ' +
+                    'experiments within this project. By removing this USER you block his (her) ' +
+                    'access to notebook or experiments withing this project';
+            } else if (vm.entity === 'Notebook') {
+                message = 'You are trying to remove USER who has access to experiments within this notebook. ' +
+                    'By removing this USER you block his (her) access to experiments withing this notebook';
+            }
+
+            PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
+                if (isRemovable) {
+                    callback();
+                } else {
+                    AlertModal.confirm(message, null, callback);
+                }
+            });
+        }
+
+        function isAuthor(member) {
+            return member.user.login === vm.author.login;
+        }
+
+        function show(form, member) {
+            if (!vm.isAuthor(member)) {
+                form.$show();
+            }
+        }
+
+        function saveOldPermission(permission) {
+            vm.oldPermission = permission;
+        }
+
+        function checkAuthority(member, permission) {
+            if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
+                Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
+                    'sufficient privileges in the system, please select another permissions level');
+                member.permissionView = vm.oldPermission;
+            }
+        }
+
+        function ok() {
+            $uibModalInstance.close(vm.accessList);
+            //broadcast for activate save button on page
+            $rootScope.$broadcast("activate button", 0);
+        }
+
+        function clear() {
+            $uibModalInstance.dismiss('cancel');
+        }
+
+        function filterUsers(users) {
+            return _.filter(users, function(user) {
+                if (user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission({user: user}, vm.permissions[0].id)) {
                     return true;
                 }
                 return false;
             });
-            var unsubscribe = $scope.$watch('selectedMembers', function (user) {
-                $scope.addMember(user);
-            });
-            $scope.$on('$destroy', function () {
-                unsubscribe();
-            });
-
-            $scope.addMember = function(member) {
-                if (member) {
-                    var members = _.pluck($scope.accessList, 'user');
-                    var memberIds = _.pluck(members, 'id');
-                    if (!_.contains(memberIds, member.id)) {
-                        $scope.accessList.push({user: member, permissions: [], permissionView: $scope.permissions[0].id});
-                    }
-                }
-            };
-
-            $scope.removeMember = function(member) {
-                var message;
-                var callback = function() {
-                    $scope.accessList = _.without($scope.accessList, member);
-                };
-                if ($scope.entity === 'Project') {
-                    message = 'You are trying to remove USER who has access to notebooks or ' +
-                        'experiments within this project. By removing this USER you block his (her) ' +
-                        'access to notebook or experiments withing this project';
-                } else if ($scope.entity === 'Notebook') {
-                    message = 'You are trying to remove USER who has access to experiments within this notebook. ' +
-                        'By removing this USER you block his (her) access to experiments withing this notebook';
-                }
-                PermissionManagement.isUserRemovableFromAccessList(member).then(function(isRemovable) {
-                    if (isRemovable) {
-                        callback();
-                    } else {
-                        AlertModal.confirm(message, null, callback);
-                    }
-                });
-            };
-
-            $scope.isAuthor = function(member) {
-                return member.user.login === $scope.author.login;
-            };
-
-            $scope.show = function(form, member) {
-                if (!$scope.isAuthor(member)) {
-                    form.$show();
-                }
-            };
-
-            $scope.saveOldPermission = function(permission) {
-                $scope.oldPermission = permission;
-            };
-
-            $scope.checkAuthority = function(member, permission) {
-                if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
-                    Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
-                        'sufficient privileges in the system, please select another permissions level');
-                    member.permissionView = $scope.oldPermission;
-                }
-            };
-
-            $scope.ok = function() {
-                $uibModalInstance.close($scope.accessList);
-                //broadcast for activate save button on page
-                $rootScope.$broadcast("activate button", 0);
-            };
-
-            $scope.clear = function() {
-                $uibModalInstance.dismiss('cancel');
-            };
-
-    });
+        }
+    }
+})();

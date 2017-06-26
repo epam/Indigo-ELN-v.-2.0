@@ -7,9 +7,9 @@
     <a class="logo" href="#"></a>
     <div class="uui-header-tools">
         <form class="navbar-form">
-            <div class="search-field search-field-main" ng-class="{'active': focused}">
-                <i class="fa fa-search" ng-mousedown="search()"></i>
-                <input type="search" class="uui-search" ng-keyup="onSearchKeyup($event)" placeholder="Search" ng-model="query" ng-focus="focused = true" ng-blur="focused = false">
+            <div class="search-field search-field-main" ng-class="{'active': vm.focused}">
+                <i class="fa fa-search" ng-mousedown="vm.search()"></i>
+                <input type="search" class="uui-search" ng-keyup="vm.onSearchKeyup($event)" placeholder="Search" ng-model="vm.query" ng-focus="vm.focused = true" ng-blur="vm.focused = false">
             </div>
 
             <!--<div class="form-group search-field" >-->
@@ -21,8 +21,8 @@
                 <img src="https://static.cdn.epam.com/avatar/1eda3986b9f9f37556c2553a1cb96c1a.jpg" alt="" class="full-img">
             </a>
             <ul class="dropdown-menu dropdown-menu-right">
-                <li class="current-user"> {{user.login}} </li>
-                <li><a ng-click="logout()">Logout</a></li>
+                <li class="current-user" ng-bind="vm.user.login"></li>
+                <li><a ng-click="vm.logout()">Logout</a></li>
             </ul>
         </div>
     </div>

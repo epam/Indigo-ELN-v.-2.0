@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('IndigoReactionDetailsController', IndigoReactionDetailsController);
@@ -9,7 +9,7 @@
         $scope.model.reactionDetails.experimentCreator = $scope.model.reactionDetails.experimentCreator ||
             {name: Principal.getIdentity().fullName};
 
-        Users.get().then(function (dictionary) {
+        Users.get().then(function(dictionary) {
             $scope.users = dictionary.words;
             $scope.model.reactionDetails.batchOwner = $scope.model.reactionDetails.batchOwner ||
                 _.where($scope.users, {name: Principal.getIdentity().fullName});
@@ -17,18 +17,21 @@
         var deferred;
 
         function init() {
-            if (deferred) return deferred.promise;
+            if (deferred) {
+                return deferred.promise;
+            }
+
             deferred = $q.defer();
-            Dictionary.get({id: 'experiments'}, function (dictionary) {
+            Dictionary.get({id: 'experiments'}, function(dictionary) {
                 deferred.resolve(dictionary.words);
                 console.log('inited', dictionary.words);
             });
             return deferred.promise;
         }
 
-        $scope.onLinkedExperimentClick = function (tag) {
-            init().then(function (experiments) {
-                var experiment = _.find(experiments, function (experiment) {
+        $scope.onLinkedExperimentClick = function(tag) {
+            init().then(function(experiments) {
+                var experiment = _.find(experiments, function(experiment) {
                     return experiment.name === tag.text;
                 });
                 if (!experiment) {
@@ -42,22 +45,22 @@
                 });
             });
         };
-        $scope.onAddLinkedExperiment = function (tag) {
+        $scope.onAddLinkedExperiment = function(tag) {
             var _deferred = $q.defer();
-            init().then(function (experiments) {
-                _deferred.resolve(_.isObject(_.find(experiments, function (experiment) {
+            init().then(function(experiments) {
+                _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
                     return experiment.name === tag.text;
                 })));
             });
             return _deferred.promise;
         };
 
-        $scope.getExperiments = function (query) {
+        $scope.getExperiments = function(query) {
             var _deferred = $q.defer();
-            init().then(function (experiments) {
-                var filtered = _.chain(experiments).filter(function (experiment) {
+            init().then(function(experiments) {
+                var filtered = _.chain(experiments).filter(function(experiment) {
                     return experiment.name.startsWith(query);
-                }).map(function (experiment) {
+                }).map(function(experiment) {
                     return experiment.name;
                 }).value();
                 _deferred.resolve(filtered);

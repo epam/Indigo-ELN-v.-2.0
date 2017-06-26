@@ -8,7 +8,8 @@
             restrict: 'E',
             replace: true,
             controller: 'FileUploaderController',
-            templateUrl: 'scripts/components/fileuploader/file-uploader.html',
+            controllerAs: 'vm',
+            templateUrl: 'scripts/components/fileuploader/file-uploader/file-uploader.html',
             scope: {
                 uploadUrl: '@',
                 indigoReadonly: '='
