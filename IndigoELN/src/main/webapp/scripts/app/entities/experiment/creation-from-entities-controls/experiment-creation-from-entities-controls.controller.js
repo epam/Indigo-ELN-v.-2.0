@@ -6,16 +6,16 @@
     /* @ngInject */
     function ExperimentCreationFromEntitiesControlsController($scope, $rootScope, $uibModalInstance, parents,
                                                               templates, Experiment, Principal, localStorageService) {
-        var self = this;
+        var vm = this;
 
-        self.parents = parents;
-        self.selectedParent = '';
-        self.templates = templates;
-        self.selectedTemplate = '';
-        self.experiment = {name: null, experimentNumber: null, template: null, id: null};
+        vm.parents = parents;
+        vm.selectedParent = '';
+        vm.templates = templates;
+        vm.selectedTemplate = '';
+        vm.experiment = {name: null, experimentNumber: null, template: null, id: null};
 
-        self.ok     = save;
-        self.cancel = cancelPressed;
+        vm.ok = save;
+        vm.cancel = cancelPressed;
 
         //EPMLSOPELN-415 Remember last selected parent and template
         Principal.identity()
@@ -25,23 +25,23 @@
                     pkey = user.id + '.' + 'lastSelectedExperimentId',
                     pval = localStorageService.get(pkey);
                 if (tval) {
-                    self.selectedTemplate = templates.filter(function (t) {
+                    vm.selectedTemplate = templates.filter(function (t) {
                         return t.id === tval;
                     })[0];
                 }
                 if (pval) {
-                    self.selectedParent = parents.filter(function (p) {
+                    vm.selectedParent = parents.filter(function (p) {
                         return p.id === pval;
                     })[0];
                 }
                 var unsubscribe = $scope.$watchGroup(function () {
-                    return [self.selectedTemplate, self.selectedParent];
+                    return [vm.selectedTemplate, vm.selectedParent];
                 }, function () {
-                    if (self.selectedTemplate) {
-                        localStorageService.set(tkey, self.selectedTemplate.id);
+                    if (vm.selectedTemplate) {
+                        localStorageService.set(tkey, vm.selectedTemplate.id);
                     }
-                    if (self.selectedParent) {
-                        localStorageService.set(pkey, self.selectedParent.id);
+                    if (vm.selectedParent) {
+                        localStorageService.set(pkey, vm.selectedParent.id);
                     }
                 });
                 $scope.$on('$destroy', function () {
@@ -50,12 +50,12 @@
             });
 
         function save() {
-            self.isSaving = true;
-            self.experiment = _.extend(self.experiment, {template: self.selectedTemplate});
+            vm.isSaving = true;
+            vm.experiment = _.extend(vm.experiment, {template: vm.selectedTemplate});
             Experiment.save({
-                notebookId: self.selectedParent.id,
-                projectId: self.selectedParent.parentId
-            }, self.experiment, onSaveSuccess, onSaveError);
+                notebookId: vm.selectedParent.id,
+                projectId: vm.selectedParent.parentId
+            }, vm.experiment, onSaveSuccess, onSaveError);
         }
 
         function cancelPressed() {
@@ -65,19 +65,19 @@
         function onSaveSuccess(result) {
             onSaveSuccess.isSaving = false;
             $rootScope.$broadcast('experiment-created', {
-                projectId: self.selectedParent.parentId,
-                notebookId: self.selectedParent.id,
+                projectId: vm.selectedParent.parentId,
+                notebookId: vm.selectedParent.id,
                 id: result.id
             });
             $uibModalInstance.close({
-                projectId: self.selectedParent.parentId,
-                notebookId: self.selectedParent.id,
+                projectId: vm.selectedParent.parentId,
+                notebookId: vm.selectedParent.id,
                 id: result.id
             });
         }
 
         function onSaveError() {
-            self.isSaving = false;
+            vm.isSaving = false;
         }
     }
 })();

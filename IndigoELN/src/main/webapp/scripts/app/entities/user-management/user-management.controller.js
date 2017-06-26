@@ -1,107 +1,113 @@
-angular.module('indigoeln')
-    .controller('UserManagementController', function ($scope, $uibModal, User, ParseLinks, $filter, pageInfo, Alert) {
-        $scope.users = [];
-        $scope.roles = pageInfo.roles;
+(function () {
+    angular
+        .module('indigoeln')
+        .controller('UserManagementController', UserManagementController);
 
-        $scope.page = 1;
-        $scope.itemsPerPage = 10;
-        $scope.loadAll = function () {
-            User.query({page: $scope.page - 1, size: $scope.itemsPerPage}, function (result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
-                $scope.users = result;
+    /* @ngInject */
+    function UserManagementController($uibModal, User, ParseLinks, $filter, pageInfo, Alert) {
+        var vm = this;
+        vm.users = [];
+        vm.roles = pageInfo.roles;
+        vm.page = 1;
+        vm.itemsPerPage = 10;
+
+        vm.loadAll = loadAll;
+        vm.setActive = setActive;
+        vm.clear = clear;
+        vm.save = save;
+        vm.create = create;
+        vm.edit = edit;
+        vm.search = search;
+        vm.changePassword = changePassword;
+
+        vm.loadAll();
+
+        function loadAll() {
+            User.query({page: vm.page - 1, size: vm.itemsPerPage}, function (result, headers) {
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.users = result;
             });
-        };
+        }
 
-        $scope.loadPage = function (page) {
-            $scope.page = page;
-            $scope.loadAll();
-        };
-        $scope.loadAll();
-
-        $scope.setActive = function (user, isActivated) {
+        function setActive(user, isActivated) {
             user.activated = isActivated;
             User.update(user, function () {
-                $scope.loadAll();
-                $scope.clear();
+                loadAll();
+                clear();
             });
-        };
+        }
 
-        $scope.clear = function () {
-            $scope.user = null;
-        };
+        function clear() {
+            vm.user = null;
+        }
 
-        var onSaveSuccess = function () {
-            $scope.isSaving = false;
-            $scope.user = null;
-            $scope.loadAll();
-        };
+        function onSaveSuccess() {
+            vm.isSaving = false;
+            vm.user = null;
+            loadAll();
+        }
 
-        var onSaveError = function () {
-            $scope.isSaving = false;
-            $scope.loadAll();
-            Alert.error('User is not saved due to server error!')
-        };
+        function onSaveError() {
+            vm.isSaving = false;
+            loadAll();
+            Alert.error('User is not saved due to server error!');
+        }
 
-        $scope.save = function () {
-            $scope.isSaving = true;
-            if ($scope.user.id) {
-                User.update($scope.user, onSaveSuccess, onSaveError);
+        function save() {
+            vm.isSaving = true;
+            if (vm.user.id) {
+                User.update(vm.user, onSaveSuccess, onSaveError);
             } else {
-                User.save($scope.user, onSaveSuccess, onSaveError);
+                User.save(vm.user, onSaveSuccess, onSaveError);
             }
-        };
+        }
 
-        $scope.create = function () {
-            $scope.user = {
+        function create() {
+            vm.user = {
                 id: null, login: null, firstName: null, lastName: null, email: null,
                 activated: true, roles: null, group: null
             };
-        };
+        }
 
-        $scope.edit = function (user) {
+        function edit(user) {
             if (user.group) {
-                user.group = { name: user.group} ;
+                user.group = {name: user.group};
             }
-            $scope.loadAll();
-            $scope.user = _.extend({}, user);
-        };
+            loadAll();
+            vm.user = _.extend({}, user);
+        }
 
-        $scope.search = function () {
-            User.query({page: $scope.page - 1, size: 20}, function (result, headers) {
-                $scope.links = ParseLinks.parse(headers('link'));
-                $scope.totalItems = headers('X-Total-Count');
-                $scope.users = $filter('filter')(result, $scope.searchText);
+
+        function search() {
+            User.query({page: vm.page - 1, size: 20}, function (result, headers) {
+                vm.links = ParseLinks.parse(headers('link'));
+                vm.totalItems = headers('X-Total-Count');
+                vm.users = $filter('filter')(result, vm.searchText);
             });
-        };
+        }
 
-        $scope.changePassword = function () {
+        function changePassword() {
             $uibModal.open({
                 animation: true,
                 size: 'sm',
-                template: '<div class="modal-body">' +
-                '<form id="editPassword" name="editPassword" role="form" novalidate class="form-horizontal" autocomplete="off">' +
-                '<input type="password" name="password" id="password_fake" class="hidden" autocomplete="off">' +
-                '<input style="display:none" type="password" name="fakepasswordremembered"/>' +
-                '<div class="container" ><div class="row"><div class="col-xs-3">' +
-                '<my-input style="width:250px;" my-label="New Password" my-label-vertical="true" ' +
-                'my-name="password" my-type="password" my-model="password" ' +
-                'my-validation-required="password == null" my-validation-maxlength="50">' +
-                '</my-input></div></div></div></div>' +
-                '<div class="modal-footer text-right">' +
-                '<button class="btn btn-info" type="button" ng-click="ok()" ng-disabled="editPassword.$invalid">Ok</button>' +
-                '<button class="btn btn-default" type="button" ng-click="cancel()">Cancel</button>' +
-                '</div>',
+                templateUrl: 'scripts/app/entities/user-management/user-management-password-dialog.html',
+                controllerAs: 'vm',
                 controller: function ($scope, $uibModalInstance) {
-                    $scope.cancel = function () {
+                    var vm = this;
+                    vm.cancel = cancel;
+                    vm.ok = ok;
+                    function cancel() {
                         $uibModalInstance.dismiss('cancel');
-                    };
-                    $scope.ok = function () {
-                        $uibModalInstance.close($scope.password);
-                    };
+                    }
+
+                    function ok() {
+                        $uibModalInstance.close(vm.password);
+                    }
                 }
             }).result.then(function (password) {
-                $scope.user.password = password;
+                vm.user.password = password;
             });
-        };
-    });
+        }
+    }
+})();

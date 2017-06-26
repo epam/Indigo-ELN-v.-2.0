@@ -1,7 +1,7 @@
-<form name="deleteForm" ng-submit="experimentDeleteController.confirmDelete(experiment.id)">
+<form name="deleteForm" ng-submit="vm.confirmDelete(vm.experiment.id)">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
-                ng-click="experimentDeleteController.clear()">&times;</button>
+                ng-click="vm.clear()">&times;</button>
         <h5 class="modal-title">Confirm delete operation</h5>
     </div>
     <div class="modal-body">
@@ -9,7 +9,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal"
-                ng-click="experimentDeleteController.clear()">
+                ng-click="vm.clear()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
         <button type="submit" ng-disabled="deleteForm.$invalid" class="btn btn-danger">Delete</button>

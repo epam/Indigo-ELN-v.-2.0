@@ -147,4 +147,9 @@ angular.module('indigoeln').controller('SearchReagentsController',
         $scope.cancel = function () {
             $uibModalInstance.close({});
         };
+
+        //$scope.onChangeModel = function(model){
+        //    console.log("SDSDSDSD");
+        //    $scope.model = model
+        //};
     });
