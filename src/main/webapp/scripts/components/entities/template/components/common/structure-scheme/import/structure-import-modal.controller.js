@@ -1,10 +1,14 @@
 angular.module('indigoeln')
-    .controller('structureImportModalController', function ($scope, $uibModalInstance) {
-        $scope.import = function() {
-            $uibModalInstance.close($scope.content);
-        };
+    .controller('structureImportModalController', structureImportModalController);
 
-        $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
-});
+/* @ngInject */
+function structureImportModalController($scope, $uibModalInstance) {
+    var vm = this;
+    vm.import = function() {
+        $uibModalInstance.close($scope.content);
+    };
+
+    vm.cancel = function() {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
