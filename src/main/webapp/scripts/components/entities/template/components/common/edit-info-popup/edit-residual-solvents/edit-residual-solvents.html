@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
     <p class="m-b20"><span class="semi-b">Please add residual solvents</span></p>
-    <div ng-if="solvents.data.length">
+    <div ng-if="vm.solvents.data.length">
         <table class="table table-striped" id="search-result-table">
             <thead class="search-table-head">
                 <tr>
@@ -13,16 +13,18 @@
                     <th class="edit-residual-solvents__header"></th>
                 </tr>
             </thead>
-            <tbody ng-repeat="item in solvents.data track by $index">
+            <tbody ng-repeat="item in vm.solvents.data track by $index">
                 <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                     <td>
                         <indigo-select indigo-dictionary="Solvent Name"
-                                       indigo-model="solvents.data[$index].name"></indigo-select></td>
+                                       indigo-model="vm.solvents.data[$index].name"></indigo-select></td>
                     <td>
-                        <indigo-input indigo-model="solvents.data[$index].eq" indigo-type="number"></indigo-input>
+                        <indigo-input indigo-model="vm.solvents.data[$index].eq" indigo-type="number"></indigo-input>
                     </td>
-                    <td><indigo-input indigo-model="solvents.data[$index].comment"></indigo-input></td>
-                    <td><a ng-click="remove(solvents.data[$index])"><span class="glyphicon glyphicon-trash"></span></a></td>
+                    <td><indigo-input indigo-model="vm.solvents.data[$index].comment"></indigo-input></td>
+                    <td><a
+                            ng-click="vm.remove(vm.solvents.data[$index])"><span
+                            class="glyphicon glyphicon-trash"></span></a></td>
                 </tr>
             </tbody>
         </table>
@@ -30,24 +32,24 @@
     <div class="btn-group">
         <button class="btn btn-info"
                 type="button"
-                ng-click="addSolvent()">
+                ng-click="vm.addSolvent()">
             <i class="fa fa-plus"></i>
             <span class="m-l5">Add residual solvent</span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="solvents.length"
-                ng-click="removeAll()">
+                ng-click="vm.removeAll()">
             <i class="fa fa-trash"></i>
             <span class="m-l5">Remove all</span>
         </button>
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-click="save()">
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
         <i class="fa fa-save"></i><span class="m-l5">Save</span>
     </button>
 </div>

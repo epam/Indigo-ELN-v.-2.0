@@ -6,7 +6,7 @@
         <indigo-two-toggle indigo-label="Purity % Information"
                            indigo-first="Purity Available"
                            indigo-second="{{unknownPurity}}"
-                           indigo-model="purity.property"
+                           indigo-model="vm.purity.property"
         ></indigo-two-toggle>
     </div>
     <div class="long-content-popup">
@@ -20,18 +20,18 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in dictionary.words track by item.name" ng-init="purity.data[$index].determinedBy = item.name">
-                    <td>{{purity.data[$index].determinedBy}}</td>
-                    <td><indigo-select indigo-items="operatorSelect"
-                                       indigo-readonly="isInknownPurity()"
-                                       indigo-model="purity.data[$index].operator"></indigo-select></td>
+                <tr ng-repeat="item in dictionary.words track by item.name" ng-init="vm.purity.data[$index].determinedBy = item.name">
+                    <td>{{vm.purity.data[$index].determinedBy}}</td>
+                    <td><indigo-select indigo-items="vm.operatorSelect"
+                                       indigo-readonly="vm.isInknownPurity()"
+                                       indigo-model="vm.purity.data[$index].operator"></indigo-select></td>
                     <td>
-                        <indigo-input indigo-model="purity.data[$index].value" indigo-readonly="isInknownPurity()"
+                        <indigo-input indigo-model="vm.purity.data[$index].value" indigo-readonly="vm.isInknownPurity()"
                                       indigo-type="number"></indigo-input>
                     </td>
                     <td>
-                        <indigo-input indigo-model="purity.data[$index].comments"
-                                      indigo-readonly="isInknownPurity()"></indigo-input>
+                        <indigo-input indigo-model="vm.purity.data[$index].comments"
+                                      indigo-readonly="vm.isInknownPurity()"></indigo-input>
                     </td>
                 </tr>
             </tbody>
@@ -39,10 +39,10 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-click="save()">
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
         <i class="fa fa-save"></i><span class="m-l5">Save</span>
     </button>
 </div>

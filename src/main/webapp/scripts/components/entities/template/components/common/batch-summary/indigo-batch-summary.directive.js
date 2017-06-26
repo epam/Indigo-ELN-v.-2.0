@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoBatchSummary', indigoBatchSummary);
@@ -10,12 +10,15 @@
             scope: {
                 model: '=',
                 share: '=',
+                // TODO: experimentName is not used
                 experimentName: '=',
                 isHideColumnSettings: '=',
                 structureSize: '=',
                 onShowStructure: '&'
             },
-            controller: 'IndigoBatchSummaryController'
+            bindToController: true,
+            controller: 'indigoBatchSummaryController',
+            controllerAs: 'vm'
         };
     }
 })();

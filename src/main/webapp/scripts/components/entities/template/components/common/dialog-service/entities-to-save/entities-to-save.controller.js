@@ -1,36 +1,46 @@
-angular.module('indigoeln').controller('EntitiesToSaveController',
-    function ($scope, $rootScope, $uibModalInstance, EntitiesBrowser, data) {
-        $scope.entities = _.map(data, function (entity) {
+angular
+    .module('indigoeln')
+    .controller('entitiesToSaveController', entitiesToSaveController);
+
+function entitiesToSaveController($uibModalInstance, data) {
+    var vm = this;
+
+    init();
+
+    function init() {
+        vm.entities = _.map(data, function(entity) {
             entity.$$saveEntity = true;
+
             return entity;
         });
 
-        $scope.isSelected = function () {
-            return _.any($scope.entities, function (entity) {
-                return entity.$$saveEntity;
-            });
-        };
+        vm.save = save;
+        vm.cancel = cancel;
+        vm.isSelected = isSelected;
+        vm.discardAll = discardAll;
+    }
 
-        $scope.discardAll = function () {
-            _.each($scope.entities, function (entity) {
-                entity.$$saveEntity = false;
-            });
-            $uibModalInstance.close([]);
-        };
+    function isSelected() {
+        return _.any(vm.entities, function(entity) {
+            return entity.$$saveEntity;
+        });
+    }
 
-        $scope.getKind = function (fullId) {
-            //return EntitiesBrowser.getKind(EntitiesBrowser.expandIds(fullId));
-            return "";
-        };
+    function discardAll() {
+        _.each(vm.entities, function(entity) {
+            entity.$$saveEntity = false;
+        });
+        $uibModalInstance.close([]);
+    }
 
-        $scope.save = function () {
-            var entitiesToSave = _.filter($scope.entities, function (entity) {
-                return entity.$$saveEntity;
-            });
-            $uibModalInstance.close(entitiesToSave);
-        };
+    function save() {
+        var entitiesToSave = _.filter(vm.entities, function(entity) {
+            return entity.$$saveEntity;
+        });
+        $uibModalInstance.close(entitiesToSave);
+    }
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

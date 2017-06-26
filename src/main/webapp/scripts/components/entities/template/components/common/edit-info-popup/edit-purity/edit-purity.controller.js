@@ -1,46 +1,62 @@
-angular.module('indigoeln').controller('EditPurityController',
-    function ($scope, $rootScope, $uibModalInstance, data, dictionary) {
-        $scope.purity = data || {};
-        $scope.purity.data = $scope.purity.data || [];
-        $scope.dictionary = dictionary;
+angular
+    .module('indigoeln')
+    .controller('editPurityController', editPurityController);
 
-        $scope.operatorSelect = [
+/* @ngInject */
+function editPurityController($scope, $uibModalInstance, data, dictionary) {
+    var vm = this;
+
+    init();
+
+    function init() {
+        vm.purity = data || {};
+        vm.purity.data = vm.purity.data || [];
+        vm.dictionary = dictionary;
+
+        vm.operatorSelect = [
             {name: '>'},
             {name: '<'},
             {name: '='},
             {name: '~'}];
 
-        $scope.unknownPurity = 'Purity Unknown';
-        $scope.isInknownPurity = function () {
-            return $scope.purity.property === $scope.unknownPurity;
-        };
+        vm.unknownPurity = 'Purity Unknown';
 
-        var resultToString = function () {
-            var purityStrings = _.map($scope.purity.data, function(purity) {
-                if (purity.operator && purity.value && purity.comments) {
-                    return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
-                        purity.value + '% ' + purity.comments;
-                } else if (purity.operator && purity.value) {
-                    return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
-                        purity.value + '%';
-                } else {
-                    return '';
-                }
-            });
-            return _.compact(purityStrings).join(', ');
-        };
+        vm.isInknownPurity = isInknownPurity;
+        vm.save = save;
+        vm.cancel = cancel;
+    }
 
-        $scope.save = function () {
-            if ($scope.isInknownPurity()) {
-                $scope.purity = {};
-                $scope.purity.asString = $scope.unknownPurity;
-            } else {
-                $scope.purity.asString = resultToString();
+    function isInknownPurity() {
+        return vm.purity.property === $scope.unknownPurity;
+    }
+
+    function resultToString() {
+        var purityStrings = _.map($scope.purity.data, function(purity) {
+            if (purity.operator && purity.value && purity.comments) {
+                return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
+                    purity.value + '% ' + purity.comments;
+            } else if (purity.operator && purity.value) {
+                return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
+                    purity.value + '%';
             }
-            $uibModalInstance.close($scope.purity);
-        };
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+            return '';
+        });
+
+        return _.compact(purityStrings).join(', ');
+    }
+
+    function save() {
+        if (vm.isInknownPurity()) {
+            vm.purity = {};
+            vm.purity.asString = vm.unknownPurity;
+        } else {
+            vm.purity.asString = resultToString();
+        }
+        $uibModalInstance.close(vm.purity);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

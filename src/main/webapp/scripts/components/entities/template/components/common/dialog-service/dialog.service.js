@@ -1,15 +1,13 @@
 angular
     .module('indigoeln')
-    .factory('DialogService', DialogService);
+    .factory('dialogService', dialogService);
 
 /* @ngInject */
-function DialogService($uibModal) {
-
+function dialogService($uibModal) {
     return {
         structureValidation: structureValidation,
         selectEntitiesToSave: selectEntitiesToSave
     };
-
 
     function structureValidation(batches, searchQuery, callback) {
         $uibModal.open({
@@ -18,14 +16,14 @@ function DialogService($uibModal) {
             controller: 'StructureValidationController',
             templateUrl: 'scripts/components/entities/template/components/common/dialog-service/structure-validation/structure-validation.html',
             resolve: {
-                batches: function () {
+                batches: function() {
                     return batches;
                 },
-                searchQuery: function () {
+                searchQuery: function() {
                     return searchQuery;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -34,14 +32,15 @@ function DialogService($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'EntitiesToSaveController',
+            controller: 'entitiesToSaveController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/dialog-service/entities-to-save/entities-to-save.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }

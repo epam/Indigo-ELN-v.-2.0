@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities', {
                 abstract: true,
@@ -7,7 +7,7 @@ angular.module('indigoeln')
                 views: {
                     'content@app_page': {
                         templateUrl: 'scripts/app/entities/entities.html',
-                        controller: 'EntitiesController',
+                        controller: 'entitiesController',
                         controllerAs: 'vm'
                     }
                 }

@@ -21,20 +21,23 @@ function appPageController($rootScope, $scope, $cookieStore, $window, WSService,
 
     function init() {
         windowElement = angular.element($window);
+        vm.onMouseWheel = onMouseWheel;
         updateToggle = createDebounce();
         updateToggle();
         bindEvents();
     }
 
-    vm.onMouseWheel = function($event) {
+    function onMouseWheel($event) {
         var prevent = function() {
             $event.stopPropagation();
             $event.preventDefault();
             $event.returnValue = false;
+
             return false;
         };
+
         return prevent();
-    };
+    }
 
     function bindSubscribes() {
         onSubscribe('experiment_status', 'experiment-status-changed');
