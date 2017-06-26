@@ -3,6 +3,7 @@
         .module('indigoeln')
         .controller('TemplateModalController', TemplateModalController);
 
+    /* @ngInject */
     function TemplateModalController($scope, $stateParams, Template, Alert, $state, dragulaService,
                                      Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
         var vm = this;
@@ -88,6 +89,10 @@
             if (vm.template.id) {
                 Template.update(vm.template, onSaveSuccess, onSaveError);
             } else {
+
+
+                console.log('vm.template');
+                console.log(vm.template);
                 Template.save(vm.template, onSaveSuccess, onSaveError).$promise;
             }
         }
