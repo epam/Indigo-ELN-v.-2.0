@@ -172,16 +172,22 @@
                     </div>
                 </div>
                 <div class="m-t5">
-                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="molecule"
-                                             my-title="Structure or reaction" my-model="scheme" model="vm.model"
+                    <indigo-structure-scheme class="search-structure-scheme"
+                                             ss-structure-type="'molecule'"
+                                             ss-title="'Structure or reaction'"
+                                             ss-model="vm.model"
+                                             ss-autosave="false"
                                              on-change="vm.onChangeModel(model)"
-                                             my-autosave="false"
-                                             ng-if="vm.model.restrictions.structure.type.name == 'Product'"></indigo-structure-scheme>
-                    <indigo-structure-scheme class="search-structure-scheme" my-structure-type="reaction"
-                                             my-title="Structure or reaction" my-model="scheme" model="vm.model"
+                                             ng-if="vm.model.restrictions.structure.type.name == 'Product'">
+                    </indigo-structure-scheme>
+                    <indigo-structure-scheme class="search-structure-scheme"
+                                             ss-structure-type="'reaction'"
+                                             ss-title="'Structure or reaction'"
+                                             ss-model="vm.model"
                                              on-change="vm.onChangeModel(model)"
-                                             my-autosave="false"
-                                             ng-if="vm.model.restrictions.structure.type.name == 'Reaction'"></indigo-structure-scheme>
+                                             ss-autosave="false"
+                                             ng-if="vm.model.restrictions.structure.type.name == 'Reaction'">
+                    </indigo-structure-scheme>
                 </div>
             </div>
         </div>
