@@ -597,8 +597,8 @@
             if (!getStoicTable()) {
                 return;
             }
-            _.findWhere($scope.columns, {id: 'precursors'}).readonly = true;
-            var precursors = $scope.share.stoichTable.reactants.filter(function(r) {
+            _.findWhere(vm.columns, {id: 'precursors'}).readonly = true;
+            var precursors = vm.share.stoichTable.reactants.filter(function(r) {
                 return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT';
             })
                 .map(function(r) {
@@ -620,7 +620,7 @@
 
         function isEditable(row, columnId) {
             var rowResult = !(RegistrationUtil.isRegistered(row));
-            if (rowResult && columnId === 'precursors' && $scope.share.stoichTable) {
+            if (rowResult && columnId === 'precursors' && vm.share.stoichTable) {
                 return false;
             }
 
@@ -628,7 +628,7 @@
         }
 
         function onRowSelected(row) {
-            $scope.share.selectedRow = row || null;
+            vm.share.selectedRow = row || null;
             if (row) {
                 $rootScope.$broadcast('batch-summary-row-selected', {row: row});
             } else {
@@ -661,7 +661,7 @@
 
         function deleteBatches() {
             ProductBatchSummaryOperations.deleteBatches();
-            if ($scope.share.selectedRow && $scope.share.selectedRow.select) {
+            if (vm.share.selectedRow && vm.share.selectedRow.select) {
                 vm.onRowSelected(null);
             }
         }
@@ -683,7 +683,7 @@
 
         function initStructure(batches, structureType) {
             var changed;
-            batches.forEach(function(row) {
+            _.each(batches, function(row) {
                 if (row.structure) {
                     return;
                 }
@@ -727,16 +727,16 @@
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
-                $scope.share.actualProducts = batches;
+                vm.share.actualProducts = batches;
                 ProductBatchSummaryCache.setProductBatchSummary(batches);
                 updatePrecursor();
                 initStructure(batches);
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
-                _.findWhere($scope.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
-                _.findWhere($scope.columns, {id: 'registrationDate'}).isVisible = val;
-                _.findWhere($scope.columns, {id: 'registrationStatus'}).isVisible = val;
+                _.findWhere(vm.columns, {id: 'conversationalBatchNumber'}).isVisible = val;
+                _.findWhere(vm.columns, {id: 'registrationDate'}).isVisible = val;
+                _.findWhere(vm.columns, {id: 'registrationStatus'}).isVisible = val;
             });
 
             $scope.$watch(function() {
@@ -781,7 +781,7 @@
             });
 
             $scope.$watch('structureSize', function(newVal) {
-                var column = _.find($scope.columns, function(item) {
+                var column = _.find(vm.columns, function(item) {
                     return item.id === 'structure';
                 });
                 column.width = (500 * newVal) + 'px';
