@@ -18,7 +18,9 @@
         vm.conditionSimilarity = [{name: 'equal'}, {name: 'substructure'}, {name: 'similarity'}];
         vm.selectedItemsFlags = {};
         vm.selectedEntitiesFlags = {};
+        vm.selectedUsers = [];
         vm.itemsPerPage = 10;
+        vm.domainModel = '';
 
         vm.clear = clear;
         vm.isAdvancedSearchFilled = isAdvancedSearchFilled;
@@ -30,7 +32,6 @@
         vm.goTo = goTo;
         vm.doPage = doPage;
         vm.onChangeModel = onChangeModel;
-        $scope.scheme = {};
 
         function clear() {
             vm.model = SearchUtilService.getStoredModel(true);
@@ -104,10 +105,9 @@
         function doPage(page) {
             if (page) {
                 vm.page = page;
-            } else {
-                page = vm.page;
             }
-            var ind = (page - 1) * vm.itemsPerPage;
+
+            var ind = (vm.page - 1) * vm.itemsPerPage;
             vm.searchResultsPaged = vm.searchResults.slice(ind, ind + vm.itemsPerPage);
         }
 
