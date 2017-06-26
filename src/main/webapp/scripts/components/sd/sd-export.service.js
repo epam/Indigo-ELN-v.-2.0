@@ -5,12 +5,18 @@ angular
 /* @ngInject */
 function sdExportService(SdService, sdProperties, Alert){
 
-    var getProperty = function (item, props, subProp) {
+    return {
+         exportItems: exportItems
+    };
+
+    function getProperty(item, props) {
         var i = 0;
         var prop = props[i++];
         var subItem = item[prop];
         while (props[i]) {
-            if (subItem === undefined) {return;}
+            if (subItem === undefined) {
+                return;
+            }
             prop = props[i++];
             subItem = subItem[prop];
         };
@@ -20,16 +26,16 @@ function sdExportService(SdService, sdProperties, Alert){
     };
 
 
-    var generateExportProperties = function(item) {
+    function generateExportProperties(item) {
         var properties = {};
-        sdProperties.constants.forEach(function(prop, i, constants) {
+        sdProperties.constants.forEach(function(prop) {
             var fields = prop.export;
             properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
         });
         return properties;
     };
 
-    var getExportProperties = function (items) {
+    function getExportProperties(items) {
         return _.map(items, function(item){
                 var properties = { molfile: item.structure.molfile,
                                    properties: generateExportProperties(item)};
@@ -39,15 +45,11 @@ function sdExportService(SdService, sdProperties, Alert){
                 });
     };
 
-    var exportItems = function (items) {
-        var properties = getExportProperties(items); console.log('properties', properties);
+    function exportItems(items) {
+        var properties = getExportProperties(items);
         if (properties[0]) {
             return SdService.export({}, properties).$promise;
         }
         Alert.error('Please add Batch structure before export sd file');
-    };
-
-    return {
-        exportItems: exportItems
     };
 }
