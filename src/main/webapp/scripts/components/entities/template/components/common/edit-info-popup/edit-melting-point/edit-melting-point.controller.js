@@ -1,22 +1,38 @@
-angular.module('indigoeln').controller('EditMeltingPointController',
-    function ($scope, $rootScope, $uibModalInstance, data) {
-        $scope.meltingPoint = data || {};
+angular
+    .module('indigoeln')
+    .controller('editMeltingPointController', editMeltingPointController);
 
-        var resultToString = function () {
-            if ($scope.meltingPoint.lower && $scope.meltingPoint.upper && $scope.meltingPoint.comments) {
-                return 'Range ' + $scope.meltingPoint.lower + ' ~ ' + $scope.meltingPoint.upper +
-                    '\xB0C, ' + $scope.meltingPoint.comments;
-            } else if ($scope.meltingPoint.lower && $scope.meltingPoint.upper) {
-                return 'Range ' + $scope.meltingPoint.lower + ' ~ ' + $scope.meltingPoint.upper + '\xB0C';
-            }
-        };
+/* @ngInject */
+function editMeltingPointController($uibModalInstance, data) {
+    var vm = this;
 
-        $scope.save = function () {
-            $scope.meltingPoint.asString = resultToString();
-            $uibModalInstance.close($scope.meltingPoint);
-        };
+    init();
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+    function init() {
+        vm.meltingPoint = data || {};
+
+        vm.save = save;
+        vm.cancel = cancel;
+    }
+
+    function resultToString() {
+        if (vm.meltingPoint.lower && vm.meltingPoint.upper) {
+            return 'Range ' + vm.meltingPoint.lower + ' ~ ' + vm.meltingPoint.upper + '\xB0C' + addCommentIfExist();
+        }
+
+        return null;
+    }
+
+    function addCommentIfExist() {
+        return vm.meltingPoint.comments ? ', ' + vm.meltingPoint.comments : '';
+    }
+
+    function save() {
+        vm.meltingPoint.asString = resultToString();
+        $uibModalInstance.close(vm.meltingPoint);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

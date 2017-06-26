@@ -1,63 +1,80 @@
-angular.module('indigoeln').controller('EditSolubilityController',
-    function ($scope, $rootScope, $uibModalInstance, data) {
-        $scope.solubility = data || {};
-        $scope.solubility.data = $scope.solubility.data || [];
+angular
+    .module('indigoeln')
+    .controller('editSolubilityController', editSolubilityController);
 
-        $scope.solubilityTypeSelect = [
+function editSolubilityController($uibModalInstance, data) {
+    var vm = this;
+
+    init();
+
+    function init() {
+        vm.solubility = data || {};
+        vm.solubility.data = vm.solubility.data || [];
+
+        vm.solubilityTypeSelect = [
             {name: 'Quantitative'},
             {name: 'Qualitative'}];
 
-        $scope.qualitativeSolubilitySelect = [
+        vm.qualitativeSolubilitySelect = [
             {name: 'Soluble'},
             {name: 'Unsoluble'},
             {name: 'Precipitate'}];
 
-        $scope.unitSelect = [
+        vm.unitSelect = [
             {name: 'g/ml'}];
 
-        $scope.operatorSelect = [
+        vm.operatorSelect = [
             {name: '>'},
             {name: '<'},
             {name: '='},
             {name: '~'}];
 
-        $scope.addSolvent = function () {
-            $scope.solubility.data.push({solventName: {}, type: {}, value: {}, comment: ''});
-        };
+        vm.save = save;
+        vm.cancel = cancel;
+        vm.addSolvent = addSolvent;
+        vm.remove = remove;
+        vm.removeAll = removeAll;
+    }
 
-        $scope.remove = function (solvent) {
-            $scope.solubility.data = _.without($scope.solubility.data, solvent);
-        };
+    function addSolvent() {
+        vm.solubility.data.push({solventName: {}, type: {}, value: {}, comment: ''});
+    }
 
-        $scope.removeAll = function () {
-            $scope.solubility.data = [];
-        };
+    function remove(solvent) {
+        vm.solubility.data = _.without(vm.solubility.data, solvent);
+    }
 
-        var resultToString = function () {
-            var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
-                var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
-                var type = solubility.type && solubility.type.name ? solubility.type.name : null;
-                var value = solubility.value && solubility.value.value ? solubility.value : null;
-                if (!type || !value || !solvent) {
-                    return '';
-                }
-                var result = '';
-                if (type === 'Quantitative') {
-                    result = value.operator.name + ' ' + value.value + ' ' + value.unit.name; // > 5 g/mL
-                } else {
-                    result = value.value.name; // Unsoluble
-                }
-                return result + ' in ' + solvent; // in Acetic acid
-            });
-            return _.compact(solubilityStrings).join(', ');
-        };
+    function removeAll() {
+        vm.solubility.data = [];
+    }
 
-        $scope.save = function () {
-            $scope.solubility.asString = resultToString();
-            $uibModalInstance.close($scope.solubility);
-        };
+    function resultToString() {
+        var solubilityStrings = _.map(vm.solubility.data, function(solubility) {
+            var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
+            var type = solubility.type && solubility.type.name ? solubility.type.name : null;
+            var value = solubility.value && solubility.value.value ? solubility.value : null;
+            var result = '';
+            if (!type || !value || !solvent) {
+                return '';
+            }
+            if (type === 'Quantitative') {
+                result = value.operator.name + ' ' + value.value + ' ' + value.unit.name; // > 5 g/mL
+            } else {
+                result = value.value.name; // Unsoluble
+            }
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+            return result + ' in ' + solvent; // in Acetic acid
+        });
+
+        return _.compact(solubilityStrings).join(', ');
+    }
+
+    function save() {
+        vm.solubility.asString = resultToString();
+        $uibModalInstance.close(vm.solubility);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

@@ -9,40 +9,41 @@
             <div class="col-xs-12">
                 <div>
                     <label>Reactants: </label>
-                    <span ng-repeat="reactant in model.reactants track by $index">{{reactant.formula}}<span
+                    <span ng-repeat="reactant in vm.model.reactants track by $index">{{reactant.formula}}<span
                             ng-if="!$last">, </span></span>
                 </div>
             </div>
         </div>
-        <indigo-checklist indigo-items="model.databases" indigo-label="Choose catalog to search in"></indigo-checklist>
+        <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"></indigo-checklist>
     </div>
     <div>
-        <button class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
+        <button class="btn btn-info btn-can-loading"
+                ng-class="{'btn-loading': vm.loading"
                 type="button"
-                ng-click="search()">Search
+                ng-click="vm.search()">Search
         </button>
     </div>
     <br>
-    <div ng-if="isSearchCompleted" class="search-result-container">
+    <div ng-if="vm.isSearchCompleted" class="search-result-container">
         <div class="row">
             <div class="col-xs-3 reagent-search-collapse" ng-init="$$isSelectedReactantsCollapsed=true">
                 <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed">
                         <span ng-class="{'fa fa-angle-right':$$isSelectedReactantsCollapsed,
                              'fa fa-angle-down':!$$isSelectedReactantsCollapsed}"></span>
-                    Selected reactants ({{model.selectedReactants.length}})
+                    Selected reactants ({{vm.model.selectedReactants.length}})
                 </a>
             </div>
             <div class="col-xs-9">
                 <div class="btn-group pull-right">
                     <button class="btn btn-info"
                             type="button"
-                            ng-click="addToStoichTable(searchResult)"
-                            ng-disabled="!model.selectedReactants.length">
+                            ng-click="vm.addToStoichTable(searchResult)"
+                            ng-disabled="!vm.model.selectedReactants.length">
                         <i class="fa fa-trash"></i><span class="m-l5">Add to Stoich. Table</span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
-                            ng-click="updateStoicAndExit(searchResult)"
+                            ng-click="vm.updateStoicAndExit(searchResult)"
                             ng-disabled="false">
                         <i class="fa fa-plus"></i><span class="m-l5">Update Stoich and Exit</span>
                     </button>
@@ -51,11 +52,11 @@
         </div>
 
         <div uib-collapse="$$isSelectedReactantsCollapsed" class="analyze-rxn-selected-reactants">
-            <div ng-repeat="reactant in model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.formula}}
+            <div ng-repeat="reactant in vm.model.selectedReactants track by $index"><span class="glyphicon glyphicon-ok">&nbsp;</span>{{reactant.formula}}
             </div>
         </div>
         <uib-tabset active="activeForm" class="inner-tabs">
-            <uib-tab ng-repeat="tab in tabs track by $index"
+            <uib-tab ng-repeat="tab in vm.tabs track by $index"
                      heading="{{tab.formula}} ({{tab.searchResult.length}} results)"
                      active="tab.active">
                 <div class="reagent-search-tab">
@@ -65,7 +66,7 @@
                             <indigo-search-result-table indigo-table-content="tab.searchResult"
                                                         indigo-editable-info="false"
                                                         indigo-single-item-per-tab="true"
-                                                        indigo-selected-items-per-tab="model.selectedReactants"
+                                                        indigo-selected-items-per-tab="vm.model.selectedReactants"
                                                         indigo-tab="tab"></indigo-search-result-table>
                         </div>
                     </div>
@@ -78,7 +79,7 @@
 
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
 </div>

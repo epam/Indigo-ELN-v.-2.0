@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
     <div class="long-content-popup">
-        <div class="select-from-dictionary" ng-repeat="entity in entities track by entity.tabKey">
+        <div class="select-from-dictionary" ng-repeat="entity in vm.entities track by entity.tabKey">
             <indigo-checkbox
                     indigo-model="entity.$$saveEntity"
                     indigo-label="{{entity.name | capitalize}} {{entity.$$title}}"
@@ -12,13 +12,13 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i>
         <span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-click="save()" ng-disabled="!isSelected()">
+    <button class="btn btn-primary" type="button" ng-click="vm.save()" ng-disabled="!vm.isSelected()">
         <i class="fa fa-save"></i>
         <span class="m-l5">Save</span>
     </button>
-    <button class="btn btn-info" type="button" ng-click="discardAll()">Discard All</button>
+    <button class="btn btn-info" type="button" ng-click="vm.discardAll()">Discard All</button>
 </div>
