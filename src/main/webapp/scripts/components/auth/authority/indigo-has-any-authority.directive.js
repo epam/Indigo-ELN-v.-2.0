@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoHasAnyAuthority', indigoHasAnyAuthority);
@@ -7,37 +7,28 @@
     function indigoHasAnyAuthority(Principal) {
         return {
             restrict: 'A',
-            link: link
-        };
+            link: function link($scope, $element, $attrs) {
+                var authorities = $attrs.indigoHasAnyAuthority.replace(/\s+/g, '').split(',');
 
-        /* @ngInject */
-        function link($scope, $element, $attrs) {
-            var authorities = $attrs.indigoHasAnyAuthority.replace(/\s+/g, '').split(',');
-
-            var setVisible = function () {
-                $element.removeClass('hidden');
-            };
-            var setHidden = function () {
-                $element.addClass('hidden');
-            };
-            var defineVisibility = function (reset) {
-                if (reset) {
-                    setVisible();
+                if (authorities.length > 0) {
+                    defineVisibility(true);
                 }
 
-                Principal.hasAnyAuthority(authorities)
-                    .then(function (result) {
-                        if (result) {
-                            setVisible();
-                        } else {
-                            setHidden();
-                        }
-                    });
-            };
+                function setVisible() {
+                    $element.removeClass('hidden');
+                }
 
-            if (authorities.length > 0) {
-                defineVisibility(true);
+                function defineVisibility(reset) {
+                    if (reset) {
+                        setVisible();
+                    }
+
+                    Principal.hasAnyAuthority(authorities).then(function(result) {
+                        // TODO: should remove element if hasn't access
+                        $element.toggleClass('hidden', !result);
+                    });
+                }
             }
-        }
+        };
     }
 })();
