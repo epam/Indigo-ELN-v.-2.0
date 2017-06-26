@@ -4,7 +4,6 @@ angular
 
 /* @ngInject */
 function infoEditor($uibModal) {
-
     return {
         editSolubility: editSolubility,
         editResidualSolvents: editResidualSolvents,
@@ -20,14 +19,15 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'EditSolubilityController',
+            controller: 'editSolubilityController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-solubility/edit-solubility.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -36,14 +36,15 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'EditResidualSolventsController',
+            controller: 'editResidualSolventsController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -52,14 +53,15 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'EditExternalSupplierController',
+            controller: 'editExternalSupplierController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-external-supplier/edit-external-supplier.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -68,14 +70,15 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'EditMeltingPointController',
+            controller: 'editMeltingPointController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -84,17 +87,18 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'EditPurityController',
+            controller: 'editPurityController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-purity/edit-purity.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return data;
                 },
-                dictionary: function (Dictionary) {
+                dictionary: function(Dictionary) {
                     return Dictionary.get({id: 'purity'}).$promise;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
@@ -124,19 +128,18 @@ function infoEditor($uibModal) {
             controller: 'SelectFromDictionaryController',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/select-from-dictionary/select-from-dictionary.html',
             resolve: {
-                data: function () {
+                data: function() {
                     return model;
                 },
-                dictionary: function (Dictionary) {
+                dictionary: function(Dictionary) {
                     return Dictionary.get({id: dictionary}).$promise;
                 },
-                title: function () {
+                title: function() {
                     return title;
                 }
             }
-        }).result.then(function (result) {
+        }).result.then(function(result) {
             callback(result);
         });
     }
-
 }
