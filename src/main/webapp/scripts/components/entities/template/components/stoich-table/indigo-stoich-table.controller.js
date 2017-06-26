@@ -6,7 +6,7 @@
     /* @ngInject */
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert,
                                          Dictionary, CalculationService, SearchService, RegistrationService,
-                                         DialogService, StoichTableCache, $timeout) {
+                                         dialogService, StoichTableCache, $timeout) {
 
         console.log("indigoStoichTableController", $scope.model);
         console.log("indigoStoichTableController", $scope.share);
@@ -153,7 +153,7 @@
                     if (batches.length === 1) {
                         populateFetchedBatch(row, batches[0]);
                     } else if (batches.length > 1) {
-                        DialogService.structureValidation(batches, compoundId, function(selectedBatch) {
+                        dialogService.structureValidation(batches, compoundId, function(selectedBatch) {
                             populateFetchedBatch(row, selectedBatch);
                         });
                     } else {
@@ -644,6 +644,7 @@
                         animation: true,
                         size: 'lg',
                         controller: 'analyzeRxnController',
+                        controllerAs: 'vm',
                         templateUrl: 'scripts/components/entities/template/components/common/analyze-rxn/analyze-rxn.html',
                         resolve: {
                             reactants: function() {
