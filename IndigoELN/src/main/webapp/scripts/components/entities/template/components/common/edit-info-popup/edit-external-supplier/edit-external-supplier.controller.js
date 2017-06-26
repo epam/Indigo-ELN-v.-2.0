@@ -1,25 +1,41 @@
-angular.module('indigoeln').controller('EditExternalSupplierController',
-    function ($scope, $rootScope, $uibModalInstance, data) {
-        $scope.externalSupplier = data || {};
+angular
+    .module('indigoeln')
+    .controller('editExternalSupplierController', editExternalSupplierController);
 
-        $scope.externalSupplierCodeAndNameSelect = [
+/* @ngInject */
+function editExternalSupplierController($uibModalInstance, data) {
+    var vm = this;
+
+    init();
+
+    function init() {
+        vm.externalSupplier = data || {};
+
+        vm.externalSupplierCodeAndNameSelect = [
             {name: 'SPP1 - Supplier 1'},
             {name: 'SPP2 - Supplier 2'},
             {name: 'SPP3 - Supplier 3'}];
 
-        var resultToString = function () {
-            if ($scope.externalSupplier.codeAndName && $scope.externalSupplier.catalogRegistryNumber) {
-                return '<' + $scope.externalSupplier.codeAndName.name + '> ' +
-                    $scope.externalSupplier.catalogRegistryNumber;
-            }
-        };
+        vm.resultToString = resultToString;
+        vm.cancel = cancel;
+        vm.save = save;
+    }
 
-        $scope.save = function () {
-            $scope.externalSupplier.asString = resultToString();
-            $uibModalInstance.close($scope.externalSupplier);
-        };
+    function resultToString() {
+        if (vm.externalSupplier.codeAndName && vm.externalSupplier.catalogRegistryNumber) {
+            return '<' + vm.externalSupplier.codeAndName.name + '> ' +
+                vm.externalSupplier.catalogRegistryNumber;
+        }
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+        return null;
+    }
+
+    function save() {
+        vm.externalSupplier.asString = resultToString();
+        $uibModalInstance.close(vm.externalSupplier);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

@@ -1,37 +1,54 @@
-angular.module('indigoeln').controller('EditResidualSolventsController',
-    function ($scope, $rootScope, $uibModalInstance, data) {
-        $scope.solvents = data || {};
-        $scope.solvents.data = $scope.solvents.data || [];
+angular
+    .module('indigoeln')
+    .controller('editResidualSolventsController', editResidualSolventsController);
 
-        $scope.addSolvent = function () {
-            $scope.solvents.data.push({name: '', eq: '', comment: ''});
-        };
+/* @ngInject */
+function editResidualSolventsController($scope, $uibModalInstance, data) {
+    var vm = this;
 
-        $scope.remove = function (solvent) {
-            $scope.solvents.data = _.without($scope.solvents.data, solvent);
-        };
+    init();
 
-        $scope.removeAll = function () {
-            $scope.solvents.data = [];
-        };
+    function init() {
+        vm.solvents = data || {};
+        vm.solvents.data = vm.solvents.data || [];
 
-        var resultToString = function () {
-            var solventStrings = _.map($scope.solvents.data, function(solvent) {
-                if (solvent.name && solvent.eq) {
-                    return solvent.eq + ' mols of ' + solvent.name.name;
-                } else {
-                    return '';
-                }
-            });
-            return _.compact(solventStrings).join(', ');
-        };
+        vm.save = save;
+        vm.cancel = cancel;
+        vm.addSolvent = addSolvent;
+        vm.remove = remove;
+        vm.removeAll = removeAll;
+    }
 
-        $scope.save = function () {
-            $scope.solvents.asString = resultToString();
-            $uibModalInstance.close($scope.solvents);
-        };
+    function addSolvent() {
+        $scope.solvents.data.push({name: '', eq: '', comment: ''});
+    }
 
-        $scope.cancel = function () {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+    function remove(solvent) {
+        $scope.solvents.data = _.without($scope.solvents.data, solvent);
+    }
+
+    function removeAll() {
+        $scope.solvents.data = [];
+    }
+
+    function resultToString() {
+        var solventStrings = _.map($scope.solvents.data, function(solvent) {
+            if (solvent.name && solvent.eq) {
+                return solvent.eq + ' mols of ' + solvent.name.name;
+            }
+
+            return '';
+        });
+
+        return _.compact(solventStrings).join(', ');
+    }
+
+    function save() {
+        $scope.solvents.asString = resultToString();
+        $uibModalInstance.close($scope.solvents);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}

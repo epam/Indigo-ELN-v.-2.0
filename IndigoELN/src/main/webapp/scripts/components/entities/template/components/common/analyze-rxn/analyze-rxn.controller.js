@@ -3,54 +3,67 @@ angular
     .controller('analyzeRxnController', analyzeRxnController);
 
 /* @ngInject */
-function analyzeRxnController($scope, $uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged) {
-    function init() {
-        $scope.model = {
-            reactants: reactants,
-            selectedReactants: [],
-            isSearchResultFound: false,
-            databases: SearchService.getCatalogues()
-        };
+function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged) {
+    var vm = this;
 
-        $scope.tabs = _.map($scope.model.reactants, function(reactant) {
-            return {formula: reactant.formula, searchResult: [], selectedReactant: null};
+    init();
+
+    function init() {
+        vm.model = getDefaultModel();
+
+        vm.tabs = _.map(vm.reactants, function(reactant) {
+            return {
+                formula: reactant.formula, searchResult: [], selectedReactant: null
+            };
         });
     }
 
-    $scope.addToStoichTable = function() {
-        onStoichRowsChanged($scope.model.selectedReactants);
+    vm.addToStoichTable = function() {
+        onStoichRowsChanged(vm.selectedReactants);
     };
 
-    $scope.updateStoicAndExit = function() {
-        var result = angular.copy($scope.model.reactants);
-        _.each($scope.model.selectedReactants, function(knownReactant) {
-            _.extend(_.findWhere(result, {formula: knownReactant.formula}), knownReactant);
+    vm.updateStoicAndExit = function() {
+        var result = angular.copy(vm.reactants);
+        _.each(vm.selectedReactants, function(knownReactant) {
+            _.extend(_.findWhere(result, {
+                formula: knownReactant.formula
+            }), knownReactant);
         });
         onStoichRowsChanged(result);
         $uibModalInstance.close({});
     };
 
-    $scope.search = function() {
-        $scope.loading = true;
-        _.each($scope.tabs, function(tab) {
+    vm.search = function() {
+        vm.loading = true;
+        _.each(vm.tabs, function(tab) {
             getSearchResult(tab.formula, function(searchResult) {
-                $scope.loading = false;
+                vm.loading = false;
                 tab.searchResult = responseCallback(searchResult);
             });
         });
-        $scope.isSearchCompleted = true;
+        vm.isSearchCompleted = true;
     };
 
-    $scope.cancel = function() {
+    vm.cancel = function() {
         $uibModalInstance.close({});
     };
 
+    function getDefaultModel() {
+        return {
+            reactants: reactants,
+            selectedReactants: [],
+            isSearchResultFound: false,
+            databases: SearchService.getCatalogues()
+        };
+    }
+
     function prepareDatabases() {
-        return _.pluck(_.where($scope.model.databases, {isChecked: true}), 'value');
+        return _.pluck(_.where(vm.databases, {isChecked: true}), 'value');
     }
 
     function responseCallback(result) {
         var databases = prepareDatabases();
+
         return _.map(result, function(item) {
             var batchDetails = _.extend({}, item.details);
             batchDetails.$$isCollapsed = true;
@@ -68,10 +81,10 @@ function analyzeRxnController($scope, $uibModalInstance, reactants, SearchServic
         var databases = prepareDatabases();
         var searchRequest = {
             databases: databases,
-            structure: {formula: formula, searchMode: 'molformula'}
+            structure: {
+                formula: formula, searchMode: 'molformula'
+            }
         };
         SearchService.search(searchRequest, callback);
     }
-
-    init();
 }

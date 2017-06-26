@@ -5,21 +5,21 @@
     <p class="semi-b m-b20">Melting Point Range:</p>
     <div class="row">
         <div class="col-xs-2">
-            <indigo-input indigo-model="meltingPoint.lower"
+            <indigo-input indigo-model="vm.meltingPoint.lower"
                           indigo-label="Lower"
                           indigo-type="number"
                           indigo-label-vertical="true"></indigo-input>
             <span class="input-right-txt">&deg;C</span>
         </div>
         <div class="col-xs-2">
-            <indigo-input indigo-model="meltingPoint.upper"
+            <indigo-input indigo-model="vm.meltingPoint.upper"
                           indigo-label="Upper"
                           indigo-type="number"
                           indigo-label-vertical="true"></indigo-input>
                 <span class="input-right-txt">&deg;C</span>
         </div>
         <div class="col-xs-8">
-            <indigo-input indigo-model="meltingPoint.comments"
+            <indigo-input indigo-model="vm.meltingPoint.comments"
                           indigo-columns-num="3"
                           indigo-label="Comments"
                           indigo-label-vertical="true"></indigo-input>
@@ -27,10 +27,10 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-click="save()">
+    <button class="btn btn-primary" type="button" ng-click="vm.save()">
         <i class="fa fa-save"></i><span class="m-l5">Save</span>
     </button>
 </div>
