@@ -7,6 +7,8 @@
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert,
                                          Dictionary, CalculationService, SearchService, RegistrationService,
                                          dialogService, StoichTableCache, $timeout) {
+        console.log('indigoStoichTableController', $scope.model);
+        console.log('indigoStoichTableController', $scope.share);
 
         $scope.model = $scope.model || {};
         $scope.model.stoichTable = $scope.model.stoichTable || {};
@@ -21,7 +23,8 @@
         var rxnValues = AppValues.getRxnValues();
         var saltCodeValues = AppValues.getSaltCodeValues();
         var loadFactorUnits = AppValues.getLoadFactorUnits();
-        var reactionReactants, actualProducts;
+        var reactionReactants;
+        var actualProducts;
 
         var populateFetchedBatch = function(row, source) {
             row.$$populatedBatch = source;
@@ -107,7 +110,9 @@
                         saltCode: _.find(saltCodeValues, function(sc) {
                             return sc.regValue === c.saltCode;
                         }),
-                        saltEq: {value: c.saltEquivs, entered: false},
+                        saltEq: {
+                            value: c.saltEquivs, entered: false
+                        },
                         comments: c.comment
                     };
                 });
@@ -133,6 +138,7 @@
                     deferred.resolve(result);
                 });
             });
+
             return deferred.promise;
         }
 
@@ -213,8 +219,7 @@
                                         title: r.details.fullNbkBatch
                                     };
                                 });
-                            }
-                            else {
+                            } else {
                                 alertWrongFormat();
                             }
                         });
@@ -225,7 +230,7 @@
                     var nbkBatch = data.model;
                     var bid = row.fullNbkBatch || '';
                     if (!row.$$populatedBatch) {
-                        bid = bid.replace(/[^0-9.-]/g, "").trim();
+                        bid = bid.replace(/[^0-9.-]/g, '').trim();
                         if (row.fullNbkBatch) {
                             fetchBatchByNbkNumber(nbkBatch, function(result) {
                                 var pb = result[0];
@@ -330,7 +335,7 @@
                 name: 'Salt EQ',
                 type: 'scalar',
                 checkEnabled: function(o) {
-                    return (o.saltCode && o.saltCode.value > 0 );
+                    return (o.saltCode && o.saltCode.value > 0);
                 }
             },
             {
@@ -402,7 +407,7 @@
                 name: 'Salt EQ',
                 type: 'scalar',
                 checkEnabled: function(o) {
-                    return (o.saltCode && o.saltCode.value > 0 );
+                    return (o.saltCode && o.saltCode.value > 0);
                 },
                 onClose: function(data) {
                     CalculationService.setEntered(data);
@@ -486,7 +491,9 @@
 
         function recalculateSalt(reagent) {
             CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateAmounts({row: reagent});
+                CalculationService.recalculateAmounts({
+                    row: reagent
+                });
             });
         }
 
@@ -506,6 +513,7 @@
                     molfile: result.data.molecule,
                     structureType: 'molecule'
                 };
+
                 return batch;
             });
         }
@@ -526,27 +534,26 @@
 
         function getReactionProductsAndReactants(molFile) {
             $http.put('api/calculations/reaction/extract', molFile).then(function(reactionProperties) {
-                    if (reactionProperties.data.products && reactionProperties.data.products.length) {
-                        var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
-                        var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
-                        $q.all(productPromises).then(function(results) {
-                            setIntendedProducts(moleculeInfoResponseCallback(results, true));
-                            getStructureImagesForIntendedProducts();
-                            CalculationService.recalculateStoich();
-                        });
-                        $q.all(reactantPromises).then(function(results) {
-                            reactionReactants = moleculeInfoResponseCallback(results);
-                            CalculationService.recalculateStoich();
-                        });
-                    }
+                if (reactionProperties.data.products && reactionProperties.data.products.length) {
+                    var productPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'products');
+                    var reactantPromises = getPromisesForMoleculeInfoRequest(reactionProperties, 'reactants');
+                    $q.all(productPromises).then(function(results) {
+                        setIntendedProducts(moleculeInfoResponseCallback(results, true));
+                        getStructureImagesForIntendedProducts();
+                        CalculationService.recalculateStoich();
+                    });
+                    $q.all(reactantPromises).then(function(results) {
+                        reactionReactants = moleculeInfoResponseCallback(results);
+                        CalculationService.recalculateStoich();
+                    });
                 }
+            }
             );
         }
 
         function bindEvents() {
             $scope.$watch('share.reaction', function(newMolFile) {
-
-                console.log("share.reaction");
+                console.log('share.reaction');
 
                 if (newMolFile) {
                     getReactionProductsAndReactants(newMolFile);
@@ -631,6 +638,7 @@
             var rxnRoleReactant = _.filter(getStoicReactants(), function(batch) {
                 return batch.rxnRole.name === REACTANT && batch.structure && batch.structure.molfile;
             });
+
             return rxnRoleReactant.length === 0;
         };
 
@@ -650,6 +658,7 @@
                                     CalculationService.getImageForStructure(batchCopy.structure.molfile, 'molecule', function(image) {
                                         batchCopy.structure.image = image;
                                     });
+
                                     return batchCopy;
                                 });
                             },

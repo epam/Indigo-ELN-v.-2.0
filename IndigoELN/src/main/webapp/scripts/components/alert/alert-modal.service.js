@@ -4,7 +4,6 @@ angular
 
 /* @ngInject */
 function alertModal($uibModal) {
-
     return {
         alert: alert,
         error: error,
@@ -57,7 +56,7 @@ function alertModal($uibModal) {
             '<button class="btn btn-info" type="button" ng-click="no()" ng-if="hasNoCallback">{{noText}}</button>' +
             '<button class="btn btn-default" type="button" ng-if="cancelVisible" ng-click="cancel()"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span></button>' +
             '</div>',
-            controller: function ($scope, $uibModalInstance) {
+            controller: function($scope, $uibModalInstance) {
                 $scope.hasOkCallback = !!okCallback;
                 $scope.hasNoCallback = !!noCallback;
                 if (hideCancel) {
@@ -67,17 +66,17 @@ function alertModal($uibModal) {
                 }
                 $scope.okText = okText || 'OK';
                 $scope.noText = noText || 'No';
-                $scope.cancel = function () {
+                $scope.cancel = function() {
                     $uibModalInstance.dismiss('cancel');
                 };
-                $scope.ok = function () {
+                $scope.ok = function() {
                     $uibModalInstance.close();
                     if ($scope.hasOkCallback) {
                         okCallback();
                     }
                 };
 
-                $scope.no = function () {
+                $scope.no = function() {
                     $uibModalInstance.close();
                     if ($scope.hasNoCallback) {
                         noCallback();

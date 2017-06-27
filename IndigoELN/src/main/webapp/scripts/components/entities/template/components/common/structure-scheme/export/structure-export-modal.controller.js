@@ -8,8 +8,12 @@ function structureExportModalController($uibModalInstance, structureToSave, stru
     var NUM_MIN = 100;
     var ORDER = 1000;
     var formats = {
-        molecule: [{name: 'MDL Molfile'}],
-        reaction: [{name: 'RXN File'}]
+        molecule: [{
+            name: 'MDL Molfile'
+        }],
+        reaction: [{
+            name: 'RXN File'
+        }]
     };
 
     function init() {
@@ -24,9 +28,11 @@ function structureExportModalController($uibModalInstance, structureToSave, stru
         var isMol = structureType === 'molecule';
         var fileExt = isMol ? 'mol' : 'rxn';
 
-        //to generate file name
+        // to generate file name
         var filename = fileExt + '-' + Math.floor(Math.random(NUM_MIN, NUM_MAX) * ORDER) + '.' + fileExt;
-        var data = new Blob([text], {type: 'text/plain;charset=utf-8'});
+        var data = new Blob([text], {
+            type: 'text/plain;charset=utf-8'
+        });
 
         FileSaver.saveAs(data, filename);
         $uibModalInstance.close();

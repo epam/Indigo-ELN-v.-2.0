@@ -1,5 +1,5 @@
 angular.module('indigoeln').controller('SelectFromDictionaryController',
-    function ($scope, $rootScope, $uibModalInstance, data, dictionary, title) {
+    function($scope, $rootScope, $uibModalInstance, data, dictionary, title) {
         $scope.title = title;
         $scope.dictionary = dictionary;
         $scope.model = data || {};
@@ -10,7 +10,7 @@ angular.module('indigoeln').controller('SelectFromDictionaryController',
             }
         });
 
-        $scope.selectItem = function (index, item) {
+        $scope.selectItem = function(index, item) {
             if ($scope.selectedItemsFlags[index]) {
                 $scope.model.data[index] = item;
             } else {
@@ -18,7 +18,7 @@ angular.module('indigoeln').controller('SelectFromDictionaryController',
             }
         };
 
-        $scope.save = function () {
+        $scope.save = function() {
             $scope.model.data = [];
             _.each($scope.selectedItemsFlags, function(isSelected, index) {
                 if (isSelected) {
@@ -29,7 +29,7 @@ angular.module('indigoeln').controller('SelectFromDictionaryController',
             $uibModalInstance.close($scope.model);
         };
 
-        $scope.cancel = function () {
+        $scope.cancel = function() {
             $uibModalInstance.dismiss('cancel');
         };
     });

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('ExperimentDeleteController', ExperimentDeleteController);
@@ -17,11 +17,11 @@
 
         function confirmDelete(id) {
             Experiment.delete({
-                    experimentId: id,
-                    notebookId: $stateParams.notebookId,
-                    projectId: $stateParams.projectId
-                },
-                function () {
+                experimentId: id,
+                notebookId: $stateParams.notebookId,
+                projectId: $stateParams.projectId
+            },
+                function() {
                     $uibModalInstance.close(true);
                 });
         }

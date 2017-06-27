@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoToggleClassChild', indigoToggleClassChild);
@@ -12,7 +12,7 @@
         /* @ngInject */
         function link($scope, $element, $attrs) {
             var toggledClass = $attrs.indigoToggleClassChild;
-            $element.bind('click', function (e) {
+            $element.bind('click', function(e) {
                 e.stopPropagation();
                 var child = $element.find('ul')[0];
                 $(child).toggleClass(toggledClass);

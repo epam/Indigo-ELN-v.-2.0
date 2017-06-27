@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoCheckbox', indigoCheckbox);
@@ -32,8 +32,9 @@
             if (tAttrs.indigoModel) {
                 $checkbox.removeAttr('ng-model-options');
             }
+
             return {
-                post: function (scope) {
+                post: function(scope) {
                     formUtils.addOnChange(scope);
                 }
             };

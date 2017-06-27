@@ -20,7 +20,9 @@ function editResidualSolventsController($scope, $uibModalInstance, data) {
     }
 
     function addSolvent() {
-        $scope.solvents.data.push({name: '', eq: '', comment: ''});
+        $scope.solvents.data.push({
+            name: '', eq: '', comment: ''
+        });
     }
 
     function remove(solvent) {

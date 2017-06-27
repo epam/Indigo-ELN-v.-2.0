@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities.dictionary-management', {
                 url: '/dictionary-management',
@@ -14,7 +14,7 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/dictionary-management/dictionary-management.html',
                         controller: 'DictionaryManagementController',
                         controllerAs: 'vm'
@@ -29,20 +29,24 @@ angular.module('indigoeln')
                         type: ''
                     }
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/dictionary-management/delete-dialog/dictionary-management-delete-dialog.html',
                         controller: 'DictionaryManagementDeleteController',
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: function (Dictionary) {
-                                return Dictionary.get({id: $stateParams.id}).$promise;
+                            entity: function(Dictionary) {
+                                return Dictionary.get({
+                                    id: $stateParams.id
+                                }).$promise;
                             }
                         }
-                    }).result.then(function () {
-                        $state.go('entities.dictionary-management', null, {reload: true});
-                    }, function () {
+                    }).result.then(function() {
+                        $state.go('entities.dictionary-management', null, {
+                            reload: true
+                        });
+                    }, function() {
                         $state.go('entities.dictionary-management');
                     });
                 }]

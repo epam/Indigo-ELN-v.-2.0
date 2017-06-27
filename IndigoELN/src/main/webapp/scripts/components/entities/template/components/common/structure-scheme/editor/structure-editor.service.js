@@ -1,10 +1,10 @@
 /* jshint browser: true */
-(function () {
+(function() {
     angular
         .module('indigoeln')
-        .factory('editorUtils', function () {
+        .factory('editorUtils', function() {
             return {
-                getEditor: function (frame) {
+                getEditor: function(frame) {
                     // TODO update if new editor added
                     // find ketcher and define as editor
                     var editor = null;
@@ -17,7 +17,7 @@
 
                     return editor;
                 },
-                getMolfile: function (editor) {
+                getMolfile: function(editor) {
                     // TODO update if new editor added
                     return editor.getMolfile();
                 }

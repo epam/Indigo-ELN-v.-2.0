@@ -1,25 +1,27 @@
 /**
  * Created by Selector on 27.02.2016.
  */
-(function () {
+(function() {
     var table = {};
 
-    window.unitConverter = function (value, unit) {
+    window.unitConverter = function(value, unit) {
         this.value = value;
         if (unit) {
             this.currentUnit = unit;
         }
     };
-    unitConverter.prototype.as = function (targetUnit) {
+    unitConverter.prototype.as = function(targetUnit) {
         this.targetUnit = targetUnit;
+
         return this;
     };
-    unitConverter.prototype.is = function (currentUnit) {
+    unitConverter.prototype.is = function(currentUnit) {
         this.currentUnit = currentUnit;
+
         return this;
     };
 
-    unitConverter.prototype.val = function () {
+    unitConverter.prototype.val = function() {
         if (!this.currentUnit && this.targetUnit && table[this.targetUnit]) {
             this.currentUnit = table[this.targetUnit].indigoBase;
         }
@@ -38,24 +40,36 @@
 
         return this.value * (current.multiplier / target.multiplier);
     };
-    unitConverter.prototype.toString = function () {
+    unitConverter.prototype.toString = function() {
         return this.val() + ' ' + this.targetUnit;
     };
-    unitConverter.prototype.debug = function () {
+    unitConverter.prototype.debug = function() {
         return this.value + ' ' + this.currentUnit + ' is ' + this.val() + ' ' + this.targetUnit;
     };
-    unitConverter.addUnit = function (baseUnit, actualUnit, multiplier, indigoBase) {
-        table[actualUnit] = {base: baseUnit, actual: actualUnit, multiplier: multiplier, indigoBase: indigoBase};
+    unitConverter.addUnit = function(baseUnit, actualUnit, multiplier, indigoBase) {
+        table[actualUnit] = {
+            base: baseUnit, actual: actualUnit, multiplier: multiplier, indigoBase: indigoBase
+        };
     };
 
     var prefixes = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', '', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y'];
     var factors = [24, 21, 18, 15, 12, 9, 6, 3, 2, 1, 0, -1, -2, -3, -6, -9, -12, -15, -18, -21, -24];
     // SI units only, that follow the mg/kg/dg/cg type of format
     var units = [
-        {si: 'g', indigoBase: 'mg'}, {si: 'b', indigoBase: 'b'}, {si: 'l', indigoBase: 'ml'}, {
+        {
+            si: 'g', indigoBase: 'mg'
+        }, {
+            si: 'b', indigoBase: 'b'
+        }, {
+            si: 'l', indigoBase: 'ml'
+        }, {
             si: 'm',
             indigoBase: 'm'
-        }, {si: 'mol', indigoBase: 'mmol'}, {si: 'M', indigoBase: 'M'}];
+        }, {
+            si: 'mol', indigoBase: 'mmol'
+        }, {
+            si: 'M', indigoBase: 'M'
+        }];
 
     for (var j = 0; j < units.length; j++) {
         var base = units[j].si;
@@ -72,11 +86,11 @@
     unitConverter.addUnit('g', 'pound', 453.59237);
     unitConverter.addUnit('g', 'lb', 453.59237);
 
-    unitConverter.prototype.toBase = function (unit) {
+    unitConverter.prototype.toBase = function(unit) {
         return table[unit] ? table[unit].base : unit;
     };
-    
-    window.$u = function (value, unit) {
+
+    window.$u = function(value, unit) {
         return new window.unitConverter(value, unit);
     };
 })();

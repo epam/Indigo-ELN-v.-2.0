@@ -38,7 +38,7 @@ function formUtils($timeout) {
     }
 
     function showValidation($formGroup, scope, formCtrl) {
-        $timeout(function () {
+        $timeout(function() {
             if (formCtrl) {
                 var ngModelCtrl = formCtrl[scope.indigoName];
                 if (ngModelCtrl) {
@@ -46,15 +46,15 @@ function formUtils($timeout) {
                     var $inputs = $formGroup.find('input[ng-model],textarea[ng-model],select[ng-model]');
                     if ($inputs.length > 0) {
                         var unbinds = [];
-                        $inputs.each(function () {
-                            unbinds.push(scope.$watch(function () {
+                        $inputs.each(function() {
+                            unbinds.push(scope.$watch(function() {
                                 return ngModelCtrl.$invalid && (ngModelCtrl.$dirty || formCtrl.$submitted);
-                            }, function (isInvalid) {
+                            }, function(isInvalid) {
                                 $formGroup.toggleClass('has-error', isInvalid);
                             }));
                         });
-                        scope.$on('$destroy', function () {
-                            _.each(unbinds, function (unbind) {
+                        scope.$on('$destroy', function() {
+                            _.each(unbinds, function(unbind) {
                                 unbind();
                             });
                         });
@@ -66,12 +66,12 @@ function formUtils($timeout) {
 
     function addOnChange(scope) {
         if (scope.indigoChange) {
-            scope.indigoChangeAsync = function () {
+            scope.indigoChangeAsync = function() {
                 $timeout(scope.indigoChange, 0, false);
             };
         }
         if (scope.indigoClick) {
-            scope.indigoClickAsync = function () {
+            scope.indigoClickAsync = function() {
                 $timeout(scope.indigoClick, 0, false);
             };
         }
@@ -110,7 +110,7 @@ function formUtils($timeout) {
         if (tAttrs.indigoName) {
             $element.attr('name', '{{indigoName}}');
         }
-        if (tAttrs.indigoNumberMin != undefined) {
+        if (angular.isDefined(undefined)) {
             $element.attr('min', tAttrs.indigoNumberMin);
         }
         if (tAttrs.indigoType) {
@@ -119,6 +119,5 @@ function formUtils($timeout) {
         if (tAttrs.indigoDisabled) {
             $element.attr('ng-disabled', 'indigoDisabled');
         }
-
     }
 }

@@ -1,12 +1,12 @@
-(function () {
-    angular.module('indigoeln')
+(function() {
+    angular
+        .module('indigoeln')
         .controller('NotebookDialogController', NotebookDialogController);
 
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
                                       AutoRecoverEngine, NotebookSummaryExperiments) {
-
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -44,42 +44,40 @@
             PermissionManagement.setAccessList(vm.notebook.accessList);
 
             // isEditAllowed
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
                 vm.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
             });
             // isCreateChildAllowed
-            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function (hasCreateChildPermission) {
+            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
                 vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
             });
         }
 
         function initDirtyListener() {
-            $timeout(function () {
+            $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
                 if (pageInfo.dirty) {
                     $scope.createNotebookForm.$setDirty(pageInfo.dirty);
                 }
 
-                vm.dirtyListener = $scope.$watch(function () {
+                vm.dirtyListener = $scope.$watch(function() {
                     return vm.notebook;
-                }, function () {
+                }, function() {
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
-                    if (EntitiesBrowser.getActiveTab().name === "New Notebook") {
+                    if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
                         vm.isBtnSaveActive = true;
                     } else {
-                        $timeout(function () {
+                        $timeout(function() {
                             vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
                         }, 0);
                     }
                 }, true);
                 AutoRecoverEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind, vm);
-
             }, 0, false);
         }
 
         function init() {
-
             initPermissions();
 
             EntitiesBrowser.setSaveCurrentEntity(save);
@@ -89,18 +87,18 @@
             initDirtyListener();
 
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
             });
-            $scope.$on('$destroy', function () {
+            $scope.$on('$destroy', function() {
                 onAccessListChangedEvent();
                 vm.dirtyListener();
             });
 
-            //Activate save button when change permission
-            $scope.$on("activate button", function () {
-                //If put 0, then save button isn't activated
-                $timeout(function () {
+            // Activate save button when change permission
+            $scope.$on('activate button', function() {
+                // If put 0, then save button isn't activated
+                $timeout(function() {
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
@@ -109,21 +107,24 @@
         function showSummary() {
             if (vm.isSummary) {
                 vm.isSummary = false;
+
                 return;
             }
             if (vm.experiments && vm.experiments.length) {
                 vm.isSummary = true;
+
                 return;
             }
             vm.loading = NotebookSummaryExperiments.query({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
-            }).$promise.then(function (data) {
+            }).$promise.then(function(data) {
                 if (!data.length) {
                     Alert.info('There are no experiments in this notebook');
+
                     return;
                 }
-                data.forEach(function (exp) {
+                data.forEach(function(exp) {
                     if (!exp.lastVersion || exp.experimentVersion > 1) {
                         exp.fullName = vm.notebook.name + '-' + exp.name + ' v' + exp.experimentVersion;
                     } else {
@@ -133,14 +134,16 @@
 
                 vm.experiments = data;
                 vm.isSummary = true;
-            }, function () {
+            }, function() {
                 Alert.error('Cannot get summary right now due to server error');
             });
         }
 
         function goToExp(exp) {
             var ids = exp.fullId.split('-');
-            $state.go('entities.experiment-detail', {experimentId: ids[2], notebookId: ids[1], projectId: ids[0]});
+            $state.go('entities.experiment-detail', {
+                experimentId: ids[2], notebookId: ids[1], projectId: ids[0]
+            });
         }
 
         function repeatExperiment(experiment, params) {
@@ -149,9 +152,13 @@
 
         function onSaveSuccess(result) {
             EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
-            $timeout(function () {
-                $rootScope.$broadcast('notebook-created', {id: result.id, projectId: vm.projectId});
-                $state.go('entities.notebook-detail', {projectId: vm.projectId, notebookId: result.id});
+            $timeout(function() {
+                $rootScope.$broadcast('notebook-created', {
+                    id: result.id, projectId: vm.projectId
+                });
+                $state.go('entities.notebook-detail', {
+                    projectId: vm.projectId, notebookId: result.id
+                });
             });
         }
 
@@ -160,7 +167,7 @@
             if (result.data.params.length > 1) {
                 mess = 'This Notebook name cannot be changed because batches are created within its experiments';
             }
-            $timeout(function () {
+            $timeout(function() {
                 vm.hasError = true;
             });
             Alert.error(mess);
@@ -169,12 +176,12 @@
         function refresh() {
             vm.hasError = false;
             vm.loading = Notebook.get($stateParams).$promise
-                .then(function (result) {
+                .then(function(result) {
                     _.extend(vm.notebook, result);
                     $scope.createNotebookForm.$setPristine();
                     $scope.createNotebookForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
-                }, function () {
+                }, function() {
                     Alert.error('Notebook not refreshed due to server error!');
                 });
         }
@@ -183,10 +190,11 @@
             vm.hasError = false;
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
-                    .then(function (result) {
+                    .then(function(result) {
                         vm.notebook.version = result.version;
                         $scope.createNotebookForm.$setPristine();
                     }, onSaveError);
+
                 return;
             }
             vm.loading = Notebook.save({
@@ -194,6 +202,5 @@
             }, vm.notebook, onSaveSuccess, onSaveError).$promise;
         }
     }
-
 })();
 

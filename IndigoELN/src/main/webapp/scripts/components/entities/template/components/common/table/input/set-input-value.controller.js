@@ -1,11 +1,10 @@
 angular.module('indigoeln')
-    .controller('SetInputValueController', function ($scope, name, $uibModalInstance) {
+    .controller('SetInputValueController', function($scope, name, $uibModalInstance) {
         $scope.name = name;
-        $scope.save = function () {
+        $scope.save = function() {
             $uibModalInstance.close($scope.value);
         };
-        $scope.clear = function () {
+        $scope.clear = function() {
             $uibModalInstance.dismiss('cancel');
         };
-
     });

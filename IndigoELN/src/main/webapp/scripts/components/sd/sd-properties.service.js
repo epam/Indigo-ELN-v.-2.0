@@ -166,7 +166,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_0_COMENTS',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {comments: value}}
+                        data: {
+                            0: {
+                                comments: value
+                            }
+                        }
                     };
                 }
             }
@@ -181,7 +185,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_0_DETERMINED',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {determinedBy: value}}
+                        data: {
+                            0: {
+                                determinedBy: value
+                            }
+                        }
                     };
                 }
             }
@@ -196,7 +204,13 @@ function sdProperties(AppValues) {
                 code: 'PURITY_0_OPERATOR_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {operator: {name: value}}}
+                        data: {
+                            0: {
+                                operator: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -211,7 +225,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_0_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: parseInt(value)}}
+                        data: {
+                            0: {
+                                value: parseInt(value)
+                            }
+                        }
                     };
                 }
             }
@@ -228,7 +246,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_1_COMENTS',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {comments: value}}
+                        data: {
+                            1: {
+                                comments: value
+                            }
+                        }
                     };
                 }
             }
@@ -244,7 +266,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_1_DETERMINED',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {determinedBy: value}}
+                        data: {
+                            1: {
+                                determinedBy: value
+                            }
+                        }
                     };
                 }
             }
@@ -259,7 +285,13 @@ function sdProperties(AppValues) {
                 code: 'PURITY_1_OPERATOR_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {operator: {name: value}}}
+                        data: {
+                            1: {
+                                operator: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -274,7 +306,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_1_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: parseInt(value)}}
+                        data: {
+                            0: {
+                                value: parseInt(value)
+                            }
+                        }
                     };
                 }
             }
@@ -289,7 +325,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_2_COMENTS',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {comments: value}}
+                        data: {
+                            2: {
+                                comments: value
+                            }
+                        }
                     };
                 }
             }
@@ -304,7 +344,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_2_DETERMINED',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {determinedBy: value}}
+                        data: {
+                            2: {
+                                determinedBy: value
+                            }
+                        }
                     };
                 }
             }
@@ -319,7 +363,13 @@ function sdProperties(AppValues) {
                 code: 'PURITY_2_OPERATOR_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {operator: {name: value}}}
+                        data: {
+                            2: {
+                                operator: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -334,7 +384,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_2_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {value: parseInt(value)}}
+                        data: {
+                            2: {
+                                value: parseInt(value)
+                            }
+                        }
                     };
                 }
             }
@@ -349,7 +403,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_3_COMENTS',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {comments: value}}
+                        data: {
+                            3: {
+                                comments: value
+                            }
+                        }
                     };
                 }
             }
@@ -364,7 +422,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_3_DETERMINED',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {determinedBy: value}}
+                        data: {
+                            3: {
+                                determinedBy: value
+                            }
+                        }
                     };
                 }
             }
@@ -379,7 +441,13 @@ function sdProperties(AppValues) {
                 code: 'PURITY_3_OPERATOR_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {operator: {name: value}}}
+                        data: {
+                            3: {
+                                operator: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -394,7 +462,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_3_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {value: parseInt(value)}}
+                        data: {
+                            3: {
+                                value: parseInt(value)
+                            }
+                        }
                     };
                 }
             }
@@ -409,7 +481,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_4_COMENTS',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {comments: value}}
+                        data: {
+                            4: {
+                                comments: value
+                            }
+                        }
                     };
                 }
             }
@@ -424,7 +500,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_4_DETERMINED',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {determinedBy: value}}
+                        data: {
+                            4: {
+                                determinedBy: value
+                            }
+                        }
                     };
                 }
             }
@@ -439,7 +519,13 @@ function sdProperties(AppValues) {
                 code: 'PURITY_4_OPERATOR_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {operator: {name: value}}}
+                        data: {
+                            4: {
+                                operator: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -454,7 +540,11 @@ function sdProperties(AppValues) {
                 code: 'PURITY_4_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {value: parseInt(value)}}
+                        data: {
+                            4: {
+                                value: parseInt(value)
+                            }
+                        }
                     };
                 }
             }
@@ -544,7 +634,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_0_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {comment: value}}
+                        data: {
+                            0: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -559,7 +653,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_0_EQ',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {eq: value}}
+                        data: {
+                            0: {
+                                eq: value
+                            }
+                        }
                     };
                 }
             }
@@ -574,7 +672,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_0_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {name: {rank: parseInt(value)}}}
+                        data: {
+                            0: {
+                                name: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -589,7 +693,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_0_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {name: {name: value}}}
+                        data: {
+                            0: {
+                                name: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -604,7 +714,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_1_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {comment: value}}
+                        data: {
+                            1: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -619,7 +733,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_1_EQ',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {eq: value}}
+                        data: {
+                            1: {
+                                eq: value
+                            }
+                        }
                     };
                 }
             }
@@ -634,7 +752,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_1_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {name: {rank: parseInt(value)}}}
+                        data: {
+                            1: {
+                                name: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -649,7 +773,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_1_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {name: {name: value}}}
+                        data: {
+                            1: {
+                                name: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -664,7 +794,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_2_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {comment: value}}
+                        data: {
+                            2: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -679,7 +813,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_2_EQ',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {eq: value}}
+                        data: {
+                            2: {
+                                eq: value
+                            }
+                        }
                     };
                 }
             }
@@ -694,7 +832,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_2_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {name: {rank: parseInt(value)}}}
+                        data: {
+                            2: {
+                                name: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -709,7 +853,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_2_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {name: {name: value}}}
+                        data: {
+                            2: {
+                                name: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -724,7 +874,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_3_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {comment: value}}
+                        data: {
+                            3: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -739,7 +893,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_3_EQ',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {eq: value}}
+                        data: {
+                            3: {
+                                eq: value
+                            }
+                        }
                     };
                 }
             }
@@ -754,7 +912,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_3_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {name: {rank: parseInt(value)}}}
+                        data: {
+                            3: {
+                                name: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -769,7 +933,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_3_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {name: {name: value}}}
+                        data: {
+                            3: {
+                                name: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -784,7 +954,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_4_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {comment: value}}
+                        data: {
+                            4: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -799,7 +973,11 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_4_EQ',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {eq: value}}
+                        data: {
+                            4: {
+                                eq: value
+                            }
+                        }
                     };
                 }
             }
@@ -814,7 +992,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_4_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {name: {rank: parseInt(value)}}}
+                        data: {
+                            4: {
+                                name: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -829,7 +1013,13 @@ function sdProperties(AppValues) {
                 code: 'RESIDUAL_SOLVENTS_4_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {name: {name: value}}}
+                        data: {
+                            4: {
+                                name: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -859,7 +1049,11 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {comment: value}}
+                        data: {
+                            0: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -874,7 +1068,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_TYPE',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {type: {name: value}}}
+                        data: {
+                            0: {
+                                type: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -889,7 +1089,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {solventName: {rank: parseInt(value)}}}
+                        data: {
+                            0: {
+                                solventName: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -904,7 +1110,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {solventName: {name: value}}}
+                        data: {
+                            0: {
+                                solventName: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -919,7 +1131,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_ENABLE',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {solventName: {enable: value}}}
+                        data: {
+                            0: {
+                                solventName: {
+                                    enable: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -934,7 +1152,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_VALUE_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: {value: {name: value}}}}
+                        data: {
+                            0: {
+                                value: {
+                                    value: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -949,7 +1175,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: {value: value}}}
+                        data: {
+                            0: {
+                                value: {
+                                    value: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -964,7 +1196,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_VALUE_OPERATOR',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: {operator: {name: value}}}}
+                        data: {
+                            0: {
+                                value: {
+                                    operator: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -979,7 +1219,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_0_VALUE_UNIT',
                 format: function(dicts, value) {
                     return {
-                        data: {0: {value: {unit: {name: value}}}}
+                        data: {
+                            0: {
+                                value: {
+                                    unit: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -994,7 +1242,11 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {comment: value}}
+                        data: {
+                            1: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -1009,7 +1261,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_TYPE',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {type: {name: value}}}
+                        data: {
+                            1: {
+                                type: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1024,7 +1282,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {solventName: {rank: parseInt(value)}}}
+                        data: {
+                            1: {
+                                solventName: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1039,7 +1303,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {solventName: {name: value}}}
+                        data: {
+                            1: {
+                                solventName: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1054,7 +1324,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_ENABLE',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {solventName: {enable: value}}}
+                        data: {
+                            1: {
+                                solventName: {
+                                    enable: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1069,7 +1345,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_VALUE_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {value: {value: {name: value}}}}
+                        data: {
+                            1: {
+                                value: {
+                                    value: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1084,7 +1368,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {value: {value: value}}}
+                        data: {
+                            1: {
+                                value: {
+                                    value: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1099,7 +1389,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_VALUE_OPERATOR',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {value: {operator: {name: value}}}}
+                        data: {
+                            1: {
+                                value: {
+                                    operator: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1114,7 +1412,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_1_VALUE_UNIT',
                 format: function(dicts, value) {
                     return {
-                        data: {1: {value: {unit: {name: value}}}}
+                        data: {
+                            1: {
+                                value: {
+                                    unit: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1129,7 +1435,11 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {comment: value}}
+                        data: {
+                            2: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -1144,7 +1454,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_TYPE',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {type: {name: value}}}
+                        data: {
+                            2: {
+                                type: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1159,7 +1475,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {solventName: {rank: parseInt(value)}}}
+                        data: {
+                            2: {
+                                solventName: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1174,7 +1496,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {solventName: {name: value}}}
+                        data: {
+                            2: {
+                                solventName: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1189,7 +1517,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_ENABLE',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {solventName: {enable: value}}}
+                        data: {
+                            2: {
+                                solventName: {
+                                    enable: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1204,7 +1538,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_VALUE_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {value: {value: {name: value}}}}
+                        data: {
+                            2: {
+                                value: {
+                                    value: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1219,7 +1561,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {value: {value: value}}}
+                        data: {
+                            2: {
+                                value: {
+                                    value: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1234,7 +1582,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_VALUE_OPERATOR',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {value: {operator: {name: value}}}}
+                        data: {
+                            2: {
+                                value: {
+                                    operator: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1249,7 +1605,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_2_VALUE_UNIT',
                 format: function(dicts, value) {
                     return {
-                        data: {2: {value: {unit: {name: value}}}}
+                        data: {
+                            2: {
+                                value: {
+                                    unit: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1264,7 +1628,11 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {comment: value}}
+                        data: {
+                            3: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -1279,7 +1647,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_TYPE',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {type: {name: value}}}
+                        data: {
+                            3: {
+                                type: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1294,7 +1668,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {solventName: {rank: parseInt(value)}}}
+                        data: {
+                            3: {
+                                solventName: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1309,7 +1689,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {solventName: {name: value}}}
+                        data: {
+                            3: {
+                                solventName: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1324,7 +1710,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_ENABLE',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {solventName: {enable: value}}}
+                        data: {
+                            3: {
+                                solventName: {
+                                    enable: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1339,7 +1731,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_VALUE_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {value: {value: {name: value}}}}
+                        data: {
+                            3: {
+                                value: {
+                                    value: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1354,7 +1754,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {value: {value: value}}}
+                        data: {
+                            3: {
+                                value: {
+                                    value: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1369,7 +1775,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_VALUE_OPERATOR',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {value: {operator: {name: value}}}}
+                        data: {
+                            3: {
+                                value: {
+                                    operator: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1384,7 +1798,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_3_VALUE_UNIT',
                 format: function(dicts, value) {
                     return {
-                        data: {3: {value: {unit: {name: value}}}}
+                        data: {
+                            3: {
+                                value: {
+                                    unit: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1399,7 +1821,11 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_COMMENT',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {comment: value}}
+                        data: {
+                            4: {
+                                comment: value
+                            }
+                        }
                     };
                 }
             }
@@ -1414,7 +1840,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_TYPE',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {type: {name: value}}}
+                        data: {
+                            4: {
+                                type: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1429,7 +1861,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_RANK',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {solventName: {rank: parseInt(value)}}}
+                        data: {
+                            4: {
+                                solventName: {
+                                    rank: parseInt(value)
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1444,7 +1882,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {solventName: {name: value}}}
+                        data: {
+                            4: {
+                                solventName: {
+                                    name: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1459,7 +1903,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_ENABLE',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {solventName: {enable: value}}}
+                        data: {
+                            4: {
+                                solventName: {
+                                    enable: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1474,7 +1924,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_VALUE_NAME',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {value: {value: {name: value}}}}
+                        data: {
+                            4: {
+                                value: {
+                                    value: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1489,7 +1947,13 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_VALUE',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {value: {value: value}}}
+                        data: {
+                            4: {
+                                value: {
+                                    value: value
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1504,7 +1968,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_VALUE_OPERATOR',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {value: {operator: {name: value}}}}
+                        data: {
+                            4: {
+                                value: {
+                                    operator: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1519,7 +1991,15 @@ function sdProperties(AppValues) {
                 code: 'SOLUBILITY_SOLVENTS_4_VALUE_UNIT',
                 format: function(dicts, value) {
                     return {
-                        data: {4: {value: {unit: {name: value}}}}
+                        data: {
+                            4: {
+                                value: {
+                                    unit: {
+                                        name: value
+                                    }
+                                }
+                            }
+                        }
                     };
                 }
             }
@@ -1564,7 +2044,9 @@ function sdProperties(AppValues) {
                 code: 'EXTERNAL_SUPPLIER_CODE_AND_NAME',
                 format: function(dicts, value) {
                     return {
-                        codeAndName: {name: value}
+                        codeAndName: {
+                            name: value
+                        }
                     };
                 }
             }
@@ -1609,7 +2091,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_0',
                 format: function(dicts, value) {
                     return {
-                        data: {0: value}
+                        data: {
+                            0: value
+                        }
                     };
                 }
             }
@@ -1624,7 +2108,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_1',
                 format: function(dicts, value) {
                     return {
-                        data: {1: value}
+                        data: {
+                            1: value
+                        }
                     };
                 }
             }
@@ -1639,7 +2125,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_2',
                 format: function(dicts, value) {
                     return {
-                        data: {2: value}
+                        data: {
+                            2: value
+                        }
                     };
                 }
             }
@@ -1654,7 +2142,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_3',
                 format: function(dicts, value) {
                     return {
-                        data: {3: value}
+                        data: {
+                            3: value
+                        }
                     };
                 }
             }
@@ -1669,7 +2159,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_4',
                 format: function(dicts, value) {
                     return {
-                        data: {4: value}
+                        data: {
+                            4: value
+                        }
                     };
                 }
             }
@@ -1684,7 +2176,9 @@ function sdProperties(AppValues) {
                 code: 'HEALTH_HAZARDS_5',
                 format: function(dicts, value) {
                     return {
-                        data: {5: value}
+                        data: {
+                            5: value
+                        }
                     };
                 }
             }
@@ -1714,7 +2208,9 @@ function sdProperties(AppValues) {
                 code: 'HANDLING_PRECAUTIONS_0',
                 format: function(dicts, value) {
                     return {
-                        data: {0: value}
+                        data: {
+                            0: value
+                        }
                     };
                 }
             }
@@ -1729,7 +2225,9 @@ function sdProperties(AppValues) {
                 code: 'HANDLING_PRECAUTIONS_1',
                 format: function(dicts, value) {
                     return {
-                        data: {1: value}
+                        data: {
+                            1: value
+                        }
                     };
                 }
             }
@@ -1744,7 +2242,9 @@ function sdProperties(AppValues) {
                 code: 'HANDLING_PRECAUTIONS_2',
                 format: function(dicts, value) {
                     return {
-                        data: {2: value}
+                        data: {
+                            2: value
+                        }
                     };
                 }
             }
@@ -1759,7 +2259,9 @@ function sdProperties(AppValues) {
                 code: 'HANDLING_PRECAUTIONS_3',
                 format: function(dicts, value) {
                     return {
-                        data: {3: value}
+                        data: {
+                            3: value
+                        }
                     };
                 }
             }
@@ -1774,7 +2276,9 @@ function sdProperties(AppValues) {
                 code: 'HANDLING_PRECAUTIONS_4',
                 format: function(dicts, value) {
                     return {
-                        data: {4: value}
+                        data: {
+                            4: value
+                        }
                     };
                 }
             }
@@ -1804,7 +2308,9 @@ function sdProperties(AppValues) {
                 code: 'STORAGE_INSTRUCTIONS_0',
                 format: function(dicts, value) {
                     return {
-                        data: {0: value}
+                        data: {
+                            0: value
+                        }
                     };
                 }
             }
@@ -1819,7 +2325,9 @@ function sdProperties(AppValues) {
                 code: 'STORAGE_INSTRUCTIONS_1',
                 format: function(dicts, value) {
                     return {
-                        data: {1: value}
+                        data: {
+                            1: value
+                        }
                     };
                 }
             }
@@ -1834,7 +2342,9 @@ function sdProperties(AppValues) {
                 code: 'STORAGE_INSTRUCTIONS_2',
                 format: function(dicts, value) {
                     return {
-                        data: {2: value}
+                        data: {
+                            2: value
+                        }
                     };
                 }
             }
@@ -1849,7 +2359,9 @@ function sdProperties(AppValues) {
                 code: 'STORAGE_INSTRUCTIONS_3',
                 format: function(dicts, value) {
                     return {
-                        data: {3: value}
+                        data: {
+                            3: value
+                        }
                     };
                 }
             }
@@ -1875,13 +2387,14 @@ function sdProperties(AppValues) {
 
     function getItem(list, prop, value) {
         console.log('get item: ', _.find(list, function(item) {
-                return item[prop].toUpperCase() === value.toUpperCase();
-            })
+            return item[prop].toUpperCase() === value.toUpperCase();
+        })
         );
+
         return _.find(list, function(item) {
             return item[prop].toUpperCase() === value.toUpperCase();
         });
-    };
+    }
 
     function getWord(dicts, dictName, prop, value) {
         var dict = _.find(dicts, function(dict) {

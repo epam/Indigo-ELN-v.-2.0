@@ -4,10 +4,10 @@ angular
 
 /* @ngInject */
 function registrationUtil(AppValues) {
-
-    var isStereoisomerNeedComment = function (stereoisomer) {
+    var isStereoisomerNeedComment = function(stereoisomer) {
         var stereocodesWithComment = ['SNENU', 'LRCMX', 'ENENU', 'DSTRU', 'UNKWN', 'HSREG'];
-        return _.some(stereocodesWithComment, function (stereocode) {
+
+        return _.some(stereocodesWithComment, function(stereocode) {
             return stereoisomer.indexOf(stereocode) > -1;
         });
     };
@@ -23,8 +23,10 @@ function registrationUtil(AppValues) {
 
     function getNotFullForRegistrationBatches(batches) {
         var notFullBatches = [];
-        _.each(batches, function (batch) {
-            var notFullBatch = {nbkBatch: batch.fullNbkBatch, emptyFields: []};
+        _.each(batches, function(batch) {
+            var notFullBatch = {
+                nbkBatch: batch.fullNbkBatch, emptyFields: []
+            };
 
             if (!batch.totalWeight.value && !batch.totalVolume.value) {
                 notFullBatch.emptyFields.push('Total Weight or Volume should be grater then zero');
@@ -51,6 +53,7 @@ function registrationUtil(AppValues) {
                 notFullBatches.push(notFullBatch);
             }
         });
+
         return notFullBatches;
     }
 }
