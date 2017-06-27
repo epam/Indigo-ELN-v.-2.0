@@ -7,9 +7,6 @@
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, AppValues, AlertModal, Alert,
                                          Dictionary, CalculationService, SearchService, RegistrationService,
                                          dialogService, StoichTableCache, $timeout) {
-        console.log('indigoStoichTableController', $scope.model);
-        console.log('indigoStoichTableController', $scope.share);
-
         $scope.model = $scope.model || {};
         $scope.model.stoichTable = $scope.model.stoichTable || {};
         $scope.model.stoichTable.reactants = $scope.model.stoichTable.reactants || [];

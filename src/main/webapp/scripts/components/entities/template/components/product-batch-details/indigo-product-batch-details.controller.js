@@ -159,6 +159,9 @@
 
         function checkOnlySelectedBatch() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
+            if(!batches){
+                return;
+            }
             batches.forEach(function(b) {
                 b.select = false;
             });
