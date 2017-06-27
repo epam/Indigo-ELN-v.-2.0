@@ -68,10 +68,12 @@
                 if (deferred) {
                     return deferred.promise;
                 }
+
                 deferred = $q.defer();
                 Dictionary.get({id: 'experiments'}, function(dictionary) {
                     deferred.resolve(dictionary.words);
                 });
+
                 return deferred.promise;
             }
 
