@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('editResidualSolventsController', editResidualSolventsController);
+    .controller('EditResidualSolventsController', EditResidualSolventsController);
 
 /* @ngInject */
-function editResidualSolventsController($scope, $uibModalInstance, data) {
+function EditResidualSolventsController($scope, $uibModalInstance, data) {
     var vm = this;
 
     init();
