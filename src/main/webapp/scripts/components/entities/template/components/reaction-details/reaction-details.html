@@ -6,83 +6,83 @@
         <div class="row">
             <div class="col-xs-6">
                 <indigo-input indigo-label="Experiment Subject / Title" indigo-label-vertical="true"
-                              indigo-model="model.reactionDetails.title"
-                              indigo-readonly="myReadonly"></indigo-input>
+                              indigo-model="vm.model.reactionDetails.title"
+                              indigo-readonly="vm.indigoReadonly"></indigo-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
-                               indigo-model="model.reactionDetails.therapeuticArea"
+                               indigo-model="vm.model.reactionDetails.therapeuticArea"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"></indigo-select>
+                               indigo-readonly="vm.indigoReadonly"></indigo-select>
                 <indigo-select indigo-label="Project Code & Name"
                                indigo-dictionary="Project Code & Name"
-                               indigo-model="model.reactionDetails.codeAndName"
+                               indigo-model="vm.model.reactionDetails.codeAndName"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"></indigo-select>
+                               indigo-readonly="vm.indigoReadonly"></indigo-select>
                 <indigo-input indigo-label="Batch Creator" indigo-label-vertical="true"
-                              indigo-model="experiment.author.fullName"
+                              indigo-model="vm.experiment.author.fullName"
                               indigo-readonly="true"></indigo-input>
                 <indigo-select indigo-label="Co-authors"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
-                               indigo-model="model.reactionDetails.coAuthors"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
+                               indigo-model="vm.model.reactionDetails.coAuthors"
                                indigo-multiple="true"
                 ></indigo-select>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if -->
                 <indigo-select ng-if="false"
                                indigo-label="Experiment Creator (Author)"
                                indigo-label-vertical="true"
-                               indigo-model="model.reactionDetails.experimentCreator"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
+                               indigo-model="vm.model.reactionDetails.experimentCreator"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
                 ></indigo-select>
             </div>
             <div class="col-xs-6">
                 <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
-                                    indigo-model="experiment.creationDate" indigo-readonly="true"></indigo-date-picker>
+                                    indigo-model="vm.experiment.creationDate" indigo-readonly="true"></indigo-date-picker>
                 <indigo-tag-input indigo-label="Cont. FROM Rxn"
-                                  indigo-model="model.reactionDetails.contFromRxn"
-                                  indigo-readonly="myReadonly"
+                                  indigo-model="vm.model.reactionDetails.contFromRxn"
+                                  indigo-readonly="vm.indigoReadonly"
                                   indigo-label-vertical="true"
-                                  indigo-on-click="onLinkedExperimentClick"
-                                  indigo-on-adding="onAddLinkedExperiment"
-                                  indigo-source="getExperiments"
+                                  indigo-on-click="vm.onLinkedExperimentClick"
+                                  indigo-on-adding="vm.onAddLinkedExperiment"
+                                  indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0003"
                                   indigo-classes="linkedExperiments"
                                   indigo-max-tags="1"></indigo-tag-input>
                 <indigo-tag-input indigo-label="Cont. TO Rxn"
-                                  indigo-model="model.reactionDetails.contToRxn"
-                                  indigo-readonly="myReadonly"
+                                  indigo-model="vm.model.reactionDetails.contToRxn"
+                                  indigo-readonly="vm.indigoReadonly"
                                   indigo-label-vertical="true"
-                                  indigo-on-click="onLinkedExperimentClick"
-                                  indigo-on-adding="onAddLinkedExperiment"
-                                  indigo-source="getExperiments"
+                                  indigo-on-click="vm.onLinkedExperimentClick"
+                                  indigo-on-adding="vm.onAddLinkedExperiment"
+                                  indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0005"
                                   indigo-classes="linkedExperiments"
                                   indigo-max-tags="1"></indigo-tag-input>
                 <indigo-tag-input indigo-label="Linked Experiment"
-                                  indigo-model="model.reactionDetails.linkedExperiments"
-                                  indigo-readonly="myReadonly"
+                                  indigo-model="vm.model.reactionDetails.linkedExperiments"
+                                  indigo-readonly="vm.indigoReadonly"
                                   indigo-label-vertical="true"
-                                  indigo-on-click="onLinkedExperimentClick"
-                                  indigo-on-adding="onAddLinkedExperiment"
-                                  indigo-source="getExperiments"
+                                  indigo-on-click="vm.onLinkedExperimentClick"
+                                  indigo-on-adding="vm.onAddLinkedExperiment"
+                                  indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0003, 11112222-0005"
                                   indigo-classes="linkedExperiments"></indigo-tag-input>
                 <indigo-input indigo-label="Project Alias Name" indigo-label-vertical="true"
-                              indigo-model="model.reactionDetails.projectAliasName"
-                              indigo-readonly="myReadonly"></indigo-input>
+                              indigo-model="vm.model.reactionDetails.projectAliasName"
+                              indigo-readonly="vm.indigoReadonly"></indigo-input>
                 <indigo-select indigo-label="Batch Owner"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
-                               indigo-model="model.reactionDetails.batchOwner"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
+                               indigo-model="vm.model.reactionDetails.batchOwner"
                                indigo-multiple="true"
                 ></indigo-select>
             </div>
         </div>
         <indigo-text-area indigo-label="Literature Ref" indigo-label-vertical="true" indigo-no-elastic="true"
-                          indigo-model="model.reactionDetails.literature"
-                          indigo-readonly="myReadonly"></indigo-text-area>
+                          indigo-model="vm.model.reactionDetails.literature"
+                          indigo-readonly="vm.indigoReadonly"></indigo-text-area>
     </div>
 </div>
