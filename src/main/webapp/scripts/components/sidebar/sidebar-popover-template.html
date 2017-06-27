@@ -2,23 +2,21 @@
   <div class="sidebar-popover-number m-b5">Experiment {{notebook.name}}-{{experiment.name}}</div>
   <div class="sidebar-popover-content">
     <div>
-      <span class="bold">
-        {{experiment.components.reactionDetails.title}}
-        
+      <span class="bold" ng-bind="experiment.components.reactionDetails.title">
       </span>
       <i>
-        {{experiment.components.reactionDetails.therapeuticArea.name}}
+        <span ng-bind="experiment.components.reactionDetails.therapeuticArea.name"></span>
       </i>
     </div>
     <div>
-      <span class="bold">Creation Date:</span> {{experiment.creationDate  | date:'MMM dd yyyy'}}
+      <span class="bold">Creation Date:</span><span ng-bind="experiment.creationDate  | date:'MMM dd yyyy'"></span>
     </div>
     <span>
-      <span class="bold">Author:</span> {{experiment.author.firstName}}
+      <span class="bold">Author:</span><span ng-bind="experiment.author.firstName"></span>
     </span>
     <span>
-      <span class="bold">Status:</span> {{experiment.status}}
+      <span class="bold">Status:</span> <span ng-bind="experiment.status"></span>
     </span>
-    <img ng-if = "!!experiment.components.reaction.image" class="sidebar-popover-sheme" src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}" alt="ReactionSheme">
+    <img ng-if = "!!experiment.components.reaction.image" class="sidebar-popover-sheme" ng-src="data:image/svg+xml;base64,{{experiment.components.reaction.image}}" alt="ReactionSheme">
   </div>
 </div>
