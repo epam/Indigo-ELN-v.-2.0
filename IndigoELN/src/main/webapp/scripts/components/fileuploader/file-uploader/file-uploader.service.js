@@ -4,6 +4,7 @@ angular.module('indigoeln')
 /* @ngInject */
 function fileUploaderCash() {
     var _files;
+
     return {
         getFiles: getFiles,
         setFiles: setFiles,

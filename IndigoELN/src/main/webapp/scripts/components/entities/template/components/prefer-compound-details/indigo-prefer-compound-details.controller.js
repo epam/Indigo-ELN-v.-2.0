@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('IndigoPreferredCompoundDetailsController', IndigoPreferredCompoundDetailsController);
@@ -15,7 +15,7 @@
 
         $scope.selectControl = {};
 
-        $scope.onSelectCompound = function () {
+        $scope.onSelectCompound = function() {
             if ($scope.share.selectedRow) {
                 $scope.share.selectedRow.$$selected = false;
             }
@@ -44,11 +44,11 @@
             $scope.selectControl.unSelect();
         }
 
-        var onCompoundSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function (event, data) {
+        var onCompoundSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function(event, data) {
             selectCompound(data.row);
         });
 
-        var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function (event, data) {
+        var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function(event, data) {
             if (data.structure) {
                 $scope.structureImage = data.structure.image;
             } else {
@@ -56,11 +56,11 @@
             }
         });
 
-        var onCompoundSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function () {
+        var onCompoundSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function() {
             deselectCompound();
         });
 
-        $scope.$on('$destroy', function () {
+        $scope.$on('$destroy', function() {
             onCompoundSummaryRowSelectedEvent();
             onCompoundSummaryRowDeselectedEvent();
             onCompoundStructureChanged();

@@ -58,7 +58,9 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function prepareDatabases() {
-        return _.pluck(_.where(vm.databases, {isChecked: true}), 'value');
+        return _.pluck(_.where(vm.databases, {
+            isChecked: true
+        }), 'value');
     }
 
     function responseCallback(result) {

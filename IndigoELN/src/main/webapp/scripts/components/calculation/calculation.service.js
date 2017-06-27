@@ -5,7 +5,6 @@ angular
 /* @ngInject */
 function calculationService($rootScope, $http, $q, AppValues,
                             StoichTableCache, ProductBatchSummaryCache, capitalizeFilter) {
-
     var defaultBatch = AppValues.getDefaultBatch();
     var recalculatingStoich = false;
 
@@ -32,6 +31,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         var calcData = data || {};
         calcData.stoichTable = StoichTableCache.getStoicTable();
         calcData.actualProducts = ProductBatchSummaryCache.getProductBatchSummary();
+
         return calcData;
     }
 
@@ -39,6 +39,7 @@ function calculationService($rootScope, $http, $q, AppValues,
     function getSaltConfig(reagent) {
         var saltCode = reagent.saltCode ? reagent.saltCode.value : null;
         var saltEq = reagent.saltEq ? reagent.saltEq.value : null;
+
         return {
             params: {
                 saltCode: saltCode && saltCode !== '0' ? saltCode : null,
@@ -51,30 +52,36 @@ function calculationService($rootScope, $http, $q, AppValues,
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
 
         if (_.isArray(batches)) {
-            return _.map(batches, function (batch) {
-                _.each(batch, function (value, key) {
+            return _.map(batches, function(batch) {
+                _.each(batch, function(value, key) {
                     if (_.isObject(value)) {
                         value.entered = value.entered || false;
                     } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
-                        batch[key] = {value: value, entered: false};
+                        batch[key] = {
+                            value: value, entered: false
+                        };
                     } else if (_.isNull(value)) {
                         // because _.defaults omits nulls
                         batch[key] = undefined;
                     }
                 });
+
                 return _.defaults(batch, defaultBatch);
             });
         } else if (_.isObject(batches)) {
-            _.each(batches, function (value, key) {
+            _.each(batches, function(value, key) {
                 if (_.isObject(value)) {
                     value.entered = value.entered || false;
                 } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
-                    batches[key] = {value: value, entered: false};
+                    batches[key] = {
+                        value: value, entered: false
+                    };
                 } else if (_.isNull(value)) {
                     // because _.defaults omits nulls
                     batches[key] = undefined;
                 }
             });
+
             return _.defaults(batches, defaultBatch);
         }
     }
@@ -85,7 +92,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         var url = 'api/calculations/molecule/info';
         if (successCallback) {
             $http.put(url, data, config)
-                .then(function (result) {
+                .then(function(result) {
                     successCallback(result);
                 }, failureCallback);
         } else {
@@ -98,15 +105,17 @@ function calculationService($rootScope, $http, $q, AppValues,
             url: 'api/renderer/' + type + '/image',
             method: 'POST',
             data: molfile
-        }).success(function (result) {
-            if (callback){
+        }).success(function(result) {
+            if (callback) {
                 callback(result.image);
             }
         });
     }
 
     function findLimiting(stoichTable) {
-        return _.findWhere(stoichTable.reactants, {limiting: true});
+        return _.findWhere(stoichTable.reactants, {
+            limiting: true
+        });
     }
 
     function createBatch(stoichTable, isProduct) {
@@ -117,14 +126,16 @@ function calculationService($rootScope, $http, $q, AppValues,
             batch[property] = angular.copy(limiting.mol);
             batch[property].entered = false;
         }
+
         return batch;
     }
 
     function recalculateSalt(reagent) {
         if (reagent.structure && reagent.structure.molfile) {
             var config = getSaltConfig(reagent);
+
             return $http.put('api/calculations/molecule/info', reagent.structure.molfile, config)
-                .then(function (result) {
+                .then(function(result) {
                     var data = result.data;
                     data.mySaltEq = reagent.saltEq;
                     data.mySaltCode = reagent.saltCode;
@@ -141,7 +152,7 @@ function calculationService($rootScope, $http, $q, AppValues,
 
 
     function recalculateStoich(calcData) {
-        if (recalculatingStoich){
+        if (recalculatingStoich) {
             return;
         }
         recalculatingStoich = true;
@@ -151,7 +162,8 @@ function calculationService($rootScope, $http, $q, AppValues,
             intendedProducts: setDefaultValues(data.stoichTable.products),
             actualProducts: setDefaultValues(data.actualProducts)
         };
-        return $http.put('api/calculations/stoich/calculate', requestData).then(function (result) {
+
+        return $http.put('api/calculations/stoich/calculate', requestData).then(function(result) {
             $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
             recalculatingStoich = false;
@@ -168,7 +180,8 @@ function calculationService($rootScope, $http, $q, AppValues,
             changedField: data.changedField || data.column,
             molWeightChanged: data.molWeightChanged
         };
-        return $http.put('api/calculations/stoich/calculate/batch', requestData).then(function (result) {
+
+        return $http.put('api/calculations/stoich/calculate/batch', requestData).then(function(result) {
             $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
         });
@@ -178,7 +191,8 @@ function calculationService($rootScope, $http, $q, AppValues,
         var requestData = {
             productBatch: setDefaultValues(data.row)
         };
-        return $http.put('api/calculations/product/calculate/batch/amounts', requestData).then(function (result) {
+
+        return $http.put('api/calculations/product/calculate/batch/amounts', requestData).then(function(result) {
             if (callback) {
                 callback(result);
             } else {
@@ -192,7 +206,8 @@ function calculationService($rootScope, $http, $q, AppValues,
             productBatch: setDefaultValues(data.row),
             changedField: data.column
         };
-        return $http.put('api/calculations/product/calculate/batch', requestData).then(function (result) {
+
+        return $http.put('api/calculations/product/calculate/batch', requestData).then(function(result) {
             result.data.yield = Math.round(result.data.yield);
             _.extend(data.row, result.data);
         });
@@ -203,25 +218,27 @@ function calculationService($rootScope, $http, $q, AppValues,
         if (_.isObject(data.row[data.column])) {
             data.row[data.column].entered = true;
         } else if (!_.isObject(data.row[data.column]) && _.contains(simpleValues, data.column)) {
-            data.row[data.column] = {value: data.row[data.column], entered: true};
+            data.row[data.column] = {
+                value: data.row[data.column], entered: true
+            };
         }
     }
 
     function resetValuesToDefault(values, batch) {
         var defaultBatch = AppValues.getDefaultBatch();
-        _.each(values, function (value) {
+        _.each(values, function(value) {
             batch[value] = angular.copy(defaultBatch[value]);
         });
     }
 
     function setValuesReadonly(values, batch) {
-        _.each(values, function (value) {
+        _.each(values, function(value) {
             batch[value].readonly = true;
         });
     }
 
     function setValuesEditable(values, batch) {
-        _.each(values, function (value) {
+        _.each(values, function(value) {
             batch[value].readonly = false;
         });
     }
@@ -245,6 +262,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         } else if (data.mySaltCode && data.mySaltCode.name === AppValues.getDefaultSaltCode().name) {
             return formulaPart;
         }
+
         return formulaPart + saltEqPart + descriptionPart;
     }
 
@@ -253,6 +271,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             reactants: reactants,
             products: products
         };
+
         return $http.put('api/calculations/reaction/combine', requestData);
     }
 }

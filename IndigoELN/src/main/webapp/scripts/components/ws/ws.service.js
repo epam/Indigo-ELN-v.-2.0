@@ -1,4 +1,5 @@
-angular.module('indigoeln')
+angular
+    .module('indigoeln')
     .factory('WSService', wsService);
 
 /* @ngInject */
@@ -22,25 +23,25 @@ function wsService($window, $cookies, $http, $q, $log) {
     function subscribe(destination) {
         var defer = $q.defer();
         connect();
-        connected.promise.then(function (mode) {
+        connected.promise.then(function(mode) {
             if (mode === 'success') {
                 var listener = $q.defer();
-                var subscriber = stompClient.subscribe('/topic/' + destination, function (data) {
+                var subscriber = stompClient.subscribe('/topic/' + destination, function(data) {
                     listener.notify(JSON.parse(data.body));
                 });
-                listener.unSubscribe = function () {
+                listener.unSubscribe = function() {
                     subscriber.unsubscribe();
                 };
-                listener.onServerEvent = function (callback) {
+                listener.onServerEvent = function(callback) {
                     listener.promise.then(null, null, callback);
                 };
                 defer.resolve(listener);
             } else {
                 defer.resolve({
-                    unSubscribe: function () {
+                    unSubscribe: function() {
                         $log.debug('Stubbed websockets mode');
                     },
-                    onServerEvent: function () {
+                    onServerEvent: function() {
                         $log.debug('Stubbed websockets mode');
                     }
                 });
@@ -52,16 +53,16 @@ function wsService($window, $cookies, $http, $q, $log) {
 
     function connect() {
         if (!stompClient) {
-            //building absolute path so that websocket doesn't fail when deploying with a context path
+            // building absolute path so that websocket doesn't fail when deploying with a context path
             var loc = $window.location;
             var url = '//' + loc.host + loc.pathname + 'websocket';
             var socket = new SockJS(url);
             stompClient = Stomp.over(socket);
             var headers = {};
             headers['X-CSRF-TOKEN'] = $cookies.get($http.defaults.xsrfCookieName);
-            stompClient.connect(headers, function () {
+            stompClient.connect(headers, function() {
                 connected.resolve('success');
-            }, function () {
+            }, function() {
                 connected.resolve('stub');
             });
         }

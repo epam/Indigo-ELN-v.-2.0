@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('ExperimentPreviewController', ExperimentPreviewController);
@@ -31,7 +31,7 @@
 
         if (vm.batchSummary) {
             vm.registrationSummary = {
-                batches: vm.batchSummary.batches.filter(function (b) {
+                batches: vm.batchSummary.batches.filter(function(b) {
                     return b.conversationalBatchNumber;
                 })
             };
@@ -56,13 +56,14 @@
                 return '';
             }
             var unit = o.unit ? ' ' + o.unit : '';
+
             return val.toFixed(3).replace(/0+$/, '').replace(/\.+$/, '') + unit;
         }
 
         function joinArr(users, fi) {
-            return users ? users.map(function (u) {
-                    return fi ? u[fi] : u.name;
-                }).join(', ') : null;
+            return users ? users.map(function(u) {
+                return fi ? u[fi] : u.name;
+            }).join(', ') : null;
         }
 
         function submit() {
@@ -91,19 +92,18 @@
         }
 
         function selectTemplate(filename) {
-            SignatureTemplates.query({}, function (result) {
-
+            SignatureTemplates.query({}, function(result) {
                 $uibModal.open({
                     animation: true,
                     templateUrl: 'scripts/app/entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html',
                     controller: 'ExperimentSelectSignatureTemplateModalController',
                     controllerAs: 'vm',
                     resolve: {
-                        result: function () {
+                        result: function() {
                             return result;
                         }
                     }
-                }).result.then(function (template) {
+                }).result.then(function(template) {
                     if (template) {
                         SignatureDocument.upload(
                             {
@@ -113,7 +113,7 @@
                                 notebookId: vm.notebook.id,
                                 projectId: vm.project.id
                             }, {},
-                            function () {
+                            function() {
                                 onCompleteSuccess('Submitted');
 
                                 var params = {
@@ -122,7 +122,7 @@
                                     experimentId: vm.experiment.id
                                 };
 
-                                //reload experiment
+                                // reload experiment
                                 EntitiesCache.removeByParams(params);
                                 $state.go('entities.experiment-detail', params);
                             });

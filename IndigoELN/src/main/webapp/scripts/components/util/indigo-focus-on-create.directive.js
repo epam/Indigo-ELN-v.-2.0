@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoFocusOnCreate', indigoFocusOnCreate);
@@ -15,7 +15,9 @@
                 $cont = $this.parents('[scroller]').eq(0),
                 top = $this.position().top + $this.outerHeight(true);
 
-            $cont.animate({scrollTop: top}, 500);
+            $cont.animate({
+                scrollTop: top
+            }, 500);
         }
     }
 })();

@@ -4,8 +4,9 @@ angular
 
 /* @ngInject */
 function principal($q, Account) {
-    var _identity, deferred,
-        _authenticated = false;
+    var _identity;
+    var deferred;
+    var _authenticated = false;
 
     return {
         isIdentityResolved: isIdentityResolved,
@@ -32,15 +33,15 @@ function principal($q, Account) {
             return $q.when(false);
         }
 
-        return this.identity().then(function (_id) {
+        return this.identity().then(function(_id) {
             return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-        }, function () {
+        }, function() {
             return false;
         });
     }
 
     function hasAnyAuthority(authorities) {
-        return this.identity().then(function (_id) {
+        return this.identity().then(function(_id) {
             if (!_id.authorities) {
                 return false;
             }
@@ -55,9 +56,9 @@ function principal($q, Account) {
     }
 
     function hasAuthorityIdentitySafe(authority) {
-        return this.identity().then(function (_id) {
+        return this.identity().then(function(_id) {
             return _id.authorities && _id.authorities.indexOf(authority) !== -1;
-        }, function () {
+        }, function() {
             return false;
         });
     }
@@ -75,7 +76,7 @@ function principal($q, Account) {
         // check and see if we have retrieved the identity data from the server.
         // if we have, reuse it by immediately resolving
 
-        if (!deferred){
+        if (!deferred) {
             deferred = $q.defer();
         } else {
             return deferred.promise;
@@ -83,16 +84,17 @@ function principal($q, Account) {
 
         // retrieve the identity data from the server, update the identity object, and then resolve.
         Account.get().$promise
-            .then(function (account) {
+            .then(function(account) {
                 _identity = account.data;
                 _authenticated = true;
                 deferred.resolve(_identity);
             })
-            .catch(function () {
+            .catch(function() {
                 _identity = null;
                 _authenticated = false;
                 deferred.resolve(_identity);
             });
+
         return deferred.promise;
     }
 
@@ -100,5 +102,4 @@ function principal($q, Account) {
         return _identity;
     }
 }
-
 

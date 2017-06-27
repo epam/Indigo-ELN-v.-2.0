@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoFileReader', indigoFileReader);
@@ -16,11 +16,13 @@
         function link($scope, $element, $attrs) {
             var showFunc = $parse($attrs.indigoFileReader);
 
-            $element.on('change', function (onChangeEvent) {
+            $element.on('change', function(onChangeEvent) {
                 var reader = new FileReader();
-                reader.onload = function (onLoadEvent) {
-                    $scope.$apply(function () {
-                        showFunc($scope, {$fileContent: onLoadEvent.target.result});
+                reader.onload = function(onLoadEvent) {
+                    $scope.$apply(function() {
+                        showFunc($scope, {
+                            $fileContent: onLoadEvent.target.result
+                        });
                     });
                 };
                 reader.readAsText((onChangeEvent.srcElement || onChangeEvent.target).files[0]);
@@ -29,7 +31,7 @@
 
         /* @ngInject */
         function controller($scope) {
-            $scope.showContent = function ($fileContent) {
+            $scope.showContent = function($fileContent) {
                 $scope.content = $fileContent;
             };
         }

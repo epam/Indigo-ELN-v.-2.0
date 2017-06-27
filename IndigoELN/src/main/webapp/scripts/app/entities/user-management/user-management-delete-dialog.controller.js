@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('UserManagementDeleteController', UserManagementDeleteController);
@@ -17,11 +17,13 @@
         }
 
         function confirmDelete(login) {
-            User.delete({login: login},
-                function () {
+            User.delete({
+                login: login
+            },
+                function() {
                     $uibModalInstance.close(true);
                 },
-                function () {
+                function() {
                     $uibModalInstance.close(false);
                 });
         }

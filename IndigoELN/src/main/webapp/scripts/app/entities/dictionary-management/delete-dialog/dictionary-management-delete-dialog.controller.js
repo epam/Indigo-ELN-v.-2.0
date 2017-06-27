@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('DictionaryManagementDeleteController', DictionaryManagementDeleteController);
@@ -15,11 +15,13 @@
         }
 
         function confirmDelete() {
-            Dictionary.delete({id: entity.id},
-                function () {
+            Dictionary.delete({
+                id: entity.id
+            },
+                function() {
                     $uibModalInstance.close(true);
                 },
-                function () {
+                function() {
                     $uibModalInstance.close(false);
                 });
         }

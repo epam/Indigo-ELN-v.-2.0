@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoSort', indigoSort);
@@ -16,7 +16,7 @@
 
         /* @ngInject */
         function controller($scope) {
-            this.sort = function (field) {
+            this.sort = function(field) {
                 if (field !== $scope.predicate) {
                     $scope.ascending = true;
                 } else {
@@ -27,7 +27,7 @@
                 $scope.callback();
             };
 
-            this.applyClass = function (element) {
+            this.applyClass = function(element) {
                 var allThIcons = element.parent().find('span.glyphicon'),
                     sortIcon = 'glyphicon-sort',
                     sortAsc = 'glyphicon-sort-by-attributes',

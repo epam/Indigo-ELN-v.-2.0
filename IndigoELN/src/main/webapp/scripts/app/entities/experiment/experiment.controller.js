@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('ExperimentController', ExperimentController);
@@ -28,8 +28,8 @@
         vm.loadAll();
 
         function loadAll() {
-            vm.loading = Dashboard.get({}, function (result) {
-                openExperiments = result.openAndCompletedExp.filter(function (e) {
+            vm.loading = Dashboard.get({}, function(result) {
+                openExperiments = result.openAndCompletedExp.filter(function(e) {
                     return e.status === 'Open';
                 });
                 waitingExperiments = result.waitingSignatureExp;
@@ -64,8 +64,7 @@
         function doPage(page) {
             if (page) {
                 vm.page = page;
-            }
-            else {
+            } else {
                 page = vm.page;
             }
 
@@ -91,12 +90,12 @@
                 return;
             }
 
-            etimeout = $timeout(function () {
+            etimeout = $timeout(function() {
                 Experiment.get({
                     experimentId: experiment.experimentId,
                     notebookId: experiment.notebookId,
                     projectId: experiment.projectId
-                }).$promise.then(function (data) {
+                }).$promise.then(function(data) {
                     if (data.components.reaction) {
                         experiment.reactionImage = data.components.reaction.image;
                     }

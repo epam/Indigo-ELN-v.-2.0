@@ -4,40 +4,47 @@ angular
 
 /* @ngInject */
 function notebook($resource, PermissionManagement) {
-
     return $resource('api/projects/:projectId/notebooks/:notebookId', {
         projectId: '@projectId'
     }, {
-        'query': {method: 'GET', isArray: true},
-        'get': {
+        query: {
+            method: 'GET', isArray: true
+        },
+        get: {
             method: 'GET',
-            transformResponse: function (data) {
+            transformResponse: function(data) {
                 data = angular.fromJson(data);
+
                 return data;
             }
         },
-        'save': {
+        save: {
             method: 'POST',
-            transformRequest: function (data) {
+            transformRequest: function(data) {
                 data = transformRequest(data);
+
                 return angular.toJson(data);
             }
         },
-        'update': {
+        update: {
             method: 'PUT',
             url: 'api/projects/:projectId/notebooks',
-            transformRequest: function (data) {
+            transformRequest: function(data) {
                 data = transformRequest(data);
+
                 return angular.toJson(data);
             }
         },
-        'delete': {method: 'DELETE'}
+        delete: {
+            method: 'DELETE'
+        }
     });
 
 
     function transformRequest(data) {
         data = _.extend({}, data);
         data.accessList = PermissionManagement.expandPermission(data.accessList);
+
         return data;
     }
 }

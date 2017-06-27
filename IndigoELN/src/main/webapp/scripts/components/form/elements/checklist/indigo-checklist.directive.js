@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoChecklist', indigoChecklist);
@@ -18,7 +18,7 @@
         /* @ngInject */
         function controller($scope) {
             $scope.allItemsSelected = false;
-            $scope.selectAll = function () {
+            $scope.selectAll = function() {
                 for (var i = 0; i < $scope.indigoItems.length; i++) {
                     $scope.indigoItems[i].isChecked = $scope.allItemsSelected;
                 }

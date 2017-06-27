@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('RoleManagementController', RoleManagementController);
@@ -22,8 +22,10 @@
 
 
         function search() {
-            Role.query({}, function (result) {
-                vm.roles = $filter('filter')(result, {name: vm.searchText});
+            Role.query({}, function(result) {
+                vm.roles = $filter('filter')(result, {
+                    name: vm.searchText
+                });
             });
         }
 
@@ -59,7 +61,7 @@
                     controllerAs: 'vm',
                     size: 'md',
                     resolve: {}
-                }).result.then(function (result) {
+                }).result.then(function(result) {
                     if (result === true) {
                         save();
                     }
@@ -92,13 +94,12 @@
         }
 
         function loadAll() {
-            AccountRole.query({}, function (result) {
+            AccountRole.query({}, function(result) {
                 vm.accountRoles = result;
             });
-            Role.query({}, function (result) {
+            Role.query({}, function(result) {
                 vm.roles = result;
             });
-
         }
 
         function create() {
@@ -118,7 +119,7 @@
         }
 
         function initAuthorities(role) {
-            _.each(vm.authorities, function (authority) {
+            _.each(vm.authorities, function(authority) {
                 authority.checked = hasAuthority(role, authority) || authority.name === 'PROJECT_READER';
             });
         }
@@ -126,11 +127,12 @@
         function isLastRoleWithRoleEditor() {
             var roleEditorCount = 0;
             var lastRoleWithRoleEditorAuthority = false;
-            vm.accountRoles.forEach(function (accountRole) {
+            vm.accountRoles.forEach(function(accountRole) {
                 if (accountRole.authorities.indexOf(ROLE_EDITOR_AUTHORITY) >= 0) {
                     roleEditorCount++;
                     if (roleEditorCount > 1) {
                         lastRoleWithRoleEditorAuthority = false;
+
                         return;
                     }
                     if (vm.role.id === accountRole.id &&
@@ -143,11 +145,11 @@
             return lastRoleWithRoleEditorAuthority;
         }
 
-        var unsubscribe = $scope.$watch('vm.role', function (role) {
+        var unsubscribe = $scope.$watch('vm.role', function(role) {
             initAuthorities(role);
         });
 
-        $scope.$on('$destroy', function () {
+        $scope.$on('$destroy', function() {
             unsubscribe();
         });
     }

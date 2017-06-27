@@ -6,8 +6,6 @@ angular
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache,
                                        $log, Alert, $timeout, EntitiesBrowser, RegistrationService, SdImportService,
                                        SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
-
-
     return {
         exportSDFile: exportSDFile,
         getSelectedNonEditableBatches: getSelectedNonEditableBatches,
@@ -26,11 +24,11 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function exportSDFile() {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var selectedBatches = _.filter(batches, function (item) {
+        var selectedBatches = _.filter(batches, function(item) {
             return item.select;
         });
 
-        SdExportService.exportItems(selectedBatches).then(function (data) {
+        SdExportService.exportItems(selectedBatches).then(function(data) {
             var file_path = 'api/sd/download?fileName=' + data.fileName;
             var a = document.createElement('A');
             a.href = file_path;
@@ -44,11 +42,12 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function getSelectedNonEditableBatches() {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        return _.chain(batches).filter(function (item) {
+
+        return _.chain(batches).filter(function(item) {
             return item.select;
-        }).filter(function (item) {
+        }).filter(function(item) {
             return RegistrationUtil.isRegistered(item);
-        }).map(function (item) {
+        }).map(function(item) {
             return item.fullNbkBatch;
         }).value();
     }
@@ -60,18 +59,20 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var batchToCopy = batchesQueueToAdd[i];
         var batchToDuplicate = angular.copy(batchToCopy);
         var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended);
-        p.then(function () {
+        p.then(function() {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
             duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
         });
+
         return p;
     }
 
     function duplicateBatch() {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var batchesToDuplicate = _.filter(batches, function (item) {
+        var batchesToDuplicate = _.filter(batches, function(item) {
             return item.select;
         });
+
         return duplicateBatches(batchesToDuplicate, 0);
     }
 
@@ -86,12 +87,15 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             var intendedCandidateHashes = _.pluck(intended, '$$batchHash');
             var actual = ProductBatchSummaryCache.getProductBatchSummary();
             var actualHashes = _.compact(_.pluck(actual, '$$batchHash'));
-            _.each(intendedCandidateHashes, function (intendedCandidateHash, i) {
+            _.each(intendedCandidateHashes, function(intendedCandidateHash, i) {
                 removeItemFromBothArrays(intendedCandidateHash, actualHashes, intendedCandidateHashes, i);
             });
             var hashesToAdd = _.compact(intendedCandidateHashes);
-            return _.map(hashesToAdd, function (hash) {
-                return _.findWhere(intended, {$$batchHash: hash});
+
+            return _.map(hashesToAdd, function(hash) {
+                return _.findWhere(intended, {
+                    $$batchHash: hash
+                });
             });
         }
     }
@@ -120,17 +124,18 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function addNewBatch() {
         var q = requestNbkBatchNumberAndAddToTable();
-        q.then(function () {
+        q.then(function() {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
         });
+
         return q;
     }
 
 
     function importSDFile(success) {
-        SdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function () {
+        SdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
-            if (success){
+            if (success) {
                 success();
             }
         });
@@ -140,10 +145,11 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var nonEditableBatches = getSelectedNonEditableBatches();
         if (nonEditableBatches && nonEditableBatches.length > 0) {
             Alert.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.');
+
             return registerBatchesWith(nonEditableBatches);
-        } else {
-            return registerBatchesWith([]);
         }
+
+        return registerBatchesWith([]);
     }
 
     function requestNbkBatchNumberAndAddToTable(duplicatedBatch, isSyncWithIntended) {
@@ -153,53 +159,54 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var deferred = $q.defer();
         $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
                 '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
-            .then(function (result) {
+            .then(function(result) {
                 var batchNumber = result.data.batchNumber;
                 Notebook.get({
-                        projectId: $stateParams.projectId,
-                        notebookId: $stateParams.notebookId
-                    })
-                    .$promise.then(function (notebook) {
-                    var fullNbkBatch = notebook.name + '-' + experiment.name + '-' + batchNumber;
-                    var fullNbkImmutablePart = notebook.name + '-' + experiment.name + '-';
-                    _.each(batches, function (row) {
-                        row.$$selected = false;
-                    });
-                    var batch = {};
-                    var stoichTable = StoichTableCache.getStoicTable();
-                    if (stoichTable) {
-                        batch = angular.copy(CalculationService.createBatch(stoichTable, true));
-                    }
-                    batch.nbkBatch = batchNumber;
-                    batch.fullNbkBatch = fullNbkBatch;
-                    batch.fullNbkImmutablePart = fullNbkImmutablePart;
-                    batch.$$selected = true;
-                    if (duplicatedBatch) {
-                        duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
-                        duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
-                        duplicatedBatch.nbkBatch = batch.nbkBatch;
-                        duplicatedBatch.conversationalBatchNumber = null;
-                        duplicatedBatch.registrationDate = null;
-                        duplicatedBatch.registrationStatus = null;
-                        if (isSyncWithIntended) {
-                            // to sync mapping of intended products with actual poducts
-                            duplicatedBatch.theoMoles = duplicatedBatch.mol;
-                            duplicatedBatch.theoWeight = duplicatedBatch.weight;
-                            // total moles can be calculated when total weight or total Volume are added, or manually
-                            duplicatedBatch.mol = null;
-                            saveMolecule(duplicatedBatch.structure.molfile).then(function (structureId) {
-                                duplicatedBatch.structure.structureId = structureId;
-                            }, function () {
-                                Alert.error('Cannot save the structure!');
-                            });
+                    projectId: $stateParams.projectId,
+                    notebookId: $stateParams.notebookId
+                })
+                    .$promise.then(function(notebook) {
+                        var fullNbkBatch = notebook.name + '-' + experiment.name + '-' + batchNumber;
+                        var fullNbkImmutablePart = notebook.name + '-' + experiment.name + '-';
+                        _.each(batches, function(row) {
+                            row.$$selected = false;
+                        });
+                        var batch = {};
+                        var stoichTable = StoichTableCache.getStoicTable();
+                        if (stoichTable) {
+                            batch = angular.copy(CalculationService.createBatch(stoichTable, true));
                         }
-                        batch = duplicatedBatch;
-                    }
-                    batches.push(batch);
-                    $log.debug(batch);
-                    deferred.resolve(batch);
-                });
+                        batch.nbkBatch = batchNumber;
+                        batch.fullNbkBatch = fullNbkBatch;
+                        batch.fullNbkImmutablePart = fullNbkImmutablePart;
+                        batch.$$selected = true;
+                        if (duplicatedBatch) {
+                            duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
+                            duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
+                            duplicatedBatch.nbkBatch = batch.nbkBatch;
+                            duplicatedBatch.conversationalBatchNumber = null;
+                            duplicatedBatch.registrationDate = null;
+                            duplicatedBatch.registrationStatus = null;
+                            if (isSyncWithIntended) {
+                            // to sync mapping of intended products with actual poducts
+                                duplicatedBatch.theoMoles = duplicatedBatch.mol;
+                                duplicatedBatch.theoWeight = duplicatedBatch.weight;
+                            // total moles can be calculated when total weight or total Volume are added, or manually
+                                duplicatedBatch.mol = null;
+                                saveMolecule(duplicatedBatch.structure.molfile).then(function(structureId) {
+                                    duplicatedBatch.structure.structureId = structureId;
+                                }, function() {
+                                    Alert.error('Cannot save the structure!');
+                                });
+                            }
+                            batch = duplicatedBatch;
+                        }
+                        batches.push(batch);
+                        $log.debug(batch);
+                        deferred.resolve(batch);
+                    });
             });
+
         return deferred.promise;
     }
 
@@ -211,26 +218,25 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             if (nonEditableBatches && nonEditableBatches.length > 0) {
                 Alert.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
             }
-            batches.concat([]).forEach(function (b) {
+            batches.concat([]).forEach(function(b) {
                 if (b.select && !RegistrationUtil.isRegistered(b)) {
                     deleted++;
                     batches.splice(batches.indexOf(b), 1);
                 }
             });
-        } else {
-            if (!RegistrationUtil.isRegistered(b)) {
-                batches.splice(batches.indexOf(), 1);
-            }
-
+        } else if (!RegistrationUtil.isRegistered(b)) {
+            batches.splice(batches.indexOf(), 1);
         }
         if (deleted > 0) {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
         }
+
         return deleted;
     }
 
     function getLatestNbkBatch() {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
+
         return batches && batches.length > 0 && batches[batches.length - 1].nbkBatch ? batches[batches.length - 1].nbkBatch : 0;
     }
 
@@ -240,54 +246,52 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             url: 'api/bingodb/molecule/',
             method: 'POST',
             data: mol
-        }).success(function (structureId) {
+        }).success(function(structureId) {
             deferred.resolve(structureId);
         });
+
         return deferred.promise;
     }
 
     function registerBatchesWith(excludes) {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var _batches = _.filter(batches, function (row) {
+        var _batches = _.filter(batches, function(row) {
             return row.select && !_.contains(excludes, row.fullNbkBatch);
         });
         var message = '';
         var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(_batches);
         if (notFullBatches.length) {
-            _.each(notFullBatches, function (notFullBatch) {
+            _.each(notFullBatches, function(notFullBatch) {
                 message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
             });
             AlertModal.error(message);
         } else {
-            var batchNumbers = _.map(_batches, function (batch) {
+            var batchNumbers = _.map(_batches, function(batch) {
                 return batch.fullNbkBatch;
             });
             if (batchNumbers.length) {
-                return saveAndRegister(batchNumbers, function () {
-                    _batches.forEach(function (b) {
-                        b.registrationStatus = 'IN_PROGRESS'; //EPMLSOPELN-403
+                return saveAndRegister(batchNumbers, function() {
+                    _batches.forEach(function(b) {
+                        b.registrationStatus = 'IN_PROGRESS'; // EPMLSOPELN-403
                     });
                 });
-            } else {
-                Alert.warning('No Batches was selected for Registration');
             }
+            Alert.warning('No Batches was selected for Registration');
         }
     }
 
     function saveAndRegister(batchNumbers, success) {
         EntitiesBrowser.saveCurrentEntity()
-            .then(function () {
-                $timeout(function () {
-                    RegistrationService.register({}, batchNumbers).$promise.
-                    then(function () {
+            .then(function() {
+                $timeout(function() {
+                    RegistrationService.register({}, batchNumbers).$promise
+                    .then(function() {
                         Alert.success('Selected Batches successfully sent to Registration');
                         success();
-                    }, function () {
+                    }, function() {
                         Alert.error('ERROR! Selected Batches registration failed');
                     });
                 }, 1000);
             });
     }
 }
-
-

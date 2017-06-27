@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('TemplateController', TemplateController);
@@ -25,7 +25,7 @@
                 page: vm.page - 1,
                 size: vm.itemsPerPage,
                 sort: [vm.predicate + ',' + (vm.reverse ? 'asc' : 'desc'), 'id']
-            }, function (result, headers) {
+            }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.totalItems = headers('X-Total-Count');
                 vm.templates = result;
