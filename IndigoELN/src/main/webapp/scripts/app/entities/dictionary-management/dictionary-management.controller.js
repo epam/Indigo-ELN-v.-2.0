@@ -160,10 +160,10 @@
                 controllerAs: 'vm'
             }).result.then(function() {
                 // remove the word
-                var len = self.selectedDictionary.words.length;
+                var len = vm.selectedDictionary.words.length;
                 for (var i = 0; i < len; i++) {
-                    if (self.selectedDictionary.words[i].rank === word.rank) {
-                        self.selectedDictionary.words.splice(i, 1);
+                    if (vm.selectedDictionary.words[i].rank === word.rank) {
+                        vm.selectedDictionary.words.splice(i, 1);
                         break;
                     }
                 }
