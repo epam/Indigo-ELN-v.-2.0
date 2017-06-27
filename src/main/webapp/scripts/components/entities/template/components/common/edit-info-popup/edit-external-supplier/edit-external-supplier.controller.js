@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('editExternalSupplierController', editExternalSupplierController);
+    .controller('EditExternalSupplierController', EditExternalSupplierController);
 
 /* @ngInject */
-function editExternalSupplierController($uibModalInstance, data) {
+function EditExternalSupplierController($uibModalInstance, data) {
     var vm = this;
 
     init();

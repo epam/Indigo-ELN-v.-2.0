@@ -1,8 +1,9 @@
-angular.module('indigoeln')
-    .controller('structureImportModalController', structureImportModalController);
+angular
+    .module('indigoeln')
+    .controller('StructureImportModalController', StructureImportModalController);
 
 /* @ngInject */
-function structureImportModalController($scope, $uibModalInstance) {
+function StructureImportModalController($scope, $uibModalInstance) {
     var vm = this;
     vm.import = function() {
         $uibModalInstance.close($scope.content);
