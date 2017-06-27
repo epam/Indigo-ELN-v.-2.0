@@ -19,15 +19,17 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
         var cb = callback || angular.noop;
         var deferred = $q.defer();
 
-        AuthServerProvider.login(credentials).then(function (data) {
+        AuthServerProvider.login(credentials).then(function(data) {
             // retrieve the logged account information
-            Principal.identity(true).then(function () {
+            Principal.identity(true).then(function() {
                 deferred.resolve(data);
             });
+
             return cb();
-        }).catch(function (err) {
+        }).catch(function(err) {
             this.logout();
             deferred.reject(err);
+
             return cb(err);
         }.bind(this));
 
@@ -38,7 +40,7 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
         if (prolongTimeout) {
             clearTimeout(prolongTimeout);
         }
-        prolongTimeout = setTimeout(function () {
+        prolongTimeout = setTimeout(function() {
             AuthServerProvider.prolong();
         }, 5000);
     }
@@ -52,13 +54,13 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
         try {
             WSService.disconnect();
         } catch (e) {
-            $log.error("Error to disconnect");
+            $log.error('Error to disconnect');
         }
     }
 
     function authorize(force) {
         return Principal.identity(force)
-            .then(function () {
+            .then(function() {
                 var isAuthenticated = Principal.isAuthenticated();
 
                 // an authenticated user can't access to login and register pages
@@ -70,8 +72,7 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
                     if (isAuthenticated) {
                         // user is signed in but not authorized for desired state
                         $state.go('accessdenied');
-                    }
-                    else {
+                    } else {
                         // user is not authenticated. stow the state they wanted before you
                         // send them to the signin state, so you can return them when you're done
                         $rootScope.previousStateName = $rootScope.toState;
@@ -85,7 +86,7 @@ function auth($rootScope, $state, $q, Principal, AuthServerProvider, WSService, 
     }
 
 
-    function getAuthorities(){
+    function getAuthorities() {
         return $http.get('assets/data/authorities.json');
     }
 }

@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
         $stateProvider
             .state('experiment', {
                 parent: 'entity',
@@ -23,7 +23,7 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
                 },
-                onEnter: function ($state, $uibModal) {
+                onEnter: function($state, $uibModal) {
                     $uibModal.open({
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/creation-from-notebook/experiment-creation-from-notebook.html',
@@ -31,30 +31,32 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
-                            pageInfo: function ($q, $stateParams, Template) {
+                            pageInfo: function($q, $stateParams, Template) {
                                 var deferred = $q.defer();
                                 $q.all([
                                     Template.query({
-                                        //prevent paging on backend
                                         size: 100000
                                     }).$promise
-                                ]).then(function (results) {
+                                ]).then(function(results) {
                                     deferred.resolve({
-                                        entity: {name: null, experimentNumber: null, template: null, id: null},
+                                        entity: {
+                                            name: null, experimentNumber: null, template: null, id: null
+                                        },
                                         templates: results[0],
                                         mode: 'new'
                                     });
                                 });
+
                                 return deferred.promise;
                             }
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function(result) {
                         $state.go('entities.experiment-detail', {
                             notebookId: result.notebookId,
                             projectId: result.projectId,
                             experimentId: result.id
                         });
-                    }, function () {
+                    }, function() {
                         $state.go('^');
                     });
                 }
@@ -73,16 +75,15 @@ angular.module('indigoeln')
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
                         controller: 'ExperimentDetailController',
                         controllerAs: 'vm'
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
+                    pageInfo: function($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
                                         AutoSaveEntitiesEngine, EntitiesBrowser) {
-
                         var deferred = $q.defer();
                         var params = {
                             projectId: $stateParams.projectId,
@@ -109,7 +110,7 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
                             EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
@@ -121,6 +122,7 @@ angular.module('indigoeln')
                                 projectId: $stateParams.projectId
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -131,23 +133,25 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['EXPERIMENT_REMOVER', 'CONTENT_EDITOR']
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/experiment/delete-dialog/experiment-delete-dialog.html',
                         controller: 'ExperimentDeleteController',
                         controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['Experiment', function (Experiment) {
+                            entity: ['Experiment', function(Experiment) {
                                 return Experiment.get({
                                     experimentId: $stateParams.id,
                                     notebookId: $stateParams.notebookId
                                 }).$promise;
                             }]
                         }
-                    }).result.then(function () {
-                        $state.go('experiment', null, {reload: true});
-                    }, function () {
+                    }).result.then(function() {
+                        $state.go('experiment', null, {
+                            reload: true
+                        });
+                    }, function() {
                         $state.go('^');
                     });
                 }]
@@ -159,7 +163,7 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
                     pageTitle: 'indigoeln'
                 },
-                onEnter: function ($state, $uibModal) {
+                onEnter: function($state, $uibModal) {
                     $uibModal.open({
                         animation: true,
                         templateUrl: 'scripts/app/entities/experiment/creation-from-entities-controls/experiment-creation-from-entities-controls.html',
@@ -167,23 +171,22 @@ angular.module('indigoeln')
                         controllerAs: 'vm',
                         size: 'lg',
                         resolve: {
-                            parents: function (NotebooksForSubCreation) {
+                            parents: function(NotebooksForSubCreation) {
                                 return NotebooksForSubCreation.query().$promise;
                             },
-                            templates: function (Template) {
+                            templates: function(Template) {
                                 return Template.query({
-                                    //prevent paging on backend
                                     size: 100000
                                 }).$promise;
                             }
                         }
-                    }).result.then(function (result) {
+                    }).result.then(function(result) {
                         $state.go('entities.experiment-detail', {
                             notebookId: result.notebookId,
                             projectId: result.projectId,
                             experimentId: result.id
                         });
-                    }, function () {
+                    }, function() {
                         $state.go('^');
                     });
                 }
@@ -194,8 +197,12 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read experiment)'},
-                    {id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read experiment)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read and update experiment)'
+                    }
                 ]
             }))
             .state('entities.experiment-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
@@ -204,8 +211,12 @@ angular.module('indigoeln')
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR']
                 },
                 permissions: [
-                    {id: 'VIEWER', name: 'VIEWER (read experiment)'},
-                    {id: 'OWNER', name: 'OWNER (read and update experiment)'}
+                    {
+                        id: 'VIEWER', name: 'VIEWER (read experiment)'
+                    },
+                    {
+                        id: 'OWNER', name: 'OWNER (read and update experiment)'
+                    }
                 ]
             }))
             .state('experiment-preview-print', {
@@ -224,25 +235,26 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Experiment, Notebook, Project) {
+                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
                         var deferred = $q.defer();
                         $q.all([
-                            //EntitiesBrowser.getCurrentEntity($stateParams),
-                            //EntitiesBrowser.getNotebookFromCache($stateParams),
-                            //EntitiesBrowser.getProjectFromCache($stateParams)
+                            // EntitiesBrowser.getCurrentEntity($stateParams),
+                            // EntitiesBrowser.getNotebookFromCache($stateParams),
+                            // EntitiesBrowser.getProjectFromCache($stateParams)
 
                             Experiment.get($stateParams).$promise,
                             Notebook.get($stateParams).$promise,
                             Project.get($stateParams).$promise
 
 
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
                                 project: results[2]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -263,22 +275,23 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, $stateParams, Experiment, Notebook, Project) {
+                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
                         var deferred = $q.defer();
                         $q.all([
-                            //EntitiesBrowser.getCurrentEntity($stateParams),
-                            //EntitiesBrowser.getNotebookFromCache($stateParams),
-                            //EntitiesBrowser.getProjectFromCache($stateParams)
+                            // EntitiesBrowser.getCurrentEntity($stateParams),
+                            // EntitiesBrowser.getNotebookFromCache($stateParams),
+                            // EntitiesBrowser.getProjectFromCache($stateParams)
                             Experiment.get($stateParams).$promise,
                             Notebook.get($stateParams).$promise,
                             Project.get($stateParams).$promise
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 experiment: results[0],
                                 notebook: results[1],
                                 project: results[2]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }

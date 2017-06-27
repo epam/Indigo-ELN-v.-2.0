@@ -59,8 +59,11 @@
     "newline-before-return": 1,
     "no-param-reassign": ["error", { "props": false }],
     "object-curly-spacing": [2, "never"],
+    "object-curly-newline": ["error", { "minProperties": 1 }],
+    "brace-style": [2, "1tbs", { "allowSingleLine": false }],
     "spaced-comment": [1, "always"],
     "angular/no-service-method": 1,
+
     "angular/angularelement": 0,
     "angular/controller-as-vm": [1, "vm"],
     "angular/controller-name": [2, "/^[a-zA-Z0-9]*Controller/"],

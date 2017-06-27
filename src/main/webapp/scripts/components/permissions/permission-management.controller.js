@@ -97,8 +97,8 @@
 
         function ok() {
             $uibModalInstance.close(vm.accessList);
-            //broadcast for activate save button on page
-            $rootScope.$broadcast("activate button", 0);
+            // broadcast for activate save button on page
+            $rootScope.$broadcast('activate button', 0);
         }
 
         function clear() {
@@ -107,9 +107,12 @@
 
         function filterUsers(users) {
             return _.filter(users, function(user) {
-                if (user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission({user: user}, vm.permissions[0].id)) {
+                if (user.id !== vm.author.id && PermissionManagement.hasAuthorityForPermission({
+                    user: user
+                }, vm.permissions[0].id)) {
                     return true;
                 }
+
                 return false;
             });
         }

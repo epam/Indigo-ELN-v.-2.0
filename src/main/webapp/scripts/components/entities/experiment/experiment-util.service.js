@@ -4,7 +4,6 @@ angular
 
 /* @ngInject */
 function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement) {
-
     return {
         printExperiment: printExperiment,
         versionExperiment: versionExperiment,
@@ -28,7 +27,7 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         return Experiment.version({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experiment.name, function (result) {
+        }, experiment.name, function(result) {
             $state.go('entities.experiment-detail', {
                 experimentId: result.id,
                 notebookId: params.notebookId,
@@ -71,10 +70,11 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         if (productBatchSummary) {
             productBatchSummary.batches = [];
         }
+
         return Experiment.save({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experimentForSave, function (result) {
+        }, experimentForSave, function(result) {
             $state.go('entities.experiment-detail', {
                 experimentId: result.id,
                 notebookId: params.notebookId,
@@ -91,11 +91,14 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
 
     function reopenExperiment(experiment, params) {
         experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
-        var experimentForSave = _.extend({}, experiment, {status: 'Open'});
+        var experimentForSave = _.extend({}, experiment, {
+            status: 'Open'
+        });
+
         return Experiment.update({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experimentForSave, function (result) {
+        }, experimentForSave, function(result) {
             onChangeStatusSuccess(result, 'Open');
         }).$promise;
     }
@@ -103,23 +106,26 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
 
     function completeExperiment(experiment, params, notebookName) {
         var defer = $q.defer();
-        openCompleteConfirmationModal(experiment, notebookName).result.then(function () {
+        openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
             experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
-            var experimentForSave = _.extend({}, experiment, {status: 'Completed'});
+            var experimentForSave = _.extend({}, experiment, {
+                status: 'Completed'
+            });
             Experiment.update({
                 projectId: params.projectId,
                 notebookId: params.notebookId
-            }, experimentForSave, function (result) {
+            }, experimentForSave, function(result) {
                 onChangeStatusSuccess(result, 'Completed');
                 defer.resolve();
             });
         });
+
         return defer.promise;
     }
 
 
     function completeExperimentAndSign(experiment, params, notebookName) {
-        openCompleteConfirmationModal(experiment, notebookName).result.then(function () {
+        openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
             // show PDF preview
             $state.go('experiment-preview-submit', {
                 experimentId: params.experimentId,
@@ -134,11 +140,12 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
             animation: true,
             templateUrl: 'scripts/app/entities/experiment/complete-modal/experiment-complete-modal.html',
             resolve: {
-                fullExperimentName: function () {
+                fullExperimentName: function() {
                     var fullName = notebookName + '-' + experiment.name;
                     if (experiment.experimentVersion > 1 || !experiment.lastVersion) {
                         fullName += ' v' + experiment.experimentVersion;
                     }
+
                     return fullName;
                 }
             },
@@ -153,5 +160,4 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         $rootScope.$broadcast('experiment-status-changed', statuses);
     }
 }
-
 

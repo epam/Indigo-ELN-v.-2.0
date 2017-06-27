@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities.user-management', {
                 url: '/user-management',
@@ -10,14 +10,14 @@ angular.module('indigoeln')
                         name: 'Users',
                         kind: 'management',
                         state: 'entities.user-management',
-                        type:'entity'
+                        type: 'entity'
                     }
                 },
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/user-management/user-management.html',
                         controller: 'UserManagementController',
-                        controllerAs: "vm"
+                        controllerAs: 'vm'
                     }
                 },
                 resolve: {
@@ -25,11 +25,12 @@ angular.module('indigoeln')
                         var deferred = $q.defer();
                         $q.all([
                             Role.query().$promise
-                        ]).then(function(results){
+                        ]).then(function(results) {
                             deferred.resolve({
                                 roles: results[0]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }
@@ -40,25 +41,29 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['USER_EDITOR'],
                     tab: {
-                        type:''
+                        type: ''
                     }
                 },
-                onEnter: ['$stateParams', '$state', '$uibModal', function ($stateParams, $state, $uibModal) {
+                onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
                     $uibModal.open({
                         templateUrl: 'scripts/app/entities/user-management/user-management-delete-dialog.html',
                         controller: 'UserManagementDeleteController',
-                        controllerAs: "vm",
+                        controllerAs: 'vm',
                         size: 'md',
                         resolve: {
-                            entity: ['User', function (User) {
-                                return User.get({login: $stateParams.login});
+                            entity: ['User', function(User) {
+                                return User.get({
+                                    login: $stateParams.login
+                                });
                             }]
                         }
-                    }).result.then(function () {
-                            $state.go('entities.user-management', null, {reload: true});
-                        }, function () {
-                            $state.go('^');
+                    }).result.then(function() {
+                        $state.go('entities.user-management', null, {
+                            reload: true
                         });
+                    }, function() {
+                        $state.go('^');
+                    });
                 }]
             });
     });

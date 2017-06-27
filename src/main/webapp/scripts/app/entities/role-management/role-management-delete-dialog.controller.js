@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('RoleManagementDeleteController', RoleManagementDeleteController);
@@ -15,11 +15,13 @@
         }
 
         function confirmDelete() {
-            Role.delete({id: entity.id},
-                function () {
+            Role.delete({
+                id: entity.id
+            },
+                function() {
                     $uibModalInstance.close(true);
                 },
-                function () {
+                function() {
                     $uibModalInstance.close(false);
                 });
         }

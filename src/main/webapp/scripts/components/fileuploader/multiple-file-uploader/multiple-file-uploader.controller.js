@@ -7,7 +7,8 @@
     function MultipleFileUploaderController($uibModalInstance, $cookies, Alert, FileUploaderCash, FileUploader, params, uploadUrl) {
         var vm = this;
         var formData = [];
-        var uploader, paramsForUpload;
+        var uploader;
+        var paramsForUpload;
 
         vm.files = [];
 
@@ -44,10 +45,10 @@
             // CALLBACKS
             uploader.onSuccessItem = function(fileItem, response) {
                 vm.files.push(response);
-                Alert.success("Attachments are saved successfully.");
+                Alert.success('Attachments are saved successfully.');
             };
             uploader.onErrorItem = function() {
-                Alert.error("Uploaded file size should be less than 10 Mb");
+                Alert.error('Uploaded file size should be less than 10 Mb');
             };
         }
 

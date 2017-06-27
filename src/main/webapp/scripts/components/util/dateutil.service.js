@@ -2,37 +2,41 @@ angular
     .module('indigoeln')
     .factory('DateUtils', dateUtils);
 
-function dateUtils(){
-
+function dateUtils() {
     return {
         convertLocaleDateToServer: convertLocaleDateToServer,
         convertLocaleDateFromServer: convertLocaleDateFromServer,
         convertDateTimeFromServer: convertDateTimeFromServer
     };
 
-    function convertLocaleDateToServer(date){
+    function convertLocaleDateToServer(date) {
         if (date) {
             var utcDate = new Date();
             utcDate.setUTCDate(date.getDate());
             utcDate.setUTCMonth(date.getMonth());
             utcDate.setUTCFullYear(date.getFullYear());
+
             return utcDate;
         }
+
         return null;
     }
 
-    function convertLocaleDateFromServer(date){
+    function convertLocaleDateFromServer(date) {
         if (date) {
             var dateString = date.split('-');
+
             return new Date(dateString[0], dateString[1] - 1, dateString[2]);
         }
+
         return null;
     }
 
-    function convertDateTimeFromServer(date){
+    function convertDateTimeFromServer(date) {
         if (date) {
             return new Date(date);
         }
+
         return null;
     }
 }

@@ -52,7 +52,7 @@
     function indigoEditorController() {
         var vm = this;
         vm.editors = {
-            'KETCHER': {
+            KETCHER: {
                 id: 'ifKetcher',
                 src: 'vendors/ketcher/ketcher.html'
             }

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoTable', indigoTable);
@@ -38,8 +38,9 @@
                 $tr.attr('dragula', '\'my-table-columns\'');
                 $tr.attr('dragula-model', 'indigoColumns');
             }
+
             return {
-                post: function (scope, element, attrs, ctrl, transclude) {
+                post: function(scope, element, attrs, ctrl, transclude) {
                     element.find('.transclude').replaceWith(transclude());
                 }
             };

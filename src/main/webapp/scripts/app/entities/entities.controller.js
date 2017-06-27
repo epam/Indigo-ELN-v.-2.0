@@ -31,7 +31,7 @@
             EntitiesCache.removeByKey(tab.tabKey);
         }
 
-        //TODO: need to inject service by name but app does't have root elem
+        // TODO: need to inject service by name but app does't have root elem
         function getService(kind) {
             var service;
             switch (kind) {
@@ -88,6 +88,7 @@
                         EntitiesBrowser.callUpdateCurrentEntity(true);
                     }, 'Accept', true, 'Reject'
                 );
+
                 return;
             }
             Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded');
@@ -122,7 +123,7 @@
                 return;
             }
             _.each(vm.tabs, function(tab) {
-                //TODO: we cannot compare objects like this
+                // TODO: we cannot compare objects like this
                 if (exceptCurrent && tab === EntitiesBrowser.getActiveTab()) {
                     return;
                 }

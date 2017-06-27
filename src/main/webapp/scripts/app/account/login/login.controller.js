@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('LoginController', LoginController);
@@ -21,13 +21,13 @@
                 username: vm.username,
                 password: vm.password,
                 rememberMe: vm.rememberMe
-            }).then(function () {
+            }).then(function() {
                 vm.authenticationError = false;
-                Principal.identity(true).then(function () {
+                Principal.identity(true).then(function() {
                     $state.go('experiment');
                     vm.loading = false;
                 });
-            }).catch(function () {
+            }).catch(function() {
                 vm.authenticationError = true;
                 vm.shake = !vm.shake;
                 vm.loading = false;

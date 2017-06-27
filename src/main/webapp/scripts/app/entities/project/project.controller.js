@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('ProjectController', ProjectController);
@@ -6,7 +6,6 @@
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, AutoRecoverEngine) {
-
         var vm = this;
         var identity = pageInfo.identity;
         var project = pageInfo.project;
@@ -36,10 +35,12 @@
         function save() {
             if (vm.project.id) {
                 vm.loading = Project.update($stateParams, vm.project).$promise
-                    .then(function (result) {
+                    .then(function(result) {
                         vm.project.version = result.version;
                         $scope.createProjectForm.$setPristine();
-                        onUpdateSuccess({id: vm.project.id});
+                        onUpdateSuccess({
+                            id: vm.project.id
+                        });
                     }, onSaveError);
             } else {
                 vm.loading = Project.save(vm.project, onSaveSuccess, onSaveError).$promise;
@@ -48,12 +49,12 @@
 
         function refresh() {
             vm.loading = Project.get($stateParams).$promise
-                .then(function (result) {
+                .then(function(result) {
                     angular.extend(vm.project, result);
                     $scope.createProjectForm.$setPristine();
                     $scope.createProjectForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
-                }, function () {
+                }, function() {
                     Alert.error('Project not refreshed due to server error!');
                 });
         }
@@ -71,33 +72,33 @@
                 FileUploaderCash.setFiles([]);
             }
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function () {
+            var onAccessListChangedEvent = $scope.$on('access-list-changed', function() {
                 vm.project.accessList = PermissionManagement.getAccessList();
             });
 
-            var unsubscribeExp = $scope.$watch('project', function () {
+            var unsubscribeExp = $scope.$watch('project', function() {
                 EntitiesBrowser.setCurrentEntity(vm.project);
             });
 
-            //Activate save button when change permission
-            $scope.$on("activate button", function () {
-                //If put 0, then save button isn't activated
-                $timeout(function () {
+            // Activate save button when change permission
+            $scope.$on('activate button', function() {
+                // If put 0, then save button isn't activated
+                $timeout(function() {
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
 
-            //This is necessary for correct saving after attaching files
-            $scope.$on("refresh after attach", function () {
+            // This is necessary for correct saving after attaching files
+            $scope.$on('refresh after attach', function() {
                 vm.loading = Project.get($stateParams).$promise
-                    .then(function (result) {
+                    .then(function(result) {
                         vm.project.version = result.version;
-                    }, function () {
+                    }, function() {
                         Alert.error('Project not refreshed due to server error!');
                     });
             });
 
-            $scope.$on('$destroy', function () {
+            $scope.$on('$destroy', function() {
                 unsubscribeExp();
                 onAccessListChangedEvent();
                 vm.dirtyListener();
@@ -111,31 +112,31 @@
             PermissionManagement.setAccessList(vm.project.accessList);
 
             // isEditAllowed
-            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function (hasEditPermission) {
+            PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
                 vm.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
             });
             // isCreateChildAllowed
-            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function (hasCreateChildPermission) {
+            PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
                 vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
             });
         }
 
         function initDirtyListener() {
-            $timeout(function () {
+            $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
                 if (pageInfo.dirty) {
                     $scope.createProjectForm.$setDirty(pageInfo.dirty);
                 }
-                vm.dirtyListener = $scope.$watch(function () {
+                vm.dirtyListener = $scope.$watch(function() {
                     return vm.project;
-                }, function () {
+                }, function() {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
                     EntitiesBrowser.setCurrentForm($scope.createProjectForm);
 
-                    if (EntitiesBrowser.getActiveTab().name === "New Project") {
+                    if (EntitiesBrowser.getActiveTab().name === 'New Project') {
                         vm.isBtnSaveActive = true;
                     } else {
-                        $timeout(function () {
+                        $timeout(function() {
                             vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
                         }, 0);
                     }
@@ -146,16 +147,24 @@
         }
 
         function onUpdateSuccess(result) {
-            $rootScope.$broadcast('project-created', {id: result.id});
-            $state.go('entities.project-detail', {projectId: result.id});
+            $rootScope.$broadcast('project-created', {
+                id: result.id
+            });
+            $state.go('entities.project-detail', {
+                projectId: result.id
+            });
         }
 
         function onSaveSuccess(result) {
             var tabName = $state.$current.data.tab.name;
             EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
-            $timeout(function () {
-                $rootScope.$broadcast('project-created', {id: result.id});
-                $state.go('entities.project-detail', {projectId: result.id});
+            $timeout(function() {
+                $rootScope.$broadcast('project-created', {
+                    id: result.id
+                });
+                $state.go('entities.project-detail', {
+                    projectId: result.id
+                });
             });
         }
 

@@ -4,7 +4,6 @@ angular
 
 /* @ngInject */
 function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService) {
-
     var tabs = {};
     var activeTab = {};
     var entityActions;
@@ -13,7 +12,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     var activeEntity;
     var curForm;
 
-    var resolvePrincipal = function (func) {
+    var resolvePrincipal = function(func) {
         return Principal.identity().then(func);
     };
 
@@ -48,6 +47,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     function getUserId() {
         var id = Principal.getIdentity().id;
         tabs[id] = tabs[id] || {};
+
         return id;
     }
 
@@ -56,7 +56,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function getTabs(success) {
-        resolvePrincipal(function (user) {
+        resolvePrincipal(function(user) {
             success(tabs[user.id]);
         });
     }
@@ -123,7 +123,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function goToTab(tab) {
         var curTab = tab;
-        return resolvePrincipal(function () {
+
+        return resolvePrincipal(function() {
             var userId = getUserId();
             var tabKey = getTabKey(curTab);
             if (tabs[userId][tabKey]) {
@@ -138,7 +139,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
 
     function close(tabKey) {
-        return resolvePrincipal(function () {
+        return resolvePrincipal(function() {
             var userId = getUserId();
             deleteClosedTabAndGoToActive(userId, tabKey);
         });
@@ -159,7 +160,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
 
     function setCurrentTabTitle(tabTitle, stateParams) {
-        return resolvePrincipal(function (user) {
+        return resolvePrincipal(function(user) {
             var userId = getUserId();
             var result = TabKeyUtils.getTabKeyFromParams(stateParams);
             var t = tabs[userId][result];
@@ -171,10 +172,11 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function saveTabs(user) {
-        if (!user){
+        if (!user) {
             return;
         }
-        var storageKey = user.id + '.current-tabs', id = user.id;
+        var storageKey = user.id + '.current-tabs';
+        var id = user.id;
         var tabsToSave = angular.copy(tabs[id]);
         for (var key in tabsToSave) {
             delete tabsToSave[key].dirty;
@@ -183,7 +185,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function changeDirtyTab(stateParams, dirty) {
-        return resolvePrincipal(function () {
+        return resolvePrincipal(function() {
             var userId = getUserId();
             var result = TabKeyUtils.getTabKeyFromParams(stateParams);
             if (tabs[userId][result]) {
@@ -195,7 +197,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function addTab(tab) {
         var curTab = tab;
-        return resolvePrincipal(function () {
+
+        return resolvePrincipal(function() {
             var userId = getUserId();
             var tabKey = TabKeyUtils.getTabKeyFromTab(curTab);
             if (!tabs[userId][tabKey]) {
@@ -210,9 +213,10 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function getTabByParams(params) {
-        return resolvePrincipal(function () {
+        return resolvePrincipal(function() {
             var userId = getUserId();
             var tabKey = TabKeyUtils.getTabKeyFromParams(params);
+
             return tabs[userId][tabKey];
         });
     }

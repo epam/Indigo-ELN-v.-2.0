@@ -1,10 +1,10 @@
 angular.module('indigoeln')
-    .config(function ($stateProvider) {
+    .config(function($stateProvider) {
         $stateProvider
             .state('entities.search-panel', {
                 url: '/search',
                 views: {
-                    'tabContent': {
+                    tabContent: {
                         templateUrl: 'scripts/app/entities/search/search-panel.html',
                         controller: 'SearchPanelController',
                         controllerAs: 'vm'
@@ -20,17 +20,18 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function ($q, Principal, Users) {
+                    pageInfo: function($q, Principal, Users) {
                         var deferred = $q.defer();
                         $q.all([
                             Users.get(),
                             Principal.identity()
-                        ]).then(function (results) {
+                        ]).then(function(results) {
                             deferred.resolve({
                                 users: results[0],
                                 identity: results[1]
                             });
                         });
+
                         return deferred.promise;
                     }
                 }

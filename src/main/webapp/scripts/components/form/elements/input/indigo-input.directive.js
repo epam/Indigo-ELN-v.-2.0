@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoInput', indigoInput);
@@ -56,8 +56,9 @@
             formUtils.setLabelColumns(tAttrs, tElement);
             formUtils.addDirectivesByAttrs(tAttrs, $input);
             $input.attr('title', '{{indigoModel}}');
+
             return {
-                post: function (scope, iElement, iAttrs, formCtrl) {
+                post: function(scope, iElement, iAttrs, formCtrl) {
                     formUtils.showValidation(iElement, scope, formCtrl);
                     formUtils.addOnChange(scope);
                 }

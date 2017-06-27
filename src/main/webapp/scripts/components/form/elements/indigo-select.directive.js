@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoSelect', indigoSelect);
@@ -27,15 +27,16 @@
             },
             controller: controller,
             compile: compile,
-            template: function (tElement, tAttrs) {
+            template: function(tElement, tAttrs) {
                 var itemProp = tAttrs.indigoItemProp || 'name';
                 var content = _.chain(itemProp.split(','))
-                    .map(function (prop) {
+                    .map(function(prop) {
                         return '{{ $select.selected.' + prop + '}}';
                     })
-                    .reduce(function (memo, num) {
+                    .reduce(function(memo, num) {
                         return memo + (memo.length > 0 ? ' - ' : '') + num;
                     }, '').value();
+
                 return '<div class="form-group {{indigoClasses}}">' +
                     '<label>{{indigoLabel}}</label>' +
                     // '<div class="col-xs-10">' +
@@ -59,16 +60,17 @@
             }
             formUtils.doVertical(tAttrs, tElement);
             var select = tElement.find('ui-select-choices');
-            var htmlContent = _.reduce(tAttrs.indigoItemProp.split(','), function (memo, num) {
-                return memo + (memo.length > 0 ? " + ' - ' + " : '') + 'item.' + num;
+            var htmlContent = _.reduce(tAttrs.indigoItemProp.split(','), function(memo, num) {
+                return memo + (memo.length > 0 ? ' + \' - \' + ' : '') + 'item.' + num;
             }, '');
             select.append('<span ng-bind-html="' + htmlContent + ' | highlight: $select.search"></span>');
             var repeat = select.attr('repeat');
             select.attr('repeat', repeat + ' | orderBy:"' + tAttrs.indigoOrderByProp + '"');
             formUtils.clearLabel(tAttrs, tElement);
             formUtils.setLabelColumns(tAttrs, tElement);
+
             return {
-                post: function (scope) {
+                post: function(scope) {
                     formUtils.addOnChange(scope);
                 }
             };
@@ -76,26 +78,30 @@
 
         /* @ngInject */
         function controller($scope, Dictionary) {
-            $scope.ctrl = {selected: $scope.indigoModel};
+            $scope.ctrl = {
+                selected: $scope.indigoModel
+            };
 
             $scope.control = $scope.indigoControl || {};
 
-            $scope.control.setSelection = function (select) {
+            $scope.control.setSelection = function(select) {
                 $scope.ctrl.selected = select;
             };
 
-            $scope.control.unSelect = function () {
+            $scope.control.unSelect = function() {
                 $scope.ctrl.selected = {};
             };
 
-            $scope.$watchCollection('ctrl.selected', function (newSelected) {
+            $scope.$watchCollection('ctrl.selected', function(newSelected) {
                 $scope.indigoModel = newSelected;
             });
-            $scope.$watchCollection('indigoModel', function (indigoModel) {
+            $scope.$watchCollection('indigoModel', function(indigoModel) {
                 $scope.ctrl.selected = indigoModel;
             });
             if ($scope.indigoDictionary) {
-                Dictionary.getByName({name: $scope.indigoDictionary}, function (dictionary) {
+                Dictionary.getByName({
+                    name: $scope.indigoDictionary
+                }, function(dictionary) {
                     $scope.indigoItems = dictionary.words;
                 });
             }

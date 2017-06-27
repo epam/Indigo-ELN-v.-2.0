@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoComponent', indigoComponent);
@@ -21,13 +21,13 @@
         /* @ngInject */
         function link(scope, iElement, iAttrs) {
             scope.myComponent = iAttrs.indigoComponent;
-            //for capability
+            // for capability
             scope.model = scope.indigoModel;
-            //for capability
+            // for capability
             scope.experimentForm = scope.indigoExperimentForm;
-            //for readonly
+            // for readonly
             scope.experiment = _.extend({}, scope.indigoExperiment);
-            //for communication between components
+            // for communication between components
             scope.share = scope.indigoShare;
         }
     }

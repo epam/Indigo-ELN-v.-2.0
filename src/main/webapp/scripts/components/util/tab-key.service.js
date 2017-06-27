@@ -1,4 +1,5 @@
-angular.module('indigoeln')
+angular
+    .module('indigoeln')
     .factory('TabKeyUtils', tabKeyUtils);
 
 function tabKeyUtils() {
@@ -9,17 +10,24 @@ function tabKeyUtils() {
     };
 
     function getTabKeyFromTab(tab) {
-        var matchParams = !_.isEmpty(tab.params) ? getMatchParams(tab.params) : {name: tab.name};
+        var matchParams = !_.isEmpty(tab.params) ? getMatchParams(tab.params) : {
+            name: tab.name
+        };
+
         return tabParamsToString(matchParams);
     }
 
     function getTabKeyFromName(tabName) {
-        var matchParams = {name: tabName};
+        var matchParams = {
+            name: tabName
+        };
+
         return tabParamsToString(matchParams);
     }
 
     function getTabKeyFromParams(params) {
         var matchParams = getMatchParams(params);
+
         return tabParamsToString(matchParams);
     }
 
@@ -29,17 +37,19 @@ function tabKeyUtils() {
         }
 
         var paramsToString = {};
-        _.each(matchParams, function (val, name) {
+        _.each(matchParams, function(val, name) {
             paramsToString[name] = safeString(val);
         });
+
         return angular.toJson(paramsToString);
     }
 
     function getMatchParams(params) {
         var matchParams = {};
-        _.each(_.keys(params).sort(), function (name) {
+        _.each(_.keys(params).sort(), function(name) {
             matchParams[name] = params[name];
         });
+
         return matchParams;
     }
 }

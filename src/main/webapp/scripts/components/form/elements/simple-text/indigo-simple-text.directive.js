@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoSimpleText', indigoSimpleText);
@@ -12,8 +12,6 @@
                 indigoModel: '=',
                 indigoEmptyText: '@',
                 indigoClasses: '@'
-            },
-            compile: function () {
             },
             templateUrl: 'scripts/components/form/elements/simple-text/simple-text.html'
         };

@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoEntitiesControls', indigoEntitiesControls);
@@ -9,20 +9,18 @@
             templateUrl: 'scripts/app/entities/entities-controls.html',
             controller: controller,
             controllerAs: 'vm',
-            scope : {
+            scope: {
                 onCloseTab: '&',
                 onCloseAllTabs: '&'
             }
         };
 
 
-
         /* @ngInject */
         function controller($scope, $state, EntitiesBrowser) {
-
             var vm = this;
 
-            //TODO: move it ti file
+            // TODO: move it ti file
             vm.CONTENT_EDITOR = 'CONTENT_EDITOR';
             vm.PROJECT_CREATOR = 'PROJECT_CREATOR';
             vm.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
@@ -47,7 +45,7 @@
             vm.onCloseAllTabs = onCloseAllTabs;
             vm.onCloseTabClick = onCloseTabClick;
 
-            function init(){
+            function init() {
                 EntitiesBrowser.getTabs(function(tabs) {
                     vm.entities = tabs;
                 });
@@ -71,6 +69,7 @@
 
             function canPrint() {
                 var actions = EntitiesBrowser.getEntityActions();
+
                 return actions && actions.print;
             }
 
@@ -78,8 +77,9 @@
                 EntitiesBrowser.getEntityActions().print();
             }
 
-             function canDuplicate() {
+            function canDuplicate() {
                 var actions = EntitiesBrowser.getEntityActions();
+
                 return actions && actions.duplicate;
             }
 
@@ -88,14 +88,18 @@
             }
 
             function onCloseAllTabs(exceptCurrent) {
-                if($scope.onCloseAllTabs){
-                    $scope.onCloseAllTabs({exceptCurrent: exceptCurrent});
+                if ($scope.onCloseAllTabs) {
+                    $scope.onCloseAllTabs({
+                        exceptCurrent: exceptCurrent
+                    });
                 }
             }
 
             function onCloseTabClick($event, tab) {
-                if($scope.onCloseTab){
-                    $scope.onCloseTab({$event: $event, tab: tab});
+                if ($scope.onCloseTab) {
+                    $scope.onCloseTab({
+                        $event: $event, tab: tab
+                    });
                 }
             }
         }

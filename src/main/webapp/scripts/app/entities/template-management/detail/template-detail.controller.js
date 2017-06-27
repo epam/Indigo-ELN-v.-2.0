@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('TemplateDetailController', TemplateDetailController);
@@ -14,7 +14,9 @@
         }
 
         function load(id) {
-            Template.get({id: id}, function (result) {
+            Template.get({
+                id: id
+            }, function(result) {
                 vm.template = result;
             });
         }
