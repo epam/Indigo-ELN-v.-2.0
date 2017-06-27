@@ -11,7 +11,7 @@
             scope: {
                 structureType: '=ssStructureType',
                 title: '=ssTitle',
-                autosave: '=ssautosave',
+                autosave: '=ssAutosave',
                 model: '=ssModel',
                 readonly: '=ssReadonly',
                 share: '=ssShare',
