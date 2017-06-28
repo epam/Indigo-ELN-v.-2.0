@@ -10,6 +10,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
 
     function init() {
         vm.model = getDefaultModel();
+        vm.reactants = reactants;
 
         vm.tabs = _.map(vm.reactants, function(reactant) {
             return {
