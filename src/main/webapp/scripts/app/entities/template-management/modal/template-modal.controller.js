@@ -89,8 +89,6 @@
             if (vm.template.id) {
                 Template.update(vm.template, onSaveSuccess, onSaveError);
             } else {
-                console.log('vm.template');
-                console.log(vm.template);
                 Template.save(vm.template, onSaveSuccess, onSaveError).$promise;
             }
         }

@@ -4,20 +4,24 @@
         Preferred Compound Summary
     </div>
     <div class="panel-body collapsible">
-        <div ng-show="isStructure">
+        <div ng-show="vm.isStructure">
             <div class="form-horizontal">
                 <div class="row">
                     <div class="col-xs-2">
                         Structure size:
                     </div>
                     <div class="col-xs-10">
-                        <slider ng-model="structureSize" min="0.3" step="0.01" max="4"
+                        <!--TODO testOptions.value???-->
+                        <slider ng-model="vm.structureSize" min="0.3" step="0.01" max="4"
                                 value="testOptions.value"></slider>
                     </div>
                 </div>
             </div>
         </div>
 
-        <indigo-compound-summary model="model" share="share" experiment-name="experiment.name" on-show-structure="showStructure(isVisible)" structure-size="structureSize"></indigo-compound-summary>
+        <!--TODO isVisible???-->
+        <indigo-compound-summary model="vm.model" share="vm.share" experiment-name="vm.experiment.name"
+                                 on-show-structure="vm.showStructure(isVisible)"
+                                 structure-size="vm.structureSize"></indigo-compound-summary>
     </div>
 </div>
