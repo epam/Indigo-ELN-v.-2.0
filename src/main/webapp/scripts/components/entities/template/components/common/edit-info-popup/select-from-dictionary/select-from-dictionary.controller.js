@@ -1,24 +1,36 @@
 angular.module('indigoeln').controller('SelectFromDictionaryController',
     function($scope, $rootScope, $uibModalInstance, data, dictionary, title) {
-        $scope.title = title;
-        $scope.dictionary = dictionary;
-        $scope.model = data || {};
-        $scope.model.data = $scope.model.data || [];
-        $scope.selectedItemsFlags = _.map($scope.dictionary.words, function(item) {
-            if (_.contains($scope.model.data, item.name)) {
-                return true;
-            }
-        });
+        var vm = this;
 
-        $scope.selectItem = function(index, item) {
+        init();
+
+        function init() {
+            vm.title = title;
+            vm.dictionary = dictionary;
+            vm.model = data || {};
+            vm.model.data = $scope.model.data || [];
+            vm.selectedItemsFlags = getSelectedItems();
+
+            vm.selectItem = selectItem;
+            vm.save = save;
+            vm.cancel = cancel;
+        }
+
+        function getSelectedItems() {
+            return _.map(vm.dictionary.words, function(item) {
+                return _.contains(vm.model.data, item.name);
+            });
+        }
+
+        function selectItem(index, item) {
             if ($scope.selectedItemsFlags[index]) {
                 $scope.model.data[index] = item;
             } else {
                 delete $scope.model.data[index];
             }
-        };
+        }
 
-        $scope.save = function() {
+        function save() {
             $scope.model.data = [];
             _.each($scope.selectedItemsFlags, function(isSelected, index) {
                 if (isSelected) {
@@ -27,9 +39,9 @@ angular.module('indigoeln').controller('SelectFromDictionaryController',
             });
             $scope.model.asString = $scope.model.data.join(', ');
             $uibModalInstance.close($scope.model);
-        };
+        }
 
-        $scope.cancel = function() {
+        function cancel() {
             $uibModalInstance.dismiss('cancel');
-        };
+        }
     });

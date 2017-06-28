@@ -1,24 +1,38 @@
-angular.module('indigoeln').controller('StructureValidationController',
-    function($scope, $uibModalInstance, batches, searchQuery, AppValues) {
-        $scope.batches = batches;
-        $scope.searchQuery = searchQuery;
-        $scope.selectedBatch = null;
-        $scope.defaultSaltCodeName = AppValues.getDefaultSaltCode().name;
+angular
+    .module('indigoeln')
+    .controller('StructureValidationController', StructureValidationController);
 
-        $scope.selectBatch = function(batch) {
-            if ($scope.selectedBatch) {
-                $scope.selectedBatch.$$isSelected = false;
-            }
-            batch.$$isSelected = true;
-            $scope.selectedBatch = batch;
-        };
+/* @ngInject */
+function StructureValidationController($uibModalInstance, batches, searchQuery, AppValues) {
+    var vm = this;
 
-        $scope.save = function() {
-            $uibModalInstance.close($scope.selectedBatch);
-        };
+    init();
 
-        $scope.cancel = function() {
-            $uibModalInstance.dismiss('cancel');
-        };
-    });
+    function init() {
+        vm.batches = batches;
+        vm.searchQuery = searchQuery;
+        vm.selectedBatch = null;
+        vm.defaultSaltCodeName = AppValues.getDefaultSaltCode().name;
+
+        vm.save = save;
+        vm.cancel = cancel;
+        vm.selectBatch = selectBatch;
+    }
+
+    function selectBatch(batch) {
+        if (vm.selectedBatch) {
+            vm.selectedBatch.$$isSelected = false;
+        }
+        batch.$$isSelected = true;
+        vm.selectedBatch = batch;
+    }
+
+    function save() {
+        $uibModalInstance.close(vm.selectedBatch);
+    }
+
+    function cancel() {
+        $uibModalInstance.dismiss('cancel');
+    }
+}
 

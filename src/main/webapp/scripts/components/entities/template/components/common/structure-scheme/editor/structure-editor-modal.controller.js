@@ -1,8 +1,9 @@
-angular.module('indigoeln')
-    .controller('structureEditorModalController', structureEditorModalController);
+angular
+    .module('indigoeln')
+    .controller('StructureEditorModalController', StructureEditorModalController);
 
 /* @ngInject */
-function structureEditorModalController($uibModalInstance, prestructure, editor) {
+function StructureEditorModalController($uibModalInstance, prestructure, editor) {
     var vm = this;
     // set attributes
     vm.structure = {

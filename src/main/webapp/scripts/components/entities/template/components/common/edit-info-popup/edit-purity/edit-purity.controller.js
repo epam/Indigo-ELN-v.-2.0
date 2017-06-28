@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('editPurityController', editPurityController);
+    .controller('EditPurityController', EditPurityController);
 
 /* @ngInject */
-function editPurityController($scope, $uibModalInstance, data, dictionary) {
+function EditPurityController($scope, $uibModalInstance, data, dictionary) {
     var vm = this;
 
     init();
