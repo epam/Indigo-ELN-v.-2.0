@@ -18,8 +18,13 @@
                     indigo-label="Show summary table"
             ></indigo-checkbox>
         </form>
-        <indigo-batch-summary ng-if="showSummary" my-tab-support="true" model="vm.model" share="vm.share"
-                              is-hide-column-settings="true"></indigo-batch-summary>
+        <indigo-batch-summary ng-if="showSummary"
+                              my-tab-support="true"
+                              model="vm.model"
+                              share="vm.share"
+                              indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
+                              is-hide-column-settings="true"
+        ></indigo-batch-summary>
         <indigo-table ng-if="!showSummary" indigo-id="product-detail-table" indigo-columns="vm.productTableColumns"
                       indigo-rows="vm.detailTable" class="my-table-wrapper table-batch-details">
 
