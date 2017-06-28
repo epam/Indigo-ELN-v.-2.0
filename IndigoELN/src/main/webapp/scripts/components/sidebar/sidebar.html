@@ -106,25 +106,25 @@
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
                 <li indigo-has-authority="{{vm.USER_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.user-management')}"
-                    ng-click="toggleUsersAndRoles(); $event.stopPropagation();"
+                    ng-click="vm.toggleUsersAndRoles(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment ">Users</a>
                 </li>
                 <li indigo-has-authority="{{vm.ROLE_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.role-management')}"
-                    ng-click="toggleAuthorities(); $event.stopPropagation();"
+                    ng-click="vm.toggleAuthorities(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Roles</a>
                 </li>
                 <li indigo-has-authority="{{vm.TEMPLATE_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.template')}"
-                    ng-click="toggleTemplates(); $event.stopPropagation();"
+                    ng-click="vm.toggleTemplates(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Templates</a>
                 </li>
                 <li indigo-has-authority="{{vm.DICTIONARY_EDITOR}}"
                     ng-class="{'active': vm.$state.includes('entities.dictionary-management')}"
-                    ng-click="toggleDictionaries(); $event.stopPropagation();"
+                    ng-click="vm.toggleDictionaries(); $event.stopPropagation();"
                     class="sidebar-menu__sub-menu-item">
                     <a class="type-of-experiment">Dictionaries</a>
                 </li>
