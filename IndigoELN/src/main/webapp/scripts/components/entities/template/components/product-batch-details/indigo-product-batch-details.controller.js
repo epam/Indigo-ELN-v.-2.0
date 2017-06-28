@@ -1,65 +1,242 @@
-(function() {
+(function () {
     angular
         .module('indigoeln')
         .controller('IndigoProductBatchDetailsController', IndigoProductBatchDetailsController);
 
     /* @ngInject */
-    function IndigoProductBatchDetailsController($scope, $uibModal, AlertModal, AppValues, InfoEditor, $timeout, CalculationService, ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope, ProductBatchSummaryOperations, EntitiesBrowser) {
-        $scope.model = $scope.model || {};
-        $scope.showSummary = false;
-        $scope.model.productBatchDetails = $scope.model.productBatchDetails || {};
-        $scope.share.stoichTable = StoichTableCache.getStoicTable();
-        $scope.notebookId = EntitiesBrowser.getActiveTab().$$title;
+    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, $timeout, CalculationService,
+                                                 ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope,
+                                                 ProductBatchSummaryOperations, EntitiesBrowser) {
 
-        $scope.sourceValues = AppValues.getSourceValues();
-        $scope.sourceDetailExternal = AppValues.getSourceDetailExternal();
-        $scope.sourceDetailInternal = AppValues.getSourceDetailInternal();
+        var vm = this;
+        var _batches = vm.model.productBatchSummary.batches || [];
+        var grams = AppValues.getGrams();
+        var liters = AppValues.getLiters();
+        var moles = AppValues.getMoles();
+        var stoichTable;
+        var productBatches;
 
-        if ($scope.model.productBatchSummary) {
-            var _batches = $scope.model.productBatchSummary.batches || [];
-            $scope.model.productBatchSummary.batches = _batches;
-            ProductBatchSummaryCache.setProductBatchSummary(_batches);
+        vm.showSummary = false;
+        vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
+        vm.sourceValues = AppValues.getSourceValues();
+        vm.sourceDetailExternal = AppValues.getSourceDetailExternal();
+        vm.sourceDetailInternal = AppValues.getSourceDetailInternal();
+        vm.detailTable = [];
+        vm.selectControl = {};
+        vm.saltCodeValues = AppValues.getSaltCodeValues();
+        vm.model = $scope.model || {};
+        vm.share = $scope.share || {};
+        vm.model.productBatchSummary = vm.model.productBatchSummary || {};
+        vm.share.stoichTable = StoichTableCache.getStoicTable();
+
+        vm.initSelectedBatch = initSelectedBatch;
+        vm.onSelectBatch = onSelectBatch;
+        vm.addNewBatch = addNewBatch;
+        vm.duplicateBatch = duplicateBatch;
+        vm.deleteBatches = deleteBatches;
+        vm.isIntendedSynced = isIntendedSynced;
+        vm.syncWithIntendedProducts = syncWithIntendedProducts;
+        vm.registerBatches = registerBatches;
+        vm.importSDFile = importSDFile;
+        vm.exportSDFile = exportSDFile;
+        vm.editSolubility = editSolubility;
+        vm.editResidualSolvents = editResidualSolvents;
+        vm.editExternalSupplier = editExternalSupplier;
+        vm.editMeltingPoint = editMeltingPoint;
+        vm.editPurity = editPurity;
+        vm.editHealthHazards = editHealthHazards;
+        vm.editHandlingPrecautions = editHandlingPrecautions;
+        vm.editStorageInstructions = editStorageInstructions;
+        vm.canEditSaltEq = canEditSaltEq;
+        vm.recalculateSalt = recalculateSalt;
+
+
+        init();
+
+        function init() {
+            if (vm.model.productBatchSummary) {
+                vm.model.productBatchSummary.batches = _batches;
+                ProductBatchSummaryCache.setProductBatchSummary(_batches);
+            }
+
+            bindEvents();
         }
-        $scope.init = function() {
-            $timeout(function() {
+
+
+        function initSelectedBatch() {
+            $timeout(function () {
                 if (_batches && _batches.length > 0) {
-                    $scope.selectedBatch = _batches[0];
-                    $scope.onSelectBatch();
+                    vm.selectedBatch = _batches[0];
+                    onSelectBatch();
                 }
             }, 1000);
-        };
-        $scope.onSelectBatch = function() {
-            if ($scope.share.selectedRow) {
-                $scope.share.selectedRow.$$selected = false;
+        }
+
+        function onSelectBatch() {
+            if (vm.share.selectedRow) {
+                vm.share.selectedRow.$$selected = false;
             }
-            var row = $scope.share.selectedRow = $scope.selectedBatch || null;
+            var row = vm.share.selectedRow = vm.selectedBatch || null;
             if (row) {
                 row.$$selected = true;
             }
             setProductBatchDetails(row);
-            $scope.detailTable[0] = row;
+            vm.detailTable[0] = row;
             checkOnlySelectedBatch();
             $rootScope.$broadcast('batch-summary-row-selected', {
                 row: row
             });
-        };
-        $scope.detailTable = [];
-        $scope.selectControl = {};
+        }
 
 
-        var grams = AppValues.getGrams();
-        var liters = AppValues.getLiters();
-        var moles = AppValues.getMoles();
+        function addNewBatch() {
+            ProductBatchSummaryOperations.addNewBatch().then(function (batch) {
+                vm.selectedBatch = batch;
+                onSelectBatch();
+            });
+        }
 
-        $scope.saltCodeValues = AppValues.getSaltCodeValues();
-        $scope.productTableColumns = [
+        function duplicateBatch() {
+            ProductBatchSummaryOperations.duplicateBatch().then(function (batch) {
+                vm.selectedBatch = batch;
+                onSelectBatch();
+            });
+        }
+
+        function deleteBatches() {
+            var batches = vm.model.productBatchSummary.batches;
+            var ind = batches.indexOf(vm.selectedBatch) - 1;
+            var deleted = ProductBatchSummaryOperations.deleteBatches();
+            if (deleted > 0) {
+                if (ind < 0) {
+                    ind = 0;
+                }
+                if (batches.length > 0) {
+                    vm.selectedBatch = batches[ind];
+                    onSelectBatch();
+                } else {
+                    onRowDeSelected();
+                }
+            }
+        }
+
+        function isIntendedSynced() {
+            var intended = ProductBatchSummaryOperations.getIntendedNotInActual();
+            return intended ? !intended.length : true;
+        }
+
+        function syncWithIntendedProducts() {
+            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function (batch) {
+                vm.selectedBatch = batch;
+                onSelectBatch();
+            });
+        }
+
+        function registerBatches() {
+            vm.loading = ProductBatchSummaryOperations.registerBatches();
+        }
+
+        function importSDFile() {
+            vm.importLoading = true;
+            ProductBatchSummaryOperations.importSDFile(function () {
+                vm.importLoading = false;
+            });
+        }
+
+        function exportSDFile() {
+            ProductBatchSummaryOperations.exportSDFile();
+        }
+
+        function editSolubility() {
+            var callback = function (result) {
+                getProductBatchDetails().solubility = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editSolubility(getProductBatchDetails().solubility, callback);
+        }
+
+        function editResidualSolvents() {
+            var callback = function (result) {
+                getProductBatchDetails().residualSolvents = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents, callback);
+        }
+
+        function editExternalSupplier() {
+            var callback = function (result) {
+                getProductBatchDetails().externalSupplier = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editExternalSupplier(getProductBatchDetails().externalSupplier, callback);
+        }
+
+        function editMeltingPoint() {
+            var callback = function (result) {
+                getProductBatchDetails().meltingPoint = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editMeltingPoint(getProductBatchDetails().meltingPoint, callback);
+        }
+
+        function editPurity() {
+            var callback = function (result) {
+                getProductBatchDetails().purity = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editPurity(getProductBatchDetails().purity, callback);
+        }
+
+        function editHealthHazards() {
+            var callback = function (result) {
+                getProductBatchDetails().healthHazards = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editHealthHazards(getProductBatchDetails().healthHazards, callback);
+        }
+
+        function editHandlingPrecautions() {
+            var callback = function (result) {
+                getProductBatchDetails().handlingPrecautions = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editHandlingPrecautions(getProductBatchDetails().handlingPrecautions, callback);
+        }
+
+        function editStorageInstructions() {
+            var callback = function (result) {
+                getProductBatchDetails().storageInstructions = result;
+                vm.experimentForm.$setDirty();
+            };
+            InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
+        }
+
+        function canEditSaltEq() {
+            var o = vm.model.productBatchDetails;
+            return o && o.saltCode && o.saltCode.value !== 0;
+        }
+
+        function recalculateSalt(reagent) {
+            var o = vm.model.productBatchDetails;
+            if (o.saltCode.value === 0) {
+                o.saltEq.value = 0;
+            } else {
+                o.saltEq.value = Math.abs(o.saltEq.value);
+            }
+            CalculationService.recalculateSalt(reagent).then(function () {
+                CalculationService.recalculateStoich();
+            });
+        }
+
+
+        vm.productTableColumns = [
             {
                 id: 'totalWeight',
                 name: 'Total Weight',
                 type: 'unit',
                 width: '150px',
                 unitItems: grams,
-                onClose: function(data) {
+                onClose: function (data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -70,7 +247,7 @@
                 type: 'unit',
                 width: '150px',
                 unitItems: liters,
-                onClose: function(data) {
+                onClose: function (data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -81,7 +258,7 @@
                 type: 'unit',
                 width: '150px',
                 unitItems: moles,
-                onClose: function(data) {
+                onClose: function (data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -110,7 +287,7 @@
             {
                 id: 'registrationDate',
                 name: 'Registration Date',
-                format: function(val) {
+                format: function (val) {
                     return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
                 }
             },
@@ -120,25 +297,24 @@
         ];
 
         function getProductBatchDetails() {
-            return $scope.model.productBatchDetails;
+            return vm.model.productBatchDetails;
         }
 
         function setProductBatchDetails(batch) {
-            $scope.model.productBatchDetails = batch;
+            vm.model.productBatchDetails = batch;
         }
 
-        var stoichTable;
-        var productBatches;
 
         function setStoicTable(table) {
             stoichTable = table;
             ProductBatchSummaryOperations.setStoicTable(stoichTable);
         }
 
-        var setProductBatches = function(batches) {
+        function setProductBatches(batches) {
             productBatches = batches;
-        };
-        var onRowSelected = function(data, noevent) {
+        }
+
+        function onRowSelected(data, noevent) {
             setProductBatchDetails(data.row);
             if (data.stoichTable) {
                 setStoicTable(data.stoichTable);
@@ -146,189 +322,61 @@
             if (data.actualProducts) {
                 setProductBatches(data.actualProducts);
             }
-            $scope.detailTable[0] = data.row;
-            $scope.selectedBatch = data.row;
+            vm.detailTable[0] = data.row;
+            vm.selectedBatch = data.row;
             checkOnlySelectedBatch();
-            if ($scope.selectControl.setSelection) {
-                $scope.selectControl.setSelection(data.row);
+            if (vm.selectControl.setSelection) {
+                vm.selectControl.setSelection(data.row);
             }
             if (!noevent) {
                 $rootScope.$broadcast('batch-summary-row-selected', data);
             }
-        };
+        }
 
         function checkOnlySelectedBatch() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
-            if(!batches){
+            if (!batches) {
                 return;
             }
-            batches.forEach(function(b) {
+            batches.forEach(function (b) {
                 b.select = false;
             });
-            if ($scope.selectedBatch) {
-                $scope.selectedBatch.select = true;
+            if (vm.selectedBatch) {
+                vm.selectedBatch.select = true;
             }
         }
-
-        var onBatchSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function(event, data) {
-            onRowSelected(data, true);
-        });
 
         function onRowDeSelected() {
             setProductBatchDetails({});
-            $scope.detailTable = [];
-            $scope.selectedBatch = null;
-            $scope.selectControl.unSelect();
+            vm.detailTable = [];
+            vm.selectedBatch = null;
+            vm.selectControl.unSelect();
         }
 
-        var onBatchSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', onRowDeSelected);
 
-        $scope.$on('$destroy', function() {
-            onBatchSummaryRowSelectedEvent();
-            onBatchSummaryRowDeselectedEvent();
-        });
+        function bindEvents() {
+            var events = [];
+            events.push($scope.$on('batch-summary-row-selected', function (event, data) {
+                onRowSelected(data, true);
+            }));
 
-        $scope.addNewBatch = function() {
-            ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
-                $scope.selectedBatch = batch;
-                $scope.onSelectBatch();
-            });
-        };
-        $scope.duplicateBatch = function() {
-            ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
-                $scope.selectedBatch = batch;
-                $scope.onSelectBatch();
-            });
-        };
-        $scope.deleteBatches = function() {
-            var batches = $scope.model.productBatchSummary.batches;
-            var ind = batches.indexOf($scope.selectedBatch) - 1;
-            var deleted = ProductBatchSummaryOperations.deleteBatches();
-            if (deleted > 0) {
-                if (ind < 0) {
-                    ind = 0;
+            events.push($scope.$on('batch-summary-row-deselected', onRowDeSelected));
+
+            events.push($scope.$watch('share.stoichTable', function (stoichTable) {
+                if (stoichTable && stoichTable.reactants && getProductBatchDetails()) {
+                    getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function (item) {
+                        return item.compoundId || item.fullNbkBatch;
+                    }), function (val) {
+                        return !!val;
+                    }).join(', ');
                 }
-                if (batches.length > 0) {
-                    $scope.selectedBatch = batches[ind];
-                    $scope.onSelectBatch();
-                } else {
-                    onRowDeSelected();
-                }
-            }
-        };
-        $scope.isIntendedSynced = function() {
-            var intended = ProductBatchSummaryOperations.getIntendedNotInActual();
+            }, true));
 
-            return intended ? !intended.length : true;
-        };
-
-        $scope.syncWithIntendedProducts = function() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
-                $scope.selectedBatch = batch;
-                $scope.onSelectBatch();
+            $scope.$on('$destroy', function() {
+                _.each(events, function(event) {
+                    event();
+                });
             });
-        };
-
-        $scope.registerBatches = function() {
-            $scope.loading = ProductBatchSummaryOperations.registerBatches();
-        };
-
-        $scope.importSDFile = function() {
-            $scope.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile(function() {
-                $scope.importLoading = false;
-            });
-        };
-
-        $scope.exportSDFile = function() {
-            ProductBatchSummaryOperations.exportSDFile();
-        };
-
-        $scope.editSolubility = function() {
-            var callback = function(result) {
-                getProductBatchDetails().solubility = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editSolubility(getProductBatchDetails().solubility, callback);
-        };
-        $scope.editResidualSolvents = function() {
-            var callback = function(result) {
-                getProductBatchDetails().residualSolvents = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents, callback);
-        };
-        $scope.editExternalSupplier = function() {
-            var callback = function(result) {
-                getProductBatchDetails().externalSupplier = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editExternalSupplier(getProductBatchDetails().externalSupplier, callback);
-        };
-        $scope.editMeltingPoint = function() {
-            var callback = function(result) {
-                getProductBatchDetails().meltingPoint = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editMeltingPoint(getProductBatchDetails().meltingPoint, callback);
-        };
-        $scope.editPurity = function() {
-            var callback = function(result) {
-                getProductBatchDetails().purity = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editPurity(getProductBatchDetails().purity, callback);
-        };
-        $scope.editHealthHazards = function() {
-            var callback = function(result) {
-                getProductBatchDetails().healthHazards = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editHealthHazards(getProductBatchDetails().healthHazards, callback);
-        };
-        $scope.editHandlingPrecautions = function() {
-            var callback = function(result) {
-                getProductBatchDetails().handlingPrecautions = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editHandlingPrecautions(getProductBatchDetails().handlingPrecautions, callback);
-        };
-        $scope.editStorageInstructions = function() {
-            var callback = function(result) {
-                getProductBatchDetails().storageInstructions = result;
-                $scope.experimentForm.$setDirty();
-            };
-            InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
-        };
-        $scope.canEditSaltEq = function() {
-            var o = $scope.model.productBatchDetails;
-
-            return o.saltCode && o.saltCode.value != 0;
-        };
-
-        $scope.recalculateSalt = function(reagent) {
-            var o = $scope.model.productBatchDetails;
-            if (o.saltCode.value == 0) {
-                o.saltEq.value = 0;
-            } else {
-                o.saltEq.value = Math.abs(o.saltEq.value);
-            }
-            CalculationService.recalculateSalt(reagent).then(function() {
-                CalculationService.recalculateStoich();
-            });
-        };
-
-        var unsubscribe = $scope.$watch('share.stoichTable', function(stoichTable) {
-            if (stoichTable && stoichTable.reactants) {
-                getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function(item) {
-                    return item.compoundId || item.fullNbkBatch;
-                }), function(val) {
-                    return !!val;
-                }).join(', ');
-            }
-        }, true);
-        $scope.$on('$destroy', function() {
-            unsubscribe();
-        });
+        }
     }
 })();

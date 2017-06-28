@@ -491,7 +491,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].residualSolvents : {};
+            var data = rows.length === 1 ? rows[0].residualSolvents : {};
             InfoEditor.editResidualSolvents(data || {}, callback);
         }
 
@@ -502,7 +502,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].solubility : {};
+            var data = rows.length === 1 ? rows[0].solubility : {};
             InfoEditor.editSolubility(data || {}, callback);
         }
 
@@ -513,7 +513,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].handlingPrecautions : {};
+            var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
             InfoEditor.editHandlingPrecautions(data || {}, callback);
         }
 
@@ -523,7 +523,7 @@
                     row.storageInstructions = result;
                 });
             };
-            var data = rows.length == 1 ? rows[0].storageInstructions : {};
+            var data = rows.length === 1 ? rows[0].storageInstructions : {};
             InfoEditor.editStorageInstructions(data || {}, callback);
         }
 
@@ -611,7 +611,7 @@
                 id: 'precursors'
             }).readonly = true;
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
-                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT';
+                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
             })
                 .map(function(r) {
                     return r.compoundId || r.fullNbkBatch;
@@ -724,7 +724,7 @@
                 return null;
             }
 
-            return compounds[0].name == batch.batchType ? compounds[0] : compounds[1];
+            return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
         }
 
         function bindEvents() {
