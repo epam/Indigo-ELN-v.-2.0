@@ -16,7 +16,6 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -47,22 +46,26 @@ public class EntitySearchRepository {
     private ExperimentRepository experimentRepository;
 
     public List<EntitySearchResultDTO> findEntities(User user, EntitySearchRequest searchRequest, List<String> bingoIds) {
+        Optional<List<EntitySearchResultDTO>> projectResult = Optional.empty();
+        Optional<List<EntitySearchResultDTO>> notebookResult = Optional.empty();
 
-        final Optional<List<EntitySearchResultDTO>> projectResult = findProjectsIds(searchRequest).map(ids -> {
-            final Iterable<Project> projects = projectRepository.findAll(ids);
-            return StreamSupport.stream(projects.spliterator(), false).filter(
-                    p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
-        });
+        if (bingoIds.isEmpty()){
+            projectResult = projectSearchRepository.search(searchRequest).map(ids -> {
+                final Iterable<Project> projects = projectRepository.findAll(ids);
+                return StreamSupport.stream(projects.spliterator(), false).filter(
+                        p -> PermissionUtil.hasPermissions(user.getId(), p.getAccessList(), UserPermission.READ_ENTITY)
+                ).map(ProjectDTO::new).map(this::convert).collect(Collectors.toList());
+            });
 
-        final Optional<List<EntitySearchResultDTO>> notebookResult = findNotebooksIds(searchRequest).map(ids -> {
-            final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
-            return StreamSupport.stream(notebooks.spliterator(), false).filter(
-                    n -> PermissionUtil.hasPermissions(user.getId(), n.getAccessList(), UserPermission.READ_ENTITY)
-            ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
-        });
+            notebookResult = notebookSearchRepository.search(searchRequest).map(ids -> {
+                final Iterable<Notebook> notebooks = notebookRepository.findAll(ids);
+                return StreamSupport.stream(notebooks.spliterator(), false).filter(
+                        n -> PermissionUtil.hasPermissions(user.getId(), n.getAccessList(), UserPermission.READ_ENTITY)
+                ).map(NotebookDTO::new).map(this::convert).collect(Collectors.toList());
+            });
+        }
 
-        final Optional<List<EntitySearchResultDTO>> experimentResult = findExperimentsIds(searchRequest, bingoIds).map(ids -> {
+        final Optional<List<EntitySearchResultDTO>> experimentResult = experimentSearchRepository.search(searchRequest, bingoIds).map(ids -> {
             final Iterable<Experiment> experiments = experimentRepository.findAll(ids);
 
             Map<String, String> notebookNameMap = new HashMap<>();
@@ -87,14 +90,6 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Set<String>> findProjectsIds(EntitySearchRequest request) {
-        if (request.getSearchQuery().isPresent()) {
-            return projectSearchRepository.withQuerySearch(request.getSearchQuery().get());
-        } else {
-            return projectSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
-        }
-    }
-
     private EntitySearchResultDTO convert(ProjectDTO project) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_PROJECT);
@@ -102,14 +97,6 @@ public class EntitySearchRepository {
         result.setDetails(getDetails(project));
         result.setProjectId(project.getId());
         return result;
-    }
-
-    private Optional<Set<String>> findNotebooksIds(EntitySearchRequest request) {
-        if (request.getSearchQuery().isPresent()) {
-            return notebookSearchRepository.withQuerySearch(request.getSearchQuery().get());
-        } else {
-            return notebookSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
-        }
     }
 
     private EntitySearchResultDTO convert(NotebookDTO notebook) {
@@ -122,23 +109,12 @@ public class EntitySearchRepository {
         return result;
     }
 
-    private Optional<Set<String>> findExperimentsIds(EntitySearchRequest request, List<String> bingoIds) {
-        if (!bingoIds.isEmpty()) {
-            final StructureSearchType type = request.getStructure().get().getType().getName();
-            return experimentSearchRepository.withBingoIds(type, bingoIds);
-        } else if (request.getSearchQuery().isPresent()) {
-            return experimentSearchRepository.withQuerySearch(request.getSearchQuery().get());
-        } else {
-            return experimentSearchRepository.withAdvancedCriteria(request.getAdvancedSearch());
-        }
-    }
-
     private EntitySearchResultDTO convert(String notebookName, ExperimentDTO experiment) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_EXPERIMENT);
         if (experiment.getExperimentVersion() > 1 || !experiment.isLastVersion()) {
             result.setName(notebookName + "-" + experiment.getName() + " v" + experiment.getExperimentVersion());
-        }else {
+        } else {
             result.setName(notebookName + "-" + experiment.getName());
         }
         result.setDetails(getDetails(experiment));
@@ -163,7 +139,10 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
         EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
         details.setCreationDate(dto.getCreationDate());
-        details.setAuthor(dto.getAuthor().getFullName());
+        if (details.getAuthor() != null){
+            details.setAuthor(dto.getAuthor().getFullName());
+
+        }
         return details;
     }
 

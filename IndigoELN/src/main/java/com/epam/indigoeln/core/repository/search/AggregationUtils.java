@@ -1,14 +1,12 @@
 package com.epam.indigoeln.core.repository.search;
 
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.mongodb.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -42,13 +40,13 @@ public final class AggregationUtils {
         final Criteria criteria = Criteria.where(prefix + field);
         switch (condition) {
             case "contains":
-                criteria.regex(".*" + value + ".*","i");
+                criteria.regex(".*" + value + ".*", "i");
                 break;
             case "starts with":
-                criteria.regex(value + ".*","i");
+                criteria.regex(value + ".*", "i");
                 break;
             case "ends with":
-                criteria.regex(".*" + value,"i");
+                criteria.regex(".*" + value, "i");
                 break;
             case "in":
                 criteria.in(convertToCollection(value));
@@ -72,6 +70,18 @@ public final class AggregationUtils {
                 criteria.is(value);
         }
         return criteria;
+    }
+
+    public static <T> Optional<T> andCriteria(Function<Criteria, T> find, Optional<Criteria>... mas) {
+        ArrayList<Criteria> searchCriteria = new ArrayList<>();
+        for (Optional<Criteria> criteria : mas) {
+            criteria.ifPresent(searchCriteria::add);
+        }
+        if (!searchCriteria.isEmpty()) {
+            return Optional.of(new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))).map(find::apply);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private static Collection<?> convertToCollection(Object obj) {
