@@ -31,13 +31,15 @@
                            indigo-readonly="!vm.isEditAllowed"
                            indigo-model="vm.experiment.components"
                            indigo-experiment-form="experimentForm"
-                           indigo-experiment="vm.experiment"></indigo-components>
+                           indigo-experiment="vm.experiment"
+                           indigo-save-experiment-fn="vm.saveCurrent()">
+        </indigo-components>
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
            <button type="button" class="btn btn-default" ng-disabled = "!vm.canUndo()" ng-click="vm.undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
-            </button>  
+            </button>
             <button  type="button" class="btn btn-default" ng-disabled = "!vm.canRedo()" ng-click="vm.redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
