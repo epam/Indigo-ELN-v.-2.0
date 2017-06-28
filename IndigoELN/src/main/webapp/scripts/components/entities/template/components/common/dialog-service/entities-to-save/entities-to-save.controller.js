@@ -1,8 +1,8 @@
 angular
     .module('indigoeln')
-    .controller('entitiesToSaveController', entitiesToSaveController);
+    .controller('EntitiesToSaveController', EntitiesToSaveController);
 
-function entitiesToSaveController($uibModalInstance, data) {
+function EntitiesToSaveController($uibModalInstance, data) {
     var vm = this;
 
     init();

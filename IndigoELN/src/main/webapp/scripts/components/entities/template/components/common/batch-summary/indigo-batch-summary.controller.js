@@ -491,7 +491,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].residualSolvents : {};
+            var data = rows.length === 1 ? rows[0].residualSolvents : {};
             InfoEditor.editResidualSolvents(data || {}, callback);
         }
 
@@ -502,8 +502,9 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].solubility : {};
-            InfoEditor.editSolubility(data || {}, callback);
+            if (rows.length === 1) {
+                InfoEditor.editSolubility(rows[0].solubility, callback);
+            }
         }
 
         function editHandlingPrecautions(rows) {
@@ -513,7 +514,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].handlingPrecautions : {};
+            var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
             InfoEditor.editHandlingPrecautions(data || {}, callback);
         }
 
@@ -523,7 +524,7 @@
                     row.storageInstructions = result;
                 });
             };
-            var data = rows.length == 1 ? rows[0].storageInstructions : {};
+            var data = rows.length === 1 ? rows[0].storageInstructions : {};
             InfoEditor.editStorageInstructions(data || {}, callback);
         }
 
@@ -611,7 +612,7 @@
                 id: 'precursors'
             }).readonly = true;
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
-                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT';
+                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
             })
                 .map(function(r) {
                     return r.compoundId || r.fullNbkBatch;

@@ -15,20 +15,22 @@ function infoEditor($uibModal) {
         editStorageInstructions: editStorageInstructions
     };
 
-    function editSolubility(data, callback) {
-        $uibModal.open({
+    function editSolubility(solubility, callback) {
+        return $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'editSolubilityController',
+            controller: 'EditSolubilityController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-solubility/edit-solubility.html',
             resolve: {
-                data: function() {
-                    return data;
+                solubility: function() {
+                    return solubility;
                 }
             }
         }).result.then(function(result) {
             callback(result);
+
+            return result;
         });
     }
 
@@ -36,7 +38,7 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'editResidualSolventsController',
+            controller: 'EditResidualSolventsController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.html',
             resolve: {
@@ -53,7 +55,7 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'editExternalSupplierController',
+            controller: 'EditExternalSupplierController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-external-supplier/edit-external-supplier.html',
             resolve: {
@@ -70,7 +72,7 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'editMeltingPointController',
+            controller: 'EditMeltingPointController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-melting-point/edit-melting-point.html',
             resolve: {
@@ -87,7 +89,7 @@ function infoEditor($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'lg',
-            controller: 'editPurityController',
+            controller: 'EditPurityController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-purity/edit-purity.html',
             resolve: {

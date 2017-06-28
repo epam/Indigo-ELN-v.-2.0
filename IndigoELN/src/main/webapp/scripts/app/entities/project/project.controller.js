@@ -76,7 +76,7 @@
                 vm.project.accessList = PermissionManagement.getAccessList();
             });
 
-            var unsubscribeExp = $scope.$watch('project', function() {
+            var unsubscribeExp = $scope.$watch('vm.project', function() {
                 EntitiesBrowser.setCurrentEntity(vm.project);
             });
 
