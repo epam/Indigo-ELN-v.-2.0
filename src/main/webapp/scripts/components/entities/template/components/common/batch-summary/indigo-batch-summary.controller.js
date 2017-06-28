@@ -693,7 +693,9 @@
         }
 
         function registerBatches() {
-            vm.loading = ProductBatchSummaryOperations.registerBatches();
+            vm.loading = vm.indigoSaveExperimentFn().then(function() {
+                return ProductBatchSummaryOperations.registerBatches();
+            });
         }
 
         function initStructure(batches, structureType) {
