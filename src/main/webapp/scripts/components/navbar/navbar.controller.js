@@ -26,6 +26,7 @@
             });
 
             $scope.$on('$destroy', function() {
+                EntitiesCache.clearAll();
                 unsubscribe();
             });
         }
