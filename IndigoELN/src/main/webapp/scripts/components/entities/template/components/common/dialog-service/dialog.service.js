@@ -32,7 +32,7 @@ function dialogService($uibModal) {
         $uibModal.open({
             animation: true,
             size: 'md',
-            controller: 'entitiesToSaveController',
+            controller: 'EntitiesToSaveController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/dialog-service/entities-to-save/entities-to-save.html',
             resolve: {

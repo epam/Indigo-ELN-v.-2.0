@@ -502,8 +502,9 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length === 1 ? rows[0].solubility : {};
-            InfoEditor.editSolubility(data || {}, callback);
+            if (rows.length === 1) {
+                InfoEditor.editSolubility(rows[0].solubility, callback);
+            }
         }
 
         function editHandlingPrecautions(rows) {
@@ -724,7 +725,7 @@
                 return null;
             }
 
-            return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
+            return compounds[0].name == batch.batchType ? compounds[0] : compounds[1];
         }
 
         function bindEvents() {

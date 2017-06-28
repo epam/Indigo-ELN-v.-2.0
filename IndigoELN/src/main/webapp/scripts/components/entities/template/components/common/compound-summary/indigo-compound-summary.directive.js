@@ -15,6 +15,8 @@
                 isHideColumnSettings: '=',
                 onShowStructure: '&'
             },
+            bindToController: true,
+            controllerAs: 'vm',
             controller: 'IndigoCompoundSummaryController'
         };
     }
