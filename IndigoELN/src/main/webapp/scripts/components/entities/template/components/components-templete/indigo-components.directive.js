@@ -15,7 +15,8 @@
                 indigoReadonly: '=',
                 indigoModel: '=',
                 indigoExperiment: '=',
-                indigoExperimentForm: '='
+                indigoExperimentForm: '=',
+                indigoSaveExperimentFn: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html'

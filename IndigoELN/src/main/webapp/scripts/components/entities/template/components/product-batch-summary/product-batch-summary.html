@@ -16,6 +16,12 @@
                 </div>
             </div>
         </div>
-        <indigo-batch-summary model="model" share="share" experiment-name="experiment.name" on-show-structure="showStructure(isVisible)" structure-size="structureSize"></indigo-batch-summary>
+        <indigo-batch-summary model="model"
+                              share="share"
+                              experiment-name="experiment.name"
+                              on-show-structure="showStructure(isVisible)"
+                              structure-size="structureSize"
+                              indigo-save-experiment-fn="indigoSaveExperimentFn()"
+        ></indigo-batch-summary>
     </div>
 </div>
