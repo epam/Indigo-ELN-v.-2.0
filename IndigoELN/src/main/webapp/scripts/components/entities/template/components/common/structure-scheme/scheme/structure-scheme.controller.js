@@ -151,6 +151,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function openEditor($event) {
+        initModel();
         $event.stopPropagation();
         if (vm.readonly) {
             return;
