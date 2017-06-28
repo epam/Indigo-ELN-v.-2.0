@@ -17,6 +17,7 @@ function selectService($uibModal, RegistrationUtil) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/select/set-select-value.html',
             controller: 'SetSelectValueController',
+            controllerAs: 'vm',
             size: 'sm',
             resolve: {
                 name: function() {

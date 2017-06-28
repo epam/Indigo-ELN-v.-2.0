@@ -6,7 +6,6 @@
     function indigoTable() {
         return {
             restrict: 'E',
-            replace: true,
             transclude: true,
             scope: {
                 indigoId: '@',
@@ -22,6 +21,8 @@
                 indigoSearchColumns: '='
             },
             controller: 'IndigoTableController',
+            controllerAs: 'vm',
+            bindToController: true,
             compile: compile,
             templateUrl: 'scripts/components/entities/template/components/common/table/table.html'
         };
