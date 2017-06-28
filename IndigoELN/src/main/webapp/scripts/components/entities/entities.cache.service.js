@@ -8,6 +8,8 @@ function entitiesCache(CacheFactory, TabKeyUtils) {
 
     return {
         put: put,
+        putByName: putByName,
+        getByName: getByName,
         get: get,
         getByKey: getByKey,
         removeByKey: removeByKey,
@@ -17,6 +19,14 @@ function entitiesCache(CacheFactory, TabKeyUtils) {
 
     function put(stateParams, data) {
         entitiesCache.put(TabKeyUtils.getTabKeyFromParams(stateParams), data);
+    }
+
+    function putByName(name, data) {
+        entitiesCache.put(name, data);
+    }
+
+    function getByName(name) {
+       return entitiesCache.get(name);
     }
 
     function get(stateParams) {
