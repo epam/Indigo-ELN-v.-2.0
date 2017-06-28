@@ -114,6 +114,9 @@ angular.module('indigoeln',
             resolve: {
                 authorize: function(Auth) {
                     return Auth.authorize();
+                },
+                user: function(Principal) {
+                    return Principal.identity();
                 }
             }
         }).state('navbar', {
@@ -132,7 +135,8 @@ angular.module('indigoeln',
             views: {
                 'sidebar@app_page': {
                     templateUrl: 'scripts/components/sidebar/sidebar.html',
-                    controller: 'SidebarController'
+                    controller: 'SidebarController',
+                    controllerAs: 'vm'
                 }
             }
         });
