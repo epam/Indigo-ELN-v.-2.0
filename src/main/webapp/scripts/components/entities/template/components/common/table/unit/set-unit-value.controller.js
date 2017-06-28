@@ -1,20 +1,31 @@
-angular.module('indigoeln')
+angular
+    .module('indigoeln')
     .controller('SetUnitValueController', function($scope, name, unitNames, $uibModalInstance) {
-        $scope.name = name;
-        $scope.initUnit = function() {
-            $scope.unit = unitNames[0];
-        };
-        $scope.setUnit = function(unit) {
-            $scope.unit = unit;
-        };
-        $scope.unitNames = unitNames;
-        $scope.save = function() {
+        var vm = this;
+
+        init();
+
+        function init() {
+            vm.name = name;
+            vm.unitNames = unitNames;
+            vm.unit = unitNames[0];
+
+            vm.save = save;
+            vm.clear = clear;
+            vm.setUnit = setUnit;
+        }
+
+        function save() {
             $uibModalInstance.close({
                 value: $u($scope.value, $scope.unit).val(), unit: $scope.unit
             });
-        };
+        }
 
-        $scope.clear = function() {
+        function clear() {
             $uibModalInstance.dismiss('cancel');
-        };
+        }
+
+        function setUnit(unit) {
+            vm.unit = unit;
+        }
     });
