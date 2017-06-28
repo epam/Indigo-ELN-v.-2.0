@@ -9,7 +9,7 @@
                                                  ProductBatchSummaryOperations, EntitiesBrowser) {
 
         var vm = this;
-        var _batches = vm.model.productBatchSummary.batches || [];
+        var _batches;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
@@ -54,11 +54,11 @@
         init();
 
         function init() {
+            _batches = vm.model.productBatchSummary.batches || [];
             if (vm.model.productBatchSummary) {
                 vm.model.productBatchSummary.batches = _batches;
                 ProductBatchSummaryCache.setProductBatchSummary(_batches);
             }
-
             bindEvents();
         }
 
