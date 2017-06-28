@@ -17,6 +17,7 @@ function scalarService($uibModal, RegistrationUtil, CalculationService) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/scalar/set-scalar-value.html',
             controller: 'SetScalarValueController',
+            controllerAs: 'vm',
             size: 'sm',
             resolve: {
                 name: function() {

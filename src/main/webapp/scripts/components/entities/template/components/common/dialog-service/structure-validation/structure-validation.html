@@ -2,7 +2,7 @@
     <h5 class="modal-title">Structure Validation</h5>
 </div>
 <div class="modal-body">
-    <p class="m-b20"><span class="semi-b">Search Query is:</span> {{searchQuery}}</p>
+    <p class="m-b20"><span class="semi-b">Search Query is:</span> {{vm.searchQuery}}</p>
     <div class="long-content-popup">
         <table class="table" id="search-result-table">
             <thead class="search-table-head">
@@ -13,9 +13,9 @@
                 <th>Mol. Formula</th>
             </tr>
             </thead>
-            <tbody ng-repeat="item in batches track by $index">
-            <tr class=" clickable" ng-class="{'search-table-row-highlight':item.$$isSelected}"
-                ng-click="selectBatch(item)">
+            <tbody ng-repeat="item in vm.batches track by $index">
+            <tr class="clickable" ng-class="{'search-table-row-highlight': item.$$isSelected}"
+                ng-click="vm.selectBatch(item)">
                 <td>{{item.compoundId}}</td>
                 <td>{{item.fullNbkBatch}}</td>
                 <td>{{item.molWeight.value | round}}</td>
@@ -27,10 +27,10 @@
     <hr>
     <div class="row">
         <div class="col-xs-6">
-            <div ng-if="selectedBatch">
+            <div ng-if="vm.selectedBatch">
                 <div style="height: 100%;">
                     <img class="img-responsive center-block"
-                         ng-src="data:image/svg+xml;base64,{{selectedBatch.structure.image}}"
+                         ng-src="data:image/svg+xml;base64,{{vm.selectedBatch.structure.image}}"
                          alt="Image is unavailable.">
                 </div>
             </div>
@@ -40,59 +40,61 @@
                 <div class="col-xs-6">
                     <p>Chemical Name:</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.chemicalName}}</p>
+                    <p>{{vm.selectedBatch.chemicalName}}</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p>Compound ID:</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.compoundId}}</p>
+                    <p>{{vm.selectedBatch.compoundId}}</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p>Conv. Batch #:</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.conversationalBatchNumber}}</p>
+                    <p>{{vm.selectedBatch.conversationalBatchNumber}}</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p>Batch Mol. Wt. (calc'd):</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.molWeight.value | round}}</p>
+                    <p>{{vm.selectedBatch.molWeight.value | round}}</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6">
                     <p>Molecular Formula (calc'd):</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.formula}}</p>
+                    <p>{{vm.selectedBatch.formula}}</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-6"><p>
                     Salt Code:</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.saltCode.name === defaultSaltCodeName ? '00' :
-                        selectedBatch.saltCode.name }}</p>
+                    <p ng-bind="vm.selectedBatch.saltCode.name === vm.defaultSaltCodeName ? '00' :
+                        vm.selectedBatch.saltCode.name"></p>
                 </div>
             </div>
             <div class="row">
-                <div class="col-xs-6"><p>
-                    Salt EQ:</p></div>
                 <div class="col-xs-6">
-                    <p>{{selectedBatch.saltEq.value}}</p>
+                    <p>Salt EQ:</p>
+                </div>
+                <div class="col-xs-6">
+                    <p>{{vm.selectedBatch.saltEq.value}}</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" type="button" ng-click="cancel()">
+    <button class="btn btn-default" type="button" ng-click="vm.cancel()">
         <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
     </button>
-    <button class="btn btn-primary" type="button" ng-disabled="!selectedBatch" ng-click="save()">Use this structure
+    <button class="btn btn-primary" type="button" ng-disabled="!vm.selectedBatch" ng-click="vm.save()">Use this
+        structure
     </button>
 </div>

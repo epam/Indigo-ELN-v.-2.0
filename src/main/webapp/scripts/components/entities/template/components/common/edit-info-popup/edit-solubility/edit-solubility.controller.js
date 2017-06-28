@@ -1,16 +1,14 @@
 angular
     .module('indigoeln')
-    .controller('editSolubilityController', editSolubilityController);
+    .controller('EditSolubilityController', EditSolubilityController);
 
-function editSolubilityController($uibModalInstance, data) {
+function EditSolubilityController($scope, $uibModalInstance, solubility) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.solubility = data || {};
-        vm.solubility.data = vm.solubility.data || [];
-
+        vm.solubility = getSolubility();
         vm.solubilityTypeSelect = [
             {
                 name: 'Quantitative'
@@ -56,8 +54,15 @@ function editSolubilityController($uibModalInstance, data) {
         vm.removeAll = removeAll;
     }
 
+    function getSolubility() {
+        var newSolubility = solubility || {};
+        newSolubility.data = solubility.data || [];
+
+        return newSolubility;
+    }
+
     function addSolvent() {
-        vm.solubility.data.push({
+        $scope.solubility.data.push({
             solventName: {},
             type: {},
             value: {},
@@ -66,15 +71,15 @@ function editSolubilityController($uibModalInstance, data) {
     }
 
     function remove(solvent) {
-        vm.solubility.data = _.without(vm.solubility.data, solvent);
+        $scope.solubility.data = _.without($scope.solubility.data, solvent);
     }
 
     function removeAll() {
-        vm.solubility.data = [];
+        $scope.solubility.data = [];
     }
 
     function resultToString() {
-        var solubilityStrings = _.map(vm.solubility.data, function(solubility) {
+        var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
             var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
             var type = solubility.type && solubility.type.name ? solubility.type.name : null;
             var value = solubility.value && solubility.value.value ? solubility.value : null;
@@ -95,8 +100,8 @@ function editSolubilityController($uibModalInstance, data) {
     }
 
     function save() {
-        vm.solubility.asString = resultToString();
-        $uibModalInstance.close(vm.solubility);
+        $scope.solubility.asString = resultToString();
+        $uibModalInstance.close($scope.solubility);
     }
 
     function cancel() {
