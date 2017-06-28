@@ -17,7 +17,7 @@
                 onShowStructure: '&'
             },
             bindToController: true,
-            controller: 'indigoBatchSummaryController',
+            controller: 'IndigoBatchSummaryController',
             controllerAs: 'vm'
         };
     }
