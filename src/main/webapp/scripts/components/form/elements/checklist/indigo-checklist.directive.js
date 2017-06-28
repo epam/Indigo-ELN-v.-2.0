@@ -3,6 +3,7 @@
         .module('indigoeln')
         .directive('indigoChecklist', indigoChecklist);
 
+    //TODO This directive isn't used anywhere in the project
     function indigoChecklist() {
         return {
             restrict: 'E',
@@ -12,17 +13,23 @@
                 indigoLabel: '@'
             },
             controller: controller,
+            controllerAs: 'vm',
+            bindToController: true,
             templateUrl: 'scripts/components/form/elements/checklist/checklist.html'
         };
 
         /* @ngInject */
-        function controller($scope) {
-            $scope.allItemsSelected = false;
-            $scope.selectAll = function() {
-                for (var i = 0; i < $scope.indigoItems.length; i++) {
-                    $scope.indigoItems[i].isChecked = $scope.allItemsSelected;
+        function controller() {
+            var vm = this;
+
+            vm.allItemsSelected = false;
+            vm.selectAll = selectAll;
+
+            function selectAll() {
+                for (var i = 0; i < vm.indigoItems.length; i++) {
+                    vm.indigoItems[i].isChecked = vm.allItemsSelected;
                 }
-            };
+            }
         }
     }
 })();

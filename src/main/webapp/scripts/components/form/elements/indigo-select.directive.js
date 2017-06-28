@@ -26,6 +26,8 @@
                 indigoReadonly: '='
             },
             controller: controller,
+            controllerAs: 'vm',
+            bindToController: true,
             compile: compile,
             template: function(tElement, tAttrs) {
                 var itemProp = tAttrs.indigoItemProp || 'name';
@@ -37,12 +39,14 @@
                         return memo + (memo.length > 0 ? ' - ' : '') + num;
                     }, '').value();
 
-                return '<div class="form-group {{indigoClasses}}">' +
-                    '<label>{{indigoLabel}}</label>' +
+                return '<div class="form-group {{vm.indigoClasses}}">' +
+                    '<label ng-bind="vm.indigoLabel"></label>' +
                     // '<div class="col-xs-10">' +
-                    '<ui-select ng-model="ctrl.selected" theme="bootstrap" ng-disabled="indigoReadonly" onkeypress="return false;" on-select="indigoChange()" on-remove="indigoRemove()" append-to-body="true">' +
-                    '<ui-select-match placeholder="{{indigoPlaceHolder}}" >' + content + '</ui-select-match>' +
-                    '<ui-select-choices repeat="item in indigoItems | filter: $select.search">' +
+                    '<ui-select ng-model="vm.ctrl.selected" theme="bootstrap" ng-disabled="vm.indigoReadonly"' +
+                    ' onkeypress="return false;" on-select="vm.indigoChange()" on-remove="vm.indigoRemove()"' +
+                    ' append-to-body="true">' +
+                    '<ui-select-match placeholder="{{vm.indigoPlaceHolder}}" >' + content + '</ui-select-match>' +
+                    '<ui-select-choices repeat="item in vm.indigoItems | filter: $select.search">' +
                     '</ui-select-choices>' +
                     '</ui-select>' +
                     // '</div>' +
@@ -78,32 +82,39 @@
 
         /* @ngInject */
         function controller($scope, Dictionary) {
-            $scope.ctrl = {
-                selected: $scope.indigoModel
-            };
+            var vm = this;
 
-            $scope.control = $scope.indigoControl || {};
+            vm.ctrl = {selected: vm.indigoModel};
+            vm.control = vm.indigoControl || {};
+            vm.control.setSelection = setSelection;
+            vm.control.unSelect = unSelect;
 
-            $scope.control.setSelection = function(select) {
-                $scope.ctrl.selected = select;
-            };
+            init();
 
-            $scope.control.unSelect = function() {
-                $scope.ctrl.selected = {};
-            };
+            function setSelection(select) {
+                vm.ctrl.selected = select;
+            }
 
-            $scope.$watchCollection('ctrl.selected', function(newSelected) {
-                $scope.indigoModel = newSelected;
-            });
-            $scope.$watchCollection('indigoModel', function(indigoModel) {
-                $scope.ctrl.selected = indigoModel;
-            });
-            if ($scope.indigoDictionary) {
-                Dictionary.getByName({
-                    name: $scope.indigoDictionary
-                }, function(dictionary) {
-                    $scope.indigoItems = dictionary.words;
+            function unSelect() {
+                vm.ctrl.selected = {};
+            }
+
+            function init() {
+                $scope.$watchCollection('vm.ctrl.selected', function(newSelected) {
+                    vm.indigoModel = newSelected;
                 });
+
+                $scope.$watchCollection('vm.indigoModel', function(indigoModel) {
+                    vm.ctrl.selected = indigoModel;
+                });
+
+                if (vm.indigoDictionary) {
+                    Dictionary.getByName({
+                        name: vm.indigoDictionary
+                    }, function(dictionary) {
+                        vm.indigoItems = dictionary.words;
+                    });
+                }
             }
         }
     }
