@@ -725,7 +725,7 @@
                 return null;
             }
 
-            return compounds[0].name == batch.batchType ? compounds[0] : compounds[1];
+            return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
         }
 
         function bindEvents() {
