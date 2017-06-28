@@ -2,7 +2,7 @@ package com.epam.indigoeln.core.repository.search.entity;
 
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
-import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
+import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.mongodb.BasicDBList;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +12,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
-
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -49,26 +44,48 @@ public class ProjectSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<String>> withQuerySearch(String querySearch) {
-        List<Criteria> searchCriteria = SEARCH_QUERY_FIELDS.stream().map(
-                field -> Criteria.where(field).regex(".*" + querySearch + ".*","i")).
-                collect(toList());
-        return Optional.of(searchCriteria).map(ac ->
-                        new Criteria().orOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))
-        ).map(this::find);
+    public Optional<Set<String>> search(EntitySearchRequest request) {
+        Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
+        Optional<Criteria> queryCriteria = getQueryCriteria(request);
+        return AggregationUtils.andCriteria(this::find, advancedCriteria, queryCriteria);
     }
 
-    public Optional<Set<String>> withAdvancedCriteria(List<SearchCriterion> criteria) {
-        List<Criteria> searchCriteria = criteria.stream()
-                .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
+    private Optional<Criteria> getAdvancedCriteria(EntitySearchRequest request) {
+        if (!request.getAdvancedSearch().stream().allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()))){
+            return Optional.empty();
+        }
+
+        List<Criteria> advancedSearch = request.getAdvancedSearch().stream()
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        if (searchCriteria.isEmpty()) {
+
+        if (!advancedSearch.isEmpty()) {
+            return Optional.of(new Criteria().andOperator(advancedSearch.toArray(new Criteria[advancedSearch.size()])));
+        }else {
             return Optional.empty();
-        } else {
-            return Optional.of(searchCriteria).map(ac ->
-                            new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))
-            ).map(this::find);
+        }
+    }
+
+    private Optional<Criteria> getQueryCriteria(EntitySearchRequest request) {
+        if (!request.getAdvancedSearch().stream().allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()))){
+            return Optional.empty();
+        }
+
+        List<String> fields = request.getAdvancedSearch().stream()
+                .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
+                .map(c -> c.getField())
+                .collect(toList());
+
+        List<Criteria> querySearch = new ArrayList<>();
+        request.getSearchQuery().ifPresent(query -> SEARCH_QUERY_FIELDS.stream()
+                .filter(field -> !fields.contains(field))
+                .map(field -> Criteria.where(field).regex(".*" + query + ".*", "i"))
+                .forEach(querySearch::add));
+
+        if (!querySearch.isEmpty()) {
+            return Optional.of(new Criteria().orOperator(querySearch.toArray(new Criteria[querySearch.size()])));
+        }else {
+            return Optional.empty();
         }
     }
 
