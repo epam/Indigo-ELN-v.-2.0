@@ -3,9 +3,9 @@ angular
     .factory('SdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
-                         AlertModal, Alert, CalculationService, StoichTableCache, sdProperties) {
-    var properties = getImportProperties();
+function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstants,
+                         AlertModal, Alert, CalculationService, StoichTableCache, sdProperties, SdImportHelperService) {
+
     var auxPrefixes = [
         'COMPOUND_REGISTRATION_'
     ];
@@ -14,32 +14,27 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
         importFile: importFile
     };
 
-    function getImportProperties() {
-        var properties = {};
-        _.each(sdProperties.constants, function(prop) {
-            var fields = prop.import;
-            if (fields.format) {
-                if (properties[fields.name]) {
-                    properties[fields.name][properties[fields.name].length] = {
-                        code: fields.code,
-                        format: fields.format
-                    };
-                } else {
-                    properties[fields.name] = [{
-                        code: fields.code,
-                        format: fields.format
-                    }];
-                }
-            } else {
-                properties[fields.name] = [{
-                    code: fields.code
-                }];
-            }
-        });
-
-        return properties;
+    function formatProperty(property, value, dicts) {
+        if (SdImportHelperService.additionalFormatFunctions[property.code]) {
+            return SdImportHelperService.additionalFormatFunctions[property.code](property, value);
+        }
+        return getWord(property.propName, property.subPropName, value, dicts);
     }
 
+    function getWord(propName, subPropName, value, dicts) {
+        var item = _.find(dicts, function (dict) {
+            return dict.name === propName;
+        });
+        if (item) {
+            return getItem(item.words, subPropName, value);
+        }
+    }
+
+    function getItem(list, prop, value) {
+        return _.find(list, function (item) {
+            return item[prop].toUpperCase() === value.toUpperCase();
+        });
+    }
 
     function saveMolecule(mol) {
         var deferred = $q.defer();
@@ -47,7 +42,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
             url: 'api/bingodb/molecule/',
             method: 'POST',
             data: mol
-        }).success(function(structureId) {
+        }).success(function (structureId) {
             deferred.resolve(structureId);
         });
 
@@ -56,36 +51,33 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
 
     function fillProperties(sdUnitToImport, itemToImport, dicts) {
         if (sdUnitToImport.properties) {
-            _.each(properties, function(property, name) {
-                _.each(property, function(item) {
-                    var value = sdUnitToImport.properties[item.code];
-                    if (!value) {
-                        value = _.chain(auxPrefixes)
-                                .map(function(auxPrefix) {
-                                    return auxPrefix + item.code;
-                                })
-                                .map(function(code) {
-                                    return sdUnitToImport.properties[code];
-                                })
-                                .find(function(val) {
-                                    return !_.isUndefined(val);
-                                })
-                                .value();
+            _.each(SdConstants, function (property, propName) {
+                var value = sdUnitToImport.properties[property.code];
+                if (!value) {
+                    value = _.chain(auxPrefixes)
+                        .map(function (auxPrefix) {
+                            return auxPrefix + propName;
+                        })
+                        .map(function (code) {
+                            return sdUnitToImport.properties[code];
+                        })
+                        .find(function (val) {
+                            return !_.isUndefined(val);
+                        }).value();
+                }
+                if (value) {
+                    value = formatProperty(property, value, dicts);
+                }
+                if (value) {
+                    if (itemToImport[property.name]) {
+                        angular.merge(itemToImport[property.name], value);
+                    } else {
+                        itemToImport[property.name] = value;
                     }
-                    if (value && _.isFunction(item.format)) {
-                        value = item.format(dicts, value);
-                    }
-                    if (value) {
-                        if (itemToImport[name]) {
-                            angular.merge(itemToImport[name], value);
-                        } else {
-                            itemToImport[name] = value;
-                        }
-                    }
-                });
+                }
             });
         }
-    }
+    };
 
     function importItems(sdUnitsToImport, dicts, i, addToTable, callback, complete) {
         if (!sdUnitsToImport[i]) {
@@ -97,8 +89,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
             return;
         }
         var sdUnitToImport = sdUnitsToImport[i];
-        saveMolecule(sdUnitToImport.mol).then(function(structureId) {
-            CalculationService.getImageForStructure(sdUnitToImport.mol, 'molecule', function(result) {
+        saveMolecule(sdUnitToImport.mol).then(function (structureId) {
+            CalculationService.getImageForStructure(sdUnitToImport.mol, 'molecule', function (result) {
                 var stoichTable = StoichTableCache.getStoicTable();
                 var itemToImport = angular.copy(CalculationService.createBatch(stoichTable, true));
                 itemToImport.structure = itemToImport.structure || {};
@@ -108,8 +100,8 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
                 itemToImport.structure.structureId = structureId;
 
                 fillProperties(sdUnitToImport, itemToImport, dicts);
-                CalculationService.recalculateSalt(itemToImport).then(function() {
-                    addToTable(itemToImport).then(function(batch) {
+                CalculationService.recalculateSalt(itemToImport).then(function () {
+                    addToTable(itemToImport).then(function (batch) {
                         if (callback && _.isFunction(callback)) {
                             callback(batch);
                         }
@@ -128,15 +120,15 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary,
             controller: 'SingleFileUploaderController',
             controllerAs: 'vm',
             resolve: {
-                url: function() {
+                url: function () {
                     return 'api/sd/import';
                 }
             }
-        }).result.then(function(result) {
-            Dictionary.all({}, function(dicts) {
+        }).result.then(function (result) {
+            Dictionary.all({}, function (dicts) {
                 importItems(result, dicts, 0, addToTable, callback, complete);
             });
-        }, function() {
+        }, function () {
             complete();
             AlertModal.error('This file cannot be imported. Error occurred.');
         });
