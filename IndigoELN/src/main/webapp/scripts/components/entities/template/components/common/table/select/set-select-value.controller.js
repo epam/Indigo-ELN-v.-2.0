@@ -3,12 +3,13 @@ angular
     .controller('SetSelectValueController', SetSelectValueController);
 
 /* @ngInject */
-function SetSelectValueController($scope, name, values, dictionary, $uibModalInstance) {
+function SetSelectValueController(id, name, values, dictionary, $uibModalInstance) {
     var vm = this;
 
     init();
 
     function init() {
+        vm.id = id;
         vm.name = name;
         vm.values = values;
         vm.dictionary = dictionary;
@@ -21,7 +22,7 @@ function SetSelectValueController($scope, name, values, dictionary, $uibModalIns
     }
 
     function save() {
-        $uibModalInstance.close($scope.wrapper.value);
+        $uibModalInstance.close(vm.wrapper.value);
     }
 
     function clear() {
