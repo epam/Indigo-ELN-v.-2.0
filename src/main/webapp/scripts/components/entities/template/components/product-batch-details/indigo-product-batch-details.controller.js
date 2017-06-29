@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('IndigoProductBatchDetailsController', IndigoProductBatchDetailsController);
@@ -50,7 +50,6 @@
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
 
-
         init();
 
         function init() {
@@ -62,9 +61,8 @@
             bindEvents();
         }
 
-
         function initSelectedBatch() {
-            $timeout(function () {
+            $timeout(function() {
                 if (_batches && _batches.length > 0) {
                     vm.selectedBatch = _batches[0];
                     onSelectBatch();
@@ -88,16 +86,15 @@
             });
         }
 
-
         function addNewBatch() {
-            ProductBatchSummaryOperations.addNewBatch().then(function (batch) {
+            ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
                 vm.selectedBatch = batch;
                 onSelectBatch();
             });
         }
 
         function duplicateBatch() {
-            ProductBatchSummaryOperations.duplicateBatch().then(function (batch) {
+            ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
                 vm.selectedBatch = batch;
                 onSelectBatch();
             });
@@ -126,7 +123,7 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function (batch) {
+            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
                 vm.selectedBatch = batch;
                 onSelectBatch();
             });
@@ -138,7 +135,7 @@
 
         function importSDFile() {
             vm.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile(function () {
+            ProductBatchSummaryOperations.importSDFile(function() {
                 vm.importLoading = false;
             });
         }
@@ -148,7 +145,7 @@
         }
 
         function editSolubility() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().solubility = result;
                 vm.experimentForm.$setDirty();
             };
@@ -156,7 +153,7 @@
         }
 
         function editResidualSolvents() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().residualSolvents = result;
                 vm.experimentForm.$setDirty();
             };
@@ -164,7 +161,7 @@
         }
 
         function editExternalSupplier() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().externalSupplier = result;
                 vm.experimentForm.$setDirty();
             };
@@ -172,7 +169,7 @@
         }
 
         function editMeltingPoint() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().meltingPoint = result;
                 vm.experimentForm.$setDirty();
             };
@@ -180,7 +177,7 @@
         }
 
         function editPurity() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().purity = result;
                 vm.experimentForm.$setDirty();
             };
@@ -188,7 +185,7 @@
         }
 
         function editHealthHazards() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().healthHazards = result;
                 vm.experimentForm.$setDirty();
             };
@@ -196,7 +193,7 @@
         }
 
         function editHandlingPrecautions() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().handlingPrecautions = result;
                 vm.experimentForm.$setDirty();
             };
@@ -204,7 +201,7 @@
         }
 
         function editStorageInstructions() {
-            var callback = function (result) {
+            var callback = function(result) {
                 getProductBatchDetails().storageInstructions = result;
                 vm.experimentForm.$setDirty();
             };
@@ -223,11 +220,10 @@
             } else {
                 o.saltEq.value = Math.abs(o.saltEq.value);
             }
-            CalculationService.recalculateSalt(reagent).then(function () {
+            CalculationService.recalculateSalt(reagent).then(function() {
                 CalculationService.recalculateStoich();
             });
         }
-
 
         vm.productTableColumns = [
             {
@@ -236,7 +232,7 @@
                 type: 'unit',
                 width: '150px',
                 unitItems: grams,
-                onClose: function (data) {
+                onClose: function(data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -247,7 +243,7 @@
                 type: 'unit',
                 width: '150px',
                 unitItems: liters,
-                onClose: function (data) {
+                onClose: function(data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -258,7 +254,7 @@
                 type: 'unit',
                 width: '150px',
                 unitItems: moles,
-                onClose: function (data) {
+                onClose: function(data) {
                     CalculationService.setEntered(data);
                     CalculationService.calculateProductBatch(data);
                 }
@@ -287,7 +283,7 @@
             {
                 id: 'registrationDate',
                 name: 'Registration Date',
-                format: function (val) {
+                format: function(val) {
                     return val ? $filter('date')(val, 'MMM DD, YYYY HH:mm:ss z') : null;
                 }
             },
@@ -303,7 +299,6 @@
         function setProductBatchDetails(batch) {
             vm.model.productBatchDetails = batch;
         }
-
 
         function setStoicTable(table) {
             stoichTable = table;
@@ -338,7 +333,7 @@
             if (!batches) {
                 return;
             }
-            batches.forEach(function (b) {
+            batches.forEach(function(b) {
                 b.select = false;
             });
             if (vm.selectedBatch) {
@@ -353,20 +348,19 @@
             vm.selectControl.unSelect();
         }
 
-
         function bindEvents() {
             var events = [];
-            events.push($scope.$on('batch-summary-row-selected', function (event, data) {
+            events.push($scope.$on('batch-summary-row-selected', function(event, data) {
                 onRowSelected(data, true);
             }));
 
             events.push($scope.$on('batch-summary-row-deselected', onRowDeSelected));
 
-            events.push($scope.$watch('share.stoichTable', function (stoichTable) {
+            events.push($scope.$watch('share.stoichTable', function(stoichTable) {
                 if (stoichTable && stoichTable.reactants && getProductBatchDetails()) {
-                    getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function (item) {
+                    getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function(item) {
                         return item.compoundId || item.fullNbkBatch;
-                    }), function (val) {
+                    }), function(val) {
                         return !!val;
                     }).join(', ');
                 }
