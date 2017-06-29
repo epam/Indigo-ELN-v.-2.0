@@ -15,8 +15,6 @@
         init();
 
         function init() {
-            showStructureColumn = getShowedStructuresColumns();
-
             vm.model = vm.model || {};
             vm.model.preferredCompoundSummary = vm.model.preferredCompoundSummary || {};
             vm.model.preferredCompoundSummary.compounds = vm.model.preferredCompoundSummary.compounds || [];
@@ -92,6 +90,8 @@
             vm.exportSDFile = exportSDFile;
             vm.isHasCheckedRows = isHasCheckedRows;
             vm.vnv = vnv;
+
+            showStructureColumn = getShowedStructuresColumns();
             bindEvents();
         }
 
@@ -118,9 +118,9 @@
         });
 
         function getLatestNbkBatch() {
-            var compounds = getCompounds();
+            var compound = _.last(getCompounds());
 
-            return compounds && compounds.length > 0 && compounds[compounds.length - 1].nbkBatch ? compounds[compounds.length - 1].nbkBatch : 0;
+            return (compound && compound.nbkBatch) || 0;
         }
 
         function requestNbkBatchNumberAndAddToTable(duplicatedCompound) {
