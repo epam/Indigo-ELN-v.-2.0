@@ -1,12 +1,19 @@
 <form id="productBatchSummarySetSelectValueForm" name="productBatchSummarySetSelectValueForm" ng-submit="vm.save()">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;</button>
-        <h5 class="modal-title">Set value for {{vm.name}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                ng-click="vm.clear()">&times;</button>
+        <h5 class="modal-title">Set value for <span ng-bind="vm.name"></span></h5>
     </div>
     <div class="modal-body">
-        <indigo-select ng-if="!vm.dictionary" indigo-items="vm.values" indigo-model="vm.wrapper.value"></indigo-select>
-        <indigo-select ng-if="vm.dictionary" indigo-dictionary="{{vm.dictionary}}"
-                       indigo-model="vm.wrapper.value"></indigo-select>
+        <indigo-select ng-if="!vm.dictionary"
+                       indigo-items="vm.values"
+                       indigo-model="vm.wrapper.value">
+        </indigo-select>
+        <indigo-select ng-if="vm.dictionary"
+                       indigo-item-prop="name,description"
+                       indigo-dictionary="{{vm.dictionary}}"
+                       indigo-model="vm.wrapper.value">
+        </indigo-select>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
