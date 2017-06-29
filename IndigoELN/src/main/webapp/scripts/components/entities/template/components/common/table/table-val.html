@@ -106,11 +106,21 @@
                     indigo-items="vm.indigoColumn.values(vm.indigoRow)" indigo-classes="form-group-sm"></indigo-select>
         </div>
         <div ng-if="vm.indigoColumn.type == 'select' && vm.indigoColumn.dictionary">
-            <indigo-select
+            <indigo-select ng-if="!vm.indigoColumn.hasCustomItemProp"
                     indigo-change="vm.indigoColumn.onChange({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id,})"
                     indigo-click="vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"
                     indigo-model="vm.indigoRow[vm.indigoColumn.id]"
-                    indigo-dictionary="{{vm.indigoColumn.dictionary}}" indigo-classes="form-group-sm"></indigo-select>
+                    indigo-dictionary="{{vm.indigoColumn.dictionary}}"
+                    indigo-classes="form-group-sm">
+            </indigo-select>
+            <indigo-select ng-if="vm.indigoColumn.hasCustomItemProp"
+                    indigo-change="vm.indigoColumn.onChange({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id,})"
+                    indigo-click="vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"
+                    indigo-model="vm.indigoRow[vm.indigoColumn.id]"
+                    indigo-item-prop="name,description"
+                    indigo-dictionary="{{vm.indigoColumn.dictionary}}"
+                    indigo-classes="form-group-sm">
+            </indigo-select>
         </div>
         <div ng-if="vm.indigoColumn.type == 'input'" class="cell-has-popup-{{vm.indigoColumn.hasPopup}}">
             <indigo-input indigo-model="vm.indigoRow[vm.indigoColumn.id]" indigo-classes="form-group-sm"

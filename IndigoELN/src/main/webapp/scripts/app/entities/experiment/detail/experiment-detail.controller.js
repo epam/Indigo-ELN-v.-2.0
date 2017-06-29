@@ -4,53 +4,59 @@
         .controller('ExperimentDetailController', ExperimentDetailController);
 
     /* @ngInject */
-    function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil, PermissionManagement,
-                                        FileUploaderCash, AutoRecoverEngine, pageInfo, EntitiesBrowser, Alert) {
+    function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
+                                        PermissionManagement, FileUploaderCash, AutoRecoverEngine, EntitiesBrowser,
+                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook) {
         var vm = this;
-        var tabName = pageInfo.notebook.name ? pageInfo.notebook.name + '-' + pageInfo.experiment.name : pageInfo.experiment.name;
-        var experimentId = pageInfo.experimentId;
-        var projectId = pageInfo.projectId;
-        var notebookId = pageInfo.notebookId;
-        var params = {
-            projectId: projectId, notebookId: notebookId, experimentId: experimentId
-        };
-        var isContentEditor = pageInfo.isContentEditor;
-        var hasEditAuthority = pageInfo.hasEditAuthority;
+        var pageInfo;
+        var tabName;
+        var params;
+        var isContentEditor;
+        var hasEditAuthority;
         var hasEditPermission;
-
-
-        // TODO: the Action drop up button should be disable in case of there is unsaved data.
-        vm.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
-        vm.experiment = pageInfo.experiment;
-        vm.notebook = pageInfo.notebook;
-        vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-
-        vm.save = save;
-        vm.completeExperiment = completeExperiment;
-        vm.completeExperimentAndSign = completeExperimentAndSign;
-        vm.reopenExperiment = reopenExperiment;
-        vm.repeatExperiment = repeatExperiment;
-        vm.versionExperiment = versionExperiment;
-        vm.printExperiment = printExperiment;
-        vm.refresh = refresh;
-        vm.saveCurrent = saveCurrent;
-        vm.isStatusOpen = isStatusOpen;
-        vm.isStatusComplete = isStatusComplete;
-        vm.isStatusSubmitFail = isStatusSubmitFail;
-        vm.isStatusSubmitted = isStatusSubmitted;
-        vm.isStatusArchieved = isStatusArchieved;
-        vm.isStatusSigned = isStatusSigned;
-        vm.isStatusSigning = isStatusSigning;
 
         init();
 
         function init() {
-            initPermissions();
-            FileUploaderCash.setFiles([]);
+            vm.isCollapsed = true;
+            vm.loading = getPageInfo().then(function(response) {
+                pageInfo = response;
+                tabName = getExperimentName(response.notebook, response.experiment);
+                params = {
+                    projectId: response.projectId,
+                    notebookId: response.notebookId,
+                    experimentId: response.experimentId
+                };
+                isContentEditor = response.isContentEditor;
+                hasEditAuthority = response.hasEditAuthority;
+                vm.experiment = response.experiment;
+                vm.notebook = response.notebook;
 
-            if (pageInfo.experiment.experimentVersion > 1 || !pageInfo.experiment.lastVersion) {
-                tabName += ' v' + pageInfo.experiment.experimentVersion;
-            }
+                initPermissions();
+                FileUploaderCash.setFiles([]);
+
+                if (response.experiment.experimentVersion > 1 || !response.experiment.lastVersion) {
+                    tabName += ' v' + response.experiment.experimentVersion;
+                }
+
+                initDirtyListener();
+                initEventListeners();
+            });
+
+            // TODO: the Action drop up button should be disable in case of there is unsaved data.
+            vm.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
+
+            vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
+
+            vm.save = save;
+            vm.completeExperiment = completeExperiment;
+            vm.completeExperimentAndSign = completeExperimentAndSign;
+            vm.reopenExperiment = reopenExperiment;
+            vm.repeatExperiment = repeatExperiment;
+            vm.versionExperiment = versionExperiment;
+            vm.printExperiment = printExperiment;
+            vm.refresh = refresh;
+            vm.saveCurrent = saveCurrent;
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -60,9 +66,49 @@
                 duplicate: repeatExperiment,
                 print: printExperiment
             });
+        }
 
-            initDirtyListener();
-            initEventListeners();
+        function getExperimentName(notebook, experiment) {
+            return notebook.name ? notebook.name + '-' + experiment.name : experiment.name;
+        }
+
+        function getPageInfo() {
+            var entityParams = {
+                projectId: $stateParams.projectId,
+                notebookId: $stateParams.notebookId,
+                experimentId: $stateParams.experimentId
+            };
+            var notebookParams = {
+                projectId: $stateParams.projectId,
+                notebookId: $stateParams.notebookId
+            };
+
+            if (!EntitiesCache.get(entityParams)) {
+                EntitiesCache.put(entityParams, AutoSaveEntitiesEngine.autoRecover(Experiment, entityParams));
+            }
+
+            if (!EntitiesCache.get(notebookParams)) {
+                EntitiesCache.put(notebookParams, Notebook.get(notebookParams).$promise);
+            }
+
+            return $q.all([
+                EntitiesCache.get(entityParams),
+                EntitiesCache.get(notebookParams),
+                Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
+                EntitiesBrowser.getTabByParams($stateParams)
+            ]).then(function(results) {
+                return {
+                    experiment: results[0],
+                    notebook: results[1],
+                    isContentEditor: results[2],
+                    hasEditAuthority: results[3],
+                    dirty: results[4] ? results[4].dirty : false,
+                    experimentId: $stateParams.experimentId,
+                    notebookId: $stateParams.notebookId,
+                    projectId: $stateParams.projectId
+                };
+            });
         }
 
         function setStatus(status) {
@@ -70,7 +116,7 @@
         }
 
         function setReadOnly() {
-            vm.isEditAllowed = (isContentEditor || hasEditAuthority && hasEditPermission) && vm.isStatusOpen();
+            vm.isEditAllowed = ((isContentEditor || hasEditAuthority) && hasEditPermission) && vm.isStatusOpen;
             $scope.experimentForm.$$isReadOnly = !vm.isEditAllowed;
         }
 
@@ -88,7 +134,6 @@
 
             return vm.loading;
         }
-
 
         function completeExperiment() {
             vm.loading = ExperimentUtil.completeExperiment(vm.experiment, params, vm.notebook.name);
@@ -150,34 +195,6 @@
             return vm.save(vm.experiment);
         }
 
-        function isStatusOpen() {
-            return vm.experiment.status === 'Open';
-        }
-
-        function isStatusComplete() {
-            return vm.experiment.status === 'Completed';
-        }
-
-        function isStatusSubmitFail() {
-            return vm.experiment.status === 'Submit_Fail';
-        }
-
-        function isStatusSubmitted() {
-            return vm.experiment.status === 'Submitted';
-        }
-
-        function isStatusArchieved() {
-            return vm.experiment.status === 'Archived';
-        }
-
-        function isStatusSigned() {
-            return vm.experiment.status === 'Signed';
-        }
-
-        function isStatusSigning() {
-            return vm.experiment.status === 'Signing';
-        }
-
         function initPermissions() {
             PermissionManagement.setEntity('Experiment');
             PermissionManagement.setAuthor(vm.experiment.author);
@@ -208,6 +225,17 @@
             }, 0, false);
         }
 
+        function updateStatuses() {
+            var status = vm.experiment.status;
+            vm.isStatusOpen = status === 'Open';
+            vm.isStatusComplete = status === 'Completed';
+            vm.isStatusSubmitFail = status === 'Submit_Fail';
+            vm.isStatusSubmitted = status === 'Submitted';
+            vm.isStatusArchieved = status === 'Archived';
+            vm.isStatusSigned = status === 'Signed';
+            vm.isStatusSigning = status === 'Signing';
+        }
+
         function initEventListeners() {
             var unsubscribeExp = $scope.$watch(function() {
                 return vm.experiment;
@@ -218,6 +246,7 @@
             var unsubscribe = $scope.$watch(function() {
                 return vm.experiment.status;
             }, function() {
+                updateStatuses();
                 setReadOnly();
             });
 
