@@ -10,6 +10,7 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
             $uibModal.open({
                 templateUrl: 'scripts/components/entities/template/components/common/table/unit/set-unit-value.html',
                 controller: 'SetUnitValueController',
+                controllerAs: 'vm',
                 size: 'sm',
                 resolve: {
                     name: function() {

@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('editMeltingPointController', editMeltingPointController);
+    .controller('EditMeltingPointController', EditMeltingPointController);
 
 /* @ngInject */
-function editMeltingPointController($uibModalInstance, data) {
+function EditMeltingPointController($uibModalInstance, data) {
     var vm = this;
 
     init();

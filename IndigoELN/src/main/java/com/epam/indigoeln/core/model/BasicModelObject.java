@@ -20,16 +20,16 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     private String id;
 
     @ReadOnlyProperty
-    private String clazz;
+    private String _class;
 
     @NotEmpty
     private String name;
 
     @CreatedDate
-    private ZonedDateTime creationDate = ZonedDateTime.now();
+    private ZonedDateTime creationDate;
 
     @LastModifiedDate
-    private ZonedDateTime lastEditDate = ZonedDateTime.now();
+    private ZonedDateTime lastEditDate;
 
     @CreatedBy
     private User author;
@@ -135,6 +135,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     @Override
     public boolean isNew() {
-        return version == null;
+        return author == null || creationDate == null;
     }
 }

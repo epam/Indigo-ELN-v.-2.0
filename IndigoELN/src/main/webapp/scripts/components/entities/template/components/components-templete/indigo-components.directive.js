@@ -15,10 +15,18 @@
                 indigoReadonly: '=',
                 indigoModel: '=',
                 indigoExperiment: '=',
-                indigoExperimentForm: '='
+                indigoExperimentForm: '=',
+                indigoSaveExperimentFn: '&'
             },
             link: link,
-            templateUrl: 'scripts/components/entities/template/components/components-templete/components.html'
+            templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
+            controllerAs: 'vm',
+            controller: function() {
+                var vm = this;
+
+                // for communication between components
+                vm.share = {};
+            }
         };
 
         /* @ngInject */
@@ -61,9 +69,6 @@
                     nostore = false;
                 });
             }, 100);
-
-            // for communication between components
-            scope.share = {};
         }
     }
 })();

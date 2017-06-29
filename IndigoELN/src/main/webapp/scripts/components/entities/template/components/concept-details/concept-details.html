@@ -7,62 +7,62 @@
             <div class="col-xs-6">
                 <indigo-input indigo-label="Concept Subject / Title" indigo-label-vertical="true"
                               indigo-name="conceptDetailsTitle"
-                              indigo-model="model.conceptDetails.title"
-                              indigo-readonly="myReadonly">
+                              indigo-model="vm.model.conceptDetails.title"
+                              indigo-readonly="vm.indigoReadonly">
                 </indigo-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
-                               indigo-model="model.conceptDetails.therapeuticArea"
+                               indigo-model="vm.model.conceptDetails.therapeuticArea"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly">
+                               indigo-readonly="vm.indigoReadonly">
                 </indigo-select>
                 <indigo-select indigo-label="Project Code & Name"
                                indigo-dictionary="Project Code & Name"
-                               indigo-model="model.conceptDetails.codeAndName"
+                               indigo-model="vm.model.conceptDetails.codeAndName"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly">
+                               indigo-readonly="vm.indigoReadonly">
                 </indigo-select>
                 <indigo-select indigo-label="Co-authors"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
-                               indigo-model="model.conceptDetails.coAuthors"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
+                               indigo-model="vm.model.conceptDetails.coAuthors"
                                indigo-multiple="true"
                 ></indigo-select>
                 <!--Experiment Creator field is hidden for current release; to make it visible, remove ng-if-->
                 <indigo-select ng-if="false"
                                indigo-label="Experiment Creator (Author)"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
-                               indigo-model="model.conceptDetails.experimentCreator"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
+                               indigo-model="vm.model.conceptDetails.experimentCreator"
                 ></indigo-select>
             </div>
             <div class="col-xs-6">
                 <indigo-date-picker indigo-label="Creation Date" indigo-label-vertical="true"
-                                    indigo-model="experiment.creationDate"
+                                    indigo-model="vm.experiment.creationDate"
                                     indigo-readonly="true"></indigo-date-picker>
                 <indigo-tag-input indigo-label="Linked Experiment"
-                                  indigo-model="model.conceptDetails.linkedExperiments"
-                                  indigo-readonly="myReadonly"
+                                  indigo-model="vm.model.conceptDetails.linkedExperiments"
+                                  indigo-readonly="vm.indigoReadonly"
                                   indigo-label-vertical="true"
-                                  indigo-on-click="onLinkedExperimentClick"
-                                  indigo-on-adding="onAddLinkedExperiment"
-                                  indigo-source="getExperiments"
+                                  indigo-on-click="vm.onLinkedExperimentClick"
+                                  indigo-on-adding="vm.onAddLinkedExperiment"
+                                  indigo-source="vm.getExperiments"
                                   indigo-placeholder="11112222-0003, 11112222-0005"
                                   indigo-classes="linkedExperiments"></indigo-tag-input>
                 <indigo-select indigo-label="Designers"
                                indigo-label-vertical="true"
-                               indigo-readonly="myReadonly"
-                               indigo-items="users"
-                               indigo-model="model.conceptDetails.designers"
+                               indigo-readonly="vm.indigoReadonly"
+                               indigo-items="vm.users"
+                               indigo-model="vm.model.conceptDetails.designers"
                                indigo-multiple="true"
                 ></indigo-select>
             </div>
         </div>
         <indigo-text-area indigo-label="Concept Keywords" indigo-label-vertical="true"
-                          indigo-model="model.conceptDetails.keywords"
-                          indigo-readonly="myReadonly">
+                          indigo-model="vm.model.conceptDetails.keywords"
+                          indigo-readonly="vm.indigoReadonly">
         </indigo-text-area>
     </div>
 </div>

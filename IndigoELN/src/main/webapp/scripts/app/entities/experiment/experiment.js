@@ -80,51 +80,6 @@ angular.module('indigoeln')
                         controller: 'ExperimentDetailController',
                         controllerAs: 'vm'
                     }
-                },
-                resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Experiment, Notebook, EntitiesCache,
-                                        AutoSaveEntitiesEngine, EntitiesBrowser) {
-                        var deferred = $q.defer();
-                        var params = {
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId,
-                            experimentId: $stateParams.experimentId
-                        };
-
-                        if (!EntitiesCache.get(params)) {
-                            EntitiesCache.put(params, AutoSaveEntitiesEngine.autoRecover(Experiment, params));
-                        }
-
-                        var notebookParams = {
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        };
-
-                        if (!EntitiesCache.get(notebookParams)) {
-                            EntitiesCache.put(notebookParams, Notebook.get(notebookParams).$promise);
-                        }
-
-                        $q.all([
-                            EntitiesCache.get(params),
-                            EntitiesCache.get(notebookParams),
-                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-                            EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function(results) {
-                            deferred.resolve({
-                                experiment: results[0],
-                                notebook: results[1],
-                                isContentEditor: results[2],
-                                hasEditAuthority: results[3],
-                                dirty: results[4] ? results[4].dirty : false,
-                                experimentId: $stateParams.experimentId,
-                                notebookId: $stateParams.notebookId,
-                                projectId: $stateParams.projectId
-                            });
-                        });
-
-                        return deferred.promise;
-                    }
                 }
             })
             .state('experiment.delete', {

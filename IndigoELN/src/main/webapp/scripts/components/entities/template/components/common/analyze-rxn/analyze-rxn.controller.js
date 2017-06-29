@@ -6,10 +6,16 @@ angular
 function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged) {
     var vm = this;
 
+    vm.addToStoichTable = addToStoichTable;
+    vm.updateStoicAndExit = updateStoicAndExit;
+    vm.search = search;
+    vm.cancel = cancel;
+
     init();
 
     function init() {
         vm.model = getDefaultModel();
+        vm.reactants = reactants;
 
         vm.tabs = _.map(vm.reactants, function(reactant) {
             return {
@@ -18,22 +24,22 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
         });
     }
 
-    vm.addToStoichTable = function() {
-        onStoichRowsChanged(vm.selectedReactants);
-    };
+    function addToStoichTable() {
+        onStoichRowsChanged(vm.model.selectedReactants);
+    }
 
-    vm.updateStoicAndExit = function() {
+    function updateStoicAndExit() {
         var result = angular.copy(vm.reactants);
-        _.each(vm.selectedReactants, function(knownReactant) {
+        _.each(vm.model.selectedReactants, function(knownReactant) {
             _.extend(_.findWhere(result, {
                 formula: knownReactant.formula
             }), knownReactant);
         });
         onStoichRowsChanged(result);
         $uibModalInstance.close({});
-    };
+    }
 
-    vm.search = function() {
+    function search() {
         vm.loading = true;
         _.each(vm.tabs, function(tab) {
             getSearchResult(tab.formula, function(searchResult) {
@@ -42,11 +48,11 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
             });
         });
         vm.isSearchCompleted = true;
-    };
+    }
 
-    vm.cancel = function() {
+    function cancel() {
         $uibModalInstance.close({});
-    };
+    }
 
     function getDefaultModel() {
         return {
@@ -58,7 +64,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function prepareDatabases() {
-        return _.pluck(_.where(vm.databases, {
+        return _.pluck(_.where(vm.model.databases, {
             isChecked: true
         }), 'value');
     }
