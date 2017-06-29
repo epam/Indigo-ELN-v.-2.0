@@ -159,7 +159,7 @@
 
         function checkOnlySelectedBatch() {
             var batches = ProductBatchSummaryCache.getProductBatchSummary();
-            batches.forEach(function(b) {
+            _.each(batches, function(b) {
                 b.select = false;
             });
             if ($scope.selectedBatch) {

@@ -728,12 +728,12 @@
         }
 
         function bindEvents() {
-            $scope.$watch('share.stoichTable', function(table) {
+            $scope.$watch('vm.share.stoichTable', function(table) {
                 setStoicTable(table);
                 updatePrecursor();
             }, true);
 
-            $scope.$watch('model.productBatchSummary.batches', function(batches) {
+            $scope.$watch('vm.model.productBatchSummary.batches', function(batches) {
                 _.each(batches, function(batch) {
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
                     batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
@@ -806,7 +806,7 @@
                 }
             });
 
-            $scope.$watch('structureSize', function(newVal) {
+            $scope.$watch('vm.structureSize', function(newVal) {
                 var column = _.find(vm.columns, function(item) {
                     return item.id === 'structure';
                 });
