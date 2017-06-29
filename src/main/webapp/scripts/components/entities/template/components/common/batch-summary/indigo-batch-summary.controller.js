@@ -1,10 +1,10 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('indigoBatchSummaryController', indigoBatchSummaryController);
+        .controller('IndigoBatchSummaryController', IndigoBatchSummaryController);
 
     /* @ngInject */
-    function indigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
+    function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
                                           $log, $rootScope, EntitiesBrowser, RegistrationService,
                                           ProductBatchSummaryOperations, $filter, ProductBatchSummaryCache) {
         var vm = this;
@@ -220,7 +220,7 @@
                     onClose: function(data) {
                         CalculationService.setEntered(data);
                         recalculateSalt(data.row);
-                        if (data.model.value == 0) {
+                        if (data.model.value === 0) {
                             data.row.saltEq.value = 0;
                         }
                     }
@@ -296,6 +296,7 @@
                     name: 'Stereoisomer Code',
                     type: 'select',
                     dictionary: 'Stereoisomer Code',
+                    hasCustomItemProp: true,
                     values: function() {
                         return null;
                     },
@@ -491,7 +492,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].residualSolvents : {};
+            var data = rows.length === 1 ? rows[0].residualSolvents : {};
             InfoEditor.editResidualSolvents(data || {}, callback);
         }
 
@@ -502,8 +503,9 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].solubility : {};
-            InfoEditor.editSolubility(data || {}, callback);
+            if (rows.length === 1) {
+                InfoEditor.editSolubility(rows[0].solubility, callback);
+            }
         }
 
         function editHandlingPrecautions(rows) {
@@ -513,7 +515,7 @@
                 });
                 EntitiesBrowser.setCurrentFormDirty();
             };
-            var data = rows.length == 1 ? rows[0].handlingPrecautions : {};
+            var data = rows.length === 1 ? rows[0].handlingPrecautions : {};
             InfoEditor.editHandlingPrecautions(data || {}, callback);
         }
 
@@ -523,7 +525,7 @@
                     row.storageInstructions = result;
                 });
             };
-            var data = rows.length == 1 ? rows[0].storageInstructions : {};
+            var data = rows.length === 1 ? rows[0].storageInstructions : {};
             InfoEditor.editStorageInstructions(data || {}, callback);
         }
 
@@ -611,7 +613,7 @@
                 id: 'precursors'
             }).readonly = true;
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
-                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name == 'REACTANT';
+                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
             })
                 .map(function(r) {
                     return r.compoundId || r.fullNbkBatch;
@@ -692,7 +694,9 @@
         }
 
         function registerBatches() {
-            vm.loading = ProductBatchSummaryOperations.registerBatches();
+            vm.loading = vm.indigoSaveExperimentFn().then(function() {
+                return ProductBatchSummaryOperations.registerBatches();
+            });
         }
 
         function initStructure(batches, structureType) {
@@ -724,7 +728,7 @@
                 return null;
             }
 
-            return compounds[0].name == batch.batchType ? compounds[0] : compounds[1];
+            return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
         }
 
         function bindEvents() {

@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.repository.search.entity;
 
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
+import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBRef;
@@ -14,11 +15,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -26,9 +24,11 @@ public class ComponentSearchRepository implements InitializingBean {
 
     public static final String CONDITION_CONTAINS = "contains";
     public static final String CONDITION_EQUALS = "=";
-    public static final String CONDITION_IN = "in";
     private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", "purity", "name", "description", "compoundId",
             "references", "keywords", "chemicalName");
+    private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", "purity");
+    private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName");
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -42,41 +42,57 @@ public class ComponentSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<DBRef>> withBingoIds(StructureSearchType type, List<String> bingoIds) {
-        SearchCriterion searchCriterion = null;
-        if (type == StructureSearchType.Product) {
-            searchCriterion = new SearchCriterion("batchStructureId", "batchStructureId", CONDITION_IN, bingoIds);
-        } else if (type == StructureSearchType.Reaction) {
-            searchCriterion = new SearchCriterion("reactionStructureId", "reactionStructureId", CONDITION_IN, bingoIds);
+    public Optional<Set<DBRef>> searchWithQuery(EntitySearchRequest request) {
+        List<String> fields = request.getAdvancedSearch().stream()
+                .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
+                .map(c -> c.getField())
+                .collect(toList());
+
+        List<Criteria> querySearch = new ArrayList<>();
+        request.getSearchQuery().ifPresent(query -> {
+            SEARCH_QUERY_CON_FIELDS.stream()
+                    .filter(field -> !fields.contains(field))
+                    .map(f -> new SearchCriterion(f, f, CONDITION_CONTAINS, query))
+                    .map(AggregationUtils::createCriterion)
+                    .forEach(querySearch::add);
+
+            SEARCH_QUERY_EQ_FIELDS.stream()
+                    .filter(field -> !fields.contains(field))
+                    .map(f -> new SearchCriterion(f, f, CONDITION_EQUALS, query))
+                    .map(AggregationUtils::createCriterion)
+                    .forEach(querySearch::add);
+        });
+
+        if (!querySearch.isEmpty()) {
+            return Optional.of(new Criteria().orOperator(querySearch.toArray(new Criteria[querySearch.size()]))).map(this::find);
+        } else {
+            return Optional.empty();
         }
-        return Optional.ofNullable(searchCriterion).map(AggregationUtils::createCriterion).map(this::find);
     }
 
-    public Optional<Set<DBRef>> withQuerySearch(String querySearch) {
-        Collection<SearchCriterion> searchCriteria = new ArrayList<>();
-        Stream.of("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName").map(
-                f -> new SearchCriterion(f, f, CONDITION_CONTAINS, querySearch)
-        ).forEach(searchCriteria::add);
-        Stream.of("batchYield", "purity").map(
-                f -> new SearchCriterion(f, f, CONDITION_EQUALS, querySearch)
-        ).forEach(searchCriteria::add);
-        return Optional.of(searchCriteria).map(ac ->
-                        new Criteria().orOperator(AggregationUtils.createCriteria(searchCriteria).toArray(new Criteria[searchCriteria.size()]))
-        ).map(this::find);
-    }
-
-    public Optional<Set<DBRef>> withAdvancedCriteria(List<SearchCriterion> criteria) {
-        List<Criteria> searchCriteria = criteria.stream()
+    public Optional<Set<DBRef>> searchWithAdvanced(EntitySearchRequest request) {
+        List<Criteria> advancedSearch = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
-        if (searchCriteria.isEmpty()) {
-            return Optional.empty();
+
+        if (!advancedSearch.isEmpty()) {
+            return Optional.of(new Criteria().andOperator(advancedSearch.toArray(new Criteria[advancedSearch.size()]))).map(this::find);
         } else {
-            return Optional.of(searchCriteria).map(ac ->
-                            new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))
-            ).map(this::find);
+            return Optional.empty();
         }
+    }
+
+    public Optional<Set<DBRef>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
+        if (!bingoIds.isEmpty()) {
+            StructureSearchType type = request.getStructure().get().getType().getName();
+            if (type == StructureSearchType.Product) {
+                return Optional.of(Criteria.where("batchStructureId").in(bingoIds)).map(this::find);
+            } else if (type == StructureSearchType.Reaction) {
+                return Optional.of(Criteria.where("reactionStructureId").in(bingoIds)).map(this::find);
+            }
+        }
+        return Optional.empty();
     }
 
     private Set<DBRef> find(Criteria criteria) {

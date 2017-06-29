@@ -17,6 +17,7 @@ function inputService($uibModal, RegistrationUtil) {
         $uibModal.open({
             templateUrl: 'scripts/components/entities/template/components/common/table/input/set-input-value.html',
             controller: 'SetInputValueController',
+            controllerAs: 'vm',
             size: 'sm',
             resolve: {
                 name: function() {

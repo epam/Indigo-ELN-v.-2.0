@@ -14,10 +14,11 @@
                 experimentName: '=',
                 isHideColumnSettings: '=',
                 structureSize: '=',
-                onShowStructure: '&'
+                onShowStructure: '&',
+                indigoSaveExperimentFn: '&'
             },
             bindToController: true,
-            controller: 'indigoBatchSummaryController',
+            controller: 'IndigoBatchSummaryController',
             controllerAs: 'vm'
         };
     }

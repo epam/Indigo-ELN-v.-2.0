@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('structureSchemeController', structureSchemeController);
+    .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
+function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
     var vm = this;
 
     init();
@@ -151,6 +151,7 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function openEditor($event) {
+        initModel();
         $event.stopPropagation();
         if (vm.readonly) {
             return;
@@ -159,7 +160,7 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         var modalInstance = $uibModal.open({
             animation: true,
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/editor/structure-editor-modal.html',
-            controller: 'structureEditorModalController',
+            controller: 'StructureEditorModalController',
             controllerAs: 'vm',
             windowClass: 'structure-editor-modal',
             resolve: {
@@ -191,7 +192,7 @@ function structureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         var modalInstance = $uibModal.open({
             animation: true,
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/import/structure-import-modal.html',
-            controller: 'structureImportModalController',
+            controller: 'StructureImportModalController',
             controllerAs: 'vm',
             windowClass: 'structure-import-modal'
         });

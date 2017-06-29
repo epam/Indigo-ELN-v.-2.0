@@ -4,8 +4,44 @@
         .controller('IndigoTableController', IndigoTableController);
 
     /* @ngInject */
-    function IndigoTableController($scope, dragulaService, localStorageService, $attrs, unitService, selectService, inputService, scalarService, Principal, $timeout, $filter, EntitiesBrowser) {
-        var that = this;
+    function IndigoTableController($scope, dragulaService, localStorageService, $attrs, unitService, selectService,
+                                   inputService, scalarService, Principal, $timeout, $filter, EntitiesBrowser) {
+        var vm = this;
+        var originalColumnIdsAndFlags;
+        var editableCell = null;
+        var closePrev;
+        var stimeout;
+        var lastQ;
+        var originalRows;
+        var searchColumns;
+        var user;
+
+        init();
+
+        function init() {
+            originalColumnIdsAndFlags = getColumnsProps(vm.indigoColumns);
+            originalRows = vm.indigoRows;
+            searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
+            vm.pagination = {
+                page: 1,
+                pageSize: 10
+            };
+            vm.filteredRows = originalRows;
+
+            vm.setClosePrevious = setClosePrevious;
+            vm.toggleEditable = toggleEditable;
+            vm.isFormReadonly = isFormReadonly;
+            vm.isColumnReadonly = isColumnReadonly;
+            vm.isEditable = isEditable;
+            vm.search = search;
+            vm.onRowSelect = onRowSelect;
+            vm.onPageChanged = onPageChanged;
+            vm.saveInLocalStorage = saveInLocalStorage;
+            vm.resetColumns = resetColumns;
+
+            getUser();
+            bindEvents();
+        }
 
         function getColumnsProps(indigoColumns) {
             return _.map(indigoColumns, function(column) {
@@ -17,23 +53,23 @@
             });
         }
 
-        var originalColumnIdsAndFlags = getColumnsProps($scope.indigoColumns);
+        function getSortedColumns(columnIdsAndFlags) {
+            return _.sortBy(vm.indigoColumns, function(column) {
+                    return _.findIndex(columnIdsAndFlags, function(item) {
+                        return item.id === column.id;
+                    });
+                }
+            );
+        }
 
-        function updateColumns(user) {
-            var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + $scope.indigoId + '.columns'));
+        function updateColumns() {
+            var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + vm.indigoId + '.columns'));
             if (!columnIdsAndFlags) {
-                $scope.saveInLocalStorage();
+                vm.saveInLocalStorage();
             }
             columnIdsAndFlags = columnIdsAndFlags || originalColumnIdsAndFlags;
 
-            $scope.indigoColumns = _.sortBy($scope.indigoColumns, function(column) {
-                return _.findIndex(columnIdsAndFlags, function(item) {
-                    return item.id === column.id;
-                });
-            }
-            );
-
-            $scope.indigoColumns = _.map($scope.indigoColumns, function(column) {
+            vm.indigoColumns = _.map(getSortedColumns(columnIdsAndFlags), function(column) {
                 var index = _.findIndex(columnIdsAndFlags, function(item) {
                     return item.id === column.id;
                 });
@@ -45,94 +81,79 @@
             });
         }
 
-        Principal.identity()
-            .then(function(user) {
-                $scope.saveInLocalStorage = function() {
-                    localStorageService.set(user.id + '.' + $scope.indigoId + '.columns', JSON.stringify(getColumnsProps($scope.indigoColumns)));
-                };
-                updateColumns(user);
+        function saveInLocalStorage() {
+            localStorageService.set(user.id + '.' + vm.indigoId + '.columns', angular.toJson(getColumnsProps(vm.indigoColumns)));
+        }
 
-                if ($attrs.indigoDraggableColumns) {
-                    var unsubscribe = $scope.$watch(function() {
-                        return _.map($scope.indigoColumns, _.iteratee('id')).join('-');
-                    }, $scope.saveInLocalStorage);
-                    $scope.$on('$destroy', function() {
-                        unsubscribe();
-                    });
-                }
-                $scope.resetColumns = function() {
-                    localStorageService.remove(user.id + '.' + $scope.indigoId + '.columns');
+        function resetColumns() {
+            localStorageService.remove(user.id + '.' + vm.indigoId + '.columns');
+            updateColumns();
+        }
+
+        function getUser() {
+            Principal
+                .identity()
+                .then(function(userIdentity) {
+                    user = userIdentity;
                     updateColumns(user);
-                };
-            });
 
-        var editableCell = null;
-        var closePrev;
+                    if ($attrs.indigoDraggableColumns) {
+                        $scope.$watch(function() {
+                            return _.map(vm.indigoColumns, _.iteratee('id')).join('-');
+                        }, vm.saveInLocalStorage);
+                    }
+                });
+        }
 
-        that.setClosePrevious = function(_closePrev) {
+        function setClosePrevious(_closePrev) {
             closePrev = _closePrev;
-        };
-        that.toggleEditable = function(columnId, rowIndex) {
+        }
+
+        function toggleEditable(columnId, rowIndex) {
             if (closePrev) {
                 closePrev();
             }
             editableCell = columnId + '-' + rowIndex;
-        };
-        that.isEditable = function(columnId, rowIndex) {
-            if (that.isFormReadonly()) {
-                return;
+        }
+
+        function isEditable(columnId, rowIndex) {
+            if (columnId === null || rowIndex === null || vm.isFormReadonly()) {
+                return false;
             }
 
-            if ($scope.indigoEditable) {
-                var row = $scope.rowsForDisplay[rowIndex];
-                var editable = $scope.indigoEditable(row, columnId);
+            if (vm.indigoEditable) {
+                var row = vm.rowsForDisplay[rowIndex];
+                var editable = vm.indigoEditable(row, columnId);
                 if (!editable) {
                     return false;
                 }
             }
-            if (columnId === null || rowIndex === null) {
-                return false;
-            }
 
             return editableCell === columnId + '-' + rowIndex;
-        };
+        }
 
-        that.isFormReadonly = function() {
+        function isFormReadonly() {
             var curForm = EntitiesBrowser.getCurrentForm();
 
             return (curForm && curForm.$$isReadOnly);
-        };
+        }
 
-        that.setDirty = function() {
-            EntitiesBrowser.setCurrentFormDirty();
-        };
+        function isColumnReadonly(col, rowId) {
+            return col.readonly === true || isEditable(col.id, rowId);
+        }
 
-        $scope.isColumnReadonly = function(col, rowId) {
-            var iseditable = !that.isEditable(col.id, rowId);
+        function search(queryString) {
+            var query = queryString.trim().toLowerCase();
 
-            return col.readonly === true || !iseditable;
-        };
-
-        var stimeout;
-        var originalRows = $scope.indigoRows,
-            lastQ;
-        var searchColumns = $scope.indigoSearchColumns || ['id', 'nbkBatch'];
-        $scope.filteredRows = originalRows;
-
-        $scope.search = function(q) {
-            if (angular.isUndefined(q)) {
-                q = $scope.searchText.trim().toLowerCase();
-            }
-            $scope.searchText = q;
-            if (lastQ && lastQ == q || !originalRows) {
+            if ((lastQ && lastQ === query) || !originalRows) {
                 return;
             }
             if (stimeout) {
                 $timeout.cancel(stimeout);
             }
-            if (!q) {
-                lastQ = q;
-                $scope.filteredRows = originalRows;
+            if (!query) {
+                lastQ = query;
+                vm.filteredRows = originalRows;
 
                 return;
             }
@@ -146,9 +167,9 @@
                             return;
                         }
                         var s = r[sc].toString().toLowerCase();
-                        if (s.indexOf(q) == 0) {
+                        if (s.indexOf(query) == 0) {
                             rate += 10;
-                        } else if (s.indexOf(q) > 0) {
+                        } else if (s.indexOf(query) > 0) {
                             rate++;
                         }
                     });
@@ -157,12 +178,12 @@
                         filtered.push(r);
                     }
                 });
-                $scope.filteredRows = $filter('orderBy')(filtered, 'rate', true);
-                lastQ = q;
+                vm.filteredRows = $filter('orderBy')(filtered, 'rate', true);
+                lastQ = query;
             }, 300);
-        };
+        }
 
-        $scope.onRowSelect = function($event, row) {
+        function onRowSelect($event, row) {
             var target = $($event.target);
             if ($attrs.indigoTabSupport) {
                 initTabSupport($event.currentTarget);
@@ -170,18 +191,18 @@
             if (target.is('button,span,ul,a,li,input')) {
                 return;
             }
-            _.each($scope.indigoRows, function(item) {
+            _.each(vm.indigoRows, function(item) {
                 if (item !== row) {
                     item.$$selected = false;
                 }
             });
             row.$$selected = !row.$$selected;
-            if ($scope.indigoOnRowSelected) {
-                $scope.indigoOnRowSelected(_.find($scope.indigoRows, function(item) {
+            if (vm.indigoOnRowSelected) {
+                vm.indigoOnRowSelected(_.find(vm.indigoRows, function(item) {
                     return item.$$selected;
                 }));
             }
-        };
+        }
 
         dragulaService.options($scope, 'my-table-columns', {
             moves: function(el, container, handle) {
@@ -194,17 +215,14 @@
             }
         });
 
-        unitService.processColumns($scope.indigoColumns, $scope.indigoRows);
-        selectService.processColumns($scope.indigoColumns, $scope.indigoRows);
-        inputService.processColumns($scope.indigoColumns, $scope.indigoRows);
-        scalarService.processColumns($scope.indigoColumns, $scope.indigoRows);
-        $scope.pagination = {
-            page: 1,
-            pageSize: 10
-        };
+        unitService.processColumns(vm.indigoColumns, vm.indigoRows);
+        selectService.processColumns(vm.indigoColumns, vm.indigoRows);
+        inputService.processColumns(vm.indigoColumns, vm.indigoRows);
+        scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
+
         function calcPages(rows) {
             return _.groupBy(rows, function(element, index) {
-                return Math.floor(index / $scope.pagination.pageSize);
+                return Math.floor(index / vm.pagination.pageSize);
             });
         }
 
@@ -221,7 +239,6 @@
                         }).eq(0),
                         toggle = $next.find('[toggleEditable]')[0];
 
-                    // console.warn($next[0])
                     if (toggle) {
                         $timeout(function() {
                             angular.element(toggle).triggerHandler('click');
@@ -232,27 +249,32 @@
             }
         }
 
-        $scope.onPageChanged = function(page) {
-            $scope.pagination.page = page;
-        };
-
-        var updateRowsForDisplay = function() {
-            var pages = calcPages($scope.filteredRows);
-            $scope.rowsForDisplay = pages[$scope.pagination.page - 1];
-        };
-        $scope.$watch('pagination.page', updateRowsForDisplay);
-        $scope.$watchCollection('indigoRows', function(newVal, oldVal) {
-            if (newVal && oldVal && newVal.length > oldVal.length) {
-                $scope.search('');
-            }
-            $scope.filteredRows = originalRows = $scope.indigoRows;
-        });
-        $scope.$watchCollection('filteredRows', function(newVal, oldVal) {
-            if (newVal && oldVal && newVal.length > oldVal.length) {
-                var pages = calcPages($scope.filteredRows);
-                $scope.pagination.page = Object.keys(pages).length;
-            }
+        function onPageChanged() {
             updateRowsForDisplay();
-        });
+        }
+
+        function updateRowsForDisplay() {
+            var pages = calcPages(vm.filteredRows);
+            vm.rowsForDisplay = pages[vm.pagination.page - 1];
+        }
+
+        function bindEvents() {
+            $scope.$watchCollection('vm.indigoRows', function(newVal, oldVal) {
+                if (newVal && oldVal && newVal.length > oldVal.length) {
+                    vm.searchText = '';
+                    vm.search(vm.searchText);
+                }
+                originalRows = vm.indigoRows;
+                vm.filteredRows = originalRows;
+                updateRowsForDisplay();
+            });
+            $scope.$watchCollection('filteredRows', function(newVal, oldVal) {
+                if (newVal && oldVal && newVal.length > oldVal.length) {
+                    var pages = calcPages(vm.filteredRows);
+                    vm.pagination.page = Object.keys(pages).length;
+                }
+                updateRowsForDisplay();
+            });
+        }
     }
 })();
