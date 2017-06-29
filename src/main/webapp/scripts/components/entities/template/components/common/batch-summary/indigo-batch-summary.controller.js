@@ -75,8 +75,9 @@
         function openProductBatchSummaryModal() {
             var that = this;
             $uibModal.open({
-                templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.html',
+                templateUrl: 'scripts/components/entities/template/components/product-batch-summary/product-batch-summary-set-source.html',
                 controller: 'ProductBatchSummarySetSourceController',
+                controllerAs: 'vm',
                 size: 'sm',
                 resolve: {
                     name: function() {

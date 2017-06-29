@@ -1,14 +1,22 @@
-/**
- * Created by Stepan_Litvinov on 3/2/2016.
- */
-angular.module('indigoeln')
-    .controller('ProductBatchSummaryController',
-    function($scope) {
-        $scope.model = $scope.model || {};
-        $scope.structureSize = 0.3;
+(function() {
+    angular
+        .module('indigoeln')
+        .controller('ProductBatchSummaryController', ProductBatchSummaryController);
 
-        $scope.showStructure = function(value) {
-            $scope.isStructure = value;
-        };
+    /* @ngInject */
+    function ProductBatchSummaryController($scope) {
+        var vm = this;
+
+        vm.model = $scope.model || {};
+        vm.share = $scope.share || {};
+        vm.experiment = $scope.experiment;
+        vm.indigoSaveExperimentFn = $scope.indigoSaveExperimentFn;
+        vm.structureSize = 0.3;
+
+        vm.showStructure = showStructure;
+
+        function showStructure(value) {
+            vm.isStructure = value;
+        }
     }
-    );
+})();
