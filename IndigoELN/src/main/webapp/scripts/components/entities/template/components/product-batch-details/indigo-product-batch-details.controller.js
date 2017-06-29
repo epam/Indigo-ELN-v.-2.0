@@ -26,6 +26,7 @@
         vm.saltCodeValues = AppValues.getSaltCodeValues();
         vm.model = $scope.model || {};
         vm.share = $scope.share || {};
+        vm.indigoReadonly = $scope.indigoReadonly;
         vm.model.productBatchSummary = vm.model.productBatchSummary || {};
         vm.share.stoichTable = StoichTableCache.getStoicTable();
 
