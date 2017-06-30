@@ -20,6 +20,9 @@ function selectService($uibModal, RegistrationUtil) {
             controllerAs: 'vm',
             size: 'sm',
             resolve: {
+                id: function() {
+                  return id;
+                },
                 name: function() {
                     return that.title;
                 },
