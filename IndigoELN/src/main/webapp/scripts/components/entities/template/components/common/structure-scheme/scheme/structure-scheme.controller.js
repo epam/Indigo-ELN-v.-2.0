@@ -153,7 +153,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function openEditor($event) {
         initModel();
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         // open editor with pre-defined structure (prestructure)
@@ -187,7 +187,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function importStructure($event) {
         initModel();
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         var modalInstance = $uibModal.open({
@@ -211,7 +211,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
 
     function exportStructure($event) {
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         $uibModal.open({

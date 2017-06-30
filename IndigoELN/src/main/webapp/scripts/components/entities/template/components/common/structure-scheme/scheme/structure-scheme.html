@@ -1,13 +1,14 @@
 <div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
         {{vm.title}}
-                <span ng-disabled="vm.readonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp" 
+                <span ng-disabled="vm.indigoReadonly" class="fa fa-save btn action-panel-btn pull-right m-r30-imp"
                       title="Export {{vm.title}}"
                       ng-click="vm.exportStructure($event)"></span>
-                <span ng-disabled="vm.readonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
+                <span ng-disabled="vm.indigoReadonly" class="fa  fa-folder-open-o btn action-panel-btn pull-right"
                       title="Import {{vm.title}}"
                       ng-click="vm.importStructure($event)"></span>
-                <span ng-disabled="vm.readonly" class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
+                <span ng-disabled="vm.indigoReadonly"
+                      class="fa fa-edit btn action-panel-btn  panel-btn-reaction-scheme pull-right"
                       title="Edit/Add {{vm.title}}" ng-click="vm.openEditor($event)"></span>
     </div>
     <div indigo-resizable max-height="300" min-height="50" ng-dblclick="vm.openEditor($event)"
