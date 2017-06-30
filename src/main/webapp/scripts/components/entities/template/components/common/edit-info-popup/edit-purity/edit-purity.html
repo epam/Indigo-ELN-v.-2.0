@@ -5,7 +5,7 @@
     <div class="m-b20">
         <indigo-two-toggle indigo-label="Purity % Information"
                            indigo-first="Purity Available"
-                           indigo-second="{{unknownPurity}}"
+                           indigo-second="{{vm.unknownPurity}}"
                            indigo-model="vm.purity.property"
         ></indigo-two-toggle>
     </div>
@@ -20,18 +20,23 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="item in dictionary.words track by item.name" ng-init="vm.purity.data[$index].determinedBy = item.name">
-                    <td>{{vm.purity.data[$index].determinedBy}}</td>
+                <tr ng-repeat="item in vm.dictionary.words track by item.name"
+                    ng-init="vm.purity.data[$index].determinedBy = item.name">
+                    <td ng-bind="vm.purity.data[$index].determinedBy"></td>
                     <td><indigo-select indigo-items="vm.operatorSelect"
                                        indigo-readonly="vm.isInknownPurity()"
-                                       indigo-model="vm.purity.data[$index].operator"></indigo-select></td>
+                                       indigo-model="vm.purity.data[$index].operator">
+                    </indigo-select></td>
                     <td>
-                        <indigo-input indigo-model="vm.purity.data[$index].value" indigo-readonly="vm.isInknownPurity()"
-                                      indigo-type="number"></indigo-input>
+                        <indigo-input indigo-model="vm.purity.data[$index].value"
+                                      indigo-readonly="vm.isInknownPurity()"
+                                      indigo-type="number">
+                        </indigo-input>
                     </td>
                     <td>
                         <indigo-input indigo-model="vm.purity.data[$index].comments"
-                                      indigo-readonly="vm.isInknownPurity()"></indigo-input>
+                                      indigo-readonly="vm.isInknownPurity()">
+                        </indigo-input>
                     </td>
                 </tr>
             </tbody>
