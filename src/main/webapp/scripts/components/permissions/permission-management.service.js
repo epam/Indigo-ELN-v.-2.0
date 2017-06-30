@@ -78,7 +78,7 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
         return Principal.identity().then(function(identity) {
             var hasPermission = false;
             _.each(list, function(item) {
-                if (item.user.id === identity.id && _.contains(item.permissions, permission)) {
+                if (item.user.id === identity.id && _.includes(item.permissions, permission)) {
                     hasPermission = true;
                 }
             });
@@ -156,15 +156,15 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
 
         if (permission === 'OWNER') {
             return _.every(projectOwnerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         } else if (permission === 'USER') {
             return _.every(projectUserAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
             return _.every(projectViewerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         }
     }
@@ -176,15 +176,15 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
 
         if (permission === 'OWNER') {
             return _.every(notebookOwnerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         } else if (permission === 'USER') {
             return _.every(notebookUserAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
             return _.every(notebookViewerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         }
     }
@@ -196,11 +196,11 @@ function permissionManagement($q, Principal, UserRemovableFromProject, UserRemov
 
         if (permission === 'OWNER') {
             return _.every(experimentOwnerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         } else if (permission === 'VIEWER') {
             return _.every(experimentViewerAuthoritySet, function(authority) {
-                return _.contains(member.user.authorities, authority);
+                return _.includes(member.user.authorities, authority);
             });
         }
     }

@@ -40,7 +40,7 @@
 
         function clear() {
             for (var key in vm.selectedRow) {
-                if (vm.selectedRow.hasOwnProperty(key) && !_.contains(['$$hashKey', 'selected'], key)) {
+                if (vm.selectedRow.hasOwnProperty(key) && !_.includes(['$$hashKey', 'selected'], key)) {
                     delete vm.selectedRow[key];
                 }
             }
@@ -402,7 +402,7 @@
                     'rxnRole', 'molarity', 'stoicPurity', 'loadFactor'];
                 var columnsToRecalculateSalt = ['saltCode', 'saltEq'];
 
-                if (_.contains(columnsToRecalculateStoic, column.id)) {
+                if (_.includes(columnsToRecalculateStoic, column.id)) {
                     vm.reactantsColumns[i] = _.extend(column, {
                         onClose: function(data) {
                             CalculationService.setEntered(data);
@@ -412,7 +412,7 @@
                             CalculationService.recalculateStoichBasedOnBatch(data);
                         }
                     });
-                } else if (_.contains(columnsToRecalculateSalt, column.id)) {
+                } else if (_.includes(columnsToRecalculateSalt, column.id)) {
                     vm.reactantsColumns[i] = _.extend(column, {
                         onClose: function(data) {
                             CalculationService.setEntered(data);
@@ -690,7 +690,7 @@
             var batchesToSearch = [];
             var stoicReactants = [];
             _.each(getStoicReactants(), function(item) {
-                if (_.findWhere(item, AppValues.getRxnRoleReactant()) && item.structure) {
+                if (_.find(item, AppValues.getRxnRoleReactant()) && item.structure) {
                     stoicReactants.push(item);
                 }
             });
