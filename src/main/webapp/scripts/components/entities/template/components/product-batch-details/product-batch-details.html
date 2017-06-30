@@ -137,10 +137,10 @@
                                indigo-items="vm.sourceDetailInternal"
                                indigo-readonly="vm.indigoReadonly"
                 ></indigo-select>
-                <indigo-select ng-if="m.model.productBatchDetails.source == 'External'"
+                <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'External'"
                                indigo-label="Source Detail"
                                indigo-label-vertical="true"
-                               indigo-model="model.productBatchDetails.sourceDetail"
+                               indigo-model="vm.model.productBatchDetails.sourceDetail"
                                indigo-items="vm.sourceDetailExternal"
                                indigo-readonly="vm.indigoReadonly"
                 ></indigo-select>
