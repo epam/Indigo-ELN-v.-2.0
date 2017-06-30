@@ -3,14 +3,12 @@ angular
     .controller('EditPurityController', EditPurityController);
 
 /* @ngInject */
-function EditPurityController($scope, $uibModalInstance, data, dictionary) {
+function EditPurityController($uibModalInstance, data, dictionary) {
     var vm = this;
 
     init();
 
     function init() {
-
-        console.log($scope);
         vm.purity = data || {};
         vm.purity.data = vm.purity.data || [];
         vm.dictionary = dictionary;
