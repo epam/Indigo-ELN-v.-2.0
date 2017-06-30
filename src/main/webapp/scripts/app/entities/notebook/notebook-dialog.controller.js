@@ -4,7 +4,7 @@
         .controller('NotebookDialogController', NotebookDialogController);
 
     /* @ngInject */
-    function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement,
+    function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
                                       AutoRecoverEngine, NotebookSummaryExperiments) {
         var vm = this;
@@ -28,6 +28,7 @@
         vm.isCreateChildAllowed = true;
 
 
+        vm.createExperiment = createExperiment;
         vm.showSummary = showSummary;
         vm.goToExp = goToExp;
         vm.repeatExperiment = repeatExperiment;
@@ -101,6 +102,29 @@
                 $timeout(function() {
                     vm.isBtnSaveActive = true;
                 }, 10);
+            });
+        }
+        function createExperiment() {
+            var resolve = {
+                parents: function(NotebooksForSubCreation) {
+                    return NotebooksForSubCreation.query().$promise;
+                },
+                templates: function(Template) {
+                    return Template.query({
+                        size: 100000
+                    }).$promise;
+                },
+                notebookId: function() {
+                    return vm.notebook.id;
+                }
+            };
+
+            modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
+                $state.go('entities.experiment-detail', {
+                    notebookId: result.notebookId,
+                    projectId: result.projectId,
+                    experimentId: result.id
+                });
             });
         }
 
