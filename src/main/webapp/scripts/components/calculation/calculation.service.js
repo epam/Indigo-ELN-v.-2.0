@@ -56,7 +56,7 @@ function calculationService($rootScope, $http, $q, AppValues,
                 _.each(batch, function(value, key) {
                     if (_.isObject(value)) {
                         value.entered = value.entered || false;
-                    } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                    } else if (!_.isObject(value) && _.includes(simpleValues, key)) {
                         batch[key] = {
                             value: value, entered: false
                         };
@@ -72,7 +72,7 @@ function calculationService($rootScope, $http, $q, AppValues,
             _.each(batches, function(value, key) {
                 if (_.isObject(value)) {
                     value.entered = value.entered || false;
-                } else if (!_.isObject(value) && _.contains(simpleValues, key)) {
+                } else if (!_.isObject(value) && _.includes(simpleValues, key)) {
                     batches[key] = {
                         value: value, entered: false
                     };
@@ -113,8 +113,8 @@ function calculationService($rootScope, $http, $q, AppValues,
     }
 
     function findLimiting(stoichTable) {
-        return _.findWhere(stoichTable.reactants, {
-            limiting: true
+        return _.find(stoichTable.reactants, {
+            'limiting': true
         });
     }
 
@@ -217,7 +217,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         var simpleValues = ['molWeight', 'saltEq', 'stoicPurity', 'eq'];
         if (_.isObject(data.row[data.column])) {
             data.row[data.column].entered = true;
-        } else if (!_.isObject(data.row[data.column]) && _.contains(simpleValues, data.column)) {
+        } else if (!_.isObject(data.row[data.column]) && _.includes(simpleValues, data.column)) {
             data.row[data.column] = {
                 value: data.row[data.column], entered: true
             };
