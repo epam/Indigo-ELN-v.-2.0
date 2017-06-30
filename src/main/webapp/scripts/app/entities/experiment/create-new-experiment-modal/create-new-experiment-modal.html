@@ -10,14 +10,15 @@
                            indigo-items="vm.templates"
                            indigo-item-prop="name"
             ></indigo-select>
-            <indigo-select indigo-label="Please select a Notebook for new experiment"
+            <indigo-select ng-if="!vm.notebookId"
+                    indigo-label="Please select a Notebook for new experiment"
                            indigo-label-vertical="true"
-                           indigo-model="vm.selectedParent"
-                           indigo-items="vm.parents"
+                           indigo-model="vm.selectedNotebook"
+                           indigo-items="vm.notebooks"
                            indigo-item-prop="name"
             ></indigo-select>
             <div style="height: 100px;">
-                <table class="table table-striped" ng-show="vm.selectedParent">
+                <table class="table table-striped" ng-if="vm.selectedNotebook">
                     <thead>
                     <tr>
                         <th><span>Notebook name</span></th>
@@ -28,10 +29,10 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td ng-bind="vm.selectedParent.name"></td>
-                        <td ng-bind="vm.selectedParent.author.firstName + ' ' + vm.selectedParent.author.lastName"></td>
-                        <td ng-bind="vm.selectedParent.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
-                        <td ng-bind="vm.selectedParent.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                        <td ng-bind="vm.selectedNotebook.name"></td>
+                        <td ng-bind="vm.selectedNotebook.author.firstName + ' ' + vm.selectedNotebook.author.lastName"></td>
+                        <td ng-bind="vm.selectedNotebook.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
+                        <td ng-bind="vm.selectedNotebook.lastEditDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -42,7 +43,7 @@
                 <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
             </button>
             <button type="submit" form="select-parent-dialog"
-                    ng-disabled="!vm.selectedParent.id || !vm.selectedTemplate.id || vm.isSaving" class="btn btn-primary">
+                    ng-disabled="selectParentDialog.$invalid || !vm.selectedNotebook.id || !vm.selectedTemplate.id || vm.isSaving" class="btn btn-primary">
                 OK
 			</button>
 		</div>

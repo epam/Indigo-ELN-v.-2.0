@@ -233,9 +233,9 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
             nextKey = keys[curPosition];
         }
         delete tabs[userId][tabKey];
-        if (keys.length > 1 && tabs[userId][nextKey]) {
+        if (tabs[userId][nextKey]) {
             goToTab(tabs[userId][nextKey]);
-        } else if (keys.length === 1) {
+        } else {
             $state.go('experiment');
         }
         saveTabs();

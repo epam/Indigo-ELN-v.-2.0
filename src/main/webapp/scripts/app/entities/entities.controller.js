@@ -1,32 +1,27 @@
 (function() {
-    angular.module('indigoeln')
+    angular
+        .module('indigoeln')
         .controller('entitiesController', entitiesController);
 
     function entitiesController($scope, EntitiesBrowser, $rootScope, $q, Principal, EntitiesCache, AlertModal,
                                 AutoRecoverEngine, Alert, Experiment, Notebook, Project, dialogService) {
         var vm = this;
 
-        vm.onTabClick = onTabClick;
-        vm.onCloseTabClick = onCloseTabClick;
-        vm.onCloseAllTabs = onCloseAllTabs;
-
         init();
 
         function init() {
-            var events = bindEvents();
+            vm.onTabClick = onTabClick;
+            vm.onCloseTabClick = onCloseTabClick;
+            vm.onCloseAllTabs = onCloseAllTabs;
+
+            bindEvents();
             EntitiesBrowser.getTabs(function(tabs) {
                 vm.tabs = tabs;
                 vm.activeTab = EntitiesBrowser.getActiveTab();
             });
-
-            $scope.$on('$destroy', function() {
-                _.each(events, function(event) {
-                    event();
-                });
-            });
         }
 
-        function onSaveTab(tab) {
+        function closeTab(tab) {
             EntitiesBrowser.close(tab.tabKey);
             EntitiesCache.removeByKey(tab.tabKey);
         }
@@ -54,17 +49,19 @@
         function saveEntity(tab) {
             var entityPromise = EntitiesCache.getByKey(tab.tabKey);
             if (entityPromise) {
-                entityPromise.then(function(entity) {
+                return entityPromise.then(function(entity) {
                     var service = getService(tab.kind);
-                    if (service) {
-                        return service.update(tab.params, entity).$promise
-                            .then(function() {
-                                onSaveTab(tab);
-                                clearRecovery(tab);
-                            });
-                    }
+
+                    return !service ? null : service.update(tab.params, entity).$promise
+                        .then(function() {
+                            closeTab(tab);
+                            clearRecovery(tab);
+                        });
                 });
             }
+
+            closeTab(tab);
+            clearRecovery(tab);
 
             return $q.resolve();
         }
@@ -95,40 +92,26 @@
             EntitiesBrowser.callUpdateCurrentEntity();
         }
 
-        function onCloseAllTabs(exceptCurrent) {
-            var editTabs = _.filter(vm.tabs, function(o) {
-                return o.dirty;
+        function openCloseDialog(editTabs) {
+            return dialogService.selectEntitiesToSave(editTabs, function(tabsToSave) {
+                return $q.all(_.map(tabsToSave, function(tabToSave) {
+                    return saveEntity(tabToSave);
+                }));
             });
-            if (editTabs.length) {
-                dialogService.selectEntitiesToSave(editTabs, function(tabsToSave) {
-                    if (tabsToSave.length) {
-                        var saveEntityPromises = [];
-                        _.each(tabsToSave, function(tabToSave) {
-                            saveEntityPromises.push(saveEntity(tabToSave));
-                        });
-                        $q.all(saveEntityPromises).then(function() {
-                            // close remained tabs
-                            _.each($scope.tabs, function(tab) {
-                                onSaveTab(tab);
-                                clearRecovery(tab);
-                            });
-                        });
-                    } else {
-                        _.each($scope.tabs, function(tab) {
-                            onSaveTab(tab);
-                        });
-                    }
-                });
+        }
 
-                return;
-            }
-            _.each(vm.tabs, function(tab) {
-                // TODO: we cannot compare objects like this
-                if (exceptCurrent && tab === EntitiesBrowser.getActiveTab()) {
-                    return;
-                }
-                onSaveTab(tab);
+        function onCloseAllTabs(exceptCurrent) {
+            var tabs = !exceptCurrent ? vm.tabs : _.filter(vm.tabs, function(tab) {
+                return tab !== vm.activeTab;
             });
+            var editTabs = _.filter(tabs, function(tab) {
+                return tab.dirty && (exceptCurrent ? tab !== vm.activeTab : true);
+            });
+
+            $q.when(editTabs.length ? openCloseDialog(editTabs) : null)
+                .then(function() {
+                    _.each(tabs, closeTab);
+                });
         }
 
         function clearRecovery(tab) {
@@ -146,17 +129,15 @@
                 AlertModal.save('Do you want to save the changes?', null, function(isSave) {
                     if (isSave) {
                         saveEntity(tab);
-
-                        return;
+                    } else {
+                        closeTab(tab);
                     }
-                    clearRecovery(tab);
-
-                    onSaveTab(tab);
                 });
 
                 return;
             }
-            onSaveTab(tab);
+
+            closeTab(tab);
         }
 
         function onTabClick($event, tab) {
@@ -183,7 +164,11 @@
                 });
             }));
 
-            return events;
+            $scope.$on('$destroy', function() {
+                _.each(events, function(event) {
+                    event();
+                });
+            });
         }
     }
 })();

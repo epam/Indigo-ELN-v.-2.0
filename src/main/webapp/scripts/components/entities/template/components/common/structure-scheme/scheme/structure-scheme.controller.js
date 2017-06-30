@@ -185,6 +185,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function importStructure($event) {
+        initModel();
         $event.stopPropagation();
         if (vm.readonly) {
             return;

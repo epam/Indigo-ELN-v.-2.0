@@ -1,27 +1,28 @@
-<form id="productBatchSummarySetSourceForm" name="productBatchSummarySetSourceForm" ng-submit="save()">
+<form id="productBatchSummarySetSourceForm" name="productBatchSummarySetSourceForm" ng-submit="vm.save()">
     <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="clear()">&times;</button>
-        <h5 class="modal-title">Set value for {{name}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" ng-click="vm.clear()">&times;</button>
+        <h5 class="modal-title">Set value for <span ng-bind="vm.name"></span></h5>
     </div>
     <div class="modal-body">
-        <indigo-select indigo-label="Source" indigo-items="sourceValues" indigo-model="source" indigo-label-vertical="true"
+        <indigo-select indigo-label="Source" indigo-items="vm.sourceValues" indigo-model="vm.source"
+                       indigo-label-vertical="true"
         ></indigo-select>
         <indigo-select
-                ng-if="source.name == 'External'"
+                ng-if="vm.source.name == 'External'"
                 indigo-label="Source Details"
-                indigo-items="sourceDetailExternal"
-                indigo-model="sourceDetail"
+                indigo-items="vm.sourceDetailExternal"
+                indigo-model="vm.sourceDetail"
                 indigo-label-vertical="true">
         </indigo-select>
-        <indigo-select ng-if="source.name == 'Internal'"
+        <indigo-select ng-if="vm.source.name == 'Internal'"
                        indigo-label="Source Details"
-                       indigo-items="sourceDetailInternal"
-                       indigo-model="sourceDetail"
+                       indigo-items="vm.sourceDetailInternal"
+                       indigo-model="vm.sourceDetail"
                        indigo-label-vertical="true">
         </indigo-select>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="clear()">
+        <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
         </button>
         <button type="submit" ng-disabled="productBatchSummarySetSourceForm.$invalid" class="btn btn-primary"

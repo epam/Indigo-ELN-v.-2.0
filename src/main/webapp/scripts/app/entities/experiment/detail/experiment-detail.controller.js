@@ -212,7 +212,7 @@
                 if (pageInfo.dirty) {
                     $scope.experimentForm.$setDirty(pageInfo.dirty);
                 }
-                vm.dirtyListener = $scope.$watch(function() {
+                $scope.$watch(function() {
                     return vm.experiment;
                 }, function() {
                     EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
@@ -237,24 +237,24 @@
         }
 
         function initEventListeners() {
-            var unsubscribeExp = $scope.$watch(function() {
+            $scope.$watch(function() {
                 return vm.experiment;
             }, function() {
                 EntitiesBrowser.setCurrentEntity(vm.experiment);
             });
 
-            var unsubscribe = $scope.$watch(function() {
+            $scope.$watch(function() {
                 return vm.experiment.status;
             }, function() {
                 updateStatuses();
                 setReadOnly();
             });
 
-            var accessListChangeListener = $scope.$on('access-list-changed', function() {
+            $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
             });
 
-            var experimentStatusChangeListener = $scope.$on('experiment-status-changed', function(event, data) {
+            $scope.$on('experiment-status-changed', function(event, data) {
                 _.each(data, function(status, id) {
                     if (id === vm.experiment.fullId) {
                         setStatus(status);
@@ -279,14 +279,6 @@
                     }, function() {
                         Alert.error('Experiment not refreshed due to server error!');
                     });
-            });
-
-            $scope.$on('$destroy', function() {
-                unsubscribe();
-                unsubscribeExp();
-                accessListChangeListener();
-                experimentStatusChangeListener();
-                vm.dirtyListener();
             });
         }
     }

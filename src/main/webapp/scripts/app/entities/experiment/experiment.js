@@ -17,50 +17,6 @@ angular.module('indigoeln')
                 },
                 resolve: {}
             })
-            .state('experiment.new', {
-                parent: 'experiment',
-                url: 'project/{projectId}/notebook/{notebookId}/experiment/new',
-                data: {
-                    authorities: ['EXPERIMENT_CREATOR', 'CONTENT_EDITOR']
-                },
-                onEnter: function($state, $uibModal) {
-                    $uibModal.open({
-                        animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/creation-from-notebook/experiment-creation-from-notebook.html',
-                        controller: 'ExperimentCreationFromNotebookController',
-                        controllerAs: 'vm',
-                        size: 'lg',
-                        resolve: {
-                            pageInfo: function($q, $stateParams, Template) {
-                                var deferred = $q.defer();
-                                $q.all([
-                                    Template.query({
-                                        size: 100000
-                                    }).$promise
-                                ]).then(function(results) {
-                                    deferred.resolve({
-                                        entity: {
-                                            name: null, experimentNumber: null, template: null, id: null
-                                        },
-                                        templates: results[0],
-                                        mode: 'new'
-                                    });
-                                });
-
-                                return deferred.promise;
-                            }
-                        }
-                    }).result.then(function(result) {
-                        $state.go('entities.experiment-detail', {
-                            notebookId: result.notebookId,
-                            projectId: result.projectId,
-                            experimentId: result.id
-                        });
-                    }, function() {
-                        $state.go('^');
-                    });
-                }
-            })
             .state('entities.experiment-detail', {
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}',
                 data: {
@@ -110,41 +66,6 @@ angular.module('indigoeln')
                         $state.go('^');
                     });
                 }]
-            })
-            .state('experiment.select-notebook-template', {
-                parent: 'experiment',
-                url: 'experiment/select-notebook-template',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_CREATOR'],
-                    pageTitle: 'indigoeln'
-                },
-                onEnter: function($state, $uibModal) {
-                    $uibModal.open({
-                        animation: true,
-                        templateUrl: 'scripts/app/entities/experiment/creation-from-entities-controls/experiment-creation-from-entities-controls.html',
-                        controller: 'ExperimentCreationFromEntitiesControlsController',
-                        controllerAs: 'vm',
-                        size: 'lg',
-                        resolve: {
-                            parents: function(NotebooksForSubCreation) {
-                                return NotebooksForSubCreation.query().$promise;
-                            },
-                            templates: function(Template) {
-                                return Template.query({
-                                    size: 100000
-                                }).$promise;
-                            }
-                        }
-                    }).result.then(function(result) {
-                        $state.go('entities.experiment-detail', {
-                            notebookId: result.notebookId,
-                            projectId: result.projectId,
-                            experimentId: result.id
-                        });
-                    }, function() {
-                        $state.go('^');
-                    });
-                }
             })
             .state('entities.experiment-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.experiment-detail',
