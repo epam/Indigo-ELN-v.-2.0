@@ -9,7 +9,12 @@
                        indigo-items="vm.values"
                        indigo-model="vm.wrapper.value">
         </indigo-select>
-        <indigo-select ng-if="vm.dictionary"
+        <indigo-select ng-if="vm.dictionary && vm.id !== 'stereoisomer'"
+                       indigo-item-prop="name"
+                       indigo-dictionary="{{vm.dictionary}}"
+                       indigo-model="vm.wrapper.value">
+        </indigo-select>
+        <indigo-select ng-if="vm.dictionary && vm.id === 'stereoisomer'"
                        indigo-item-prop="name,description"
                        indigo-dictionary="{{vm.dictionary}}"
                        indigo-model="vm.wrapper.value">

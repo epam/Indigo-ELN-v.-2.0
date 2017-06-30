@@ -123,7 +123,7 @@
         </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
-                ui-sref="experiment.new({projectId:vm.projectId, notebookId:vm.notebook.id})">Create Experiment
+                ng-click="vm.createExperiment()">Create Experiment
         </button>
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"

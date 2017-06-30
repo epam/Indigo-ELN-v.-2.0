@@ -25,7 +25,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(vm.model.selectedReactants);
+        onStoichRowsChanged(cleanReactants(vm.model.selectedReactants));
     }
 
     function updateStoicAndExit() {
@@ -35,8 +35,17 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
                 formula: knownReactant.formula
             }), knownReactant);
         });
-        onStoichRowsChanged(result);
+        onStoichRowsChanged(cleanReactants(result));
         $uibModalInstance.close({});
+    }
+
+    function cleanReactants(reactants) {
+        return reactants.map(function(batch) {
+            var newBatch = angular.copy(batch);
+            newBatch.weight.value = 0;
+            newBatch.volume.value = 0;
+            return newBatch;
+        });
     }
 
     function search() {

@@ -15,9 +15,8 @@
             }
         };
 
-
         /* @ngInject */
-        function controller($scope, $state, EntitiesBrowser) {
+        function controller($scope, $state, EntitiesBrowser, modalHelper) {
             var vm = this;
 
             // TODO: move it ti file
@@ -44,6 +43,8 @@
             vm.duplicate = duplicate;
             vm.onCloseAllTabs = onCloseAllTabs;
             vm.onCloseTabClick = onCloseTabClick;
+            vm.createExperiment = createExperiment;
+            vm.createNotebook = createNotebook;
 
             function init() {
                 EntitiesBrowser.getTabs(function(tabs) {
@@ -101,6 +102,43 @@
                         $event: $event, tab: tab
                     });
                 }
+            }
+
+            function createExperiment() {
+                var resolve = {
+                    parents: function(NotebooksForSubCreation) {
+                        return NotebooksForSubCreation.query().$promise;
+                    },
+                    templates: function(Template) {
+                        return Template.query({
+                            size: 100000
+                        }).$promise;
+                    },
+                    notebookId: function() {
+                        return null;
+                    }
+                };
+
+                modalHelper.openCreateNewExperimentModal(resolve).then(function(result) {
+                    $state.go('entities.experiment-detail', {
+                        notebookId: result.notebookId,
+                        projectId: result.projectId,
+                        experimentId: result.id
+                    });
+                });
+            }
+
+            function createNotebook() {
+                var resolve = {
+                    parents: function(ProjectsForSubCreation) {
+                        return ProjectsForSubCreation.query().$promise;
+                    }
+                };
+                modalHelper.openCreateNewNotebookModal(resolve).then(function(projectId) {
+                    $state.go('entities.notebook-new', {
+                        parentId: projectId
+                    });
+                });
             }
         }
     }
