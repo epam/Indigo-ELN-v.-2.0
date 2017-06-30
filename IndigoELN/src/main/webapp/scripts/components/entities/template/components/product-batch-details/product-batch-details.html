@@ -125,19 +125,19 @@
                 ></indigo-input>
                 <indigo-select indigo-label="Source"
                                indigo-label-vertical="true"
-                               indigo-model="vm.source"
+                               indigo-model="vm.model.productBatchDetails.source"
                                indigo-items="vm.sourceValues"
                                indigo-readonly="vm.indigoReadonly"
                 ></indigo-select>
                 <!--Source detail block-->
-                <indigo-select ng-if="vm.source.name == 'Internal'"
+                <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'Internal'"
                                indigo-label="Source Detail"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.sourceDetail"
                                indigo-items="vm.sourceDetailInternal"
                                indigo-readonly="vm.indigoReadonly"
                 ></indigo-select>
-                <indigo-select ng-if="vm.source.name == 'External'"
+                <indigo-select ng-if="m.model.productBatchDetails.source == 'External'"
                                indigo-label="Source Detail"
                                indigo-label-vertical="true"
                                indigo-model="model.productBatchDetails.sourceDetail"
