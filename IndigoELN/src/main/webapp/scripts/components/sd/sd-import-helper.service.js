@@ -363,8 +363,18 @@ function SdImportHelperService(AppValues) {
     };
 
     return {
-        additionalFormatFunctions: additionalFormatFunctions
+        additionalFormatFunctions: additionalFormatFunctions,
+        getWord: getWord
     };
+
+    function getWord(propName, subPropName, value, dicts) {
+        var item = _.find(dicts, function (dict) {
+            return dict.name === propName;
+        });
+        if (item) {
+            return getItem(item.words, subPropName, value);
+        }
+    }
 
     function getItem(list, prop, value) {
         return _.find(list, function (item) {
