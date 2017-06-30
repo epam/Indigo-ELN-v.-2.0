@@ -165,33 +165,5 @@ angular.module('indigoeln')
                         id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
                     }
                 ]
-            }))
-            .state('notebook.select-project', {
-                parent: 'notebook',
-                url: 'notebook/select-project',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
-                    pageTitle: 'indigoeln'
-                },
-                onEnter: function($state, $uibModal, $window) {
-                    $uibModal.open({
-                        animation: true,
-                        templateUrl: 'scripts/app/entities/notebook/notebook-select-parent.html',
-                        controller: 'NotebookSelectParentController',
-                        controllerAs: 'vm',
-                        size: 'lg',
-                        resolve: {
-                            parents: function(ProjectsForSubCreation) {
-                                return ProjectsForSubCreation.query().$promise;
-                            }
-                        }
-                    }).result.then(function(projectId) {
-                        $state.go('entities.notebook-new', {
-                            parentId: projectId
-                        });
-                    }, function() {
-                        $window.history.back();
-                    });
-                }
-            });
+            }));
     });
