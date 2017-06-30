@@ -3,8 +3,8 @@ angular
     .factory('SdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstants,
-                         AlertModal, Alert, CalculationService, StoichTableCache, sdProperties, SdImportHelperService) {
+function sdImportService($http, $q, $uibModal, Dictionary, SdConstants,
+                         AlertModal, Alert, CalculationService, StoichTableCache, SdImportHelperService) {
 
     var auxPrefixes = [
         'COMPOUND_REGISTRATION_'
@@ -18,22 +18,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstant
         if (SdImportHelperService.additionalFormatFunctions[property.code]) {
             return SdImportHelperService.additionalFormatFunctions[property.code](property, value);
         }
-        return getWord(property.propName, property.subPropName, value, dicts);
-    }
-
-    function getWord(propName, subPropName, value, dicts) {
-        var item = _.find(dicts, function (dict) {
-            return dict.name === propName;
-        });
-        if (item) {
-            return getItem(item.words, subPropName, value);
-        }
-    }
-
-    function getItem(list, prop, value) {
-        return _.find(list, function (item) {
-            return item[prop].toUpperCase() === value.toUpperCase();
-        });
+        return SdImportHelperService.getWord(property.propName, property.subPropName, value, dicts);
     }
 
     function saveMolecule(mol) {
@@ -77,7 +62,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstant
                 }
             });
         }
-    };
+    }
 
     function importItems(sdUnitsToImport, dicts, i, addToTable, callback, complete) {
         if (!sdUnitsToImport[i]) {

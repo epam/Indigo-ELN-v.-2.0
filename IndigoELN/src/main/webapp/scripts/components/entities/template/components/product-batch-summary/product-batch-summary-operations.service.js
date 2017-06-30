@@ -93,15 +93,15 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             var hashesToAdd = _.compact(intendedCandidateHashes);
 
             return _.map(hashesToAdd, function(hash) {
-                return _.findWhere(intended, {
-                    $$batchHash: hash
+                return _.find(intended, {
+                    '$$batchHash': hash
                 });
             });
         }
     }
 
     function removeItemFromBothArrays(item, array1, array2, i) {
-        if (_.contains(array1, item)) {
+        if (_.includes(array1, item)) {
             array2[i] = null;
             array1[_.indexOf(array1, item)] = null;
         }
@@ -256,7 +256,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function registerBatchesWith(excludes) {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
         var _batches = _.filter(batches, function(row) {
-            return row.select && !_.contains(excludes, row.fullNbkBatch);
+            return row.select && !_.includes(excludes, row.fullNbkBatch);
         });
         var message = '';
         var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(_batches);

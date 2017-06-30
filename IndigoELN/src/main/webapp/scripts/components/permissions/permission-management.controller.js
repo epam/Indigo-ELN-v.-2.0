@@ -39,7 +39,7 @@
             if (member) {
                 var members = _.pluck(vm.accessList, 'user');
                 var memberIds = _.pluck(members, 'id');
-                if (!_.contains(memberIds, member.id)) {
+                if (!_.includes(memberIds, member.id)) {
                     vm.accessList.push({
                         user: member,
                         permissions: [],

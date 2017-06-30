@@ -18,7 +18,7 @@ angular.module('indigoeln').controller('SelectFromDictionaryController',
 
         function getSelectedItems() {
             return _.map(vm.dictionary.words, function(item) {
-                return _.contains(vm.model.data, item.name);
+                return _.includes(vm.model.data, item.name);
             });
         }
 

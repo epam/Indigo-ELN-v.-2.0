@@ -34,8 +34,8 @@
             vm.model = vm.model || {};
             vm.model.productBatchSummary = vm.model.productBatchSummary || {};
             vm.model.productBatchSummary.batches = vm.model.productBatchSummary.batches || [];
-            vm.share.selectedRow = _.findWhere(getProductBatches(), {
-                $$selected: true
+            vm.share.selectedRow = _.find(getProductBatches(), {
+                '$$selected': true
             });
             vm.columns = getDefaultColumns();
 
@@ -609,8 +609,8 @@
             if (!getStoicTable()) {
                 return;
             }
-            _.findWhere(vm.columns, {
-                id: 'precursors'
+            _.find(vm.columns, {
+                'id': 'precursors'
             }).readonly = true;
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
                 return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';

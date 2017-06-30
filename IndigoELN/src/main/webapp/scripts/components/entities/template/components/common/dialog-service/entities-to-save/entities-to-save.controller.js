@@ -21,7 +21,7 @@ function EntitiesToSaveController($uibModalInstance, data) {
     }
 
     function isSelected() {
-        return _.any(vm.entities, function(entity) {
+        return _.some(vm.entities, function(entity) {
             return entity.$$saveEntity;
         });
     }
