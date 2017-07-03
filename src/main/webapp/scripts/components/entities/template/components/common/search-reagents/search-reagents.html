@@ -221,7 +221,8 @@
                                                  ss-structure-type="'molecule'"
                                                  ss-autosave="false"
                                                  ss-title="'Structure'"
-                                                 ss-model="vm.model">
+                                                 ss-model="vm.model"
+                                                 on-changed="vm.model.molecule = structure">
                         </indigo-structure-scheme>
                     </div>
                     <div class="text-right">
@@ -427,7 +428,8 @@
                                                      ss-structure-type="'molecule'"
                                                      ss-autosave="false"
                                                      ss-title="'Structure'"
-                                                     ss-model="vm.searchReagentsModelScheme">
+                                                     ss-model="vm.searchReagentsModelScheme"
+                                                     on-changed="vm.model.molecule = structure">
                             </indigo-structure-scheme>
                         </div>
                     </div>

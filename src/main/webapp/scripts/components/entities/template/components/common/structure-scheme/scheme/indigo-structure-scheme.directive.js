@@ -15,7 +15,7 @@
                 model: '=ssModel',
                 indigoReadonly: '=',
                 share: '=ssShare',
-                onChange: '&'
+                onChanged: '&'
             },
             bindToController: true,
             controllerAs: 'vm'

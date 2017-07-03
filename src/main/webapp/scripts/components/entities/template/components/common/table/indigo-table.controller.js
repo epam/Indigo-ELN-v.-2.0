@@ -28,6 +28,11 @@
             };
             vm.filteredRows = originalRows;
 
+            unitService.processColumns(vm.indigoColumns, vm.indigoRows);
+            selectService.processColumns(vm.indigoColumns, vm.indigoRows);
+            inputService.processColumns(vm.indigoColumns, vm.indigoRows);
+            scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
+
             vm.setClosePrevious = setClosePrevious;
             vm.toggleEditable = toggleEditable;
             vm.isFormReadonly = isFormReadonly;
@@ -55,11 +60,10 @@
 
         function getSortedColumns(columnIdsAndFlags) {
             return _.sortBy(vm.indigoColumns, function(column) {
-                    return _.findIndex(columnIdsAndFlags, function(item) {
-                        return item.id === column.id;
-                    });
-                }
-            );
+                return _.findIndex(columnIdsAndFlags, function(item) {
+                    return item.id === column.id;
+                });
+            });
         }
 
         function updateColumns() {
@@ -215,17 +219,6 @@
             }
         });
 
-        unitService.processColumns(vm.indigoColumns, vm.indigoRows);
-        selectService.processColumns(vm.indigoColumns, vm.indigoRows);
-        inputService.processColumns(vm.indigoColumns, vm.indigoRows);
-        scalarService.processColumns(vm.indigoColumns, vm.indigoRows);
-
-        function calcPages(rows) {
-            return _.groupBy(rows, function(element, index) {
-                return Math.floor(index / vm.pagination.pageSize);
-            });
-        }
-
         function initTabSupport(tar) {
             var $tar = $(tar);
             var $input = $tar.find('input').focus();
@@ -235,9 +228,10 @@
                         return;
                     } // tab key
                     var $next = $tar.nextAll('[col-read-only="false"]').filter(function() {
-                            return $(this).find('[toggleEditable]')[0];
-                        }).eq(0),
-                        toggle = $next.find('[toggleEditable]')[0];
+                        return angular.element(this).find('[toggleEditable]')[0];
+                    }).eq(0);
+
+                    var toggle = $next.find('[toggleEditable]')[0];
 
                     if (toggle) {
                         $timeout(function() {
@@ -253,9 +247,22 @@
             updateRowsForDisplay();
         }
 
+        function getCurrentPage() {
+            return _.floor(vm.filteredRows.length / vm.pagination.pageSize) || 0;
+        }
+
         function updateRowsForDisplay() {
-            var pages = calcPages(vm.filteredRows);
-            vm.rowsForDisplay = pages[vm.pagination.page - 1];
+            if (!vm.filteredRows) {
+                return;
+            }
+
+            var page = getCurrentPage();
+
+            vm.rowsForDisplay = vm.filteredRows.slice(page, vm.pagination.pageSize * (page + 1));
+        }
+
+        function updateCurrentPage() {
+            vm.pagination.page = _.floor(vm.filteredRows.length / vm.pagination.pageSize);
         }
 
         function bindEvents() {
@@ -268,12 +275,12 @@
                 vm.filteredRows = originalRows;
                 updateRowsForDisplay();
             });
+
             $scope.$watchCollection('filteredRows', function(newVal, oldVal) {
                 if (newVal && oldVal && newVal.length > oldVal.length) {
-                    var pages = calcPages(vm.filteredRows);
-                    vm.pagination.page = Object.keys(pages).length;
+                    updateCurrentPage();
+                    updateRowsForDisplay();
                 }
-                updateRowsForDisplay();
             });
         }
     }
