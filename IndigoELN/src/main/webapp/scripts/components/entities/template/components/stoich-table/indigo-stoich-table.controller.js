@@ -129,6 +129,7 @@
                 animation: true,
                 size: 'lg',
                 controller: 'SearchReagentsController',
+                controllerAs: 'vm',
                 templateUrl: 'scripts/components/entities/template/components/common/search-reagents/search-reagents.html',
                 resolve: {
                     activeTab: function() {
