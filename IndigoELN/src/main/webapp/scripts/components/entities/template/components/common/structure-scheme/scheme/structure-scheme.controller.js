@@ -18,6 +18,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function initModel() {
+        if (!vm.modal){
+            return;
+        }
         var newStructure = {
             structureScheme: {}
         };
@@ -62,6 +65,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         });
 
         $scope.$watch('vm.model', initModel);
+        $scope.$watch('vm.structureType', initModel);
     }
 
     function clearStructure() {
