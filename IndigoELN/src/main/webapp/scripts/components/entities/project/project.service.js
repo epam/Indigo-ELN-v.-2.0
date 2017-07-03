@@ -6,8 +6,8 @@ angular
 function project($resource, FileUploaderCash, PermissionManagement) {
     function transformRequest(data) {
         data = _.extend({}, data);
-        data.tags = _.pluck(data.tags, 'text');
-        data.fileIds = _.pluck(FileUploaderCash.getFiles(), 'id');
+        data.tags = _.map(data.tags, 'text');
+        data.fileIds = _.map(FileUploaderCash.getFiles(), 'id');
         data.accessList = PermissionManagement.expandPermission(data.accessList);
 
         return data;

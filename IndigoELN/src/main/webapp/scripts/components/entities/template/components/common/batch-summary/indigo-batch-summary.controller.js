@@ -753,13 +753,13 @@
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'conversationalBatchNumber'
                 }).isVisible = val;
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'registrationDate'
                 }).isVisible = val;
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'registrationStatus'
                 }).isVisible = val;
             });

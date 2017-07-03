@@ -34,7 +34,7 @@
                 Users.get().then(function(dictionary) {
                     vm.users = dictionary.words;
                     vm.model.reactionDetails.batchOwner = vm.model.reactionDetails.batchOwner ||
-                        _.where(vm.users, {
+                        _.filter(vm.users, {
                             name: Principal.getIdentity().fullName
                         });
                 });
@@ -47,6 +47,7 @@
                     });
                     if (!experiment) {
                         Alert.error('Can not find a experiment with the name: ' + tag.text);
+
                         return;
                     }
                     $state.go('entities.experiment-detail', {

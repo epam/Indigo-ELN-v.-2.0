@@ -37,8 +37,8 @@
 
         function addMember(member) {
             if (member) {
-                var members = _.pluck(vm.accessList, 'user');
-                var memberIds = _.pluck(members, 'id');
+                var members = _.map(vm.accessList, 'user');
+                var memberIds = _.map(members, 'id');
                 if (!_.includes(memberIds, member.id)) {
                     vm.accessList.push({
                         user: member,
