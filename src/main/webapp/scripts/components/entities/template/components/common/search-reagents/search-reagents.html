@@ -3,39 +3,40 @@
 </div>
 <div class="modal-body modal-body-search">
     <uib-tabset active="activeForm" class="inner-tabs">
-        <uib-tab index="0" active="isActiveTab0" ng-click="isActiveTab0 = true; isActiveTab1 = false"
+        <uib-tab index="0" active="vm.isActiveTab0" ng-click="vm.isActiveTab0 = true; vm.isActiveTab1 = false"
                  heading="My Reagent List">
             <div class="reagent-search-tab">
                 <div class="input-group m-b20">
-                    <input type="text" class="form-control" ng-model="myReagents.searchQuery"/>
+                    <input type="text" class="form-control" ng-model="vm.myReagents.searchQuery"/>
                     <span class="input-group-btn">
-                        <button class="btn btn-info btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
-                                ng-click="searchMyReagents(myReagents.searchQuery)"
+                        <button class="btn btn-info btn-can-loading"
+                                ng-class="{'btn-loading': vm.loading}"
+                                ng-click="vm.searchMyReagents(vm.myReagents.searchQuery)"
                                 type="button">Search
                         </button>
-                        <button class="btn btn-info" ng-click="clearMyReagentsSearchQuery()"
+                        <button class="btn btn-info" ng-click="vm.clearMyReagentsSearchQuery()"
                                 type="button">Clear
                         </button>
                     </span>
                 </div>
                 <div class="clearfix m-b20">
-                    <span class="semi-b">{{myReagentList.length}} reagents in my list</span>
+                    <span class="semi-b">{{vm.myReagentList.length}} reagents in my list</span>
                 </div>
                 <div class="m-b20">
-                    <indigo-search-result-table indigo-table-content="myReagentList"
-                                                indigo-table-filter="filterMyReagents"
+                    <indigo-search-result-table indigo-table-content="vm.myReagentList"
+                                                indigo-table-filter="vm.filterMyReagents"
                                                 indigo-editable-info="true"></indigo-search-result-table>
                 </div>
                 <div class="btn-group pull-right">
                     <button class="btn btn-info"
                             type="button"
-                            ng-click="removeFromMyReagentList()"
+                            ng-click="vm.removeFromMyReagentList()"
                             ng-disabled="false">
                         <i class="fa fa-trash"></i><span class="m-l5">Remove from My List</span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
-                            ng-click="addToStoichTable(myReagentList)"
+                            ng-click="vm.addToStoichTable(vm.myReagentList)"
                             ng-disabled="false">
                         <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
                     </button>
@@ -45,17 +46,17 @@
                 </div>
             </div>
         </uib-tab>
-        <uib-tab index="1" active="isActiveTab1" ng-click="isActiveTab0 = false; isActiveTab1 = true"
+        <uib-tab index="1" active="vm.isActiveTab1" ng-click="vm.isActiveTab0 = false; vm.isActiveTab1 = true"
                  heading="Reagent Catalog">
             <div class="reagent-search-tab">
-                <div ng-show="!isSearchResultFound">
-                    <indigo-checklist indigo-items="model.databases" indigo-label="Choose catalog to search in"
+                <div ng-show="!vm.isSearchResultFound">
+                    <indigo-checklist indigo-items="vm.model.databases" indigo-label="Choose catalog to search in"
                                       class="m-b20"></indigo-checklist>
                     <div ng-init="$$isCollapsed=true" class="m-b20">
                         <div class="main-search-block">
                             <div class="row">
                                 <div class="col-xs-9">
-                                    <indigo-input indigo-model="model.restrictions.searchQuery"
+                                    <indigo-input indigo-model="vm.model.restrictions.searchQuery"
                                                   indigo-label="Type in your search query"
                                                   indigo-label-vertical="true"></indigo-input>
                                 </div>
@@ -72,124 +73,124 @@
                             </div>
                         </div>
                         <div uib-collapse="$$isCollapsed" class="collapse-content">
-                            <div ng-show="!isSearchResultFound">
+                            <div ng-show="!vm.isSearchResultFound">
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.compoundId.name}}:</label>
+                                        {{vm.model.restrictions.advancedSearch.compoundId.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.compoundId.value"></indigo-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</label>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.fullNbkBatch.value"></indigo-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.formula.name}}:</label>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.formula.condition"></indigo-select>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.formula.value"></indigo-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.molWeight.name}}:</label>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionNumber"
-                                                       indigo-model="model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.molWeight.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.compoundId.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.fullNbkBatch.name}}:</label>
+                                    </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionChemicalName"
-                                                       indigo-model="model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.chemicalName.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.value"></indigo-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.formula.name}}:</label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-input
+                                                indigo-model="vm.model.restrictions.advancedSearch.formula.value"></indigo-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.molWeight.name}}:</label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-select indigo-items="vm.conditionNumber"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-input
+                                                indigo-model="vm.model.restrictions.advancedSearch.molWeight.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionChemicalName"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.externalNumber.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.chemicalName.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.compoundState.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                    <div class="col-xs-3">
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-input
+                                                indigo-model="vm.model.restrictions.advancedSearch.externalNumber.value"></indigo-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{vm.model.restrictions.advancedSearch.compoundState.name}}:</label></div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">{{model.restrictions.advancedSearch.comments.name}}:</label>
+                                    <div class="col-xs-3"><label class="control-label">{{vm.model.restrictions.advancedSearch.comments.name}}:</label>
                                     </div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.comments.condition"></indigo-select>
-                                    </div>
-                                    <div class="col-xs-3">
-                                        <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.comments.value"></indigo-input>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
-                                    <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.hazardComments.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.comments.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.casNumber.name}}:</label>
-                                    </div>
+                                        {{vm.model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.casNumber.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.hazardComments.value"></indigo-input>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-3"><label class="control-label">
+                                        {{vm.model.restrictions.advancedSearch.casNumber.name}}:</label>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
+                                    </div>
+                                    <div class="col-xs-3">
+                                        <indigo-input
+                                                indigo-model="vm.model.restrictions.advancedSearch.casNumber.value"></indigo-input>
                                     </div>
                                 </div>
                             </div>
@@ -200,17 +201,17 @@
                         <div class="row">
                             <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
                             <div class="col-xs-4">
-                                <indigo-select indigo-items="conditionSimilarity"
-                                               indigo-model="model.restrictions.structure.similarityCriteria"></indigo-select>
+                                <indigo-select indigo-items="vm.conditionSimilarity"
+                                               indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
                             </div>
-                            <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
+                            <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
                                 <indigo-input class="col-xs-2" style="width:80px;"
                                               indigo-name="similarityValue"
                                               indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
                                               indigo-validation-max-length="3"
                                               indigo-validation-required="true"
                                               indigo-validation-pattern-text="Enter 1-100"
-                                              indigo-model="model.restrictions.structure.similarityValue"></indigo-input>
+                                              indigo-model="vm.model.restrictions.structure.similarityValue"></indigo-input>
                                 <div style="position:relative">
                                     <span style="position:absolute;top:7px;">%</span>
                                 </div>
@@ -220,38 +221,39 @@
                                                  ss-structure-type="'molecule'"
                                                  ss-autosave="false"
                                                  ss-title="'Structure'"
-                                                 ss-model="model">
+                                                 ss-model="vm.model">
                         </indigo-structure-scheme>
                     </div>
                     <div class="text-right">
-                        <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
+                        <button class="btn btn-primary btn-can-loading"
+                                ng-class="{'btn-loading': vm.loading}"
                                 type="button"
-                                ng-click="search()"
-                                ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
-                                                            !model.restrictions.searchQuery">Search
+                                ng-click="vm.search()"
+                                ng-disabled="!vm.model.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
+                                                            !vm.model.restrictions.searchQuery">Search
                         </button>
-                        <button class="btn btn-default" type="button" ng-click="cancel()"
-                                ng-show="!isSearchResultFound">
+                        <button class="btn btn-default" type="button" ng-click="vm.cancel()"
+                                ng-show="!vm.isSearchResultFound">
                             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
                         </button>
                     </div>
                 </div>
-                <div ng-show="isSearchResultFound">
+                <div ng-show="vm.isSearchResultFound">
                     <div>Search results for
-                        <span ng-if="model.restrictions.structure.image"> structure
+                        <span ng-if="vm.model.restrictions.structure.image"> structure
                                             <div class="search-image"><img class="full-img"
-                                                                           ng-src="data:image/svg+xml;base64,{{model.restrictions.structure.image}}"
+                                                                           ng-src="data:image/svg+xml;base64,{{vm.model.restrictions.structure.image}}"
                                                                            alt="Image is unavailable."></div></span>
                         <span class="semi-b"
-                              ng-if="!model.restrictions.structure.image && model.advancedSummary.length">&quot;
-                            <span ng-repeat="restriction in model.advancedSummary track by $index">
+                              ng-if="!vm.model.restrictions.structure.image && vm.model.advancedSummary.length">&quot;
+                            <span ng-repeat="restriction in vm.model.advancedSummary track by $index">
                                 {{restriction.name}}: <span ng-if="restriction.condition.name">
                                                 {{restriction.condition.name}}</span>
                                 {{restriction.value.name || restriction.value}}
                                 <span ng-if="!$last">AND </span></span>&quot;</span>
-                        <span class="semi-b" ng-if="!model.restrictions.structure.image &&
-                                                        !model.advancedSummary.length && model.restrictions.searchQuery">
-                            &quot;{{model.restrictions.searchQuery}}&quot;</span>
+                        <span class="semi-b" ng-if="!vm.model.restrictions.structure.image &&
+                                                        !vm.model.advancedSummary.length && vm.model.restrictions.searchQuery">
+                            &quot;{{vm.model.restrictions.searchQuery}}&quot;</span>
                     </div>
                     <div class="m-b20">
                         <div class="reagent-search-collapse" ng-init="isChangeQueryCollapsed=true">
@@ -263,7 +265,7 @@
                             <div class="main-search-block m-b20">
                                 <div class="row">
                                     <div class="col-xs-9">
-                                        <indigo-input indigo-model="model.restrictions.searchQuery"
+                                        <indigo-input indigo-model="vm.model.restrictions.searchQuery"
                                                       indigo-label="Type in your search query"
                                                       indigo-label-vertical="true"></indigo-input>
                                     </div>
@@ -282,118 +284,118 @@
                             <div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.compoundId.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.compoundId.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundId.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.compoundId.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.compoundId.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.fullNbkBatch.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.fullNbkBatch.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.fullNbkBatch.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.fullNbkBatch.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.formula.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.formula.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.formula.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.formula.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.formula.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.formula.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.molWeight.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.molWeight.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionNumber"
-                                                       indigo-model="model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionNumber"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.molWeight.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.molWeight.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.molWeight.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.chemicalName.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionChemicalName"
-                                                       indigo-model="model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionChemicalName"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.chemicalName.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.chemicalName.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.chemicalName.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.externalNumber.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.externalNumber.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.externalNumber.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.externalNumber.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.compoundState.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.compoundState.name}}:</label></div>
                                     <div class="col-xs-6">
                                         <indigo-select indigo-dictionary="Compound State"
-                                                       indigo-model="model.restrictions.advancedSearch.compoundState.value"></indigo-select>
+                                                       indigo-model="vm.model.restrictions.advancedSearch.compoundState.value"></indigo-select>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.comments.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.comments.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.comments.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.comments.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.comments.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.comments.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.hazardComments.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.hazardComments.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.hazardComments.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.hazardComments.value"></indigo-input>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-3"><label class="control-label">
-                                        {{model.restrictions.advancedSearch.casNumber.name}}:</label></div>
+                                        {{vm.model.restrictions.advancedSearch.casNumber.name}}:</label></div>
                                     <div class="col-xs-3">
-                                        <indigo-select indigo-items="conditionText"
-                                                       indigo-model="model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
+                                        <indigo-select indigo-items="vm.conditionText"
+                                                       indigo-model="vm.model.restrictions.advancedSearch.casNumber.condition"></indigo-select>
                                     </div>
                                     <div class="col-xs-3">
                                         <indigo-input
-                                                indigo-model="model.restrictions.advancedSearch.casNumber.value"></indigo-input>
+                                                indigo-model="vm.model.restrictions.advancedSearch.casNumber.value"></indigo-input>
                                     </div>
                                 </div>
                             </div>
@@ -407,55 +409,57 @@
                             <div class="row">
                                 <div class="col-xs-2"><label class="control-label">Similarity criteria</label></div>
                                 <div class="col-xs-4">
-                                    <indigo-select indigo-items="conditionSimilarity"
-                                                   indigo-model="model.restrictions.structure.similarityCriteria"></indigo-select>
+                                    <indigo-select indigo-items="vm.conditionSimilarity"
+                                                   indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
                                 </div>
-                                <div ng-if="model.restrictions.structure.similarityCriteria.name == 'similarity'">
+                                <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
                                     <indigo-input class="col-xs-2" style="width:80px;" indigo-name="similarityValue"
                                                   indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
                                                   indigo-validation-max-length="3"
                                                   indigo-validation-required="true"
                                                   indigo-validation-pattern-text="Enter 1-100"
-                                                  indigo-model="model.restrictions.structure.similarityValue"></indigo-input>
+                                                  indigo-model="vm.model.restrictions.structure.similarityValue"></indigo-input>
                                     <div style="position:relative"><span style="position:absolute;top:7px;">%</span>
                                     </div>
                                 </div>
                             </div>
                             <indigo-structure-scheme class="search-structure-scheme"
-                                                     ss-structure-type="molecule"
+                                                     ss-structure-type="'molecule'"
                                                      ss-autosave="false"
-                                                     ss-title="Structure"
-                                                     ss-model="scheme">
+                                                     ss-title="'Structure'"
+                                                     ss-model="vm.searchReagentsModelScheme">
                             </indigo-structure-scheme>
                         </div>
                     </div>
                     <div class="m-b20">
-                        <button class="btn btn-primary btn-can-loading {{(loading) ? 'btn-loading' : ''}}"
+                        <button class="btn btn-primary btn-can-loading"
+                                ng-class="{'btn-loading': vm.loading}"
                                 type="button"
-                                ng-click="search()"
-                                ng-disabled="!model.restrictions.structure.image && !isAdvancedSearchFilled() &&
-                                                            !model.restrictions.searchQuery">Search
+                                ng-click="vm.search()"
+                                ng-disabled="!vm.model.restrictions.structure.image && !vm.isAdvancedSearchFilled() &&
+                                                            !vm.model.restrictions.searchQuery">Search
                         </button>
-                        <span class="semi-b search-result-table-label" ng-show="!loading"> {{searchResults.length}} results found</span>
+                        <span class="semi-b search-result-table-label" ng-show="!vm.loading">
+                            {{vm.searchResults.length}} results found</span>
 
                     </div>
                     <div class="clearfix m-b20">
 
                     </div>
                     <div class="m-b20">
-                        <indigo-search-result-table indigo-table-content="searchResults"
+                        <indigo-search-result-table indigo-table-content="vm.searchResults"
                                                     indigo-editable-info="false"></indigo-search-result-table>
                     </div>
                     <div class="btn-group pull-right">
-                        <button class="btn btn-info" type="button" ng-click="addToMyReagentList()"
-                                ng-disabled="loading || searchResults.length == 0">
+                        <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
+                                ng-disabled="vm.loading || vm.searchResults.length == 0">
                             <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
                         </button>
-                        <button class="btn btn-info" type="button" ng-click="addToStoichTable(searchResults)"
-                                ng-disabled="loading || searchResults.length == 0">
+                        <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
+                                ng-disabled="vm.loading || vm.searchResults.length == 0">
                             <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
                         </button>
-                        <button class="btn btn-default" type="button" ng-click="cancel()">
+                        <button class="btn btn-default" type="button" ng-click="vm.cancel()">
                             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
                         </button>
                     </div>
