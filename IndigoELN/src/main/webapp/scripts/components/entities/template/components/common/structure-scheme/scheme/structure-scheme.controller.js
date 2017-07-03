@@ -18,6 +18,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function initModel() {
+        if (!vm.modal){
+            return;
+        }
         var newStructure = {
             structureScheme: {}
         };
@@ -60,6 +63,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
                 vm.share[vm.structureType] = vm.model[vm.structureType].structureMolfile;
             }
         });
+
+        $scope.$watch('vm.model', initModel);
+        $scope.$watch('vm.structureType', initModel);
     }
 
     function clearStructure() {
@@ -151,7 +157,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function openEditor($event) {
-        initModel();
         $event.stopPropagation();
         if (vm.indigoReadonly) {
             return;
@@ -185,7 +190,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function importStructure($event) {
-        initModel();
         $event.stopPropagation();
         if (vm.indigoReadonly) {
             return;
