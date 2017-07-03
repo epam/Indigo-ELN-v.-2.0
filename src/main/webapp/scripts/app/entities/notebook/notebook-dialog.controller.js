@@ -106,14 +106,6 @@
         }
         function createExperiment() {
             var resolve = {
-                parents: function(NotebooksForSubCreation) {
-                    return NotebooksForSubCreation.query().$promise;
-                },
-                templates: function(Template) {
-                    return Template.query({
-                        size: 100000
-                    }).$promise;
-                },
                 notebookId: function() {
                     return vm.notebook.id;
                 }

@@ -16,7 +16,7 @@
         };
 
         /* @ngInject */
-        function controller($scope, $state, EntitiesBrowser, modalHelper) {
+        function controller($scope, $state, EntitiesBrowser, modalHelper, ProjectsForSubCreation) {
             var vm = this;
 
             // TODO: move it ti file
@@ -106,14 +106,6 @@
 
             function createExperiment() {
                 var resolve = {
-                    parents: function(NotebooksForSubCreation) {
-                        return NotebooksForSubCreation.query().$promise;
-                    },
-                    templates: function(Template) {
-                        return Template.query({
-                            size: 100000
-                        }).$promise;
-                    },
                     notebookId: function() {
                         return null;
                     }
@@ -130,7 +122,7 @@
 
             function createNotebook() {
                 var resolve = {
-                    parents: function(ProjectsForSubCreation) {
+                    parents: function() {
                         return ProjectsForSubCreation.query().$promise;
                     }
                 };
