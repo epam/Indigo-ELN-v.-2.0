@@ -30,7 +30,7 @@ angular.module('indigoeln')
         function toModel(experiment) {
             var components = experiment.components;
             if (_.isArray(components)) {
-                experiment.components = _.object(_.map(components, function(component) {
+                experiment.components = _.values(_.map(components, function(component) {
                     return [component.name, component.content];
                 }));
 

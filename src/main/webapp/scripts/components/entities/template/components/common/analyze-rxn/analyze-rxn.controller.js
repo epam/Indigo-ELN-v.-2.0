@@ -31,7 +31,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     function updateStoicAndExit() {
         var result = angular.copy(vm.reactants);
         _.each(vm.model.selectedReactants, function(knownReactant) {
-            _.extend(_.findWhere(result, {
+            _.extend(_.find(result, {
                 formula: knownReactant.formula
             }), knownReactant);
         });
@@ -73,7 +73,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function prepareDatabases() {
-        return _.pluck(_.where(vm.model.databases, {
+        return _.map(_.filter(vm.model.databases, {
             isChecked: true
         }), 'value');
     }
