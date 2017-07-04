@@ -29,19 +29,6 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstant
     function importValues(sdUnitToImport, property, index, dicts, itemToImport) {
         var propCode = getPropertyCode(property, index);
         var value = sdUnitToImport.properties[propCode];
-        if (!value) {
-            value = _.chain(auxPrefixes)
-                .map(function(auxPrefix) {
-                    return auxPrefix + property.code;
-                })
-                .map(function(code) {
-                    return sdUnitToImport.properties[code];
-                })
-                .find(function(val) {
-                    return !_.isUndefined(val);
-                })
-                .value();
-        }
         if (value) {
             var formattedProperty = SdImportHelperService.formatProperty(property, value, dicts, index);
             if (itemToImport[property.name]) {
