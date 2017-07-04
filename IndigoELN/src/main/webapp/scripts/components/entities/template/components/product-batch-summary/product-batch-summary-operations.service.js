@@ -22,8 +22,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     };
 
-    function exportSDFile() {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
+    function exportSDFile(exportBatches) {
+        var batches = exportBatches || ProductBatchSummaryCache.getProductBatchSummary();
         var selectedBatches = _.filter(batches, function(item) {
             return item.select;
         });
