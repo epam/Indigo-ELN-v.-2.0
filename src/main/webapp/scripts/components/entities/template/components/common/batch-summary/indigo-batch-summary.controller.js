@@ -610,9 +610,8 @@
             if (!getStoicTable()) {
                 return;
             }
-            _.find(vm.columns, {
-                'id': 'precursors'
-            }).readonly = true;
+            _.find(vm.columns, {id: 'precursors'}).readonly = true;
+
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
                 return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
             })
@@ -691,7 +690,7 @@
         }
 
         function exportSDFile() {
-            ProductBatchSummaryOperations.exportSDFile();
+            ProductBatchSummaryOperations.exportSDFile(getProductBatches());
         }
 
         function registerBatches() {
