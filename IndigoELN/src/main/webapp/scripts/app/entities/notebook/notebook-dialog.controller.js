@@ -179,7 +179,18 @@
         }
 
         function onSaveError(result) {
-            var mess = (result.status === 400) ? 'This Notebook name is already in use in the system' : 'Notebook is not saved due to server error';
+            if (result.status === 400) {
+                Alert.error('This Notebook name is already in use in the system');
+                if (vm.notebook.description) {
+                    partialRefresh();
+                } else {
+                    refresh();
+                }
+                return;
+            }
+
+            var mess = 'Notebook is not saved due to server error';
+
             if (result.data.params.length > 1) {
                 mess = 'This Notebook name cannot be changed because batches are created within its experiments';
             }
@@ -198,6 +209,17 @@
                     $scope.createNotebookForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                 }, function() {
+                    Alert.error('Notebook not refreshed due to server error!');
+                });
+        }
+
+        function partialRefresh() {
+            vm.hasError = false;
+            vm.loading = Notebook.get($stateParams).$promise
+                .then(function (result) {
+                    delete result.description;
+                    _.extend(vm.notebook, result);
+                }, function () {
                     Alert.error('Notebook not refreshed due to server error!');
                 });
         }
