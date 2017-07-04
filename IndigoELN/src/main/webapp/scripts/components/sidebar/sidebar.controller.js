@@ -641,6 +641,13 @@
                 }
             }));
 
+            events.push($scope.$on('notebook-changed', function (event, data) {
+                vm.projects = vm.myBookmarks.projects;
+                project = getTreeItemById(vm.projects, data.projectId);
+                notebook = getTreeItemById(project.children, data.notebook.id);
+                notebook.name = data.notebook.name;
+            }));
+
             events.push($scope.$on('experiment-created', function (event, data) {
                 updateTreeForExperiments(event, data);
             }));

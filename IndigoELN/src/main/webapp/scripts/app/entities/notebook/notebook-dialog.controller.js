@@ -209,6 +209,8 @@
                     .then(function(result) {
                         vm.notebook.version = result.version;
                         $scope.createNotebookForm.$setPristine();
+                        EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
+                        $rootScope.$broadcast('notebook-changed', vm);
                     }, onSaveError);
 
                 return;
