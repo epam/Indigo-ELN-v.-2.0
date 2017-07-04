@@ -73,9 +73,11 @@ function experiment($resource, PermissionManagement, $rootScope) {
     function toModel(experiment) {
         var components = experiment.components;
         if (_.isArray(components)) {
-            experiment.components = _.zipObject(_.map(components, function(component) {
-                return [component.name, component.content];
-            }));
+            experiment.components = {};
+
+            _.forEach(components, function(component) {
+                experiment.components[component.name] = component.content;
+            });
 
             return experiment;
         }
