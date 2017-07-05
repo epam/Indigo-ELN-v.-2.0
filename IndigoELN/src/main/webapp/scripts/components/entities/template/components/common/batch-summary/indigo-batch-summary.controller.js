@@ -709,7 +709,7 @@
                 var model = vm.model[type] || {};
                 changed = true;
                 model.image = null;
-                model.structureMolfile = null;
+                model.molfile = null;
                 model.structureId = null;
 
                 row.structure = row.structure || {};
