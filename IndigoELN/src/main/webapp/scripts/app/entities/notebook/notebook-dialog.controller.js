@@ -180,21 +180,21 @@
 
         function onSaveError(result) {
             if (result.status === 400) {
-                Alert.error('This Notebook name is already in use in the system');
+                if (result.data.params.length > 1 || result.data.params[0].indexOf('-') > -1) {
+                    Alert.error('This Notebook name cannot be changed because batches are created within its' +
+                        ' experiments');
+                } else {
+                    Alert.error('This Notebook name is already in use in the system');
+                }
                 vm.hasError = false;
                 partialRefresh();
                 return;
             }
 
-            var mess = 'Notebook is not saved due to server error';
-
-            if (result.data.params.length > 1) {
-                mess = 'This Notebook name cannot be changed because batches are created within its experiments';
-            }
             $timeout(function() {
                 vm.hasError = true;
             });
-            Alert.error(mess);
+            Alert.error('Notebook is not saved due to server error');
         }
 
         function refresh() {
@@ -214,7 +214,8 @@
             vm.loading = Notebook.get($stateParams).$promise
                 .then(function (result) {
                     vm.notebook.name = result.name;
-                    if (vm.notebook.description === result.description) {
+                    if (vm.notebook.description === result.description &&
+                        _.isEqual(vm.notebook.accessList, result.accessList)) {
                         $scope.createNotebookForm.$setPristine();
                         $scope.createNotebookForm.$dirty = false;
                     }
