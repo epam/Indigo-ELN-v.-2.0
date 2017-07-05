@@ -43,7 +43,7 @@ function SdImportHelperService(AppValues) {
     }
 
     function formatProperty(property, value, dicts, index) {
-        var formatFunc = getFormatProperty(property, value, index);
+        var formatFunc = getFormatProperty(property);
         if (formatFunc) {
             return formatFunc(property, value, index);
         }
