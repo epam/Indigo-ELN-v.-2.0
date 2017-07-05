@@ -1,9 +1,9 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('entitiesController', entitiesController);
+        .controller('EntitiesController', EntitiesController);
 
-    function entitiesController($scope, EntitiesBrowser, $rootScope, $q, Principal, EntitiesCache, AlertModal,
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal,
                                 AutoRecoverEngine, Alert, Experiment, Notebook, Project, dialogService) {
         var vm = this;
 
@@ -146,27 +146,19 @@
         }
 
         function bindEvents() {
-            var events = [];
-
             $scope.$watch(function() {
                 return EntitiesBrowser.getActiveTab();
             }, function(value) {
                 vm.activeTab = value;
             });
 
-            events.push($rootScope.$on('entity-updated', function(event, data) {
+            $scope.$on('entity-updated', function(event, data) {
                 Principal.identity(true).then(function(user) {
                     EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
                         if (tab && user.id !== data.user) {
                             onTabChanged(tab, data.entity);
                         }
                     });
-                });
-            }));
-
-            $scope.$on('$destroy', function() {
-                _.each(events, function(event) {
-                    event();
                 });
             });
         }
