@@ -41,7 +41,7 @@ function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstant
 
     function fillProperties(sdUnitToImport, itemToImport, dicts) {
         if (sdUnitToImport.properties) {
-            _.each(SdConstants.sdProperties, function(property) {
+            _.each(SdConstants, function(property) {
                 if (property.childrenLength) {
                     for (var i = 0; i < property.childrenLength; i++) {
                         importValues(sdUnitToImport, property, i, dicts, itemToImport);
