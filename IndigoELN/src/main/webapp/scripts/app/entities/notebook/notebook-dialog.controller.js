@@ -214,6 +214,10 @@
             vm.loading = Notebook.get($stateParams).$promise
                 .then(function (result) {
                     vm.notebook.name = result.name;
+                    if (vm.notebook.description === result.description) {
+                        $scope.createNotebookForm.$setPristine();
+                        $scope.createNotebookForm.$dirty = false;
+                    }
                 }, function () {
                     Alert.error('Notebook not refreshed due to server error!');
                 });
