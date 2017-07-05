@@ -87,6 +87,7 @@
 
             initDirtyListener();
 
+            vm.notebookCopy = angular.copy(vm.notebook);
 
             var onAccessListChangedEvent = $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
@@ -199,29 +200,19 @@
 
         function refresh() {
             vm.hasError = false;
-            vm.loading = Notebook.get($stateParams).$promise
-                .then(function(result) {
-                    _.extend(vm.notebook, result);
-                    $scope.createNotebookForm.$setPristine();
-                    $scope.createNotebookForm.$dirty = false;
-                    EntitiesBrowser.changeDirtyTab($stateParams, false);
-                }, function() {
-                    Alert.error('Notebook not refreshed due to server error!');
-                });
+            _.extend(vm.notebook, vm.notebookCopy);
+            $scope.createNotebookForm.$setPristine();
+            $scope.createNotebookForm.$dirty = false;
+            EntitiesBrowser.changeDirtyTab($stateParams, false);
         }
 
         function partialRefresh() {
-            vm.loading = Notebook.get($stateParams).$promise
-                .then(function (result) {
-                    vm.notebook.name = result.name;
-                    if (vm.notebook.description === result.description &&
-                        _.isEqual(vm.notebook.accessList, result.accessList)) {
-                        $scope.createNotebookForm.$setPristine();
-                        $scope.createNotebookForm.$dirty = false;
-                    }
-                }, function () {
-                    Alert.error('Notebook not refreshed due to server error!');
-                });
+            vm.notebook.name = vm.notebookCopy.name;
+            if (vm.notebook.description === vm.notebookCopy.description &&
+                _.isEqual(vm.notebook.accessList, vm.notebookCopy.accessList)) {
+                $scope.createNotebookForm.$setPristine();
+                $scope.createNotebookForm.$dirty = false;
+            }
         }
 
         function save() {
