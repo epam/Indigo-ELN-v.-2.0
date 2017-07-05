@@ -29,13 +29,13 @@ function SdImportHelperService(AppValues) {
     };
 
     function getFormatProperty(property, value) {
-        if (property.path && _.isNaN(value)) {
+        if (property.path && !_.isNaN(parseInt(value))) {
             return function(_property, _value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), _value);
+                return _.set({}, _property.path.replace(/<%= index =>/, index), parseInt(_value));
             };
         } else if (property.path) {
             return function(_property, _value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), parseInt(_value));
+                return _.set({}, _property.path.replace(/<%= index =>/, index), _value);
             };
         }
 
