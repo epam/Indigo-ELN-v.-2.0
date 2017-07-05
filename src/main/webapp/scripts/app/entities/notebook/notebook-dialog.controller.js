@@ -181,11 +181,7 @@
         function onSaveError(result) {
             if (result.status === 400) {
                 Alert.error('This Notebook name is already in use in the system');
-                if (vm.notebook.description) {
-                    partialRefresh();
-                } else {
-                    refresh();
-                }
+                partialRefresh();
                 return;
             }
 
@@ -232,7 +228,7 @@
                         vm.notebook.version = result.version;
                         $scope.createNotebookForm.$setPristine();
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
-                        $rootScope.$broadcast('notebook-changed', vm);
+                        $rootScope.$broadcast('notebook-changed', {projectId: vm.projectId, notebook: vm.notebook});
                     }, onSaveError);
 
                 return;

@@ -416,6 +416,13 @@
         }
 
 
+        function updateNotebookName (event, data) {
+            vm.projects = vm.myBookmarks.projects;
+            var project = getTreeItemById(vm.projects, data.projectId);
+            var notebook = getTreeItemById(project.children, data.notebook.id);
+            notebook.name = data.notebook.name;
+        }
+
         function updateExperiments(projects, callback) {
             angular.forEach(projects, function (project) {
                 angular.forEach(project.children, function (notebook) {
@@ -641,12 +648,7 @@
                 }
             }));
 
-            events.push($scope.$on('notebook-changed', function (event, data) {
-                vm.projects = vm.myBookmarks.projects;
-                project = getTreeItemById(vm.projects, data.projectId);
-                notebook = getTreeItemById(project.children, data.notebook.id);
-                notebook.name = data.notebook.name;
-            }));
+            $scope.$on('notebook-changed', updateNotebookName);
 
             events.push($scope.$on('experiment-created', function (event, data) {
                 updateTreeForExperiments(event, data);
