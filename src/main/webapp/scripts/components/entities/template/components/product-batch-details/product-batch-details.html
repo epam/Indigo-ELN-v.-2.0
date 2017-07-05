@@ -14,18 +14,18 @@
                     class="select-inline"
             ></indigo-select>
             <indigo-checkbox
-                    indigo-model="showSummary"
+                    indigo-model="vm.showSummary"
                     indigo-label="Show summary table"
             ></indigo-checkbox>
         </form>
-        <indigo-batch-summary ng-if="showSummary"
+        <indigo-batch-summary ng-if="vm.showSummary"
                               my-tab-support="true"
                               model="vm.model"
                               share="vm.share"
                               indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
                               is-hide-column-settings="true"
         ></indigo-batch-summary>
-        <indigo-table ng-if="!showSummary" indigo-id="product-detail-table" indigo-columns="vm.productTableColumns"
+        <indigo-table ng-if="!vm.showSummary" indigo-id="product-detail-table" indigo-columns="vm.productTableColumns"
                       indigo-rows="vm.detailTable" class="my-table-wrapper table-batch-details">
 
             <div class="row m-b20">

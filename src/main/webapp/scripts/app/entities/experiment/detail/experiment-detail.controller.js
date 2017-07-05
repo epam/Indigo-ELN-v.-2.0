@@ -127,7 +127,6 @@
             vm.loading.then(function(result) {
                 vm.experiment.version = result.version;
                 $scope.experimentForm.$setPristine();
-                $scope.experimentForm.$dirty = false;
             }, function() {
                 Alert.error('Experiment is not saved due to server error!');
             });
@@ -172,18 +171,12 @@
             }
         }
 
-        function refresh(noExtend) {
+        function refresh() {
             vm.loading = Experiment.get($stateParams).$promise;
             vm.loading.then(function(result) {
                 Alert.success('Experiment updated');
-                if (!noExtend) {
-                    angular.extend(vm.experiment, result);
-                    EntitiesBrowser.changeDirtyTab($stateParams, false);
-                    $scope.experimentForm.$setPristine();
-                    $scope.experimentForm.$dirty = false;
-                } else {
-                    vm.experiment.version = result.version;
-                }
+                angular.extend(vm.experiment, result);
+                $timeout($scope.experimentForm.$setPristine);
             }, function() {
                 Alert.error('Experiment not refreshed due to server error!');
             });
@@ -205,20 +198,28 @@
             });
         }
 
+        function updateFormState() {
+            if (pageInfo.dirty) {
+                $scope.experimentForm.$setDirty();
+            } else {
+                $scope.experimentForm.$setPristine();
+            }
+        }
+
         function initDirtyListener() {
             $timeout(function() {
                 EntitiesBrowser.setCurrentForm($scope.experimentForm);
                 var tabKind = $state.$current.data.tab.kind;
-                if (pageInfo.dirty) {
-                    $scope.experimentForm.$setDirty(pageInfo.dirty);
-                }
-                $scope.$watch(function() {
-                    return vm.experiment;
-                }, function() {
-                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.experimentForm.$dirty);
-                    $timeout(function() {
-                        vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                    }, 0);
+                updateFormState();
+
+                $scope.$watch('vm.experiment', function() {
+                    EntitiesBrowser.setCurrentEntity(vm.experiment);
+                }, true);
+
+                $scope.$watch('experimentForm.$dirty', function() {
+                    var dirty = $scope.experimentForm.$dirty;
+                    EntitiesBrowser.changeDirtyTab($stateParams, dirty);
+                    vm.isBtnSaveActive = dirty;
                 }, true);
 
                 AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind, vm);
@@ -237,21 +238,20 @@
         }
 
         function initEventListeners() {
-            $scope.$watch(function() {
-                return vm.experiment;
-            }, function() {
-                EntitiesBrowser.setCurrentEntity(vm.experiment);
-            });
+            $scope.$watch('vm.isEditAllowed', function() {
+                if (!vm.isEditAllowed) {
+                    $scope.experimentForm.$setPristine();
+                }
+            }, true);
 
-            $scope.$watch(function() {
-                return vm.experiment.status;
-            }, function() {
+            $scope.$watch('vm.experiment.status', function() {
                 updateStatuses();
                 setReadOnly();
             });
 
             $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
+                $scope.experimentForm.$setDirty();
             });
 
             $scope.$on('experiment-status-changed', function(event, data) {

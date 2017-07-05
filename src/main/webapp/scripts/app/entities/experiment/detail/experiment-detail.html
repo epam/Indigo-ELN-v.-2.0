@@ -81,11 +81,11 @@
         <button type="submit" form="experimentForm" ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isBtnSaveActive" class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
-        <a class="btn btn-default" ng-click="vm.refresh()">
+        <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
             <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
-        </a>
-        <a class="btn btn-default" onclick="window.history.back()">
+        </button>
+        <button class="btn btn-default" ng-click="window.history.back()">
             <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
-        </a>
+        </button>
     </div>
 </div>
