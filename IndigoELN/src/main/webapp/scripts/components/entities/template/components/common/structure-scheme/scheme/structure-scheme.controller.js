@@ -18,21 +18,27 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         bindEvents();
     }
 
-    function getInitModel() {
-        if (vm.model && vm.model[vm.structureType]) {
-            return vm.model[vm.structureType];
-        }
+    function buildStructure(fromStructure) {
+        var structure = fromStructure || {};
 
         return {
-            structureScheme: {},
-            image: null,
-            molfile: null,
-            structureId: null
+            structureScheme: structure.structureScheme || {},
+            image: structure.image || null,
+            molfile: structure.molfile || null,
+            structureId: structure.structureId || null
         };
     }
 
+    function getInitModel() {
+        if (vm.model && vm.model[vm.structureType]) {
+            return angular.copy(vm.model[vm.structureType]);
+        }
+
+        return buildStructure();
+    }
+
     function setSelecterdRow() {
-        vm.structureModel = _.get(vm.share.selectedRow, 'structure');
+        vm.structureModel = buildStructure(_.get(vm.share.selectedRow, 'structure'));
         onChange();
     }
 
@@ -202,13 +208,14 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         });
 
         // process structure if changed
-        modalInstance.result.then(function(structure) {
-            if (vm.autosave && structure) {
-                saveNewStructure(structure);
-            }
-            setStructure(structure);
-            EntitiesBrowser.setCurrentFormDirty();
-        });
+        modalInstance.result.then(successEditStructure);
+    }
+
+    function successEditStructure(structure) {
+        if (vm.autosave && structure) {
+            saveNewStructure(structure);
+        }
+        setStructure(structure);
     }
 
     function importStructure($event) {
@@ -225,14 +232,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         });
 
         // set structure if picked
-        modalInstance.result.then(function(structure) {
-            if (vm.autosave) {
-                setStructure(structure);
-                saveNewStructure(structure);
-            } else {
-                setStructure(structure);
-            }
-        });
+        modalInstance.result.then(successEditStructure);
     }
 
     function getStructureMolfile() {
