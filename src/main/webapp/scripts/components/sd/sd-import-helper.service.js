@@ -10,7 +10,7 @@ function SdImportHelperService(AppValues) {
         },
         GLOBAL_SALT_EQ: function(property, value) {
             return {
-                value: parseInt(value),
+                value: parseInt(value, 10),
                 entered: false
             };
         },
@@ -28,22 +28,22 @@ function SdImportHelperService(AppValues) {
         formatProperty: formatProperty
     };
 
+    function formatPropertyPath(property, value, index) {
+        var parsedValue = property.isNumeric ? parseInt(value, 10) : value;
+
+        return _.set({}, property.path.replace(/<%= index =>/, index), parsedValue);
+    }
+
     function getFormatProperty(property) {
-        var foo;
         if (property.path) {
-            foo = property.isNumeric ? function(_property, value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), parseInt(value));
-            } : function(_property, value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), value);
-            };
-            return foo;
+            return formatPropertyPath;
         }
 
         return additionalFormatFunctions[property.code];
     }
 
     function formatProperty(property, value, dicts, index) {
-        var formatFunc = getFormatProperty(property);
+        var formatFunc = getFormatProperty(property, value, index);
         if (formatFunc) {
             return formatFunc(property, value, index);
         }
