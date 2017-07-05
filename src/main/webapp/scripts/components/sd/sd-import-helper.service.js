@@ -28,22 +28,22 @@ function SdImportHelperService(AppValues) {
         formatProperty: formatProperty
     };
 
-    function getFormatProperty(property, value) {
-        if (property.path && !_.isNaN(parseInt(value))) {
-            return function(_property, _value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), parseInt(_value));
+    function getFormatProperty(property) {
+        var foo;
+        if (property.path) {
+            foo = property.isNumeric ? function(_property, value, index) {
+                return _.set({}, _property.path.replace(/<%= index =>/, index), parseInt(value));
+            } : function(_property, value, index) {
+                return _.set({}, _property.path.replace(/<%= index =>/, index), value);
             };
-        } else if (property.path) {
-            return function(_property, _value, index) {
-                return _.set({}, _property.path.replace(/<%= index =>/, index), _value);
-            };
+            return foo;
         }
 
         return additionalFormatFunctions[property.code];
     }
 
     function formatProperty(property, value, dicts, index) {
-        var formatFunc = getFormatProperty(property, value);
+        var formatFunc = getFormatProperty(property);
         if (formatFunc) {
             return formatFunc(property, value, index);
         }

@@ -94,7 +94,8 @@ angular
             code: 'PURITY_VALUE',
             name: 'purity',
             childrenLength: 5,
-            path: 'data.<%= index =>.value'
+            path: 'data.<%= index =>.value',
+            isNumeric: true
         },
         {
             code: 'MELTING_POINT',
@@ -109,12 +110,14 @@ angular
         {
             code: 'MELTING_POINT_LOWER',
             name: 'meltingPoint',
-            path: 'lower'
+            path: 'lower',
+            isNumeric: true
         },
         {
             code: 'MELTING_POINT_UPPER',
             name: 'meltingPoint',
-            path: 'upper'
+            path: 'upper',
+            isNumeric: true
         },
         {
             code: 'RESIDUAL_SOLVENTS_STRING',
@@ -137,7 +140,8 @@ angular
             code: 'RESIDUAL_SOLVENTS_RANK',
             name: 'residualSolvents',
             childrenLength: 5,
-            path: 'data.<%= index =>.name.rank'
+            path: 'data.<%= index =>.name.rank',
+            isNumeric: true
         },
         {
             code: 'RESIDUAL_SOLVENTS_NAME',
@@ -166,7 +170,8 @@ angular
             code: 'SOLUBILITY_SOLVENTS_RANK',
             name: 'solubility',
             childrenLength: 5,
-            path: 'data.<%= index =>.solventName.rank'
+            path: 'data.<%= index =>.solventName.rank',
+            isNumeric: true
         },
         {
             code: 'SOLUBILITY_SOLVENTS_NAME',
