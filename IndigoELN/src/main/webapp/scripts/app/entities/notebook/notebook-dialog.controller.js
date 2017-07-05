@@ -61,7 +61,7 @@
                     $scope.createNotebookForm.$setDirty(pageInfo.dirty);
                 }
 
-                vm.dirtyListener = $scope.$watch(function() {
+                $scope.$watch(function() {
                     return vm.notebook;
                 }, function() {
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
@@ -88,12 +88,8 @@
             initDirtyListener();
 
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function() {
+            $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
-            });
-            $scope.$on('$destroy', function() {
-                onAccessListChangedEvent();
-                vm.dirtyListener();
             });
 
             // Activate save button when change permission
@@ -104,6 +100,7 @@
                 }, 10);
             });
         }
+
         function createExperiment() {
             var resolve = {
                 notebookId: function() {
