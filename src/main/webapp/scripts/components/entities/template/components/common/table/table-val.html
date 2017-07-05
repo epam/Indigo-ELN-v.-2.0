@@ -45,7 +45,7 @@
         </a>
         <div ng-if="vm.indigoColumn.type == 'image' && vm.indigoRow[vm.indigoColumn.id].image"
              ng-style="{'width': vm.indigoColumn.width}">
-            <img class="img-fill" style="padding: 10px; background-color: white"
+            <img class="img-fill"
                  ng-src="data:image/svg+xml;base64,{{vm.indigoRow[vm.indigoColumn.id].image}}"
                  alt="Image is unavailable.">
         </div>

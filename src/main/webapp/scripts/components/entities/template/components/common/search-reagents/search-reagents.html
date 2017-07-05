@@ -205,15 +205,15 @@
                                                indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
                             </div>
                             <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
-                                <indigo-input class="col-xs-2" style="width:80px;"
+                                <indigo-input class="col-xs-2 search-reagents__criteria-input"
                                               indigo-name="similarityValue"
                                               indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
                                               indigo-validation-max-length="3"
                                               indigo-validation-required="true"
                                               indigo-validation-pattern-text="Enter 1-100"
                                               indigo-model="vm.model.restrictions.structure.similarityValue"></indigo-input>
-                                <div style="position:relative">
-                                    <span style="position:absolute;top:7px;">%</span>
+                                <div class="relative">
+                                    <span class="absolute top-7">%</span>
                                 </div>
                             </div>
                         </div>
@@ -414,13 +414,13 @@
                                                    indigo-model="vm.model.restrictions.structure.similarityCriteria"></indigo-select>
                                 </div>
                                 <div ng-if="vm.model.restrictions.structure.similarityCriteria.name == 'similarity'">
-                                    <indigo-input class="col-xs-2" style="width:80px;" indigo-name="similarityValue"
+                                    <indigo-input class="col-xs-2 search-reagents__criteria-input" indigo-name="similarityValue"
                                                   indigo-validation-pattern="/^\d{1,2}(?!\d)|100$/"
                                                   indigo-validation-max-length="3"
                                                   indigo-validation-required="true"
                                                   indigo-validation-pattern-text="Enter 1-100"
                                                   indigo-model="vm.model.restrictions.structure.similarityValue"></indigo-input>
-                                    <div style="position:relative"><span style="position:absolute;top:7px;">%</span>
+                                    <div class="relative"><span class="absolute top-7">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -465,7 +465,6 @@
                             <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
                         </button>
                     </div>
-
                 </div>
             </div>
         </uib-tab>

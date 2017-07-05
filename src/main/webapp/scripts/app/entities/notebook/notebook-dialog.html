@@ -34,7 +34,7 @@
             <div uib-collapse="vm.isCollapsed">
                 <hr>
                 <ul id="triple-list" class="list-triple members">
-                    <li class="members" ng-repeat="member in vm.notebook.accessList track by $index">
+                    <li class="members list-triple-members" ng-repeat="member in vm.notebook.accessList track by $index">
                         {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
                         + ')' }}
                     </li>
@@ -69,11 +69,10 @@
                                     <table class="main-table table table-striped table-condensed">
                                         <thead class="main-table__header">
                                         <tr class="table-list">
-                                            <th style="width:15%" class="table-list__item table-list__item_header">Notebook - Experiment
-                                            </th>
-                                            <th style="width:35%" class="table-list__item table-list__item_header">Experiment Details</th>
-                                            <th style="width:35%" class="table-list__item table-list__item_header">Reaction Scheme</th>
-                                            <th style="width:15%" class="table-list__item table-list__item_header">Actions</th>
+                                            <th class="table-list__item table-list__item_header w-15">Notebook - Experiment</th>
+                                            <th class="table-list__item table-list__item_header w-35">Experiment Details</th>
+                                            <th class="table-list__item table-list__item_header w-35">Reaction Scheme</th>
+                                            <th class="table-list__item table-list__item_header w-15">Actions</th>
                                         </tr>
                                         </thead>
                                         <tbody class="main-table__body">
@@ -86,8 +85,8 @@
                                                 <p>Experiment Status: {{exp.status}}</p>
                                             </td>
                                             <td class="table-list__item">
-                                                <img ng-if="!!exp.components.reaction.image" style="padding: 10px; background-color: white; "
-                                                     class="img-responsive center-block"
+                                                <img ng-if="!!exp.components.reaction.image"
+                                                     class="img-fill img-responsive center-block"
                                                      ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
                                                      alt="Image is unavailable.">
                                             </td>
