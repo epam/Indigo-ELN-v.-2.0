@@ -69,6 +69,7 @@ angular
         {
             code: 'PURITY_STRING',
             name: 'purity',
+            path: 'asString',
             subPropName: 'asString'
         },
         {
@@ -97,7 +98,8 @@ angular
         },
         {
             code: 'MELTING_POINT',
-            name: 'meltingPoint'
+            name: 'meltingPoint',
+            path: 'asString'
         },
         {
             code: 'MELTING_POINT_COMMENTS',
@@ -116,7 +118,8 @@ angular
         },
         {
             code: 'RESIDUAL_SOLVENTS_STRING',
-            name: 'residualSolvents'
+            name: 'residualSolvents',
+            path: 'asString'
         },
         {
             code: 'RESIDUAL_SOLVENTS_COMMENT',
@@ -144,7 +147,8 @@ angular
         },
         {
             code: 'SOLUBILITY_SOLVENTS_STRING',
-            name: 'solubility'
+            name: 'solubility',
+            path: 'asString'
         },
         {
             code: 'SOLUBILITY_SOLVENTS_COMMENT',
@@ -202,7 +206,8 @@ angular
         },
         {
             code: 'EXTERNAL_SUPPLIER_STRING',
-            name: 'externalSupplier'
+            name: 'externalSupplier',
+            path: 'asString'
         },
         {
             code: 'EXTERNAL_SUPPLIER_REG_NUMBER',
@@ -221,7 +226,8 @@ angular
         },
         {
             code: 'HEALTH_HAZARDS_STRING',
-            name: 'healthHazards'
+            name: 'healthHazards',
+            path: 'asString'
         },
         {
             code: 'HEALTH_HAZARDS',
@@ -231,7 +237,8 @@ angular
         },
         {
             code: 'HANDLING_PRECAUTIONS_STRING',
-            name: 'handlingPrecautions'
+            name: 'handlingPrecautions',
+            path: 'asString'
         },
         {
             code: 'HANDLING_PRECAUTIONS',
@@ -241,7 +248,8 @@ angular
         },
         {
             code: 'STORAGE_INSTRUCTIONS_STRING',
-            name: 'storageInstructions'
+            name: 'storageInstructions',
+            path: 'asString'
         },
         {
             code: 'STORAGE_INSTRUCTIONS',
