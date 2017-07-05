@@ -9,8 +9,10 @@
             <div class="col-xs-12">
                 <div>
                     <label>Reactants: </label>
-                    <span ng-repeat="reactant in vm.model.reactants track by $index">{{reactant.formula}}<span
-                            ng-if="!$last">, </span></span>
+                    <span ng-repeat="reactant in vm.model.reactants track by $index">
+                        {{reactant.formula}}
+                        <span ng-if="!$last">, </span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -27,7 +29,8 @@
     <div ng-if="vm.isSearchCompleted" class="search-result-container">
         <div class="row">
             <div class="col-xs-3 reagent-search-collapse" ng-init="$$isSelectedReactantsCollapsed=true">
-                <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed">
+                <a ng-click="$$isSelectedReactantsCollapsed = !$$isSelectedReactantsCollapsed"
+                   class="reagent-search-collapse-link">
                         <span ng-class="{'fa fa-angle-right':$$isSelectedReactantsCollapsed,
                              'fa fa-angle-down':!$$isSelectedReactantsCollapsed}"></span>
                     Selected reactants ({{vm.model.selectedReactants.length}})

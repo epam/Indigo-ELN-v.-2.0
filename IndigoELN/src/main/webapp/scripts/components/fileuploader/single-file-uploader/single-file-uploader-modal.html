@@ -17,7 +17,7 @@
                 <table class="table">
                     <thead>
                     <tr>
-                        <th style="width:50%">Name</th>
+                        <th class="w-50">Name</th>
                         <th ng-show="vm.uploader.isHTML5">Size</th>
                         <th ng-show="vm.uploader.isHTML5">Progress</th>
                     </tr>
@@ -27,7 +27,7 @@
                         <td><strong ng-bind="item.file.name"></strong></td>
                         <td ng-show="vm.uploader.isHTML5"><span ng-bind="item.file.size/1024/1024|number:2"></span> MB</td>
                         <td ng-show="vm.uploader.isHTML5">
-                            <div class="progress" style="margin-bottom: 0;">
+                            <div class="progress nomarg">
                                 <div class="progress-bar" role="progressbar"
                                      ng-style="{ 'width': item.progress + '%' }"></div>
                             </div>

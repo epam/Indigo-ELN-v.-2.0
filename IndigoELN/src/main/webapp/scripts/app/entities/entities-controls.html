@@ -60,8 +60,8 @@
                 <span class="tooltip-icon-header">Search</span>
             </a>
         </li>
-        <li class="item-null">
-            <a></a>
+        <li>
+            <a class="item-null-link"></a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-click="vm.save()" ng-class="{'disabled' : !vm.canSave() }">
@@ -105,8 +105,8 @@
                 <span class="tooltip-icon-header">Print</span>
             </a>
         </li>
-        <li ng-if="!vm.isDashboard" class="item-null">
-            <a></a>
+        <li ng-if="!vm.isDashboard">
+            <a class="item-null-link"></a>
         </li>
         <li indigo-toggle-class-child="open-menu">
             <a>

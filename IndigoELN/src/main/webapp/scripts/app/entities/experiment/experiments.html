@@ -7,7 +7,7 @@
                 <div class="panel-body panel-body-nopad" >
                     <div class="statistic-radio">
                         <input type="radio" name="experimentsSwitcher" ng-model="vm.dView" ng-change="vm.onViewChange()" ng-value="'open'">
-                        <div>
+                        <div class="statistic-info">
                             <span class="statistic-txt">Open</span>
                             <span class="count pull-right" ng-bind="vm.openExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((vm.openExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
@@ -15,7 +15,7 @@
                     </div>
                     <div class="statistic-radio statistic-orange">
                         <input type="radio" name="experimentsSwitcher" ng-model="vm.dView" ng-value="'wait'" ng-change="vm.onViewChange()">
-                        <div>
+                        <div class="statistic-info">
                             <span class="statistic-txt">Waiting author’s signature</span>
                             <span class="count pull-right" ng-bind="vm.waitingExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((vm.waitingExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>
@@ -23,7 +23,7 @@
                     </div>
                     <div class="statistic-radio statistic-yellow">
                         <input type="radio" name="experimentsSwitcher" ng-model="vm.dView" ng-value="'submitted'" ng-change="vm.onViewChange()">
-                        <div>
+                        <div class="statistic-info">
                             <span class="statistic-txt">Submitted by author</span>
                             <span class="count pull-right" ng-bind="vm.submittedExperimentsLength"></span>
                             <uib-progressbar animate="false" value="((vm.submittedExperimentsLength * 100)/100) || 0" type="success"></uib-progressbar>

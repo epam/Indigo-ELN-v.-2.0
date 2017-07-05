@@ -124,7 +124,7 @@
             function updatePopover() {
                 vm.popoverTitle = vm.indigoRow[vm.indigoColumn.id];
                 var image = vm.indigoRow.structure ? vm.indigoRow.structure.image : '';
-                vm.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
+                vm.popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" ' +
                     'src="data:image/svg+xml;base64,' + image + '" alt="Image is unavailable."></div>');
             }
 
