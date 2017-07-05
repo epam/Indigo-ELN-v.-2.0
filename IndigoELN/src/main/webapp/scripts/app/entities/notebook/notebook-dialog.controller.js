@@ -181,6 +181,7 @@
         function onSaveError(result) {
             if (result.status === 400) {
                 Alert.error('This Notebook name is already in use in the system');
+                vm.hasError = false;
                 partialRefresh();
                 return;
             }
@@ -210,11 +211,9 @@
         }
 
         function partialRefresh() {
-            vm.hasError = false;
             vm.loading = Notebook.get($stateParams).$promise
                 .then(function (result) {
-                    delete result.description;
-                    _.extend(vm.notebook, result);
+                    vm.notebook.name = result.name;
                 }, function () {
                     Alert.error('Notebook not refreshed due to server error!');
                 });
