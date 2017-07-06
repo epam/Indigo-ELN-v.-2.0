@@ -41,11 +41,14 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
 
     function cleanReactants(reactants) {
         return reactants.map(function(batch) {
-            var newBatch = angular.copy(batch);
-            _.set(newBatch, 'eight.value', 0);
-            _.set(newBatch, 'volume.value', 0);
-
-            return newBatch;
+            return {
+                compoundId: batch.compoundId,
+                nbkBatch: batch.nbkBatch,
+                molWeight: batch.molWeight,
+                formula: batch.formula,
+                saltCode: batch.saltCode,
+                saltEq: batch.saltEq
+            };
         });
     }
 
