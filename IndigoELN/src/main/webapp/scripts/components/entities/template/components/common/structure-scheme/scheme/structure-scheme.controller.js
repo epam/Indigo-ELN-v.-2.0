@@ -62,7 +62,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
                     if (row.structure.molfile) {
                         getMolfileImage(row);
                     }
-                } else if (!_.isUndefined(row)) {
+                } else if (angular.isDefined(row)) {
                     clearStructure();
                 }
             });
