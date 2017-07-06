@@ -23,7 +23,7 @@ function errorHandlerInterceptor($q, $injector, $rootScope, $log) {
                 var errorAlertHeader = httpResponse.headers('X-indigoeln-error-alert');
                 var errorHeader = httpResponse.headers('X-indigoeln-error');
                 var entityKey = httpResponse.headers('X-indigoeln-params');
-                if (angular.isString(errorAlertHeader)) {
+                if (_.isString(errorAlertHeader)) {
                     $log.error(errorAlertHeader);
                 } else if (errorHeader) {
                     addErrorAlert(errorHeader, {
