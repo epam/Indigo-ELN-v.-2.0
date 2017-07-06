@@ -13,7 +13,7 @@ function modalHelperFactory($uibModal) {
         return $uibModal.open({
             animation: true,
             templateUrl: 'scripts/app/entities/experiment/create-new-experiment-modal/create-new-experiment-modal.html',
-            controller: 'createNewExperimentModalController',
+            controller: 'CreateNewExperimentModalController',
             controllerAs: 'vm',
             size: 'lg',
             resolve: resolve

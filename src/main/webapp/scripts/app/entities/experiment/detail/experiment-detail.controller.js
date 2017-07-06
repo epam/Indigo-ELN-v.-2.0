@@ -32,6 +32,8 @@
                 vm.experiment = response.experiment;
                 vm.notebook = response.notebook;
 
+                EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.name, $stateParams);
+
                 initPermissions();
                 FileUploaderCash.setFiles([]);
 

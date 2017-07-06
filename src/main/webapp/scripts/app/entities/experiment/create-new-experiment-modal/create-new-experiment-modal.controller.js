@@ -1,10 +1,10 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('createNewExperimentModalController', createNewExperimentModalController);
+        .controller('CreateNewExperimentModalController', CreateNewExperimentModalController);
 
     /* @ngInject */
-    function createNewExperimentModalController($scope, $rootScope, $uibModalInstance, Experiment, Principal, $q,
+    function CreateNewExperimentModalController($scope, $rootScope, $uibModalInstance, Experiment, Principal, $q,
                                                 localStorageService, notebookId, NotebooksForSubCreation, Template) {
         var vm = this;
         var userId;
