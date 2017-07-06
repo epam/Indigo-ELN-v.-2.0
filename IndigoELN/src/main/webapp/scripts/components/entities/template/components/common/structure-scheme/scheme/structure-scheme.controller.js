@@ -3,7 +3,7 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
+function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     var vm = this;
 
     init();
@@ -31,11 +31,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function getInitModel() {
-        if (vm.model) {
-            return buildStructure(vm.model);
-        }
-
-        return null;
+        return buildStructure(vm.model);
     }
 
     function updateModel() {
@@ -101,7 +97,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function setRenderedStructure(data) {
         _.assign(vm.structureModel, data);
 
-        if (vm.model.restrictions) {
+        if (vm.model && vm.model.restrictions) {
             updateModelRestriction(data);
         }
 
