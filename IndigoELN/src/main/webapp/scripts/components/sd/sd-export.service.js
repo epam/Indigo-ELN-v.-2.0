@@ -38,6 +38,9 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
     function generateExportProperties(item) {
         var properties = {};
         _.each(SdConstants, function(prop) {
+            if (_.isUndefined(item[prop.name])){
+                return;
+            }
             var property = prop.childrenLength ? getMultipleProperty(item, prop) : getSingleProperty(item, prop);
             properties = _.defaultsDeep(properties, property);
         });
