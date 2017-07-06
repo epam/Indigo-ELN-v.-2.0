@@ -3,12 +3,8 @@ angular
     .factory('SdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($http, $q, $uibModal, AppValues, Dictionary, SdConstants,
-                         AlertModal, Alert, CalculationService, StoichTableCache, sdProperties, SdImportHelperService) {
-    var auxPrefixes = [
-        'COMPOUND_REGISTRATION_'
-    ];
-
+function sdImportService($http, $q, $uibModal, Dictionary, SdConstants,
+                         AlertModal, Alert, CalculationService, StoichTableCache, SdImportHelperService) {
     return {
         importFile: importFile
     };
