@@ -180,8 +180,9 @@
         }
 
         function onSaveError(result) {
-            if (result.status === 400) {
-                if (result.data.params.length > 1 || result.data.params[0].indexOf('-') > -1) {
+            if (result.status === 400 && result.data.params) {
+                var firstParam = _.first(result.data.params);
+                if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
                     Alert.error('This Notebook name cannot be changed because batches are created within its' +
                         ' experiments');
                 } else {
@@ -202,7 +203,6 @@
             vm.hasError = false;
             _.extend(vm.notebook, vm.notebookCopy);
             $scope.createNotebookForm.$setPristine();
-            $scope.createNotebookForm.$dirty = false;
             EntitiesBrowser.changeDirtyTab($stateParams, false);
         }
 
@@ -211,7 +211,6 @@
             if (vm.notebook.description === vm.notebookCopy.description &&
                 _.isEqual(vm.notebook.accessList, vm.notebookCopy.accessList)) {
                 $scope.createNotebookForm.$setPristine();
-                $scope.createNotebookForm.$dirty = false;
             }
         }
 
