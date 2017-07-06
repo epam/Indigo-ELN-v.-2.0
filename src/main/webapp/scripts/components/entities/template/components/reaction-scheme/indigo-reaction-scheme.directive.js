@@ -21,12 +21,18 @@
 
         function init() {
             vm.onChangedStructure = onChangedStructure;
+
+            bindEvents();
+        }
+
+        function bindEvents() {
+            $scope.$on('new-reaction-scheme', function(event, data) {
+                $scope.model.reaction.image = data.image;
+                $scope.model.reaction.molfile = data.molfile;
+            });
         }
         
         function onChangedStructure(structure) {
-            if (_.isEqual($scope.model.reaction, structure)) {
-                return;
-            }
             $scope.model.reaction = structure;
             EntitiesBrowser.setCurrentFormDirty();
         }

@@ -9,12 +9,11 @@
             templateUrl: 'scripts/components/entities/template/components/common/structure-scheme/scheme/structure-scheme.html',
             controller: 'StructureSchemeController',
             scope: {
-                structureType: '=ssStructureType',
+                structureType: '@ssStructureType',
                 title: '=ssTitle',
                 autosave: '=ssAutosave',
                 model: '=ssModel',
                 indigoReadonly: '=',
-                share: '=ssShare',
                 onChanged: '&'
             },
             bindToController: true,
