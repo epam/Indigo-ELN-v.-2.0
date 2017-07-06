@@ -11,7 +11,6 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
     function exportItems(items) {
         var properties = getExportProperties(items);
         if (properties.length) {
-
             return SdService.export({}, properties).$promise;
         }
         Alert.error('Please add Batch structure before export sd file');
@@ -38,15 +37,12 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
 
     function generateExportProperties(item) {
         var properties = {};
-        _.each(SdConstants, function(property) {
-            properties = _.defaultsDeep(properties, getProperty(item, property));
+        _.each(SdConstants, function(prop) {
+            var property = prop.childrenLength ? getMultipleProperty(item, prop) : getSingleProperty(item, prop);
+            properties = _.defaultsDeep(properties, property);
         });
 
         return properties;
-    }
-
-    function getProperty(item, prop) {
-        return prop.childrenLength ? getMultipleProperty(item, prop) : getSingleProperty(item, prop);
     }
 
     function getSingleProperty(item, prop) {
@@ -55,11 +51,9 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
 
     function getMultipleProperty(item, prop) {
         var property = {};
-        var path = '';
         var value;
         for (var index = 0; index < prop.childrenLength; index++) {
-            path = prop.path.replace(/<%= index =>/, index);
-            value = _.result(item, _.join([prop.name, path], '.'));
+            value = _.result(item, _.join([prop.name, prop.path.replace(/<%= index =>/, index)], '.'));
             if (!_.isObject(value)) {
                 _.set(property, getMultipleCode(prop, index), value);
             }
