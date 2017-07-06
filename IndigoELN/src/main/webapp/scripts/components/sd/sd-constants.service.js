@@ -82,7 +82,7 @@ angular
             code: 'PURITY_DETERMINED',
             name: 'purity',
             childrenLength: 5,
-            path: 'data.<%= index =>determinedBy'
+            path: 'data.<%= index =>.determinedBy'
         },
         {
             code: 'PURITY_OPERATOR_NAME',
