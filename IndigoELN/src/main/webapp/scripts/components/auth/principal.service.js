@@ -21,7 +21,7 @@ function principal($q, Account) {
 
 
     function isIdentityResolved() {
-        return angular.isDefined(_identity);
+        return !_.isUndefined(_identity);
     }
 
     function isAuthenticated() {
