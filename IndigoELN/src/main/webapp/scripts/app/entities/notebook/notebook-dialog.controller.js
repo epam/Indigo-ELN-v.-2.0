@@ -61,7 +61,7 @@
                     $scope.createNotebookForm.$setDirty(pageInfo.dirty);
                 }
 
-                vm.dirtyListener = $scope.$watch(function() {
+                $scope.$watch(function() {
                     return vm.notebook;
                 }, function() {
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
@@ -87,13 +87,10 @@
 
             initDirtyListener();
 
+            vm.notebookCopy = angular.copy(vm.notebook);
 
-            var onAccessListChangedEvent = $scope.$on('access-list-changed', function() {
+            $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
-            });
-            $scope.$on('$destroy', function() {
-                onAccessListChangedEvent();
-                vm.dirtyListener();
             });
 
             // Activate save button when change permission
@@ -104,6 +101,7 @@
                 }, 10);
             });
         }
+
         function createExperiment() {
             var resolve = {
                 notebookId: function() {
@@ -179,27 +177,38 @@
         }
 
         function onSaveError(result) {
-            var mess = (result.status === 400) ? 'This Notebook name is already in use in the system' : 'Notebook is not saved due to server error';
-            if (result.data.params.length > 1) {
-                mess = 'This Notebook name cannot be changed because batches are created within its experiments';
+            if (result.status === 400 && result.data.params) {
+                var firstParam = _.first(result.data.params);
+                if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
+                    Alert.error('This Notebook name cannot be changed because batches are created within its' +
+                        ' experiments');
+                } else {
+                    Alert.error('This Notebook name is already in use in the system');
+                }
+                vm.hasError = false;
+                partialRefresh();
+                return;
             }
+
             $timeout(function() {
                 vm.hasError = true;
             });
-            Alert.error(mess);
+            Alert.error('Notebook is not saved due to server error');
         }
 
         function refresh() {
             vm.hasError = false;
-            vm.loading = Notebook.get($stateParams).$promise
-                .then(function(result) {
-                    _.extend(vm.notebook, result);
-                    $scope.createNotebookForm.$setPristine();
-                    $scope.createNotebookForm.$dirty = false;
-                    EntitiesBrowser.changeDirtyTab($stateParams, false);
-                }, function() {
-                    Alert.error('Notebook not refreshed due to server error!');
-                });
+            _.extend(vm.notebook, vm.notebookCopy);
+            $scope.createNotebookForm.$setPristine();
+            EntitiesBrowser.changeDirtyTab($stateParams, false);
+        }
+
+        function partialRefresh() {
+            vm.notebook.name = vm.notebookCopy.name;
+            if (vm.notebook.description === vm.notebookCopy.description &&
+                _.isEqual(vm.notebook.accessList, vm.notebookCopy.accessList)) {
+                $scope.createNotebookForm.$setPristine();
+            }
         }
 
         function save() {
@@ -209,6 +218,8 @@
                     .then(function(result) {
                         vm.notebook.version = result.version;
                         $scope.createNotebookForm.$setPristine();
+                        EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
+                        $rootScope.$broadcast('notebook-changed', {projectId: vm.projectId, notebook: vm.notebook});
                     }, onSaveError);
 
                 return;
