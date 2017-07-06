@@ -197,10 +197,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         modalInstance.result.then(successEditStructure);
     }
 
-    function getStructureMolfile() {
-        return _.get(vm.model, vm.structureType + '.molfile');
-    }
-
     function exportStructure($event) {
         $event.stopPropagation();
         if (vm.indigoReadonly) {
@@ -214,7 +210,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
             windowClass: 'structure-export-modal',
             resolve: {
                 structureToSave: function() {
-                    return getStructureMolfile();
+                    return vm.structureModel.molfile;
                 },
                 structureType: function() {
                     return vm.structureType;
