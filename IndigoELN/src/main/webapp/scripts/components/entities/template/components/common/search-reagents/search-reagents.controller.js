@@ -18,7 +18,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValue
 
         vm.isActiveTab0 = activeTab === 0;
         vm.isActiveTab1 = activeTab === 1;
-        vm.searchReagentsModelScheme = {molecule: {structureScheme: {}}};
+        vm.searchReagentsModelScheme = {};
         vm.isSearchResultFound = false;
         vm.conditionText = [{
             name: 'contains'

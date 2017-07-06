@@ -180,6 +180,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                         batch.fullNbkBatch = fullNbkBatch;
                         batch.fullNbkImmutablePart = fullNbkImmutablePart;
                         batch.$$selected = true;
+                        batch.structure = {};
+
                         if (duplicatedBatch) {
                             duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
                             duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
