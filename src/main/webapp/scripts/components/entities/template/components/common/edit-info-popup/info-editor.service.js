@@ -130,6 +130,7 @@ function infoEditor($uibModal) {
             animation: true,
             size: 'sm',
             controller: 'SelectFromDictionaryController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/select-from-dictionary/select-from-dictionary.html',
             resolve: {
                 data: function() {

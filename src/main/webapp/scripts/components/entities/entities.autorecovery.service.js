@@ -201,8 +201,8 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
             vm.canRedo = function() {
                 return canRedo(entity);
             };
-            var ctimeout,
-                prev;
+            var ctimeout;
+            var prev;
             var onChange = function(entity, old) {
                 if (ctimeout) {
                     $timeout.cancel(ctimeout);
@@ -227,19 +227,17 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                     ctimeout = null;
                 }, 1000);
             };
-            var unbind = $scope.$watch(function() {
+
+            $scope.$watch(function() {
                 return vm[kind];
             }, onChange, true);
-            var unbindDirty = $scope.$watch(form.$name + '.$dirty', function(val, old) {
+
+            $scope.$watch(form.$name + '.$dirty', function(val, old) {
                 if (!val && old) {
                     clear(kind, entity);
                     vm.restored = null;
                 }
             }, true);
-            $scope.$on('$destroy', function() {
-                unbind();
-                unbindDirty();
-            });
         });
     }
 

@@ -51,7 +51,7 @@
 
         var unsubscribe = $scope.$watch('indigoTableContent', function(newVal) {
             _.each(newVal, function(item) {
-                item.$$popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" style="padding:10px;" ' +
+                item.$$popoverTemplate = $sce.trustAsHtml('<div><img class="img-fill" ' +
                     'src="data:image/svg+xml;base64,' + item.structure.image + '" alt="Image is unavailable."></div>');
             });
         });

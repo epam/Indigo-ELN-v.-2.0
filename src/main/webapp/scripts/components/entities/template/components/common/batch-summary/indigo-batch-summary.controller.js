@@ -75,8 +75,9 @@
         function openProductBatchSummaryModal() {
             var that = this;
             $uibModal.open({
-                templateUrl: 'scripts/components/entities/template/components/productBatchSummary/product-batch-summary-set-source.html',
+                templateUrl: 'scripts/components/entities/template/components/product-batch-summary/product-batch-summary-set-source.html',
                 controller: 'ProductBatchSummarySetSourceController',
+                controllerAs: 'vm',
                 size: 'sm',
                 resolve: {
                     name: function() {
@@ -609,9 +610,8 @@
             if (!getStoicTable()) {
                 return;
             }
-            _.find(vm.columns, {
-                'id': 'precursors'
-            }).readonly = true;
+            _.find(vm.columns, {id: 'precursors'}).readonly = true;
+
             var precursors = vm.share.stoichTable.reactants.filter(function(r) {
                 return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
             })
@@ -690,7 +690,7 @@
         }
 
         function exportSDFile() {
-            ProductBatchSummaryOperations.exportSDFile();
+            ProductBatchSummaryOperations.exportSDFile(getProductBatches());
         }
 
         function registerBatches() {
@@ -709,7 +709,7 @@
                 var model = vm.model[type] || {};
                 changed = true;
                 model.image = null;
-                model.structureMolfile = null;
+                model.molfile = null;
                 model.structureId = null;
 
                 row.structure = row.structure || {};
@@ -752,13 +752,13 @@
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'conversationalBatchNumber'
                 }).isVisible = val;
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'registrationDate'
                 }).isVisible = val;
-                _.findWhere(vm.columns, {
+                _.find(vm.columns, {
                     id: 'registrationStatus'
                 }).isVisible = val;
             });

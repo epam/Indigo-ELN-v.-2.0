@@ -3,13 +3,15 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
+function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     var vm = this;
 
     init();
 
     function init() {
-        initModel();
+        vm.structureModel = getInitModel();
+        onChange();
+
         vm.openEditor = openEditor;
         vm.importStructure = importStructure;
         vm.exportStructure = exportStructure;
@@ -17,55 +19,47 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         bindEvents();
     }
 
-    function initModel() {
-        var newStructure = {
-            structureScheme: {}
+    function buildStructure(fromStructure) {
+        var structure = fromStructure || {};
+
+        return {
+            structureScheme: structure.structureScheme || {},
+            image: structure.image || null,
+            molfile: structure.molfile || null,
+            structureId: structure.structureId || null
         };
-        vm.model[vm.structureType] = vm.model[vm.structureType] || newStructure;
     }
 
-    function setSelecterdRow() {
-        vm.model[vm.structureType].image = vm.share.selectedRow.structure.image;
-        vm.model[vm.structureType].structureMolfile = vm.share.selectedRow.structure.molfile;
-        vm.model[vm.structureType].structureId = vm.share.selectedRow.structure.structureId;
+    function getInitModel() {
+        return buildStructure(vm.model);
     }
 
-    function bindEvents() {
-        if (vm.structureType === 'molecule') {
-            $scope.$on('batch-summary-row-selected', function(event, data) {
-                var row = data.row;
-                if (row && row.structure && row.structure.structureType === vm.structureType) {
-                    setSelecterdRow();
-                    $http({
-                        url: 'api/renderer/' + vm.structureType + '/image',
-                        method: 'POST',
-                        data: vm.model[vm.structureType].structureMolfile
-                    }).success(function(result) {
-                        vm.model[vm.structureType].image = result.image;
-                    });
-                } else if (!_.isUndefined(row)) {
-                    clearStructure();
-                }
-            });
-        }
-        if (vm.structureType === 'reaction') {
-            $scope.$on('new-reaction-scheme', function(event, data) {
-                vm.model[vm.structureType].image = data.image;
-                vm.model[vm.structureType].structureMolfile = data.molfile;
-            });
+    function updateModel() {
+        vm.structureModel = getInitModel();
+        updateMolfileImage(vm.structureModel);
+    }
+
+    function updateMolfileImage(structure) {
+        if (!structure || !structure.molfile || structure.image) {
+            return;
         }
 
-        $scope.$watch('vm.model.' + vm.structureType + '.structureId', function() {
-            if (vm.share) {
-                vm.share[vm.structureType] = vm.model[vm.structureType].structureMolfile;
-            }
+        $http({
+            url: 'api/renderer/' + vm.structureType + '/image',
+            method: 'POST',
+            data: structure.molfile
+        }).success(function(result) {
+            vm.structureModel.image = result.image;
+            onChange();
         });
     }
 
-    function clearStructure() {
-        vm.model[vm.structureType].image = null;
-        vm.model[vm.structureType].structureMolfile = null;
-        vm.model[vm.structureType].structureId = null;
+    function bindEvents() {
+        $scope.$watch('vm.model', updateModel);
+    }
+
+    function onChange() {
+        vm.onChanged({structure: vm.structureModel});
     }
 
     function renderStructure(type, structure) {
@@ -81,10 +75,10 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         return deferred.promise;
     }
 
-    function isEmptyStructure(type, structure) {
+    function isEmptyStructure(structure) {
         var deferred = $q.defer();
         $http({
-            url: 'api/bingodb/' + type + '/empty',
+            url: 'api/bingodb/' + vm.structureType + '/empty',
             method: 'POST',
             data: structure
         }).success(function(result) {
@@ -94,55 +88,52 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         return deferred.promise;
     }
 
-    function setRenderedStructure(type, data) {
-        vm.model[type].image = data.image;
-        vm.model[type].structureMolfile = data.structure;
-        vm.model[type].structureId = data.structureId;
-        if (vm.share && vm.share.selectedRow && type === 'molecule') {
-            vm.share.selectedRow.structure = vm.share.selectedRow.structure || {};
-            vm.share.selectedRow.structure.image = data.image;
-            vm.share.selectedRow.structure.structureType = type;
-            vm.share.selectedRow.structure.molfile = data.structure;
-            vm.share.selectedRow.structure.structureId = data.structureId;
-            $rootScope.$broadcast('product-batch-structure-changed', vm.share.selectedRow);
-        }
-        if (vm.model.restrictions) {
-            vm.model.restrictions.structure = vm.model.restrictions.structure || {};
-            vm.model.restrictions.structure.molfile = data.structure;
-            vm.model.restrictions.structure.image = data.image;
-        }
-
-        vm.onChange({
-            model: vm.model
-        });
+    function updateModelRestriction(data) {
+        vm.model.restrictions.structure = vm.model.restrictions.structure || {};
+        vm.model.restrictions.structure.molfile = data.structure || data.molfile;
+        vm.model.restrictions.structure.image = data.image;
     }
 
-    function setStructure(type, structure, structureId) {
+    function setRenderedStructure(data) {
+        _.assign(vm.structureModel, data);
+
+        if (vm.model && vm.model.restrictions) {
+            updateModelRestriction(data);
+        }
+
+        onChange();
+    }
+
+    function setStructure(structure, structureId) {
         if (structure) {
-            renderStructure(type, structure).then(function(result) {
-                setRenderedStructure(type, {
-                    structure: structure,
+            renderStructure(vm.structureType, structure).then(function(result) {
+                setRenderedStructure({
+                    molfile: structure,
                     structureId: structureId,
                     image: result.image
                 });
             });
         } else {
-            setRenderedStructure(type, {});
+            setRenderedStructure({
+                molfile: null,
+                structureId: null,
+                image: null
+            });
         }
     }
 
     // HTTP POST to save new structure into Bingo DB and get its id
-    function saveNewStructure(type, structure) {
-        isEmptyStructure(type, structure).then(function(empty) {
+    function saveNewStructure(structure) {
+        isEmptyStructure(structure).then(function(empty) {
             if (empty) {
-                setStructure(type);
+                setStructure();
             } else {
                 $http({
-                    url: 'api/bingodb/' + type + '/',
+                    url: 'api/bingodb/' + vm.structureType + '/',
                     method: 'POST',
                     data: structure
                 }).success(function(structureId) {
-                    setStructure(type, structure, structureId);
+                    setStructure(structure, structureId);
                 }).error(function() {
                     Alert.error('Cannot save the structure!');
                 });
@@ -151,9 +142,8 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function openEditor($event) {
-        initModel();
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         // open editor with pre-defined structure (prestructure)
@@ -165,7 +155,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
             windowClass: 'structure-editor-modal',
             resolve: {
                 prestructure: function() {
-                    return vm.model[vm.structureType].structureMolfile;
+                    return vm.structureModel.molfile;
                 },
                 editor: function() {
                     // TODO: get editor name from user's settings; ketcher by default
@@ -175,18 +165,20 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         });
 
         // process structure if changed
-        modalInstance.result.then(function(structure) {
-            if (vm.autosave && structure) {
-                saveNewStructure(vm.structureType, structure);
-            }
-            setStructure(vm.structureType, structure);
-            EntitiesBrowser.setCurrentFormDirty();
-        });
+        modalInstance.result.then(successEditStructure);
+    }
+
+    function successEditStructure(structure) {
+        if (vm.autosave && structure) {
+            saveNewStructure(structure);
+        } else {
+            setStructure(structure);
+        }
     }
 
     function importStructure($event) {
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         var modalInstance = $uibModal.open({
@@ -198,19 +190,12 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         });
 
         // set structure if picked
-        modalInstance.result.then(function(structure) {
-            if (vm.autosave) {
-                setStructure(vm.structureType, structure);
-                saveNewStructure(vm.structureType, structure);
-            } else {
-                setStructure(vm.structureType, structure);
-            }
-        });
+        modalInstance.result.then(successEditStructure);
     }
 
     function exportStructure($event) {
         $event.stopPropagation();
-        if (vm.readonly) {
+        if (vm.indigoReadonly) {
             return;
         }
         $uibModal.open({
@@ -221,7 +206,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
             windowClass: 'structure-export-modal',
             resolve: {
                 structureToSave: function() {
-                    return vm.model[vm.structureType].structureMolfile;
+                    return vm.structureModel.molfile;
                 },
                 structureType: function() {
                     return vm.structureType;

@@ -3,7 +3,7 @@ angular
     .controller('EditPurityController', EditPurityController);
 
 /* @ngInject */
-function EditPurityController($scope, $uibModalInstance, data, dictionary) {
+function EditPurityController($uibModalInstance, data, dictionary) {
     var vm = this;
 
     init();
@@ -35,11 +35,11 @@ function EditPurityController($scope, $uibModalInstance, data, dictionary) {
     }
 
     function isInknownPurity() {
-        return vm.purity.property === $scope.unknownPurity;
+        return vm.purity.property === vm.unknownPurity;
     }
 
     function resultToString() {
-        var purityStrings = _.map($scope.purity.data, function(purity) {
+        var purityStrings = _.map(vm.purity.data, function(purity) {
             if (purity.operator && purity.value && purity.comments) {
                 return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
                     purity.value + '% ' + purity.comments;

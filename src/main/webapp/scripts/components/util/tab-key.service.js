@@ -10,7 +10,7 @@ function tabKeyUtils() {
     };
 
     function getTabKeyFromTab(tab) {
-        var matchParams = !_.isEmpty(tab.params) ? getMatchParams(tab.params) : {
+        var matchParams = !_.isEmpty(tab.params) ? tab.params : {
             name: tab.name
         };
 
@@ -26,30 +26,18 @@ function tabKeyUtils() {
     }
 
     function getTabKeyFromParams(params) {
-        var matchParams = getMatchParams(params);
+        return tabParamsToString(params);
+    }
 
-        return tabParamsToString(matchParams);
+    function safeString(input) {
+        return !input ? input : input.toString();
     }
 
     function tabParamsToString(matchParams) {
-        function safeString(input) {
-            return !input ? input : input.toString();
-        }
-
-        var paramsToString = {};
-        _.each(matchParams, function(val, name) {
-            paramsToString[name] = safeString(val);
+        var paramsToString = _.map(matchParams, function(value) {
+            return safeString(value);
         });
 
         return angular.toJson(paramsToString);
-    }
-
-    function getMatchParams(params) {
-        var matchParams = {};
-        _.each(_.keys(params).sort(), function(name) {
-            matchParams[name] = params[name];
-        });
-
-        return matchParams;
     }
 }

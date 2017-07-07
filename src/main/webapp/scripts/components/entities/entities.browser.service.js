@@ -44,8 +44,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         saveTabs: saveTabs
     };
 
-    function getUserId() {
-        var id = Principal.getIdentity().id;
+    function getUserId(user) {
+        var id = user.id;
         tabs[id] = tabs[id] || {};
 
         return id;
@@ -112,7 +112,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function setCurrentFormDirty() {
         if (curForm) {
-            curForm.$setDirty(true);
+            curForm.$setDirty();
         }
     }
 
@@ -124,8 +124,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     function goToTab(tab) {
         var curTab = tab;
 
-        return resolvePrincipal(function() {
-            var userId = getUserId();
+        return resolvePrincipal(function(user) {
+            var userId = getUserId(user);
             var tabKey = getTabKey(curTab);
             if (tabs[userId][tabKey]) {
                 $state.go(tab.state, tab.params);
@@ -139,8 +139,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
 
     function close(tabKey) {
-        return resolvePrincipal(function() {
-            var userId = getUserId();
+        return resolvePrincipal(function(user) {
+            var userId = getUserId(user);
             deleteClosedTabAndGoToActive(userId, tabKey);
         });
     }
@@ -161,7 +161,7 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function setCurrentTabTitle(tabTitle, stateParams) {
         return resolvePrincipal(function(user) {
-            var userId = getUserId();
+            var userId = getUserId(user);
             var result = TabKeyUtils.getTabKeyFromParams(stateParams);
             var t = tabs[userId][result];
             if (t) {
@@ -185,8 +185,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function changeDirtyTab(stateParams, dirty) {
-        return resolvePrincipal(function() {
-            var userId = getUserId();
+        return resolvePrincipal(function(user) {
+            var userId = getUserId(user);
             var result = TabKeyUtils.getTabKeyFromParams(stateParams);
             if (tabs[userId][result]) {
                 tabs[userId][result].dirty = dirty;
@@ -196,31 +196,28 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
 
     function addTab(tab) {
-        var curTab = tab;
+        return resolvePrincipal(function(user) {
+            var userId = getUserId(user);
+            var tabKey = TabKeyUtils.getTabKeyFromTab(tab);
 
-        return resolvePrincipal(function() {
-            var userId = getUserId();
-            var tabKey = TabKeyUtils.getTabKeyFromTab(curTab);
             if (!tabs[userId][tabKey]) {
-                curTab.tabKey = tabKey;
-                tabs[userId][tabKey] = curTab;
-                if (saveTabs) {
-                    saveTabs();
-                }
+                tab.tabKey = tabKey;
+                tabs[userId][tabKey] = tab;
+                saveTabs(user);
             }
+
             setActiveTab(tabs[userId][tabKey]);
         });
     }
 
     function getTabByParams(params) {
-        return resolvePrincipal(function() {
-            var userId = getUserId();
+        return resolvePrincipal(function(user) {
+            var userId = getUserId(user);
             var tabKey = TabKeyUtils.getTabKeyFromParams(params);
 
             return tabs[userId][tabKey];
         });
     }
-
 
     function deleteClosedTabAndGoToActive(userId, tabKey) {
         var keys = _.keys(tabs[userId]);
@@ -233,9 +230,9 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
             nextKey = keys[curPosition];
         }
         delete tabs[userId][tabKey];
-        if (keys.length > 1 && tabs[userId][nextKey]) {
+        if (tabs[userId][nextKey]) {
             goToTab(tabs[userId][nextKey]);
-        } else if (keys.length === 1) {
+        } else {
             $state.go('experiment');
         }
         saveTabs();

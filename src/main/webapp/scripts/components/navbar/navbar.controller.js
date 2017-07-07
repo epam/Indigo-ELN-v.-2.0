@@ -4,7 +4,7 @@
         .controller('NavbarController', NavbarController);
 
     /* @ngInject */
-    function NavbarController($scope, $state, $rootScope, Principal, Auth, EntitiesBrowser, EntitiesCache) {
+    function NavbarController($scope, $state, $rootScope, Principal, Auth, EntitiesCache) {
         var vm = this;
 
         vm.logout = logout;
@@ -18,16 +18,8 @@
                 vm.user = user;
             });
 
-            // TODO: Do we really need this watcher?
-            var unsubscribe = $scope.$watch(function() {
-                return EntitiesBrowser.getActiveTab();
-            }, function(value) {
-                $scope.activeTab = value;
-            });
-
             $scope.$on('$destroy', function() {
                 EntitiesCache.clearAll();
-                unsubscribe();
             });
         }
 

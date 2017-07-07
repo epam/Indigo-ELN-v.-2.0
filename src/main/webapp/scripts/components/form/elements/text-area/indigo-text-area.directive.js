@@ -29,7 +29,7 @@
         function compile(tElement, tAttrs) {
             if (tAttrs.indigoInputGroup) {
                 var inputGroup = tElement.find('textarea').wrap('<div class="input-group"/>').parent();
-                var element = '<div class="input-group-btn" style="vertical-align: top;" ng-transclude/>';
+                var element = '<div class="input-group-btn text-area__align" ng-transclude/>';
                 if (tAttrs.indigoInputGroup === 'append') {
                     inputGroup.append(element);
                 } else if (tAttrs.indigoInputGroup === 'prepend') {

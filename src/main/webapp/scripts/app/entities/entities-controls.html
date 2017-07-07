@@ -11,15 +11,16 @@
                 <i class="fa fa-file-o"></i>
                 <span class="tooltip-icon-header">New Entity</span>
             </a>
-            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown" indigo-has-any-authority="{{vm.ENTITY_CREATORS}}">
+            <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown"
+                indigo-has-any-authority="{{vm.ENTITY_CREATORS}}">
                 <li indigo-has-any-authority="{{vm.PROJECT_CREATORS}}">
                     <a ui-sref="entities.project-new">New Project</a>
                 </li>
                 <li indigo-has-any-authority="{{vm.NOTEBOOK_CREATORS}}">
-                    <a ui-sref="notebook.select-project">New Notebook</a>
+                    <a ng-click="vm.createNotebook()">New Notebook</a>
                 </li>
                 <li indigo-has-any-authority="{{vm.EXPERIMENT_CREATORS}}">
-                    <a ui-sref="experiment.select-notebook-template">New Experiment</a>
+                    <a ng-click="vm.createExperiment()">New Experiment</a>
                 </li>
             </ul>
         </li>
@@ -59,8 +60,8 @@
                 <span class="tooltip-icon-header">Search</span>
             </a>
         </li>
-        <li class="item-null">
-            <a></a>
+        <li>
+            <a class="item-null-link"></a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-click="vm.save()" ng-class="{'disabled' : !vm.canSave() }">
@@ -104,8 +105,8 @@
                 <span class="tooltip-icon-header">Print</span>
             </a>
         </li>
-        <li ng-if="!vm.isDashboard" class="item-null">
-            <a></a>
+        <li ng-if="!vm.isDashboard">
+            <a class="item-null-link"></a>
         </li>
         <li indigo-toggle-class-child="open-menu">
             <a>

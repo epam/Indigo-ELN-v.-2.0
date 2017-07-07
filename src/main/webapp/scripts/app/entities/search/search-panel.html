@@ -76,14 +76,14 @@
                                     <label class="radio-inline">
                                         <input checked="checked" name="domain" type="radio" value="OWN_ENTITY"
                                                ng-change="vm.changeDomain()" ng-model="vm.state.domainModel">
-                                        <span style="line-height: 1.5;">In My Own Entity</span>
+                                        <span class="search-panel__line-height">In My Own Entity</span>
                                     </label>
                                 </div>
                                 <div class="col-xs-10">
                                     <label class="radio-inline">
                                         <input name="domain" type="radio" value="USERS_ENTITIES"
                                                ng-change="vm.changeDomain()" ng-model="vm.state.domainModel">
-                                        <span style="line-height: 1.5;">In Entities of These Users</span>
+                                        <span class="search-panel__line-height">In Entities of These Users</span>
                                     </label>
                                 </div>
                             </div>
@@ -166,25 +166,25 @@
                                       indigo-validation-required="true"
                                       indigo-validation-pattern-text="Enter 1-100"
                                       indigo-model="vm.state.model.restrictions.structure.similarityValue"></indigo-input>
-                        <div style="position:relative">
-                            <span style="position:absolute;top:7px;">%</span>
+                        <div class="relative">
+                            <span class="absolute top-7">%</span>
                         </div>
                     </div>
                 </div>
                 <div class="m-t5">
                     <indigo-structure-scheme class="search-structure-scheme"
-                                             ss-structure-type="'molecule'"
+                                             ss-structure-type="molecule"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model"
+                                             ss-model="vm.state.model.molecule"
                                              ss-autosave="false"
-                                             on-change="vm.onChangeModel(model)"
+                                             on-changed="vm.onChangeModel(structure)"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Product'">
                     </indigo-structure-scheme>
                     <indigo-structure-scheme class="search-structure-scheme"
-                                             ss-structure-type="'reaction'"
+                                             ss-structure-type="reaction"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model"
-                                             on-change="vm.onChangeModel(model)"
+                                             ss-model="vm.state.model.reaction"
+                                             on-changed="vm.onChangeModel(structure)"
                                              ss-autosave="false"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Reaction'">
                     </indigo-structure-scheme>

@@ -22,8 +22,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     };
 
-    function exportSDFile() {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
+    function exportSDFile(exportBatches) {
+        var batches = exportBatches || ProductBatchSummaryCache.getProductBatchSummary();
         var selectedBatches = _.filter(batches, function(item) {
             return item.select;
         });
@@ -84,9 +84,9 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var stoichTable = StoichTableCache.getStoicTable();
         if (stoichTable) {
             var intended = stoichTable.products;
-            var intendedCandidateHashes = _.pluck(intended, '$$batchHash');
+            var intendedCandidateHashes = _.map(intended, '$$batchHash');
             var actual = ProductBatchSummaryCache.getProductBatchSummary();
-            var actualHashes = _.compact(_.pluck(actual, '$$batchHash'));
+            var actualHashes = _.compact(_.map(actual, '$$batchHash'));
             _.each(intendedCandidateHashes, function(intendedCandidateHash, i) {
                 removeItemFromBothArrays(intendedCandidateHash, actualHashes, intendedCandidateHashes, i);
             });
@@ -180,6 +180,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                         batch.fullNbkBatch = fullNbkBatch;
                         batch.fullNbkImmutablePart = fullNbkImmutablePart;
                         batch.$$selected = true;
+                        batch.structure = {};
+
                         if (duplicatedBatch) {
                             duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
                             duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
