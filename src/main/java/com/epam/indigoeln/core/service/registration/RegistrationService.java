@@ -61,13 +61,11 @@ public class RegistrationService {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
 
         supplier.get()
-                .forEach(c -> {
-                    ((BasicDBList) c.getContent().get("batches"))
-                            .forEach(b -> {
-                                BasicDBObject batch = (BasicDBObject) b;
-                                batchesMap.put(new BatchSummary(batch), c);
-                            });
-                });
+                .forEach(c -> ((BasicDBList) c.getContent().get("batches"))
+                        .forEach(b -> {
+                            BasicDBObject batch = (BasicDBObject) b;
+                            batchesMap.put(new BatchSummary(batch), c);
+                        }));
 
         return batchesMap.entrySet()
                 .stream()
