@@ -16,7 +16,7 @@ function parseLinks() {
         var parts = header.split(',');
         var links = {};
         // Parse each part into a named link
-        angular.forEach(parts, function(p) {
+        _.forEach(parts, function(p) {
             var section = p.split(';');
             if (section.length !== 2) {
                 throw new Error('section could not be split on \';\'');
@@ -30,7 +30,7 @@ function parseLinks() {
                 }
             );
             var page = queryString.page;
-            if (angular.isString(page)) {
+            if (_.isString(page)) {
                 page = parseInt(page);
             }
             var name = section[1].replace(/rel="(.*)"/, '$1').trim();

@@ -70,7 +70,7 @@ function appPageController($rootScope, $scope, $cookieStore, $window, WSService,
         return _.debounce(function() {
             $timeout(function() {
                 if (windowElement.width() >= mobileViewWidth) {
-                    if (angular.isDefined($cookieStore.get('toggle'))) {
+                    if (!_.isUndefined($cookieStore.get('toggle'))) {
                         vm.toggle = $cookieStore.get('toggle');
                     } else {
                         vm.toggle = true;

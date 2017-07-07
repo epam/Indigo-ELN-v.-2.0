@@ -797,7 +797,7 @@
             });
 
             $scope.$on('product-batch-details-command', function(event, data) {
-                if (angular.isFunction(vm[data.command])) {
+                if (_.isFunction(vm[data.command])) {
                     vm[data.command]();
                 }
             });

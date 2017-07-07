@@ -316,7 +316,7 @@
         }
 
         function saveInStorage(data, file, field) {
-            if (angular.isUndefined(typeof (field))) {
+            if (_.isUndefined(typeof (field))) {
                 field = FIELD_ID;
             }
             var initialValue = JSON.parse(localStorageService.get(file));
@@ -348,10 +348,10 @@
                 notebooks = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_NOTEBOOKS));
                 experiments = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_EXPERIMENTS));
             }
-            angular.forEach(notebooks, function (item) {
+            _.forEach(notebooks, function (item) {
                 item.isOpen = false;
             });
-            angular.forEach(experiments, function (item) {
+            _.forEach(experiments, function (item) {
                 item.isOpen = false;
             });
             if (ls === BOOKMARKS) {
@@ -371,7 +371,7 @@
             } else {
                 experiments = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_EXPERIMENTS));
             }
-            angular.forEach(experiments, function (item) {
+            _.forEach(experiments, function (item) {
                 if (item.projectId === id) {
                     item.isOpen = false;
                 }
@@ -424,9 +424,9 @@
         }
 
         function updateExperiments(projects, callback) {
-            angular.forEach(projects, function (project) {
-                angular.forEach(project.children, function (notebook) {
-                    angular.forEach(notebook.children, callback);
+            _.forEach(projects, function (project) {
+                _.forEach(project.children, function (notebook) {
+                    _.forEach(notebook.children, callback);
                 });
             });
         }

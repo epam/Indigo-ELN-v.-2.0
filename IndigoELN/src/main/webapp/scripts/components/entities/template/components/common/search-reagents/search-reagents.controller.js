@@ -89,7 +89,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValue
         var count = 0;
         _.each(selected, function(selectedItem) {
             var isUnique = _.every(vm.myReagentList, function(myListItem) {
-                return !angular.equals(selectedItem, myListItem);
+                return !_.isEqual(selectedItem, myListItem);
             });
             if (isUnique) {
                 selectedItem.$$isSelected = false;
