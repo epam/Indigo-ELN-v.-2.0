@@ -29,7 +29,7 @@ function dialogService($uibModal) {
     }
 
     function selectEntitiesToSave(data, callback) {
-        $uibModal.open({
+        return $uibModal.open({
             animation: true,
             size: 'md',
             controller: 'EntitiesToSaveController',
@@ -41,7 +41,11 @@ function dialogService($uibModal) {
                 }
             }
         }).result.then(function(result) {
-            callback(result);
+            if (_.isFunction(callback)) {
+                callback(result);
+            }
+
+            return result;
         });
     }
 }

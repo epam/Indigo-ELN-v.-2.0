@@ -23,7 +23,7 @@ function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Proj
             AllNotebooks.query({
                 projectId: project.id
             }, function(notebooks) {
-                var notebook = _.findWhere(notebooks, {
+                var notebook = _.find(notebooks, {
                     name: notebookName
                 });
                 if (!notebook) {

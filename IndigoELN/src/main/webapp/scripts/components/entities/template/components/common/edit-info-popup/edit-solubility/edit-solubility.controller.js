@@ -2,7 +2,7 @@ angular
     .module('indigoeln')
     .controller('EditSolubilityController', EditSolubilityController);
 
-function EditSolubilityController($scope, $uibModalInstance, solubility) {
+function EditSolubilityController($uibModalInstance, solubility) {
     var vm = this;
 
     init();
@@ -56,13 +56,13 @@ function EditSolubilityController($scope, $uibModalInstance, solubility) {
 
     function getSolubility() {
         var newSolubility = solubility || {};
-        newSolubility.data = solubility.data || [];
+        newSolubility.data = newSolubility.data || [];
 
         return newSolubility;
     }
 
     function addSolvent() {
-        $scope.solubility.data.push({
+        vm.solubility.data.push({
             solventName: {},
             type: {},
             value: {},
@@ -71,15 +71,15 @@ function EditSolubilityController($scope, $uibModalInstance, solubility) {
     }
 
     function remove(solvent) {
-        $scope.solubility.data = _.without($scope.solubility.data, solvent);
+        vm.solubility.data = _.without(vm.solubility.data, solvent);
     }
 
     function removeAll() {
-        $scope.solubility.data = [];
+        vm.solubility.data = [];
     }
 
     function resultToString() {
-        var solubilityStrings = _.map($scope.solubility.data, function(solubility) {
+        var solubilityStrings = _.map(vm.solubility.data, function(solubility) {
             var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
             var type = solubility.type && solubility.type.name ? solubility.type.name : null;
             var value = solubility.value && solubility.value.value ? solubility.value : null;
@@ -100,8 +100,8 @@ function EditSolubilityController($scope, $uibModalInstance, solubility) {
     }
 
     function save() {
-        $scope.solubility.asString = resultToString();
-        $uibModalInstance.close($scope.solubility);
+        vm.solubility.asString = resultToString();
+        $uibModalInstance.close(vm.solubility);
     }
 
     function cancel() {

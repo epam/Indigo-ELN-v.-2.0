@@ -44,19 +44,16 @@
 .main-tabs {
   white-space: nowrap;
 
-  .nav-tabs {
+  .main-tab {
+    display: inline-block;
+    float: none;
+    .opacity(0.5);
 
-    > li {
-      display: inline-block;
-      float: none;
-      .opacity(0.5);
+    &.active {
+      .opacity(1);
 
-      &.active {
-        .opacity(1);
-
-        > a{
-          color:@brand2;
-        }
+      .main-tab-link {
+        color:@brand2;
       }
     }
   }
@@ -154,14 +151,13 @@
 
   }
 
-  .simditor{
-    .simditor-wrapper{
-      .simditor-body, .simditor-placeholder{
+  .simditor {
+    .simditor-wrapper {
+      .simditor-body, .simditor-placeholder {
         font-size: 14px;
         font-family: inherit;
 
-
-        p{
+        p {
           color: #616161;
         }
       }

@@ -15,7 +15,7 @@
             </div>
         </div>
     </div>
-    <div ng-if="vm.dictionary" class="panel panel-info edit-form animated" style="margin-top: 20px">
+    <div ng-if="vm.dictionary" class="panel panel-info edit-form animated m-t20">
         <div class="panel-heading">
             Create/Edit Dictionary
         </div>
@@ -52,7 +52,7 @@
             </button>
         </div>
     </div>
-    <div class="table-responsive" style="min-height: 273px" indigo-scroller="x">
+    <div class="table-responsive dictionary__description" indigo-scroller="x">
         <table class="table table-striped">
             <thead>
             <tr>
@@ -170,8 +170,9 @@
                     </tr>
                     </thead>
                     <tbody dragula='"dragableWords"' dragula-model="vm.selectedDictionary.words">
-                    <tr ng-repeat="word in vm.selectedDictionary.words track by $index" style="cursor: move;"
-                        title="{{word.description}}">
+                    <tr ng-repeat="word in vm.selectedDictionary.words track by $index"
+                        title="{{word.description}}"
+                    class="cursor-move">
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.name"></td>
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.description"></td>
                         <td>

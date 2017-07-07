@@ -416,6 +416,13 @@
         }
 
 
+        function updateNotebookName (event, data) {
+            vm.projects = vm.myBookmarks.projects;
+            var project = getTreeItemById(vm.projects, data.projectId);
+            var notebook = getTreeItemById(project.children, data.notebook.id);
+            notebook.name = data.notebook.name;
+        }
+
         function updateExperiments(projects, callback) {
             _.forEach(projects, function (project) {
                 _.forEach(project.children, function (notebook) {
@@ -640,6 +647,8 @@
                     });
                 }
             }));
+
+            $scope.$on('notebook-changed', updateNotebookName);
 
             events.push($scope.$on('experiment-created', function (event, data) {
                 updateTreeForExperiments(event, data);

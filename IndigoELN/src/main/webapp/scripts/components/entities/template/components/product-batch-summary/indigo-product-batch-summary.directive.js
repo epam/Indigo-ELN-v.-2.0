@@ -8,6 +8,7 @@
             restrict: 'E',
             replace: true,
             controller: 'ProductBatchSummaryController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/product-batch-summary/product-batch-summary.html'
         };
     }

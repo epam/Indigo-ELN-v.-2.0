@@ -3,47 +3,47 @@
 </div>
 <div class="modal-body">
     <p class="m-b20"><span class="semi-b">Please add solvent to set up solubility</span></p>
-    <div ng-if="solubility.data.length">
+    <div ng-if="vm.solubility.data.length">
         <table class="table table-striped" id="search-result-table">
             <thead class="search-table-head">
             <tr>
-                <th style="width:21%">Solvent Name</th>
-                <th style="width:18%">Solubility Type</th>
+                <th class="w-20">Solvent Name</th>
+                <th class="w-20">Solubility Type</th>
                 <th>Solubility Value</th>
-                <th style="width:25%">Comment</th>
-                <th style="width:5%"></th>
+                <th class="w-25">Comment</th>
+                <th class="w-5"></th>
             </tr>
             </thead>
-            <tbody ng-repeat="item in solubility.data track by $index">
+            <tbody ng-repeat="item in vm.solubility.data track by $index">
             <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                 <td>
                     <indigo-select indigo-dictionary="Solvent Name"
-                                   indigo-model="solubility.data[$index].solventName"></indigo-select></td>
+                                   indigo-model="vm.solubility.data[$index].solventName"></indigo-select></td>
                 <td><indigo-select indigo-items="vm.solubilityTypeSelect"
-                                   indigo-model="solubility.data[$index].type"></indigo-select></td>
+                                   indigo-model="vm.solubility.data[$index].type"></indigo-select></td>
                 <td>
                     <div class="row"
-                         ng-init="solubility.data[$index].value.unit=unitSelect[0];solubility.data[$index].value.operator=operatorSelect[0]"
-                         ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Quantitative'">
+                         ng-init="vm.solubility.data[$index].value.unit = vm.unitSelect[0]; vm.solubility.data[$index].value.operator= vm.operatorSelect[0]"
+                         ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Quantitative'">
                         <indigo-select indigo-items="vm.operatorSelect"
                                    class="col-xs-4 p-l1-all-0"
-                                       indigo-model="solubility.data[$index].value.operator"></indigo-select>
+                                       indigo-model="vm.solubility.data[$index].value.operator"></indigo-select>
                         <indigo-input class="col-xs-4 p-l1-all-0"
                                       indigo-type="number"
-                                      indigo-model="solubility.data[$index].value.value"></indigo-input>
+                                      indigo-model="vm.solubility.data[$index].value.value"></indigo-input>
                         <indigo-select class="col-xs-4 p-l1-all-0"
                                        indigo-items="vm.unitSelect"
-                                       indigo-model="solubility.data[$index].value.unit"></indigo-select>
+                                       indigo-model="vm.solubility.data[$index].value.unit"></indigo-select>
                     </div>
                     <div class="row col-xs-12"
-                         ng-if="solubility.data[$index].type && solubility.data[$index].type.name == 'Qualitative'">
+                         ng-if="vm.solubility.data[$index].type && vm.solubility.data[$index].type.name == 'Qualitative'">
                         <indigo-select indigo-items="vm.qualitativeSolubilitySelect"
-                                       indigo-model="solubility.data[$index].value.value"></indigo-select>
+                                       indigo-model="vm.solubility.data[$index].value.value"></indigo-select>
                     </div>
                 </td>
-                <td><indigo-input indigo-model="solubility.data[$index].comment"></indigo-input></td>
+                <td><indigo-input indigo-model="vm.solubility.data[$index].comment"></indigo-input></td>
                 <td><a
-                        ng-click="vm.remove(solubility.data[$index])"><span
+                        ng-click="vm.remove(vm.solubility.data[$index])"><span
                         class="glyphicon glyphicon-trash"></span></a></td>
             </tr>
             </tbody>
@@ -58,7 +58,7 @@
         </button>
         <button class="btn btn-danger"
                 type="button"
-                ng-if="solubility.data.length"
+                ng-if="vm.solubility.data.length"
                 ng-click="vm.removeAll()">
             <i class="fa fa-trash"></i>
             <span class="m-l5">Remove all</span>

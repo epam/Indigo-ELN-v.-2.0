@@ -1,18 +1,18 @@
 <div>
     <div class="row m-b20">
-        <div class="col-xs-4" ng-if="vm.indigoLabel" ng-bind="vm.indigoLabel"></div>
-        <div ng-class="{'col-xs-8 text-right': vm.indigoLabel, 'col-xs-12 text-right':! vm.indigoLabel}"
+        <div class="col-xs-4" ng-if="vm.indigoLabel">
+            {{vm.indigoLabel}}
+        </div>
+        <div ng-class="{'col-xs-8 text-right':vm.indigoLabel, 'col-xs-12 text-right':!vm.indigoLabel}"
              class="is-hidden">
-            <div ng-if="vm.filteredRows.length < vm.indigoRows.length" class="search-info"><b>
-                {{vm.filteredRows.length}}</b> of {{vm.indigoRows.length}} are shown
-            </div>
+            <div ng-if="filteredRows.length < vm.indigoRows.length" class="search-info"> <b>{{filteredRows.length}}</b>  of {{vm.indigoRows.length}} are shown </div>
             <div class="search-field">
                 <i class="fa fa-search"></i>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
-                       id="searchUser"
                        ng-change="vm.search(vm.searchText)"
+                       id="searchUser"
                        ng-model="vm.searchText">
             </div>
 
@@ -28,7 +28,6 @@
                     indigo-scroller="y"
                     indigo-scroller-theme="indigo-thick" class="show-hide-columns dropdown-menu-right">
                     <li role="menuitem"
-                        style="height: 26px"
                         ng-click="$event.stopPropagation();">
                         <button type="button" class="btn btn-default btn-small m-t5"
                                 ng-click="vm.resetColumns()">Set default columns set
@@ -38,7 +37,7 @@
                         role="menuitem"
                         ng-click="$event.stopPropagation();">
                         <indigo-checkbox indigo-label="{{column.name}}" indigo-model="column.isVisible"
-                                         indigo-change="vm.saveInLocalStorage()"></indigo-checkbox>
+                                         indigo-change="vm.saveInLocalStorage();"></indigo-checkbox>
                     </li>
                 </ul>
             </div>
@@ -49,16 +48,14 @@
         <table class="table table-striped product">
             <thead>
             <tr>
-                <th ng-repeat="column in vm.indigoColumns track by $index"
-                    ng-show="column.isVisible"
-                    class="product-header">
-                    <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;"
+                <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible">
+                    <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                          ng-if="!column.actions.length && column.id!=='show-hide-columns'">
                         <a href class="btn btn-transparent" ng-disabled="vm.indigoReadonly">
                             {{column.name}}
                         </a>
                     </div>
-                    <div class="btn-group btn-group-sm btn-group-justified" style="min-width: 150px;" uib-dropdown
+                    <div class="btn-group btn-group-sm btn-group-justified product-header-item" uib-dropdown
                          dropdown-append-to-body
                          ng-if="column.actions.length">
                         <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.indigoReadonly">
@@ -89,13 +86,13 @@
                                       set-close-previous="vm.setClosePrevious(callback)"
                                       toggle-editable-column="vm.toggleEditable(column.id, $parent.$index)"
                                       close="vm.toggleEditable(null, null, null)"
-                                      is-editable-column="vm.isEditable(column.id, $parent.$index)"
-                    ></indigo-table-val>
+                                      is-editable-column="vm.isEditable(column.id, $parent.$index)">
+                    </indigo-table-val>
                 </td>
             </tr>
-            <tr ng-if="!vm.indigoRows.length">
+            <tr ng-if="!vm.indigoRows.length" >
                 <td colspan={{vm.indigoColumns.length}} class="text-muted text-center">
-                    <h3 style="margin: 50px">empty</h3>
+                    <h3 class="m-50">empty</h3>
                 </td>
             </tr>
             </tbody>
@@ -109,7 +106,8 @@
                             ng-model="vm.pagination.page"
                             items-per-page="vm.pagination.pageSize"
                             boundary-link-numbers="true"
-                            rotate="false"></uib-pagination>
+                            rotate="false">
+            </uib-pagination>
         </div>
     </div>
 </div>

@@ -1,7 +1,7 @@
-<indigo-structure-scheme ss-structure-type="'reaction'"
+<indigo-structure-scheme ss-structure-type="reaction"
                          ss-title="'Reaction Scheme'"
                          ss-autosave="true"
-                         ss-readonly="indigoReadonly"
-                         ss-share="share"
-                         ss-model="model">
+                         indigo-readonly="indigoReadonly"
+                         ss-model="model.reaction"
+                         on-changed="vm.onChangedStructure(structure)">
 </indigo-structure-scheme>

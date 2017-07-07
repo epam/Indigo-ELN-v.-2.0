@@ -39,7 +39,7 @@
                     Template Builder
                 </div>
                 <div class="panel-body panel-body-nopad panel-body-h templates-and-tabs" scroller dragula='"tabs"' dragula-model='vm.template.templateContent'>
-                    <div class="text-center no-draggable" style="margin-top: 35px; margin-bottom: 35px"
+                    <div class="text-center no-draggable m-t35 m-b35"
                          ng-if="!vm.template.templateContent.length">
                         <h3 class="no-draggable text-muted">Please add tabs</h3>
                     </div>
@@ -49,7 +49,7 @@
                             <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b" ng-bind="tab.name">
                                 <i class="fa fa-pencil m-l5"></i>
                             </span>
-                            <!--<em class="fa fa-remove pull-right text-muted" style="cursor: pointer" title="Remove" ng-click="removeTab(tab)"></em>-->
+                            <!--<em class="fa fa-remove pull-right text-muted clickable" title="Remove" ng-click="removeTab(tab)"></em>-->
                         </span>
                         <div class="list-group" dragula='"components"' dragula-model='tab.components'>
                             <div class="no-draggable " ng-if="!tab.components.length">
@@ -73,7 +73,7 @@
         </div>
     </div>
         <div class="panel panel-info panel-info-collapse">
-            <div class="panel-heading" style="cursor: pointer" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
+            <div class="panel-heading clickable" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
                 <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
                     ng-click="vm.isCollapsed = !vm.isCollapsed"></em>
                 Show Preview

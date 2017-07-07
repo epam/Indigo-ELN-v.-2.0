@@ -113,7 +113,7 @@
             vm.model.preferredCompoundSummary.compounds.push(compound);
         }
 
-        vm.share.selectedRow = _.findWhere(getCompounds(), {
+        vm.share.selectedRow = _.find(getCompounds(), {
             $$selected: true
         });
 

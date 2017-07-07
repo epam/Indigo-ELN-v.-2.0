@@ -172,7 +172,7 @@ function searchUtilService() {
     }
 
     function prepareDatabases(databases) {
-        return _.pluck(_.where(databases, {
+        return _.map(_.filter(databases, {
             isChecked: true
         }), 'value');
     }

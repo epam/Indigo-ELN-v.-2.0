@@ -84,7 +84,7 @@
                                 ng-if="vm.user.id"
                                 ng-click="vm.changePassword()">Change Password
                         </button>
-                        <normal style="color:green;" ng-if="vm.user.password && vm.user.id">
+                        <normal class="user-management__password-success" ng-if="vm.user.password && vm.user.id">
                             <span class="glyphicon glyphicon-alert">&nbsp;</span>Password successfully changed!
                         </normal>
                         <indigo-checkbox
