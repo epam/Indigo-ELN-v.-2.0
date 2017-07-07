@@ -173,17 +173,17 @@
                 </div>
                 <div class="m-t5">
                     <indigo-structure-scheme class="search-structure-scheme"
-                                             ss-structure-type="'molecule'"
+                                             ss-structure-type="molecule"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model"
+                                             ss-model="vm.state.model.molecule"
                                              ss-autosave="false"
                                              on-changed="vm.onChangeModel(structure)"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Product'">
                     </indigo-structure-scheme>
                     <indigo-structure-scheme class="search-structure-scheme"
-                                             ss-structure-type="'reaction'"
+                                             ss-structure-type="reaction"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model"
+                                             ss-model="vm.state.model.reaction"
                                              on-changed="vm.onChangeModel(structure)"
                                              ss-autosave="false"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Reaction'">
