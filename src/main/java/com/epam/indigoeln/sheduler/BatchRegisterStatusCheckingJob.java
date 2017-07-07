@@ -1,6 +1,5 @@
 package com.epam.indigoeln.sheduler;
 
-import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.registration.RegistrationException;
 import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
@@ -24,12 +23,12 @@ import java.util.stream.Collectors;
 @Component
 public class BatchRegisterStatusCheckingJob {
 
-    public static final String BATCH_REGISTRATION_STATUS_FIELD = "registrationStatus";
-    public static final String BATCH_REGISTRATION_JOB_ID_FIELD = "registrationJobId";
-    public static final String BATCH_REGISTRATION_REPOSITORY_ID_FIELD = "registrationRepositoryId";
-    public static final String BATCH_FULL_NBK_BATCH_FIELD = "fullNbkBatch";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchRegisterStatusCheckingJob.class);
+
+    private static final String BATCH_REGISTRATION_STATUS_FIELD = "registrationStatus";
+    private static final String BATCH_REGISTRATION_JOB_ID_FIELD = "registrationJobId";
+    private static final String BATCH_REGISTRATION_REPOSITORY_ID_FIELD = "registrationRepositoryId";
+    private static final String BATCH_FULL_NBK_BATCH_FIELD = "fullNbkBatch";
 
     @Autowired
     private RegistrationService registrationService;
@@ -43,28 +42,33 @@ public class BatchRegisterStatusCheckingJob {
     @Scheduled(fixedRateString = "${indigoeln.schedule.batch.register.status.check.rate:60}000")
     public void execute() {
         LOGGER.debug("Batch registration status checking job started");
-        final List<Experiment> experiments = experimentRepository.findAll();
-        final List<BasicDBObject> batchesOnRegistration = experiments.stream()
+
+        List<BasicDBObject> batchesOnRegistration = experimentRepository.findAll()
+                .stream()
                 .map(ExperimentDTO::new)
                 .flatMap(e -> BatchComponentUtil.retrieveBatches(e.getComponents()).stream())
                 .filter(b -> {
-                    final String registrationStatus = b.getString(BATCH_REGISTRATION_STATUS_FIELD);
+                    String registrationStatus = b.getString(BATCH_REGISTRATION_STATUS_FIELD);
                     Object jobId = b.get(BATCH_REGISTRATION_JOB_ID_FIELD);
                     return RegistrationStatus.Status.IN_PROGRESS.toString().equals(registrationStatus) && jobId != null;
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
+
         Map<String, RegistrationStatus> updatedBatchesStatuses = new HashMap<>();
+
         for (BasicDBObject batch : batchesOnRegistration) {
-            final String repositoryId = batch.getString(BATCH_REGISTRATION_REPOSITORY_ID_FIELD);
-            final long jobId = batch.getLong(BATCH_REGISTRATION_JOB_ID_FIELD);
+            String repositoryId = batch.getString(BATCH_REGISTRATION_REPOSITORY_ID_FIELD);
+
+            long jobId = batch.getLong(BATCH_REGISTRATION_JOB_ID_FIELD);
+
             try {
-                final RegistrationStatus status = registrationService.getStatus(repositoryId, jobId);
-                if (!status.getStatus().equals(RegistrationStatus.Status.IN_PROGRESS)) {
+                RegistrationStatus status = registrationService.getStatus(repositoryId, jobId);
+
+                if (status.getStatus() != RegistrationStatus.Status.IN_PROGRESS) {
                     updatedBatchesStatuses.put(batch.getString(BATCH_FULL_NBK_BATCH_FIELD), status);
                 }
             } catch (RegistrationException e) {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Error occurred while checking registration status, job id: " + jobId + ", repository id: " + repositoryId, e);
-                }
+                LOGGER.error("Error occurred while checking registration status, job id: " + jobId + ", repository id: " + repositoryId, e);
             }
         }
 
@@ -72,5 +76,4 @@ public class BatchRegisterStatusCheckingJob {
             template.convertAndSend("/topic/registration_status", updatedBatchesStatuses);
         }
     }
-
 }
