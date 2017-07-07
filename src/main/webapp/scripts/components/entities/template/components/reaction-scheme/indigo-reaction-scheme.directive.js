@@ -14,7 +14,7 @@
     }
 
     /* @ngInject */
-    function indigoReactionSchemeController($scope, EntitiesBrowser) {
+    function indigoReactionSchemeController($scope, $rootScope, EntitiesBrowser) {
         var vm = this;
 
         init();
@@ -31,10 +31,11 @@
                 $scope.model.reaction.molfile = data.molfile;
             });
         }
-        
+
         function onChangedStructure(structure) {
             $scope.model.reaction = structure;
             EntitiesBrowser.setCurrentFormDirty();
+            $rootScope.$broadcast('REACTION_CHANGED', structure);
         }
     }
 })();

@@ -640,10 +640,9 @@
         }
 
         function bindEvents() {
-            $scope.$watch('vm.share.reaction', function(newMolFile) {
-
-                if (newMolFile) {
-                    getReactionProductsAndReactants(newMolFile);
+            $scope.$on('REACTION_CHANGED', function($event, structure) {
+                if (structure && structure.molfile) {
+                    getReactionProductsAndReactants(structure.molfile);
                     CalculationService.recalculateStoich();
                 } else {
                     setIntendedProducts(null);
