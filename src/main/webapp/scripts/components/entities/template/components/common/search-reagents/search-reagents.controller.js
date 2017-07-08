@@ -18,7 +18,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValue
 
         vm.isActiveTab0 = activeTab === 0;
         vm.isActiveTab1 = activeTab === 1;
-        vm.searchReagentsModelScheme = {molecule: {structureScheme: {}}};
+        vm.searchReagentsModelScheme = {};
         vm.isSearchResultFound = false;
         vm.conditionText = [{
             name: 'contains'
@@ -89,7 +89,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValue
         var count = 0;
         _.each(selected, function(selectedItem) {
             var isUnique = _.every(vm.myReagentList, function(myListItem) {
-                return !angular.equals(selectedItem, myListItem);
+                return !_.isEqual(selectedItem, myListItem);
             });
             if (isUnique) {
                 selectedItem.$$isSelected = false;

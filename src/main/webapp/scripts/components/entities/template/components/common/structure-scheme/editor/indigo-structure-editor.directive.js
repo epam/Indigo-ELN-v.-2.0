@@ -24,7 +24,7 @@
 
                 // derive structure's mol representation when cursor leaves the directive area
                 $element.on('mouseleave', function() {
-                    if (angular.isDefined(editorInstance)) {
+                    if (!_.isUndefined(editorInstance)) {
                         vm.indigoStructure.molfile = editorInstance.getMolfile();
                     }
                 });

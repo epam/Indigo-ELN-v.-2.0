@@ -29,8 +29,8 @@
                     </thead>
                     <tbody>
                     <tr ng-repeat="item in vm.uploader.queue track by $index">
-                        <td><span class="semi-b" ng-bind="vm.item.file.name"></span></td>
-                        <td ng-show="vm.uploader.isHTML5"><span ng-bind="vm.item.file.size/1024/1024|number:2"></span> MB</td>
+                        <td><span class="semi-b" ng-bind="item.file.name"></span></td>
+                        <td ng-show="vm.uploader.isHTML5"><span ng-bind="item.file.size/1024/1024|number:2"></span> MB</td>
                         <td ng-show="vm.uploader.isHTML5">
                             <div class="progress nomarg">
                                 <div class="progress-bar" role="progressbar"
