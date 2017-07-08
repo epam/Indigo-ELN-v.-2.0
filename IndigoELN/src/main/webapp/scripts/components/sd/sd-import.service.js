@@ -1,10 +1,10 @@
 angular
     .module('indigoeln')
-    .factory('SdImportService', sdImportService);
+    .factory('sdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($http, $q, $uibModal, Dictionary, SdConstants,
-                         AlertModal, Alert, CalculationService, StoichTableCache, SdImportHelperService) {
+function sdImportService($http, $q, $uibModal, Dictionary, sdConstants,
+                         AlertModal, Alert, CalculationService, StoichTableCache, sdImportHelperService) {
     return {
         importFile: importFile
     };
@@ -26,7 +26,7 @@ function sdImportService($http, $q, $uibModal, Dictionary, SdConstants,
         var propCode = getPropertyCode(property, index);
         var value = sdUnitToImport.properties[propCode];
         if (value) {
-            var formattedProperty = SdImportHelperService.formatProperty(property, value, dicts, index);
+            var formattedProperty = sdImportHelperService.formatProperty(property, value, dicts, index);
             if (itemToImport[property.name]) {
                 _.defaultsDeep(itemToImport[property.name], formattedProperty);
             } else {
@@ -37,7 +37,7 @@ function sdImportService($http, $q, $uibModal, Dictionary, SdConstants,
 
     function fillProperties(sdUnitToImport, itemToImport, dicts) {
         if (sdUnitToImport.properties) {
-            _.each(SdConstants, function(property) {
+            _.each(sdConstants, function(property) {
                 if (property.childrenLength) {
                     for (var i = 0; i < property.childrenLength; i++) {
                         importValues(sdUnitToImport, property, i, dicts, itemToImport);
