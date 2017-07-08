@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .constant('SdConstants', [
+    .constant('sdConstants', [
         {
             code: 'REGISTRATION_STATUS',
             name: 'registrationStatus',

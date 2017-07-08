@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('SdExportService', sdExportService);
+    .factory('sdExportService', sdExportService);
 
 /* @ngInject */
-function sdExportService(SdService, SdConstants, Alert, $q, $log) {
+function sdExportService(sdService, sdConstants, Alert, $q, $log) {
     return {
         exportItems: exportItems
     };
@@ -11,7 +11,7 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
     function exportItems(items) {
         var properties = getExportProperties(items);
         if (properties.length) {
-            return SdService.export({}, properties).$promise;
+            return sdService.export({}, properties).$promise;
         }
         Alert.error('Please add Batch structure before export sd file');
 
@@ -37,7 +37,7 @@ function sdExportService(SdService, SdConstants, Alert, $q, $log) {
 
     function generateExportProperties(item) {
         var properties = {};
-        _.each(SdConstants, function(prop) {
+        _.each(sdConstants, function(prop) {
             if (_.isUndefined(item[prop.name])){
                 return;
             }
