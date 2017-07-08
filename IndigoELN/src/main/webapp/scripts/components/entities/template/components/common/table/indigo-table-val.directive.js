@@ -143,7 +143,7 @@
                         return _.isObject(vm.indigoRow[vm.indigoColumn.id]) ? vm.indigoRow[vm.indigoColumn.id].value || vm.indigoRow[vm.indigoColumn.id].name : vm.indigoRow[vm.indigoColumn.id];
                     }, function(newVal, prevVal) {
                         oldVal = prevVal;
-                        isChanged = !angular.equals(newVal, prevVal) && vm.isEditable();
+                        isChanged = !_.isEqual(newVal, prevVal) && vm.isEditable();
                         var col = vm.indigoColumn;
                         if (isChanged && col.onChange) {
                             col.onChange({

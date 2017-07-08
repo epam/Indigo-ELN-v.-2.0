@@ -10,7 +10,7 @@ function numberUtil() {
 
     function floatEquals(n1, n2, decimals) {
         var equal = false;
-        if (angular.isUndefined(decimals)) {
+        if (_.isUndefined(decimals)) {
             decimals = 15;
         }
         if (decimals) {

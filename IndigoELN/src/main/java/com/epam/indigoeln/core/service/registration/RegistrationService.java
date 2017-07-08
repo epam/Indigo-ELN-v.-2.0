@@ -38,58 +38,78 @@ public class RegistrationService {
     private SimpMessagingTemplate template;
 
     public List<RegistrationRepositoryInfo> getRepositoriesInfo() {
-        return repositories.stream().map(RegistrationRepository::getInfo).collect(Collectors.toList());
+        return repositories
+                .stream()
+                .map(RegistrationRepository::getInfo)
+                .collect(Collectors.toList());
     }
 
     private RegistrationRepository getRegistrationRepository(String id) throws RegistrationException {
-        Optional<RegistrationRepository> optional = repositories.stream().filter(r -> r.getInfo().getId().equals(id)).findFirst();
+        Optional<RegistrationRepository> optional = repositories
+                .stream()
+                .filter(r -> r.getInfo().getId().equals(id))
+                .findFirst();
+
         if (!optional.isPresent()) {
             throw new RegistrationException("Unknown repository ID: " + id);
         }
+
         return optional.get();
     }
 
     private Map<BatchSummary, Component> getBatches(Supplier<Collection<Component>> supplier, Predicate<BatchSummary> predicate) {
         Map<BatchSummary, Component> batchesMap = new HashMap<>();
-        Collection<Component> components = supplier.get();
-        components.forEach(c -> {
-            BasicDBList batches = (BasicDBList) c.getContent().get("batches");
-            batches.forEach(b -> {
-                BasicDBObject batch = (BasicDBObject) b;
-                batchesMap.put(new BatchSummary(batch), c);
-            });
-        });
-        return batchesMap.entrySet().stream().filter(e -> predicate.test(e.getKey())).
-                collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        supplier.get()
+                .forEach(c -> ((BasicDBList) c.getContent().get("batches"))
+                        .forEach(b -> {
+                            BasicDBObject batch = (BasicDBObject) b;
+                            batchesMap.put(new BatchSummary(batch), c);
+                        }));
+
+        return batchesMap.entrySet()
+                .stream()
+                .filter(e -> predicate.test(e.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     public Long register(String id, List<String> fullBatchNumbers) throws RegistrationException {
-
         Map<BatchSummary, Component> batches = getBatches(
                 () -> componentRepository.findBatchSummariesByFullBatchNumbers(fullBatchNumbers),
                 b -> fullBatchNumbers.contains(b.getFullNbkBatch()));
 
         if (fullBatchNumbers.size() != batches.size()) {
-            Set<String> foundFullNbkBatches = batches.keySet().stream().map(BatchSummary::getFullNbkBatch).collect(Collectors.toSet());
+            Set<String> foundFullNbkBatches = batches.keySet()
+                    .stream()
+                    .map(BatchSummary::getFullNbkBatch)
+                    .collect(Collectors.toSet());
+
             throw new RegistrationException("Unable to find batches for registration: " +
                     CollectionUtils.subtract(fullBatchNumbers, foundFullNbkBatches));
         }
 
-        Optional<BatchSummary> inProgressOpt = batches.keySet().stream().filter(
-                b -> RegistrationStatus.Status.IN_PROGRESS.toString().equals(b.getRegistrationStatus())
-        ).findFirst();
+        Optional<BatchSummary> inProgressOpt = batches.keySet()
+                .stream()
+                .filter(b -> RegistrationStatus.Status.IN_PROGRESS.toString().equals(b.getRegistrationStatus()))
+                .findFirst();
+
         if (inProgressOpt.isPresent()) {
             throw new RegistrationException("Batch " + inProgressOpt.get().getFullNbkBatch() + " is already on registration.");
         }
 
-        List<Compound> compounds = batches.keySet().stream().map(b -> convert(b.getDelegate())).collect(Collectors.toList());
+        List<Compound> compounds = batches.keySet()
+                .stream()
+                .map(b -> convert(b.getDelegate()))
+                .collect(Collectors.toList());
+
         Long jobId = getRegistrationRepository(id).register(compounds);
 
-        batches.keySet().stream().forEach(b -> {
-            b.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS.toString());
-            b.setRegistrationJobId(jobId);
-            b.setRegistrationRepositoryId(id);
-        });
+        batches.keySet()
+                .forEach(b -> {
+                    b.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS.toString());
+                    b.setRegistrationJobId(jobId);
+                    b.setRegistrationRepositoryId(id);
+                });
 
         componentRepository.save(new HashSet<>(batches.values()));
 
@@ -100,8 +120,8 @@ public class RegistrationService {
 
     public RegistrationStatus getStatus(String id, long jobId) throws RegistrationException {
         RegistrationStatus registrationStatus = getRegistrationRepository(id).getRegisterJobStatus(jobId);
-        if (!registrationStatus.getStatus().equals(RegistrationStatus.Status.IN_PROGRESS)) {
 
+        if (registrationStatus.getStatus() != RegistrationStatus.Status.IN_PROGRESS) {
             Map<BatchSummary, Component> batches = getBatches(
                     () -> componentRepository.findBatchSummariesByRegistrationJobId(jobId),
                     b -> {
@@ -109,20 +129,23 @@ public class RegistrationService {
                         return registrationJobId != null && registrationJobId == jobId;
                     });
 
-            batches.keySet().stream().forEach(
-                    b -> {
-                        b.setRegistrationStatus(registrationStatus.getStatus().toString());
-                        if (RegistrationStatus.Status.PASSED.equals(registrationStatus.getStatus())) {
-                            b.setRegistrationDate(registrationStatus.getDate());
-                            b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
-                            b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
-                        }
-                    }
-            );
+            batches
+                    .keySet()
+                    .forEach(
+                            b -> {
+                                b.setRegistrationStatus(registrationStatus.getStatus().toString());
+
+                                if (registrationStatus.getStatus() == RegistrationStatus.Status.PASSED) {
+                                    b.setRegistrationDate(registrationStatus.getDate());
+                                    b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
+                                    b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
+                                }
+                            }
+                    );
 
             componentRepository.save(new HashSet<>(batches.values()));
-
         }
+
         return registrationStatus;
     }
 
@@ -152,12 +175,15 @@ public class RegistrationService {
 
     private Compound convert(BasicDBObject batch) {
         Compound result = new Compound();
+
         result.setBatchNo(batch.getString("fullNbkBatch"));
         result.setStructure(((BasicDBObject) batch.get("structure")).getString("molfile"));
         result.setFormula(batch.getString("formula"));
         result.setStereoisomerCode(((BasicDBObject) batch.get("stereoisomer")).getString("name"));
         result.setSaltCode(((BasicDBObject) batch.get("saltCode")).getString("regValue"));
-        final String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
+
+        String saltEq = ((BasicDBObject) batch.get("saltEq")).getString("value");
+
         if (saltEq != null) {
             try {
                 result.setSaltEquivs(Double.parseDouble(saltEq));
@@ -165,10 +191,13 @@ public class RegistrationService {
                 LOGGER.warn("Unable to parse Salt Eq");
             }
         }
+
         result.setComment(batch.getString("comments"));
-        final BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
+
+        BasicDBObject healthHazards = (BasicDBObject) batch.get("healthHazards");
         result.setHazardComment(Optional.ofNullable(healthHazards).map(hh -> hh.getString("asString")).orElse(null));
-        final BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
+
+        BasicDBObject storageInstructions = (BasicDBObject) batch.get("storageInstructions");
         result.setStorageComment(Optional.ofNullable(storageInstructions).map(hh -> hh.getString("asString")).orElse(null));
 
         return result;
@@ -222,7 +251,5 @@ public class RegistrationService {
         public void setСonversationalBatchNumber(String conversationalBatchNumber) {
             delegate.put("conversationalBatchNumber", conversationalBatchNumber);
         }
-
     }
-
 }

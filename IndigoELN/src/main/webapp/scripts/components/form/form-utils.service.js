@@ -110,7 +110,7 @@ function formUtils($timeout) {
         if (tAttrs.indigoName) {
             $element.attr('name', '{{indigoName}}');
         }
-        if (angular.isDefined(undefined)) {
+        if (!_.isUndefined(undefined)) {
             $element.attr('min', tAttrs.indigoNumberMin);
         }
         if (tAttrs.indigoType) {

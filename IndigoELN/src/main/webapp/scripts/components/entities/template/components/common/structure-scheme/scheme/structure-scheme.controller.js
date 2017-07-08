@@ -3,7 +3,7 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Alert, EntitiesBrowser) {
+function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     var vm = this;
 
     init();
@@ -11,6 +11,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function init() {
         vm.structureModel = getInitModel();
         onChange();
+
         vm.openEditor = openEditor;
         vm.importStructure = importStructure;
         vm.exportStructure = exportStructure;
@@ -30,23 +31,23 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function getInitModel() {
-        if (vm.model && vm.model[vm.structureType]) {
-            return angular.copy(vm.model[vm.structureType]);
+        return buildStructure(vm.model);
+    }
+
+    function updateModel() {
+        vm.structureModel = getInitModel();
+        updateMolfileImage(vm.structureModel);
+    }
+
+    function updateMolfileImage(structure) {
+        if (!structure || !structure.molfile || structure.image) {
+            return;
         }
 
-        return buildStructure();
-    }
-
-    function setSelecterdRow() {
-        vm.structureModel = buildStructure(_.get(vm.share.selectedRow, 'structure'));
-        onChange();
-    }
-
-    function getMolfileImage(row) {
         $http({
             url: 'api/renderer/' + vm.structureType + '/image',
             method: 'POST',
-            data: row.structure.molfile
+            data: structure.molfile
         }).success(function(result) {
             vm.structureModel.image = result.image;
             onChange();
@@ -54,46 +55,11 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     }
 
     function bindEvents() {
-        if (vm.structureType === 'molecule') {
-            $scope.$on('batch-summary-row-selected', function(event, data) {
-                var row = data.row;
-                setSelecterdRow();
-                if (row && row.structure && row.structure.structureType === vm.structureType) {
-                    if (row.structure.molfile) {
-                        getMolfileImage(row);
-                    }
-                } else if (angular.isDefined(row)) {
-                    clearStructure();
-                }
-            });
-        }
-        if (vm.structureType === 'reaction') {
-            $scope.$on('new-reaction-scheme', function(event, data) {
-                vm.structureModel.image = data.image;
-                vm.structureModel.molfile = data.molfile;
-                onChange();
-            });
-        }
-
-        $scope.$watch('vm.structureModel.structureId', function() {
-            if (vm.share && vm.structureModel) {
-                vm.share[vm.structureType] = getStructureMolfile();
-            }
-        });
-
-        $scope.$watch('vm.model', getInitModel);
-        $scope.$watch('vm.structureType', getInitModel);
+        $scope.$watch('vm.model', updateModel);
     }
 
     function onChange() {
         vm.onChanged({structure: vm.structureModel});
-    }
-
-    function clearStructure() {
-        vm.structureModel.image = null;
-        vm.structureModel.molfile = null;
-        vm.structureModel.structureId = null;
-        onChange();
     }
 
     function renderStructure(type, structure) {
@@ -122,15 +88,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         return deferred.promise;
     }
 
-    function updateShareSelectedRow(data) {
-        vm.share.selectedRow.structure = vm.share.selectedRow.structure || {};
-        vm.share.selectedRow.structure.image = data.image;
-        vm.share.selectedRow.structure.structureType = vm.structureType;
-        vm.share.selectedRow.structure.molfile = data.structure || data.molfile;
-        vm.share.selectedRow.structure.structureId = data.structureId;
-        $rootScope.$broadcast('product-batch-structure-changed', vm.share.selectedRow);
-    }
-
     function updateModelRestriction(data) {
         vm.model.restrictions.structure = vm.model.restrictions.structure || {};
         vm.model.restrictions.structure.molfile = data.structure || data.molfile;
@@ -140,11 +97,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function setRenderedStructure(data) {
         _.assign(vm.structureModel, data);
 
-        if (vm.share && vm.share.selectedRow && vm.structureType === 'molecule') {
-            updateShareSelectedRow(data);
-        }
-
-        if (vm.model.restrictions) {
+        if (vm.model && vm.model.restrictions) {
             updateModelRestriction(data);
         }
 
@@ -161,7 +114,11 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
                 });
             });
         } else {
-            setRenderedStructure({});
+            setRenderedStructure({
+                molfile: null,
+                structureId: null,
+                image: null
+            });
         }
     }
 
@@ -214,8 +171,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
     function successEditStructure(structure) {
         if (vm.autosave && structure) {
             saveNewStructure(structure);
+        } else {
+            setStructure(structure);
         }
-        setStructure(structure);
     }
 
     function importStructure($event) {
@@ -235,10 +193,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
         modalInstance.result.then(successEditStructure);
     }
 
-    function getStructureMolfile() {
-        return _.get(vm.model, vm.structureType + '.molfile');
-    }
-
     function exportStructure($event) {
         $event.stopPropagation();
         if (vm.indigoReadonly) {
@@ -252,7 +206,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, $rootScope, Ale
             windowClass: 'structure-export-modal',
             resolve: {
                 structureToSave: function() {
-                    return getStructureMolfile();
+                    return vm.structureModel.molfile;
                 },
                 structureType: function() {
                     return vm.structureType;

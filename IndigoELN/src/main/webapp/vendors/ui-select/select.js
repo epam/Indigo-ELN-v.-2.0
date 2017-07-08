@@ -420,7 +420,7 @@
                 }
 
                 ctrl.isEmpty = function () {
-                    return angular.isUndefined(ctrl.selected) || ctrl.selected === null || ctrl.selected === '' || (ctrl.multiple && ctrl.selected.length === 0);
+                    return _.isUndefined(ctrl.selected) || ctrl.selected === null || ctrl.selected === '' || (ctrl.multiple && ctrl.selected.length === 0);
                 };
 
                 function _findIndex(collection, predicate, thisArg) {
@@ -448,7 +448,7 @@
                         //reset activeIndex
                         if (ctrl.selected && ctrl.items.length && !ctrl.multiple) {
                             ctrl.activeIndex = _findIndex(ctrl.items, function (item) {
-                                return angular.equals(this, item);
+                                return _.isEqual(this, item);
                             }, ctrl.selected);
                         }
                     }
@@ -519,8 +519,8 @@
                     function updateGroups(items) {
                         var groupFn = $scope.$eval(groupByExp);
                         ctrl.groups = [];
-                        angular.forEach(items, function (item) {
-                            var groupName = angular.isFunction(groupFn) ? groupFn(item) : item[groupFn];
+                        _.forEach(items, function (item) {
+                            var groupName = _.isFunction(groupFn) ? groupFn(item) : item[groupFn];
                             var group = ctrl.findGroupByName(groupName);
                             if (group) {
                                 group.items.push(item);
@@ -531,9 +531,9 @@
                         });
                         if (groupFilterExp) {
                             var groupFilterFn = $scope.$eval(groupFilterExp);
-                            if (angular.isFunction(groupFilterFn)) {
+                            if (_.isFunction(groupFilterFn)) {
                                 ctrl.groups = groupFilterFn(ctrl.groups);
-                            } else if (angular.isArray(groupFilterFn)) {
+                            } else if (_.isArray(groupFilterFn)) {
                                 ctrl.groups = _groupsFilter(ctrl.groups, groupFilterFn);
                             }
                         }
@@ -581,13 +581,13 @@
                         data = data || ctrl.parserResult.source($scope);
                         var selectedItems = ctrl.selected;
                         //TODO should implement for single mode removeSelected
-                        if (ctrl.isEmpty() || (angular.isArray(selectedItems) && !selectedItems.length) || !ctrl.removeSelected) {
+                        if (ctrl.isEmpty() || (_.isArray(selectedItems) && !selectedItems.length) || !ctrl.removeSelected) {
                             ctrl.setItemsFn(data);
                         } else {
                             if (data !== undefined) {
                                 var filteredItems = data.filter(function (i) {
                                     return selectedItems.every(function (selectedItem) {
-                                        return !angular.equals(i, selectedItem);
+                                        return !_.isEqual(i, selectedItem);
                                     });
                                 });
                                 ctrl.setItemsFn(filteredItems);
@@ -606,7 +606,7 @@
                             // i.e $scope.addresses = [] is missing
                             ctrl.items = [];
                         } else {
-                            if (!angular.isArray(items)) {
+                            if (!_.isArray(items)) {
                                 throw uiSelectMinErr('items', "Expected an array but got '{0}'.", items);
                             } else {
                                 //Remove already selected items (ex: while searching)
@@ -652,7 +652,7 @@
                         return false;
                     }
 
-                    if (isActive && !angular.isUndefined(ctrl.onHighlightCallback)) {
+                    if (isActive && !_.isUndefined(ctrl.onHighlightCallback)) {
                         itemScope.$eval(ctrl.onHighlightCallback);
                     }
 
@@ -667,7 +667,7 @@
                     var isDisabled = false;
                     var item;
 
-                    if (itemIndex >= 0 && !angular.isUndefined(ctrl.disableChoiceExpression)) {
+                    if (itemIndex >= 0 && !_.isUndefined(ctrl.disableChoiceExpression)) {
                         item = ctrl.items[itemIndex];
                         isDisabled = !!(itemScope.$eval(ctrl.disableChoiceExpression)); // force the boolean value
                         item._uiSelectChoiceDisabled = isDisabled; // store this for later reference
@@ -689,7 +689,7 @@
                                 if (ctrl.taggingLabel === false) {
                                     if (ctrl.activeIndex < 0) {
                                         item = ctrl.tagging.fct !== undefined ? ctrl.tagging.fct(ctrl.search) : ctrl.search;
-                                        if (!item || angular.equals(ctrl.items[0], item)) {
+                                        if (!item || _.isEqual(ctrl.items[0], item)) {
                                             return;
                                         }
                                     } else {
@@ -717,8 +717,8 @@
                                     }
                                 }
                                 // search ctrl.selected for dupes potentially caused by tagging and return early if found
-                                if (ctrl.selected && angular.isArray(ctrl.selected) && ctrl.selected.filter(function (selection) {
-                                        return angular.equals(selection, item);
+                                if (ctrl.selected && _.isArray(ctrl.selected) && ctrl.selected.filter(function (selection) {
+                                        return _.isEqual(selection, item);
                                     }).length > 0) {
                                     ctrl.close(skipFocusser);
                                     return;
@@ -784,7 +784,7 @@
                 ctrl.isLocked = function (itemScope, itemIndex) {
                     var isLocked, item = ctrl.selected[itemIndex];
 
-                    if (item && !angular.isUndefined(ctrl.lockChoiceExpression)) {
+                    if (item && !_.isUndefined(ctrl.lockChoiceExpression)) {
                         isLocked = !!(itemScope.$eval(ctrl.lockChoiceExpression)); // force the boolean value
                         item._uiSelectChoiceLocked = isLocked; // store this for later reference
                     }
@@ -933,7 +933,7 @@
                             var items = data.split(separator || ctrl.taggingTokens.tokens[0]); // split by first token only
                             if (items && items.length > 0) {
                                 var oldsearch = ctrl.search;
-                                angular.forEach(items, function (item) {
+                                _.forEach(items, function (item) {
                                     var newItem = ctrl.tagging.fct ? ctrl.tagging.fct(item) : item;
                                     if (newItem) {
                                         ctrl.select(newItem, true);
@@ -1002,7 +1002,7 @@
                     restrict: 'EA',
                     templateUrl: function (tElement, tAttrs) {
                         var theme = tAttrs.theme || uiSelectConfig.theme;
-                        return theme + (angular.isDefined(tAttrs.multiple) ? '/select-multiple.tpl.html' : '/select.tpl.html');
+                        return theme + (!_.isUndefined(tAttrs.multiple) ? '/select-multiple.tpl.html' : '/select.tpl.html');
                     },
                     replace: true,
                     transclude: true,
@@ -1022,7 +1022,7 @@
                         }
 
                         //Multiple or Single depending if multiple attribute presence
-                        if (angular.isDefined(tAttrs.multiple))
+                        if (!_.isUndefined(tAttrs.multiple))
                             tElement.append('<ui-select-multiple/>').removeAttr('multiple');
                         else
                             tElement.append('<ui-select-single/>');
@@ -1041,7 +1041,7 @@
                             $select.focusserId = 'focusser-' + $select.generatedId;
 
                             $select.closeOnSelect = function () {
-                                if (angular.isDefined(attrs.closeOnSelect)) {
+                                if (!_.isUndefined(attrs.closeOnSelect)) {
                                     return $parse(attrs.closeOnSelect)();
                                 } else {
                                     return uiSelectConfig.closeOnSelect;
@@ -1057,7 +1057,7 @@
                             $select.onRemoveCallback = $parse(attrs.onRemove);
 
                             //Limit the number of selections allowed
-                            $select.limit = (angular.isDefined(attrs.limit)) ? parseInt(attrs.limit, 10) : undefined;
+                            $select.limit = (!_.isUndefined(attrs.limit)) ? parseInt(attrs.limit, 10) : undefined;
 
                             //Set reference to ngModel from uiSelectCtrl
                             $select.ngModel = ngModel;
@@ -1133,14 +1133,14 @@
                             });
 
                             //Automatically gets focus when loaded
-                            if (angular.isDefined(attrs.autofocus)) {
+                            if (!_.isUndefined(attrs.autofocus)) {
                                 $timeout(function () {
                                     $select.setFocus();
                                 });
                             }
 
                             //Gets focus based on scope event name (e.g. focus-on='SomeEventName')
-                            if (angular.isDefined(attrs.focusOn)) {
+                            if (!_.isUndefined(attrs.focusOn)) {
                                 scope.$on(attrs.focusOn, function () {
                                     $timeout(function () {
                                         $select.setFocus();
@@ -1391,7 +1391,7 @@
                 });
 
                 function setAllowClear(allow) {
-                    $select.allowClear = (angular.isDefined(allow)) ? (allow === '') ? true : (allow.toLowerCase() === 'true') : false;
+                    $select.allowClear = (!_.isUndefined(allow)) ? (allow === '') ? true : (allow.toLowerCase() === 'true') : false;
                 }
 
                 attrs.$observe('allowClear', setAllowClear);
@@ -1416,7 +1416,7 @@
                     $select = $scope.$select,
                     ngModel;
 
-                if (angular.isUndefined($select.selected))
+                if (_.isUndefined($select.selected))
                     $select.selected = [];
 
                 //Wait for link fn to inject it
@@ -1531,7 +1531,7 @@
                                     }
                                 }
                             }
-                            if (angular.equals(result, value)) {
+                            if (_.isEqual(result, value)) {
                                 resultMultiple.unshift(list[p]);
                                 return true;
                             }
@@ -1564,9 +1564,9 @@
 
                 ngModel.$render = function () {
                     // Make sure that model value is array
-                    if (!angular.isArray(ngModel.$viewValue)) {
+                    if (!_.isArray(ngModel.$viewValue)) {
                         // Have tolerance for null or undefined values
-                        if (angular.isUndefined(ngModel.$viewValue) || ngModel.$viewValue === null) {
+                        if (_.isUndefined(ngModel.$viewValue) || ngModel.$viewValue === null) {
                             $select.selected = [];
                         } else {
                             throw uiSelectMinErr('multiarr', "Expected model value to be array but got '{0}'", ngModel.$viewValue);
@@ -1611,7 +1611,7 @@
                     });
                 });
                 function _getCaretPosition(el) {
-                    if (angular.isNumber(el.selectionStart)) return el.selectionStart;
+                    if (_.isNumber(el.selectionStart)) return el.selectionStart;
                     // selectionStart is not supported in IE8 and we don't want hacky workarounds so we compromise
                     else return el.value.length;
                 }
@@ -1720,10 +1720,10 @@
                             // verify the new tag doesn't match the value of a possible selection choice or an already selected item.
                             if (
                                 stashArr.some(function (origItem) {
-                                    return angular.equals(origItem, $select.tagging.fct($select.search));
+                                    return _.isEqual(origItem, $select.tagging.fct($select.search));
                                 }) ||
                                 $select.selected.some(function (origItem) {
-                                    return angular.equals(origItem, newItem);
+                                    return _.isEqual(origItem, newItem);
                                 })
                             ) {
                                 scope.$evalAsync(function () {
@@ -1806,7 +1806,7 @@
 
                 function _findApproxDupe(haystack, needle) {
                     var dupeIndex = -1;
-                    if (angular.isArray(haystack)) {
+                    if (_.isArray(haystack)) {
                         var tempArr = angular.copy(haystack);
                         for (var i = 0; i < tempArr.length; i++) {
                             // handle the simple string version of tagging
@@ -1818,10 +1818,10 @@
                                 // handle the object tagging implementation
                             } else {
                                 var mockObj = tempArr[i];
-                                if (angular.isObject(mockObj)) {
+                                if (_.isObject(mockObj)) {
                                     mockObj.isTag = true;
                                 }
-                                if (angular.equals(mockObj, needle)) {
+                                if (_.isEqual(mockObj, needle)) {
                                     dupeIndex = i;
                                 }
                             }
