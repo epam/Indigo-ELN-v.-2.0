@@ -265,6 +265,90 @@ angular
         {
             code: 'BATCH_COMMENTS',
             name: 'comments'
+        },
+        {
+            code: 'BUTCH_TYPE',
+            name: 'butchType'
+        },
+        {
+            code: 'THEO_MOLES_DISPLAY_VALUE',
+            name: 'theoMoles',
+            path: 'displayValue'
+        },
+        {
+            code: 'THEO_MOLES_VALUE',
+            name: 'theoMoles',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'THEO_MOLES_UNIT',
+            name: 'theoMoles',
+            path: 'unit'
+        },
+        {
+            code: 'THEO_WEIGHT_DISPLAY_VALUE',
+            name: 'theoWeight',
+            path: 'displayValue'
+        },
+        {
+            code: 'THEO_WEIGHT_VALUE',
+            name: 'theoWeight',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'THEO_WEIGHT_UNIT',
+            name: 'theoWeight',
+            path: 'unit'
+        },
+        {
+            code: 'TOTAL_MOLES_DISPLAY_VALUE',
+            name: 'totalMoles',
+            path: 'displayValue'
+        },
+        {
+            code: 'TOTAL_MOLES_VALUE',
+            name: 'totalMoles',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'TOTAL_MOLES_UNIT',
+            name: 'totalMoles',
+            path: 'unit'
+        },
+        {
+            code: 'TOTAL_VOLUME_DISPLAY_VALUE',
+            name: 'totalVolume',
+            path: 'displayValue'
+        },
+        {
+            code: 'TOTAL_VOLUME_VALUE',
+            name: 'totalVolume',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'TOTAL_VOLUME_UNIT',
+            name: 'totalVolume',
+            path: 'unit'
+        },
+        {
+            code: 'TOTAL_WEIGHT_DISPLAY_VALUE',
+            name: 'totalWeight',
+            path: 'displayValue'
+        },
+        {
+            code: 'TOTAL_WEIGHT_VALUE',
+            name: 'totalWeight',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'TOTAL_WEIGHT_UNIT',
+            name: 'totalWeight',
+            path: 'unit'
         }
     ]
     );
