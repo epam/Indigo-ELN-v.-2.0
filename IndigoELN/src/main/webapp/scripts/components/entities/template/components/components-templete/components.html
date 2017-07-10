@@ -2,13 +2,14 @@
     <uib-tabset class="inner-tabs">
         <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in indigoTemplate track by tab.name">
             <indigo-component class="my-component" ng-repeat="component in tab.components"
-                 component-id="{{component.id}}"
-                 indigo-model="indigoModel"
-                 indigo-experiment="indigoExperiment"
-                 indigo-experiment-form="indigoExperimentForm"
-                 indigo-share="vm.share"
-                 indigo-save-experiment-fn="indigoSaveExperimentFn()"
-                 indigo-readonly="indigoReadonly"></indigo-component>
+                              component-id="{{component.id}}"
+                              model="model"
+                              batches="vm.batches"
+                              indigo-experiment="indigoExperiment"
+                              indigo-experiment-form="indigoExperimentForm"
+                              share="vm.share"
+                              indigo-save-experiment-fn="indigoSaveExperimentFn()"
+                              readonly="indigoReadonly"></indigo-component>
         </uib-tab>
     </uib-tabset>
 </fieldset>

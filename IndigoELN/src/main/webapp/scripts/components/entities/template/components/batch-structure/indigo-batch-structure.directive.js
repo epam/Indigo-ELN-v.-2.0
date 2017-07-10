@@ -8,7 +8,9 @@
             restrict: 'E',
             templateUrl: 'scripts/components/entities/template/components/batch-structure/batch-structure.html',
             scope: {
-                share: '='
+                share: '=',
+                selectedBatch: '=',
+                readonly: '='
             },
             controller: indigoBatchStructureController,
             controllerAs: 'vm',

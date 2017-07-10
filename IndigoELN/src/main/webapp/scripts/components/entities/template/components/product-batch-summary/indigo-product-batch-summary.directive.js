@@ -13,10 +13,13 @@
             bindToController: true,
             scope: {
                 model: '=',
+                batches: '=',
                 share: '=',
                 experiment: '=',
                 indigoReadonly: '=readonly',
-                indigoSaveExperimentFn: '&'
+                indigoSaveExperimentFn: '&',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             }
         };
     }
