@@ -4,8 +4,8 @@ angular
 
 /* @ngInject */
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache,
-                                       $log, Alert, $timeout, EntitiesBrowser, RegistrationService, SdImportService,
-                                       SdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+                                       $log, Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
+                                       sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
     return {
         exportSDFile: exportSDFile,
         getSelectedNonEditableBatches: getSelectedNonEditableBatches,
@@ -28,7 +28,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             return item.select;
         });
 
-        SdExportService.exportItems(selectedBatches).then(function(data) {
+        sdExportService.exportItems(selectedBatches).then(function(data) {
             var file_path = 'api/sd/download?fileName=' + data.fileName;
             var a = document.createElement('A');
             a.href = file_path;
@@ -133,7 +133,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
 
     function importSDFile(success) {
-        SdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
+        sdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
             EntitiesBrowser.getCurrentForm().$setDirty(true);
             if (success) {
                 success();

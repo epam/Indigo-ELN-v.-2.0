@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('SdImportHelperService', SdImportHelperService);
+    .factory('sdImportHelperService', sdImportHelperService);
 
 /* @ngInject */
-function SdImportHelperService(AppValues) {
+function sdImportHelperService(AppValues) {
     var additionalFormatFunctions = {
         GLOBAL_SALT_CODE: function(property, value) {
             return getItem(AppValues.getSaltCodeValues(), property.subPropName, value);

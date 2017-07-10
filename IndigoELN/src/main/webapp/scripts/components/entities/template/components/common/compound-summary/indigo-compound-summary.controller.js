@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function IndigoCompoundSummaryController($scope, CalculationService, RegistrationUtil, $log, $rootScope, AlertModal,
-                                             $stateParams, SdImportService, SdExportService, $window, $q, $http,
+                                             $stateParams, sdImportService, sdExportService, $window, $q, $http,
                                              Notebook, EntitiesCache) {
         var vm = this;
         var unbinds = [];
@@ -216,14 +216,14 @@
         }
 
         function importSDFile() {
-            SdImportService.importFile(requestNbkBatchNumberAndAddToTable);
+            sdImportService.importFile(requestNbkBatchNumberAndAddToTable);
         }
 
         function exportSDFile() {
             var selectedBatches = _.filter(getCompounds(), function(item) {
                 return item.select;
             });
-            SdExportService.exportItems(selectedBatches).then(function(data) {
+            sdExportService.exportItems(selectedBatches).then(function(data) {
                 $window.open('api/sd/download?fileName=' + data.fileName);
             });
         }

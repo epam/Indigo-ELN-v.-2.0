@@ -1,38 +1,21 @@
 angular
     .module('indigoeln')
-    .factory('SdExportService', sdExportService);
+    .factory('sdExportService', sdExportService);
 
 /* @ngInject */
-function sdExportService(SdService, sdProperties, Alert, $q, $log) {
+function sdExportService(sdService, sdConstants, Alert, $q, $log) {
     return {
         exportItems: exportItems
     };
 
-    function getProperty(item, props) {
-        var i = 0;
-        var prop = props[i++];
-        var subItem = item[prop];
-        while (props[i]) {
-            if (angular.isUndefined(subItem)) {
-                return;
-            }
-            prop = props[i++];
-            subItem = subItem[prop];
+    function exportItems(items) {
+        var properties = getExportProperties(items);
+        if (properties.length) {
+            return sdService.export({}, properties).$promise;
         }
-        if (subItem && !_.isObject(subItem)) {
-            return subItem;
-        }
-    }
+        Alert.error('Please add Batch structure before export sd file');
 
-
-    function generateExportProperties(item) {
-        var properties = {};
-        sdProperties.constants.forEach(function(prop) {
-            var fields = prop.export;
-            properties[fields.name] = getProperty(item, fields.prop, fields.subProp);
-        });
-
-        return properties;
+        return $q.reject();
     }
 
     function getExportProperties(exportObject) {
@@ -40,6 +23,7 @@ function sdExportService(SdService, sdProperties, Alert, $q, $log) {
         _.forEach(exportObject, function(exportProperty) {
             if (!exportProperty.structure.molfile) {
                 $log.debug('Error, molfile is undefined', exportProperty);
+
                 return;
             }
             result.push({
@@ -51,13 +35,37 @@ function sdExportService(SdService, sdProperties, Alert, $q, $log) {
         return result;
     }
 
-    function exportItems(items) {
-        var properties = getExportProperties(items);
-        if (properties.length) {
-            return SdService.export({}, properties).$promise;
-        }
-        Alert.error('Please add Batch structure before export sd file');
+    function generateExportProperties(item) {
+        var properties = {};
+        _.each(sdConstants, function(prop) {
+            if (_.isUndefined(item[prop.name])){
+                return;
+            }
+            var property = prop.childrenLength ? getMultipleProperty(item, prop) : getSingleProperty(item, prop);
+            properties = _.defaultsDeep(properties, property);
+        });
 
-        return $q.reject();
+        return properties;
+    }
+
+    function getSingleProperty(item, prop) {
+        return _.set({}, prop.code, _.result(item, prop.path ? _.join([prop.name, prop.path], '.') : prop.name));
+    }
+
+    function getMultipleProperty(item, prop) {
+        var property = {};
+        var value;
+        for (var index = 0; index < prop.childrenLength; index++) {
+            value = _.result(item, _.join([prop.name, prop.path.replace(/<%= index =>/, index)], '.'));
+            if (!_.isObject(value)) {
+                _.set(property, getMultipleCode(prop, index), value);
+            }
+        }
+
+        return property;
+    }
+
+    function getMultipleCode(property, index) {
+        return _.join([property.code, index], '_');
     }
 }
