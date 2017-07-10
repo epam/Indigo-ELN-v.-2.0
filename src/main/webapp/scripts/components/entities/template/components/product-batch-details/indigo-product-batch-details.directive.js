@@ -13,9 +13,14 @@
             bindToController: true,
             scope: {
                 model: '=',
+                batches: '=',
                 share: '=',
                 experiment: '=',
-                indigoReadonly: '=readonly'
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
+                indigoReadonly: '=readonly',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             }
         };
     }

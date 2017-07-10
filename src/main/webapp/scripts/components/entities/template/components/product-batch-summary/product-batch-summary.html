@@ -1,4 +1,5 @@
-<div class="panel panel-info product-batch-summary" indigo-collapsible-component cg-busy="{promise:syncingIntendedProducts, minDuration:700}">
+<div class="panel panel-info product-batch-summary" indigo-collapsible-component
+     cg-busy="{promise:syncingIntendedProducts, minDuration:700}">
     <div class="panel-heading">
         Product Batch Summary
     </div>
@@ -17,11 +18,14 @@
             </div>
         </div>
         <indigo-batch-summary model="vm.model"
+                              batches="vm.batches"
                               share="vm.share"
                               experiment-name="vm.experiment.name"
                               on-show-structure="vm.showStructure(isVisible)"
                               structure-size="vm.structureSize"
                               indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
+                              on-select-batch="vm.onSelectBatch({batch: batch})"
+                              on-remove-batches="vm.onRemoveBatches({bathes: bathes})"
         ></indigo-batch-summary>
     </div>
 </div>

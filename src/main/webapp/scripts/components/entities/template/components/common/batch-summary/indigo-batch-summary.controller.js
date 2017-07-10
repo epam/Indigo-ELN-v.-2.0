@@ -63,7 +63,7 @@
         }
 
         function getProductBatches() {
-            return vm.model.productBatchSummary.batches;
+            return vm.batches;
         }
 
         function recalculateSalt(reagent) {
@@ -642,15 +642,7 @@
         }
 
         function onRowSelected(row) {
-            vm.share.selectedRow = row || null;
-            if (row) {
-                $rootScope.$broadcast('batch-summary-row-selected', {
-                    row: row
-                });
-            } else {
-                $rootScope.$broadcast('batch-summary-row-deselected');
-            }
-            $log.debug(row);
+            vm.onSelectBatch({batch: row});
         }
 
         function isIntendedSynced() {
@@ -676,10 +668,7 @@
         }
 
         function deleteBatches() {
-            ProductBatchSummaryOperations.deleteBatches();
-            if (vm.share.selectedRow && vm.share.selectedRow.select) {
-                vm.onRowSelected(null);
-            }
+            vm.onRemoveBatches();
         }
 
         function importSDFile() {
@@ -737,18 +726,18 @@
                 updatePrecursor();
             }, true);
 
-            $scope.$watch('vm.model.productBatchSummary.batches', function(batches) {
-                _.each(batches, function(batch) {
+            $scope.$watch('vm.batches', function() {
+                _.each(vm.batches, function(batch) {
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
                     batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
                     batch.$$meltingPoint = batch.meltingPoint ? batch.meltingPoint.asString : null;
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
-                vm.share.actualProducts = batches;
-                ProductBatchSummaryCache.setProductBatchSummary(batches);
+                vm.share.actualProducts = vm.batches;
+                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
                 updatePrecursor();
-                initStructure(batches);
+                initStructure(vm.batches);
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
