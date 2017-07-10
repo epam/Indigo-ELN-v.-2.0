@@ -8,18 +8,23 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/reaction-details/reaction-details.html',
-            controller: controller,
-            controllerAs: 'vm'
+            controller: indigoReactionDetailsController,
+            controllerAs: 'vm',
+            bindToController: true,
+            scope: {
+                model: '=',
+                share: '=',
+                experiment: '=',
+                indigoReadonly: '=readonly'
+            }
         };
 
         /* @ngInject */
-        function controller($scope, $state, $q, Principal, Dictionary, Users, Alert) {
+        function indigoReactionDetailsController($state, $q, Principal, Dictionary, Users, Alert) {
             var vm = this;
             var deferred;
 
-            vm.indigoReadonly = $scope.indigoReadonly;
-            vm.experiment = $scope.experiment;
-            vm.model = $scope.model || {};
+            vm.model = vm.model || {};
             vm.model.reactionDetails = vm.model.reactionDetails || {};
             vm.model.reactionDetails.experimentCreator = vm.model.reactionDetails.experimentCreator ||
                 {name: Principal.getIdentity().fullName};

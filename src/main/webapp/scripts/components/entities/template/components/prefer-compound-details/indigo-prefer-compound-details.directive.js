@@ -9,17 +9,23 @@
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/prefer-compound-details/prefer-compound-details.html',
             controller: controller,
-            controllerAs: 'vm'
+            controllerAs: 'vm',
+            bindToController: true,
+            scope: {
+                model: '=',
+                share: '=',
+                experiment: '=',
+                indigoReadonly: '=readonly'
+            }
         };
 
         /* @ngInject */
         function controller($scope, EntitiesBrowser) {
             var vm = this;
 
-            vm.indigoReadonly = $scope.indigoReadonly;
-            vm.experiment = $scope.experiment || {};
-            vm.share = $scope.share || {};
-            vm.model = $scope.model || {};
+            vm.experiment = vm.experiment || {};
+            vm.share = vm.share || {};
+            vm.model = vm.model || {};
             vm.model.preferCompoundDetails = vm.model.preferCompoundDetails || {};
             vm.model.preferredCompoundSummary = vm.model.preferredCompoundSummary || {};
             vm.showStructure = false;

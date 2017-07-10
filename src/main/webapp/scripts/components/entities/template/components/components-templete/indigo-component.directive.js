@@ -3,11 +3,13 @@
         .module('indigoeln')
         .directive('indigoComponent', indigoComponent);
 
-    function indigoComponent() {
+    /* @ngInject */
+    function indigoComponent($compile) {
         return {
-            restrict: 'A',
-            replace: true,
+            restrict: 'E',
+            // replace: true,
             scope: {
+                componentId: '@',
                 indigoModel: '=',
                 indigoExperiment: '=',
                 indigoReadonly: '=',
@@ -16,20 +18,63 @@
                 indigoSaveExperimentFn: '&'
             },
             link: link,
-            templateUrl: 'scripts/components/entities/template/components/components-templete/component.html'
+            controller: indigoComponentController,
+            controllerAs: 'vm'
         };
 
-        /* @ngInject */
-        function link(scope, iElement, iAttrs) {
-            scope.myComponent = iAttrs.indigoComponent;
+        function link($scope, $element) {
             // for capability
-            scope.model = scope.indigoModel;
-            // for capability
-            scope.experimentForm = scope.indigoExperimentForm;
+            $scope.model = $scope.indigoModel;
             // for readonly
-            scope.experiment = _.extend({}, scope.indigoExperiment);
+            $scope.experiment = _.extend({}, $scope.indigoExperiment);
             // for communication between components
-            scope.share = scope.indigoShare;
+            $scope.share = $scope.indigoShare;
+
+            compileTemplate();
+
+            function compileTemplate() {
+                var id = $scope.componentId;
+                var compileElement = getTemplate(id);
+                $element.append(compileElement);
+                $compile(compileElement)($scope);
+            }
+        }
+
+        /* @ngInject */
+        function indigoComponentController($rootScope) {
+            var vm = this;
+
+            init();
+
+            function init() {
+                vm.compoundSummarySelectedRow = compoundSummarySelectedRow;
+            }
+
+            function compoundSummarySelectedRow(row) {
+                vm.share.selectedRow = row || null;
+                if (row) {
+                    var data = {
+                        row: row
+                    };
+                    $rootScope.$broadcast('batch-summary-row-selected', data);
+                } else {
+                    $rootScope.$broadcast('batch-summary-row-deselected');
+                }
+            }
+        }
+
+        function getTemplate(id) {
+            var directiveName = 'indigo-' + id;
+
+            return angular.element('<' + directiveName +
+                ' model="indigoModel"' +
+                ' experiment="experiment"' +
+                ' share="indigoShare"' +
+                ' readonly="indigoReadonly"' +
+                ' experiment-form="indigoExperimentForm"' +
+                ' indigo-share="indigoShare"' +
+                ' indigo-save-experiment-fn="indigoSaveExperimentFn">' +
+                '</' + directiveName + '>');
         }
     }
 })();

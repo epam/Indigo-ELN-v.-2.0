@@ -9,6 +9,7 @@
             templateUrl: 'scripts/components/entities/template/components/common/batch-summary/batch-summary.html',
             scope: {
                 model: '=',
+                batches: '=',
                 share: '=',
                 // TODO: experimentName is not used
                 experimentName: '=',

@@ -9,7 +9,13 @@
             templateUrl: 'scripts/components/entities/template/components/reaction-scheme/reaction-scheme.html',
             controller: indigoReactionSchemeController,
             controllerAs: 'vm',
-            bindToController: true
+            bindToController: true,
+            scope: {
+                model: '=',
+                share: '=',
+                experiment: '=',
+                indigoReadonly: '=readonly'
+            }
         };
     }
 
@@ -27,13 +33,13 @@
 
         function bindEvents() {
             $scope.$on('new-reaction-scheme', function(event, data) {
-                $scope.model.reaction.image = data.image;
-                $scope.model.reaction.molfile = data.molfile;
+                vm.model.reaction.image = data.image;
+                vm.model.reaction.molfile = data.molfile;
             });
         }
 
         function onChangedStructure(structure) {
-            $scope.model.reaction = structure;
+            vm.model.reaction = structure;
             EntitiesBrowser.setCurrentFormDirty();
             $rootScope.$broadcast('REACTION_CHANGED', structure);
         }
