@@ -43,7 +43,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
         return reactants.map(function(batch) {
             return {
                 compoundId: batch.compoundId,
-                nbkBatch: batch.nbkBatch,
+                fullNbkBatch: batch.fullNbkBatch,
                 molWeight: batch.molWeight,
                 formula: batch.formula,
                 saltCode: batch.saltCode,
