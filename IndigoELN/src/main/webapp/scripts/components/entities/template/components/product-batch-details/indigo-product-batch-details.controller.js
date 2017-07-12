@@ -9,12 +9,11 @@
                                                  ProductBatchSummaryOperations, EntitiesBrowser) {
 
         var vm = this;
-        var _batches;
+        var productBatches;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
         var stoichTable;
-        var productBatches;
 
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
@@ -24,14 +23,12 @@
         vm.detailTable = [];
         vm.selectControl = {};
         vm.saltCodeValues = AppValues.getSaltCodeValues();
-        vm.model = $scope.model || {};
-        vm.share = $scope.share || {};
-        vm.indigoReadonly = $scope.indigoReadonly;
+        vm.model = vm.model || {};
+        vm.share = vm.share || {};
         vm.model.productBatchSummary = vm.model.productBatchSummary || {};
         vm.share.stoichTable = StoichTableCache.getStoicTable();
 
-        vm.initSelectedBatch = initSelectedBatch;
-        vm.onSelectBatch = onSelectBatch;
+        vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
         vm.duplicateBatch = duplicateBatch;
         vm.deleteBatches = deleteBatches;
@@ -54,79 +51,44 @@
         init();
 
         function init() {
-            _batches = vm.model.productBatchSummary.batches || [];
-            if (vm.model.productBatchSummary) {
-                vm.model.productBatchSummary.batches = _batches;
-                ProductBatchSummaryCache.setProductBatchSummary(_batches);
+            if (vm.batches) {
+                // TODO: move to productBathcSummary
+                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
             }
             bindEvents();
         }
 
-        function initSelectedBatch() {
-            $timeout(function() {
-                if (_batches && _batches.length > 0) {
-                    vm.selectedBatch = _batches[0];
-                    onSelectBatch();
-                }
-            }, 1000);
-        }
 
-        function onSelectBatch() {
-            if (vm.share.selectedRow) {
-                vm.share.selectedRow.$$selected = false;
-            }
-            var row = vm.share.selectedRow = vm.selectedBatch || null;
-            if (row) {
-                row.$$selected = true;
-            }
-            setProductBatchDetails(row);
-            vm.detailTable[0] = row;
-            checkOnlySelectedBatch();
-            $rootScope.$broadcast('batch-summary-row-selected', {
-                row: row
-            });
+        function selectBatch() {
+            vm.onSelectBatch({batch: vm.batchSelected});
         }
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
-                vm.selectedBatch = batch;
-                onSelectBatch();
+                selectBatch(batch);
             });
         }
 
         function duplicateBatch() {
             ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
-                vm.selectedBatch = batch;
-                onSelectBatch();
+                selectBatch(batch);
             });
         }
 
         function deleteBatches() {
-            var batches = vm.model.productBatchSummary.batches;
-            var ind = batches.indexOf(vm.selectedBatch) - 1;
-            var deleted = ProductBatchSummaryOperations.deleteBatches();
-            if (deleted > 0) {
-                if (ind < 0) {
-                    ind = 0;
-                }
-                if (batches.length > 0) {
-                    vm.selectedBatch = batches[ind];
-                    onSelectBatch();
-                } else {
-                    onRowDeSelected();
-                }
-            }
+            vm.onRemoveBatches();
         }
 
         function isIntendedSynced() {
             var intended = ProductBatchSummaryOperations.getIntendedNotInActual();
+
             return intended ? !intended.length : true;
         }
 
         function syncWithIntendedProducts() {
             ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
-                vm.selectedBatch = batch;
-                onSelectBatch();
+                vm.batchSelected = batch;
+                selectBatch();
             });
         }
 
@@ -297,9 +259,6 @@
             return vm.model.productBatchDetails;
         }
 
-        function setProductBatchDetails(batch) {
-            vm.model.productBatchDetails = batch;
-        }
 
         function setStoicTable(table) {
             stoichTable = table;
@@ -310,54 +269,41 @@
             productBatches = batches;
         }
 
-        function onRowSelected(data, noevent) {
-            setProductBatchDetails(data.row);
-            if (data.stoichTable) {
-                setStoicTable(data.stoichTable);
+        function onRowSelected(batch, noevent) {
+            // TODO: extract it to stoic
+            if (batch.stoichTable) {
+                setStoicTable(batch.stoichTable);
             }
-            if (data.actualProducts) {
-                setProductBatches(data.actualProducts);
+            if (batch.actualProducts) {
+                setProductBatches(batch.actualProducts);
             }
-            vm.detailTable[0] = data.row;
-            vm.selectedBatch = data.row;
-            checkOnlySelectedBatch();
+            vm.detailTable[0] = batch;
+            vm.batchSelected = batch;
             if (vm.selectControl.setSelection) {
-                vm.selectControl.setSelection(data.row);
+                vm.selectControl.setSelection(batch);
             }
             if (!noevent) {
-                $rootScope.$broadcast('batch-summary-row-selected', data);
-            }
-        }
-
-        function checkOnlySelectedBatch() {
-            var batches = ProductBatchSummaryCache.getProductBatchSummary();
-            if (!batches) {
-                return;
-            }
-            batches.forEach(function(b) {
-                b.select = false;
-            });
-            if (vm.selectedBatch) {
-                vm.selectedBatch.select = true;
+                $rootScope.$broadcast('batch-summary-row-selected', batch);
             }
         }
 
         function onRowDeSelected() {
-            setProductBatchDetails({});
+            vm.onSelectBatch({batch: null});
             vm.detailTable = [];
-            vm.selectedBatch = null;
+            vm.batchSelected = null;
             vm.selectControl.unSelect();
         }
 
         function bindEvents() {
-            var events = [];
-            events.push($scope.$on('batch-summary-row-selected', function(event, data) {
-                onRowSelected(data, true);
-            }));
+            $scope.$watch('vm.selectedBatch', function() {
+                if (vm.selectedBatch) {
+                    onRowSelected(vm.selectedBatch, true);
+                } else {
+                    onRowDeSelected();
+                }
+            });
 
-            events.push($scope.$on('batch-summary-row-deselected', onRowDeSelected));
-
-            events.push($scope.$watch('share.stoichTable', function(stoichTable) {
+            $scope.$watch('share.stoichTable', function(stoichTable) {
                 if (stoichTable && stoichTable.reactants && getProductBatchDetails()) {
                     getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function(item) {
                         return item.compoundId || item.fullNbkBatch;
@@ -365,12 +311,6 @@
                         return !!val;
                     }).join(', ');
                 }
-            }, true));
-
-            $scope.$on('$destroy', function() {
-                _.each(events, function(event) {
-                    event();
-                });
             });
         }
     }

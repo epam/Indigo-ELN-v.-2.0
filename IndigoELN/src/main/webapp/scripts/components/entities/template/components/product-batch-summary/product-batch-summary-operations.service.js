@@ -67,9 +67,9 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         return p;
     }
 
-    function duplicateBatch() {
+    function duplicateBatch(batch) {
         var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var batchesToDuplicate = _.filter(batches, function(item) {
+        var batchesToDuplicate = batch ? [batch] : _.filter(batches, function(item) {
             return item.select;
         });
 

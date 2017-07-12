@@ -3,12 +3,12 @@
         Product Batch Details
     </div>
     <div class="panel-body collapsible">
-        <form class="form-inline form-batch-details" ng-init="vm.initSelectedBatch()">
+        <form class="form-inline form-batch-details">
             <label>Notebook Batch #: <span ng-bind="vm.model.productBatchDetails.fullNbkImmutablePart"></span></label>
             <indigo-select
-                    indigo-model="vm.selectedBatch"
-                    indigo-items="vm.model.productBatchSummary.batches"
-                    indigo-change="vm.onSelectBatch()"
+                    indigo-model="vm.batchSelected"
+                    indigo-items="vm.batches"
+                    indigo-change="vm.selectBatch()"
                     indigo-item-prop="nbkBatch"
                     indigo-control="vm.selectControl"
                     class="select-inline"
@@ -38,13 +38,13 @@
                             <span class="m-l5">Add</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedBatch.nbkBatch"
+                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.duplicateBatch()">
                             <i class="fa fa-clone"></i>
                             <span class="m-l5">Duplicate</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedBatch.nbkBatch"
+                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.deleteBatches()">
                             <i class="fa fa-trash"></i>
                             <span class="m-l5">Delete</span>
@@ -57,7 +57,7 @@
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedBatch.nbkBatch"
+                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.registerBatches()">
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
@@ -97,7 +97,7 @@
                             <span class="m-l5">Import</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedBatch.nbkBatch">
+                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch">
                             <i class="fa fa-cloud-upload"></i>
                             <span class="m-l5">Export</span>
                         </button>

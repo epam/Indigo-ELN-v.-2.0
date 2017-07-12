@@ -7,6 +7,11 @@
         return {
             restrict: 'E',
             templateUrl: 'scripts/components/entities/template/components/batch-structure/batch-structure.html',
+            scope: {
+                share: '=',
+                selectedBatch: '=',
+                readonly: '='
+            },
             controller: indigoBatchStructureController,
             controllerAs: 'vm',
             bindToController: true
@@ -34,9 +39,9 @@
         }
 
         function onChangedStructure(structure) {
-            if ($scope.share.selectedRow) {
-                _.set($scope.share, 'selectedRow.structure', structure);
-                $rootScope.$broadcast('product-batch-structure-changed', $scope.share.selectedRow);
+            if (vm.share.selectedRow) {
+                _.set(vm.share, 'selectedRow.structure', structure);
+                $rootScope.$broadcast('product-batch-structure-changed', vm.share.selectedRow);
                 EntitiesBrowser.setCurrentFormDirty();
             }
         }

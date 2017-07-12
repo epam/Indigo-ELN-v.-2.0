@@ -19,10 +19,8 @@
         var actualProducts;
         var ftimeout;
 
-        vm.model = $scope.model || {};
-        vm.share = $scope.share || {};
-        vm.selectedRow = $scope.selectedRow;
-        vm.indigoReadonly = $scope.indigoReadonly;
+        vm.model = vm.model || {};
+        vm.share = vm.share || {};
         vm.model.stoichTable = vm.model.stoichTable || {};
         vm.model.stoichTable.reactants = vm.model.stoichTable.reactants || [];
         vm.model.stoichTable.products = vm.model.stoichTable.products || [];

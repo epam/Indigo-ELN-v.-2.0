@@ -8,6 +8,11 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/concept-details/concept-details.html',
+            scope: {
+                model: '=',
+                experiment: '=',
+                indigoReadonly: '='
+            },
             controller: controller,
             controllerAs: 'vm'
         };
@@ -17,9 +22,8 @@
             var vm = this;
             var deferred;
 
-            vm.experiment = $scope.experiment || {};
-            vm.indigoReadonly = $scope.indigoReadonly;
-            vm.model = $scope.model || {};
+            vm.experiment = vm.experiment || {};
+            vm.model = vm.model || {};
             vm.model.conceptDetails = vm.model.conceptDetails || {};
             vm.model.conceptDetails.experimentCreator = vm.model.conceptDetails.experimentCreator ||
                 {name: Principal.getIdentity().fullName};
