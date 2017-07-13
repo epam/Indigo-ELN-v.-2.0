@@ -187,6 +187,23 @@
             }, 300);
         }
 
+        function updateSelectedRows(row) {
+            _.each(vm.indigoRows, function(item) {
+                if (item !== row) {
+                    item.$$selected = false;
+                }
+            });
+
+            // TODO: remove the work with set selected parameters to data, because
+            // we should only call to vm.onSelectBatch({batch: item})
+            row.$$selected = !row.$$selected;
+            if (vm.indigoOnRowSelected) {
+                vm.indigoOnRowSelected(_.find(vm.indigoRows, function(item) {
+                    return item.$$selected;
+                }));
+            }
+        }
+
         function onRowSelect($event, row) {
             var target = $($event.target);
             if ($attrs.indigoTabSupport) {
@@ -195,17 +212,8 @@
             if (target.is('button,span,ul,a,li,input')) {
                 return;
             }
-            _.each(vm.indigoRows, function(item) {
-                if (item !== row) {
-                    item.$$selected = false;
-                }
-            });
-            row.$$selected = !row.$$selected;
-            if (vm.indigoOnRowSelected) {
-                vm.indigoOnRowSelected(_.find(vm.indigoRows, function(item) {
-                    return item.$$selected;
-                }));
-            }
+            updateSelectedRows(row);
+            vm.onSelectBatch({batch: row});
         }
 
         dragulaService.options($scope, 'my-table-columns', {
@@ -276,7 +284,7 @@
                 updateRowsForDisplay();
             });
 
-            $scope.$watchCollection('filteredRows', function(newVal, oldVal) {
+            $scope.$watchCollection('vm.filteredRows', function(newVal, oldVal) {
                 if (newVal && oldVal && newVal.length > oldVal.length) {
                     updateCurrentPage();
                     updateRowsForDisplay();

@@ -8,7 +8,6 @@
         var vm = this;
 
         vm.model = vm.model || {};
-        vm.share = vm.share || {};
         vm.structureSize = 0.3;
 
         vm.showStructure = showStructure;

@@ -11,13 +11,15 @@
                 model: '=',
                 batches: '=',
                 readonly: '=',
-                share: '=',
                 // TODO: experimentName is not used
                 experimentName: '=',
                 isHideColumnSettings: '=',
                 structureSize: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
                 onShowStructure: '&',
                 indigoSaveExperimentFn: '&',
+                onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'
             },

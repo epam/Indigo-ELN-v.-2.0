@@ -14,11 +14,13 @@
             scope: {
                 model: '=',
                 batches: '=',
-                share: '=',
                 experiment: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
+                reactants: '=',
+                reactantsTrigger: '=',
                 indigoReadonly: '=readonly',
+                onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'
             }

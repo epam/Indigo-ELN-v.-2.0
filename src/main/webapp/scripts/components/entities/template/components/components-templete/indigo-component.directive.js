@@ -43,18 +43,12 @@
         }
 
         /* @ngInject */
-        function indigoComponentController($rootScope, $scope) {
+        function indigoComponentController() {
             var vm = this;
 
             init();
 
             function init() {
-                // vm.selectedBatch = null;
-                // vm.selectedBatchTrigger = 0;
-
-                // vm.compoundSummarySelectedRow = compoundSummarySelectedRow;
-                // vm.onSelectBatch = onSelectBatch;
-
                 bindEvents();
             }
 
@@ -68,8 +62,12 @@
             return angular.element('<' + directiveName +
                 ' model="vm.model"' +
                 ' batches="vm.batches"' +
+                ' on-added-batch="vm.ComponentsCtrl.onAddedBatch(batch)"' +
+                ' batches-trigger="vm.ComponentsCtrl.batchesTrigger"' +
                 ' selected-batch="vm.ComponentsCtrl.selectedBatch"' +
                 ' selected-batch-trigger="vm.ComponentsCtrl.selectedBatchTrigger"' +
+                ' reactants="vm.ComponentsCtrl.reactants"' +
+                ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
                 ' on-select-batch="vm.ComponentsCtrl.onSelectBatch(batch)"' +
                 ' experiment="vm.experiment"' +
                 ' share="vm.share"' +
