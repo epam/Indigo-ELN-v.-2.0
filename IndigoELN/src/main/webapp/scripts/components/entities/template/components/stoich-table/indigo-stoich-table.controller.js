@@ -4,8 +4,9 @@
         .controller('indigoStoichTableController', indigoStoichTableController);
 
     /* @ngInject */
-    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues, AlertModal, Alert,
-                                         Dictionary, CalculationService, SearchService, RegistrationService, dialogService, StoichTableCache) {
+    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
+                                         AlertModal, Alert, Dictionary, CalculationService, SearchService,
+                                         RegistrationService, dialogService, StoichTableCache) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -16,11 +17,9 @@
         var saltCodeValues = AppValues.getSaltCodeValues();
         var loadFactorUnits = AppValues.getLoadFactorUnits();
         var reactionReactants;
-        var actualProducts;
         var ftimeout;
 
         vm.model = vm.model || {};
-        vm.share = vm.share || {};
         vm.model.stoichTable = vm.model.stoichTable || {};
         vm.model.stoichTable.reactants = vm.model.stoichTable.reactants || [];
         vm.model.stoichTable.products = vm.model.stoichTable.products || [];
@@ -448,6 +447,7 @@
 
         function setStoicReactants(reactants) {
             vm.model.stoichTable.reactants = reactants;
+            vm.onChangedReactants({reactants: reactants});
         }
 
         function setIntendedProducts(products) {
@@ -456,6 +456,7 @@
 
         function addStoicReactant(reactant) {
             vm.model.stoichTable.reactants.push(reactant);
+            vm.onChangedReactants({reactants: vm.model.stoichTable.reactants});
         }
 
         function fetchBatchByNbkNumber(nbkBatch, success) {
@@ -473,6 +474,7 @@
             }, 500);
         }
 
+        // TODO: Maybe will be better if use importHelper.getWord?
         function getWord(dicts, dictName, wordName) {
             var dict = _.find(dicts, function(dict) {
                 return dict.name === dictName;
@@ -638,6 +640,9 @@
         }
 
         function bindEvents() {
+            $scope.$on('vm.batches', function() {
+                updatePrecursor();
+            });
             $scope.$on('REACTION_CHANGED', function($event, structure) {
                 if (structure && structure.molfile) {
                     getReactionProductsAndReactants(structure.molfile);
@@ -647,18 +652,15 @@
                 }
             });
 
-            $scope.$watch('vm.share.actualProducts', function(products) {
-                actualProducts = products;
-            }, true);
-
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
                 _.each(stoichTable.products, function(batch) {
                     if (!batch.$$batchHash) {
                         batch.$$batchHash = batch.formula + batch.exactMass;
                     }
                 });
-                vm.share.stoichTable = stoichTable;
+                vm.onChangedProducts({products: stoichTable.products});
                 StoichTableCache.setStoicTable(stoichTable);
+                updatePrecursor();
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
@@ -681,6 +683,33 @@
                         _.extend(product, newProducts[i]);
                     });
                 }
+            });
+        }
+
+        function getPrecursors() {
+            return _
+                .filter(vm.model.stoichTable.reactants, function(r) {
+                    return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
+                })
+                .map(function(r) {
+                    return r.compoundId || r.fullNbkBatch;
+                }).join(', ');
+        }
+
+        function updatePrecursor() {
+            if (!vm.model.stoichTable) {
+                return;
+            }
+            var columnWithPrecursors = _.find(vm.columns, {id: 'precursors'});
+
+            if (columnWithPrecursors) {
+                columnWithPrecursors.readonly = true;
+            }
+
+            var precursors = getPrecursors();
+
+            _.each(vm.batches, function(batch) {
+                batch.precursors = precursors;
             });
         }
 

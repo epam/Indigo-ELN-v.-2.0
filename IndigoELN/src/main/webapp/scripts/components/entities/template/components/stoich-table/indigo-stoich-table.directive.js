@@ -15,7 +15,9 @@
                 model: '=',
                 share: '=',
                 experiment: '=',
-                indigoReadonly: '=readonly'
+                indigoReadonly: '=readonly',
+                onChangedReactants: '&',
+                onChangedProducts: '&'
             }
         };
     }

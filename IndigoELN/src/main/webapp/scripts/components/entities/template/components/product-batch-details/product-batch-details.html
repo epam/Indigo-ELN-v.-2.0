@@ -21,9 +21,15 @@
         <indigo-batch-summary ng-if="vm.showSummary"
                               my-tab-support="true"
                               model="vm.model"
-                              share="vm.share"
                               indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
                               is-hide-column-settings="true"
+                              batches="vm.batches"
+                              selected-batch="vm.selectedBatch"
+                              selected-batch-trigger="vm.selectedBatchTrigger"
+                              readonly="vm.indigoReadonly"
+                              on-added-batch="vm.onAddedBatch({batch: batch})"
+                              on-select-batch="vm.onSelectBatch({batch: batch})"
+                              on-remove-batches="vm.onRemoveBatches({batch: batches})"
         ></indigo-batch-summary>
         <indigo-table ng-if="!vm.showSummary" indigo-id="product-detail-table" indigo-columns="vm.productTableColumns"
                       indigo-rows="vm.detailTable" class="my-table-wrapper table-batch-details">
@@ -190,7 +196,7 @@
                 <indigo-input indigo-label="Precursor/Reactant IDs"
                               indigo-model="vm.model.productBatchDetails.precursors"
                               indigo-label-vertical="true"
-                              indigo-readonly="vm.indigoReadonly || vm.share.stoichTable"
+                              indigo-readonly="vm.indigoReadonly || vm.isExistStoichTable"
                 ></indigo-input>
                 <indigo-input indigo-label="Purity"
                               indigo-model="vm.model.productBatchDetails.purity.asString"

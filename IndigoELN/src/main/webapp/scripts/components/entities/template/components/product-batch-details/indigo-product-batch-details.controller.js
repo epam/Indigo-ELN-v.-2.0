@@ -4,7 +4,7 @@
         .controller('IndigoProductBatchDetailsController', IndigoProductBatchDetailsController);
 
     /* @ngInject */
-    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, $timeout, CalculationService,
+    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService,
                                                  ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope,
                                                  ProductBatchSummaryOperations, EntitiesBrowser) {
 
@@ -13,7 +13,6 @@
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
-        var stoichTable;
 
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
@@ -24,13 +23,11 @@
         vm.selectControl = {};
         vm.saltCodeValues = AppValues.getSaltCodeValues();
         vm.model = vm.model || {};
-        vm.share = vm.share || {};
         vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-        vm.share.stoichTable = StoichTableCache.getStoicTable();
 
         vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
-        vm.duplicateBatch = duplicateBatch;
+        vm.duplicateBatch = duplicateBatches;
         vm.deleteBatches = deleteBatches;
         vm.isIntendedSynced = isIntendedSynced;
         vm.syncWithIntendedProducts = syncWithIntendedProducts;
@@ -58,19 +55,19 @@
             bindEvents();
         }
 
-
-        function selectBatch() {
-            vm.onSelectBatch({batch: vm.batchSelected});
+        function selectBatch(batch) {
+            vm.onSelectBatch({batch: batch});
         }
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
+                vm.onAddedBatch({batch: batch});
                 selectBatch(batch);
             });
         }
 
-        function duplicateBatch() {
-            ProductBatchSummaryOperations.duplicateBatch().then(function(batch) {
+        function duplicateBatches() {
+            ProductBatchSummaryOperations.duplicateBatches().then(function(batch) {
                 selectBatch(batch);
             });
         }
@@ -88,7 +85,7 @@
         function syncWithIntendedProducts() {
             ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
                 vm.batchSelected = batch;
-                selectBatch();
+                selectBatch(vm.batchSelected);
             });
         }
 
@@ -259,10 +256,8 @@
             return vm.model.productBatchDetails;
         }
 
-
         function setStoicTable(table) {
-            stoichTable = table;
-            ProductBatchSummaryOperations.setStoicTable(stoichTable);
+            ProductBatchSummaryOperations.setStoicTable(table);
         }
 
         function setProductBatches(batches) {
@@ -288,14 +283,23 @@
         }
 
         function onRowDeSelected() {
-            vm.onSelectBatch({batch: null});
             vm.detailTable = [];
             vm.batchSelected = null;
             vm.selectControl.unSelect();
         }
 
+        function updateReactrants() {
+            if (vm.model.productBatchDetails) {
+                vm.model.productBatchDetails.precursors = _.filter(_.map(vm.reactants, function(item) {
+                    return item.compoundId || item.fullNbkBatch;
+                }), function(val) {
+                    return !!val;
+                }).join(', ');
+            }
+        }
+
         function bindEvents() {
-            $scope.$watch('vm.selectedBatch', function() {
+            $scope.$watch('vm.selectedBatchTrigger', function() {
                 if (vm.selectedBatch) {
                     onRowSelected(vm.selectedBatch, true);
                 } else {
@@ -303,14 +307,12 @@
                 }
             });
 
-            $scope.$watch('share.stoichTable', function(stoichTable) {
-                if (stoichTable && stoichTable.reactants && getProductBatchDetails()) {
-                    getProductBatchDetails().precursors = _.filter(_.map(stoichTable.reactants, function(item) {
-                        return item.compoundId || item.fullNbkBatch;
-                    }), function(val) {
-                        return !!val;
-                    }).join(', ');
-                }
+            $scope.$watch('vm.model.stoichTable', function() {
+                vm.isExistStoichTable = !!vm.model.stoichTable;
+            });
+
+            $scope.$watch('vm.reactantsTrigger', function() {
+                updateReactrants();
             });
         }
     }

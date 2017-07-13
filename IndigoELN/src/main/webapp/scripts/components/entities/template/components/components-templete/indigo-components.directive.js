@@ -77,10 +77,12 @@
                 vm.share = {};
 
                 vm.batches = null;
+                vm.batchesTrigger = 0;
                 vm.selectedBatch = null;
                 vm.selectedBatchTrigger = 0;
 
                 vm.compoundSummarySelectedRow = compoundSummarySelectedRow;
+                vm.onAddedBatch = onAddedBatch;
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
 
@@ -126,6 +128,13 @@
                     onSelectBatch(vm.batches[ind]);
                 }
             }
+
+            function onAddedBatch(batch) {
+                // TODO: uncomment it when form requestNbkBatchNumberAndAddToTable will be removed push to batches
+                // vm.batches.push(batch);
+                vm.batchesTrigger++;
+            }
+
             function onSelectBatch(batch) {
                 // TODO: should update id of batch from all batches! Now wrong work
                 if (vm.selectedBatch) {

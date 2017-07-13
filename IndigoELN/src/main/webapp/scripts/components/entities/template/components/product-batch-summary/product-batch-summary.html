@@ -19,13 +19,14 @@
         </div>
         <indigo-batch-summary model="vm.model"
                               batches="vm.batches"
-                              share="vm.share"
+                              selected-batch-trigger="vm.selectedBatchTrigger"
                               experiment-name="vm.experiment.name"
                               on-show-structure="vm.showStructure(isVisible)"
                               structure-size="vm.structureSize"
                               indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
                               on-select-batch="vm.onSelectBatch({batch: batch})"
                               on-remove-batches="vm.onRemoveBatches({bathes: bathes})"
+                              on-added-batch="vm.onAddedBatch({batch: batch})"
         ></indigo-batch-summary>
     </div>
 </div>

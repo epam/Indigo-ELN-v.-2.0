@@ -14,11 +14,15 @@
                 indigoRows: '=',
                 indigoReadonly: '=',
                 indigoEditable: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
                 indigoOnRowSelected: '=',
                 indigoDraggableRows: '=',
                 indigoDraggableColumns: '=',
                 indigoHideColumnSettings: '=',
-                indigoSearchColumns: '='
+                indigoSearchColumns: '=',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             },
             controller: 'IndigoTableController',
             controllerAs: 'vm',

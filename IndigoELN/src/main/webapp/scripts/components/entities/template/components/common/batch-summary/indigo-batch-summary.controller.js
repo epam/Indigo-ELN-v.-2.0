@@ -5,10 +5,9 @@
 
     /* @ngInject */
     function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                          $log, $rootScope, EntitiesBrowser, RegistrationService,
+                                          $rootScope, EntitiesBrowser, RegistrationService,
                                           ProductBatchSummaryOperations, $filter, ProductBatchSummaryCache) {
         var vm = this;
-        var stoichTable;
         var unbinds = [];
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -34,9 +33,6 @@
             vm.model = vm.model || {};
             vm.model.productBatchSummary = vm.model.productBatchSummary || {};
             vm.model.productBatchSummary.batches = vm.model.productBatchSummary.batches || [];
-            vm.share.selectedRow = _.find(getProductBatches(), {
-                '$$selected': true
-            });
             vm.columns = getDefaultColumns();
 
             RegistrationService.info({}, function(info) {
@@ -606,35 +602,9 @@
             ProductBatchSummaryOperations.syncWithIntendedProducts();
         }
 
-        function updatePrecursor() {
-            if (!getStoicTable()) {
-                return;
-            }
-            _.find(vm.columns, {id: 'precursors'}).readonly = true;
-
-            var precursors = vm.share.stoichTable.reactants.filter(function(r) {
-                return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
-            })
-                .map(function(r) {
-                    return r.compoundId || r.fullNbkBatch;
-                }).join(', ');
-            _.each(getProductBatches(), function(batch) {
-                batch.precursors = precursors;
-            });
-        }
-
-        function getStoicTable() {
-            return stoichTable;
-        }
-
-        function setStoicTable(table) {
-            stoichTable = table;
-            ProductBatchSummaryOperations.setStoicTable(stoichTable);
-        }
-
         function isEditable(row, columnId) {
             var rowResult = !(RegistrationUtil.isRegistered(row));
-            if (rowResult && columnId === 'precursors' && vm.share.stoichTable) {
+            if (rowResult && columnId === 'precursors' && vm.model.stoichTable) {
                 return false;
             }
 
@@ -652,13 +622,16 @@
         }
 
         function duplicateBatch() {
-            ProductBatchSummaryOperations.duplicateBatch();
+            ProductBatchSummaryOperations.duplicateBatch().then(successAddedBatch);
         }
 
         function addNewBatch() {
-            ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
-                vm.onRowSelected(batch);
-            });
+            ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+        }
+
+        function successAddedBatch(batch) {
+            vm.onAddedBatch({batch: batch});
+            vm.onRowSelected(batch);
         }
 
         function isHasCheckedRows() {
@@ -721,12 +694,7 @@
         }
 
         function bindEvents() {
-            $scope.$watch('vm.share.stoichTable', function(table) {
-                setStoicTable(table);
-                updatePrecursor();
-            }, true);
-
-            $scope.$watch('vm.batches', function() {
+            $scope.$watch('vm.batchesTrigger', function() {
                 _.each(vm.batches, function(batch) {
                     batch.$$purity = batch.purity ? batch.purity.asString : null;
                     batch.$$externalSupplier = batch.externalSupplier ? batch.externalSupplier.asString : null;
@@ -734,9 +702,7 @@
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
-                vm.share.actualProducts = vm.batches;
                 ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
-                updatePrecursor();
                 initStructure(vm.batches);
             }, true);
 
