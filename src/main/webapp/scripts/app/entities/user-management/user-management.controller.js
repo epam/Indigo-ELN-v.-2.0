@@ -63,10 +63,7 @@
         }
 
         function isEmailCorrect (result) {
-            if (result.data && _.find(result.data.fieldErrors, {field:'email'})) {
-                return false;
-            };
-            return true;
+             return !(result.data && _.find(result.data.fieldErrors, {field:'email'}));
         }
 
         function save() {
