@@ -63,9 +63,7 @@
         }
 
         function handleOnSaveError (result) {
-            if (result.data && result.data.fieldErrors && _.find(result.data.fieldErrors, function(e) {
-                    return e.field === 'email';
-                })) {
+            if (result.data && result.data.fieldErrors && _.find(result.data.fieldErrors, {field:'email'})) {
                 Alert.error('Email address is incorrect!');
             }
         }
