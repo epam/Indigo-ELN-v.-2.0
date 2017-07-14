@@ -54,14 +54,20 @@
             vm.isSaving = false;
             loadAll();
 
-            if (result.status === 400 && result.data.fieldErrors && result.data.fieldErrors.filter(function(e) {
-                    return e.field === 'email';
-                }).length > 0) {
-                    Alert.error('Email address is incorrect!');
-                    return;
+            if (result.status === 400) {
+                handleOnSaveError (result);
+                return;
             }
 
             Alert.error('User is not saved due to server error!');
+        }
+
+        function handleOnSaveError (result) {
+            if (result.data && result.data.fieldErrors && _.find(result.data.fieldErrors, function(e) {
+                    return e.field === 'email';
+                })) {
+                Alert.error('Email address is incorrect!');
+            }
         }
 
         function save() {
