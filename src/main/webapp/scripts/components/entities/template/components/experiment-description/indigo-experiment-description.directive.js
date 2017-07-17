@@ -11,7 +11,6 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                indigoReadonly: '=',
                 readonly: '='
             },
             bindToController: true,

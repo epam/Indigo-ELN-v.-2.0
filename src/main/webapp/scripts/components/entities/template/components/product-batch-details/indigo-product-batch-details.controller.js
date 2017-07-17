@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService,
-                                                 ProductBatchSummaryCache, $filter, StoichTableCache, $rootScope,
+                                                 ProductBatchSummaryCache, $filter, $rootScope,
                                                  ProductBatchSummaryOperations, EntitiesBrowser) {
 
         var vm = this;
@@ -56,6 +56,7 @@
         }
 
         function selectBatch(batch) {
+            vm.model.productBatchDetails = batch;
             vm.onSelectBatch({batch: batch});
         }
 
@@ -264,8 +265,7 @@
             productBatches = batches;
         }
 
-        function onRowSelected(batch, noevent) {
-            // TODO: extract it to stoic
+        function onRowSelected(batch) {
             if (batch.stoichTable) {
                 setStoicTable(batch.stoichTable);
             }
@@ -274,11 +274,9 @@
             }
             vm.detailTable[0] = batch;
             vm.batchSelected = batch;
+            vm.model.productBatchDetails = batch;
             if (vm.selectControl.setSelection) {
                 vm.selectControl.setSelection(batch);
-            }
-            if (!noevent) {
-                $rootScope.$broadcast('batch-summary-row-selected', batch);
             }
         }
 
@@ -300,8 +298,9 @@
 
         function bindEvents() {
             $scope.$watch('vm.selectedBatchTrigger', function() {
+                vm.batchSelected = vm.selectedBatch;
                 if (vm.selectedBatch) {
-                    onRowSelected(vm.selectedBatch, true);
+                    onRowSelected(vm.selectedBatch);
                 } else {
                     onRowDeSelected();
                 }

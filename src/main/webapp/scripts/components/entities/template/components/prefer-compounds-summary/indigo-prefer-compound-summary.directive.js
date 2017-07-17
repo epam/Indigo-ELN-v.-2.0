@@ -11,10 +11,13 @@
                 batches: '=',
                 model: '=',
                 experiment: '=',
-                share: '='
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
+                onSelectBatch: '&'
             },
             controller: controller,
             controllerAs: 'vm',
+            bindToController: true,
             templateUrl: 'scripts/components/entities/template/components/prefer-compounds-summary/prefer-compound-summary.html'
         };
 
@@ -23,7 +26,6 @@
             var vm = this;
 
             vm.model = vm.model || {};
-            vm.share = vm.share || {};
             vm.experiment = vm.experiment || {};
             vm.structureSize = 0.3;
 

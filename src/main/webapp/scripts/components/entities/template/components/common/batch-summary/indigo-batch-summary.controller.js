@@ -31,8 +31,6 @@
         function init() {
             vm.loading = false;
             vm.model = vm.model || {};
-            vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-            vm.model.productBatchSummary.batches = vm.model.productBatchSummary.batches || [];
             vm.columns = getDefaultColumns();
 
             RegistrationService.info({}, function(info) {
@@ -726,29 +724,34 @@
                 });
             });
 
-            $scope.$on('product-batch-structure-changed', function(event, row) {
-                var resetMolInfo = function() {
-                    row.formula = null;
-                    row.molWeight = null;
-                    CalculationService.calculateProductBatch({
-                        row: row, column: 'totalWeight'
-                    });
-                };
+            function resetMolInfo(row) {
+                row.formula = null;
+                row.molWeight = null;
+                CalculationService.calculateProductBatch({
+                    row: row, column: 'totalWeight'
+                });
+            }
 
-                var getInfoCallback = function(molInfo) {
-                    row.formula = molInfo.data.molecularFormula;
-                    row.molWeight = row.molWeight || {};
-                    row.molWeight.value = molInfo.data.molecularWeight;
-                    CalculationService.recalculateStoich();
-                    CalculationService.calculateProductBatch({
-                        row: row, column: 'totalWeight'
-                    });
-                };
+            function getInfoCallback(row, molInfo) {
+                row.formula = molInfo.data.molecularFormula;
+                row.molWeight = row.molWeight || {};
+                row.molWeight.value = molInfo.data.molecularWeight;
+                CalculationService.recalculateStoich();
+                CalculationService.calculateProductBatch({
+                    row: row, column: 'totalWeight'
+                });
+            }
+
+            $scope.$on('product-batch-structure-changed', function(event, row) {
                 if (row.structure && row.structure.molfile) {
-                    CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
-                } else {
-                    resetMolInfo();
+                    CalculationService.getMoleculeInfo(row, function(molInfo) {
+                        getInfoCallback(row, molInfo);
+                    }, resetMolInfo);
+
+                    return;
                 }
+
+                resetMolInfo();
             });
 
             $scope.$on('product-batch-details-command', function(event, data) {

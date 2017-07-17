@@ -14,6 +14,7 @@
             scope: {
                 model: '=',
                 batches: '=',
+                selectedBatch: '=',
                 selectedBatchTrigger: '&',
                 experiment: '=',
                 indigoReadonly: '=readonly',

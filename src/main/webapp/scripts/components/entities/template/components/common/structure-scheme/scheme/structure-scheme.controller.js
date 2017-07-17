@@ -10,7 +10,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function init() {
         vm.structureModel = getInitModel();
-        onChange();
+        if (!_.isEqual(vm.structureModel, vm.model)) {
+            onChange();
+        }
 
         vm.openEditor = openEditor;
         vm.importStructure = importStructure;
@@ -55,7 +57,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     }
 
     function bindEvents() {
-        $scope.$watch('vm.model', updateModel);
+        $scope.$watch('vm.modelTrigger', updateModel);
     }
 
     function onChange() {

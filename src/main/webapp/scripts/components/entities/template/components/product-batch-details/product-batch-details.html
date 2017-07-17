@@ -8,7 +8,7 @@
             <indigo-select
                     indigo-model="vm.batchSelected"
                     indigo-items="vm.batches"
-                    indigo-change="vm.selectBatch()"
+                    indigo-change="vm.selectBatch(vm.batchSelected)"
                     indigo-item-prop="nbkBatch"
                     indigo-control="vm.selectControl"
                     class="select-inline"
@@ -31,8 +31,13 @@
                               on-select-batch="vm.onSelectBatch({batch: batch})"
                               on-remove-batches="vm.onRemoveBatches({batch: batches})"
         ></indigo-batch-summary>
-        <indigo-table ng-if="!vm.showSummary" indigo-id="product-detail-table" indigo-columns="vm.productTableColumns"
-                      indigo-rows="vm.detailTable" class="my-table-wrapper table-batch-details">
+        <indigo-table ng-if="!vm.showSummary"
+                      indigo-id="product-detail-table"
+                      indigo-columns="vm.productTableColumns"
+                      indigo-rows="vm.detailTable"
+                      selected-batch="vm.selectedBatch"
+                      selected-batch-trigger="vm.selectedBatchTrigger"
+                      class="my-table-wrapper table-batch-details">
 
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">

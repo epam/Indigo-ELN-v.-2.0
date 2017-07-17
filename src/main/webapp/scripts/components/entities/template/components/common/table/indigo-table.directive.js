@@ -16,12 +16,11 @@
                 indigoEditable: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
-                indigoOnRowSelected: '=',
                 indigoDraggableRows: '=',
                 indigoDraggableColumns: '=',
                 indigoHideColumnSettings: '=',
                 indigoSearchColumns: '=',
-                onSelectBatch: '&',
+                onSelectRow: '&',
                 onRemoveBatches: '&'
             },
             controller: 'IndigoTableController',

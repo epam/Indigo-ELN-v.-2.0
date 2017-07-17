@@ -4,7 +4,7 @@
         .controller('IndigoCompoundSummaryController', IndigoCompoundSummaryController);
 
     /* @ngInject */
-    function IndigoCompoundSummaryController($scope, CalculationService, RegistrationUtil, $log, $rootScope, AlertModal,
+    function IndigoCompoundSummaryController($scope, RegistrationUtil, $log, $rootScope, AlertModal,
                                              $stateParams, sdImportService, sdExportService, $window, $q, $http,
                                              Notebook, EntitiesCache) {
         var vm = this;
@@ -111,16 +111,27 @@
 
         function addCompound(compound) {
             vm.model.preferredCompoundSummary.compounds.push(compound);
+            vm.onAddedBatch({batch: compound});
         }
-
-        vm.share.selectedRow = _.find(getCompounds(), {
-            $$selected: true
-        });
 
         function getLatestNbkBatch() {
             var compound = _.last(getCompounds());
 
             return (compound && compound.nbkBatch) || 0;
+        }
+
+        function createCompound(notebook, batchNumber, duplicatedCompound) {
+            var fullNbkBatch = notebook.name + '-' + vm.experimentName + '-' + batchNumber;
+            var fullNbkImmutablePart = notebook.name + '-' + vm.experimentName + '-';
+            var compound = duplicatedCompound || {};
+            compound.nbkBatch = batchNumber;
+            compound.fullNbkBatch = fullNbkBatch;
+            compound.fullNbkImmutablePart = fullNbkImmutablePart;
+            compound.molWeight = {
+                value: 0, entered: false
+            };
+
+            return compound;
         }
 
         function requestNbkBatchNumberAndAddToTable(duplicatedCompound) {
@@ -146,19 +157,7 @@
                         });
                     }
                     getNotebook.promise.then(function(notebook) {
-                        var fullNbkBatch = notebook.name + '-' + vm.experimentName + '-' + batchNumber;
-                        var fullNbkImmutablePart = notebook.name + '-' + vm.experimentName + '-';
-                        _.each(getCompounds(), function(row) {
-                            row.$$selected = false;
-                        });
-                        var compound = duplicatedCompound || {};
-                        compound.nbkBatch = batchNumber;
-                        compound.fullNbkBatch = fullNbkBatch;
-                        compound.fullNbkImmutablePart = fullNbkImmutablePart;
-                        compound.molWeight = {
-                            value: 0, entered: false
-                        };
-                        compound.$$selected = true;
+                        var compound = createCompound(notebook, batchNumber, duplicatedCompound);
                         addCompound(compound);
                         vm.onRowSelected(compound);
                     });
@@ -166,16 +165,7 @@
         }
 
         function onRowSelected(row) {
-            vm.share.selectedRow = row || null;
-            if (row) {
-                var data = {
-                    row: row
-                };
-                $rootScope.$broadcast('batch-summary-row-selected', data);
-            } else {
-                $rootScope.$broadcast('batch-summary-row-deselected');
-            }
-            $log.debug(row);
+            vm.onSelectBatch({batch: _.isEqual(row, vm.selectedBatch) ? null : row});
         }
 
         function registerVC() {
@@ -187,18 +177,15 @@
         }
 
         function getSelectedNonEditableCompounds() {
-            return _
-                .chain(getCompounds())
-                .filter(function(item) {
-                    return item.select;
-                })
-                .filter(function(item) {
-                    return RegistrationUtil.isRegistered(item);
-                })
-                .map(function(item) {
-                    return item.fullNbkBatch;
-                })
-                .value();
+            var selectedCompounds = [];
+
+            _.forEach(getCompounds(), function(compound) {
+                if (compound.select && RegistrationUtil.isRegistered(compound)) {
+                    selectedCompounds.push(compound.fullNbkBatch);
+                }
+            });
+
+            return selectedCompounds;
         }
 
         function deleteCompounds() {
@@ -212,7 +199,7 @@
             setCompounds(_.filter(getCompounds(), function(item) {
                 return !item.select;
             }));
-            $rootScope.$broadcast('batch-summary-row-deselected');
+            vm.onSelectBatch({batch: null});
         }
 
         function importSDFile() {
@@ -258,23 +245,6 @@
                 _.each(unbinds, function(unbind) {
                     unbind();
                 });
-            });
-
-            $scope.$on('product-batch-structure-changed', function(event, row) {
-                var resetMolInfo = function() {
-                    row.formula = null;
-                    row.molWeight = null;
-                };
-                var getInfoCallback = function(molInfo) {
-                    row.formula = molInfo.data.molecularFormula;
-                    row.molWeight = row.molWeight || {};
-                    row.molWeight.value = molInfo.data.molecularWeight;
-                };
-                if (row.structure && row.structure.molfile) {
-                    CalculationService.getMoleculeInfo(row, getInfoCallback, resetMolInfo);
-                } else {
-                    resetMolInfo();
-                }
             });
         }
     }
