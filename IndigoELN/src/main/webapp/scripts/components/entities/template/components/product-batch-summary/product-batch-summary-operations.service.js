@@ -40,16 +40,18 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
 
-    function getSelectedNonEditableBatches() {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
+    function getSelectedNonEditableBatches(batches) {
+        var batches = batches || ProductBatchSummaryCache.getProductBatchSummary();
 
-        return _.chain(batches).filter(function(item) {
-            return item.select;
-        }).filter(function(item) {
-            return RegistrationUtil.isRegistered(item);
-        }).map(function(item) {
-            return item.fullNbkBatch;
-        }).value();
+        return _
+            .chain(batches)
+            .filter(function(item) {
+                return item.select && RegistrationUtil.isRegistered(item);
+            })
+            .map(function(item) {
+                return item.fullNbkBatch;
+            })
+            .value();
     }
 
     function duplicateBatches(batchesQueueToAdd, i, isSyncWithIntended) {
@@ -168,9 +170,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                     .$promise.then(function(notebook) {
                         var fullNbkBatch = notebook.name + '-' + experiment.name + '-' + batchNumber;
                         var fullNbkImmutablePart = notebook.name + '-' + experiment.name + '-';
-                        _.each(batches, function(row) {
-                            row.$$selected = false;
-                        });
                         var batch = {};
                         var stoichTable = StoichTableCache.getStoicTable();
                         if (stoichTable) {
@@ -179,7 +178,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                         batch.nbkBatch = batchNumber;
                         batch.fullNbkBatch = fullNbkBatch;
                         batch.fullNbkImmutablePart = fullNbkImmutablePart;
-                        batch.$$selected = true;
                         batch.structure = {};
 
                         if (duplicatedBatch) {
@@ -212,28 +210,22 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         return deferred.promise;
     }
 
-    function deleteBatches(selectedBatch) {
-        var deleted = 0;
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        if (!selectedBatch) {
-            var nonEditableBatches = getSelectedNonEditableBatches();
-            if (nonEditableBatches && nonEditableBatches.length > 0) {
-                Alert.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches).join(', '));
-            }
-            batches.concat([]).forEach(function(b) {
-                if (b.select && !RegistrationUtil.isRegistered(b)) {
-                    deleted++;
-                    batches.splice(batches.indexOf(b), 1);
-                }
-            });
-        } else if (!RegistrationUtil.isRegistered(b)) {
-            batches.splice(batches.indexOf(), 1);
+    function checkNonRemovableBatches(batches) {
+        var nonEditableBatches = getSelectedNonEditableBatches(batches);
+        if (nonEditableBatches && nonEditableBatches.length > 0) {
+            Alert.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
+                    .join(', '));
         }
-        if (deleted > 0) {
-            EntitiesBrowser.getCurrentForm().$setDirty(true);
-        }
+    }
 
-        return deleted;
+    function deleteBatches(batches) {
+        if (batches) {
+            checkNonRemovableBatches(batches);
+
+            _.remove(batches, function(b) {
+                return b.select && !RegistrationUtil.isRegistered(b);
+            });
+        }
     }
 
     function getLatestNbkBatch() {

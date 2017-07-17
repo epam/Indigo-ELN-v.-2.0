@@ -9,11 +9,16 @@
             templateUrl: 'scripts/components/entities/template/components/common/compound-summary/compound-summary.html',
             scope: {
                 model: '=',
-                share: '=',
+                batches: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
                 experimentName: '=',
                 structureSize: '=',
                 isHideColumnSettings: '=',
-                onShowStructure: '&'
+                onShowStructure: '&',
+                onAddedBatch: '&',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             },
             bindToController: true,
             controllerAs: 'vm',

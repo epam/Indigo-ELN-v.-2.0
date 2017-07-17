@@ -13,6 +13,7 @@
                 title: '=ssTitle',
                 autosave: '=ssAutosave',
                 model: '=ssModel',
+                modelTrigger: '=',
                 indigoReadonly: '=',
                 onChanged: '&'
             },

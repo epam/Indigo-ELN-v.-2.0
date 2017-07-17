@@ -73,7 +73,7 @@
             </thead>
             <tbody>
             <tr ng-if="vm.indigoRows.length" ng-repeat="row in vm.rowsForDisplay track by $index"
-                ng-class="{'success':row.$$selected}">
+                ng-class="{'success': vm.selectedBatch === row}">
                 <td ng-repeat="column in vm.indigoColumns track by $index"
                     class="text-center readonly-{{!vm.indigoEditable(row, $index, columnId)}}"
                     ng-click="vm.onRowSelect($event, row)"

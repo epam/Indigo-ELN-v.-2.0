@@ -4,7 +4,9 @@
               indigo-draggable-columns="true"
               indigo-readonly="indigoReadonly"
               indigo-editable="isEditable"
-              indigo-on-row-selected="vm.onRowSelected"
+              selected-batch="vm.selectedBatch"
+              selected-batch-trigger="vm.selectedBatchTrigger"
+              on-select-row="vm.onRowSelected(row)"
               indigo-hide-column-settings="vm.isHideColumnSettings"
               indigo-tab-support="true"
               class="my-table-wrapper">
