@@ -19,7 +19,7 @@
                 selectedBatchTrigger: '=',
                 reactants: '=',
                 reactantsTrigger: '=',
-                indigoReadonly: '=readonly',
+                readonly: '=',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'

@@ -12,7 +12,7 @@
                 indigoLabel: '@',
                 indigoColumns: '=',
                 indigoRows: '=',
-                indigoReadonly: '=',
+                readonly: '=',
                 indigoEditable: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',

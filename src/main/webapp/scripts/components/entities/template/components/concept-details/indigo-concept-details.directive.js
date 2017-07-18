@@ -11,7 +11,7 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                indigoReadonly: '='
+                readonly: '='
             },
             controller: controller,
             controllerAs: 'vm'

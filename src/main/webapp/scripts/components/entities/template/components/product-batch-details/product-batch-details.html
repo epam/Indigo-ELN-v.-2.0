@@ -26,7 +26,7 @@
                               batches="vm.batches"
                               selected-batch="vm.selectedBatch"
                               selected-batch-trigger="vm.selectedBatchTrigger"
-                              readonly="vm.indigoReadonly"
+                              readonly="vm.readonly"
                               on-added-batch="vm.onAddedBatch({batch: batch})"
                               on-select-batch="vm.onSelectBatch({batch: batch})"
                               on-remove-batches="vm.onRemoveBatches({batch: batches})"
@@ -34,6 +34,7 @@
         <indigo-table ng-if="!vm.showSummary"
                       indigo-id="product-detail-table"
                       indigo-columns="vm.productTableColumns"
+                      readonly="vm.readonly"
                       indigo-rows="vm.detailTable"
                       selected-batch="vm.selectedBatch"
                       selected-batch-trigger="vm.selectedBatchTrigger"
@@ -49,26 +50,26 @@
                             <span class="m-l5">Add</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
+                                ng-disabled="vm.readonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.duplicateBatch()">
                             <i class="fa fa-clone"></i>
                             <span class="m-l5">Duplicate</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
+                                ng-disabled="vm.readonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.deleteBatches()">
                             <i class="fa fa-trash"></i>
                             <span class="m-l5">Delete</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || vm.isIntendedSynced()"
+                                ng-disabled="vm.readonly || vm.isIntendedSynced()"
                                 ng-click="vm.syncWithIntendedProducts()">
                             <i class="fa fa-refresh"></i>
                             <span class="m-l5">Sync</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>VnV</button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch"
+                                ng-disabled="vm.readonly || !vm.batchSelected.nbkBatch"
                                 ng-click="vm.registerBatches()">
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
@@ -77,7 +78,7 @@
                             <input type="radio"
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioIntermediate"
-                                   ng-disabled="vm.indigoReadonly || vm.model.productBatchDetails.batchType == 'Intermediate'"
+                                   ng-disabled="vm.readonly || vm.model.productBatchDetails.batchType == 'Intermediate'"
                                    ng-click="vm.model.productBatchDetails.batchType = 'Intermediate'; vm.experimentForm.$setDirty()"
                                    ng-checked="vm.model.productBatchDetails.batchType == 'Intermediate'"
                                    class="product-batch-details__input">
@@ -88,7 +89,7 @@
                             <input type="radio"
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioTest"
-                                   ng-disabled="vm.indigoReadonly ||vm.model.productBatchDetails.batchType == 'Test Compound'"
+                                   ng-disabled="vm.readonly ||vm.model.productBatchDetails.batchType == 'Test Compound'"
                                    ng-click="vm.model.productBatchDetails.batchType = 'Test Compound'; vm.experimentForm.$setDirty()"
                                    ng-checked="vm.model.productBatchDetails.batchType =='Test Compound'"
                                    class="product-batch-details__input">
@@ -103,12 +104,12 @@
                     <div class="btn-group">
                         <button type="button"
                                 class="btn btn-info btn-small  btn-can-loading {{(vm.importLoading) ? 'btn-loading' : ''}}"
-                                ng-click="vm.importSDFile()" ng-disabled="vm.indigoReadonly">
+                                ng-click="vm.importSDFile()" ng-disabled="vm.readonly">
                             <i class="fa fa-cloud-download"></i>
                             <span class="m-l5">Import</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.exportSDFile()"
-                                ng-disabled="vm.indigoReadonly || !vm.batchSelected.nbkBatch">
+                                ng-disabled="vm.readonly || !vm.batchSelected.nbkBatch">
                             <i class="fa fa-cloud-upload"></i>
                             <span class="m-l5">Export</span>
                         </button>
@@ -122,7 +123,7 @@
                 <indigo-select indigo-label="Status"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.regStatus"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-input indigo-label="Conversational Batch number"
                               indigo-model="vm.model.productBatchDetails.conversationalBatchNumber"
@@ -132,13 +133,13 @@
                 <indigo-input indigo-label="Virtual Compound Id"
                               indigo-model="vm.model.productBatchDetails.virtualCompoundId"
                               indigo-label-vertical="true"
-                              indigo-readonly="vm.indigoReadonly"
+                              indigo-readonly="vm.readonly"
                 ></indigo-input>
                 <indigo-select indigo-label="Source"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.source"
                                indigo-items="vm.sourceValues"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <!--Source detail block-->
                 <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'Internal'"
@@ -146,14 +147,14 @@
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.sourceDetail"
                                indigo-items="vm.sourceDetailInternal"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'External'"
                                indigo-label="Source Detail"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.sourceDetail"
                                indigo-items="vm.sourceDetailExternal"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <!--End block-->
                 <indigo-select indigo-label="Stereoisomer Code"
@@ -161,7 +162,7 @@
                                indigo-dictionary="Stereoisomer Code"
                                indigo-item-prop="name,description"
                                indigo-model="vm.model.productBatchDetails.stereoisomer"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-simple-text indigo-label="Calculated Batch MW"
                                     indigo-model="vm.model.productBatchDetails.molWeight.value | round"
@@ -176,19 +177,19 @@
                                indigo-items="vm.saltCodeValues"
                                indigo-model="vm.model.productBatchDetails.saltCode"
                                indigo-change="vm.recalculateSalt(model.productBatchDetails)"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-input indigo-label="Salt Equivalent"
                               indigo-model="vm.model.productBatchDetails.saltEq.value"
                               indigo-change="vm.recalculateSalt(model.productBatchDetails)"
                               indigo-type="number"
                               indigo-label-vertical="true"
-                              indigo-readonly="vm.indigoReadonly || !vm.canEditSaltEq()"
+                              indigo-readonly="vm.readonly || !vm.canEditSaltEq()"
                 ></indigo-input>
                 <indigo-text-area indigo-label="Structure comments"
                                   indigo-model="vm.model.productBatchDetails.structureComments"
                                   indigo-label-vertical="true"
-                                  indigo-readonly="vm.indigoReadonly"
+                                  indigo-readonly="vm.readonly"
                 ></indigo-text-area>
             </div>
             <div class="col-md-4 col-sm-6">
@@ -196,12 +197,12 @@
                                indigo-label-vertical="true"
                                indigo-dictionary="Compound State"
                                indigo-model="vm.model.productBatchDetails.compoundState"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-input indigo-label="Precursor/Reactant IDs"
                               indigo-model="vm.model.productBatchDetails.precursors"
                               indigo-label-vertical="true"
-                              indigo-readonly="vm.indigoReadonly || vm.isExistStoichTable"
+                              indigo-readonly="vm.readonly || vm.isExistStoichTable"
                 ></indigo-input>
                 <indigo-input indigo-label="Purity"
                               indigo-model="vm.model.productBatchDetails.purity.asString"
@@ -210,7 +211,7 @@
                               indigo-readonly="true"
                               indigo-tooltip="vm.model.productBatchDetails.purity.asString">
                     <button class="btn btn-info" type="button" ng-click="vm.editPurity()"
-                            ng-disabled="vm.indigoReadonly">
+                            ng-disabled="vm.readonly">
                         Edit
                     </button>
                 </indigo-input>
@@ -222,7 +223,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.meltingPoint.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editMeltingPoint()"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Residual Solvents"
@@ -233,7 +234,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.residualSolvents.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editResidualSolvents()" type="button"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Solubility in Solvents"
@@ -244,7 +245,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.solubility.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editSolubility()" type="button"
-                            ng-disabled="vm.indigoReadonly">
+                            ng-disabled="vm.readonly">
                         Edit
                     </button>
                 </indigo-input>
@@ -256,7 +257,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.externalSupplier.asString"
                 >
                     <button class="btn btn-info" ng-click="vm.editExternalSupplier()" type="button"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
             </div>
@@ -265,7 +266,7 @@
                                indigo-model="vm.model.productBatchDetails.compoundProtection"
                                indigo-label-vertical="true"
                                indigo-dictionary="Compound Protection"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                 ></indigo-select>
                 <indigo-input indigo-label="Health Hazards"
                               indigo-model="vm.model.productBatchDetails.healthHazards.asString"
@@ -275,7 +276,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.healthHazards.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editHealthHazards()"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Handling Precautions"
@@ -286,7 +287,7 @@
                               indigo-tooltip="vm.model.productBatchDetails.handlingPrecautions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editHandlingPrecautions()"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
                 <indigo-input indigo-label="Storage Instructions"
@@ -297,13 +298,13 @@
                               indigo-tooltip="vm.model.productBatchDetails.storageInstructions.asString"
                 >
                     <button class="btn btn-info" type="button" ng-click="vm.editStorageInstructions()"
-                            ng-disabled="vm.indigoReadonly">Edit
+                            ng-disabled="vm.readonly">Edit
                     </button>
                 </indigo-input>
                 <indigo-text-area indigo-label="Batch Comments"
                                   indigo-model="vm.model.productBatchDetails.comments"
                                   indigo-label-vertical="true"
-                                  indigo-readonly="vm.indigoReadonly"
+                                  indigo-readonly="vm.readonly"
                 ></indigo-text-area>
             </div>
         </div>
