@@ -16,7 +16,7 @@
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
                 experiment: '=',
-                indigoReadonly: '=readonly',
+                readonly: '=',
                 onSelectBatch: '&',
                 onAddedBatch: '&',
                 onRemoveBatches: '&'
