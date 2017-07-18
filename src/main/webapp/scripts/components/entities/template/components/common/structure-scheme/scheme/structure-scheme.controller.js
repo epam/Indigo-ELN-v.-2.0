@@ -10,7 +10,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function init() {
         vm.structureModel = getInitModel();
-        if (!_.isEqual(vm.structureModel, vm.model)) {
+        if (!_.some(vm.structureModel, isEqualStructures)) {
             onChange();
         }
 
@@ -21,11 +21,14 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
         bindEvents();
     }
 
+    function isEqualStructures(value, key) {
+        return !(key === 'entered' || key === 'structureScheme') && (vm.model && vm.model[key] === value);
+    }
+
     function buildStructure(fromStructure) {
         var structure = fromStructure || {};
 
         return {
-            structureScheme: structure.structureScheme || {},
             image: structure.image || null,
             molfile: structure.molfile || null,
             structureId: structure.structureId || null
