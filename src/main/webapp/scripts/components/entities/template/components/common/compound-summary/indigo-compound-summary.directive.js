@@ -15,6 +15,7 @@
                 experimentName: '=',
                 structureSize: '=',
                 isHideColumnSettings: '=',
+                readonly: '=',
                 onShowStructure: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',

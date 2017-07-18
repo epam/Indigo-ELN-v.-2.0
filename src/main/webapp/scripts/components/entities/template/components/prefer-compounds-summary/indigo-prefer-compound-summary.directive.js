@@ -10,6 +10,7 @@
             scope: {
                 batches: '=',
                 model: '=',
+                readonly: '=',
                 experiment: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
