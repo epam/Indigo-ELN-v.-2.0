@@ -14,7 +14,7 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                indigoReadonly: '=readonly'
+                readonly: '='
             }
         };
 
