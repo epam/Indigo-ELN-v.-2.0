@@ -5,14 +5,11 @@
 
     /* @ngInject */
     function IndigoTableController($scope, dragulaService, localStorageService, $attrs, unitService, selectService,
-                                   inputService, scalarService, Principal, $timeout, $filter, EntitiesBrowser) {
+                                   inputService, scalarService, Principal, $timeout, $filter) {
         var vm = this;
         var originalColumnIdsAndFlags;
         var editableCell = null;
         var closePrev;
-        var stimeout;
-        var lastQ;
-        var originalRows;
         var searchColumns;
         var user;
 
@@ -20,13 +17,13 @@
 
         function init() {
             originalColumnIdsAndFlags = getColumnsProps(vm.indigoColumns);
-            originalRows = vm.indigoRows;
             searchColumns = vm.indigoSearchColumns || ['id', 'nbkBatch'];
+            vm.searchText = '';
             vm.pagination = {
                 page: 1,
                 pageSize: 10
             };
-            vm.filteredRows = originalRows;
+            updateRowsForDisplay(vm.indigoRows);
 
             unitService.processColumns(vm.indigoColumns, vm.indigoRows);
             selectService.processColumns(vm.indigoColumns, vm.indigoRows);
@@ -35,10 +32,9 @@
 
             vm.setClosePrevious = setClosePrevious;
             vm.toggleEditable = toggleEditable;
-            vm.isFormReadonly = isFormReadonly;
             vm.isColumnReadonly = isColumnReadonly;
             vm.isEditable = isEditable;
-            vm.search = search;
+            vm.searchDebounce = _.debounce(search, 300);
             vm.onRowSelect = onRowSelect;
             vm.onPageChanged = onPageChanged;
             vm.saveInLocalStorage = saveInLocalStorage;
@@ -67,7 +63,7 @@
         }
 
         function updateColumns() {
-            var columnIdsAndFlags = JSON.parse(localStorageService.get(user.id + '.' + vm.indigoId + '.columns'));
+            var columnIdsAndFlags = angular.fromJson(localStorageService.get(user.id + '.' + vm.indigoId + '.columns'));
             if (!columnIdsAndFlags) {
                 vm.saveInLocalStorage();
             }
@@ -121,70 +117,68 @@
         }
 
         function isEditable(columnId, rowIndex) {
-            if (columnId === null || rowIndex === null || vm.isFormReadonly()) {
+            if (columnId === null || rowIndex === null || vm.readonly) {
                 return false;
             }
 
             if (vm.indigoEditable) {
-                var row = vm.rowsForDisplay[rowIndex];
+                var row = vm.indigoRows[rowIndex];
                 var editable = vm.indigoEditable(row, columnId);
                 if (!editable) {
                     return false;
                 }
             }
 
-            return editableCell === columnId + '-' + rowIndex;
-        }
-
-        function isFormReadonly() {
-            var curForm = EntitiesBrowser.getCurrentForm();
-
-            return (curForm && curForm.$$isReadOnly);
+            return editableCell === columnId;
         }
 
         function isColumnReadonly(col, rowId) {
             return col.readonly === true || isEditable(col.id, rowId);
         }
 
+        function getRate(str, query, rate) {
+            if (str.indexOf(query) == 0) {
+                return 10;
+            } else if (str.indexOf(query) > 0) {
+                return 1;
+            }
+
+            return rate;
+        }
+
+        function filterRowsByQuery(query) {
+            var filtered = [];
+            _.forEach(vm.indigoRows, function(row) {
+                var rate = 0;
+                _.forEach(searchColumns, function(column) {
+                    if (!row[column]) {
+                        return;
+                    }
+                    rate += getRate(row[column].toString().toLowerCase(), query, rate);
+                });
+                row.$$rate = rate;
+                if (rate > 0) {
+                    filtered.push(row);
+                }
+            });
+
+            return $filter('orderBy')(filtered, '$$rate', true);
+        }
+
         function search(queryString) {
             var query = queryString.trim().toLowerCase();
 
-            if ((lastQ && lastQ === query) || !originalRows) {
+            if (!vm.indigoRows) {
                 return;
             }
-            if (stimeout) {
-                $timeout.cancel(stimeout);
-            }
+
             if (!query) {
-                lastQ = query;
-                vm.filteredRows = originalRows;
+                updateRowsForDisplay(vm.indigoRows);
 
                 return;
             }
 
-            stimeout = $timeout(function() {
-                var filtered = [];
-                originalRows.forEach(function(r) {
-                    var rate = 0;
-                    searchColumns.forEach(function(sc) {
-                        if (!r[sc]) {
-                            return;
-                        }
-                        var s = r[sc].toString().toLowerCase();
-                        if (s.indexOf(query) == 0) {
-                            rate += 10;
-                        } else if (s.indexOf(query) > 0) {
-                            rate++;
-                        }
-                    });
-                    r.$$rate = rate;
-                    if (rate > 0) {
-                        filtered.push(r);
-                    }
-                });
-                vm.filteredRows = $filter('orderBy')(filtered, 'rate', true);
-                lastQ = query;
-            }, 300);
+            updateRowsForDisplay(filterRowsByQuery(query));
         }
 
         function onRowSelect($event, row) {
@@ -195,17 +189,7 @@
             if (target.is('button,span,ul,a,li,input')) {
                 return;
             }
-            _.each(vm.indigoRows, function(item) {
-                if (item !== row) {
-                    item.$$selected = false;
-                }
-            });
-            row.$$selected = !row.$$selected;
-            if (vm.indigoOnRowSelected) {
-                vm.indigoOnRowSelected(_.find(vm.indigoRows, function(item) {
-                    return item.$$selected;
-                }));
-            }
+            vm.onSelectRow({row: !_.isEqual(vm.selectedBatch, row) ? row : null});
         }
 
         dragulaService.options($scope, 'my-table-columns', {
@@ -244,43 +228,41 @@
         }
 
         function onPageChanged() {
-            updateRowsForDisplay();
+            updateRowsForDisplay(vm.rowsForDisplay);
         }
 
-        function getCurrentPage() {
-            return _.floor(vm.filteredRows.length / vm.pagination.pageSize) || 0;
+        function getSkipItems() {
+            return (vm.pagination.page - 1) * vm.pagination.pageSize;
         }
 
-        function updateRowsForDisplay() {
-            if (!vm.filteredRows) {
+        function updateRowsForDisplay(rows) {
+            if (!rows || rows.length === 0) {
+                vm.limit = 0;
+                vm.rowsForDisplay = null;
+
                 return;
             }
 
-            var page = getCurrentPage();
+            var skip = getSkipItems();
 
-            vm.rowsForDisplay = vm.filteredRows.slice(page, vm.pagination.pageSize * (page + 1));
+            if (skip >= rows.length) {
+                updateCurrentPage();
+                skip = getSkipItems();
+            }
+
+            $timeout(function() {
+                vm.limit = skip + vm.pagination.pageSize;
+                vm.rowsForDisplay = rows;
+            });
         }
 
         function updateCurrentPage() {
-            vm.pagination.page = _.floor(vm.filteredRows.length / vm.pagination.pageSize);
+            vm.pagination.page = _.ceil(vm.indigoRows.length / vm.pagination.pageSize);
         }
 
         function bindEvents() {
-            $scope.$watchCollection('vm.indigoRows', function(newVal, oldVal) {
-                if (newVal && oldVal && newVal.length > oldVal.length) {
-                    vm.searchText = '';
-                    vm.search(vm.searchText);
-                }
-                originalRows = vm.indigoRows;
-                vm.filteredRows = originalRows;
-                updateRowsForDisplay();
-            });
-
-            $scope.$watchCollection('filteredRows', function(newVal, oldVal) {
-                if (newVal && oldVal && newVal.length > oldVal.length) {
-                    updateCurrentPage();
-                    updateRowsForDisplay();
-                }
+            $scope.$watchCollection('vm.indigoRows', function() {
+                search(vm.searchText);
             });
         }
     }

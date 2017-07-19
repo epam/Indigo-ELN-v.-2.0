@@ -8,23 +8,23 @@
                 <indigo-input indigo-label="Concept Subject / Title" indigo-label-vertical="true"
                               indigo-name="conceptDetailsTitle"
                               indigo-model="vm.model.conceptDetails.title"
-                              indigo-readonly="vm.indigoReadonly">
+                              indigo-readonly="vm.readonly">
                 </indigo-input>
                 <indigo-select indigo-label="Therapeutic Area"
                                indigo-dictionary="Therapeutic Area"
                                indigo-model="vm.model.conceptDetails.therapeuticArea"
                                indigo-label-vertical="true"
-                               indigo-readonly="vm.indigoReadonly">
+                               indigo-readonly="vm.readonly">
                 </indigo-select>
                 <indigo-select indigo-label="Project Code & Name"
                                indigo-dictionary="Project Code & Name"
                                indigo-model="vm.model.conceptDetails.codeAndName"
                                indigo-label-vertical="true"
-                               indigo-readonly="vm.indigoReadonly">
+                               indigo-readonly="vm.readonly">
                 </indigo-select>
                 <indigo-select indigo-label="Co-authors"
                                indigo-label-vertical="true"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                                indigo-items="vm.users"
                                indigo-model="vm.model.conceptDetails.coAuthors"
                                indigo-multiple="true"
@@ -33,7 +33,7 @@
                 <indigo-select ng-if="false"
                                indigo-label="Experiment Creator (Author)"
                                indigo-label-vertical="true"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                                indigo-items="vm.users"
                                indigo-model="vm.model.conceptDetails.experimentCreator"
                 ></indigo-select>
@@ -44,7 +44,7 @@
                                     indigo-readonly="true"></indigo-date-picker>
                 <indigo-tag-input indigo-label="Linked Experiment"
                                   indigo-model="vm.model.conceptDetails.linkedExperiments"
-                                  indigo-readonly="vm.indigoReadonly"
+                                  indigo-readonly="vm.readonly"
                                   indigo-label-vertical="true"
                                   indigo-on-click="vm.onLinkedExperimentClick"
                                   indigo-on-adding="vm.onAddLinkedExperiment"
@@ -53,7 +53,7 @@
                                   indigo-classes="linkedExperiments"></indigo-tag-input>
                 <indigo-select indigo-label="Designers"
                                indigo-label-vertical="true"
-                               indigo-readonly="vm.indigoReadonly"
+                               indigo-readonly="vm.readonly"
                                indigo-items="vm.users"
                                indigo-model="vm.model.conceptDetails.designers"
                                indigo-multiple="true"
@@ -62,7 +62,7 @@
         </div>
         <indigo-text-area indigo-label="Concept Keywords" indigo-label-vertical="true"
                           indigo-model="vm.model.conceptDetails.keywords"
-                          indigo-readonly="vm.indigoReadonly">
+                          indigo-readonly="vm.readonly">
         </indigo-text-area>
     </div>
 </div>

@@ -9,13 +9,19 @@
             templateUrl: 'scripts/components/entities/template/components/common/batch-summary/batch-summary.html',
             scope: {
                 model: '=',
-                share: '=',
+                batches: '=',
+                readonly: '=',
                 // TODO: experimentName is not used
                 experimentName: '=',
                 isHideColumnSettings: '=',
                 structureSize: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
                 onShowStructure: '&',
-                indigoSaveExperimentFn: '&'
+                indigoSaveExperimentFn: '&',
+                onAddedBatch: '&',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             },
             bindToController: true,
             controller: 'IndigoBatchSummaryController',

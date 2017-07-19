@@ -5,13 +5,14 @@
         </div>
         <div ng-class="{'col-xs-8 text-right':vm.indigoLabel, 'col-xs-12 text-right':!vm.indigoLabel}"
              class="is-hidden">
-            <div ng-if="filteredRows.length < vm.indigoRows.length" class="search-info"> <b>{{filteredRows.length}}</b>  of {{vm.indigoRows.length}} are shown </div>
+            <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info"> <b>{{vm.rowsForDisplay
+                .length}}</b>  of {{vm.indigoRows.length}} are shown </div>
             <div class="search-field">
                 <i class="fa fa-search"></i>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"
-                       ng-change="vm.search(vm.searchText)"
+                       ng-change="vm.searchDebounce(vm.searchText)"
                        id="searchUser"
                        ng-model="vm.searchText">
             </div>
@@ -36,8 +37,10 @@
                     <li ng-repeat="column in vm.indigoColumns | filter : {id:'!show-hide-columns'}"
                         role="menuitem"
                         ng-click="$event.stopPropagation();">
-                        <indigo-checkbox indigo-label="{{column.name}}" indigo-model="column.isVisible"
-                                         indigo-change="vm.saveInLocalStorage();"></indigo-checkbox>
+                        <indigo-checkbox indigo-label="{{column.name}}"
+                                         indigo-model="column.isVisible"
+                                         indigo-change="vm.saveInLocalStorage();">
+                        </indigo-checkbox>
                     </li>
                 </ul>
             </div>
@@ -51,20 +54,20 @@
                 <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible">
                     <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                          ng-if="!column.actions.length && column.id!=='show-hide-columns'">
-                        <a href class="btn btn-transparent" ng-disabled="vm.indigoReadonly">
+                        <a href class="btn btn-transparent" ng-disabled="vm.readonly">
                             {{column.name}}
                         </a>
                     </div>
                     <div class="btn-group btn-group-sm btn-group-justified product-header-item" uib-dropdown
                          dropdown-append-to-body
                          ng-if="column.actions.length">
-                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.indigoReadonly">
+                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.readonly">
                             <span>{{column.name}} <span class="caret"></span></span>
                         </a>
                         <ul uib-dropdown-menu class="no-draggable">
                             <li ng-repeat="action in column.actions track by $index" class="no-draggable">
                                 <a href="" ng-click="action.action(column.id)" class="no-draggable"
-                                   ng-disabled="vm.indigoReadonly">{{action.name}}</a>
+                                   ng-disabled="vm.readonly">{{action.name}}</a>
                             </li>
                         </ul>
                     </div>
@@ -72,8 +75,9 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-if="vm.indigoRows.length" ng-repeat="row in vm.rowsForDisplay track by $index"
-                ng-class="{'success':row.$$selected}">
+            <tr ng-if="vm.rowsForDisplay.length"
+                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.limit : vm.limit - vm.pagination.pageSize track by $index"
+                ng-class="{'success': vm.selectedBatch === row}">
                 <td ng-repeat="column in vm.indigoColumns track by $index"
                     class="text-center readonly-{{!vm.indigoEditable(row, $index, columnId)}}"
                     ng-click="vm.onRowSelect($event, row)"
@@ -90,7 +94,7 @@
                     </indigo-table-val>
                 </td>
             </tr>
-            <tr ng-if="!vm.indigoRows.length" >
+            <tr ng-if="!vm.rowsForDisplay.length">
                 <td colspan={{vm.indigoColumns.length}} class="text-muted text-center">
                     <h3 class="m-50">empty</h3>
                 </td>
@@ -98,10 +102,10 @@
             </tbody>
         </table>
     </div>
-    <div class="row" ng-if="vm.pagination.pageSize < vm.indigoRows.length">
+    <div class="row" ng-if="vm.pagination.pageSize < vm.rowsForDisplay.length">
         <div class="col-xs-12 text-center">
             <uib-pagination class="pagination-sm"
-                            total-items="vm.indigoRows.length"
+                            total-items="vm.rowsForDisplay.length"
                             ng-change="vm.onPageChanged()"
                             ng-model="vm.pagination.page"
                             items-per-page="vm.pagination.pageSize"

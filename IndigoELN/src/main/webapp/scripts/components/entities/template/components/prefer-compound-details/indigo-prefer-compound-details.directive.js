@@ -8,78 +8,73 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/prefer-compound-details/prefer-compound-details.html',
-            controller: controller,
-            controllerAs: 'vm'
+            controller: indigoPreferredCompoundDetailsController,
+            controllerAs: 'vm',
+            bindToController: true,
+            scope: {
+                model: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '=',
+                experiment: '=',
+                readonly: '=',
+                onSelectBatch: '&',
+                onAddedBatch: '&',
+                onRemoveBatches: '&'
+            }
         };
 
         /* @ngInject */
-        function controller($scope, EntitiesBrowser) {
+        function indigoPreferredCompoundDetailsController($scope, EntitiesBrowser) {
             var vm = this;
-
-            vm.indigoReadonly = $scope.indigoReadonly;
-            vm.experiment = $scope.experiment || {};
-            vm.share = $scope.share || {};
-            vm.model = $scope.model || {};
-            vm.model.preferCompoundDetails = vm.model.preferCompoundDetails || {};
-            vm.model.preferredCompoundSummary = vm.model.preferredCompoundSummary || {};
-            vm.showStructure = false;
-            vm.showSummary = false;
-            vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
-            vm.selectControl = {};
-
-            vm.onSelectCompound = onSelectCompound;
 
             init();
 
             function init() {
-                var onCompoundSummaryRowSelectedEvent = $scope.$on('batch-summary-row-selected', function(event, data) {
-                    selectCompound(data.row);
-                });
+                vm.experiment = vm.experiment || {};
+                vm.model = vm.model || {};
+                vm.model.preferCompoundDetails = vm.model.preferCompoundDetails || {};
+                vm.model.preferredCompoundSummary = vm.model.preferredCompoundSummary || {};
+                vm.showStructure = false;
+                vm.showSummary = false;
+                vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
+                vm.selectControl = {};
 
-                var onCompoundStructureChanged = $scope.$on('product-batch-structure-changed', function(event, data) {
-                    if (data.structure) {
-                        vm.structureImage = data.structure.image;
-                    } else {
-                        vm.structureImage = '';
-                    }
-                });
+                vm.onSelectCompound = onSelectBatch;
+                vm.addNewCompound = addNewCompound;
 
-                var onCompoundSummaryRowDeselectedEvent = $scope.$on('batch-summary-row-deselected', function() {
-                    deselectCompound();
-                });
-
-                $scope.$on('$destroy', function() {
-                    onCompoundSummaryRowSelectedEvent();
-                    onCompoundSummaryRowDeselectedEvent();
-                    onCompoundStructureChanged();
-                });
+                bindEvents();
             }
 
-            function onSelectCompound() {
-                if (vm.share.selectedRow) {
-                    vm.share.selectedRow.$$selected = false;
-                }
-                vm.share.selectedRow = $scope.selectedCompound || {};
-                vm.share.selectedRow.$$selected = true;
-                selectCompound(vm.share.selectedRow);
+            function bindEvents() {
+                $scope.$watch('vm.selectedBatchTrigger', onSelectedBatchChanged);
             }
 
-            function selectCompound(row) {
-                vm.model.preferCompoundDetails = row;
+            function addNewCompound() {
 
-                if (row.structure) {
-                    vm.structureImage = row.structure.image;
+            }
+
+            function onSelectedBatchChanged() {
+                if (vm.selectedBatch) {
+                    selectCompound(vm.selectedBatch);
                 } else {
-                    vm.structureImage = '';
+                    deselectCompound();
                 }
+            }
 
-                vm.selectedCompound = row;
-                vm.selectControl.setSelection(row);
+            function onSelectBatch(compound) {
+                vm.onSelectBatch({batch: compound});
+                selectCompound(compound);
+            }
+
+            function selectCompound(compound) {
+                vm.model.preferCompoundDetails = compound;
+
+                vm.selectedCompound = compound;
+                vm.selectControl.setSelection(compound);
             }
 
             function deselectCompound() {
                 vm.model.preferCompoundDetails = {};
-                vm.structureImage = '';
                 vm.selectControl.unSelect();
             }
         }
