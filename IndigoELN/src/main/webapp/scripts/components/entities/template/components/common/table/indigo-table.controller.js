@@ -129,7 +129,7 @@
                 }
             }
 
-            return editableCell === columnId;
+            return editableCell === (columnId + '-' + rowIndex);
         }
 
         function isColumnReadonly(col, rowId) {
