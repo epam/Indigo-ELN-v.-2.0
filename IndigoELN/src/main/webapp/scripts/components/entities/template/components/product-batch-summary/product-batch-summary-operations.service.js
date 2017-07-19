@@ -62,7 +62,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         var batchToDuplicate = angular.copy(batchToCopy);
         var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended);
         p.then(function() {
-            EntitiesBrowser.getCurrentForm().$setDirty(true);
+            EntitiesBrowser.getCurrentForm().$setDirty();
             duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
         });
 
@@ -127,7 +127,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function addNewBatch() {
         var q = requestNbkBatchNumberAndAddToTable();
         q.then(function() {
-            EntitiesBrowser.getCurrentForm().$setDirty(true);
+            EntitiesBrowser.getCurrentForm().$setDirty();
         });
 
         return q;
@@ -136,7 +136,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function importSDFile(success) {
         sdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
-            EntitiesBrowser.getCurrentForm().$setDirty(true);
+            EntitiesBrowser.getCurrentForm().$setDirty();
             if (success) {
                 success();
             }
