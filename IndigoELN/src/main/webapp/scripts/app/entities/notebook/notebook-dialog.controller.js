@@ -58,7 +58,7 @@
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
                 if (pageInfo.dirty) {
-                    $scope.createNotebookForm.$setDirty(pageInfo.dirty);
+                    $scope.createNotebookForm.$setDirty();
                 }
 
                 $scope.$watch(function() {
