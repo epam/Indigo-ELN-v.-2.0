@@ -104,8 +104,8 @@
 
         function createExperiment() {
             var resolve = {
-                notebookId: function() {
-                    return vm.notebook.id;
+                fullNotebookId: function() {
+                 return vm.notebook.fullId;
                 }
             };
 

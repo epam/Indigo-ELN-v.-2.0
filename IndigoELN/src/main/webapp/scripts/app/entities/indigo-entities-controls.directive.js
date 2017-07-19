@@ -106,7 +106,7 @@
 
             function createExperiment() {
                 var resolve = {
-                    notebookId: function() {
+                    fullNotebookId: function() {
                         return null;
                     }
                 };
