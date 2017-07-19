@@ -1,15 +1,15 @@
 angular
     .module('indigoeln')
-    .factory('stoihHelper', stoihHelperFactory);
+    .factory('stoichHelper', stoichHelperFactory);
 
 /* @ngInject */
-function stoihHelperFactory() {
+function stoichHelperFactory() {
     return {
         cleanReactants: cleanReactants
     };
 
     function cleanReactants(reactants) {
-        return reactants.map(function(batch) {
+        return _.map(reactants, function(batch) {
             return {
                 compoundId: batch.compoundId,
                 fullNbkBatch: batch.fullNbkBatch,

@@ -3,7 +3,7 @@ angular
     .controller('analyzeRxnController', analyzeRxnController);
 
 /* @ngInject */
-function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged, stoihHelper) {
+function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged, stoichHelper) {
     var vm = this;
 
     vm.addToStoichTable = addToStoichTable;
@@ -25,7 +25,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(stoihHelper.cleanReactants(vm.model.selectedReactants));
+        onStoichRowsChanged(stoichHelper.cleanReactants(vm.model.selectedReactants));
     }
 
     function updateStoicAndExit() {
@@ -35,7 +35,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
                 formula: knownReactant.formula
             }), knownReactant);
         });
-        onStoichRowsChanged(stoihHelper.cleanReactants(result));
+        onStoichRowsChanged(stoichHelper.cleanReactants(result));
         $uibModalInstance.close({});
     }
 
