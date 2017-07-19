@@ -10,7 +10,9 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function init() {
         vm.structureModel = getInitModel();
-        onChange();
+        if (!_.some(vm.structureModel, isEqualStructures)) {
+            onChange();
+        }
 
         vm.openEditor = openEditor;
         vm.importStructure = importStructure;
@@ -19,11 +21,14 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
         bindEvents();
     }
 
+    function isEqualStructures(value, key) {
+        return !(key === 'entered' || key === 'structureScheme') && (vm.model && vm.model[key] === value);
+    }
+
     function buildStructure(fromStructure) {
         var structure = fromStructure || {};
 
         return {
-            structureScheme: structure.structureScheme || {},
             image: structure.image || null,
             molfile: structure.molfile || null,
             structureId: structure.structureId || null
@@ -55,7 +60,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     }
 
     function bindEvents() {
-        $scope.$watch('vm.model', updateModel);
+        $scope.$watch('vm.modelTrigger', updateModel);
     }
 
     function onChange() {
@@ -143,7 +148,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function openEditor($event) {
         $event.stopPropagation();
-        if (vm.indigoReadonly) {
+        if (vm.readonly) {
             return;
         }
         // open editor with pre-defined structure (prestructure)
@@ -178,7 +183,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function importStructure($event) {
         $event.stopPropagation();
-        if (vm.indigoReadonly) {
+        if (vm.readonly) {
             return;
         }
         var modalInstance = $uibModal.open({
@@ -195,7 +200,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
 
     function exportStructure($event) {
         $event.stopPropagation();
-        if (vm.indigoReadonly) {
+        if (vm.readonly) {
             return;
         }
         $uibModal.open({

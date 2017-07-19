@@ -7,9 +7,22 @@
         return {
             restrict: 'E',
             replace: true,
+            templateUrl: 'scripts/components/entities/template/components/product-batch-summary/product-batch-summary.html',
             controller: 'ProductBatchSummaryController',
             controllerAs: 'vm',
-            templateUrl: 'scripts/components/entities/template/components/product-batch-summary/product-batch-summary.html'
+            bindToController: true,
+            scope: {
+                model: '=',
+                batches: '=',
+                selectedBatch: '=',
+                selectedBatchTrigger: '&',
+                experiment: '=',
+                readonly: '=',
+                indigoSaveExperimentFn: '&',
+                onAddedBatch: '&',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
+            }
         };
     }
 })();

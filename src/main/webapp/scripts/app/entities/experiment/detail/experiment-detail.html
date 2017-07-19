@@ -25,12 +25,12 @@
     </div>
 
     <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save(vm.experiment)">
-        <indigo-components indigo-template="vm.experiment.template.templateContent"
-                           indigo-readonly="!vm.isEditAllowed"
-                           indigo-model="vm.experiment.components"
-                           indigo-experiment-form="experimentForm"
-                           indigo-experiment="vm.experiment"
-                           indigo-save-experiment-fn="vm.saveCurrent()">
+        <indigo-components template="vm.experiment.template.templateContent"
+                           readonly="!vm.isEditAllowed"
+                           model="vm.experiment.components"
+                           experiment-form="experimentForm"
+                           experiment="vm.experiment"
+                           save-experiment-fn="vm.saveCurrent()">
         </indigo-components>
     </form>
     <div class="btn-bottom-block tab-content-pad">

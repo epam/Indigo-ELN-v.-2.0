@@ -13,7 +13,8 @@
                 title: '=ssTitle',
                 autosave: '=ssAutosave',
                 model: '=ssModel',
-                indigoReadonly: '=',
+                modelTrigger: '=',
+                readonly: '=',
                 onChanged: '&'
             },
             bindToController: true,

@@ -2,9 +2,11 @@
               indigo-columns="vm.columns"
               indigo-rows="vm.model.preferredCompoundSummary.compounds"
               indigo-draggable-columns="true"
-              indigo-readonly="indigoReadonly"
+              readonly="vm.readonly"
               indigo-editable="isEditable"
-              indigo-on-row-selected="vm.onRowSelected"
+              selected-batch="vm.selectedBatch"
+              selected-batch-trigger="vm.selectedBatchTrigger"
+              on-select-row="vm.onRowSelected(row)"
               indigo-hide-column-settings="vm.isHideColumnSettings"
               indigo-tab-support="true"
               class="my-table-wrapper">
@@ -25,13 +27,13 @@
                 </div>
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-info btn-small"
-                            ng-disabled="indigoReadonly"
+                            ng-disabled="vm.readonly"
                             ng-click="vm.addNewCompound()">
                         <i class="fa fa-plus"></i>
                         <span class="m-l5">Add</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteCompounds()"
-                            ng-disabled="indigoReadonly || !vm.isHasCheckedRows()">
+                            ng-disabled="vm.readonly || !vm.isHasCheckedRows()">
                         <i class="fa fa-trash"></i>
                         <span class="m-l5">Delete</span>
                     </button>
@@ -43,13 +45,13 @@
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.importSDFile()"
-                        ng-disabled="indigoReadonly">
+                        ng-disabled="vm.readonly">
                     <i class="fa fa-cloud-download"></i>
                     <span class="m-l5">Import</span>
                 </button>
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.exportSDFile()"
-                        ng-disabled="indigoReadonly || !vm.isHasCheckedRows()">
+                        ng-disabled="vm.readonly || !vm.isHasCheckedRows()">
                     <i class="fa fa-cloud-upload"></i>
                     <span class="m-l5">Export</span>
                 </button>
