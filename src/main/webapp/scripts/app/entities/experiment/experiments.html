@@ -1,11 +1,11 @@
 <indigo-entities-controls  is-dashboard ="true"></indigo-entities-controls>
 
-<div class="main-page-content scroll-dashboard-full" >
+<div class="main-page-content scroll-dashboard-full">
     <div class="row">
         <div class="col-sm-8">
             <div class="panel panel-info panel-main-h" cg-busy="{promise:vm.loading, minDuration:700}">
                 <div class="panel-heading">experiments statistics</div>
-                <div class="panel-body panel-body-nopad" >
+                <div class="panel-body panel-body-nopad">
                     <div class="statistic-radio">
                         <input type="radio" name="experimentsSwitcher" ng-model="vm.dView" ng-change="vm.onViewChange()" ng-value="'open'">
                         <div class="statistic-info">
@@ -66,7 +66,7 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-mouseenter="vm.experimentEnter(exp)">
+                    <tr ng-class="{'table-list' : true, 'reaction-popup' : !!exp.reactionImage}" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-mouseenter="vm.experimentEnter(exp)">
                         <td class="table-list__item dash-exp-id">
                             <a  class = "ellipsis" ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})" ng-bind="exp.id"></a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
@@ -109,7 +109,7 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class="{'table-list' : true, 'reaction-popup' : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
@@ -140,7 +140,7 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"  class="table-list" >
+                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"  class="table-list">
                         <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
@@ -153,7 +153,7 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {'table-list' : true, 'reaction-popup' : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
                              <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
