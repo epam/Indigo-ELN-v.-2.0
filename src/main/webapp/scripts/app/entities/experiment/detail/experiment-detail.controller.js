@@ -20,6 +20,7 @@
         function init() {
             vm.isCollapsed = true;
             vm.loading = getPageInfo().then(function(response) {
+                initComponents(response.experiment.components);
                 pageInfo = response;
                 tabName = getExperimentName(response.notebook, response.experiment);
                 params = {
@@ -68,6 +69,39 @@
                 duplicate: repeatExperiment,
                 print: printExperiment
             });
+        }
+
+        function initComponents(components) {
+            initPreferredCompoundSummary(components);
+            initProductBatchSummary(components);
+            initStoichTable(components);
+            initReactionDetails(components);
+        }
+
+        function initPreferredCompoundSummary(components) {
+            if (components.preferredCompoundSummary) {
+                components.preferredCompoundSummary.compounds = components.preferredCompoundSummary.compounds || [];
+            }
+        }
+
+        function initProductBatchSummary(components) {
+            if (components.productBatchSummary) {
+                components.productBatchSummary.batches = components.productBatchSummary.batches || [];
+            }
+        }
+
+        function initStoichTable(components) {
+            if (components.stoichTable) {
+                components.stoichTable.products = components.stoichTable.products || [];
+                components.stoichTable.reactants = components.stoichTable.reactants || [];
+            }
+        }
+
+        function initReactionDetails(components) {
+            if (components.reactionDetails) {
+                components.reactionDetails.batchOwner = components.reactionDetails.batchOwner || [];
+                components.reactionDetails.experimentCreator = components.reactionDetails.experimentCreator || {};
+            }
         }
 
         function getExperimentName(notebook, experiment) {
@@ -123,6 +157,7 @@
         }
 
         function save(experiment) {
+            initComponents(experiment.components);
             var experimentForSave = _.extend({}, experiment);
             vm.loading = (experiment.template !== null) ? Experiment.update($stateParams, vm.experiment).$promise
                 : Experiment.save(experimentForSave).$promise;
