@@ -14,6 +14,7 @@ function dialogService($uibModal) {
             animation: true,
             size: 'lg',
             controller: 'StructureValidationController',
+            controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/dialog-service/structure-validation/structure-validation.html',
             resolve: {
                 batches: function() {
