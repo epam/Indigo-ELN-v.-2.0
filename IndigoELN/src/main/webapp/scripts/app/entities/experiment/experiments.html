@@ -1,4 +1,5 @@
 <indigo-entities-controls  is-dashboard ="true"></indigo-entities-controls>
+
 <div class="main-page-content scroll-dashboard-full" >
     <div class="row">
         <div class="col-sm-8">
@@ -49,7 +50,7 @@
     <div class="panel panel-info panel-info-table" ng-if="vm.dView === 'open'">
         <div class="panel-heading">Open experiments <span class="count" ng-bind="vm.curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
-            <div class="table-responsive" indigo-scroller="x">
+            <div class="table-responsive">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
                     <tr  indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)" class="table-list">
@@ -108,9 +109,10 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
+                            <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
                         <td class="table-list__item" ng-bind="exp.name"></td>
                         <td class="table-list__item" ng-bind="exp.status"></td>
@@ -138,7 +140,7 @@
             <div class="table-responsive" indigo-scroller="x">
                 <table class="main-table table table-striped table-condensed">
                     <thead class="main-table__header">
-                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"  class="table-list">
+                    <tr indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)"  class="table-list" >
                         <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="name" class="table-list__item table-list__item_header">Title <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="status" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
@@ -151,9 +153,10 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
+                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
                         <td class="table-list__item" ng-bind="exp.name"></td>
                         <td class="table-list__item" ng-bind="exp.status"></td>
