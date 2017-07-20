@@ -16,7 +16,8 @@ function stoichHelperFactory() {
                 molWeight: batch.molWeight,
                 formula: batch.formula,
                 saltCode: batch.saltCode,
-                saltEq: batch.saltEq
+                saltEq: batch.saltEq,
+                rxnRole: batch.rxnRole
             };
         });
     }
