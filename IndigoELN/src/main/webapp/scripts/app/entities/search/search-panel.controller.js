@@ -41,7 +41,6 @@
 
         init();
 
-
         function init() {
             if (EntitiesCache.getByName(CACHE_STATE_KEY)) {
                 vm.state = EntitiesCache.getByName(CACHE_STATE_KEY);
@@ -49,7 +48,6 @@
                 initDefaultState();
             }
         }
-
 
         function initDefaultState() {
             vm.state = {};
@@ -124,7 +122,6 @@
             });
         }
 
-
         function goTo(entity, print) {
             var url = (print) ? entity.kind.toLowerCase() + '-print' : 'entities.' + entity.kind.toLowerCase() + '-detail';
             $state.go(url, {
@@ -138,18 +135,21 @@
             if (page) {
                 vm.state.page = page;
             }
-
             var ind = (vm.state.page - 1) * vm.state.itemsPerPage;
             vm.state.searchResultsPaged = vm.state.searchResults.slice(ind, ind + vm.state.itemsPerPage);
         }
 
-        function onChangeModel(model) {
-            vm.state.model = model;
+        function onChangeModel(structure) {
+            angular.extend(vm.state.model.restrictions.structure, structure);
         }
+
+        $scope.$on('toggle-search', function (event, data) {
+            vm.state.model.restrictions.searchQuery = data.query;
+            search();
+        })
 
         $scope.$on('$destroy', function () {
             EntitiesCache.putByName(CACHE_STATE_KEY, vm.state);
         });
     }
 })();
-
