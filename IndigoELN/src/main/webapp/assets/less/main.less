@@ -288,6 +288,7 @@ tags-input {
     height: ~"calc(100vh - 60px)";
     overflow-y: auto;
     overflow-x: hidden;
+    position:relative;
 }
 
 
@@ -946,7 +947,6 @@ ul.my-dropdown-list {
     position: absolute;
     transition: opacity ease-out 0.3s;
     left: 100px;
-    margin-top: 4px;
     background: #fff;
     z-index: 1;
     width: 300px;
@@ -954,12 +954,13 @@ ul.my-dropdown-list {
     background-size: contain;
     background-position: center;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.37);
-    margin-left: 16px;
+    margin-left: -63px;
     background-repeat:  no-repeat;
+    margin-top: -180px;
 }
 
-.reaction-popup.slide-up .reaction-image {
-    margin-top: -150px;
+.reaction-popup:first-of-type .reaction-image{
+    margin-top: 4px;
 }
 
 .reaction-popup:hover .reaction-image {

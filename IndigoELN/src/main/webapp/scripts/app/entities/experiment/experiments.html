@@ -1,10 +1,11 @@
 <indigo-entities-controls  is-dashboard ="true"></indigo-entities-controls>
-<div class="main-page-content scroll-dashboard-full" >
+
+<div class="main-page-content scroll-dashboard-full">
     <div class="row">
         <div class="col-sm-8">
             <div class="panel panel-info panel-main-h" cg-busy="{promise:vm.loading, minDuration:700}">
                 <div class="panel-heading">experiments statistics</div>
-                <div class="panel-body panel-body-nopad" >
+                <div class="panel-body panel-body-nopad">
                     <div class="statistic-radio">
                         <input type="radio" name="experimentsSwitcher" ng-model="vm.dView" ng-change="vm.onViewChange()" ng-value="'open'">
                         <div class="statistic-info">
@@ -49,7 +50,7 @@
     <div class="panel panel-info panel-info-table" ng-if="vm.dView === 'open'">
         <div class="panel-heading">Open experiments <span class="count" ng-bind="vm.curExperiments.length"></span></div>
         <div class="panel-body panel-body-nopad">
-            <div class="table-responsive" indigo-scroller="x">
+            <div class="table-responsive">
                 <table class="main-table table table-striped table-condensed dash-table">
                     <thead class="main-table__header">
                     <tr  indigo-sort="predicate" ascending="reverse" callback="vm.sort(predicate, reverse)" class="table-list">
@@ -65,7 +66,7 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr ng-class=" {true : 'table-list', 'slide-up' : true, 'reaction-popup'  : !!exp.reactionImage}" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-mouseenter="vm.experimentEnter(exp)">
+                    <tr ng-class="{'table-list' : true, 'reaction-popup' : !!exp.reactionImage}" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-mouseenter="vm.experimentEnter(exp)">
                         <td class="table-list__item dash-exp-id">
                             <a  class = "ellipsis" ui-sref="entities.experiment-detail({projectId: exp.projectId, notebookId: exp.notebookId, experimentId: exp.experimentId})" ng-bind="exp.id"></a>
                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
@@ -108,9 +109,10 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class="{'table-list' : true, 'reaction-popup' : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
+                            <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
                         <td class="table-list__item" ng-bind="exp.name"></td>
                         <td class="table-list__item" ng-bind="exp.status"></td>
@@ -151,9 +153,10 @@
                     </tr>
                     </thead>
                     <tbody class="main-table__body">
-                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index">
+                    <tr class="table-list" ng-repeat="exp in vm.curExperimentsPaged track by $index" ng-class=" {'table-list' : true, 'reaction-popup' : !!exp.reactionImage}">
                         <td class="table-list__item dash-exp-id">
                             <a href="{{vm.signatureServiceUrl}}" ng-bind="exp.id"></a>
+                             <div style="background-image: url('data:image/svg+xml;base64,{{exp.reactionImage}}')" class="reaction-image"> </div>
                         </td>
                         <td class="table-list__item" ng-bind="exp.name"></td>
                         <td class="table-list__item" ng-bind="exp.status"></td>
