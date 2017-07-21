@@ -84,6 +84,7 @@
                 vm.onAddedBatch = onAddedBatch;
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
+                vm.onPrecursorsChanged = onPrecursorsChanged;
 
                 bindEvents();
             }
@@ -137,6 +138,14 @@
             function onSelectBatch(batch) {
                 vm.selectedBatch = batch;
                 vm.selectedBatchTrigger++;
+            }
+
+            function onPrecursorsChanged(precursors) {
+                $timeout(function() {
+                    _.forEach(vm.batches, function(batch) {
+                        batch.precursors = precursors;
+                    });
+                });
             }
         }
     }

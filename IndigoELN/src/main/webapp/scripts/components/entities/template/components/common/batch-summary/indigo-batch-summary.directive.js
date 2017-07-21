@@ -17,8 +17,9 @@
                 structureSize: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
+                stoichTable: '=',
                 onShowStructure: '&',
-                indigoSaveExperimentFn: '&',
+                saveExperimentFn: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'
