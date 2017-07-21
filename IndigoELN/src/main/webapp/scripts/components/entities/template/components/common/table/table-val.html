@@ -51,7 +51,8 @@
         </div>
         <div ng-if="vm.indigoColumn.type == 'boolean'"
              ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">
-            <indigo-checkbox indigo-model="vm.indigoRow[vm.indigoColumn.id]" indigo-no-dirty="vm.indigoColumn.noDirty"
+            <indigo-checkbox indigo-model="vm.indigoRow[vm.indigoColumn.id]"
+                             is-dirty="vm.indigoColumn.noDirty"
                              indigo-change="vm.indigoColumn.onChange({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"
                              indigo-click="vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})"></indigo-checkbox>
         </div>
