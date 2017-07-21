@@ -231,6 +231,7 @@
             PermissionManagement.setAccessList(vm.experiment.accessList);
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(_hasEditPermission) {
                 hasEditPermission = _hasEditPermission;
+                updateStatuses();
                 setReadOnly();
             });
         }
