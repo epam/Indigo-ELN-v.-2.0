@@ -354,7 +354,8 @@
                 {
                     id: 'precursors',
                     name: 'Precursor/Reactant IDs',
-                    type: 'input'
+                    type: 'input',
+                    readonly: true
                 },
                 {
                     id: '$$healthHazards',
@@ -602,7 +603,7 @@
 
         function isEditable(row, columnId) {
             var rowResult = !(RegistrationUtil.isRegistered(row));
-            if (rowResult && columnId === 'precursors' && vm.model.stoichTable) {
+            if (rowResult && columnId === 'precursors' && vm.stoichTable) {
                 return false;
             }
 
@@ -654,33 +655,9 @@
         }
 
         function registerBatches() {
-            vm.loading = vm.indigoSaveExperimentFn().then(function() {
+            vm.loading = vm.saveExperimentFn().then(function() {
                 return ProductBatchSummaryOperations.registerBatches();
             });
-        }
-
-        function initStructure(batches, structureType) {
-            var changed;
-            _.each(batches, function(row) {
-                if (row.structure) {
-                    return;
-                }
-                var type = structureType || 'molecule';
-                var model = vm.model[type] || {};
-                changed = true;
-                model.image = null;
-                model.molfile = null;
-                model.structureId = null;
-
-                row.structure = row.structure || {};
-                row.structure.image = null;
-                row.structure.structureType = type;
-                row.structure.molfile = null;
-                row.structure.structureId = null;
-            });
-            if (changed) {
-                CalculationService.recalculateStoich();
-            }
         }
 
         function getBatchType(batch) {
@@ -700,8 +677,8 @@
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
+                // TODO: move to productBatchSummary
                 ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
-                initStructure(vm.batches);
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
@@ -722,36 +699,6 @@
                 vm.onShowStructure({
                     isVisible: val
                 });
-            });
-
-            function resetMolInfo(row) {
-                row.formula = null;
-                row.molWeight = null;
-                CalculationService.calculateProductBatch({
-                    row: row, column: 'totalWeight'
-                });
-            }
-
-            function getInfoCallback(row, molInfo) {
-                row.formula = molInfo.data.molecularFormula;
-                row.molWeight = row.molWeight || {};
-                row.molWeight.value = molInfo.data.molecularWeight;
-                CalculationService.recalculateStoich();
-                CalculationService.calculateProductBatch({
-                    row: row, column: 'totalWeight'
-                });
-            }
-
-            $scope.$on('product-batch-structure-changed', function(event, row) {
-                if (row.structure && row.structure.molfile) {
-                    CalculationService.getMoleculeInfo(row, function(molInfo) {
-                        getInfoCallback(row, molInfo);
-                    }, resetMolInfo);
-
-                    return;
-                }
-
-                resetMolInfo();
             });
 
             $scope.$on('product-batch-details-command', function(event, data) {

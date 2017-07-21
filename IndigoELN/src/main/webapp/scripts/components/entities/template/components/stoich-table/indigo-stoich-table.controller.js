@@ -69,7 +69,7 @@
         }
 
         function analyzeRxn() {
-            getMissingReactionReactantsInStoic(function(batchesToSearch) {
+            getMissingReactionReactantsInStoic().then(function(batchesToSearch) {
                 if (batchesToSearch.length) {
                     $uibModal.open({
                         animation: true,
@@ -640,9 +640,6 @@
         }
 
         function bindEvents() {
-            $scope.$on('vm.batches', function() {
-                updatePrecursor();
-            });
             $scope.$on('REACTION_CHANGED', function($event, structure) {
                 if (structure && structure.molfile) {
                     getReactionProductsAndReactants(structure.molfile);
@@ -660,7 +657,7 @@
                 });
                 vm.onChangedProducts({products: stoichTable.products});
                 StoichTableCache.setStoicTable(stoichTable);
-                updatePrecursor();
+                vm.onPrecursorsChanged({precursors: getPrecursors()});
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
@@ -696,24 +693,7 @@
                 }).join(', ');
         }
 
-        function updatePrecursor() {
-            if (!vm.model.stoichTable) {
-                return;
-            }
-            var columnWithPrecursors = _.find(vm.columns, {id: 'precursors'});
-
-            if (columnWithPrecursors) {
-                columnWithPrecursors.readonly = true;
-            }
-
-            var precursors = getPrecursors();
-
-            _.each(vm.batches, function(batch) {
-                batch.precursors = precursors;
-            });
-        }
-
-        function getMissingReactionReactantsInStoic(callback) {
+        function getMissingReactionReactantsInStoic() {
             var batchesToSearch = [];
             var stoicReactants = [];
             _.each(getStoicReactants(), function(item) {
@@ -725,8 +705,9 @@
             var allPromises = [];
             _.each(reactionReactants, function(reactionReactant) {
                 var stoicAndReactionReactantsEqualityPromises = [];
-                _.each(stoicReactants, function(stoicReactant) {
-                    stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
+                _.forEach(stoicReactants, function(stoicReactant) {
+                    stoicAndReactionReactantsEqualityPromises.push(
+                        CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
                 });
                 allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function() {
                     if (stoicAndReactionReactantsEqualityPromises.length) {
@@ -741,8 +722,9 @@
                     }
                 }));
             });
-            $q.all(allPromises).then(function() {
-                callback(batchesToSearch);
+
+            return $q.all(allPromises).then(function() {
+                return batchesToSearch;
             });
         }
     }
