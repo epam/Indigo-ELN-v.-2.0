@@ -34,7 +34,8 @@ angular.module('indigoeln')
                     tabContent: {
                         templateUrl: 'scripts/app/entities/experiment/detail/experiment-detail.html',
                         controller: 'ExperimentDetailController',
-                        controllerAs: 'vm'
+                        controllerAs: 'vm',
+                        bindToController: true
                     }
                 }
             })
