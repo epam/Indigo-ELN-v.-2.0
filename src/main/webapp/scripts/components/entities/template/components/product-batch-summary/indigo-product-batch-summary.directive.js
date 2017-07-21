@@ -18,7 +18,7 @@
                 selectedBatchTrigger: '&',
                 experiment: '=',
                 readonly: '=',
-                indigoSaveExperimentFn: '&',
+                saveExperimentFn: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'

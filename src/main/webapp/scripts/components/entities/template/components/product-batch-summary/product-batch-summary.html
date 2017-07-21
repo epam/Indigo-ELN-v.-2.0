@@ -18,6 +18,7 @@
             </div>
         </div>
         <indigo-batch-summary model="vm.model"
+                              stoich-table="vm.stoichTable"
                               batches="vm.batches"
                               readonly="vm.readonly"
                               selected-batch="vm.selectedBatch"
@@ -25,7 +26,7 @@
                               experiment-name="vm.experiment.name"
                               on-show-structure="vm.showStructure(isVisible)"
                               structure-size="vm.structureSize"
-                              indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
+                              save-experiment-fn="vm.saveExperimentFn()"
                               on-select-batch="vm.onSelectBatch({batch: batch})"
                               on-remove-batches="vm.onRemoveBatches({bathes: bathes})"
                               on-added-batch="vm.onAddedBatch({batch: batch})"

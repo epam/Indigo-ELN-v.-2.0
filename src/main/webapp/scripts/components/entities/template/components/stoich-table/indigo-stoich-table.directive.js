@@ -16,7 +16,8 @@
                 experiment: '=',
                 readonly: '=',
                 onChangedReactants: '&',
-                onChangedProducts: '&'
+                onChangedProducts: '&',
+                onPrecursorsChanged: '&'
             }
         };
     }
