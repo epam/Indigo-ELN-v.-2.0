@@ -19,7 +19,7 @@
             {{vm.indigoRow[vm.indigoColumn.id] | round:vm.indigoColumn.sigDigits:vm.indigoColumn:vm.indigoRow}}
         </span>
         <a ng-if="!vm.indigoRow[vm.indigoColumn.id].readonly && vm.indigoColumn.type === 'string'"
-           ng-click="vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})">
+           ng-click="vm.readonly || vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})">
             {{vm.indigoRow[vm.indigoColumn.realId].asString || '&mdash;'}}</a>
         <a ng-if="vm.isEmpty(vm.indigoRow[vm.indigoColumn.id], vm.indigoColumn) && !vm.indigoRow[vm.indigoColumn.id].readonly && vm.indigoColumn.type && vm.indigoColumn.type!== 'image' && vm.indigoColumn.type!== 'boolean' && vm.indigoColumn.type !== 'string'"
            ng-click="vm.toggleEditable()">&mdash;</a>

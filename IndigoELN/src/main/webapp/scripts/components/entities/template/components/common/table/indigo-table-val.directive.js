@@ -17,7 +17,8 @@
                 isEditableColumn: '&',
                 toggleEditableColumn: '&',
                 setClosePrevious: '&',
-                close: '&'
+                close: '&',
+                readonly: '='
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/common/table/table-val.html'
