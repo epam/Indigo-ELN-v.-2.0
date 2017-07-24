@@ -102,6 +102,7 @@
                 unsubscribeExp();
                 onAccessListChangedEvent();
                 vm.dirtyListener();
+                vm.formDirtyListener();
             });
         }
 
@@ -124,15 +125,17 @@
         function initDirtyListener() {
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
+                AutoRecoverEngine.track(tabKind, vm, function() {
+                    $scope.createProjectForm.$setDirty();
+                });
                 if (pageInfo.dirty) {
                     $scope.createProjectForm.$setDirty();
                 }
                 vm.dirtyListener = $scope.$watch(function() {
                     return vm.project;
-                }, function() {
-                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.createProjectForm.$dirty);
+                }, function(entity, old) {
                     EntitiesBrowser.setCurrentForm($scope.createProjectForm);
-
+                    AutoRecoverEngine.tracker.change(entity, old)
                     if (EntitiesBrowser.getActiveTab().name === 'New Project') {
                         vm.isBtnSaveActive = true;
                     } else {
@@ -141,8 +144,9 @@
                         }, 0);
                     }
                 }, true);
-
-                AutoRecoverEngine.trackEntityChanges(project, $scope.createProjectForm, $scope, tabKind, vm);
+                vm.formDirtyListener = $scope.$watch('createProjectForm.$dirty', function(cur, old) {
+                    AutoRecoverEngine.tracker.changeDirty(cur, old)
+                }, true);
             }, 0, false);
         }
 
