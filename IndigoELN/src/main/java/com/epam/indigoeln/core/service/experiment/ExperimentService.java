@@ -101,8 +101,9 @@ public class ExperimentService {
     }
 
     public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
+        Experiment experiment = Optional
+                .ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id)))
+                .orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
         // "Read Entity" in experiment's access list, or must have CONTENT_EDITOR authority)

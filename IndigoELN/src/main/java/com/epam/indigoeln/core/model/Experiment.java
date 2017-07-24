@@ -37,6 +37,7 @@ public class Experiment extends ExperimentShort {
     private List<Component> components;
 
     @JsonIgnore
+    transient
     private Set<String> fileIds = new HashSet<>();
 
     public List<User> getCoAuthors() {
