@@ -31,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Api
 @RestController
@@ -86,35 +87,34 @@ public class DashboardResource {
     private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
         // Open and Completed Experiments
         Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusInAndCreationDateAfter(user,
-                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), threshold).stream()
+                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), threshold)
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
-        List<DBRef> experimentIds = experiments.values().stream()
-                .map(e -> new DBRef("experiment", e.getId()))
+        List<DBRef> experimentIds = experiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
 
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds).stream()
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
                 .collect(Collectors.toMap(Notebook::getId, Function.identity()));
 
-        List<DBRef> notebookIds = notebooks.values().stream()
-                .map(e -> new DBRef("notebook", e.getId()))
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
                 .collect(Collectors.toList());
 
         Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
 
-        return myGetEntities(projects, notebooks, experiments).stream()
+        return getEntities(projects, notebooks, experiments)
                 .filter(t -> hasAccess(user, t))
                 .map(t -> convert(t, null)).collect(Collectors.toList());
     }
 
-    private List<Triple<Project, Notebook, Experiment>> myGetEntities(Collection<Project> projects, Map<String, Notebook> notebooks, Map<String, Experiment> experiments) {
+    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Collection<Project> projects, Map<String, Notebook> notebooks, Map<String, Experiment> experiments) {
         return projects.parallelStream()
                 .flatMap(p -> p.getNotebooks().stream()
                         .filter(n -> notebooks.get(n.getId()) != null)
                         .flatMap(n -> n.getExperiments().stream()
                                 .filter(e -> experiments.get(e.getId()) != null)
-                                .map(e -> Triple.of(p, n, e))))
-                .collect(Collectors.toList());
+                                .map(e -> Triple.of(p, n, e))));
     }
 
     private List<DashboardRowDTO> getWaitingRows(User user) {
@@ -128,23 +128,23 @@ public class DashboardResource {
             LOGGER.error("Unable to get list of documents from signature service.", e);
             throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
         }
-        Map<String, Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet()).stream()
+        Map<String, Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet())
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
-        List<DBRef> experimentIds = waitingExperiments.values().stream()
-                .map(e -> new DBRef("experiment", e.getId()))
+        List<DBRef> experimentIds = waitingExperiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
 
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds).stream()
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
                 .collect(Collectors.toMap(Notebook::getId, Function.identity()));
 
-        List<DBRef> notebookIds = notebooks.values().stream()
-                .map(e -> new DBRef("notebook", e.getId()))
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
                 .collect(Collectors.toList());
 
         Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
 
-        return myGetEntities(projects, notebooks, waitingExperiments).stream()
+        return getEntities(projects, notebooks, waitingExperiments)
                 .map(t -> convert(t, waitingDocuments)).collect(Collectors.toList());
     }
 
@@ -171,20 +171,20 @@ public class DashboardResource {
                 .filter(e -> e.getCreationDate().isAfter(threshold))
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
-        List<DBRef> experimentIds = experiments.values().stream()
-                .map(e -> new DBRef("experiment", e.getId()))
+        List<DBRef> experimentIds = experiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
 
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds).stream()
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
                 .collect(Collectors.toMap(Notebook::getId, Function.identity()));
 
-        List<DBRef> notebookIds = notebooks.values().stream()
-                .map(e -> new DBRef("notebook", e.getId()))
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
                 .collect(Collectors.toList());
 
         Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
 
-        return myGetEntities(projects, notebooks, experiments).stream()
+        return getEntities(projects, notebooks, experiments)
                 .map(t -> convert(t, submittedDocuments)).collect(Collectors.toList());
 
     }
@@ -195,24 +195,6 @@ public class DashboardResource {
         final Experiment experiment = t.getRight();
         return convert(project, middle, experiment, Optional.ofNullable(documents)
                 .map(d -> d.get(experiment.getDocumentId())).orElse(null));
-    }
-
-    /**
-     * Gets all parent entities for experiment
-     *
-     * @param e experiment
-     * @return entities for experiment including itself
-     */
-    private Triple<Project, Notebook, Experiment> getEntities(Experiment e) {
-        Notebook notebook = null;
-        Project project = null;
-        if (e != null) {
-            notebook = notebookRepository.findByExperimentId(e.getId());
-        }
-        if (notebook != null) {
-            project = projectRepository.findByNotebookId(notebook.getId());
-        }
-        return Triple.of(project, notebook, e);
     }
 
     /**
