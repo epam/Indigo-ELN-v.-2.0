@@ -117,7 +117,7 @@
         }
 
         function isEditable(columnId, rowIndex) {
-            if (columnId === null || rowIndex === null || vm.readonly) {
+            if (columnId === null || rowIndex === null || vm.isReadonly) {
                 return false;
             }
 

@@ -8,7 +8,7 @@
             restrict: 'E',
             replace: true,
             scope: {
-                readonly: '='
+                isReadonly: '='
             },
             bindToController: true,
             controllerAs: 'vm',
