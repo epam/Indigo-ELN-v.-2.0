@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.repository.Query;
 import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 public interface ExperimentRepository extends MongoRepository<Experiment, String> {
 
@@ -21,8 +22,8 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     List<Experiment> findByStatusIn(List<ExperimentStatus> statuses);
 
-    List<Experiment> findByAuthorAndStatusInAndCreationDateAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime creationTime);
+    Stream<Experiment> findByAuthorAndStatusInAndCreationDateAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime creationTime);
 
-    List<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
+    Stream<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
 
 }
