@@ -20,7 +20,7 @@
                 selectedBatchTrigger: '=',
                 reactants: '=',
                 reactantsTrigger: '=',
-                readonly: '=',
+                isReadonly: '=',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'

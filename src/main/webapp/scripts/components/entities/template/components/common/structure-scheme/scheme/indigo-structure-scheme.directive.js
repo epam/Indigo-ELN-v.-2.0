@@ -14,7 +14,7 @@
                 autosave: '=ssAutosave',
                 model: '=ssModel',
                 modelTrigger: '=',
-                readonly: '=',
+                isReadonly: '=',
                 onChanged: '&'
             },
             bindToController: true,
