@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     List<Experiment> findByStatusIn(List<ExperimentStatus> statuses);
 
-    List<Experiment> findByAuthorAndStatusIn(User user, List<ExperimentStatus> statuses);
+    List<Experiment> findByAuthorAndStatusInAndCreationDateAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime creationTime);
 
     List<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
 

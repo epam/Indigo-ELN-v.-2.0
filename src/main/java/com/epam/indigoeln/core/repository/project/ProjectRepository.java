@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.repository.project;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
+import com.mongodb.DBRef;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -17,6 +18,9 @@ public interface ProjectRepository extends MongoRepository<Project, String> {
 
     @Query("{'notebooks': {'$ref': '" + Notebook.COLLECTION_NAME + "', '$id': ?0}}")
     Project findByNotebookId(String notebookId);
+
+    @Query("{'notebooks': { $in : ?0}}")
+    Collection<Project> findByNotebookIds(Collection<DBRef> notebookIds);
 
     @Query("{'fileIds': ?0}")
     Project findByFileId(String fileId);
