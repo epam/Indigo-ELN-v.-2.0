@@ -11,14 +11,15 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                readonly: '='
+                isReadonly: '='
             },
-            controller: controller,
+            controller: IndigoConceptDetailsController,
+            bindToController: true,
             controllerAs: 'vm'
         };
 
         /* @ngInject */
-        function controller($scope, $state, $q, Principal, Dictionary, Users, Alert) {
+        function IndigoConceptDetailsController($state, $q, Principal, Dictionary, Users, Alert) {
             var vm = this;
             var deferred;
 

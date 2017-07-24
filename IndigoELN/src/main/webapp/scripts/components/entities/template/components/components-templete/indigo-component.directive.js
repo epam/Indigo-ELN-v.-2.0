@@ -7,22 +7,22 @@
     function indigoComponent($compile, Components) {
         var components = _.keyBy(Components, 'id');
 
-        var defaultAttributes = ' model="vm.model"' +
+        var defaultAttributes = ' model="vm.ComponentsCtrl.model"' +
             ' reactants="vm.ComponentsCtrl.reactants"' +
             ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
-            ' experiment="vm.experiment"' +
-            ' experiment-form="vm.experimentForm"' +
-            ' readonly="vm.readonly"';
+            ' experiment="vm.ComponentsCtrl.experiment"' +
+            ' experiment-form="vm.ComponentsCtrl.experimentForm"' +
+            ' is-readonly="vm.ComponentsCtrl.isReadonly"';
 
         var batchAttributes = defaultAttributes +
-            ' batches="vm.batches"' +
+            ' batches="vm.ComponentsCtrl.batches"' +
             ' on-added-batch="vm.ComponentsCtrl.onAddedBatch(batch)"' +
             ' batches-trigger="vm.ComponentsCtrl.batchesTrigger"' +
             ' selected-batch="vm.ComponentsCtrl.selectedBatch"' +
             ' selected-batch-trigger="vm.ComponentsCtrl.selectedBatchTrigger"' +
             ' on-select-batch="vm.ComponentsCtrl.onSelectBatch(batch)"' +
             ' on-remove-batches="vm.ComponentsCtrl.onRemoveBatches(batches)"' +
-            ' save-experiment-fn="vm.saveExperimentFn()"';
+            ' save-experiment-fn="vm.ComponentsCtrl.saveExperimentFn()"';
 
         var stoichTableAttributes = defaultAttributes +
             ' on-precursors-changed="vm.ComponentsCtrl.onPrecursorsChanged(precursors)"';
@@ -31,13 +31,7 @@
             restrict: 'E',
             require: ['indigoComponent', '^indigoComponents'],
             scope: {
-                componentId: '@',
-                model: '=',
-                batches: '=',
-                experiment: '=',
-                readonly: '=',
-                experimentForm: '=',
-                saveExperimentFn: '&'
+                componentId: '@'
             },
             link: link,
             controller: indigoComponentController,
