@@ -3,17 +3,13 @@ angular
     .factory('AutoRecoverEngine', autoRecoverEngine);
 
 /* @ngInject */
-function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBrowser, Auth) {
+function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth, Principal, $stateParams) {
+    var trackerDelay = 1000;
     var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent'];
     var kinds = ['experiment', 'project', 'notebook'];
-    var save;
-    var get;
-    var clear;
+    var save, get, clear, somethingUserChanged;
+    var tracker = {};
     var states = {};
-
-    var resolvePrincipal = function(func) {
-        return Principal.identity().then(func);
-    };
 
     init();
 
@@ -22,8 +18,13 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
         canRedo: canRedo,
         undoAction: undoAction,
         redoAction: redoAction,
-        trackEntityChanges: trackEntityChanges,
-        clearRecovery: clearRecovery
+        track: trackEntityChanges,
+        clearRecovery: clearRecovery,
+        tracker : tracker
+    };
+
+    function resolvePrincipal(func) {
+        return Principal.identity().then(func);
     };
 
     function init() {
@@ -65,19 +66,17 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
             save = function(kind, entity) {
                 var curtab = EntitiesBrowser.getActiveTab();
                 var id = entity.id || curtab.tmpId;
-                var clone = angular.copy(entity);
-                servfields.forEach(function(field) {
-                    delete clone[field];
-                });
+                var clone = deleteServiceFields(angular.copy(entity));
                 var type = types[kind];
                 var rec = type.recoveries[id];
                 if (!rec) {
                     rec = type.recoveries[id] = {
-                        id: id, name: entity.name, kind: kind
+                        id: id,
+                        name: entity.name,
+                        kind: kind
                     };
                 }
                 rec.date = +new Date();
-
                 delete rec.thisSession;
                 localStorageService.set(subkey, angular.toJson(types));
                 rec.thisSession = true;
@@ -94,10 +93,22 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                 }
 
                 return {
-                    entity: JSON.parse(localStorageService.get(getKey(kind, entity))), rec: rec
+                    entity: JSON.parse(localStorageService.get(getKey(kind, entity))),
+                    rec: rec
                 };
             };
         });
+
+        angular.element(window).on('mousedown keydown', function() { //user really change something
+            somethingUserChanged = true;
+        })
+    }
+
+    function deleteServiceFields(entity) {
+        servfields.forEach(function(field) {
+            delete entity[field];
+        });
+        return entity;
     }
 
     function getFullId(entity) {
@@ -156,89 +167,92 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
         }
     }
 
-    // TODO: remove $scope
-    function trackEntityChanges(entity, form, $scope, kind, vm) {
-        resolvePrincipal(function() {
-            var curtab = EntitiesBrowser.getActiveTab();
-            if (!entity.id && !curtab.tmpId) {
-                curtab.tmpId = +new Date();
-                EntitiesBrowser.saveTabs();
-            }
-
-            var fullId = getFullId(entity);
-            var state = states[fullId] || {
-                actions: []
-            };
-            states[fullId] = state;
-            var rec = get(kind, entity);
-            if (rec && !rec.rec.thisSession) {
-                vm.restored = {
-                    rec: rec,
-                    resolve: function(val) {
-                        if (val) {
-                            angular.extend(entity, rec.entity);
-                        }
-                        clear(kind, entity);
-                        form.$setDirty();
-                        vm.restored = null;
+    function trackEntityChanges(kind, vm, onSetDirty) {
+        var entity = vm[kind];
+        var curtab = EntitiesBrowser.getActiveTab();
+        if (!entity.id && !curtab.tmpId) {
+            curtab.tmpId = +new Date();
+            EntitiesBrowser.saveTabs();
+        }
+        var setDirty = function() {
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
+            onSetDirty()
+        }
+        var fullId = getFullId(entity);
+        var state = states[fullId] || {
+            actions: []
+        };
+        states[fullId] = state;
+        var rec = get(kind, entity);
+        if (rec && !rec.rec.thisSession) {
+            vm.restored = {
+                rec: rec,
+                resolve: function(val) {
+                    if (val) {
+                        angular.extend(entity, rec.entity);
                     }
-                };
-            } else if (rec && curtab.tmpId) {
-                angular.extend(entity, rec.entity);
-                form.$setDirty();
-            }
-            vm.undoAction = function() {
-                undoAction(entity);
-                form.$setDirty();
-            };
-            vm.redoAction = function() {
-                redoAction(entity);
-                form.$setDirty();
-            };
-            vm.canUndo = function() {
-                return canUndo(entity);
-            };
-            vm.canRedo = function() {
-                return canRedo(entity);
-            };
-            var ctimeout;
-            var prev;
-            var onChange = function(entity, old) {
-                if (ctimeout) {
-                    $timeout.cancel(ctimeout);
-                } else {
-                    prev = angular.extend({}, old);
-                    delete prev.version;
-                }
-                ctimeout = $timeout(function() {
-                    if (form.$dirty) {
-                        save(kind, entity);
-                        if (!entity.$$undo) {
-                            if (state.aindex < state.actions.length - 1) {
-                                state.actions = state.actions.slice(state.aindex);
-                            }
-                            state.actions.push(prev);
-                            state.aindex = state.actions.length - 1;
-                            state.last = angular.extend({}, entity);
-                        }
-                        Auth.prolong();
-                    }
-                    entity.$$undo = false;
-                    ctimeout = null;
-                }, 1000);
-            };
-
-            $scope.$watch(function() {
-                return vm[kind];
-            }, onChange, true);
-
-            $scope.$watch(form.$name + '.$dirty', function(val, old) {
-                if (!val && old) {
                     clear(kind, entity);
+                    setDirty()
                     vm.restored = null;
                 }
-            }, true);
-        });
+            };
+        } else if (rec && curtab.tmpId) {
+            angular.extend(entity, rec.entity);
+            setDirty();
+        }
+        vm.undoAction = function() {
+            undoAction(vm[kind]);
+            setDirty();
+        };
+        vm.redoAction = function() {
+            redoAction(vm[kind]);
+            setDirty();
+        };
+        vm.canUndo = function() {
+            return canUndo(vm[kind]);
+        };
+        vm.canRedo = function() {
+            return canRedo(vm[kind]);
+        };
+        var ctimeout;
+        var prev, dirty = false;
+        tracker.change = function(cur, old) {
+            if (!somethingUserChanged) return;
+            var entity = vm[kind];
+            if (ctimeout) {
+                $timeout.cancel(ctimeout);
+            } else {
+                prev = deleteServiceFields(angular.extend({}, old));
+            }
+            somethingUserChanged = false;
+            if (dirty) {
+                EntitiesBrowser.changeDirtyTab($stateParams, dirty);
+            }
+            ctimeout = $timeout(function() {
+                if (dirty) {
+                    save(kind, entity);
+                    if (!entity.$$undo) {
+                        if (state.aindex < state.actions.length - 1) {
+                            state.actions = state.actions.slice(state.aindex);
+                        }
+                        state.actions.push(prev);
+                        state.aindex = state.actions.length - 1;
+                        state.last = angular.extend({}, entity);
+                    }
+                    Auth.prolong();
+                }
+                entity.$$undo = false;
+                ctimeout = null;
+            }, trackerDelay);
+        };
+        tracker.changeDirty = function(val, old) {
+            var entity = vm[kind];
+            dirty = val;
+            if (!val && old) {
+                clear(kind, entity);
+                vm.restored = null;
+            }
+        }
     }
 
     function clearRecovery(kind, entity) {
@@ -247,4 +261,3 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
         });
     }
 }
-

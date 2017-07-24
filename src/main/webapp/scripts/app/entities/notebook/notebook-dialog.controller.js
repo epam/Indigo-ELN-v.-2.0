@@ -57,15 +57,18 @@
         function initDirtyListener() {
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
+                AutoRecoverEngine.track(tabKind, vm, function() {
+                    $scope.createNotebookForm.$setDirty();
+                });
                 if (pageInfo.dirty) {
                     $scope.createNotebookForm.$setDirty();
                 }
 
-                $scope.$watch(function() {
+                vm.dirtyListener = $scope.$watch(function() {
                     return vm.notebook;
-                }, function() {
+                }, function(entity, old) {
+                    AutoRecoverEngine.tracker.change(entity, old)
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
-                    EntitiesBrowser.changeDirtyTab($stateParams, $scope.createNotebookForm.$dirty);
                     if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
                         vm.isBtnSaveActive = true;
                     } else {
@@ -74,7 +77,10 @@
                         }, 0);
                     }
                 }, true);
-                AutoRecoverEngine.trackEntityChanges(pageInfo.notebook, $scope.createNotebookForm, $scope, tabKind, vm);
+                vm.formDirtyListener = $scope.$watch('createNotebookForm.$dirty', function(cur, old) {
+                    AutoRecoverEngine.tracker.changeDirty(cur, old)
+                }, true);
+
             }, 0, false);
         }
 
@@ -99,6 +105,10 @@
                 $timeout(function() {
                     vm.isBtnSaveActive = true;
                 }, 10);
+            });
+            $scope.$on('$destroy', function() {
+                vm.dirtyListener();
+                vm.formDirtyListener();
             });
         }
 
@@ -230,4 +240,3 @@
         }
     }
 })();
-
