@@ -11,7 +11,7 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                readonly: '='
+                isReadonly: '='
             },
             bindToController: true,
             controllerAs: 'vm',
