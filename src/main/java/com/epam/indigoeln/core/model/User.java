@@ -60,6 +60,7 @@ public class User implements Serializable {
 
     @JsonIgnore
     @DBRef(lazy = true)
+    transient
     private HashSet<Role> roles = new HashSet<>();
 
     public String getId() {

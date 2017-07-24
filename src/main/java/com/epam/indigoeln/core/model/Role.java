@@ -21,6 +21,7 @@ public class Role implements Serializable {
     private boolean system;
 
     @JsonIgnore
+    transient
     private HashSet<Authority> authorities = new HashSet<>();
 
     public String getId() {
