@@ -14,7 +14,7 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                readonly: '=',
+                isReadonly: '=',
                 onChangedReactants: '&',
                 onChangedProducts: '&',
                 onPrecursorsChanged: '&'

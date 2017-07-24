@@ -26,7 +26,7 @@
 
     <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save(vm.experiment)">
         <indigo-components template="vm.experiment.template.templateContent"
-                           readonly="!vm.isEditAllowed"
+                           is-readonly="!vm.isEditAllowed"
                            model="vm.experiment.components"
                            experiment-form="experimentForm"
                            experiment="vm.experiment"
