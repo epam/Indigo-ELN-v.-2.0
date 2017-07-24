@@ -12,7 +12,7 @@
         /* @ngInject */
         function link(scope, element, attrs, ngModelCtrl) {
             // override the $setDirty method on ngModelController
-            if (scope.noDirty) {
+            if (attrs.noDirty) {
                 ngModelCtrl.$setDirty = angular.noop;
             }
         }
