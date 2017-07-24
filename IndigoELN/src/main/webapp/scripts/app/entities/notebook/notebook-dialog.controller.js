@@ -57,8 +57,12 @@
         function initDirtyListener() {
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
-                AutoRecoverEngine.track(tabKind, vm, function() {
-                    $scope.createNotebookForm.$setDirty();
+                AutoRecoverEngine.track({
+                    vm: vm,
+                    kind: tabKind,
+                    onSetDirty: function() {
+                        $scope.createNotebookForm.$setDirty();
+                    }
                 });
                 if (pageInfo.dirty) {
                     $scope.createNotebookForm.$setDirty();
@@ -67,7 +71,7 @@
                 vm.dirtyListener = $scope.$watch(function() {
                     return vm.notebook;
                 }, function(entity, old) {
-                    AutoRecoverEngine.tracker.change(entity, old)
+                    AutoRecoverEngine.tracker.change(entity, old);
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
                     if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
                         vm.isBtnSaveActive = true;
@@ -78,9 +82,8 @@
                     }
                 }, true);
                 vm.formDirtyListener = $scope.$watch('createNotebookForm.$dirty', function(cur, old) {
-                    AutoRecoverEngine.tracker.changeDirty(cur, old)
+                    AutoRecoverEngine.tracker.changeDirty(cur, old);
                 }, true);
-
             }, 0, false);
         }
 
@@ -229,7 +232,10 @@
                         vm.notebook.version = result.version;
                         $scope.createNotebookForm.$setPristine();
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
-                        $rootScope.$broadcast('notebook-changed', {projectId: vm.projectId, notebook: vm.notebook});
+                        $rootScope.$broadcast('notebook-changed', {
+                            projectId: vm.projectId, 
+                            notebook: vm.notebook
+                        });
                     }, onSaveError);
 
                 return;
