@@ -4,7 +4,7 @@
         .controller('SearchPanelController', SearchPanelController);
 
     /* @ngInject */
-    function SearchPanelController($scope, SearchService, $state, SearchUtilService, pageInfo, EntitiesCache) {
+    function SearchPanelController($scope, SearchService, $state, $stateParams, SearchUtilService, pageInfo, EntitiesCache) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var CACHE_STATE_KEY = $state.$current.data.tab.state;
@@ -46,6 +46,10 @@
                 vm.state = EntitiesCache.getByName(CACHE_STATE_KEY);
             } else {
                 initDefaultState();
+            }
+            if ($stateParams.query) {
+                vm.state.model.restrictions.searchQuery = $stateParams.query;
+                search();
             }
         }
 
@@ -142,11 +146,6 @@
         function onChangeModel(structure) {
             angular.extend(vm.state.model.restrictions.structure, structure);
         }
-
-        $scope.$on('toggle-search', function (event, data) {
-            vm.state.model.restrictions.searchQuery = data.query;
-            search();
-        })
 
         $scope.$on('$destroy', function () {
             EntitiesCache.putByName(CACHE_STATE_KEY, vm.state);
