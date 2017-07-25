@@ -10,6 +10,7 @@ import com.lowagie.text.pdf.PdfPTable;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Optional;
 
 public class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
@@ -85,16 +86,16 @@ public class CellFactory {
 
     public static PdfPCell getImageCell(PdfImage pdfImage, float fitWidth, float fitHeight) {
         final PdfPCell cell = new PdfPCell();
-
-        try {
-            byte[] bytes = pdfImage.getPngBytes(fitWidth);
-            Image image = Image.getInstance(bytes);
-            image.scaleToFit(fitWidth, fitHeight);
-            cell.setImage(image);
-        } catch (IOException | BadElementException e) {
-            throw new PdfPCellFactoryException(e);
-        }
-
+        Optional<byte[]> bytes = pdfImage.getPngBytes(fitWidth);
+        bytes.ifPresent(b -> {
+            try {
+                Image image = Image.getInstance(b);
+                image.scaleToFit(fitWidth, fitHeight);
+                cell.setImage(image);
+            } catch (IOException | BadElementException e) {
+                throw new PdfPCellFactoryException(e);
+            }
+        });
         return withCommonStyle(cell);
     }
 

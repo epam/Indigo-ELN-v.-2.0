@@ -118,7 +118,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             return singletonList(new StoichiometrySection((new StoichiometryModel(rows))));
         });
         put(EXPERIMENT_DESCRIPTION, (c, e) -> {
-            ExperimentDescriptionModel model = new ExperimentDescriptionModel(c.getContent().getString("description"));
+            MongoExt content = MongoExt.of(c);
+            ExperimentDescriptionModel model = new ExperimentDescriptionModel(content.getString("description"));
             return singletonList(new ExperimentDescriptionSection(model));
         });
 
@@ -126,13 +127,13 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<BatchInformationRow> batchInfoRows = MongoExt.of(c)
                     .streamObjects("batches")
                     .map(batch -> {
-                        BasicDBObject stereoisomer = (BasicDBObject) batch.get("stereoisomer");
+                        Optional<BasicDBObject> stereoisomer = Optional.ofNullable((BasicDBObject) batch.get("stereoisomer"));
                         return new BatchInformationRow(
                                 batch.getString("nbkBatch"),
                                 new Structure(
                                         new SvgPdfImage(batch.getString("structure", IMAGE)),
-                                        stereoisomer.getString("name"),
-                                        stereoisomer.getString("description")
+                                        stereoisomer.map(s -> s.getString("name")).orElse(null),
+                                        stereoisomer.map(s -> s.getString("description")).orElse(null)
                                 ),
                                 TODO, TODO, TODO, TODO
                         );

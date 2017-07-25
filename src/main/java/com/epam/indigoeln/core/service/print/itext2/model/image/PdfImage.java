@@ -1,5 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.model.image;
 
+import java.util.Optional;
+
 public interface PdfImage {
-    byte[] getPngBytes(float widthPt);
+    Optional<byte[]> getPngBytes(float widthPt);
 }
