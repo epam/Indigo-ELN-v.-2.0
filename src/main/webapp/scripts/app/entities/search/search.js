@@ -3,6 +3,7 @@ angular.module('indigoeln')
         $stateProvider
             .state('entities.search-panel', {
                 url: '/search',
+                params: {query: null},
                 views: {
                     tabContent: {
                         templateUrl: 'scripts/app/entities/search/search-panel.html',
