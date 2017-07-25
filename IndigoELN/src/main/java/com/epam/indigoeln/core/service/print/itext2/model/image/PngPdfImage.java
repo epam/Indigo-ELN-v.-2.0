@@ -1,5 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.model.image;
 
+import java.util.Optional;
+
 public class PngPdfImage implements PdfImage {
     private byte[] pngBytes;
 
@@ -8,7 +10,7 @@ public class PngPdfImage implements PdfImage {
     }
 
     @Override
-    public byte[] getPngBytes(float widthPt) {
-        return pngBytes;
+    public Optional<byte[]> getPngBytes(float widthPt) {
+        return Optional.ofNullable(pngBytes);
     }
 }

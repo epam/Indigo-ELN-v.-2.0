@@ -24,7 +24,11 @@ public class MongoExt {
     }
 
     public static MongoExt of(Component component) {
-        return new MongoExt(component.getContent());
+        if (component.getContent() != null){
+            return new MongoExt(component.getContent());
+        }else {
+            return new MongoExt(new BasicDBObject());
+        }
     }
 
     public StreamEx<MongoExt> streamObjects(String field) {

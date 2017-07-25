@@ -34,7 +34,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             PdfPCell textCell = CellFactory.getCommonCell(content);
             reagentTable.addCell(alignCenterWithoutBorder(imageCell));
             reagentTable.addCell(alignCenterWithoutBorder(textCell));
-            reagentTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
+//            reagentTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
 
             table.addCell(CellFactory.getCommonCell(reagentTable));
             table.addCell(CellFactory.getCommonCell(row.getMolecularWeight()));
