@@ -32,7 +32,7 @@
             var isInit = false;
             unbinds.push(scope.$watch('indigoModel', function(value) {
                 if (value !== editor.getValue()) {
-                    editor.setValue(value || '');
+                    editor.setValue(value);
                 }
                 if (isInit) {
                     formCtrl[scope.indigoName].$setDirty();

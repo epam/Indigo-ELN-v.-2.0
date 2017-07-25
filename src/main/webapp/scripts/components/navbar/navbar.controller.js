@@ -42,11 +42,7 @@
 
         function search() {
             vm.query = vm.query.trim().toLowerCase();
-            $state.go('entities.search-panel').then(function() {
-                $rootScope.$broadcast('toggle-search', {
-                    query: vm.query
-                });
-            });
+            $state.go('entities.search-panel', {query: vm.query});
         }
     }
 })();

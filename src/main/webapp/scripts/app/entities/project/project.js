@@ -1,5 +1,12 @@
-angular.module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
+angular
+    .module('indigoeln')
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+        var permissions = [
+            userPermissions.VIEWER,
+            userPermissions.USER,
+            userPermissions.OWNER
+        ];
+
         $stateProvider
             .state('project', {
                 abstract: true,
@@ -100,68 +107,28 @@ angular.module('indigoeln')
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read project)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read project, create notebooks)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
-                    }
-                ]
+                permissions: permissions
             }))
             .state('entities.project-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.project-new',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read project)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read project, create notebooks)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
-                    }
-                ]
+                permissions: permissions
             }))
             .state('entities.project-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.project-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read project)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read project, create notebooks)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
-                    }
-                ]
+                permissions: permissions
             }))
             .state('entities.project-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.project-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR']
                 },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read project)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read project, create notebooks)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update project, create notebooks)'
-                    }
-                ]
+                permissions: permissions
             }))
         ;
     });
