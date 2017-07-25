@@ -132,7 +132,7 @@
 
                 $scope.$watch('createProjectForm.$dirty', function(newValue, oldValue) {
                     AutoRecoverEngine.tracker.changeDirty(newValue, oldValue);
-                }=);
+                });
             }, 0, false);
         }
 
