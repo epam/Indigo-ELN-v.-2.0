@@ -53,15 +53,14 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     }
 
     function getKey(kind, entity) {
-        var curtab = EntitiesBrowser.getActiveTab();
-        var id = entity.id || curtab.tmpId;
+        var id = getFullId(entity);
 
         return subkey + kind + '.entity.' + id;
     }
 
     function clear(kind, entity) {
         var curtab = EntitiesBrowser.getActiveTab();
-        var id = entity.id || curtab.tmpId;
+        var id = getFullId(entity);
         var type = types[kind];
         var rec = type.recoveries[id];
         if (!rec) {
@@ -70,14 +69,12 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
         delete type.recoveries[id];
         localStorageService.remove(getKey(kind, entity));
         localStorageService.set(subkey, angular.toJson(types));
-        curtab = EntitiesBrowser.getActiveTab();
         delete curtab.tmpId;
         EntitiesBrowser.saveTabs();
     }
 
     function save(kind, entity) {
-        var curtab = EntitiesBrowser.getActiveTab();
-        var id = entity.id || curtab.tmpId;
+        var id = getFullId(entity);
         var clone = deleteServiceFields(angular.copy(entity));
         var type = types[kind];
         var rec = type.recoveries[id];
@@ -97,8 +94,7 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     }
 
     function getRecord(kind, entity) {
-        var curtab = EntitiesBrowser.getActiveTab();
-        var id = entity.id || curtab.tmpId;
+        var id = getFullId(entity);
         var type = types[kind];
         var rec = type.recoveries[id];
         if (!rec) {
@@ -204,9 +200,9 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
                 resolve: function(val) {
                     if (val) {
                         angular.extend(entity, rec.entity);
+                        setDirty();
                     }
                     clear(target.kind, entity);
-                    setDirty();
                     target.vm.restored = null;
                 }
             };
