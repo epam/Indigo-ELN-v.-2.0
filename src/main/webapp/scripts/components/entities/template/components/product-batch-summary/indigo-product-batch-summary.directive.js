@@ -17,7 +17,7 @@
                 selectedBatch: '=',
                 selectedBatchTrigger: '&',
                 experiment: '=',
-                readonly: '=',
+                isReadonly: '=',
                 saveExperimentFn: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',

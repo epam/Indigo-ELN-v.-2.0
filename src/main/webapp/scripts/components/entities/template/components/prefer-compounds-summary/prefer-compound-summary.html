@@ -4,7 +4,7 @@
         Preferred Compound Summary
     </div>
     <div class="panel-body collapsible">
-        <div ng-show="vm.isStructure">
+        <div ng-show="vm.isStructure" class="stucture-size">
             <div class="form-horizontal">
                 <div class="row">
                     <div class="col-xs-2">
@@ -24,7 +24,7 @@
                                  experiment-name="vm.experiment.name"
                                  on-show-structure="vm.showStructure(isVisible)"
                                  structure-size="vm.structureSize"
-                                 readonly="vm.readonly"
+                                 is-readonly="vm.isReadonly"
                                  selected-batch="vm.selectedBatch"
                                  selected-batch-trigger="vm.selectedBatchTrigger"
                                  on-select-batch="vm.onSelectBatch({batch: batch})">

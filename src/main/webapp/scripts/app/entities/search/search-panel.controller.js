@@ -4,7 +4,7 @@
         .controller('SearchPanelController', SearchPanelController);
 
     /* @ngInject */
-    function SearchPanelController($scope, SearchService, $state, SearchUtilService, pageInfo, EntitiesCache) {
+    function SearchPanelController($scope, SearchService, $state, $stateParams, SearchUtilService, pageInfo, EntitiesCache) {
         var OWN_ENTITY = 'OWN_ENTITY';
         var USERS_ENTITIES = 'USERS_ENTITIES';
         var CACHE_STATE_KEY = $state.$current.data.tab.state;
@@ -41,15 +41,17 @@
 
         init();
 
-
         function init() {
             if (EntitiesCache.getByName(CACHE_STATE_KEY)) {
                 vm.state = EntitiesCache.getByName(CACHE_STATE_KEY);
             } else {
                 initDefaultState();
             }
+            if ($stateParams.query) {
+                vm.state.model.restrictions.searchQuery = $stateParams.query;
+                search();
+            }
         }
-
 
         function initDefaultState() {
             vm.state = {};
@@ -124,7 +126,6 @@
             });
         }
 
-
         function goTo(entity, print) {
             var url = (print) ? entity.kind.toLowerCase() + '-print' : 'entities.' + entity.kind.toLowerCase() + '-detail';
             $state.go(url, {
@@ -138,13 +139,12 @@
             if (page) {
                 vm.state.page = page;
             }
-
             var ind = (vm.state.page - 1) * vm.state.itemsPerPage;
             vm.state.searchResultsPaged = vm.state.searchResults.slice(ind, ind + vm.state.itemsPerPage);
         }
 
-        function onChangeModel(model) {
-            vm.state.model = model;
+        function onChangeModel(structure) {
+            angular.extend(vm.state.model.restrictions.structure, structure);
         }
 
         $scope.$on('$destroy', function () {
@@ -152,4 +152,3 @@
         });
     }
 })();
-

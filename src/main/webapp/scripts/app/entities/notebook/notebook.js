@@ -1,5 +1,15 @@
 angular.module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+        var permissions = [
+            userPermissions.VIEWER,
+            userPermissions.USER,
+            userPermissions.OWNER
+        ];
+
+        var data = {
+            authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
+        };
+
         $stateProvider
             .state('notebook', {
                 abstract: true,
@@ -48,7 +58,8 @@ angular.module('indigoeln')
                         return deferred.promise;
                     }
                 }
-            }).state('entities.notebook-detail', {
+            })
+            .state('entities.notebook-detail', {
                 url: '/project/{projectId}/notebook/{notebookId}',
                 views: {
                     tabContent: {
@@ -70,100 +81,52 @@ angular.module('indigoeln')
                 },
                 resolve: {
                     pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
-                                        AutoSaveEntitiesEngine, EntitiesBrowser) {
-                        var deferred = $q.defer();
+                                       AutoSaveEntitiesEngine, EntitiesBrowser) {
                         if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
                         }
-                        $q.all([
-                            EntitiesCache.get($stateParams),
-                            Principal.identity(),
-                            Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-                            EntitiesBrowser.getTabByParams($stateParams)
-                        ]).then(function(results) {
-                            deferred.resolve({
-                                notebook: results[0],
-                                identity: results[1],
-                                isContentEditor: results[2],
-                                hasEditAuthority: results[3],
-                                hasCreateChildAuthority: results[4],
-                                dirty: results[5] ? results[5].dirty : false,
-                                projectId: $stateParams.projectId
-                            });
-                        });
 
-                        return deferred.promise;
+                        return $q
+                            .all([
+                                EntitiesCache.get($stateParams),
+                                Principal.identity(),
+                                Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
+                                Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
+                                Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
+                                EntitiesBrowser.getTabByParams($stateParams)
+                            ])
+                            .then(function(results) {
+                                return {
+                                    notebook: results[0],
+                                    identity: results[1],
+                                    isContentEditor: results[2],
+                                    hasEditAuthority: results[3],
+                                    hasCreateChildAuthority: results[4],
+                                    dirty: results[5] ? results[5].dirty : false,
+                                    projectId: $stateParams.projectId
+                                };
+                            });
                     }
                 }
             })
             .state('entities.notebook-new.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.notebook-new',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
-                },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read notebook)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read notebook, create experiments)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
-                    }
-                ]
+                data: data,
+                permissions: permissions
             }))
             .state('entities.notebook-new.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.notebook-new',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
-                },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read notebook)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read notebook, create experiments)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
-                    }
-                ]
+                data: data,
+                permissions: permissions
             }))
             .state('entities.notebook-detail.permissions', _.extend({}, PermissionManagementConfig, {
                 parent: 'entities.notebook-detail',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
-                },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read notebook)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read notebook, create experiments)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
-                    }
-                ]
+                data: data,
+                permissions: permissions
             }))
             .state('entities.notebook-detail.permissions-view', _.extend({}, PermissionViewManagementConfig, {
                 parent: 'entities.notebook-detail',
-                data: {
-                    authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR']
-                },
-                permissions: [
-                    {
-                        id: 'VIEWER', name: 'VIEWER (read notebook)'
-                    },
-                    {
-                        id: 'USER', name: 'USER (read notebook, create experiments)'
-                    },
-                    {
-                        id: 'OWNER', name: 'OWNER (read/update notebook, create experiments)'
-                    }
-                ]
+                data: data,
+                permissions: permissions
             }));
     });

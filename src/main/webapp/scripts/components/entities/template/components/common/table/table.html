@@ -54,20 +54,20 @@
                 <th ng-repeat="column in vm.indigoColumns track by $index" ng-show="column.isVisible">
                     <div class="btn-group btn-group-sm btn-group-justified product-header-item"
                          ng-if="!column.actions.length && column.id!=='show-hide-columns'">
-                        <a href class="btn btn-transparent" ng-disabled="vm.readonly">
+                        <a href class="btn btn-transparent" ng-disabled="vm.isReadonly">
                             {{column.name}}
                         </a>
                     </div>
                     <div class="btn-group btn-group-sm btn-group-justified product-header-item" uib-dropdown
                          dropdown-append-to-body
                          ng-if="column.actions.length">
-                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.readonly">
+                        <a href class="btn btn-transparent" uib-dropdown-toggle ng-disabled="vm.isReadonly">
                             <span>{{column.name}} <span class="caret"></span></span>
                         </a>
                         <ul uib-dropdown-menu class="no-draggable">
                             <li ng-repeat="action in column.actions track by $index" class="no-draggable">
                                 <a href="" ng-click="action.action(column.id)" class="no-draggable"
-                                   ng-disabled="vm.readonly">{{action.name}}</a>
+                                   ng-disabled="vm.isReadonly">{{action.name}}</a>
                             </li>
                         </ul>
                     </div>
@@ -76,7 +76,7 @@
             </thead>
             <tbody>
             <tr ng-if="vm.rowsForDisplay.length"
-                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.limit : vm.limit - vm.pagination.pageSize track by $index"
+                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $index"
                 ng-class="{'success': vm.selectedBatch === row}">
                 <td ng-repeat="column in vm.indigoColumns track by $index"
                     class="text-center readonly-{{!vm.indigoEditable(row, $index, columnId)}}"
@@ -91,7 +91,7 @@
                                       toggle-editable-column="vm.toggleEditable(column.id, $parent.$index)"
                                       close="vm.toggleEditable(null, null, null)"
                                       is-editable-column="vm.isEditable(column.id, $parent.$index)"
-                                      readonly="vm.readonly">
+                                      is-readonly="vm.isReadonly">
                     </indigo-table-val>
                 </td>
             </tr>

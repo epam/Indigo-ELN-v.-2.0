@@ -24,7 +24,7 @@
                                      model="vm.model"
                                      selected-batch="vm.selectedBatch"
                                      selected-batch-trigger="vm.selectedBatchTrigger"
-                                     readonly="vm.readonly"
+                                     is-readonly="vm.isReadonly"
                                      experiment-name="vm.experiment.name"
                                      is-hide-column-settings="true"
                                      on-select-batch="vm.onSelectBatch({batch: batch})">
@@ -79,13 +79,13 @@
                         </div>
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-info btn-small"
-                                    ng-disabled="vm.readonly"
+                                    ng-disabled="vm.isReadonly"
                                     ng-click="vm.addNewCompound()">
                                 <i class="fa fa-plus"></i>
                                 <span class="m-l5">Add</span>
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="deleteCompounds()"
-                                    ng-disabled="vm.readonly || !isHasCheckedRows()">
+                                    ng-disabled="vm.isReadonly || !isHasCheckedRows()">
                                 <i class="fa fa-trash"></i>
                                 <span class="m-l5">Delete</span>
                             </button>
@@ -96,12 +96,12 @@
                 <div class="col-sm-5 text-align">
                     <span class="txt-small bold m-r5">SD File:</span>
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="vm.readonly">
+                        <button type="button" class="btn btn-info btn-small" ng-click="importSDFile()" ng-disabled="vm.isReadonly">
                             <i class="fa fa-cloud-download"></i>
                             <span class="m-l5">Import</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="exportSDFile()"
-                                ng-disabled="vm.readonly || !isHasCheckedRows()">
+                                ng-disabled="vm.isReadonly || !isHasCheckedRows()">
                             <i class="fa fa-cloud-upload"></i>
                             <span class="m-l5">Export</span>
                         </button>
@@ -117,14 +117,14 @@
                     <indigo-input indigo-label="Virtual Compound Id"
                                   indigo-model="vm.model.preferCompoundDetails.virtualCompoundId"
                                   indigo-label-vertical="true"
-                                  indigo-readonly="vm.readonly">
+                                  indigo-readonly="vm.isReadonly">
                     </indigo-input>
                     <indigo-select indigo-label="Sterioisomer Code"
                                    indigo-label-vertical="true"
                                    indigo-dictionary="Stereoisomer Code"
                                    indigo-item-prop="name,description"
                                    indigo-model="vm.model.preferCompoundDetails.stereoisomer"
-                                   indigo-readonly="vm.readonly">
+                                   indigo-readonly="vm.isReadonly">
                     </indigo-select>
                     <indigo-simple-text indigo-label="Calculated Compound MW"
                                         indigo-model="vm.model.preferCompoundDetails.molWeight.value | round"
@@ -138,7 +138,7 @@
                     <indigo-text-area indigo-label="Comments"
                                       indigo-model="vm.model.preferCompoundDetails.comments"
                                       indigo-label-vertical="true"
-                                      indigo-readonly="vm.readonly">
+                                      indigo-readonly="vm.isReadonly">
                     </indigo-text-area>
 
                 </div>
@@ -146,7 +146,7 @@
                     <indigo-text-area indigo-label="Structure comments"
                                       indigo-model="vm.model.preferCompoundDetails.structureComments"
                                       indigo-label-vertical="true"
-                                      indigo-readonly="vm.readonly">
+                                      indigo-readonly="vm.isReadonly">
                     </indigo-text-area>
                 </div>
             </div>
