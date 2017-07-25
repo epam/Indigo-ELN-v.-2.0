@@ -23,8 +23,11 @@
                 <button type="submit" class="btn btn-info btn-can-loading" ng-class="{'btn-loading' : vm.loading}" form="login-form">Sign in</button>
             </div>
         </div>
-            <div class="alert alert-danger" ng-show="vm.authenticationError">
-                <strong>Failed to sign in.</strong> Please check your credentials and try again.
-            </div>
+        <div class="alert alert-danger" ng-show="vm.authenticationError">
+            <strong>Failed to sign in.</strong> Please check your credentials and try again.
+        </div>
+        <div class="alert alert-danger" ng-show="vm.serverError">
+            <strong>Login failed</strong> because of the server error, please try again later
+        </div>
     </div>
 </div>
