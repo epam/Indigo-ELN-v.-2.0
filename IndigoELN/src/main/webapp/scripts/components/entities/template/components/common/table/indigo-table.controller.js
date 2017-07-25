@@ -243,10 +243,10 @@
                 return;
             }
 
-            var skip = getSkipItems();
+            var skip = getSkipItems(rows);
 
             if (skip >= rows.length) {
-                updateCurrentPage();
+                updateCurrentPage(rows);
                 skip = getSkipItems();
             }
 
@@ -256,8 +256,8 @@
             });
         }
 
-        function updateCurrentPage() {
-            vm.pagination.page = _.ceil(vm.indigoRows.length / vm.pagination.pageSize);
+        function updateCurrentPage(rows) {
+            vm.pagination.page = _.ceil(rows.length / vm.pagination.pageSize);
         }
 
         function bindEvents() {
