@@ -31,7 +31,7 @@
             var unbinds = [];
             var isInit = false;
             unbinds.push(scope.$watch('indigoModel', function(value) {
-                if (value && value !== newContent) {
+                if (value !== editor.getValue()) {
                     editor.setValue(value);
                 }
                 if (isInit) {

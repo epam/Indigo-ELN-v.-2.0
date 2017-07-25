@@ -246,21 +246,26 @@
 
         function initDirtyListener() {
             $timeout(function() {
-                EntitiesBrowser.setCurrentForm($scope.experimentForm);
                 var tabKind = $state.$current.data.tab.kind;
+                EntitiesBrowser.setCurrentForm($scope.experimentForm);
+                AutoRecoverEngine.track({
+                    vm: vm,
+                    kind: tabKind,
+                    onSetDirty: function() {
+                        $scope.experimentForm.$setDirty();
+                    }
+                });
                 updateFormState();
-
-                $scope.$watch('vm.experiment', function() {
+                $scope.$watch('vm.experiment', function(entity, old) {
                     EntitiesBrowser.setCurrentEntity(vm.experiment);
+                    AutoRecoverEngine.tracker.change(entity, old);
                 }, true);
 
-                $scope.$watch('experimentForm.$dirty', function() {
+                $scope.$watch('experimentForm.$dirty', function(cur, old) {
                     var dirty = $scope.experimentForm.$dirty;
-                    EntitiesBrowser.changeDirtyTab($stateParams, dirty);
                     vm.isBtnSaveActive = dirty;
+                    AutoRecoverEngine.tracker.changeDirty(cur, old);
                 }, true);
-
-                AutoRecoverEngine.trackEntityChanges(pageInfo.experiment, $scope.experimentForm, $scope, tabKind, vm);
             }, 0, false);
         }
 
