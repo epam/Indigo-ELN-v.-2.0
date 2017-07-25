@@ -1,28 +1,21 @@
 <div class="experiments" cg-busy="{promise: vm.loading, minDuration:700}">
     <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
     <div class="tab-content-pad">
-        <div ng-init="vm.isCollapsed=true;">
+        <div>
             <div class="row m-b20">
                 <div class="col-sm-6 col-xs-9">
                     <div class="row-inline">
                         <span class="txt-larger">Project Members:</span>
-                        <button type="submit" ui-sref="entities.project-new.permissions()" ng-if="!vm.project.id" class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
+                        <button ui-sref=".permissions()"
+                                class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
-                        <button type="submit" ui-sref="entities.project-new.permissions-view()" ng-if="!vm.project.id"  type="button" class="btn btn-default btn-small">
+                        <button ui-sref=".permissions-view()" ng-if="!vm.project.id" type="button"
+                                class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
                         </button>
-                        <button type="submit" ui-sref="entities.project-detail.permissions()" ng-if="vm.project.id" class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
-                            <i class="fa fa-pencil"></i>
-                            <span class="m-l5">Edit</span>
-                        </button>
-                        <button type="submit" ui-sref="entities.project-detail.permissions-view()" ng-if="vm.project.id"  type="button" class="btn btn-default btn-small">
-                            <i class="fa fa-eye"></i>
-                            <span class="m-l5">View Members</span>
-                        </button>
-
                     </div>
                 </div>
             </div>
@@ -41,19 +34,27 @@
                                       indigo-model="vm.project.name"
                                       indigo-validation-required="!vm.project.name.trim()">
                         </indigo-input>
-                        <indigo-tag-input indigo-label="Tags" indigo-model="vm.project.tags" indigo-readonly="!vm.isEditAllowed"
-                                          indigo-label-vertical="true"></indigo-tag-input>
-                        <indigo-input indigo-label="Project Keywords" indigo-label-vertical="true" indigo-readonly="!vm.isEditAllowed"
-                                      indigo-model="vm.project.keywords"></indigo-input>
-                        <indigo-input indigo-label="Literature" indigo-label-vertical="true" indigo-readonly="!vm.isEditAllowed"
-                                      indigo-model="vm.project.references"></indigo-input>
+                        <indigo-tag-input indigo-label="Tags"
+                                          indigo-model="vm.project.tags"
+                                          indigo-readonly="!vm.isEditAllowed"
+                                          indigo-label-vertical="true">
+                        </indigo-tag-input>
+                        <indigo-input indigo-label="Project Keywords"
+                                      indigo-label-vertical="true" indigo-readonly="!vm.isEditAllowed"
+                                      indigo-model="vm.project.keywords">
+                        </indigo-input>
+                        <indigo-text-area indigo-label="Literature" indigo-label-vertical="true"
+                                          indigo-readonly="!vm.isEditAllowed"
+                                          indigo-model="vm.project.references">
+                        </indigo-text-area>
                         <label>Project Description</label>
                         <indigo-text-editor indigo-model="vm.project.description"
                                             indigo-name="projectDescription"
-                                            indigo-readonly="!vm.isEditAllowed"></indigo-text-editor>
+                                            indigo-readonly="!vm.isEditAllowed">
+                        </indigo-text-editor>
                         <div class="m-t20">
                             <indigo-file-uploader upload-url="api/project_files"
-                                              indigo-readonly="!vm.isEditAllowed">
+                                                  indigo-readonly="!vm.isEditAllowed">
                             </indigo-file-uploader>
                         </div>
                     </div>
@@ -64,10 +65,10 @@
 
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-             <button type="button" class="btn btn-default" ng-disabled = "!vm.canUndo()" ng-click="vm.undoAction()">
+            <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
-            </button>  
-            <button  type="button" class="btn btn-default" ng-disabled = "!vm.canRedo()" ng-click="vm.redoAction()">
+            </button>
+            <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>
@@ -75,7 +76,7 @@
                 ng-disabled="!vm.isCreateChildAllowed || !vm.project.id"
                 ui-sref="entities.notebook-new({parentId:vm.project.id})">Create Notebook
         </button>
-        <button type="submit" ng-click="vm.save()" form="createProjectForm"
+        <button ng-click="vm.save()" form="createProjectForm"
                 ng-disabled="!vm.isEditAllowed || createProjectForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary"><i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>

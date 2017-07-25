@@ -2,7 +2,7 @@
                          ss-autosave="true"
                          ss-model="vm.selectedBatch.structure"
                          model-trigger="vm.selectedBatchTrigger"
-                         indigo-readonly="!vm.selectedBatch || vm.readonly"
+                         is-readonly="!vm.selectedBatch || vm.isReadonly"
                          ss-title="'Batch Structure'"
                          on-changed="vm.onChangedStructure(structure)">
 </indigo-structure-scheme>

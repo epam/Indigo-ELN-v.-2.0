@@ -10,7 +10,7 @@
             scope: {
                 model: '=',
                 batches: '=',
-                readonly: '=',
+                isReadonly: '=',
                 // TODO: experimentName is not used
                 experimentName: '=',
                 isHideColumnSettings: '=',

@@ -12,7 +12,7 @@
             replace: true,
             scope: {
                 template: '=',
-                readonly: '=',
+                isReadonly: '=',
                 model: '=',
                 experiment: '=',
                 experimentForm: '=',
