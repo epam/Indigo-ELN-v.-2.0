@@ -9,9 +9,8 @@ function EditResidualSolventsController($uibModalInstance, data) {
     init();
 
     function init() {
-        vm.solvents = data || {};
-        vm.solvents.data = vm.solvents.data || [];
-        vm.label = 123;
+        var inputData = data || {};
+        vm.solvents = inputData.data || [];
         vm.save = save;
         vm.cancel = cancel;
         vm.addSolvent = addSolvent;
@@ -20,21 +19,21 @@ function EditResidualSolventsController($uibModalInstance, data) {
     }
 
     function addSolvent() {
-        vm.solvents.data.push({
+        vm.solvents.push({
             name: '', eq: '', comment: ''
         });
     }
 
     function remove(solvent) {
-        vm.solvents.data = _.without(vm.solvents.data, solvent);
+        vm.solvents = _.without(vm.solvents, solvent);
     }
 
     function removeAll() {
-        vm.solvents.data = [];
+        vm.solvents = [];
     }
 
     function resultToString() {
-        var solventStrings = _.map(vm.solvents.data, function(solvent) {
+        var solventStrings = _.map(vm.solvents, function(solvent) {
             if (solvent.name && solvent.eq) {
                 return solvent.eq + ' mols of ' + solvent.name.name;
             }
@@ -46,8 +45,10 @@ function EditResidualSolventsController($uibModalInstance, data) {
     }
 
     function save() {
-        vm.solvents.asString = resultToString();
-        $uibModalInstance.close(vm.solvents);
+        $uibModalInstance.close({
+            data: vm.solvents,
+            asString: resultToString()
+        });
     }
 
     function cancel() {

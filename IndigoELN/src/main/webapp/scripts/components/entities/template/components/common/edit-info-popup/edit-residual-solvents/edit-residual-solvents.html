@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
     <p class="m-b20"><span class="semi-b">Please add residual solvents</span></p>
-    <div ng-if="vm.solvents.data.length">
+    <div ng-if="vm.solvents.length">
         <table class="table table-striped" id="search-result-table">
             <thead class="search-table-head">
                 <tr>
@@ -13,17 +13,17 @@
                     <th class="edit-residual-solvents__header"></th>
                 </tr>
             </thead>
-            <tbody ng-repeat="item in vm.solvents.data track by $index">
+            <tbody ng-repeat="item in vm.solvents track by $index">
                 <tr ng-class="{'search-table-row-highlight':item.isSelected}">
                     <td>
                         <indigo-select indigo-dictionary="Solvent Name"
-                                       indigo-model="vm.solvents.data[$index].name"></indigo-select></td>
+                                       indigo-model="vm.solvents[$index].name"></indigo-select></td>
                     <td>
-                        <indigo-input indigo-model="vm.solvents.data[$index].eq" indigo-type="number"></indigo-input>
+                        <indigo-input indigo-model="vm.solvents[$index].eq" indigo-type="number"></indigo-input>
                     </td>
-                    <td><indigo-input indigo-model="vm.solvents.data[$index].comment"></indigo-input></td>
+                    <td><indigo-input indigo-model="vm.solvents[$index].comment"></indigo-input></td>
                     <td><a
-                            ng-click="vm.remove(vm.solvents.data[$index])"><span
+                            ng-click="vm.remove(vm.solvents[$index])"><span
                             class="glyphicon glyphicon-trash"></span></a></td>
                 </tr>
             </tbody>
