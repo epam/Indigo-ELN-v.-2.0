@@ -16,6 +16,7 @@ import java.awt.*;
 public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
         extends BasePdfSectionWithTableAndTitle<T>
         implements HeaderPdfSection {
+
     private static final String CONFIDENTIAL = "CONFIDENTIAL";
     private static final Font CONFIDENTIAL_FONT = FontFactory.getFont(
             FontFactory.HELVETICA, 9, Font.ITALIC | Font.BOLD, new Color(0x4252af)

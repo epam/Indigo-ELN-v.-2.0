@@ -1,8 +1,5 @@
 package com.epam.indigoeln.core.service.print.itext2.tests;
 
-import com.epam.indigoeln.core.model.Experiment;
-import com.epam.indigoeln.core.service.print.itext2.PdfGenerator;
-import com.epam.indigoeln.core.service.print.itext2.tests.DummyExperimentProvider;
 import com.lowagie.text.DocumentException;
 
 import java.awt.*;
