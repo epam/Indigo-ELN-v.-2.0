@@ -16,19 +16,17 @@ public class PreferredCompoundsModel implements SectionModel {
     }
 
     public static class PreferredCompoundsRow {
-        private String virtualCompoundId;
-        private Stereoismoer stereoismoer;
+
+        private Structure structure;
         private String notebookBatchNumber;
         private String molWeight;
         private String molFormula;
         private String structureComments;
 
-        public PreferredCompoundsRow(String virtualCompoundId, Stereoismoer stereoismoer,
+        public PreferredCompoundsRow(Structure structure,
                                      String notebookBatchNumber, String molWeight, String molFormula,
                                      String structureComments) {
-
-            this.virtualCompoundId = virtualCompoundId;
-            this.stereoismoer = stereoismoer;
+            this.structure = structure;
             this.notebookBatchNumber = notebookBatchNumber;
             this.molWeight = molWeight;
             this.molFormula = molFormula;
@@ -51,23 +49,27 @@ public class PreferredCompoundsModel implements SectionModel {
             return structureComments;
         }
 
-        public String getVirtualCompoundId() {
-            return virtualCompoundId;
-        }
 
-        public Stereoismoer getStereoismoer() {
-            return stereoismoer;
+
+        public Structure getStructure() {
+            return structure;
         }
 
     }
 
-    public static class Stereoismoer{
+    public static class Structure {
+        private String virtualCompoundId;
         private String name;
         private String description;
 
-        public Stereoismoer(String name, String description) {
+        public Structure(String virtualCompoundId, String name, String description) {
+            this.virtualCompoundId = virtualCompoundId;
             this.name = name;
             this.description = description;
+        }
+
+        public String getVirtualCompoundId() {
+            return virtualCompoundId;
         }
 
         public String getName() {

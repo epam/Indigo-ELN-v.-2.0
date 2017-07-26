@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -84,7 +85,7 @@ public class MongoExt {
         validatePath(path);
 
         String lastField = path[path.length - 1];
-        return findDeepestObject(path).map(o -> o.origin.getString(lastField)).orElse(null);
+        return findDeepestObject(path).map(o -> o.origin.getString(lastField)).orElse(StringUtils.EMPTY);
     }
 
     private Optional<MongoExt> findDeepestObject(String[] path) {
