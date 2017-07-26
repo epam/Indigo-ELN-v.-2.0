@@ -15,9 +15,12 @@
             vm.onCloseAllTabs = onCloseAllTabs;
 
             bindEvents();
-            EntitiesBrowser.getTabs(function(tabs) {
-                vm.tabs = tabs;
-                vm.activeTab = EntitiesBrowser.getActiveTab();
+            Principal.identity(true).then(function(user) {
+                EntitiesBrowser.restoreTabs(user);
+                EntitiesBrowser.getTabs(function(tabs) {
+                    vm.tabs = tabs;
+                    vm.activeTab = EntitiesBrowser.getActiveTab();
+                });
             });
         }
 
