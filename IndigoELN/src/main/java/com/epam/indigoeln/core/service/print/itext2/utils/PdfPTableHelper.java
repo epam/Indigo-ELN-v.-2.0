@@ -17,12 +17,22 @@ public class PdfPTableHelper {
     }
 
     public PdfPTableHelper addKeyValueCells(String key, String value) {
-        addKeyValueCells(key, value, 1);
+        addKeyValueCells(key, value, 1, true);
+        return this;
+    }
+
+    public PdfPTableHelper addKeyValueCellsNoBold(String key, String value) {
+        addKeyValueCells(key, value, 1, false);
         return this;
     }
 
     public PdfPTableHelper addKeyValueCells(String key, String value, int valueColspan) {
-        PdfPCell keyCell = CellFactory.getCommonCell(key, true);
+        return addKeyValueCells(key, value , valueColspan, true);
+    }
+
+
+    public PdfPTableHelper addKeyValueCells(String key, String value, int valueColspan, boolean bold) {
+        PdfPCell keyCell = CellFactory.getCommonCell(key, bold);
         PdfPCell valueCell = CellFactory.getCommonCell(value);
 
         valueCell.setColspan(valueColspan);

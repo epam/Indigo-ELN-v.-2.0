@@ -18,12 +18,14 @@ public class RegistrationSummaryModel implements SectionModel {
     public static class RegistrationSummaryRow {
         private String fullNbkBatch;
         private String totalAmountMade;
+        private String totalAmountMadeUnit;
         private String registrationStatus;
         private String conversationalBatch;
 
-        public RegistrationSummaryRow(String fullNbkBatch, String totalAmountMade, String registrationStatus, String conversationalBatch) {
+        public RegistrationSummaryRow(String fullNbkBatch, String totalAmountMade, String totalAmountMadeUnit, String registrationStatus, String conversationalBatch) {
             this.fullNbkBatch = fullNbkBatch;
             this.totalAmountMade = totalAmountMade;
+            this.totalAmountMadeUnit = totalAmountMadeUnit;
             this.registrationStatus = registrationStatus;
             this.conversationalBatch = conversationalBatch;
         }
@@ -42,6 +44,10 @@ public class RegistrationSummaryModel implements SectionModel {
 
         public String getConversationalBatch() {
             return conversationalBatch;
+        }
+
+        public String getTotalAmountMadeUnit() {
+            return totalAmountMadeUnit;
         }
     }
 }

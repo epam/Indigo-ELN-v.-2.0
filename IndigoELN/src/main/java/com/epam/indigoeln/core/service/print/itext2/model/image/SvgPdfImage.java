@@ -1,5 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.model.image;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -11,7 +13,7 @@ public class SvgPdfImage implements PdfImage {
     private  byte[] svgBytes;
 
     public SvgPdfImage(String svgBase64) {
-        if (svgBase64 != null){
+        if (!StringUtils.isBlank(svgBase64)){
             svgBytes = Base64.getDecoder().decode(svgBase64);
         }
     }

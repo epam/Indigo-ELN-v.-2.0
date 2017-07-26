@@ -20,16 +20,22 @@ public class BatchInformationModel implements SectionModel {
         private String nbkBatch;
         private Structure structure;
         private String amountMade;
-        private String theoreticalYield;
+        private String amountMadeUnit;
+        private String theoWeight;
+        private String theoWeightUnit;
+        private String yield;
         private String purity;
-        private String batchInformation;
+        private BatchInformation batchInformation;
 
         public BatchInformationRow(String nbkBatch, Structure structure, String amountMade,
-                                   String theoreticalYield, String purity, String batchInformation) {
+                                   String amountMadeUnit, String theoWeight, String theoWeightUnit, String yield, String purity, BatchInformation batchInformation) {
             this.nbkBatch = nbkBatch;
             this.structure = structure;
             this.amountMade = amountMade;
-            this.theoreticalYield = theoreticalYield;
+            this.amountMadeUnit = amountMadeUnit;
+            this.theoWeight = theoWeight;
+            this.theoWeightUnit = theoWeightUnit;
+            this.yield = yield;
             this.purity = purity;
             this.batchInformation = batchInformation;
         }
@@ -46,15 +52,27 @@ public class BatchInformationModel implements SectionModel {
             return amountMade;
         }
 
-        public String getTheoreticalYield() {
-            return theoreticalYield;
+        public String getYield() {
+            return yield;
         }
 
         public String getPurity() {
             return purity;
         }
 
-        public String getBatchInformation() {
+        public String getAmountMadeUnit() {
+            return amountMadeUnit;
+        }
+
+        public String getTheoWeight() {
+            return theoWeight;
+        }
+
+        public String getTheoWeightUnit() {
+            return theoWeightUnit;
+        }
+
+        public BatchInformation getBatchInformation() {
             return batchInformation;
         }
     }
@@ -80,6 +98,49 @@ public class BatchInformationModel implements SectionModel {
 
         public String getDescription() {
             return description;
+        }
+
+    }
+
+    public static class BatchInformation{
+        private String molWeight;
+        private String exactMass;
+        private String saltCode;
+        private String saltEq;
+        private List<String> batchOwner;
+        private String comments;
+
+        public BatchInformation(String molWeight, String exactMass, String saltCode, String saltEq, List<String> batchOwner, String comments) {
+            this.molWeight = molWeight;
+            this.exactMass = exactMass;
+            this.saltCode = saltCode;
+            this.saltEq = saltEq;
+            this.batchOwner = batchOwner;
+            this.comments = comments;
+        }
+
+        public String getMolWeight() {
+            return molWeight;
+        }
+
+        public String getExactMass() {
+            return exactMass;
+        }
+
+        public String getSaltCode() {
+            return saltCode;
+        }
+
+        public String getSaltEq() {
+            return saltEq;
+        }
+
+        public List<String> getBatchOwner() {
+            return batchOwner;
+        }
+
+        public String getComments() {
+            return comments;
         }
     }
 }
