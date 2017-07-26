@@ -13,7 +13,7 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                readonly: '='
+                isReadonly: '='
             }
         };
     }
