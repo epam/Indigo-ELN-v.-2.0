@@ -3,8 +3,8 @@ angular
     .factory('ProductBatchSummaryOperations', productBatchSummaryOperations);
 
 /* @ngInject */
-function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache,
-                                       $log, Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
+function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
+                                       Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
                                        sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
     return {
         exportSDFile: exportSDFile,
@@ -17,9 +17,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         addNewBatch: addNewBatch,
         importSDFile: importSDFile,
         registerBatches: registerBatches,
-        requestNbkBatchNumberAndAddToTable: requestNbkBatchNumberAndAddToTable,
         deleteBatches: deleteBatches
-
     };
 
     function exportSDFile(exportBatches) {
@@ -39,7 +37,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         });
     }
 
-
     function getSelectedNonEditableBatches(batches) {
         var batches = batches || ProductBatchSummaryCache.getProductBatchSummary();
 
@@ -54,28 +51,57 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             .value();
     }
 
-    function duplicateBatches(batchesQueueToAdd, i, isSyncWithIntended) {
-        if (!batchesQueueToAdd[i]) {
-            return;
-        }
-        var batchToCopy = batchesQueueToAdd[i];
-        var batchToDuplicate = angular.copy(batchToCopy);
-        var p = requestNbkBatchNumberAndAddToTable(batchToDuplicate, isSyncWithIntended);
-        p.then(function() {
-            EntitiesBrowser.getCurrentForm().$setDirty();
-            duplicateBatches(batchesQueueToAdd, i + 1, isSyncWithIntended);
+    function updateNbkBatches(batches) {
+        var experiment = EntitiesBrowser.getCurrentEntity();
+
+        return Notebook.get({
+            projectId: $stateParams.projectId,
+            notebookId: $stateParams.notebookId
+        })
+            .$promise
+            .then(function(notebook) {
+                var promise = $q.when();
+                _.forEach(batches, function(batch) {
+                    promise = promise
+                        .then(function(beforeBatch) {
+                            return requestNbkBatchNumber(beforeBatch).then(function(batchNumber) {
+                                setNbkBatch(batch, batchNumber, notebook.name, experiment.name);
+
+                                return batchNumber;
+                            });
+                        });
+                });
+
+                return promise;
+            });
+    }
+
+    function duplicateBatches(batchesQueueToAdd, isSyncWithIntended) {
+        var promises = _.map(batchesQueueToAdd, function(batch) {
+            return createBatch(angular.copy(batch), isSyncWithIntended);
         });
 
-        return p;
+        return $q
+            .all(promises)
+            .then(function(batches) {
+                return updateNbkBatches(batches)
+                    .then(function() {
+                        // TODO: extract to controller
+                        EntitiesBrowser.getCurrentForm().$setDirty();
+
+                        return batches;
+                    });
+            });
     }
 
     function duplicateBatch(batch) {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var batchesToDuplicate = batch ? [batch] : _.filter(batches, function(item) {
-            return item.select;
-        });
+        if (!batch) {
+            return null;
+        }
 
-        return duplicateBatches(batchesToDuplicate, 0);
+        return duplicateBatches([batch]).then(function(batches) {
+            return _.first(batches);
+        });
     }
 
     function setStoicTable(_table) {
@@ -118,28 +144,35 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 syncingIntendedProducts.resolve();
                 AlertModal.info('Product Batch Summary is synchronized', 'sm');
             } else {
-                return duplicateBatches(batchesQueueToAdd, 0, true);
+                return duplicateBatches(batchesQueueToAdd, true);
             }
         }
         syncingIntendedProducts.resolve();
     }
 
     function addNewBatch() {
-        var q = requestNbkBatchNumberAndAddToTable();
-        q.then(function() {
-            EntitiesBrowser.getCurrentForm().$setDirty();
-        });
+        return createBatch().then(function(batch) {
+            return updateNbkBatches([batch]).then(function() {
+                EntitiesBrowser.getCurrentForm().$setDirty();
 
-        return q;
+                return batch;
+            });
+        });
     }
 
+    function importSDFile() {
+        return sdImportService.importFile().then(function(sdUnits) {
+            var promises = _.map(sdUnits, function(unit) {
+                return createBatch(unit);
+            });
 
-    function importSDFile(success) {
-        sdImportService.importFile(requestNbkBatchNumberAndAddToTable, null, function() {
-            EntitiesBrowser.getCurrentForm().$setDirty();
-            if (success) {
-                success();
-            }
+            return $q.all(promises).then(function(batches) {
+                return updateNbkBatches(batches).then(function() {
+                    EntitiesBrowser.getCurrentForm().$setDirty();
+
+                    return batches;
+                });
+            });
         });
     }
 
@@ -154,60 +187,74 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         return registerBatchesWith([]);
     }
 
-    function requestNbkBatchNumberAndAddToTable(duplicatedBatch, isSyncWithIntended) {
-        var experiment = EntitiesBrowser.getCurrentEntity();
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var latest = getLatestNbkBatch();
-        var deferred = $q.defer();
-        $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
+    function requestNbkBatchNumber(lastNbkBatch) {
+        var latest = lastNbkBatch || getLatestNbkBatch();
+        var request = 'api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+            '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest;
+
+        return $http.get(request)
             .then(function(result) {
-                var batchNumber = result.data.batchNumber;
-                Notebook.get({
-                    projectId: $stateParams.projectId,
-                    notebookId: $stateParams.notebookId
-                })
-                    .$promise.then(function(notebook) {
-                        var fullNbkBatch = notebook.name + '-' + experiment.name + '-' + batchNumber;
-                        var fullNbkImmutablePart = notebook.name + '-' + experiment.name + '-';
-                        var batch = {};
-                        var stoichTable = StoichTableCache.getStoicTable();
-                        if (stoichTable) {
-                            batch = angular.copy(CalculationService.createBatch(stoichTable, true));
-                        }
-                        batch.nbkBatch = batchNumber;
-                        batch.fullNbkBatch = fullNbkBatch;
-                        batch.fullNbkImmutablePart = fullNbkImmutablePart;
-                        batch.structure = {};
-
-                        if (duplicatedBatch) {
-                            duplicatedBatch.fullNbkBatch = batch.fullNbkBatch;
-                            duplicatedBatch.fullNbkImmutablePart = batch.fullNbkImmutablePart;
-                            duplicatedBatch.nbkBatch = batch.nbkBatch;
-                            duplicatedBatch.conversationalBatchNumber = null;
-                            duplicatedBatch.registrationDate = null;
-                            duplicatedBatch.registrationStatus = null;
-                            if (isSyncWithIntended) {
-                            // to sync mapping of intended products with actual poducts
-                                duplicatedBatch.theoMoles = duplicatedBatch.mol;
-                                duplicatedBatch.theoWeight = duplicatedBatch.weight;
-                            // total moles can be calculated when total weight or total Volume are added, or manually
-                                duplicatedBatch.mol = null;
-                                saveMolecule(duplicatedBatch.structure.molfile).then(function(structureId) {
-                                    duplicatedBatch.structure.structureId = structureId;
-                                }, function() {
-                                    Alert.error('Cannot save the structure!');
-                                });
-                            }
-                            batch = duplicatedBatch;
-                        }
-                        batches.push(batch);
-                        $log.debug(batch);
-                        deferred.resolve(batch);
-                    });
+                return result.data.batchNumber;
             });
+    }
 
-        return deferred.promise;
+    function setNbkBatch(batch, batchNumber, notebookName, experimentName) {
+        batch.nbkBatch = batchNumber;
+        batch.fullNbkBatch = notebookName + '-' + experimentName + '-' + batchNumber;
+        batch.fullNbkImmutablePart = notebookName + '-' + experimentName + '-';
+
+        return batch;
+    }
+
+    function createBatch(sdUnit, isSyncWithIntended) {
+        var batch = AppValues.getDefaultBatch();
+        var stoichTable = StoichTableCache.getStoicTable();
+        if (stoichTable) {
+            _.extend(batch, angular.copy(CalculationService.createBatch(stoichTable, true)));
+        }
+
+        _.extend(batch, sdUnit);
+
+        if (sdUnit) {
+            batch.conversationalBatchNumber = null;
+            batch.registrationDate = null;
+            batch.registrationStatus = null;
+
+            if (isSyncWithIntended) {
+                // to sync mapping of intended products with actual poducts
+                batch.theoMoles = batch.mol;
+                batch.theoWeight = batch.weight;
+                // total moles can be calculated when total weight or total Volume are added, or manually
+                batch.mol = null;
+            }
+
+            return $q
+                .all([CalculationService.recalculateSalt(batch),
+                    checkImage(batch.structure)
+                ])
+                .then(function() {
+                    return saveMolecule(batch.structure.molfile).then(function(structureId) {
+                        batch.structure.structureId = structureId;
+                    }, function() {
+                        Alert.error('Cannot save the structure!');
+                    });
+                })
+                .then(function() {
+                    return batch;
+                });
+        }
+
+        return $q.when(batch);
+    }
+
+    function checkImage(structure) {
+        if (structure.molfile && !structure.image) {
+            return CalculationService.getImageForStructure(structure.molfile, 'molecule').then(function(image) {
+                structure.image = image;
+            });
+        }
+
+        return $q.resolve();
     }
 
     function checkNonRemovableBatches(batches) {
@@ -218,12 +265,12 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         }
     }
 
-    function deleteBatches(batches) {
-        if (batches) {
+    function deleteBatches(batches, batchesForRemove) {
+        if (!_.isEmpty(batches) && !_.isEmpty(batchesForRemove)) {
             checkNonRemovableBatches(batches);
 
-            _.remove(batches, function(b) {
-                return b.select && !RegistrationUtil.isRegistered(b);
+            _.remove(batches, function(batch) {
+                return !RegistrationUtil.isRegistered(batch) && _.includes(batchesForRemove, batch);
             });
         }
     }
@@ -235,16 +282,9 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function saveMolecule(mol) {
-        var deferred = $q.defer();
-        $http({
-            url: 'api/bingodb/molecule/',
-            method: 'POST',
-            data: mol
-        }).success(function(structureId) {
-            deferred.resolve(structureId);
+        return $http.post('api/bingodb/molecule/', mol).then(function(response) {
+            return response.data;
         });
-
-        return deferred.promise;
     }
 
     function registerBatchesWith(excludes) {
@@ -279,12 +319,12 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             .then(function() {
                 $timeout(function() {
                     RegistrationService.register({}, batchNumbers).$promise
-                    .then(function() {
-                        Alert.success('Selected Batches successfully sent to Registration');
-                        success();
-                    }, function() {
-                        Alert.error('ERROR! Selected Batches registration failed');
-                    });
+                        .then(function() {
+                            Alert.success('Selected Batches successfully sent to Registration');
+                            success();
+                        }, function() {
+                            Alert.error('ERROR! Selected Batches registration failed');
+                        });
                 }, 1000);
             });
     }

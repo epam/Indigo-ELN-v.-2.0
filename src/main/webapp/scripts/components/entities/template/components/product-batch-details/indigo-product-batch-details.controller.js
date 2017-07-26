@@ -4,10 +4,8 @@
         .controller('IndigoProductBatchDetailsController', IndigoProductBatchDetailsController);
 
     /* @ngInject */
-    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService,
-                                                 ProductBatchSummaryCache, $filter, $rootScope,
-                                                 ProductBatchSummaryOperations, EntitiesBrowser) {
-
+    function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
+                                                 ProductBatchSummaryCache, $filter, ProductBatchSummaryOperations) {
         var vm = this;
         var productBatches;
         var grams = AppValues.getGrams();
@@ -27,7 +25,7 @@
 
         vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
-        vm.duplicateBatch = duplicateBatches;
+        vm.duplicateBatch = duplicateBatch;
         vm.deleteBatches = deleteBatches;
         vm.isIntendedSynced = isIntendedSynced;
         vm.syncWithIntendedProducts = syncWithIntendedProducts;
@@ -61,20 +59,20 @@
         }
 
         function addNewBatch() {
-            ProductBatchSummaryOperations.addNewBatch().then(function(batch) {
-                vm.onAddedBatch({batch: batch});
-                selectBatch(batch);
-            });
+            ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
-        function duplicateBatches() {
-            ProductBatchSummaryOperations.duplicateBatches().then(function(batch) {
-                selectBatch(batch);
-            });
+        function successAddedBatch(batch) {
+            vm.onAddedBatch({batch: batch});
+            selectBatch(batch);
+        }
+
+        function duplicateBatch() {
+            ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
         }
 
         function deleteBatches() {
-            vm.onRemoveBatches();
+            vm.onRemoveBatches({batches: [vm.selectedBatch]});
         }
 
         function isIntendedSynced() {
@@ -96,8 +94,11 @@
 
         function importSDFile() {
             vm.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile(function() {
+            ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 vm.importLoading = false;
+                _.forEach(batches, function(batch) {
+                    vm.onAddedBatch({batch: batch});
+                });
             });
         }
 
