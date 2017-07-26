@@ -16,13 +16,16 @@
                 <div class="panel-body panel-body-h">
                     <div class="search-field search-full">
                         <i class="fa fa-search" ng-click="search()"></i>
-                        <input type="search" class="uui-search" placeholder="Search by name or description" id="searchRole" ng-model="search.$">
+                        <input type="search" class="uui-search" placeholder="Search by name or description"
+                               id="searchRole" ng-model="search">
                     </div>
                     <div class="panel-body-content-nopad">
                         <div class="list-group templates-holder palette animated" scroller dragula='"components"'
-                             dragula-model='searchedcomponents = (vm.components | filter: search)'
+                             dragula-model='vm.components'
                              indigo-indeln-scroll>
-                            <a class="list-group-item draggable-component" ng-repeat="component in searchedcomponents track by component.id" data-id="{{component.id}}">
+                            <a class="list-group-item draggable-component"
+                               ng-repeat="component in vm.components track by $index"
+                               data-id="{{component.id}}" ng-show="component | searchByValues: search">
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
