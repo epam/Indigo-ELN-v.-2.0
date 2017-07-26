@@ -20,7 +20,9 @@
                     </div>
                     <div class="panel-body-content-nopad">
                         <div class="list-group templates-holder palette animated" scroller dragula='"components"' dragula-model='vm.components' indigo-indeln-scroll>
-                            <a class="list-group-item draggable-component" ng-repeat="component in vm.components | filter:search track by $index" data-id="{{component.id}}">
+                            <a class="list-group-item draggable-component"
+                               ng-repeat="component in vm.components track by $index"
+                               data-id="{{component.id}}" ng-show="(vm.components | filter:search).includes(component)">
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
