@@ -54,9 +54,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static final String TODO = "TODO";
 
-    /**
-     * @return list of raw uninitialized pdf sections corresponding to experiment components.
-     */
     public List<AbstractPdfSection> getContentSections() {
         return StreamEx
                 .of(experiment.getComponents())

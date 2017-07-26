@@ -11,13 +11,11 @@ public class TableFactory {
     }
 
     /**
-     * @param headerHorizontalAlignment horizontal alignment table header cells
+     * @param headerCellHorizontalAlignment horizontal alignment for table header cells. <br>
      *                                  <CODE>Element.ALIGN_CENTER</CODE> for example.
      */
-    public static PdfPTable createDefaultTable(String[] headers,
-                                               float[] columnWidth,
-                                               float width,
-                                               int headerHorizontalAlignment) {
+    public static PdfPTable createDefaultTable(String[] headers, float[] columnWidth,
+                                               float width, int headerCellHorizontalAlignment) {
         if (headers.length != columnWidth.length) {
             throw new PdfPTableFactoryException("Invalid header definitions");
         }
@@ -27,7 +25,7 @@ public class TableFactory {
         for (String header : headers) {
             PdfPCell commonCell = CellFactory.getCommonCell(header, true);
             commonCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-            commonCell.setHorizontalAlignment(headerHorizontalAlignment);
+            commonCell.setHorizontalAlignment(headerCellHorizontalAlignment);
             table.addCell(commonCell);
         }
 
