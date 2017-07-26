@@ -26,8 +26,13 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
         tracker: tracker
     };
 
+    function resolvePrincipal(func) {
+        return Principal.identity()
+            .then(func);
+    }
+
     function init() {
-        Principal.identity().then(function(user) {
+        resolvePrincipal(function(user) {
             subkey = user.id + '.autorecover.';
             types = angular.fromJson(localStorageService.get(subkey));
             if (!types) {
@@ -48,34 +53,31 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     }
 
     function getKey(kind, entity) {
-        return subkey + kind + '.entity.' + getId(entity);
+        var id = getFullId(entity);
+
+        return subkey + kind + '.entity.' + id;
     }
 
     function clear(kind, entity) {
-        var id = getId(entity);
+        var curtab = EntitiesBrowser.getActiveTab();
+        var id = getFullId(entity);
         var type = types[kind];
         var rec = type.recoveries[id];
         if (!rec) {
             return;
         }
-
         delete type.recoveries[id];
         localStorageService.remove(getKey(kind, entity));
         localStorageService.set(subkey, angular.toJson(types));
-        delete EntitiesBrowser.getActiveTab().tmpId;
+        delete curtab.tmpId;
         EntitiesBrowser.saveTabs();
     }
 
-    function getId(entity) {
-        return entity.id || EntitiesBrowser.getActiveTab().tmpId;
-    }
-
     function save(kind, entity) {
-        var id = getId(entity);
+        var id = getFullId(entity);
         var clone = deleteServiceFields(angular.copy(entity));
         var type = types[kind];
         var rec = type.recoveries[id];
-
         if (!rec) {
             type.recoveries[id] = {
                 id: id,
@@ -84,22 +86,17 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
             };
             rec = type;
         }
-
         rec.date = +new Date();
-
-        delete rec.thisSession;
-        rec.thisSession = true;
-
         localStorageService.set(subkey, angular.toJson(types));
         localStorageService.set(getKey(kind, entity), angular.toJson(clone));
     }
 
     function getRecord(kind, entity) {
-        var id = getId(entity);
+        var id = getFullId(entity);
         var type = types[kind];
         var rec = type.recoveries[id];
         if (!rec) {
-            return null;
+            return;
         }
 
         return {
@@ -178,9 +175,10 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     function trackEntityChanges(args) {
         var entity = args.vm[args.kind];
         var fullId = getFullId(entity);
-        var state = states[fullId] || {actions: []};
+        var state = states[fullId] || {
+            actions: []
+        };
         var curtab = EntitiesBrowser.getActiveTab();
-
         target = args;
         if (!entity.id && !curtab.tmpId) {
             curtab.tmpId = +new Date();
@@ -194,15 +192,16 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
 
     function restore(entity, curtab) {
         var rec = getRecord(target.kind, entity);
-        if (rec && !rec.rec.thisSession) {
+        var dirty = EntitiesBrowser.getActiveTab().dirty;
+        if (rec && !dirty) {
             target.vm.restored = {
                 rec: rec,
                 resolve: function(val) {
                     if (val) {
                         angular.extend(entity, rec.entity);
+                        setDirty();
                     }
                     clear(target.kind, entity);
-                    setDirty();
                     target.vm.restored = null;
                 }
             };
@@ -221,10 +220,7 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
         var ctimeout;
         var prev;
         var dirty = false;
-        tracker.changeDirty = changeDirty;
-        tracker.change = change;
-
-        function change(cur, old) {
+        tracker.change = function(cur, old) {
             var entity = target.vm[target.kind];
             if (!somethingUserChanged) {
                 return;
@@ -254,16 +250,15 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
                 entity.$$undo = false;
                 ctimeout = null;
             }, trackerDelay);
-        }
-
-        function changeDirty(val, old) {
+        };
+        tracker.changeDirty = function(val, old) {
             var entity = target.vm[target.kind];
             dirty = val;
             if (!val && old) {
                 clear(target.kind, entity);
                 target.vm.restored = null;
             }
-        }
+        };
     }
 
     function appendModelMethods() {
@@ -286,7 +281,7 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     }
 
     function clearRecovery(_kind, entity) {
-        Principal.identity().then(function() {
+        resolvePrincipal(function() {
             clear(_kind, entity);
         });
     }
