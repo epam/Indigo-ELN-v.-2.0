@@ -87,9 +87,7 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
             rec = type;
         }
         rec.date = +new Date();
-        delete rec.thisSession;
         localStorageService.set(subkey, angular.toJson(types));
-        rec.thisSession = true;
         localStorageService.set(getKey(kind, entity), angular.toJson(clone));
     }
 
@@ -194,7 +192,8 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
 
     function restore(entity, curtab) {
         var rec = getRecord(target.kind, entity);
-        if (rec && !rec.rec.thisSession) {
+        var dirty = EntitiesBrowser.getActiveTab().dirty;
+        if (rec && !dirty) {
             target.vm.restored = {
                 rec: rec,
                 resolve: function(val) {
