@@ -20,8 +20,11 @@ public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<Pref
         PdfPTable table = TableFactory.createDefaultTable(headers, width);
 
         model.getRows().forEach(row -> {
-            table.addCell(CellFactory.getCommonCell(row.getStructure()));
-            table.addCell(CellFactory.getCommonCell(row.getNotebookBatchNmber()));
+            String structure = row.getVirtualCompoundId() + System.lineSeparator() + row.getStereoismoer().getName() +
+                               " " + row.getStereoismoer().getDescription();
+
+            table.addCell(CellFactory.getCommonCell(structure));
+            table.addCell(CellFactory.getCommonCell(row.getNotebookBatchNumber()));
             table.addCell(CellFactory.getCommonCell(row.getMolWeight()));
             table.addCell(CellFactory.getCommonCell(row.getMolFormula()));
             table.addCell(CellFactory.getCommonCell(row.getStructureComments()));

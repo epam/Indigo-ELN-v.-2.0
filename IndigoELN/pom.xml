@@ -262,13 +262,6 @@
             <version>${spring-security.version}</version>
         </dependency>
 
-        <!-- Jasper Reports -->
-        <dependency>
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-            <version>${jasper.version}</version>
-        </dependency>
-
     </dependencies>
 
     <profiles>

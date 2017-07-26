@@ -6,8 +6,11 @@ import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.ReactionDetailsModel;
 import com.lowagie.text.pdf.PdfPTable;
+import org.apache.commons.lang3.StringUtils;
 
 public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<ReactionDetailsModel> {
+    private static final String COMMA = ", ";
+
     public ReactionDetailsSection(ReactionDetailsModel model) {
         super(model, "REACTION DETAILS");
     }
@@ -19,13 +22,13 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
         PdfPTableHelper wrapper = new PdfPTableHelper(table);
         wrapper.addKeyValueCells("Created Date", DateTimeUtils.formatSafe(model.getCreationDate()));
         wrapper.addKeyValueCells("Therapeutic Area", model.getTherapeuticArea());
-        wrapper.addKeyValueCells("Continued From", model.getContinuedFrom());
+        wrapper.addKeyValueCells("Continued From", StringUtils.join(model.getContinuedFrom(),COMMA));
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
-        wrapper.addKeyValueCells("Continued To", model.getContinuedTo());
+        wrapper.addKeyValueCells("Continued To", StringUtils.join(model.getContinuedTo(),COMMA));
         wrapper.addKeyValueCells("Project Alias", model.getProjectAlias());
-        wrapper.addKeyValueCells("Linked Experiment", model.getLinkedExperiment());
-        wrapper.addKeyValueCells("Literature Reference", model.getLitretureReference());
-        wrapper.addKeyValueCells("Co-authors", model.getCoauthors(), 3);
+        wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(),COMMA));
+        wrapper.addKeyValueCells("Literature Reference", model.getLiteratureReference());
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(),COMMA), 3);
 
         return table;
     }

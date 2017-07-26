@@ -1,21 +1,21 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
-
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public class ConceptDetailsModel implements SectionModel {
-    private String creationDate;
+    private ZonedDateTime creationDate;
     private String therapeuticArea;
-    private String linkedExperiment;
+    private List<String> linkedExperiment;
     private String projectCode;
-    private List<String> conceptKeywords;
+    private String conceptKeywords;
     private List<String> designers;
     private List<String> coauthors;
 
-    public ConceptDetailsModel(String creationDate, String therapeuticArea,
-                               String linkedExperiment, String projectCode,
-                               List<String> conceptKeywords, List<String> designers, List<String> coauthors) {
+    public ConceptDetailsModel(ZonedDateTime creationDate, String therapeuticArea,
+                               List<String> linkedExperiment, String projectCode,
+                               String conceptKeywords,  List<String> designers,  List<String> coauthors) {
         this.creationDate = creationDate;
         this.therapeuticArea = therapeuticArea;
         this.linkedExperiment = linkedExperiment;
@@ -25,7 +25,7 @@ public class ConceptDetailsModel implements SectionModel {
         this.coauthors = coauthors;
     }
 
-    public String getCreationDate() {
+    public ZonedDateTime getCreationDate() {
         return creationDate;
     }
 
@@ -33,7 +33,7 @@ public class ConceptDetailsModel implements SectionModel {
         return therapeuticArea;
     }
 
-    public String getLinkedExperiment() {
+    public  List<String> getLinkedExperiment() {
         return linkedExperiment;
     }
 
@@ -41,15 +41,15 @@ public class ConceptDetailsModel implements SectionModel {
         return projectCode;
     }
 
-    public List<String> getConceptKeywords() {
+    public String getConceptKeywords() {
         return conceptKeywords;
     }
 
-    public List<String> getDesigners() {
+    public  List<String> getDesigners() {
         return designers;
     }
 
-    public List<String> getCoauthors() {
+    public  List<String> getCoauthors() {
         return coauthors;
     }
 }

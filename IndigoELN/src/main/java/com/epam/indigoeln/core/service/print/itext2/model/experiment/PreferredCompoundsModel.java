@@ -16,27 +16,27 @@ public class PreferredCompoundsModel implements SectionModel {
     }
 
     public static class PreferredCompoundsRow {
-        private String structure;
-        private String notebookBatchNUmber;
+        private String virtualCompoundId;
+        private Stereoismoer stereoismoer;
+        private String notebookBatchNumber;
         private String molWeight;
         private String molFormula;
         private String structureComments;
 
-        public PreferredCompoundsRow(String structure, String notebookBatchNUmber,
-                                     String molWeight, String molFormula, String structureComments) {
-            this.structure = structure;
-            this.notebookBatchNUmber = notebookBatchNUmber;
+        public PreferredCompoundsRow(String virtualCompoundId, Stereoismoer stereoismoer,
+                                     String notebookBatchNumber, String molWeight, String molFormula,
+                                     String structureComments) {
+
+            this.virtualCompoundId = virtualCompoundId;
+            this.stereoismoer = stereoismoer;
+            this.notebookBatchNumber = notebookBatchNumber;
             this.molWeight = molWeight;
             this.molFormula = molFormula;
             this.structureComments = structureComments;
         }
 
-        public String getStructure() {
-            return structure;
-        }
-
-        public String getNotebookBatchNmber() {
-            return notebookBatchNUmber;
+        public String getNotebookBatchNumber() {
+            return notebookBatchNumber;
         }
 
         public String getMolWeight() {
@@ -49,6 +49,33 @@ public class PreferredCompoundsModel implements SectionModel {
 
         public String getStructureComments() {
             return structureComments;
+        }
+
+        public String getVirtualCompoundId() {
+            return virtualCompoundId;
+        }
+
+        public Stereoismoer getStereoismoer() {
+            return stereoismoer;
+        }
+
+    }
+
+    public static class Stereoismoer{
+        private String name;
+        private String description;
+
+        public Stereoismoer(String name, String description) {
+            this.name = name;
+            this.description = description;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
         }
     }
 }
