@@ -38,6 +38,7 @@ function appValues() {
         density: {value: 0, unit: '', entered: false},
         molarity: {value: 0, unit: '', entered: false},
         mol: {value: 0, unit: '', entered: false},
+        structure: {},
         loadFactor: {value: 0, unit: '', entered: false},
         theoWeight: {value: 0, unit: '', entered: false},
         theoMoles: {value: 0, unit: '', entered: false},

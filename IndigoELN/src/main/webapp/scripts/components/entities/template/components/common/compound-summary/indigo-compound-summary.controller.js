@@ -4,13 +4,11 @@
         .controller('IndigoCompoundSummaryController', IndigoCompoundSummaryController);
 
     /* @ngInject */
-    function IndigoCompoundSummaryController($scope, RegistrationUtil, $log, $rootScope, AlertModal,
-                                             $stateParams, sdImportService, sdExportService, $window, $q, $http,
-                                             Notebook, EntitiesCache) {
+    function IndigoCompoundSummaryController($scope, RegistrationUtil, $log, AlertModal, $stateParams, sdImportService,
+                                             sdExportService, $window, $http, Notebook, EntitiesCache) {
         var vm = this;
         var unbinds = [];
         var showStructureColumn;
-        var getNotebook;
 
         init();
 
@@ -110,7 +108,6 @@
         }
 
         function addCompound(compound) {
-            vm.model.preferredCompoundSummary.compounds.push(compound);
             vm.onAddedBatch({batch: compound});
         }
 
@@ -134,30 +131,29 @@
             return compound;
         }
 
-        function requestNbkBatchNumberAndAddToTable(duplicatedCompound) {
+        // TODO: use product-batch-summary, it doesn't work as must.
+        function requestNbkBatchNumberAndAddToTable(sdUnit) {
             var latest = getLatestNbkBatch();
+            var request = 'api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
+                '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest;
+            var notebookParams = {
+                projectId: $stateParams.projectId,
+                notebookId: $stateParams.notebookId
+            };
 
-            return $http.get('api/projects/' + $stateParams.projectId + '/notebooks/' + $stateParams.notebookId +
-                '/experiments/' + $stateParams.experimentId + '/batch_number?latest=' + latest)
+            return $http.get(request)
                 .then(function(result) {
-                    var batchNumber = result.data.batchNumber;
-                    if (!EntitiesCache.get($stateParams)) {
-                        EntitiesCache.put($stateParams, Notebook.get({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).$promise);
+                    return result.data.batchNumber;
+                })
+                .then(function(batchNumber) {
+                    var notebookPromise = EntitiesCache.get($stateParams);
+                    if (!notebookPromise) {
+                        notebookPromise = Notebook.get(notebookParams).$promise;
+                        EntitiesCache.put($stateParams, notebookPromise);
                     }
-                    if (!getNotebook) {
-                        getNotebook = $q.defer();
-                        Notebook.get({
-                            projectId: $stateParams.projectId,
-                            notebookId: $stateParams.notebookId
-                        }).$promise.then(function(notebook) {
-                            getNotebook.resolve(notebook);
-                        });
-                    }
-                    getNotebook.promise.then(function(notebook) {
-                        var compound = createCompound(notebook, batchNumber, duplicatedCompound);
+
+                    return notebookPromise.then(function(notebook) {
+                        var compound = createCompound(notebook, batchNumber, sdUnit);
                         addCompound(compound);
                         vm.onRowSelected(compound);
                     });
@@ -203,7 +199,11 @@
         }
 
         function importSDFile() {
-            sdImportService.importFile(requestNbkBatchNumberAndAddToTable);
+            sdImportService.importFile().then(function(sdUnits) {
+                _.forEach(sdUnits, function(sdUnit) {
+                    requestNbkBatchNumberAndAddToTable(sdUnit);
+                });
+            });
         }
 
         function exportSDFile() {
@@ -231,6 +231,10 @@
                     return item.id === 'structure';
                 });
                 column.width = (500 * newVal) + 'px';
+            });
+
+            $scope.$watch('vm.batchesTrigger', function() {
+                setCompounds(vm.batches);
             });
 
             $scope.$watch(function() {

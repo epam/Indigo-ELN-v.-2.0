@@ -5,10 +5,9 @@
 
     /* @ngInject */
     function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                          $rootScope, EntitiesBrowser, RegistrationService,
-                                          ProductBatchSummaryOperations, $filter, ProductBatchSummaryCache) {
+                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter,
+                                          ProductBatchSummaryCache) {
         var vm = this;
-        var unbinds = [];
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
@@ -49,7 +48,7 @@
             vm.deleteBatches = deleteBatches;
             vm.isHasCheckedRows = isHasCheckedRows;
             vm.addNewBatch = addNewBatch;
-            vm.duplicateBatch = duplicateBatch;
+            vm.duplicateBatches = duplicateBatches;
             vm.exportSDFile = exportSDFile;
             vm.registerBatches = registerBatches;
 
@@ -620,8 +619,11 @@
             return intended ? !intended.length : true;
         }
 
-        function duplicateBatch() {
-            ProductBatchSummaryOperations.duplicateBatch().then(successAddedBatch);
+        function duplicateBatches() {
+            ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
+                .then(function(batches) {
+                    _.forEach(batches, successAddedBatch);
+                });
         }
 
         function addNewBatch() {
@@ -633,6 +635,12 @@
             vm.onRowSelected(batch);
         }
 
+        function getCheckedBatches() {
+            return _.filter(vm.batches, function(batch) {
+                return batch.select;
+            });
+        }
+
         function isHasCheckedRows() {
             return !!_.find(getProductBatches(), function(item) {
                 return item.select;
@@ -640,13 +648,16 @@
         }
 
         function deleteBatches() {
-            vm.onRemoveBatches();
+            vm.onRemoveBatches({batches: _.filter(vm.batches, {select: true})});
         }
 
         function importSDFile() {
             vm.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile(function() {
+            ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 vm.importLoading = false;
+                _.forEach(batches, function(batch) {
+                    vm.onAddedBatch({batch: batch});
+                });
             });
         }
 
@@ -722,7 +733,7 @@
                 column.width = (500 * newVal) + 'px';
             });
 
-            unbinds.push($rootScope.$on('batch-registration-status-changed', function(event, statuses) {
+            $scope.$on('batch-registration-status-changed', function(event, statuses) {
                 _.each(statuses, function(status, fullNbkBatch) {
                     var batch = _.find(getProductBatches(), {
                         fullNbkBatch: fullNbkBatch
@@ -738,12 +749,6 @@
                             batch.conversationalBatchNumber = status.conversationalBatchNumbers[fullNbkBatch];
                         }
                     }
-                });
-            }));
-
-            $scope.$on('$destroy', function() {
-                _.each(unbinds, function(unbind) {
-                    unbind();
                 });
             });
         }
