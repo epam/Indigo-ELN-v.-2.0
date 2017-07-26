@@ -10,7 +10,6 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInform
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.Structure;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.PreferredCompoundsRow;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel.RegistrationSummaryRow;
-import com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.ReagentInfo;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.StoichiometryRow;
 import com.epam.indigoeln.core.service.print.itext2.model.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
@@ -22,6 +21,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
 import static java.util.Collections.singletonList;
 
 /**
@@ -31,12 +31,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final Project project;
     private final Notebook notebook;
     private final Experiment experiment;
-
-    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment) {
-        this.project = project;
-        this.notebook = notebook;
-        this.experiment = experiment;
-    }
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
@@ -54,6 +48,15 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static final String TODO = "TODO";
 
+    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment) {
+        this.project = project;
+        this.notebook = notebook;
+        this.experiment = experiment;
+    }
+
+    /**
+     * @return list of raw uninitialized pdf sections corresponding to experiment components.
+     */
     public List<AbstractPdfSection> getContentSections() {
         return StreamEx
                 .of(experiment.getComponents())
@@ -73,45 +76,74 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             return singletonList(new ReactionDetailsSection(new ReactionDetailsModel(
                     e.getCreationDate(),
                     content.getString("therapeuticArea", "name"),
-                    content.joinArray("contFromRxn", "text"),
-                    content.joinArray("contToRxn", "text"),
+                    content.streamObjects("contFromRxn").map(m -> m.getString("text")).toList(),
+                    content.streamObjects("contToRxn").map(m -> m.getString("text")).toList(),
                     content.getString("codeAndName", "name"),
                     content.getString("projectAliasName"),
-                    content.joinArray("linkedExperiments", "text"),
-                    content.getString("reactionDetails", "literature"),
-                    content.joinArray("coAuthors", "text")
+                    content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
+                    content.getString("literature"),
+                    content.streamObjects("coAuthors").map(m -> m.getString("name")).toList()
             )));
         });
         put(CONCEPT_DETAILS, (c, e) -> {
-            List<String> listOfTodos = Arrays.asList(TODO, TODO);
+            MongoExt content = MongoExt.of(c);
             return singletonList(new ConceptDetailsSection(new ConceptDetailsModel(
-                    TODO, TODO, TODO, TODO,
-                    listOfTodos, listOfTodos, listOfTodos
+                    e.getCreationDate(),
+                    content.getString("therapeuticArea", "name"),
+                    content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
+                    content.getString("codeAndName", "name"),
+                    content.getString("keywords"),
+                    content.streamObjects("designers").map(m -> m.getString("name")).toList(),
+                    content.streamObjects("coAuthors").map(m -> m.getString("name")).toList()
             )));
         });
         put(REACTION, (c, e) -> {
-            String svgBase64 = c.getContent().getString(IMAGE);
+            MongoExt content = MongoExt.of(c);
+            String svgBase64 = content.getString(IMAGE);
             return singletonList(new ReactionSchemeSection(new ReactionSchemeModel(new SvgPdfImage(svgBase64))));
         });
         put(PREFERRED_COMPOUND_SUMMARY, (c, e) -> {
-            List<PreferredCompoundsRow> rows = Arrays.asList(
-                    new PreferredCompoundsRow(TODO, TODO, TODO, TODO, TODO),
-                    new PreferredCompoundsRow(TODO, TODO, TODO, TODO, TODO)
-            );
+            MongoExt content = MongoExt.of(c);
+            List<PreferredCompoundsRow> rows = content.streamObjects("compounds")
+                    .map(compound -> {
+                        MongoExt stereoisomerObj = compound.getObject("stereoisomer");
+                        Stereoismoer stereoismoer = new Stereoismoer(stereoisomerObj.getString("name"),
+                                stereoisomerObj.getString("description"));
+                        return new PreferredCompoundsRow(
+                                compound.getString("virtualCompoundId"),
+                                stereoismoer,
+                                compound.getString("fullNbkBatch"),
+                                compound.getString("molWeight", "value"),
+                                compound.getString("formula"),
+                                compound.getString("structureComments")
+                        );
+                    }).toList();
             return singletonList(new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
         });
         put(STOICH_TABLE, (c, e) -> {
-            List<StoichiometryRow> rows = MongoExt.of(c)
-                    .streamObjects("reactants")
+            MongoExt content = MongoExt.of(c);
+            List<StoichiometryRow> rows = content.streamObjects("reactants")
                     .map(reactant -> new StoichiometryRow(
-                            new ReagentInfo(
-                                    new SvgPdfImage(reactant.getString("structure", IMAGE)),
-                                    reactant.getString("fullNbkBatch"),
-                                    reactant.getString("compoundId")
-                            ),
-                            TODO, TODO, TODO, TODO, TODO, TODO
-                    ))
-                    .toList();
+                            reactant.getString("fullNbkBatch"),
+                            reactant.getString("compoundId"),
+                            new StoichiometryModel.Structure(new SvgPdfImage(reactant.getString("structure", "image"))),
+                            reactant.getString("molWeight", "value"),
+                            reactant.getString("weight", "value"),
+                            reactant.getString("weight", "unit"),
+                            reactant.getString("mol", "value"),
+                            reactant.getString("mol", "unit"),
+                            reactant.getString("volume", "value"),
+                            reactant.getString("volume", "unit"),
+                            reactant.getString("eq", "value"),
+                            reactant.getString("chemicalName"),
+                            reactant.getString("rxnRole", "REACTANT"),
+                            reactant.getString("stoicPurity", "value"),
+                            reactant.getString("molarity", "value"),
+                            reactant.getString("molarity", "unit"),
+                            reactant.getString("hazardComments"),
+                            reactant.getString("saltCode", "name"),
+                            reactant.getString("saltEq", "value"),
+                            reactant.getString("comments"))).toList();
             return singletonList(new StoichiometrySection((new StoichiometryModel(rows))));
         });
         put(EXPERIMENT_DESCRIPTION, (c, e) -> {

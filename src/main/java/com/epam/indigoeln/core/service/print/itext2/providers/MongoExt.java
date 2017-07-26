@@ -20,7 +20,11 @@ public class MongoExt {
     }
 
     public static MongoExt of(BasicDBObject origin) {
-        return new MongoExt(origin);
+        if (origin != null){
+            return new MongoExt(origin);
+        }else {
+            return new MongoExt(new BasicDBObject());
+        }
     }
 
     public static MongoExt of(Component component) {
@@ -64,7 +68,7 @@ public class MongoExt {
 
     public MongoExt getObject(String field) {
         BasicDBObject object = (BasicDBObject) get(field);
-        return object != null ? MongoExt.of(object) : null;
+        return MongoExt.of(object);
     }
 
     /**

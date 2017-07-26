@@ -17,27 +17,49 @@ public class StoichiometryModel implements SectionModel {
     }
 
     public static class StoichiometryRow {
-        private ReagentInfo reagentInfo;
+        private String fullNbkBatch;
+        private String compoundId;
+        private Structure structure;
         private String molecularWeight;
         private String weight;
+        private String weightUnit;
         private String moles;
+        private String molesUnit;
         private String volume;
+        private String volumeUnit;
         private String eq;
-        private String otherInformation;
+        private String chemicalName;
+        private String rxnRole;
+        private String stoicPurity;
+        private String molarity;
+        private String molarityUnit;
+        private String hazardComments;
+        private String saltCode;
+        private String saltEq;
+        private String comments;
 
-        public StoichiometryRow(ReagentInfo reagentInfo, String molecularWeight, String weightMg,
-                                String molesMm, String volume, String eq, String otherInformation) {
-            this.reagentInfo = reagentInfo;
+        public StoichiometryRow(String fullNbkBatch, String compoundId, Structure structure, String molecularWeight, String weight,
+                                String weightUnit, String moles, String molesUnit, String volume, String volumeUnit, String eq, String chemicalName, String rxnRole, String stoicPurity, String molarity, String molarityUnit, String hazardComments, String saltCode, String saltEq, String comments) {
+            this.fullNbkBatch = fullNbkBatch;
+            this.compoundId = compoundId;
+            this.structure = structure;
             this.molecularWeight = molecularWeight;
-            this.weight = weightMg;
-            this.moles = molesMm;
+            this.weight = weight;
+            this.weightUnit = weightUnit;
+            this.moles = moles;
+            this.molesUnit = molesUnit;
             this.volume = volume;
+            this.volumeUnit = volumeUnit;
             this.eq = eq;
-            this.otherInformation = otherInformation;
-        }
-
-        public ReagentInfo getReagentInfo() {
-            return reagentInfo;
+            this.chemicalName = chemicalName;
+            this.rxnRole = rxnRole;
+            this.stoicPurity = stoicPurity;
+            this.molarity = molarity;
+            this.molarityUnit = molarityUnit;
+            this.hazardComments = hazardComments;
+            this.saltCode = saltCode;
+            this.saltEq = saltEq;
+            this.comments = comments;
         }
 
         public String getMolecularWeight() {
@@ -60,26 +82,6 @@ public class StoichiometryModel implements SectionModel {
             return eq;
         }
 
-        public String getOtherInformation() {
-            return otherInformation;
-        }
-    }
-
-    public static class ReagentInfo {
-        private PdfImage image;
-        private String fullNbkBatch;
-        private String compoundId;
-
-        public ReagentInfo(PdfImage molecularImage, String fullNbkBatch, String compoundId) {
-            this.image = molecularImage;
-            this.fullNbkBatch = fullNbkBatch;
-            this.compoundId = compoundId;
-        }
-
-        public PdfImage getImage() {
-            return image;
-        }
-
         public String getFullNbkBatch() {
             return fullNbkBatch;
         }
@@ -87,6 +89,69 @@ public class StoichiometryModel implements SectionModel {
         public String getCompoundId() {
             return compoundId;
         }
+
+        public Structure getStructure() {
+            return structure;
+        }
+
+        public String getWeightUnit() {
+            return weightUnit;
+        }
+
+        public String getMolesUnit() {
+            return molesUnit;
+        }
+
+        public String getVolumeUnit() {
+            return volumeUnit;
+        }
+
+        public String getChemicalName() {
+            return chemicalName;
+        }
+
+        public String getRxnRole() {
+            return rxnRole;
+        }
+
+        public String getStoicPurity() {
+            return stoicPurity;
+        }
+
+        public String getMolarity() {
+            return molarity;
+        }
+
+        public String getMolarityUnit() {
+            return molarityUnit;
+        }
+
+        public String getHazardComments() {
+            return hazardComments;
+        }
+
+        public String getSaltCode() {
+            return saltCode;
+        }
+
+        public String getSaltEq() {
+            return saltEq;
+        }
+
+        public String getComments() {
+            return comments;
+        }
     }
 
+    public static class Structure {
+        private PdfImage image;
+
+        public Structure(PdfImage image) {
+            this.image = image;
+        }
+
+        public PdfImage getImage() {
+            return image;
+        }
+    }
 }
