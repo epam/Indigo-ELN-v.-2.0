@@ -14,16 +14,25 @@ import java.io.*;
 import java.util.List;
 
 /**
- * TODO: add usage description and comments...
+ * This class is used for generating a report.
+ * A report consist of a header, which is the same for all pages and a list of pdf sections. <br>
+ * <br>
+ * To create new section you need to: <br>
+ * 1) Create section model class in model package. the bean class must implement SectionModel interface <br>
+ * 2) Create pdf section class, parametrized with the model class. <br>
+ * 3) Make you sectionsProvider return new section. <br>
+ * <br>
+ * PdfGenerator abstracts away from sections implementation.<br>
+ * To create new report type you just need to create new {@link PdfSectionsProvider}<br>
  */
 public class PdfGenerator {
     private final List<AbstractPdfSection> contentSections;
     private final PdfLayout layout;
     private final HeaderPdfSection headerSection;
 
-    public PdfGenerator(PdfSectionsProvider provider) {
-        this.contentSections = provider.getContentSections();
-        this.headerSection = provider.getHeaderSection();
+    public PdfGenerator(PdfSectionsProvider sectionsProvider) {
+        this.headerSection = sectionsProvider.getHeaderSection();
+        this.contentSections = sectionsProvider.getContentSections();
         this.layout = new PdfLayout(PageSize.A4, 100, 35, 33, 33, headerSection);
     }
 
