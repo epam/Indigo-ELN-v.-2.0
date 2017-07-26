@@ -20,7 +20,7 @@ public class PdfPostProcessor implements AutoCloseable {
 
     public PdfPostProcessor(OutputStream output, InputStream input, PdfLayout layout) throws IOException, DocumentException {
         PdfReader reader = new PdfReader(input);
-        stamper = new PdfStamper(reader, output);
+        this.stamper = new PdfStamper(reader, output);
         this.layout = layout;
     }
 
@@ -32,7 +32,7 @@ public class PdfPostProcessor implements AutoCloseable {
         return y - currentY;
     }
 
-    public float drawCentralized(PdfPTable table, int page, float y) {
+    float drawCentralized(PdfPTable table, int page, float y) {
         float x = (layout.getPageSize().getWidth() - table.getTotalWidth()) / 2.0f;
         return table.writeSelectedRows(0, -1, x, y, stamper.getOverContent(page));
     }

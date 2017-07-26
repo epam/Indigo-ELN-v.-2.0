@@ -5,11 +5,12 @@ import com.lowagie.text.Rectangle;
 
 public class PdfLayout {
     private Rectangle pageSize;
+    private float headerHeight;
+
     private float marginTop;
     private float marginBottom;
     private float marginLeft;
     private float marginRight;
-    private float headerHeight;
 
     private static final float HEADER_OFFSET = 30;
 
@@ -18,13 +19,11 @@ public class PdfLayout {
                      float marginLeft, float marginRight,
                      HeaderPdfSection headerSection) {
         this.pageSize = pageSize;
+
         this.marginTop = marginTop;
         this.marginBottom = marginBottom;
         this.marginLeft = marginLeft;
         this.marginRight = marginRight;
-
-        // Create dummy header section to calculate content getTop margin.
-        // Real sections are generated after all sections are added to document.
 
         headerSection.init(getContentAvailableWidth());
         this.headerHeight = headerSection.calcHeight();
