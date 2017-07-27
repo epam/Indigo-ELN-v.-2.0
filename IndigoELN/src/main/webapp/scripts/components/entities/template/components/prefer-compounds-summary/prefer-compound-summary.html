@@ -21,13 +21,17 @@
 
         <!--TODO isVisible???-->
         <indigo-compound-summary model="vm.model"
+                                 batches="vm.batches"
+                                 batches-trigger="vm.batchesTrigger"
                                  experiment-name="vm.experiment.name"
                                  on-show-structure="vm.showStructure(isVisible)"
                                  structure-size="vm.structureSize"
                                  is-readonly="vm.isReadonly"
                                  selected-batch="vm.selectedBatch"
                                  selected-batch-trigger="vm.selectedBatchTrigger"
-                                 on-select-batch="vm.onSelectBatch({batch: batch})">
+                                 on-added-batch="vm.onAddedBatch({batch: batch})"
+                                 on-select-batch="vm.onSelectBatch({batch: batch})"
+                                 on-remove-batches="vm.onRemoveBatches({batches: batches})">
         </indigo-compound-summary>
     </div>
 </div>

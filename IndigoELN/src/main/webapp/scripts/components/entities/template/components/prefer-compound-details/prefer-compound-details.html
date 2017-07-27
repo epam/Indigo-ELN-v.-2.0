@@ -22,12 +22,16 @@
 
             <indigo-compound-summary ng-if="vm.showSummary"
                                      model="vm.model"
+                                     batches="vm.batches"
+                                     batches-trigger="vm.batchesTrigger"
+                                     experiment-name="vm.experiment.name"
+                                     structure-size="vm.structureSize"
+                                     is-readonly="vm.isReadonly"
                                      selected-batch="vm.selectedBatch"
                                      selected-batch-trigger="vm.selectedBatchTrigger"
-                                     is-readonly="vm.isReadonly"
-                                     experiment-name="vm.experiment.name"
-                                     is-hide-column-settings="true"
-                                     on-select-batch="vm.onSelectBatch({batch: batch})">
+                                     on-added-batch="vm.onAddedBatch({batch: batch})"
+                                     on-select-batch="vm.onSelectBatch({batch: batch})"
+                                     on-remove-batches="vm.onRemoveBatches({batches: batches})">
             </indigo-compound-summary>
             <!--TODO this functional doesn't work -->
             <div class="row m-b20">
