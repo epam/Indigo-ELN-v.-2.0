@@ -1,19 +1,7 @@
 (function() {
     angular
         .module('indigoeln')
-        .controller('TemplateModalController', TemplateModalController)
-        .filter('searchByValues', searchByValues);
-
-
-    function searchByValues () {
-        return function (component, string) {
-            return searchInNameAndDesc (component, string);
-        };
-    }
-
-    function searchInNameAndDesc (component, string) {
-            return _.includes(_.lowerCase(component.name), _.lowerCase(string)) || _.includes(_.lowerCase(component.desc), _.lowerCase(string));
-    }
+        .controller('TemplateModalController', TemplateModalController);
 
     /* @ngInject */
     function TemplateModalController($scope, $stateParams, Template, Alert, $state, dragulaService,
