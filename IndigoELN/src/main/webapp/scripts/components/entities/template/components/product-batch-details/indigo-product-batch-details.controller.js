@@ -115,11 +115,10 @@
         }
 
         function editResidualSolvents() {
-            var callback = function(result) {
+            InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents).then(function(result) {
                 getProductBatchDetails().residualSolvents = result;
                 vm.experimentForm.$setDirty();
-            };
-            InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents, callback);
+            });
         }
 
         function editExternalSupplier() {
