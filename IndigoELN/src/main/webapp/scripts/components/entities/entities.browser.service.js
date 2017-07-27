@@ -167,7 +167,8 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
             var result = TabKeyUtils.getTabKeyFromParams(stateParams);
             var t = tabs[userId][result];
             if (t) {
-                t.$$title = t.title = tabTitle;
+                t.$$title = tabTitle;
+                t.title = tabTitle;
                 saveTabs(user);
             }
         });
@@ -218,7 +219,9 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
             if (!tabs[userId][tabKey]) {
                 tab.tabKey = tabKey;
                 tabs[userId][tabKey] = tab;
-                if (restored) saveTabs(user);
+                if (restored) {
+                    saveTabs(user);
+                }
             }
 
             setActiveTab(tabs[userId][tabKey]);
