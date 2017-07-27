@@ -15,7 +15,7 @@
             vm.onCloseAllTabs = onCloseAllTabs;
 
             bindEvents();
-            Principal.identity(true).then(function(user) {
+            Principal.identity().then(function(user) {
                 EntitiesBrowser.restoreTabs(user);
                 EntitiesBrowser.getTabs(function(tabs) {
                     vm.tabs = tabs;
