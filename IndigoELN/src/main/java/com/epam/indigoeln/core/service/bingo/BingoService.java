@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -204,10 +205,6 @@ public class BingoService {
     }
 
     private BingoResponse getResponse(String method, String endpoint, String body) {
-        if (StringUtils.isBlank(body)) {
-            body = StringUtils.EMPTY;
-        }
-
         String basic = bingoProperties.getUsername() + ":" + bingoProperties.getPassword();
 
         try {
@@ -226,7 +223,7 @@ public class BingoService {
             connection.setDoOutput(true);
 
             try (OutputStream os = connection.getOutputStream()) {
-                IOUtils.write(body, os, Charset.forName("UTF-8"));
+                IOUtils.write(StringUtils.isBlank(body) ? StringUtils.EMPTY : body, os, Charset.forName("UTF-8"));
             }
 
             if (connection.getResponseCode() == 200) {
@@ -234,8 +231,8 @@ public class BingoService {
                     return objectMapper.readValue(IOUtils.toString(is, Charset.forName("UTF-8")), BingoResponse.class);
                 }
             }
-        } catch (Exception e) {
-            log.warn("Error executing BingoDB request: " + e.getMessage());
+        } catch (IOException e) {
+            log.warn("Error executing BingoDB request: " + e.getMessage(), e);
         }
 
         throw new IndigoRuntimeException("Error executing BingoDB request");
