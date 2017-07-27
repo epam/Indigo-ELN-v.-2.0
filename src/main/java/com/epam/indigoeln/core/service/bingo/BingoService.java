@@ -204,6 +204,10 @@ public class BingoService {
     }
 
     private BingoResponse getResponse(String method, String endpoint, String body) {
+        if (StringUtils.isBlank(body)) {
+            body = StringUtils.EMPTY;
+        }
+
         String basic = bingoProperties.getUsername() + ":" + bingoProperties.getPassword();
 
         try {
