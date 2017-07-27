@@ -96,6 +96,8 @@ public class BingoService {
         headers.set("Authorization", "Basic " + Base64.encodeBase64String(basic.getBytes()));
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
 
+        log.info("BingoService::getResponse() start");
+
         ResponseEntity<BingoResponse> resp = new RestTemplate().exchange(
                 bingoProperties.getApiUrl() + endpoint,
                 method,
@@ -103,7 +105,13 @@ public class BingoService {
                 BingoResponse.class);
 
         if (resp.getStatusCode() == HttpStatus.OK) {
-            return resp.getBody();
+            log.info("BingoService::getResponse() middle");
+
+            BingoResponse result = resp.getBody();
+
+            log.info("BingoService::getResponse() end");
+
+            return result;
         }
 
         throw new IndigoRuntimeException("Error executing BingoDB request");
