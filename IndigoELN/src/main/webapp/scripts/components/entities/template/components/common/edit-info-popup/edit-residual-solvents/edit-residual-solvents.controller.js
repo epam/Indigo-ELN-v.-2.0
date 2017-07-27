@@ -3,14 +3,13 @@ angular
     .controller('EditResidualSolventsController', EditResidualSolventsController);
 
 /* @ngInject */
-function EditResidualSolventsController($uibModalInstance, data) {
+function EditResidualSolventsController($uibModalInstance, solvents) {
     var vm = this;
 
     init();
 
     function init() {
-        var inputData = data || {};
-        vm.solvents = inputData.data || [];
+        vm.solvents = solvents;
         vm.save = save;
         vm.cancel = cancel;
         vm.addSolvent = addSolvent;
