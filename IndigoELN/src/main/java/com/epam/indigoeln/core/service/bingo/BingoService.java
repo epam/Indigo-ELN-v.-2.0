@@ -43,23 +43,17 @@ public class BingoService {
     }
 
     public Optional<String> insert(String s) {
-        log.info("BingoService::insert() start");
-
-        Optional<String> result = Optional.empty();
-
         try {
             BingoResponse response = getResponse(HttpMethod.POST, "/structures", s);
 
             if (response.getStructures() != null && !response.getStructures().isEmpty()) {
-                result = Optional.of(response.getStructures().get(0).getId());
+                return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
             log.warn("Cannot insert: " + e.getMessage());
         }
 
-        log.info("BingoService::insert() end");
-
-        return result;
+        return Optional.empty();
     }
 
     public Optional<String> update(String id, String s) {
