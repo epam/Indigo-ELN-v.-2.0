@@ -16,7 +16,8 @@
                 model: '=',
                 experiment: '=',
                 experimentForm: '=',
-                saveExperimentFn: '&'
+                saveExperimentFn: '&',
+                onChanged: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
@@ -85,8 +86,12 @@
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
                 vm.onPrecursorsChanged = onPrecursorsChanged;
-
+                vm.onChangedComponent = onChangedComponent;
                 bindEvents();
+            }
+
+            function onChangedComponent(componentId) {
+                vm.onChanged({componentId: componentId});
             }
 
             function updateModel() {
