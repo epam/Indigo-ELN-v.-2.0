@@ -19,7 +19,7 @@
                     theme: 'indigo',
                     scrollInertia: 100
                 });
-                var onTabChanged = scope.$watch('activeTab', function() {
+                scope.$watch('vm.activeTab', function() {
                     $element.mCustomScrollbar('update');
                     $timeout(function() {
                         var l = $element.find('.active').position().left;
@@ -27,9 +27,6 @@
                             scrollInertia: 300
                         });
                     }, 100);
-                });
-                scope.$on('$destroy', function() {
-                    onTabChanged();
                 });
             }, 0, false);
         }
