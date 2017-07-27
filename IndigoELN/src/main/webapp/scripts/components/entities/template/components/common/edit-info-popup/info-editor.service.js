@@ -34,8 +34,8 @@ function infoEditor($uibModal) {
         });
     }
 
-    function editResidualSolvents(residualSolvents, callback) {
-        $uibModal.open({
+    function editResidualSolvents(residualSolvents) {
+        return $uibModal.open({
             animation: true,
             size: 'lg',
             controller: 'EditResidualSolventsController',
@@ -46,9 +46,7 @@ function infoEditor($uibModal) {
                     return (residualSolvents && residualSolvents.data) || [];
                 }
             }
-        }).result.then(function(result) {
-            callback(result);
-        });
+        }).result;
     }
 
     function editExternalSupplier(data, callback) {
