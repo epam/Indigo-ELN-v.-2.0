@@ -34,21 +34,19 @@ function infoEditor($uibModal) {
         });
     }
 
-    function editResidualSolvents(data, callback) {
-        $uibModal.open({
+    function editResidualSolvents(residualSolvents) {
+        return $uibModal.open({
             animation: true,
             size: 'lg',
             controller: 'EditResidualSolventsController',
             controllerAs: 'vm',
             templateUrl: 'scripts/components/entities/template/components/common/edit-info-popup/edit-residual-solvents/edit-residual-solvents.html',
             resolve: {
-                data: function() {
-                    return data;
+                solvents: function() {
+                    return (residualSolvents && residualSolvents.data) || [];
                 }
             }
-        }).result.then(function(result) {
-            callback(result);
-        });
+        }).result;
     }
 
     function editExternalSupplier(data, callback) {

@@ -481,14 +481,14 @@
         }
 
         function editResidualSolvents(rows) {
-            var callback = function(result) {
-                _.each(rows, function(row) {
+            var data = rows.length === 1 ? rows[0].residualSolvents : {};
+
+            InfoEditor.editResidualSolvents(data).then(function(result) {
+                _.forEach(rows, function(row) {
                     row.residualSolvents = result;
                 });
                 EntitiesBrowser.setCurrentFormDirty();
-            };
-            var data = rows.length === 1 ? rows[0].residualSolvents : {};
-            InfoEditor.editResidualSolvents(data || {}, callback);
+            });
         }
 
         function editSolubility(rows) {
