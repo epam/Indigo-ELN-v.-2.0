@@ -101,14 +101,12 @@ function calculationService($rootScope, $http, $q, AppValues,
     }
 
     function getImageForStructure(molfile, type, callback) {
-        return $http({
-            url: 'api/renderer/' + type + '/image',
-            method: 'POST',
-            data: molfile
-        }).success(function(result) {
+        return $http.post('api/renderer/' + type + '/image', molfile).then(function(response) {
             if (callback) {
-                callback(result.image);
+                callback(response.data.image);
             }
+
+            return response.data.image;
         });
     }
 
@@ -144,10 +142,12 @@ function calculationService($rootScope, $http, $q, AppValues,
                     reagent.formula = getSaltFormula(data);
                     // for product batch summary
                     reagent.lastUpdatedType = 'weight';
+
+                    return reagent;
                 });
         }
 
-        return $q.resolve();
+        return $q.resolve(reagent);
     }
 
 

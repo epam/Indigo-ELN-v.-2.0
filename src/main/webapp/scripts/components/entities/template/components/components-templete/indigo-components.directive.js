@@ -114,10 +114,10 @@
                 onSelectBatch(selectedBatch || null);
             }
 
-            function onRemoveBatches() {
+            function onRemoveBatches(batchesForRemove) {
                 var length = vm.batches.length;
 
-                ProductBatchSummaryOperations.deleteBatches(vm.batches);
+                ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
 
                 if (vm.batches.length - length) {
                     vm.experimentForm.$setDirty();
@@ -130,8 +130,7 @@
             }
 
             function onAddedBatch(batch) {
-                // TODO: uncomment it when form requestNbkBatchNumberAndAddToTable will be removed push to batches
-                // vm.batches.push(batch);
+                vm.batches.push(batch);
                 vm.batchesTrigger++;
             }
 
