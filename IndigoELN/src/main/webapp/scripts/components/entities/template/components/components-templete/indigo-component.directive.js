@@ -5,14 +5,13 @@
 
     /* @ngInject */
     function indigoComponent($compile, Components) {
-        var components = _.keyBy(Components, 'id');
-
         var defaultAttributes = ' model="vm.ComponentsCtrl.model"' +
             ' reactants="vm.ComponentsCtrl.reactants"' +
             ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
             ' experiment="vm.ComponentsCtrl.experiment"' +
             ' experiment-form="vm.ComponentsCtrl.experimentForm"' +
-            ' is-readonly="vm.ComponentsCtrl.isReadonly"';
+            ' is-readonly="vm.ComponentsCtrl.isReadonly"' +
+            ' on-changed="vm.ComponentsCtrl.onChangedComponent({componentId: vm.componentId})"';
 
         var batchAttributes = defaultAttributes +
             ' batches="vm.ComponentsCtrl.batches"' +
@@ -68,7 +67,7 @@
         }
 
         function getComponentAttributes(id) {
-            if (components[id].isBatch) {
+            if (Components[id].isBatch) {
                 return batchAttributes;
             }
             if (id === 'stoich-table') {
