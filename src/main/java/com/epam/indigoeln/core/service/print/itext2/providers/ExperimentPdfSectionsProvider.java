@@ -14,6 +14,8 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.Stoichiomet
 import com.epam.indigoeln.core.service.print.itext2.model.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
+import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
+import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import one.util.streamex.StreamEx;
 
 import java.time.Instant;

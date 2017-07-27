@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service.print.itext2.providers;
+package com.epam.indigoeln.core.service.print.itext2.utils;
 
 import com.epam.indigoeln.core.model.Component;
 import com.mongodb.BasicDBList;

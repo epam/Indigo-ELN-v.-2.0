@@ -14,10 +14,7 @@ public class ExperimentDescriptionSection extends BasePdfSectionWithSimpleTitle<
     @Override
     protected PdfPTable generateContentTable(float width) {
         PdfPTable table = TableFactory.createDefaultTable(1, width);
-        table.addCell(CellFactory.getCommonCell(model.getDescription()
-                + "\nTODO: parse HTML"
-                + "\nTODO: support Russian text"
-        ));
+        table.addCell(CellFactory.getCommonCellWithHtml(model.getDescription()));
         return table;
     }
 }
