@@ -1,11 +1,9 @@
 package com.epam.indigoeln.core.service.print.itext2;
 
-import com.epam.indigoeln.core.service.print.itext2.providers.MongoExt;
+import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.mongodb.BasicDBObject;
 import one.util.streamex.StreamEx;
 import org.junit.Test;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 

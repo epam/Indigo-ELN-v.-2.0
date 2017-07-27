@@ -8,6 +8,7 @@ import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.HeaderPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectHeaderSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectSummarySection;
+import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 
 import java.time.Instant;
 import java.util.List;
