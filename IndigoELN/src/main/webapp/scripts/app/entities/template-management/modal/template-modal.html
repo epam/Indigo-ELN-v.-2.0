@@ -25,7 +25,7 @@
                              indigo-indeln-scroll>
                             <a class="list-group-item draggable-component"
                                ng-repeat="component in vm.components track by $index"
-                               data-id="{{component.id}}" ng-show="component | searchComponent: search">
+                               data-id="{{component.id}}" ng-show="component | containValue: search: ['name', 'desc']">
                                 <h5 class="draggable-component" ng-bind="component.name"></h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
