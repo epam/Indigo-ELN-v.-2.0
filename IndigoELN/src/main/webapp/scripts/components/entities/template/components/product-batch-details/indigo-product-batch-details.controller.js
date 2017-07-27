@@ -7,7 +7,6 @@
     function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
                                                  ProductBatchSummaryCache, $filter, ProductBatchSummaryOperations) {
         var vm = this;
-        var productBatches;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
@@ -42,6 +41,7 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
+        vm.isEditDisabled = isEditDisabled;
 
         init();
 
@@ -57,6 +57,12 @@
             vm.model.productBatchDetails = batch;
             vm.onSelectBatch({batch: batch});
         }
+
+
+        function isEditDisabled() {
+            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected.nbkBatch;
+        }
+
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
