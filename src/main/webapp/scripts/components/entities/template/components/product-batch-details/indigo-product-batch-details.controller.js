@@ -59,7 +59,7 @@
 
 
         function checkEditDisabled() {
-            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected.nbkBatch;
+            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected;
         }
 
 
