@@ -68,9 +68,22 @@ public class CellFactory {
         return cell;
     }
 
+    public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding) {
+        PdfPCell pdfPCell = withCommonStyle(new PdfPCell(innerTable));
+        pdfPCell.setPaddingLeft(0);
+        pdfPCell.setPaddingRight(0);
+        pdfPCell.setPaddingTop(CELL_VERTICAL_PADDING - verticalPadding);
+        pdfPCell.setPaddingBottom(CELL_VERTICAL_PADDING - verticalPadding);
+        return pdfPCell;
+    }
+
     public static PdfPCell getCommonCell(PdfPTable innerTable) {
-        PdfPCell cell = new PdfPCell(innerTable);
-        return withCommonStyle(cell);
+        PdfPCell pdfPCell = withCommonStyle(new PdfPCell(innerTable));
+        pdfPCell.setPaddingLeft(0);
+        pdfPCell.setPaddingRight(0);
+        pdfPCell.setPaddingTop(0);
+        pdfPCell.setPaddingBottom(0);
+        return pdfPCell;
     }
 
     public static PdfPCell getCommonCell() {
