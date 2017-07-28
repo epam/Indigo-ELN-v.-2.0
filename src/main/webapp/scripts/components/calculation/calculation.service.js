@@ -86,18 +86,12 @@ function calculationService($rootScope, $http, $q, AppValues,
         }
     }
 
-    function getMoleculeInfo(reagent, successCallback, failureCallback) {
+    function getMoleculeInfo(reagent) {
         var config = _.isObject(reagent) ? getSaltConfig(reagent) : null;
         var data = reagent.structure ? reagent.structure.molfile : reagent;
         var url = 'api/calculations/molecule/info';
-        if (successCallback) {
-            $http.put(url, data, config)
-                .then(function(result) {
-                    successCallback(result);
-                }, failureCallback);
-        } else {
-            return $http.put(url, data, config);
-        }
+
+        return $http.put(url, data, config);
     }
 
     function getImageForStructure(molfile, type, callback) {
