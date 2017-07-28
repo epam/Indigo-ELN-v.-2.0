@@ -116,16 +116,25 @@
 
             function onRemoveBatches(batchesForRemove) {
                 var length = vm.batches.length;
-
+                var batchToSelect;
+                // calculate last batch which is not in batchesForRemove to select it after delete
+                _.each(batchesForRemove, function(b) {
+                    var prevInd = vm.batches.indexOf(b) - 1;
+                    var batch = vm.batches[prevInd];
+                    if (batch && batchesForRemove.indexOf(batch) < 0) {
+                        batchToSelect = batch;
+                    }
+                });
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
-
                 if (vm.batches.length - length) {
                     vm.experimentForm.$setDirty();
                     vm.batchesTrigger++;
                 }
-
+                if (!batchToSelect) {
+                    batchToSelect = _.first(vm.batches);
+                }
                 if (vm.selectedBatch && !_.includes(vm.batches, vm.selectedBatch)) {
-                    onSelectBatch(_.first(vm.batches));
+                    onSelectBatch(batchToSelect);
                 }
             }
 
