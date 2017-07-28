@@ -598,9 +598,7 @@
 
         function syncWithIntendedProducts() {
             ProductBatchSummaryOperations.syncWithIntendedProducts()
-                .then(function(batches) {
-                    _.forEach(batches, successAddedBatch);
-                });
+                .then(successAddedBatches);
         }
 
         function isEditable(row, columnId) {
@@ -624,13 +622,20 @@
 
         function duplicateBatches() {
             ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
-                .then(function(batches) {
-                    _.forEach(batches, successAddedBatch);
-                });
+                .then(successAddedBatches);
         }
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+        }
+
+        function successAddedBatches(batches) {
+            if (batches.length) {
+                _.forEach(batches, function(batch) {
+                    vm.onAddedBatch({batch: batch});
+                });
+                vm.onRowSelected(_.last(batches));
+            }
         }
 
         function successAddedBatch(batch) {
