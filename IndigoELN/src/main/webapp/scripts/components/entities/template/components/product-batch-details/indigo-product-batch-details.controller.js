@@ -7,7 +7,6 @@
     function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
                                                  ProductBatchSummaryCache, $filter, ProductBatchSummaryOperations) {
         var vm = this;
-        var productBatches;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
@@ -42,7 +41,7 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-
+     
         init();
 
         function init() {
@@ -57,6 +56,12 @@
             vm.model.productBatchDetails = batch;
             vm.onSelectBatch({batch: batch});
         }
+
+
+        function checkEditDisabled() {
+            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected;
+        }
+
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
@@ -304,6 +309,10 @@
                 } else {
                     onRowDeSelected();
                 }
+            });
+
+            $scope.$watch(checkEditDisabled, function(newValue) {
+                vm.isEditDisabled = newValue;
             });
 
             $scope.$watch('vm.model.stoichTable', function() {
