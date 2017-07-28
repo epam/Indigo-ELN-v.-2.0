@@ -90,13 +90,13 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             otherInformation.addCell(saltEqLabel);
             otherInformation.addCell(saltEq);
 
-            table.addCell(CellFactory.getCommonCell(reagentTable));
+            table.addCell(CellFactory.getCommonCell(reagentTable, CELL_VERTICAL_PADDING));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMolecularWeight())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getWeight(), row.getWeightUnit())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMoles(), row.getMolesUnit())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getVolume(), row.getVolumeUnit())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getEq())));
-            table.addCell(CellFactory.getCommonCell(otherInformation));
+            table.addCell(CellFactory.getCommonCell(otherInformation, CELL_VERTICAL_PADDING));
         }
 
         return table;
