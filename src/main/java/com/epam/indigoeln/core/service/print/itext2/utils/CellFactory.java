@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
+import com.lowagie.text.List;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.html.simpleparser.HTMLWorker;
 import com.lowagie.text.pdf.BaseFont;
@@ -19,14 +20,15 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_ARIAL;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_TREBUCHET_MS;
 
 public class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
     private static final Color CELL_BORDER_COLOR = new Color(170, 170, 170);
 
-    private static final float FONT_SIZE = 6.8f;
-    private static final Font FONT = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true, 8, Font.NORMAL, FONT_COLOR);
-    private static final Font FONT_BOLD = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true, FONT_SIZE, Font.BOLD, FONT_COLOR);
+    private static final float FONT_SIZE = 10f;
+    private static final Font FONT = FontFactory.getFont(FONT_FAMILY_TREBUCHET_MS, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.NORMAL, FONT_COLOR);
+    private static final Font FONT_BOLD = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.BOLD, FONT_COLOR);
 
     private static final float CELL_HORIZONTAL_PADDING = 6;
     private static final float CELL_VERTICAL_PADDING = 9;
@@ -98,19 +100,28 @@ public class CellFactory {
     public static PdfPCell getCommonCellWithHtml(String content) {
         PdfPCell pdfPCell = withCommonStyle(new PdfPCell());
         try {
-            ArrayList<Element> list = HTMLWorker.parseToList(new StringReader(content), null);
-            for (Element element : list) {
-                ArrayList<Chunk> chunks = element.getChunks();
-                for (Chunk chunk : chunks) {
-                    Font oldFont = chunk.getFont();
-                    chunk.setFont(FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true,8, oldFont.getStyle(), FONT_COLOR));
+            ArrayList<Element> elements = HTMLWorker.parseToList(new StringReader(content), null);
+            for (Element element : elements) {
+                if (element instanceof List) {
+                    List list = (List) element;
+                    ArrayList<ListItem> items = list.getItems();
+                    items.stream()
+                            .map(ListItem::getListSymbol)
+                            .forEach(CellFactory::setFont);
                 }
+                ArrayList<Chunk> chunks = element.getChunks();
+                chunks.forEach(CellFactory::setFont);
                 pdfPCell.addElement(element);
             }
         } catch (IOException e) {
-            LOGGER.error("Experiment description parse error",e);
+            LOGGER.error("Experiment description parse error", e);
         }
         return pdfPCell;
+    }
+
+    private static void setFont(Chunk chunk) {
+        Font oldFont = chunk.getFont();
+        chunk.setFont(FontFactory.getFont(FONT_FAMILY_TREBUCHET_MS, BaseFont.IDENTITY_H, true, FONT_SIZE, oldFont.getStyle(), FONT_COLOR));
     }
 
     public static PdfPCell getCommonCell(String content, boolean isBold) {

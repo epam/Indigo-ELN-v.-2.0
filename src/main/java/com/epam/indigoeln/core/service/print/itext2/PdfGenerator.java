@@ -33,7 +33,7 @@ public class PdfGenerator {
     public PdfGenerator(PdfSectionsProvider sectionsProvider) {
         this.headerSection = sectionsProvider.getHeaderSection();
         this.contentSections = sectionsProvider.getContentSections();
-        this.layout = new PdfLayout(PageSize.A4, 100, 35, 33, 33, headerSection);
+        this.layout = new PdfLayout(PageSize.A4, 50, 35, 33, 33, headerSection);
     }
 
     public void generate(OutputStream output) {
