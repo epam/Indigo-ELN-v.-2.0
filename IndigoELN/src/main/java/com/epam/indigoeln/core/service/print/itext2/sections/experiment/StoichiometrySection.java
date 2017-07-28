@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.Stoichiomet
 import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithSimpleTitle;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
+import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Element;
 import com.lowagie.text.Rectangle;
@@ -53,9 +54,9 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             PdfPCell rxnRoleLabel = CellFactory.getCommonCell("Rxn Role:");
             PdfPCell rxnRole = CellFactory.getCommonCell(row.getRxnRole());
             PdfPCell purityLabel = CellFactory.getCommonCell("Purity:");
-            PdfPCell stoicPurity = CellFactory.getCommonCell(row.getStoicPurity());
+            PdfPCell stoicPurity = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getStoicPurity()));
             PdfPCell molarityLabel = CellFactory.getCommonCell("Molarity:");
-            PdfPCell molarity = CellFactory.getCommonCell(row.getMolarity() + SPACE + row.getMolarityUnit());
+            PdfPCell molarity = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMolarity(), row.getMolarityUnit()));
             PdfPCell hazardLabel = CellFactory.getCommonCell("Hazard:");
             PdfPCell hazard = CellFactory.getCommonCell(row.getHazardComments());
             PdfPCell commentsLabel = CellFactory.getCommonCell("Comments:");
@@ -63,7 +64,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             PdfPCell saltCodeLabel = CellFactory.getCommonCell("Salt Code:");
             PdfPCell saltCode = CellFactory.getCommonCell(row.getSaltCode());
             PdfPCell saltEqLabel = CellFactory.getCommonCell("Salt EQ:");
-            PdfPCell saltEq = CellFactory.getCommonCell(row.getSaltEq());
+            PdfPCell saltEq = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getSaltEq()));
 
             otherInformation.addCell(alignCenterWithoutBorder(chemNameLabel));
             otherInformation.addCell(alignCenterWithoutBorder(chemicalName));
@@ -83,11 +84,11 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             otherInformation.addCell(alignCenterWithoutBorder(saltEq));
 
             table.addCell(CellFactory.getCommonCell(reagentTable));
-            table.addCell(CellFactory.getCommonCell(row.getMolecularWeight()));
-            table.addCell(CellFactory.getCommonCell(row.getWeight() + SPACE + row.getWeightUnit()));
-            table.addCell(CellFactory.getCommonCell(row.getMoles() + SPACE + row.getMolesUnit()));
-            table.addCell(CellFactory.getCommonCell(row.getVolume() + SPACE + row.getVolumeUnit()));
-            table.addCell(CellFactory.getCommonCell(row.getEq()));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMolecularWeight())));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getWeight(), row.getWeightUnit())));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMoles(), row.getMolesUnit())));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getVolume(), row.getVolumeUnit())));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getEq())));
             table.addCell(CellFactory.getCommonCell(otherInformation));
         }
 

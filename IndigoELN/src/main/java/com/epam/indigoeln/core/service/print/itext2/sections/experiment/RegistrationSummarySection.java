@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithS
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel.RegistrationSummaryRow;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
+import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Element;
 import com.lowagie.text.pdf.PdfPTable;
@@ -26,7 +27,7 @@ public class RegistrationSummarySection extends BasePdfSectionWithSimpleTitle<Re
         for (RegistrationSummaryRow row : model.getRows()) {
             StreamEx.of(
                     CellFactory.getCommonCell(row.getFullNbkBatch()),
-                    CellFactory.getCommonCell(row.getTotalAmountMade() + SPACE + row.getTotalAmountMadeUnit()),
+                    CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getTotalAmountMade(), row.getTotalAmountMadeUnit())),
                     CellFactory.getCommonCell(row.getRegistrationStatus()),
                     CellFactory.getCommonCell(row.getConversationalBatch())
             ).forEach(cell -> {
