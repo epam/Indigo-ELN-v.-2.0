@@ -71,7 +71,8 @@ public class CellFactory {
     }
 
     public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding) {
-        PdfPCell pdfPCell = withCommonStyle(new PdfPCell(innerTable));
+        PdfPCell pdfPCell = new PdfPCell(innerTable);
+        withCommonBorder(pdfPCell);
         pdfPCell.setPaddingLeft(0);
         pdfPCell.setPaddingRight(0);
         pdfPCell.setPaddingTop(CELL_VERTICAL_PADDING - verticalPadding);
