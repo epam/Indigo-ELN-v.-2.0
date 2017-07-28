@@ -50,12 +50,12 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
 
             if (structure.getImage().getPngBytes(structureTableWidth).isPresent()){
                 PdfPCell imageCell = CellFactory.getImageCell(structure.getImage(), structureTableWidth);
-                structureTable.addCell(alignCenterWithoutBorder(imageCell));
+                structureTable.addCell(getStructureCell(imageCell));
             }
             String content = structure.getName() + " " + structure.getDescription();
             if (!StringUtils.isBlank(content)) {
                 PdfPCell textCell = CellFactory.getCommonCell(content);
-                structureTable.addCell(alignCenterWithoutBorder(textCell));
+                structureTable.addCell(getStructureCell(textCell));
             }
 
       //TODO      structureTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
@@ -63,27 +63,27 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
             PdfPTable yieldTable = TableFactory.createDefaultTable(1, yieldWidth);
 
             if (!StringUtils.isBlank(row.getTheoWeight())){
-                yieldTable.addCell(yieldCell(FormatUtils.formatDecimal(row.getTheoWeight(), row.getTheoWeightUnit())));
+                yieldTable.addCell(getYieldCell(FormatUtils.formatDecimal(row.getTheoWeight(), row.getTheoWeightUnit())));
             }
             if (!StringUtils.isBlank(row.getYield())){
-                yieldTable.addCell(yieldCell(FormatUtils.formatDecimal(row.getYield(), "%")));
+                yieldTable.addCell(getYieldCell(FormatUtils.formatDecimal(row.getYield(), "%")));
             }
 
             PdfPTable batchInformation = TableFactory.createDefaultTable(infoColumnWidth, infoWidth);
             BatchInformation batchInfo = row.getBatchInformation();
 
-            PdfPCell molWeightLabel = batchCell("Mol Wgt:");
-            PdfPCell molWeight = batchCell(FormatUtils.formatDecimal(batchInfo.getMolWeight()));
-            PdfPCell exactMassLabel = batchCell("Exact Mass:");
-            PdfPCell exactMass = batchCell(FormatUtils.formatDecimal(batchInfo.getExactMass()));
-            PdfPCell saltCodeLabel = batchCell("Salt Code:");
-            PdfPCell saltCode = batchCell(batchInfo.getSaltCode());
-            PdfPCell saltEqLabel = batchCell("Salt EQ:");
-            PdfPCell saltEq = batchCell(FormatUtils.formatDecimal(batchInfo.getSaltEq()));
-            PdfPCell batchOwnerLabel = batchCell("Batch Owner:");
-            PdfPCell batchOwner = batchCell( StringUtils.join(batchInfo.getBatchOwner(),COMMA));
-            PdfPCell commentsLabel = batchCell("Comments:");
-            PdfPCell comments = batchCell(batchInfo.getComments());
+            PdfPCell molWeightLabel = getBatchCell("Mol Wgt:");
+            PdfPCell molWeight = getBatchCell(FormatUtils.formatDecimal(batchInfo.getMolWeight()));
+            PdfPCell exactMassLabel = getBatchCell("Exact Mass:");
+            PdfPCell exactMass = getBatchCell(FormatUtils.formatDecimal(batchInfo.getExactMass()));
+            PdfPCell saltCodeLabel = getBatchCell("Salt Code:");
+            PdfPCell saltCode = getBatchCell(batchInfo.getSaltCode());
+            PdfPCell saltEqLabel = getBatchCell("Salt EQ:");
+            PdfPCell saltEq = getBatchCell(FormatUtils.formatDecimal(batchInfo.getSaltEq()));
+            PdfPCell batchOwnerLabel = getBatchCell("Batch Owner:");
+            PdfPCell batchOwner = getBatchCell( StringUtils.join(batchInfo.getBatchOwner(),COMMA));
+            PdfPCell commentsLabel = getBatchCell("Comments:");
+            PdfPCell comments = getBatchCell(batchInfo.getComments());
 
             batchInformation.addCell(molWeightLabel);
             batchInformation.addCell(molWeight);
@@ -109,14 +109,14 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
         return table;
     }
 
-    private PdfPCell alignCenterWithoutBorder(PdfPCell cell) {
+    private PdfPCell getStructureCell(PdfPCell cell) {
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setBorder(Rectangle.NO_BORDER);
         return cell;
     }
 
-    private PdfPCell batchCell(String content){
+    private PdfPCell getBatchCell(String content){
         PdfPCell commonCell = CellFactory.getCommonCell(content);
         commonCell.setBorder(Rectangle.NO_BORDER);
         commonCell.setPaddingTop(CELL_VERTICAL_PADDING);
@@ -124,7 +124,7 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
         return commonCell;
     }
 
-    private PdfPCell yieldCell(String content){
+    private PdfPCell getYieldCell(String content){
         PdfPCell commonCell = CellFactory.getCommonCell(content);
         commonCell.setBorder(Rectangle.NO_BORDER);
         return commonCell;
