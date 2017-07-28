@@ -6,7 +6,8 @@
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, AutoRecoverEngine, EntitiesBrowser,
-                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook) {
+                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
+                                        Components) {
         var vm = this;
         var pageInfo;
         var tabName;
@@ -60,6 +61,7 @@
             vm.printExperiment = printExperiment;
             vm.refresh = refresh;
             vm.saveCurrent = saveCurrent;
+            vm.onChangedComponent = onChangedComponent;
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -280,6 +282,20 @@
             vm.isStatusSigning = status === 'Signing';
         }
 
+        function onChangedComponent(componentId) {
+            if (componentId === Components.attachments) {
+                vm.loading = Experiment.get($stateParams).$promise
+                    .then(function(result) {
+                        vm.experiment.version = result.version;
+                    }, function() {
+                        Alert.error('Experiment not refreshed due to server error!');
+                    });
+            }
+
+            $scope.experimentForm.$setDirty();
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
+        }
+
         function initEventListeners() {
             $scope.$watch('vm.isEditAllowed', function() {
                 if (!vm.isEditAllowed) {
@@ -312,16 +328,6 @@
                     vm.isBtnSaveActive = true;
                     // If put 0, then save button isn't activated
                 }, 10);
-            });
-
-            // This is necessary for correct saving after attaching files
-            $scope.$on('refresh after attach', function() {
-                vm.loading = Experiment.get($stateParams).$promise
-                    .then(function(result) {
-                        vm.experiment.version = result.version;
-                    }, function() {
-                        Alert.error('Experiment not refreshed due to server error!');
-                    });
             });
         }
     }

@@ -2,7 +2,7 @@
     <uib-tabset class="inner-tabs">
         <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in vm.template track by tab.name">
             <indigo-component class="my-component" ng-repeat="component in tab.components"
-                              component-id="{{component.id}}">
+                              component="component">
             </indigo-component>
         </uib-tab>
     </uib-tabset>

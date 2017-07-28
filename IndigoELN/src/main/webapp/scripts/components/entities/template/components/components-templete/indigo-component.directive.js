@@ -4,14 +4,14 @@
         .directive('indigoComponent', indigoComponent);
 
     /* @ngInject */
-    function indigoComponent($compile, Components) {
+    function indigoComponent($compile) {
         var defaultAttributes = ' model="vm.ComponentsCtrl.model"' +
             ' reactants="vm.ComponentsCtrl.reactants"' +
             ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
             ' experiment="vm.ComponentsCtrl.experiment"' +
             ' experiment-form="vm.ComponentsCtrl.experimentForm"' +
             ' is-readonly="vm.ComponentsCtrl.isReadonly"' +
-            ' on-changed="vm.ComponentsCtrl.onChangedComponent({componentId: vm.componentId})"';
+            ' on-changed="vm.ComponentsCtrl.onChangedComponent({componentId: vm.component.id})"';
 
         var batchAttributes = defaultAttributes +
             ' batches="vm.ComponentsCtrl.batches"' +
@@ -30,7 +30,7 @@
             restrict: 'E',
             require: ['indigoComponent', '^indigoComponents'],
             scope: {
-                componentId: '@'
+                component: '='
             },
             link: link,
             controller: indigoComponentController,
@@ -49,32 +49,32 @@
             compileTemplate();
 
             function compileTemplate() {
-                var template = getTemplate(vm.componentId);
+                var template = getTemplate(vm.component.id);
                 $element.append(template);
                 $compile(template)($scope);
+            }
+
+            function getTemplate(id) {
+                var directiveName = 'indigo-' + id;
+
+                return angular.element('<' + directiveName + getComponentAttributes(id) + '></' + directiveName + '>');
+            }
+
+            function getComponentAttributes(id) {
+                if (vm.component.isBatch) {
+                    return batchAttributes;
+                }
+                if (id === 'stoich-table') {
+                    return stoichTableAttributes;
+                }
+
+                return defaultAttributes;
             }
         }
 
         /* @ngInject */
         function indigoComponentController() {
 
-        }
-
-        function getTemplate(id) {
-            var directiveName = 'indigo-' + id;
-
-            return angular.element('<' + directiveName + getComponentAttributes(id) + '></' + directiveName + '>');
-        }
-
-        function getComponentAttributes(id) {
-            if (Components[id].isBatch) {
-                return batchAttributes;
-            }
-            if (id === 'stoich-table') {
-                return stoichTableAttributes;
-            }
-
-            return defaultAttributes;
         }
     }
 })();
