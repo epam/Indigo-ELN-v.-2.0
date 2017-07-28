@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
 import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
-import com.epam.indigoeln.core.service.registration.RegistrationService;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
@@ -19,15 +18,15 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_ARIAL;
 
 public class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
     private static final Color CELL_BORDER_COLOR = new Color(170, 170, 170);
 
     private static final float FONT_SIZE = 6.8f;
-    private static final Font FONT = FontFactory.getFont(FONT_FAMILY, BaseFont.IDENTITY_H,true, 8, Font.NORMAL, FONT_COLOR);
-    private static final Font FONT_BOLD = FontFactory.getFont(FONT_FAMILY, BaseFont.IDENTITY_H,true, FONT_SIZE, Font.BOLD, FONT_COLOR);
+    private static final Font FONT = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true, 8, Font.NORMAL, FONT_COLOR);
+    private static final Font FONT_BOLD = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true, FONT_SIZE, Font.BOLD, FONT_COLOR);
 
     private static final float CELL_HORIZONTAL_PADDING = 6;
     private static final float CELL_VERTICAL_PADDING = 9;
@@ -47,7 +46,8 @@ public class CellFactory {
         PdfPCell cell = cellIn;
         cell = withCommonPadding(cell);
         cell = withCommonBorder(cell);
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setVerticalAlignment(Element.ALIGN_TOP);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         cell.setUseBorderPadding(true);
         cell.setUseAscender(true);
         return cell;
@@ -90,7 +90,7 @@ public class CellFactory {
                 ArrayList<Chunk> chunks = element.getChunks();
                 for (Chunk chunk : chunks) {
                     Font oldFont = chunk.getFont();
-                    chunk.setFont(FontFactory.getFont(FONT_FAMILY, BaseFont.IDENTITY_H,true,8, oldFont.getStyle(), FONT_COLOR));
+                    chunk.setFont(FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H,true,8, oldFont.getStyle(), FONT_COLOR));
                 }
                 pdfPCell.addElement(element);
             }
