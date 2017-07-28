@@ -23,6 +23,7 @@
 
             vm.save = save;
             vm.refresh = refresh;
+            vm.updateAttachments = updateAttachments;
 
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -50,16 +51,15 @@
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
+        }
 
-            // This is necessary for correct saving after attaching files
-            $scope.$on('refresh after attach', function() {
-                vm.loading = Project.get($stateParams).$promise
-                    .then(function(result) {
-                        vm.project.version = result.version;
-                    }, function() {
-                        Alert.error('Project not refreshed due to server error!');
-                    });
-            });
+        function updateAttachments() {
+            vm.loading = Project.get($stateParams).$promise
+                .then(function(result) {
+                    vm.project.version = result.version;
+                }, function() {
+                    Alert.error('Project not refreshed due to server error!');
+                });
         }
 
         function save() {
