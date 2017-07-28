@@ -597,7 +597,10 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts();
+            ProductBatchSummaryOperations.syncWithIntendedProducts()
+                .then(function(batches) {
+                    _.forEach(batches, successAddedBatch);
+                });
         }
 
         function isEditable(row, columnId) {
