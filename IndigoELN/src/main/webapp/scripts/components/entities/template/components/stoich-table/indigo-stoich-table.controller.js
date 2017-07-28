@@ -514,10 +514,9 @@
                 var queries = [];
                 _.each(result, function(item) {
                     queries.push(CalculationService.getMoleculeInfo(item));
-                });
-                _.each(result, function(item) {
                     queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
                 });
+
                 $q.all(queries).then(function(data) {
                     var i = 0;
                     for (i = 0; i < result.length; i++) {
@@ -607,9 +606,7 @@
         }
 
         function getPromisesForMoleculeInfoRequest(reactionProperties, target) {
-            return _.map(reactionProperties.data[target], function(reactionProperty) {
-                return CalculationService.getMoleculeInfo(reactionProperty);
-            });
+            return _.map(reactionProperties.data[target], CalculationService.getMoleculeInfo);
         }
 
         function getStructureImagesForIntendedProducts() {
