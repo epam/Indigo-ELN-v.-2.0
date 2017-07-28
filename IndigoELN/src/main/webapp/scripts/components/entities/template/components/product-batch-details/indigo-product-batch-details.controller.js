@@ -41,8 +41,7 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-        vm.isEditDisabled = isEditDisabled;
-
+     
         init();
 
         function init() {
@@ -59,7 +58,7 @@
         }
 
 
-        function isEditDisabled() {
+        function checkEditDisabled() {
             return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected.nbkBatch;
         }
 
@@ -310,6 +309,10 @@
                 } else {
                     onRowDeSelected();
                 }
+            });
+
+            $scope.$watch(checkEditDisabled, function(newValue) {
+                vm.isEditDisabled = newValue;
             });
 
             $scope.$watch('vm.model.stoichTable', function() {
