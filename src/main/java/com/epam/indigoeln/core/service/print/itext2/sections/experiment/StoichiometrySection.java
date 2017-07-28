@@ -11,9 +11,9 @@ import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import one.util.streamex.DoubleStreamEx;
+import org.apache.commons.lang3.StringUtils;
 
 public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<StoichiometryModel> {
-    private static final String SPACE = " ";
 
     public StoichiometrySection(StoichiometryModel model) {
         super(model, "STOICHIOMETRY");
@@ -23,6 +23,9 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             "Reagent", "Mol Wgh", "Weight", "Moles", "Volume", "EQ", "Other Information"
     };
     private static final float[] columnWidth = new float[]{3.5f, 1, 1, 1, 1, 1, 3};
+    private static final float[] infoColumnWidth = new float[]{2, 3};
+
+    private static final float CELL_VERTICAL_PADDING = 4;
 
     @Override
     protected PdfPTable generateContentTable(float width) {
@@ -37,51 +40,55 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             PdfPTable reagentTable = TableFactory.createDefaultTable(1, reagentCellWidth);
 
             Structure structure = row.getStructure();
-            PdfPCell imageCell = CellFactory.getImageCell(structure.getImage(), reagentCellWidth);
-            PdfPCell fullNbkBatch = CellFactory.getCommonCell(row.getFullNbkBatch());
-            PdfPCell compoundId = CellFactory.getCommonCell(row.getCompoundId());
-
-            reagentTable.addCell(alignCenterWithoutBorder(imageCell));
-            reagentTable.addCell(alignCenterWithoutBorder(fullNbkBatch));
-            reagentTable.addCell(alignCenterWithoutBorder(compoundId));
-
+            if (structure.getImage().getPngBytes(reagentCellWidth).isPresent()){
+                PdfPCell imageCell = CellFactory.getImageCell(structure.getImage(), reagentCellWidth);
+                reagentTable.addCell(alignCenterWithoutBorder(imageCell));
+            }
+            if (!StringUtils.isBlank(row.getFullNbkBatch())){
+                PdfPCell fullNbkBatch = CellFactory.getCommonCell(row.getFullNbkBatch());
+                reagentTable.addCell(alignCenterWithoutBorder(fullNbkBatch));
+            }
+            if (!StringUtils.isBlank(row.getFullNbkBatch())){
+                PdfPCell compoundId = CellFactory.getCommonCell(row.getCompoundId());
+                reagentTable.addCell(alignCenterWithoutBorder(compoundId));
+            }
             //TODO   reagentTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
 
-            PdfPTable otherInformation = TableFactory.createDefaultTable(2, infoWidth);
+            PdfPTable otherInformation = TableFactory.createDefaultTable(infoColumnWidth, infoWidth);
 
-            PdfPCell chemNameLabel = CellFactory.getCommonCell("Name:");
-            PdfPCell chemicalName = CellFactory.getCommonCell(row.getChemicalName());
-            PdfPCell rxnRoleLabel = CellFactory.getCommonCell("Rxn Role:");
-            PdfPCell rxnRole = CellFactory.getCommonCell(row.getRxnRole());
-            PdfPCell purityLabel = CellFactory.getCommonCell("Purity:");
-            PdfPCell stoicPurity = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getStoicPurity()));
-            PdfPCell molarityLabel = CellFactory.getCommonCell("Molarity:");
-            PdfPCell molarity = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMolarity(), row.getMolarityUnit()));
-            PdfPCell hazardLabel = CellFactory.getCommonCell("Hazard:");
-            PdfPCell hazard = CellFactory.getCommonCell(row.getHazardComments());
-            PdfPCell commentsLabel = CellFactory.getCommonCell("Comments:");
-            PdfPCell comments = CellFactory.getCommonCell(row.getComments());
-            PdfPCell saltCodeLabel = CellFactory.getCommonCell("Salt Code:");
-            PdfPCell saltCode = CellFactory.getCommonCell(row.getSaltCode());
-            PdfPCell saltEqLabel = CellFactory.getCommonCell("Salt EQ:");
-            PdfPCell saltEq = CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getSaltEq()));
+            PdfPCell chemNameLabel = infoCell("Name:");
+            PdfPCell chemicalName = infoCell(row.getChemicalName());
+            PdfPCell rxnRoleLabel = infoCell("Rxn Role:");
+            PdfPCell rxnRole = infoCell(row.getRxnRole());
+            PdfPCell purityLabel = infoCell("Purity:");
+            PdfPCell stoicPurity = infoCell(FormatUtils.formatDecimal(row.getStoicPurity()));
+            PdfPCell molarityLabel = infoCell("Molarity:");
+            PdfPCell molarity = infoCell(FormatUtils.formatDecimal(row.getMolarity(), row.getMolarityUnit()));
+            PdfPCell hazardLabel = infoCell("Hazard:");
+            PdfPCell hazard = infoCell(row.getHazardComments());
+            PdfPCell commentsLabel = infoCell("Comments:");
+            PdfPCell comments = infoCell(row.getComments());
+            PdfPCell saltCodeLabel = infoCell("Salt Code:");
+            PdfPCell saltCode = infoCell(row.getSaltCode());
+            PdfPCell saltEqLabel = infoCell("Salt EQ:");
+            PdfPCell saltEq = infoCell(FormatUtils.formatDecimal(row.getSaltEq()));
 
-            otherInformation.addCell(alignCenterWithoutBorder(chemNameLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(chemicalName));
-            otherInformation.addCell(alignCenterWithoutBorder(rxnRoleLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(rxnRole));
-            otherInformation.addCell(alignCenterWithoutBorder(purityLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(stoicPurity));
-            otherInformation.addCell(alignCenterWithoutBorder(molarityLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(molarity));
-            otherInformation.addCell(alignCenterWithoutBorder(hazardLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(hazard));
-            otherInformation.addCell(alignCenterWithoutBorder(commentsLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(comments));
-            otherInformation.addCell(alignCenterWithoutBorder(saltCodeLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(saltCode));
-            otherInformation.addCell(alignCenterWithoutBorder(saltEqLabel));
-            otherInformation.addCell(alignCenterWithoutBorder(saltEq));
+            otherInformation.addCell(chemNameLabel);
+            otherInformation.addCell(chemicalName);
+            otherInformation.addCell(rxnRoleLabel);
+            otherInformation.addCell(rxnRole);
+            otherInformation.addCell(purityLabel);
+            otherInformation.addCell(stoicPurity);
+            otherInformation.addCell(molarityLabel);
+            otherInformation.addCell(molarity);
+            otherInformation.addCell(hazardLabel);
+            otherInformation.addCell(hazard);
+            otherInformation.addCell(commentsLabel);
+            otherInformation.addCell(comments);
+            otherInformation.addCell(saltCodeLabel);
+            otherInformation.addCell(saltCode);
+            otherInformation.addCell(saltEqLabel);
+            otherInformation.addCell(saltEq);
 
             table.addCell(CellFactory.getCommonCell(reagentTable));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMolecularWeight())));
@@ -99,6 +106,16 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setBorder(Rectangle.NO_BORDER);
+        cell.setPaddingTop(CELL_VERTICAL_PADDING);
+        cell.setPaddingBottom(CELL_VERTICAL_PADDING);
         return cell;
+    }
+
+    private PdfPCell infoCell(String content){
+        PdfPCell commonCell = CellFactory.getCommonCell(content);
+        commonCell.setBorder(Rectangle.NO_BORDER);
+        commonCell.setPaddingTop(CELL_VERTICAL_PADDING);
+        commonCell.setPaddingBottom(CELL_VERTICAL_PADDING);
+        return commonCell;
     }
 }

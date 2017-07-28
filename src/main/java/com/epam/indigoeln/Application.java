@@ -20,7 +20,8 @@ public class Application extends SpringBootServletInitializer {
      * Main method, used to run the application.
      */
     public static void main(String[] args) {
-        FontFactory.registerDirectory(PdfConst.FONT_FAMILY);
+        FontFactory.registerDirectory(PdfConst.FONT_FAMILY_ARIAL);
+        FontFactory.registerDirectory(PdfConst.FONT_FAMILY_TREBUCHET_MS);
         SpringApplication.run(Application.class, args);
     }
 
