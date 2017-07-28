@@ -22,10 +22,11 @@ public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
 
     private static final String CONFIDENTIAL = "CONFIDENTIAL";
     private static final Font CONFIDENTIAL_FONT = FontFactory.getFont(
-            FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H, true,9, Font.ITALIC | Font.BOLD, new Color(0x4252af)
+            FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H, true,14, Font.ITALIC | Font.BOLD, new Color(0x4252af)
     );
     private static final float FIRST_ROW_BOTTOM_PADDING = 15;
-    private static final float HEADER_TITLE_HEIGHT = 40f;
+    private static final float HEADER_TITLE_HEIGHT = 50f;
+    private static final float HEADER_TITLE_WIDTH = 158f;
 
     public BaseHeaderSectionWithLogo(T model) {
         super(model);
@@ -35,8 +36,7 @@ public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
     protected PdfPTable generateTitleTable(float width) {
         PdfPTable table = TableFactory.createDefaultTable(2, width);
 
-        float logoCellWidth = table.getTotalWidth() / 2;
-        PdfPCell logoCell = buildLogoCell(model.getLogo(), logoCellWidth, HEADER_TITLE_HEIGHT);
+        PdfPCell logoCell = buildLogoCell(model.getLogo(), HEADER_TITLE_WIDTH, HEADER_TITLE_HEIGHT);
         PdfPCell confCell = buildConfidentialCell(HEADER_TITLE_HEIGHT);
         table.addCell(logoCell);
         table.addCell(confCell);
