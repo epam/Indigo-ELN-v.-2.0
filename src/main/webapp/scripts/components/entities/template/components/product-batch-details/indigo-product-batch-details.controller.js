@@ -87,9 +87,12 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
-                vm.batchSelected = batch;
-                selectBatch(vm.batchSelected);
+            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
+                if (batches.length) {
+                    _.forEach(batches, successAddedBatch);
+                    vm.batchSelected = batches[0];
+                    selectBatch(vm.batchSelected);
+                }
             });
         }
 
