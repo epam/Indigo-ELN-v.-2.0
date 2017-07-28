@@ -26,13 +26,13 @@
         </div>
     </div>
 
-    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save(vm.experiment)">
+    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save()">
         <indigo-components template="vm.experiment.template.templateContent"
                            is-readonly="!vm.isEditAllowed"
                            model="vm.experiment.components"
                            experiment-form="experimentForm"
                            experiment="vm.experiment"
-                           save-experiment-fn="vm.saveCurrent()"
+                           save-experiment-fn="vm.save()"
                            on-changed="vm.onChangedComponent(componentId)">
         </indigo-components>
     </form>
