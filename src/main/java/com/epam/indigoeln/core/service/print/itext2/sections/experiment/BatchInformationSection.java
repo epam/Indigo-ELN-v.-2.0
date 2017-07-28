@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithSimpleTitle;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
+import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Element;
 import com.lowagie.text.Rectangle;
@@ -52,13 +53,13 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
             BatchInformation batchInfo = row.getBatchInformation();
 
             PdfPCell molWeightLabel = CellFactory.getCommonCell("Mol Wgt:");
-            PdfPCell molWeight = CellFactory.getCommonCell(batchInfo.getMolWeight());
+            PdfPCell molWeight = CellFactory.getCommonCell(FormatUtils.formatDecimal(batchInfo.getMolWeight()));
             PdfPCell exactMassLabel = CellFactory.getCommonCell("Exact Mass:");
-            PdfPCell exactMass = CellFactory.getCommonCell(batchInfo.getExactMass());
+            PdfPCell exactMass = CellFactory.getCommonCell(FormatUtils.formatDecimal(batchInfo.getExactMass()));
             PdfPCell saltCodeLabel = CellFactory.getCommonCell("Salt Code:");
             PdfPCell saltCode = CellFactory.getCommonCell(batchInfo.getSaltCode());
             PdfPCell saltEqLabel = CellFactory.getCommonCell("Salt EQ:");
-            PdfPCell saltEq = CellFactory.getCommonCell(batchInfo.getSaltEq());
+            PdfPCell saltEq = CellFactory.getCommonCell(FormatUtils.formatDecimal(batchInfo.getSaltEq()));
             PdfPCell batchOwnerLabel = CellFactory.getCommonCell("Batch Owner:");
             PdfPCell batchOwner = CellFactory.getCommonCell( StringUtils.join(batchInfo.getBatchOwner(),COMMA));
             PdfPCell commentsLabel = CellFactory.getCommonCell("Comments:");
@@ -79,10 +80,10 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
 
             table.addCell(CellFactory.getCommonCell(row.getNbkBatch()));
             table.addCell(CellFactory.getCommonCell(structureTable));
-            table.addCell(CellFactory.getCommonCell(row.getAmountMade() + SPACE + row.getAmountMadeUnit()));
-            table.addCell(CellFactory.getCommonCell(row.getTheoWeight() + SPACE + row.getTheoWeightUnit() +
-                                                    System.lineSeparator() + row.getYield() + "%"));
-            table.addCell(CellFactory.getCommonCell(row.getPurity()));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getAmountMade(), row.getAmountMadeUnit())));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getTheoWeight(), row.getTheoWeightUnit()) +
+                                                    System.lineSeparator() + FormatUtils.formatDecimal(row.getYield(), "%")));
+            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getPurity())));
             table.addCell(CellFactory.getCommonCell(batchInformation));
         }
 

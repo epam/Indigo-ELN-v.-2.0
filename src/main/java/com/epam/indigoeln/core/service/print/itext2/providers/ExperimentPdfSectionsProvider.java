@@ -226,7 +226,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                             batchOwner.orElse(Collections.emptyList()),
                             batch.getString("molWeight", "value"),
                             batch.getString("formula"),
-                            "TODO",
+                            batch.getString("residualSolvents", "asString"),
                             batch.getString("solubility", "asString"),
                             batch.getString("precursors"),
                             batch.getString("externalSupplier", "asString"),

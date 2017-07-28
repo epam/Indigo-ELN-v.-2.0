@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.sections.BaseHeaderSectionWithLogo;
-import com.epam.indigoeln.core.service.print.itext2.utils.DateTimeUtils;
+import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.ExperimentHeaderModel;
@@ -24,7 +24,7 @@ public class ExperimentHeaderSection
                 .addKeyValueCells("Project", model.getProjectName())
                 .addKeyValueCells("Status", model.getStatus())
                 .addKeyValueCells("Printed Page", model.getCurrentPage() + " of " + model.getTotalPages())
-                .addKeyValueCells("Printed Date", DateTimeUtils.formatSafe(model.getPrintDate()))
+                .addKeyValueCells("Printed Date", FormatUtils.formatSafe(model.getPrintDate()))
                 .addKeyValueCells("Subject/Title", model.getTitle(), 3);
 
         return table;

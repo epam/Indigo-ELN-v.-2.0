@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithSimpleTitle;
-import com.epam.indigoeln.core.service.print.itext2.utils.DateTimeUtils;
+import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.ReactionDetailsModel;
@@ -20,7 +20,7 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
         PdfPTable table = TableFactory.createDefaultTable(new float[]{4, 5, 4, 5}, width);
 
         PdfPTableHelper wrapper = new PdfPTableHelper(table);
-        wrapper.addKeyValueCells("Created Date", DateTimeUtils.formatSafe(model.getCreationDate()));
+        wrapper.addKeyValueCells("Created Date", FormatUtils.formatSafe(model.getCreationDate()));
         wrapper.addKeyValueCells("Therapeutic Area", model.getTherapeuticArea());
         wrapper.addKeyValueCells("Continued From", StringUtils.join(model.getContinuedFrom(),COMMA));
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
