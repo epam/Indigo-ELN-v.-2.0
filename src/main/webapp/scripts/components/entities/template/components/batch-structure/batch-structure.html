@@ -1,7 +1,8 @@
 <indigo-structure-scheme ss-structure-type="molecule"
                          ss-autosave="true"
-                         ss-model="vm.structure"
-                         indigo-readonly="!vm.structure || indigoReadonly"
+                         ss-model="vm.selectedBatch.structure"
+                         model-trigger="vm.selectedBatchTrigger"
+                         is-readonly="!vm.selectedBatch || vm.isReadonly"
                          ss-title="'Batch Structure'"
                          on-changed="vm.onChangedStructure(structure)">
 </indigo-structure-scheme>

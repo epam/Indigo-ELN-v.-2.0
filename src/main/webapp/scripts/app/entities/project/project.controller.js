@@ -125,7 +125,7 @@
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
                 if (pageInfo.dirty) {
-                    $scope.createProjectForm.$setDirty(pageInfo.dirty);
+                    $scope.createProjectForm.$setDirty();
                 }
                 vm.dirtyListener = $scope.$watch(function() {
                     return vm.project;

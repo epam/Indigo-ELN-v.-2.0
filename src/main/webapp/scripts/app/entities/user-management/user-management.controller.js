@@ -50,10 +50,20 @@
             loadAll();
         }
 
-        function onSaveError() {
+        function onSaveError(result) {
             vm.isSaving = false;
             loadAll();
+
+            if (!isEmailCorrect(result)) {
+                Alert.error('Email address is incorrect!');
+                return;
+            }
+
             Alert.error('User is not saved due to server error!');
+        }
+
+        function isEmailCorrect (result) {
+             return !(result.data && _.find(result.data.fieldErrors, {field:'email'}));
         }
 
         function save() {

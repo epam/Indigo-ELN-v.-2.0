@@ -1,9 +1,10 @@
-<div class="panel panel-info product-batch-summary" indigo-collapsible-component cg-busy="{promise:syncingIntendedProducts, minDuration:700}">
+<div class="panel panel-info product-batch-summary" indigo-collapsible-component
+     cg-busy="{promise:syncingIntendedProducts, minDuration:700}">
     <div class="panel-heading">
         Product Batch Summary
     </div>
     <div class="panel-body collapsible">
-        <div ng-show="vm.isStructure">
+        <div ng-show="vm.isStructure" class="stucture-size">
             <div class="form-horizontal">
                 <div class="row">
                     <div class="col-xs-2">
@@ -17,11 +18,18 @@
             </div>
         </div>
         <indigo-batch-summary model="vm.model"
-                              share="vm.share"
+                              stoich-table="vm.stoichTable"
+                              batches="vm.batches"
+                              is-readonly="vm.isReadonly"
+                              selected-batch="vm.selectedBatch"
+                              selected-batch-trigger="vm.selectedBatchTrigger"
                               experiment-name="vm.experiment.name"
                               on-show-structure="vm.showStructure(isVisible)"
                               structure-size="vm.structureSize"
-                              indigo-save-experiment-fn="vm.indigoSaveExperimentFn()"
+                              save-experiment-fn="vm.saveExperimentFn()"
+                              on-select-batch="vm.onSelectBatch({batch: batch})"
+                              on-remove-batches="vm.onRemoveBatches({bathes: bathes})"
+                              on-added-batch="vm.onAddedBatch({batch: batch})"
         ></indigo-batch-summary>
     </div>
 </div>

@@ -7,18 +7,20 @@
                       indigo-columns="vm.reactantsColumns"
                       indigo-rows="vm.model.stoichTable.reactants"
                       indigo-draggable-columns="true"
-                      indigo-draggable-rows="true" indigo-on-row-selected="vm.onRowSelected"
-                      indigo-readonly="vm.indigoReadonly" indigo-label="Reactants, Reagents, Solvents">
+                      indigo-draggable-rows="true"
+                      on-select-row="vm.onRowSelected(row)"
+                      is-readonly="vm.isReadonly"
+                      indigo-label="Reactants, Reagents, Solvents">
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
                     <div class="btn-group">
                         <button type="button" ng-click="vm.searchReagents(0)" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly">
+                                ng-disabled="vm.isReadonly">
                             <i class="fa fa-list"></i>
                             <span class="m-l5">My Reagent List</span>
                         </button>
                         <button type="button" ng-click="vm.searchReagents(1)" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly">
+                                ng-disabled="vm.isReadonly">
                             <i class="fa fa-search"></i>
                             <span class="m-l5">Search DBs</span>
                         </button>
@@ -26,18 +28,18 @@
                             <i class="fa fa-search"></i>
                             <span class="m-l5">MSDS Search</span>
                         </button>
-                        <button type="button" class="btn btn-info btn-small" ng-disabled="vm.indigoReadonly"
+                        <button type="button" class="btn btn-info btn-small" ng-disabled="vm.isReadonly"
                                 ng-click="vm.appendRow()">
                             <i class="fa fa-plus"></i>
                             <span class="m-l5">Add</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedRow" ng-click="vm.clear()">
+                                ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.clear()">
                             <i class="fa fa-eraser"></i>
                             <span class="m-l5">Clear</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
-                                ng-disabled="vm.indigoReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
+                                ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
                             <i class="fa fa-trash"></i>
                             <span class="m-l5">Delete</span>
                         </button>
@@ -46,13 +48,13 @@
                 <div class="col-lg-4 text-align-lg">
                     <div class="btn-group">
                         <button type="button" ng-click="vm.analyzeRxn()"
-                                ng-disabled="vm.indigoReadonly || !vm.model.stoichTable.products"
+                                ng-disabled="vm.isReadonly || !vm.model.stoichTable.products"
                                 class="btn btn-info btn-small">
                             <i class="fa fa-line-chart"></i>
                             <span class="m-l5">Analyze Rxn</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.createRxn()"
-                                ng-disabled="vm.indigoReadonly || vm.noReactantsInStoic()">
+                                ng-disabled="vm.isReadonly || vm.noReactantsInStoic()">
                             <i class="fa fa-plus"></i>
                             <span class="m-l5">Create Rxn</span>
                         </button>
@@ -62,6 +64,6 @@
         </indigo-table>
         <indigo-table indigo-id="intended" indigo-columns="vm.productsColumns"
                       indigo-rows="vm.model.stoichTable.products"
-                      indigo-readonly="vm.indigoReadonly" indigo-label="Intended Reaction Products"></indigo-table>
+                      is-readonly="vm.isReadonly" indigo-label="Intended Reaction Products"></indigo-table>
     </div>
 </div>

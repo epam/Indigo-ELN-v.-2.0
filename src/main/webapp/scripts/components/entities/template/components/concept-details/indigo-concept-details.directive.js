@@ -8,18 +8,23 @@
             restrict: 'E',
             replace: true,
             templateUrl: 'scripts/components/entities/template/components/concept-details/concept-details.html',
-            controller: controller,
+            scope: {
+                model: '=',
+                experiment: '=',
+                isReadonly: '='
+            },
+            controller: IndigoConceptDetailsController,
+            bindToController: true,
             controllerAs: 'vm'
         };
 
         /* @ngInject */
-        function controller($scope, $state, $q, Principal, Dictionary, Users, Alert) {
+        function IndigoConceptDetailsController($state, $q, Principal, Dictionary, Users, Alert) {
             var vm = this;
             var deferred;
 
-            vm.experiment = $scope.experiment || {};
-            vm.indigoReadonly = $scope.indigoReadonly;
-            vm.model = $scope.model || {};
+            vm.experiment = vm.experiment || {};
+            vm.model = vm.model || {};
             vm.model.conceptDetails = vm.model.conceptDetails || {};
             vm.model.conceptDetails.experimentCreator = vm.model.conceptDetails.experimentCreator ||
                 {name: Principal.getIdentity().fullName};

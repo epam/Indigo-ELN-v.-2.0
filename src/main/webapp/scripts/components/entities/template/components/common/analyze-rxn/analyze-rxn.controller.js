@@ -3,7 +3,7 @@ angular
     .controller('analyzeRxnController', analyzeRxnController);
 
 /* @ngInject */
-function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged) {
+function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged, stoichHelper) {
     var vm = this;
 
     vm.addToStoichTable = addToStoichTable;
@@ -25,7 +25,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
     }
 
     function addToStoichTable() {
-        onStoichRowsChanged(cleanReactants(vm.model.selectedReactants));
+        onStoichRowsChanged(stoichHelper.cleanReactants(vm.model.selectedReactants));
     }
 
     function updateStoicAndExit() {
@@ -35,21 +35,8 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
                 formula: knownReactant.formula
             }), knownReactant);
         });
-        onStoichRowsChanged(cleanReactants(result));
+        onStoichRowsChanged(stoichHelper.cleanReactants(result));
         $uibModalInstance.close({});
-    }
-
-    function cleanReactants(reactants) {
-        return reactants.map(function(batch) {
-            return {
-                compoundId: batch.compoundId,
-                fullNbkBatch: batch.fullNbkBatch,
-                molWeight: batch.molWeight,
-                formula: batch.formula,
-                saltCode: batch.saltCode,
-                saltEq: batch.saltEq
-            };
-        });
     }
 
     function search() {
