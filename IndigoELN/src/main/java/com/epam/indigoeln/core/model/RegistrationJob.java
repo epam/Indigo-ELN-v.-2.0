@@ -20,6 +20,7 @@ public class RegistrationJob implements Serializable {
     private RegistrationStatus.Status registrationStatus;
     private String registrationJobId;
     private String registrationRepositoryId;
+    private String lastHandledBy;
 
     public String getId() {
         return id;
@@ -53,6 +54,14 @@ public class RegistrationJob implements Serializable {
         this.registrationRepositoryId = registrationRepositoryId;
     }
 
+    public String getLastHandledBy() {
+        return lastHandledBy;
+    }
+
+    public void setLastHandledBy(String lastHandledBy) {
+        this.lastHandledBy = lastHandledBy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -65,12 +74,13 @@ public class RegistrationJob implements Serializable {
         return Objects.equals(id, that.id) &&
                 registrationStatus == that.registrationStatus &&
                 Objects.equals(registrationJobId, that.registrationJobId) &&
-                Objects.equals(registrationRepositoryId, that.registrationRepositoryId);
+                Objects.equals(registrationRepositoryId, that.registrationRepositoryId) &&
+                Objects.equals(lastHandledBy, that.lastHandledBy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, registrationStatus, registrationJobId, registrationRepositoryId);
+        return Objects.hash(id, registrationStatus, registrationJobId, registrationRepositoryId, lastHandledBy);
     }
 
     @Override
@@ -80,6 +90,7 @@ public class RegistrationJob implements Serializable {
                 ", registrationStatus=" + registrationStatus +
                 ", registrationJobId='" + registrationJobId + '\'' +
                 ", registrationRepositoryId='" + registrationRepositoryId + '\'' +
+                ", lastHandledBy='" + lastHandledBy + '\'' +
                 '}';
     }
 }

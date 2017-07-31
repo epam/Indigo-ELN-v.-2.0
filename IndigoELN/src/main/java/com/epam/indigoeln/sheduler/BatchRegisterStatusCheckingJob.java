@@ -18,6 +18,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,12 @@ public class BatchRegisterStatusCheckingJob {
                     }
 
                     registrationJob.setRegistrationStatus(status.getStatus());
+
+                    try {
+                        registrationJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
+                    } catch (Exception e) {
+                        LOGGER.debug("Error getting host name");
+                    }
 
                     registrationJobRepository.save(registrationJob);
                 } catch (RegistrationException e) {
