@@ -71,17 +71,17 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     static {
         put(REACTION_DETAILS, (c, e) -> {
             MongoExt content = MongoExt.of(c);
-            return singletonList(new ReactionDetailsSection(new ReactionDetailsModel(
-                    e.getCreationDate(),
-                    content.getString("therapeuticArea", "name"),
-                    content.streamObjects("contFromRxn").map(m -> m.getString("text")).toList(),
-                    content.streamObjects("contToRxn").map(m -> m.getString("text")).toList(),
-                    content.getString("codeAndName", "name"),
-                    content.getString("projectAliasName"),
-                    content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
-                    content.getString("literature"),
-                    content.streamObjects("coAuthors").map(m -> m.getString("name")).toList()
-            )));
+            return singletonList(new ReactionDetailsSection(new ReactionDetailsModel()
+                    .setCreationDate(e.getCreationDate())
+                    .setTherapeuticArea(content.getString("therapeuticArea", "name"))
+                    .setContinuedFrom( content.streamObjects("contFromRxn").map(m -> m.getString("text")).toList())
+                    .setContinuedTo(content.streamObjects("contToRxn").map(m -> m.getString("text")).toList())
+                    .setProjectCode(content.getString("codeAndName", "name"))
+                    .setProjectAlias(content.getString("projectAliasName"))
+                    .setLinkedExperiment(content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList())
+                    .setLiteratureReference(content.getString("literature"))
+                    .setCoauthors(content.streamObjects("coAuthors").map(m -> m.getString("name")).toList())
+            ));
         });
         put(CONCEPT_DETAILS, (c, e) -> {
             MongoExt content = MongoExt.of(c);
@@ -121,27 +121,28 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         put(STOICH_TABLE, (c, e) -> {
             MongoExt content = MongoExt.of(c);
             List<StoichiometryRow> rows = content.streamObjects("reactants")
-                    .map(reactant -> new StoichiometryRow(
-                            reactant.getString("fullNbkBatch"),
-                            reactant.getString("compoundId"),
-                            new StoichiometryModel.Structure(new SvgPdfImage(reactant.getString("structure", "image"))),
-                            reactant.getString("molWeight", "value"),
-                            reactant.getString("weight", "value"),
-                            reactant.getString("weight", "unit"),
-                            reactant.getString("mol", "value"),
-                            reactant.getString("mol", "unit"),
-                            reactant.getString("volume", "value"),
-                            reactant.getString("volume", "unit"),
-                            reactant.getString("eq", "value"),
-                            reactant.getString("chemicalName"),
-                            reactant.getString("rxnRole", "name"),
-                            reactant.getString("stoicPurity", "value"),
-                            reactant.getString("molarity", "value"),
-                            reactant.getString("molarity", "unit"),
-                            reactant.getString("hazardComments"),
-                            reactant.getString("saltCode", "name"),
-                            reactant.getString("saltEq", "value"),
-                            reactant.getString("comments"))).toList();
+                    .map(reactant -> new StoichiometryRow()
+                            .setFullNbkBatch(reactant.getString("fullNbkBatch"))
+                            .setCompoundId(reactant.getString("compoundId"))
+                            .setStructure(new StoichiometryModel.Structure(new SvgPdfImage(reactant.getString("structure", "image"))))
+                            .setMolecularWeight(reactant.getString("molWeight", "value"))
+                            .setWeight(reactant.getString("weight", "value"))
+                            .setWeightUnit(reactant.getString("weight", "unit"))
+                            .setMoles(reactant.getString("mol", "value"))
+                            .setMolesUnit(reactant.getString("mol", "unit"))
+                            .setVolume(reactant.getString("volume", "value"))
+                            .setVolumeUnit(reactant.getString("volume", "unit"))
+                            .setEq(reactant.getString("eq", "value"))
+                            .setChemicalName(reactant.getString("chemicalName"))
+                            .setRxnRole(reactant.getString("rxnRole", "name"))
+                            .setStoicPurity(reactant.getString("stoicPurity", "value"))
+                            .setMolarity(reactant.getString("molarity", "value"))
+                            .setMolesUnit(reactant.getString("molarity", "unit"))
+                            .setHazardComments(reactant.getString("hazardComments"))
+                            .setSaltCode(reactant.getString("saltCode", "name"))
+                            .setSaltEq(reactant.getString("saltEq", "value"))
+                            .setComments(reactant.getString("comments"))
+                            ).toList();
             return singletonList(new StoichiometrySection((new StoichiometryModel(rows))));
         });
         put(EXPERIMENT_DESCRIPTION, (c, e) -> {
@@ -161,20 +162,20 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                     .streamObjects("batches")
                     .map(batch -> {
                         MongoExt stereoisomer = batch.getObject("stereoisomer");
-                        return new BatchInformationRow(
-                                batch.getString("nbkBatch"),
-                                new BatchInformationModel.Structure(
+                        return new BatchInformationRow()
+                                .setNbkBatch(batch.getString("nbkBatch"))
+                                .setStructure(new BatchInformationModel.Structure(
                                         new SvgPdfImage(batch.getString("structure", "image")),
                                         stereoisomer.getString("name"),
                                         stereoisomer.getString("description")
-                                ),
-                                batch.getString("totalWeight", "value"),
-                                batch.getString("totalWeight", "unit"),
-                                batch.getString("theoWeight", "value"),
-                                batch.getString("theoWeight", "unit"),
-                                batch.getString("yield"),
-                                batch.getString("stoicPurity", "value"),
-                                new BatchInformation(
+                                ))
+                                .setAmountMade(batch.getString("totalWeight", "value"))
+                                .setAmountMadeUnit(batch.getString("totalWeight", "unit"))
+                                .setTheoWeight(batch.getString("theoWeight", "value"))
+                                .setTheoWeightUnit(batch.getString("theoWeight", "unit"))
+                                .setYield(batch.getString("yield"))
+                                .setPurity(batch.getString("stoicPurity", "value"))
+                                .setBatchInformation(new BatchInformation(
                                         batch.getString("molWeight", "value"),
                                         batch.getString("exactMass"),
                                         batch.getString("saltCode", "name"),
@@ -217,23 +218,23 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                     .findAny();
 
             Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")
-                    .map(batch -> (AbstractPdfSection) new BatchDetailsSection(new BatchDetailsModel(
-                            batch.getString("fullNbkBatch"),
-                            batch.getString("registrationDate"),
-                            batch.getString("structureComments"),
-                            batch.getString("source", "name"),
-                            batch.getString("sourceDetail", "name"),
-                            batchOwner.orElse(Collections.emptyList()),
-                            batch.getString("molWeight", "value"),
-                            batch.getString("formula"),
-                            batch.getString("residualSolvents", "asString"),
-                            batch.getString("solubility", "asString"),
-                            batch.getString("precursors"),
-                            batch.getString("externalSupplier", "asString"),
-                            batch.getString("healthHazards", "asString"),
-                            batch.getString("handlingPrecautions", "asString"),
-                            batch.getString("storageInstructions", "asString")
-                    )))
+                    .map(batch -> (AbstractPdfSection) new BatchDetailsSection(new BatchDetailsModel()
+                            .setFullNbkBatch(batch.getString("fullNbkBatch"))
+                            .setRegistrationDate(batch.getString("registrationDate"))
+                            .setStructureComments(batch.getString("structureComments"))
+                            .setSource( batch.getString("source", "name"))
+                            .setSourceDetail(batch.getString("sourceDetail", "name"))
+                            .setBatchOwner(batchOwner.orElse(Collections.emptyList()))
+                            .setMolWeight(batch.getString("molWeight", "value"))
+                            .setFormula(batch.getString("formula"))
+                            .setResidualSolvent(batch.getString("residualSolvents", "asString"))
+                            .setSolubility(batch.getString("solubility", "asString"))
+                            .setPrecursors(batch.getString("precursors"))
+                            .setExternalSupplier(batch.getString("externalSupplier", "asString"))
+                            .setHealthHazards(batch.getString("healthHazards", "asString"))
+                            .setHandlingPrecautions(batch.getString("handlingPrecautions", "asString"))
+                            .setStorageInstructions(batch.getString("storageInstructions", "asString"))
+                    ))
                     .toList());
 
             return sections.orElse(Collections.emptyList());

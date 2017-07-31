@@ -70,7 +70,6 @@ public class ITextPrintService {
     }
 
 
-    // TODO: this is definitely not most optimal way to extract "everething", but now it is not critical for PDFs
     private static <T> T findChecked(CrudRepository<T, String> repository, String id, String entity) {
         return Optional.ofNullable(repository.findOne(id))
                 .orElseThrow(() -> new UnknownEntityException(entity, id));

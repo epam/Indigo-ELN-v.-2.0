@@ -27,8 +27,8 @@ public class ReactionDetailsSection extends BasePdfSectionWithSimpleTitle<Reacti
         wrapper.addKeyValueCells("Continued To", StringUtils.join(model.getContinuedTo(),COMMA));
         wrapper.addKeyValueCells("Project Alias", model.getProjectAlias());
         wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(),COMMA));
-        wrapper.addKeyValueCells("Literature Reference", model.getLiteratureReference());
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(),COMMA), 3);
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(),COMMA));
+        wrapper.addKeyValueCells("Literature Reference", model.getLiteratureReference(), 3);
 
         return table;
     }

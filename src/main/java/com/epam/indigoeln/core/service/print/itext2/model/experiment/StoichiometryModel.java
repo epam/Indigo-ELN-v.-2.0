@@ -38,30 +38,6 @@ public class StoichiometryModel implements SectionModel {
         private String saltEq;
         private String comments;
 
-        public StoichiometryRow(String fullNbkBatch, String compoundId, Structure structure, String molecularWeight, String weight,
-                                String weightUnit, String moles, String molesUnit, String volume, String volumeUnit, String eq, String chemicalName, String rxnRole, String stoicPurity, String molarity, String molarityUnit, String hazardComments, String saltCode, String saltEq, String comments) {
-            this.fullNbkBatch = fullNbkBatch;
-            this.compoundId = compoundId;
-            this.structure = structure;
-            this.molecularWeight = molecularWeight;
-            this.weight = weight;
-            this.weightUnit = weightUnit;
-            this.moles = moles;
-            this.molesUnit = molesUnit;
-            this.volume = volume;
-            this.volumeUnit = volumeUnit;
-            this.eq = eq;
-            this.chemicalName = chemicalName;
-            this.rxnRole = rxnRole;
-            this.stoicPurity = stoicPurity;
-            this.molarity = molarity;
-            this.molarityUnit = molarityUnit;
-            this.hazardComments = hazardComments;
-            this.saltCode = saltCode;
-            this.saltEq = saltEq;
-            this.comments = comments;
-        }
-
         public String getMolecularWeight() {
             return molecularWeight;
         }
@@ -140,6 +116,106 @@ public class StoichiometryModel implements SectionModel {
 
         public String getComments() {
             return comments;
+        }
+
+        public StoichiometryRow setFullNbkBatch(String fullNbkBatch) {
+            this.fullNbkBatch = fullNbkBatch;
+            return this;
+        }
+
+        public StoichiometryRow setCompoundId(String compoundId) {
+            this.compoundId = compoundId;
+            return this;
+        }
+
+        public StoichiometryRow setStructure(Structure structure) {
+            this.structure = structure;
+            return this;
+        }
+
+        public StoichiometryRow setMolecularWeight(String molecularWeight) {
+            this.molecularWeight = molecularWeight;
+            return this;
+        }
+
+        public StoichiometryRow setWeight(String weight) {
+            this.weight = weight;
+            return this;
+        }
+
+        public StoichiometryRow setWeightUnit(String weightUnit) {
+            this.weightUnit = weightUnit;
+            return this;
+        }
+
+        public StoichiometryRow setMoles(String moles) {
+            this.moles = moles;
+            return this;
+        }
+
+        public StoichiometryRow setMolesUnit(String molesUnit) {
+            this.molesUnit = molesUnit;
+            return this;
+        }
+
+        public StoichiometryRow setVolume(String volume) {
+            this.volume = volume;
+            return this;
+        }
+
+        public StoichiometryRow setVolumeUnit(String volumeUnit) {
+            this.volumeUnit = volumeUnit;
+            return this;
+        }
+
+        public StoichiometryRow setEq(String eq) {
+            this.eq = eq;
+            return this;
+        }
+
+        public StoichiometryRow setChemicalName(String chemicalName) {
+            this.chemicalName = chemicalName;
+            return this;
+        }
+
+        public StoichiometryRow setRxnRole(String rxnRole) {
+            this.rxnRole = rxnRole;
+            return this;
+        }
+
+        public StoichiometryRow setStoicPurity(String stoicPurity) {
+            this.stoicPurity = stoicPurity;
+            return this;
+        }
+
+        public StoichiometryRow setMolarity(String molarity) {
+            this.molarity = molarity;
+            return this;
+        }
+
+        public StoichiometryRow setMolarityUnit(String molarityUnit) {
+            this.molarityUnit = molarityUnit;
+            return this;
+        }
+
+        public StoichiometryRow setHazardComments(String hazardComments) {
+            this.hazardComments = hazardComments;
+            return this;
+        }
+
+        public StoichiometryRow setSaltCode(String saltCode) {
+            this.saltCode = saltCode;
+            return this;
+        }
+
+        public StoichiometryRow setSaltEq(String saltEq) {
+            this.saltEq = saltEq;
+            return this;
+        }
+
+        public StoichiometryRow setComments(String comments) {
+            this.comments = comments;
+            return this;
         }
     }
 

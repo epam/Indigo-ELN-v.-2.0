@@ -15,20 +15,6 @@ public class ReactionDetailsModel implements SectionModel {
     private String literatureReference;
     private List<String> coauthors;
 
-    public ReactionDetailsModel(ZonedDateTime creationDate, String therapeuticArea, List<String> continuedFrom,
-                                List<String> continuedTo, String projectCode, String projectAlias,
-                                List<String> linkedExperiment, String literatureReference, List<String> coauthors) {
-        this.creationDate = creationDate;
-        this.therapeuticArea = therapeuticArea;
-        this.continuedFrom = continuedFrom;
-        this.continuedTo = continuedTo;
-        this.projectCode = projectCode;
-        this.projectAlias = projectAlias;
-        this.linkedExperiment = linkedExperiment;
-        this.literatureReference = literatureReference;
-        this.coauthors = coauthors;
-    }
-
     public ZonedDateTime getCreationDate() {
         return creationDate;
     }
@@ -63,5 +49,50 @@ public class ReactionDetailsModel implements SectionModel {
 
     public List<String> getCoauthors() {
         return coauthors;
+    }
+
+    public ReactionDetailsModel setCreationDate(ZonedDateTime creationDate) {
+        this.creationDate = creationDate;
+        return this;
+    }
+
+    public ReactionDetailsModel setTherapeuticArea(String therapeuticArea) {
+        this.therapeuticArea = therapeuticArea;
+        return this;
+    }
+
+    public ReactionDetailsModel setContinuedFrom(List<String> continuedFrom) {
+        this.continuedFrom = continuedFrom;
+        return this;
+    }
+
+    public ReactionDetailsModel setContinuedTo(List<String> continuedTo) {
+        this.continuedTo = continuedTo;
+        return this;
+    }
+
+    public ReactionDetailsModel setProjectCode(String projectCode) {
+        this.projectCode = projectCode;
+        return this;
+    }
+
+    public ReactionDetailsModel setProjectAlias(String projectAlias) {
+        this.projectAlias = projectAlias;
+        return this;
+    }
+
+    public ReactionDetailsModel setLinkedExperiment(List<String> linkedExperiment) {
+        this.linkedExperiment = linkedExperiment;
+        return this;
+    }
+
+    public ReactionDetailsModel setLiteratureReference(String literatureReference) {
+        this.literatureReference = literatureReference;
+        return this;
+    }
+
+    public ReactionDetailsModel setCoauthors(List<String> coauthors) {
+        this.coauthors = coauthors;
+        return this;
     }
 }

@@ -20,28 +20,6 @@ public class BatchDetailsModel implements SectionModel {
     private String handlingPrecautions;
     private String storageInstructions;
 
-    public BatchDetailsModel(String fullNbkBatch, String registrationDate, String structureComments,
-                             String source, String sourceDetail, List<String> batchOwner, String molWeight, String formula,
-                             String residualSolvent, String solubility, String precursors, String externalSupplier,
-                             String healthHazards, String handlingPrecautions, String storageInstructions) {
-
-        this.fullNbkBatch = fullNbkBatch;
-        this.registrationDate = registrationDate;
-        this.structureComments = structureComments;
-        this.source = source;
-        this.sourceDetail = sourceDetail;
-        this.batchOwner = batchOwner;
-        this.molWeight = molWeight;
-        this.formula = formula;
-        this.residualSolvent = residualSolvent;
-        this.solubility = solubility;
-        this.precursors = precursors;
-        this.externalSupplier = externalSupplier;
-        this.healthHazards = healthHazards;
-        this.handlingPrecautions = handlingPrecautions;
-        this.storageInstructions = storageInstructions;
-    }
-
     public String getFullNbkBatch() {
         return fullNbkBatch;
     }
@@ -100,5 +78,80 @@ public class BatchDetailsModel implements SectionModel {
 
     public String getStorageInstructions() {
         return storageInstructions;
+    }
+
+    public BatchDetailsModel setFullNbkBatch(String fullNbkBatch) {
+        this.fullNbkBatch = fullNbkBatch;
+        return this;
+    }
+
+    public BatchDetailsModel setRegistrationDate(String registrationDate) {
+        this.registrationDate = registrationDate;
+        return this;
+    }
+
+    public BatchDetailsModel setStructureComments(String structureComments) {
+        this.structureComments = structureComments;
+        return this;
+    }
+
+    public BatchDetailsModel setSource(String source) {
+        this.source = source;
+        return this;
+    }
+
+    public BatchDetailsModel setSourceDetail(String sourceDetail) {
+        this.sourceDetail = sourceDetail;
+        return this;
+    }
+
+    public BatchDetailsModel setBatchOwner(List<String> batchOwner) {
+        this.batchOwner = batchOwner;
+        return this;
+    }
+
+    public BatchDetailsModel setMolWeight(String molWeight) {
+        this.molWeight = molWeight;
+        return this;
+    }
+
+    public BatchDetailsModel setFormula(String formula) {
+        this.formula = formula;
+        return this;
+    }
+
+    public BatchDetailsModel setResidualSolvent(String residualSolvent) {
+        this.residualSolvent = residualSolvent;
+        return this;
+    }
+
+    public BatchDetailsModel setSolubility(String solubility) {
+        this.solubility = solubility;
+        return this;
+    }
+
+    public BatchDetailsModel setPrecursors(String precursors) {
+        this.precursors = precursors;
+        return this;
+    }
+
+    public BatchDetailsModel setExternalSupplier(String externalSupplier) {
+        this.externalSupplier = externalSupplier;
+        return this;
+    }
+
+    public BatchDetailsModel setHealthHazards(String healthHazards) {
+        this.healthHazards = healthHazards;
+        return this;
+    }
+
+    public BatchDetailsModel setHandlingPrecautions(String handlingPrecautions) {
+        this.handlingPrecautions = handlingPrecautions;
+        return this;
+    }
+
+    public BatchDetailsModel setStorageInstructions(String storageInstructions) {
+        this.storageInstructions = storageInstructions;
+        return this;
     }
 }

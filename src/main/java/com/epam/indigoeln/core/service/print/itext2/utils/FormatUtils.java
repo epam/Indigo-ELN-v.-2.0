@@ -14,17 +14,16 @@ public class FormatUtils {
     private static final String DECIMAL_FORMAT = "#.####";
     private static final String DELIMITER = " ";
     private static final DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT);
+    private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter
+            .ofPattern(defaultFormat)
+            .withZone(ZoneId.systemDefault());
 
     private FormatUtils() {
     }
 
-    private static DateTimeFormatter defaultFormatter = DateTimeFormatter
-            .ofPattern(defaultFormat)
-            .withZone(ZoneId.systemDefault());
-
     public static String formatSafe(TemporalAccessor temporalAccessor) {
         return Optional.ofNullable(temporalAccessor)
-                .map(defaultFormatter::format)
+                .map(DEFAULT_FORMATTER::format)
                 .orElse("");
     }
 

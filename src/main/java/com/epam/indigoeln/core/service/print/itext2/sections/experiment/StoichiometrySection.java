@@ -15,25 +15,25 @@ import org.apache.commons.lang3.StringUtils;
 
 public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<StoichiometryModel> {
 
+    private static final String[] HEADERS = new String[]{
+            "Reagent", "Mol Wgh", "Weight", "Moles", "Volume", "EQ", "Other Information"
+    };
+    private static final float[] COLUMN_WIDTH = new float[]{3.5f, 1, 1, 1, 1, 1, 3};
+    private static final float[] INFO_COLUMN_WIDTH = new float[]{2, 3};
+
+    private static final float CELL_VERTICAL_PADDING = 4;
+
     public StoichiometrySection(StoichiometryModel model) {
         super(model, "STOICHIOMETRY");
     }
 
-    private static final String[] headers = new String[]{
-            "Reagent", "Mol Wgh", "Weight", "Moles", "Volume", "EQ", "Other Information"
-    };
-    private static final float[] columnWidth = new float[]{3.5f, 1, 1, 1, 1, 1, 3};
-    private static final float[] infoColumnWidth = new float[]{2, 3};
-
-    private static final float CELL_VERTICAL_PADDING = 4;
-
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(headers, columnWidth, width);
-        float imagePart = (float) (columnWidth[0] / DoubleStreamEx.of(columnWidth).sum());
+        PdfPTable table = TableFactory.createDefaultTable(HEADERS, COLUMN_WIDTH, width);
+        float imagePart = (float) (COLUMN_WIDTH[0] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
         float reagentCellWidth = imagePart * width;
 
-        float infoPart = (float) (columnWidth[6] / DoubleStreamEx.of(columnWidth).sum());
+        float infoPart = (float) (COLUMN_WIDTH[6] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
         float infoWidth = infoPart * width;
 
         for (StoichiometryModel.StoichiometryRow row : model.getRows()) {
@@ -52,9 +52,8 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
                 PdfPCell compoundId = CellFactory.getCommonCell(row.getCompoundId());
                 reagentTable.addCell(getStructureCell(compoundId));
             }
-            //TODO   reagentTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
 
-            PdfPTable otherInformation = TableFactory.createDefaultTable(infoColumnWidth, infoWidth);
+            PdfPTable otherInformation = TableFactory.createDefaultTable(INFO_COLUMN_WIDTH, infoWidth);
 
             PdfPCell chemNameLabel = getInfoCell("Name:");
             PdfPCell chemicalName = getInfoCell(row.getChemicalName());

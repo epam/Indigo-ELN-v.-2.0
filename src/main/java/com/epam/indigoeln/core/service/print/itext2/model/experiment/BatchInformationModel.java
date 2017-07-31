@@ -27,19 +27,6 @@ public class BatchInformationModel implements SectionModel {
         private String purity;
         private BatchInformation batchInformation;
 
-        public BatchInformationRow(String nbkBatch, Structure structure, String amountMade,
-                                   String amountMadeUnit, String theoWeight, String theoWeightUnit, String yield, String purity, BatchInformation batchInformation) {
-            this.nbkBatch = nbkBatch;
-            this.structure = structure;
-            this.amountMade = amountMade;
-            this.amountMadeUnit = amountMadeUnit;
-            this.theoWeight = theoWeight;
-            this.theoWeightUnit = theoWeightUnit;
-            this.yield = yield;
-            this.purity = purity;
-            this.batchInformation = batchInformation;
-        }
-
         public String getNbkBatch() {
             return nbkBatch;
         }
@@ -74,6 +61,51 @@ public class BatchInformationModel implements SectionModel {
 
         public BatchInformation getBatchInformation() {
             return batchInformation;
+        }
+
+        public BatchInformationRow setNbkBatch(String nbkBatch) {
+            this.nbkBatch = nbkBatch;
+            return this;
+        }
+
+        public BatchInformationRow setStructure(Structure structure) {
+            this.structure = structure;
+            return this;
+        }
+
+        public BatchInformationRow setAmountMade(String amountMade) {
+            this.amountMade = amountMade;
+            return this;
+        }
+
+        public BatchInformationRow setAmountMadeUnit(String amountMadeUnit) {
+            this.amountMadeUnit = amountMadeUnit;
+            return this;
+        }
+
+        public BatchInformationRow setTheoWeight(String theoWeight) {
+            this.theoWeight = theoWeight;
+            return this;
+        }
+
+        public BatchInformationRow setTheoWeightUnit(String theoWeightUnit) {
+            this.theoWeightUnit = theoWeightUnit;
+            return this;
+        }
+
+        public BatchInformationRow setYield(String yield) {
+            this.yield = yield;
+            return this;
+        }
+
+        public BatchInformationRow setPurity(String purity) {
+            this.purity = purity;
+            return this;
+        }
+
+        public BatchInformationRow setBatchInformation(BatchInformation batchInformation) {
+            this.batchInformation = batchInformation;
+            return this;
         }
     }
 

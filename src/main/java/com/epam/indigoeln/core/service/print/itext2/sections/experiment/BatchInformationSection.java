@@ -58,8 +58,6 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
                 structureTable.addCell(getStructureCell(textCell));
             }
 
-      //TODO      structureTable.getRow(0).setMaxHeights(imageCell.getImage().getScaledHeight());
-
             PdfPTable yieldTable = TableFactory.createDefaultTable(1, yieldWidth);
 
             if (!StringUtils.isBlank(row.getTheoWeight())){
