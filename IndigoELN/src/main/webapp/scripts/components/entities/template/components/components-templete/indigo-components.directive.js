@@ -97,6 +97,7 @@
             function updateModel() {
                 vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
                 vm.compounds = _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
+                vm.batchesTrigger++;
 
                 updateSelections();
             }
@@ -125,7 +126,7 @@
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
 
                 if (vm.batches.length - length) {
-                    vm.experimentForm.$setDirty();
+                    vm.onChanged();
                     vm.batchesTrigger++;
                 }
 

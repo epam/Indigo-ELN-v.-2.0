@@ -4,7 +4,7 @@
         .directive('indigoComponent', indigoComponent);
 
     /* @ngInject */
-    function indigoComponent($compile) {
+    function indigoComponent($compile, Components) {
         var defaultAttributes = ' model="vm.ComponentsCtrl.model"' +
             ' reactants="vm.ComponentsCtrl.reactants"' +
             ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
@@ -61,7 +61,8 @@
             }
 
             function getComponentAttributes(id) {
-                if (vm.component.isBatch) {
+                var component = _.find(Components, {id: id});
+                if (component.isBatch) {
                     return batchAttributes;
                 }
                 if (id === 'stoich-table') {

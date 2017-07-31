@@ -10,7 +10,9 @@
             scope: {
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
-                readonly: '='
+                // TODO: rename to isReadonly
+                readonly: '=',
+                onChanged: '&'
             },
             controller: indigoBatchStructureController,
             controllerAs: 'vm',
@@ -19,7 +21,7 @@
     }
 
     /* @ngInject */
-    function indigoBatchStructureController(EntitiesBrowser, CalculationService) {
+    function indigoBatchStructureController(CalculationService) {
         var vm = this;
 
         init();
@@ -35,7 +37,7 @@
         function onChangedStructure(structure) {
             if (vm.selectedBatch) {
                 vm.selectedBatch.structure = structure;
-                EntitiesBrowser.setCurrentFormDirty();
+                vm.onChanged();
                 updateBatchMolInfo();
             }
         }
@@ -43,7 +45,7 @@
         function resetMolInfo(row) {
             row.formula = null;
             row.molWeight = null;
-            
+
             return CalculationService.calculateProductBatch({
                 row: row, column: 'totalWeight'
             });
