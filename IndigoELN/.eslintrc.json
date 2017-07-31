@@ -44,6 +44,7 @@
     "valid-jsdoc": [1, {
       "requireReturn": false
     }],
+    "no-plusplus": 1,
     "block-scoped-var": 2,
     "complexity": [2, 4],
     "curly": [2, "all"],
@@ -59,7 +60,7 @@
     "newline-before-return": 1,
     "no-param-reassign": ["error", { "props": false }],
     "object-curly-spacing": [2, "never"],
-    "object-curly-newline": ["error", { "minProperties": 1 }],
+    "object-curly-newline": [1, { "minProperties": 2 }],
     "brace-style": [2, "1tbs", { "allowSingleLine": false }],
     "spaced-comment": [1, "always"],
     "angular/no-service-method": 1,

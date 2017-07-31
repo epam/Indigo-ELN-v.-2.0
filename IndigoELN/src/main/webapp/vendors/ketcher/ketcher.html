@@ -1,1322 +1,199 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ketcher v2.0.0</title>
-    <link rel="stylesheet" href="ketcher.css">
-    <script src="prototype-min.js"></script>
-    <script src="raphael-min.js"></script>
-    <script src="ketcher.js"></script>
-  </head>
-  <body role="applicaion">
-    <main id="canvas"></main>
-    <menu role="toolbar">
-      <li id="mainmenu">
-        <menu>
-          <li id="document">
-            <menu>
-              <li id="new">
-                <button data-keys="Defmod-N">Clear Canvas</button>
-              </li>
-              <li id="open">
-                <button data-keys="Defmod-O">Open…</button>
-              </li>
-              <li id="save">
-                <button data-keys="Defmod-S">Save As…</button>
-              </li>
-            </menu>
-          </li>
-          <li id="edit">
-            <menu>
-              <li id="undo">
-                <button data-keys="Defmod-Z">Undo</button>
-              </li>
-              <li id="redo">
-                <button data-keys="Defmod-Shift-Z, Defmod-Y">Redo</button>
-              </li>
-              <li id="cut">
-                <button data-keys="Defmod-X">Cut</button>
-              </li>
-              <li id="copy">
-                <button data-keys="Defmod-C">Copy</button>
-              </li>
-              <li id="paste">
-                <button data-keys="Defmod-V">Paste</button>
-              </li>
-            </menu>
-          </li>
-          <li id="zoom">
-            <menu>
-              <li id="zoom-in">
-                <button data-keys="+, =, Shift-=">Zoom In</button>
-              </li>
-              <li id="zoom-out">
-                <button data-keys="minus, Shift-minus">Zoom Out</button>
-              </li>
-              <li id="zoom-list">
-                <select>
-                  <option>20%</option>
-                  <option>30%</option>
-                  <option>40%</option>
-                  <option>50%</option>
-                  <option>60%</option>
-                  <option>70%</option>
-                  <option>80%</option>
-                  <option>90%</option>
-                  <option selected>100%</option>
-                  <option>110%</option>
-                  <option>120%</option>
-                  <option>130%</option>
-                  <option>140%</option>
-                  <option>150%</option>
-                  <option>170%</option>
-                  <option>200%</option>
-                  <option>250%</option>
-                  <option>300%</option>
-                  <option>350%</option>
-                  <option>400%</option>
-                </select>
-              </li>
-            </menu>
-          </li>
-          <li id="process">
-            <menu>
-              <li id="cleanup">
-                <button data-keys="Defmod-L">Clean Up</button>
-              </li>
-              <li id="arom">
-                <button>Aromatize</button>
-              </li>
-              <li id="dearom">
-                <button>Dearomatize</button>
-              </li>
-              <li id="calc-cip">
-                <button data-keys="Alt-P">Calculate CIP</button>
-              </li>
-            </menu>
-          </li>
-          <li id="meta">
-            <menu>
-              <li id="info">
-                <button data-keys="Shift-/">About</button>
-              </li>
-              <li id="settings">
-                <button>Settings</button>
-              </li>
-            </menu>
-          </li>
-        </menu>
-      </li>
-      <li id="toolbox">
-        <menu>
-          <li id="select">
-            <menu>
-              <li id="select-lasso">
-                <button data-keys="Esc">Lasso Selection</button>
-              </li>
-              <li id="select-rectangle">
-                <button data-keys="Esc">Rectangle Selection</button>
-              </li>
-              <li id="select-fragment">
-                <button data-keys="Esc">Fragment Selection</button>
-              </li>
-            </menu>
-          </li>
-          <li id="erase">
-            <button data-keys="Del, Backspace">Erase</button>
-          </li>
-          <li id="bond">
-            <menu>
-              <li id="bond-common">
-                <menu>
-                  <li id="bond-single">
-                    <button data-keys="1">Single Bond</button>
-                  </li>
-                  <li id="bond-double">
-                    <button data-keys="2">Double Bond</button>
-                  </li>
-                  <li id="bond-triple">
-                    <button data-keys="3">Triple Bond</button>
-                  </li>
-                </menu>
-              </li>
-              <li id="bond-stereo">
-                <menu>
-                  <li id="bond-up">
-                    <button data-keys="1">Single Up Bond</button>
-                  </li>
-                  <li id="bond-down">
-                    <button data-keys="1">Single Down Bond</button>
-                  </li>
-                  <li id="bond-updown">
-                    <button data-keys="1">Single Up/Down Bond</button>
-                  </li>
-                  <li id="bond-crossed">
-                    <button data-keys="2">Double Cis/Trans Bond</button>
-                  </li>
-                </menu>
-              </li>
-              <li id="bond-query">
-                <menu>
-                  <li id="bond-any">
-                    <button data-keys="0">Any Bond</button>
-                  </li>
-                  <li id="bond-aromatic">
-                    <button data-keys="4">Aromatic Bond</button>
-                  </li>
-                  <li id="bond-singledouble">
-                    <button>Single/Double Bond</button>
-                  </li>
-                  <li id="bond-singlearomatic">
-                    <button>Single/Aromatic Bond</button>
-                  </li>
-                  <li id="bond-doublearomatic">
-                    <button>Double/Aromatic Bond</button>
-                  </li>
-                </menu>
-              </li>
-            </menu>
-          </li>
-          <li id="chain">
-            <button>Chain</button>
-          </li>
-          <li id="charge">
-            <menu>
-              <li id="charge-plus">
-                <button data-keys="5">Charge Plus</button>
-              </li>
-              <li id="charge-minus">
-                <button data-keys="5">Charge Minus</button>
-              </li>
-            </menu>
-          </li>
-          <li id="transform">
-            <menu>
-              <li id="transform-rotate">
-                <button data-keys="Defmod-R">Rotate Tool</button>
-              </li>
-              <li id="transform-flip-h">
-                <button>Horizontal Flip</button>
-              </li>
-              <li id="transform-flip-v">
-                <button>Vertical Flip</button>
-              </li>
-            </menu>
-          </li>
-          <li id="reaction">
-            <menu>
-              <li id="reaction-arrow">
-                <button>Reaction Arrow Tool</button>
-              </li>
-              <li id="reaction-plus">
-                <button>Reaction Plus Tool</button>
-              </li>
-              <li id="reaction-automap">
-                <button>Reaction Auto-Mapping Tool</button>
-              </li>
-              <li id="reaction-map">
-                <button>Reaction Mapping Tool</button>
-              </li>
-              <li id="reaction-unmap">
-                <button>Reaction Unmappping Tool</button>
-              </li>
-            </menu>
-          </li>
-          <li id="sgroup">
-            <button data-keys="Defmod-G">S-Group</button>
-          </li>
-          <li id="rgroup">
-            <menu>
-              <li id="rgroup-label">
-                <button data-keys="R, Shift-R">R-Group Label Tool</button>
-              </li>
-              <li id="rgroup-fragment">
-                <button data-keys="Shift-R">R-Group Fragment Tool</button>
-              </li>
-              <li id="rgroup-attpoints">
-                <button data-keys="Shift-R">Attachment Point Tool</button>
-              </li>
-            </menu>
-          </li>
-        </menu>
-      </li>
-      <li id="template">
-        <menu>
-          <li id="template-common">
-            <menu>
-              <li id="template-0">
-                <button data-keys="T">Benzene</button>
-              </li>
-              <li id="template-1">
-                <button data-keys="T">Cyclopentadiene</button>
-              </li>
-              <li id="template-2">
-                <button data-keys="T">Cyclohexane</button>
-              </li>
-              <li id="template-3">
-                <button data-keys="T">Cyclopentane</button>
-              </li>
-              <li id="template-4">
-                <button data-keys="T">Cyclopropane</button>
-              </li>
-              <li id="template-5">
-                <button data-keys="T">Cyclobutane</button>
-              </li>
-              <li id="template-6">
-                <button data-keys="T">Cycloheptane</button>
-              </li>
-              <li id="template-7">
-                <button data-keys="T">Cyclooctane</button>
-              </li>
-            </menu>
-          </li>
-          <li id="template-custom">
-            <button data-keys="Shift-T">Custom Templates</button>
-          </li>
-        </menu>
-      </li>
-      <li id="elements">
-        <menu>
-          <li id="atom">
-            <menu>
-              <li id="atom-h">
-                <button title="Hydrogen" class="atom-h diatomic gas" data-number="1" data-keys="H">H</button>
-              </li>
-              <li id="atom-c">
-                <button title="Carbon" class="atom-c polyatomic" data-number="6" data-keys="C">C</button>
-              </li>
-              <li id="atom-n">
-                <button title="Nitrogen" class="atom-n diatomic gas" data-number="7" data-keys="N">N</button>
-              </li>
-              <li id="atom-o">
-                <button title="Oxygen" class="atom-o diatomic gas" data-number="8" data-keys="O">O</button>
-              </li>
-              <li id="atom-s">
-                <button title="Sulfur" class="atom-s polyatomic" data-number="16" data-keys="S">S</button>
-              </li>
-              <li id="atom-p">
-                <button title="Phosphorus" class="atom-p polyatomic" data-number="15" data-keys="P">P</button>
-              </li>
-              <li id="atom-f">
-                <button title="Fluorine" class="atom-f diatomic gas" data-number="9" data-keys="F">F</button>
-              </li>
-              <li id="atom-cl">
-                <button title="Chlorine" class="atom-cl diatomic gas" data-number="17" data-keys="Shift-C">Cl</button>
-              </li>
-              <li id="atom-br">
-                <button title="Bromine" class="atom-br diatomic liquid" data-number="35" data-keys="Shift-B">Br</button>
-              </li>
-              <li id="atom-i">
-                <button title="Iodine" class="atom-i diatomic" data-number="53" data-keys="I">I</button>
-              </li>
-            </menu>
-          </li>
-          <li id="period-table">
-            <button>Periodic table</button>
-          </li>
-          <li id="generic-groups">
-            <button>Reaxys Generics</button>
-          </li>
-        </menu>
-      </li>
-    </menu>
-    <div class="overlay" style="display:none">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="64" height="64" id="loading" style="display:none">
-        <circle cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(45 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.125s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(90 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.25s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(135 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.375s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(180 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(225 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.625s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(270 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.75s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(315 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.875s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-        <circle transform="rotate(180 16 16)" cx="16" cy="3" r="0">
-          <animate attributeName="r" values="0;3;0;0" dur="1s" repeatCount="indefinite" begin="0.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" calcMode="spline" />
-        </circle>
-      </svg>
-      <form role="dialog" id="about_dialog" style="display:none;">
-        <header>About</header>
-        <a href="http://lifescience.opensource.epam.com/ketcher/" target="_blank">
-          <img src="logo.jpg">
-        </a> 
-        <dl>
-          <dt>
-            <a href="http://lifescience.opensource.epam.com/ketcher/#overview" target="_blank">Ketcher</a> 
-          </dt>
-          <dd>
-            version
-            <var>2.0.0</var>
-          </dd>
-          <dt>
-            <a href="http://lifescience.opensource.epam.com/" target="_blank">EPAM Life Sciences</a> 
-          </dt>
-          <dd>
-            <a href="http://lifescience.opensource.epam.com/ketcher/#feedback" target="_blank">Feedback</a> 
-          </dd>
-        </dl>
-        <footer>
-          <input type="button" onclick="ui.hideDialog('about_dialog')" value="Close">
-        </footer>
-      </form>
-      <form role="dialog" id="atom_properties" style="display:none;">
-        <header>Atom Properties</header>
-        <fieldset class="main">
-          <label>Label:
-            <input id="atom_label" type="text" maxlength="2">
-          </label>
-          <label>Number:
-            <input id="atom_number" type="text" readonly="readonly" maxlength="3">
-          </label>
-          <label>Charge:
-            <input id="atom_charge" type="text" maxlength="3">
-          </label>
-          <label>Valency:
-            <select id="atom_valence">
-              <option value=""></option>
-              <option value="0">0</option>
-              <option value="1">I</option>
-              <option value="2">II</option>
-              <option value="3">III</option>
-              <option value="4">IV</option>
-              <option value="5">V</option>
-              <option value="6">VI</option>
-              <option value="7">VII</option>
-              <option value="8">VIII</option>
-            </select>
-          </label>
-          <label>Isotope:
-            <input id="atom_isotope" type="text" maxlength="3">
-          </label>
-          <label>Radical:
-            <select id="atom_radical">
-              <option value="0"></option>
-              <option value="2">Monoradical</option>
-              <option value="1">Diradical (singlet)</option>
-              <option value="3">Diradical (triplet)</option>
-            </select>
-          </label>
-        </fieldset>
-        <fieldset class="query">
-          <legend>Query specific</legend>
-          <label>Ring bond count:
-            <select id="atom_ringcount">
-              <option value="0"></option>
-              <option value="-2">As drawn</option>
-              <option value="-1">0</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-            </select>
-          </label>
-          <label>H count:
-            <select id="atom_hcount">
-              <option value="0"></option>
-              <option value="1">0</option>
-              <option value="2">1</option>
-              <option value="3">2</option>
-              <option value="4">3</option>
-              <option value="5">4</option>
-            </select>
-          </label>
-          <label>Substitution count:
-            <select id="atom_substitution">
-              <option value="0"></option>
-              <option value="-2">As drawn</option>
-              <option value="-1">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-            </select>
-          </label>
-          <label>Unsaturation:
-            <select id="atom_unsaturation">
-              <option value="0"></option>
-              <option value="1">Unsaturated</option>
-            </select>
-          </label>
-        </fieldset>
-        <fieldset class="reaction">
-          <legend>Reaction flags</legend>
-          <label>Inversion:
-            <select id="atom_inversion">
-              <option value="0"></option>
-              <option value="1">Inverts</option>
-              <option value="2">Retains</option>
-            </select>
-          </label>
-          <label>Exact:
-            <select id="atom_exactchange">
-              <option value="0"></option>
-              <option value="1">Exact change</option>
-            </select>
-          </label>
-        </fieldset>
-        <footer>
-          <input id="atom_prop_cancel" type="button" value="Cancel">
-          <input id="atom_prop_ok" type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="atom_attpoints" style="display:none;">
-        <header>Attachment Points</header>
-        <label>
-          <input type="checkbox" id="atom_ap1">Primary attachment point
-        </label>
-        <label>
-          <input type="checkbox" id="atom_ap2">Secondary attachment point
-        </label>
-        <footer>
-          <input id="atom_attpoints_cancel" type="button" value="Cancel">
-          <input id="atom_attpoints_ok" type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="automap_properties" style="display:none;">
-        <header>Reaction Auto-Mapping</header>
-        <label>Mode:
-          <select id="automap_mode">
-            <option value="discard">Discard</option>
-            <option value="keep">Keep</option>
-            <option value="alter">Alter</option>
-            <option value="clear">Clear</option>
-          </select>
-        </label>
-        <footer>
-          <input id="automap_cancel" type="button" value="Cancel">
-          <input id="automap_ok" type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="bond_properties" style="display:none;">
-        <header>
-          Bond Properties
-        </header>
-        <label>Type:
-          <select id="bond_type">
-            <option value="single">Single</option>
-            <option value="up">Single Up</option>
-            <option value="down">Single Down</option>
-            <option value="updown">Single Up/Down</option>
-            <option value="double">Double</option>
-            <option value="crossed">Double Cis/Trans</option>
-            <option value="triple">Triple</option>
-            <option value="aromatic">Aromatic</option>
-            <option value="any">Any</option>
-            <option value="singledouble">Single/Double</option>
-            <option value="singlearomatic">Single/Aromatic</option>
-            <option value="doublearomatic">Double/Aromatic</option>
-          </select>
-        </label>
-        <label>Topology:
-          <select id="bond_topology">
-            <option value="0">Either</option>
-            <option value="1">Ring</option>
-            <option value="2">Chain</option>
-          </select>
-        </label>
-        <label>Reacting Center:
-          <select id="bond_center">
-            <option value="0">Unmarked</option>
-            <option value="-1">Not center</option>
-            <option value="1">Center</option>
-            <option value="2">No change</option>
-            <option value="4">Made/broken</option>
-            <option value="8">Order changes</option>
-            <option value="12">Made/broken and changes</option>
-          </select>
-        </label>
-        <footer>
-          <input id="bond_prop_cancel" type="button" value="Cancel">
-          <input id="bond_prop_ok" type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="generics-table" style="display:none;">
-        <header>
-          Generic Groups
-        </header>
-        <fieldset class="atom">
-          <legend>Atom Generics</legend>
-          <fieldset>
-            <button>A</button>
-            <button>AH</button>
-            <legend>any atom</legend>
-          </fieldset>
-          <fieldset>
-            <button>Q</button>
-            <button>QH</button>
-            <legend>except C or H</legend>
-          </fieldset>
-          <fieldset>
-            <button>M</button>
-            <button>MH</button>
-            <legend>any metal</legend>
-          </fieldset>
-          <fieldset>
-            <button>X</button>
-            <button>XH</button>
-            <legend>any halogen</legend>
-          </fieldset>
-        </fieldset>
-        <fieldset class="group">
-          <legend>Group Generics</legend>
-          <fieldset class="not">
-            <button>G</button>
-            <button>GH</button>
-            <button>G*</button>
-            <button>GH*</button>
-          </fieldset>
-          <fieldset class="acyclic">
-            <legend>Acyclic</legend>
-            <fieldset class="not">
-              <button>ACY</button>
-              <button>ACH</button>
-            </fieldset>
-            <fieldset class="carbo">
-              <legend>Carbo</legend>
-              <fieldset>
-                <button>ABC</button>
-                <button>ABH</button>
-              </fieldset>
-              <fieldset>
-                <button>AYL</button>
-                <button>AYH</button>
-                <legend>alkynyl</legend>
-              </fieldset>
-              <fieldset>
-                <button>ALK</button>
-                <button>ALH</button>
-                <legend>alkyl</legend>
-              </fieldset>
-              <fieldset>
-                <button>AEL</button>
-                <button>AEH</button>
-                <legend>alkenyl</legend>
-              </fieldset>
-            </fieldset>
-            <fieldset class="hetero">
-              <legend>Hetero</legend>
-              <fieldset>
-                <button>AHC</button>
-                <button>AHH</button>
-              </fieldset>
-              <fieldset>
-                <button>AOX</button>
-                <button>AOH</button>
-                <legend>alkoxy</legend>
-              </fieldset>
-            </fieldset>
-          </fieldset>
-          <fieldset class="cyclic">
-            <legend>Cyclic</legend>
-            <fieldset class="not">
-              <button>CYC</button>
-              <button>CYH</button>
-            </fieldset>
-            <fieldset class="not">
-              <button>CXX</button>
-              <button>CXH</button>
-              <legend>no carbon</legend>
-            </fieldset>
-            <fieldset class="carbo">
-              <legend>Carbo</legend>
-              <fieldset>
-                <button>CBC</button>
-                <button>CBH</button>
-              </fieldset>
-              <fieldset>
-                <button>ARY</button>
-                <button>ARH</button>
-                <legend>aryl</legend>
-              </fieldset>
-              <fieldset>
-                <button>CAL</button>
-                <button>CAH</button>
-                <legend>cycloalkyl</legend>
-              </fieldset>
-              <fieldset>
-                <button>CEL</button>
-                <button>CEH</button>
-                <legend>cycloalkenyl</legend>
-              </fieldset>
-            </fieldset>
-            <fieldset class="hetero">
-              <legend>Hetero</legend>
-              <fieldset>
-                <button>CHC</button>
-                <button>CHH</button>
-              </fieldset>
-              <fieldset>
-                <button>HAR</button>
-                <button>HAH</button>
-                <legend>hetero aryl</legend>
-              </fieldset>
-            </fieldset>
-          </fieldset>
-        </fieldset>
-        <footer>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="open-file" style="display:none;">
-        <header>Open Structure</header>
-        <textarea></textarea>
-        <label>
-          <input type="checkbox" name="fragment">Load as a fragment and copy to the Clipboard
-        </label>
-        <footer>
-          <label class="open">
-            Open From File…
-            <input accept="chemical/x-mdl-molfile,chemical/x-mdl-rxnfile,chemical/x-cml,chemical/x-daylight-smiles,chemical/x-inchi,.mol,.rxn,.cml,.smi,.smiles,.inchi" type="file">
-          </label>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="elem-table" style="display:none;">
-        <header>Periodic table</header>
-        <table summary="Periodic table of the chemical elements">
-          <tr>
-            <th></th>
-            <th>1</th>
-            <th>2</th>
-            <th>3</th>
-            <th>4</th>
-            <th>5</th>
-            <th>6</th>
-            <th>7</th>
-            <th>8</th>
-            <th>9</th>
-            <th>10</th>
-            <th>11</th>
-            <th>12</th>
-            <th>13</th>
-            <th>14</th>
-            <th>15</th>
-            <th>16</th>
-            <th>17</th>
-            <th>18</th>
-          </tr>
-          <tr>
-            <th>
-              1
-            </th>
-            <td>
-              <button title="Hydrogen" class="atom-h diatomic gas" value="1">H</button>
-            </td>
-            <td colspan="16"></td>
-            <td>
-              <button title="Helium" class="atom-he noble gas" value="2">He</button>
-            </td>
-          </tr>
-          <tr>
-            <th>2</th>
-            <td>
-              <button title="Lithium" class="atom-li alkali metal" value="3">Li</button>
-            </td>
-            <td>
-              <button title="Beryllium" class="atom-be alkaline-earth metal" value="4">Be</button>
-            </td>
-            <td colspan="10"></td>
-            <td>
-              <button title="Boron" class="atom-b metalloid" value="5">B</button>
-            </td>
-            <td>
-              <button title="Carbon" class="atom-c polyatomic" value="6">C</button>
-            </td>
-            <td>
-              <button title="Nitrogen" class="atom-n diatomic gas" value="7">N</button>
-            </td>
-            <td>
-              <button title="Oxygen" class="atom-o diatomic gas" value="8">O</button>
-            </td>
-            <td>
-              <button title="Fluorine" class="atom-f diatomic gas" value="9">F</button>
-            </td>
-            <td>
-              <button title="Neon" class="atom-ne noble gas" value="10">Ne</button>
-            </td>
-          </tr>
-          <tr>
-            <th>3</th>
-            <td>
-              <button title="Sodium" class="atom-na alkali metal" value="11">Na</button>
-            </td>
-            <td>
-              <button title="Magnesium" class="atom-mg alkaline-earth metal" value="12">Mg</button>
-            </td>
-            <td colspan="10"></td>
-            <td>
-              <button title="Aluminium" class="atom-al post-transition metal" value="13">Al</button>
-            </td>
-            <td>
-              <button title="Silicon" class="atom-si metalloid" value="14">Si</button>
-            </td>
-            <td>
-              <button title="Phosphorus" class="atom-p polyatomic" value="15">P</button>
-            </td>
-            <td>
-              <button title="Sulfur" class="atom-s polyatomic" value="16">S</button>
-            </td>
-            <td>
-              <button title="Chlorine" class="atom-cl diatomic gas" value="17">Cl</button>
-            </td>
-            <td>
-              <button title="Argon" class="atom-ar noble gas" value="18">Ar</button>
-            </td>
-          </tr>
-          <tr>
-            <th>4</th>
-            <td>
-              <button title="Potassium" class="atom-k alkali metal" value="19">K</button>
-            </td>
-            <td>
-              <button title="Calcium" class="atom-ca alkaline-earth metal" value="20">Ca</button>
-            </td>
-            <td>
-              <button title="Scandium" class="atom-sc transition metal" value="21">Sc</button>
-            </td>
-            <td>
-              <button title="Titanium" class="atom-ti transition metal" value="22">Ti</button>
-            </td>
-            <td>
-              <button title="Vanadium" class="atom-v transition metal" value="23">V</button>
-            </td>
-            <td>
-              <button title="Chromium" class="atom-cr transition metal" value="24">Cr</button>
-            </td>
-            <td>
-              <button title="Manganese" class="atom-mn transition metal" value="25">Mn</button>
-            </td>
-            <td>
-              <button title="Iron" class="atom-fe transition metal" value="26">Fe</button>
-            </td>
-            <td>
-              <button title="Cobalt" class="atom-co transition metal" value="27">Co</button>
-            </td>
-            <td>
-              <button title="Nickel" class="atom-ni transition metal" value="28">Ni</button>
-            </td>
-            <td>
-              <button title="Copper" class="atom-cu transition metal" value="29">Cu</button>
-            </td>
-            <td>
-              <button title="Zinc" class="atom-zn transition metal" value="30">Zn</button>
-            </td>
-            <td>
-              <button title="Gallium" class="atom-ga post-transition metal" value="31">Ga</button>
-            </td>
-            <td>
-              <button title="Germanium" class="atom-ge metalloid" value="32">Ge</button>
-            </td>
-            <td>
-              <button title="Arsenic" class="atom-as metalloid" value="33">As</button>
-            </td>
-            <td>
-              <button title="Selenium" class="atom-se polyatomic" value="34">Se</button>
-            </td>
-            <td>
-              <button title="Bromine" class="atom-br diatomic liquid" value="35">Br</button>
-            </td>
-            <td>
-              <button title="Krypton" class="atom-kr noble gas" value="36">Kr</button>
-            </td>
-          </tr>
-          <tr>
-            <th>5</th>
-            <td>
-              <button title="Rubidium" class="atom-rb alkali metal" value="37">Rb</button>
-            </td>
-            <td>
-              <button title="Strontium" class="atom-sr alkaline-earth metal" value="38">Sr</button>
-            </td>
-            <td>
-              <button title="Yttrium" class="atom-y transition metal" value="39">Y</button>
-            </td>
-            <td>
-              <button title="Zirconium" class="atom-zr transition metal" value="40">Zr</button>
-            </td>
-            <td>
-              <button title="Niobium" class="atom-nb transition metal" value="41">Nb</button>
-            </td>
-            <td>
-              <button title="Molybdenum" class="atom-mo transition metal" value="42">Mo</button>
-            </td>
-            <td>
-              <button title="Technetium" class="atom-tc transition metal from-decay" value="43">Tc</button>
-            </td>
-            <td>
-              <button title="Ruthenium" class="atom-ru transition metal" value="44">Ru</button>
-            </td>
-            <td>
-              <button title="Rhodium" class="atom-rh transition metal" value="45">Rh</button>
-            </td>
-            <td>
-              <button title="Palladium" class="atom-pd transition metal" value="46">Pd</button>
-            </td>
-            <td>
-              <button title="Silver" class="atom-ag transition metal" value="47">Ag</button>
-            </td>
-            <td>
-              <button title="Cadmium" class="atom-cd transition metal" value="48">Cd</button>
-            </td>
-            <td>
-              <button title="Indium" class="atom-in post-transition metal" value="49">In</button>
-            </td>
-            <td>
-              <button title="Tin" class="atom-sn post-transition metal" value="50">Sn</button>
-            </td>
-            <td>
-              <button title="Antimony" class="atom-sb metalloid" value="51">Sb</button>
-            </td>
-            <td>
-              <button title="Tellurium" class="atom-te metalloid" value="52">Te</button>
-            </td>
-            <td>
-              <button title="Iodine" class="atom-i diatomic" value="53">I</button>
-            </td>
-            <td>
-              <button title="Xenon" class="atom-xe noble gas" value="54">Xe</button>
-            </td>
-          </tr>
-          <tr>
-            <th>6</th>
-            <td>
-              <button title="Caesium" class="atom-cs alkali metal" value="55">Cs</button>
-            </td>
-            <td>
-              <button title="Barium" class="atom-ba alkaline-earth metal" value="56">Ba</button>
-            </td>
-            <td class="ref">*</td>
-            <td>
-              <button title="Hafnium" class="atom-hf transition metal" value="72">Hf</button>
-            </td>
-            <td>
-              <button title="Tantalum" class="atom-ta transition metal" value="73">Ta</button>
-            </td>
-            <td>
-              <button title="Tungsten" class="atom-w transition metal" value="74">W</button>
-            </td>
-            <td>
-              <button title="Rhenium" class="atom-re transition metal" value="75">Re</button>
-            </td>
-            <td>
-              <button title="Osmium" class="atom-os transition metal" value="76">Os</button>
-            </td>
-            <td>
-              <button title="Iridium" class="atom-ir transition metal" value="77">Ir</button>
-            </td>
-            <td>
-              <button title="Platinum" class="atom-pt transition metal" value="78">Pt</button>
-            </td>
-            <td>
-              <button title="Gold" class="atom-au transition metal" value="79">Au</button>
-            </td>
-            <td>
-              <button title="Mercury" class="atom-hg transition metal liquid" value="80">Hg</button>
-            </td>
-            <td>
-              <button title="Thallium" class="atom-tl post-transition metal" value="81">Tl</button>
-            </td>
-            <td>
-              <button title="Lead" class="atom-pb post-transition metal" value="82">Pb</button>
-            </td>
-            <td>
-              <button title="Bismuth" class="atom-bi post-transition metal" value="83">Bi</button>
-            </td>
-            <td>
-              <button title="Polonium" class="atom-po post-transition metal from-decay" value="84">Po</button>
-            </td>
-            <td>
-              <button title="Astatine" class="atom-at metalloid from-decay" value="85">At</button>
-            </td>
-            <td>
-              <button title="Radon" class="atom-rn noble gas from-decay" value="86">Rn</button>
-            </td>
-          </tr>
-          <tr>
-            <th>7</th>
-            <td>
-              <button title="Francium" class="atom-fr alkali metal from-decay" value="87">Fr</button>
-            </td>
-            <td>
-              <button title="Radium" class="atom-ra alkaline-earth metal from-decay" value="88">Ra</button>
-            </td>
-            <td class="ref">**</td>
-            <td>
-              <button title="Rutherfordium" class="atom-rf transition metal synthetic unknown-phase" value="104">Rf</button>
-            </td>
-            <td>
-              <button title="Dubnium" class="atom-db transition metal synthetic unknown-phase" value="105">Db</button>
-            </td>
-            <td>
-              <button title="Seaborgium" class="atom-sg transition metal synthetic unknown-phase" value="106">Sg</button>
-            </td>
-            <td>
-              <button title="Bohrium" class="atom-bh transition metal synthetic unknown-phase" value="107">Bh</button>
-            </td>
-            <td>
-              <button title="Hassium" class="atom-hs transition metal synthetic unknown-phase" value="108">Hs</button>
-            </td>
-            <td>
-              <button title="Meitnerium" class="atom-mt synthetic unknown-properties" value="109">Mt</button>
-            </td>
-            <td>
-              <button title="Darmstadtium" class="atom-ds synthetic unknown-properties" value="110">Ds</button>
-            </td>
-            <td>
-              <button title="Roentgenium" class="atom-rg synthetic unknown-properties" value="111">Rg</button>
-            </td>
-            <td>
-              <button title="Copernicium" class="atom-cn transition metal synthetic unknown-phase" value="112">Cn</button>
-            </td>
-            <td>
-              <button title="Ununtrium" class="atom-uut synthetic unknown-properties" value="113">Uut</button>
-            </td>
-            <td>
-              <button title="Flerovium" class="atom-fl synthetic unknown-properties" value="114">Fl</button>
-            </td>
-            <td>
-              <button title="Ununpentium" class="atom-uup synthetic unknown-properties" value="115">Uup</button>
-            </td>
-            <td>
-              <button title="Livermorium" class="atom-lv synthetic unknown-properties" value="116">Lv</button>
-            </td>
-            <td>
-              <button title="Ununseptium" class="atom-uus synthetic unknown-properties" value="117">Uus</button>
-            </td>
-            <td>
-              <button title="Ununoctium" class="atom-uuo synthetic unknown-properties" value="118">Uuo</button>
-            </td>
-          </tr>
-          <tr>
-            <th colspan="3" class="ref">*</th>
-            <td>
-              <button title="Lanthanum" class="atom-la lanthanide" value="57">La</button>
-            </td>
-            <td>
-              <button title="Cerium" class="atom-ce lanthanide" value="58">Ce</button>
-            </td>
-            <td>
-              <button title="Praseodymium" class="atom-pr lanthanide" value="59">Pr</button>
-            </td>
-            <td>
-              <button title="Neodymium" class="atom-nd lanthanide" value="60">Nd</button>
-            </td>
-            <td>
-              <button title="Promethium" class="atom-pm lanthanide from-decay" value="61">Pm</button>
-            </td>
-            <td>
-              <button title="Samarium" class="atom-sm lanthanide" value="62">Sm</button>
-            </td>
-            <td>
-              <button title="Europium" class="atom-eu lanthanide" value="63">Eu</button>
-            </td>
-            <td>
-              <button title="Gadolinium" class="atom-gd lanthanide" value="64">Gd</button>
-            </td>
-            <td>
-              <button title="Terbium" class="atom-tb lanthanide" value="65">Tb</button>
-            </td>
-            <td>
-              <button title="Dysprosium" class="atom-dy lanthanide" value="66">Dy</button>
-            </td>
-            <td>
-              <button title="Holmium" class="atom-ho lanthanide" value="67">Ho</button>
-            </td>
-            <td>
-              <button title="Erbium" class="atom-er lanthanide" value="68">Er</button>
-            </td>
-            <td>
-              <button title="Thulium" class="atom-tm lanthanide" value="69">Tm</button>
-            </td>
-            <td>
-              <button title="Ytterbium" class="atom-yb lanthanide" value="70">Yb</button>
-            </td>
-            <td>
-              <button title="Lutetium" class="atom-lu lanthanide" value="71">Lu</button>
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <th colspan="3" class="ref">**</th>
-            <td>
-              <button title="Actinium" class="atom-ac actinide from-decay" value="89">Ac</button>
-            </td>
-            <td>
-              <button title="Thorium" class="atom-th actinide" value="90">Th</button>
-            </td>
-            <td>
-              <button title="Protactinium" class="atom-pa actinide from-decay" value="91">Pa</button>
-            </td>
-            <td>
-              <button title="Uranium" class="atom-u actinide" value="92">U</button>
-            </td>
-            <td>
-              <button title="Neptunium" class="atom-np actinide from-decay" value="93">Np</button>
-            </td>
-            <td>
-              <button title="Plutonium" class="atom-pu actinide" value="94">Pu</button>
-            </td>
-            <td>
-              <button title="Americium" class="atom-am actinide from-decay" value="95">Am</button>
-            </td>
-            <td>
-              <button title="Curium" class="atom-cm actinide from-decay" value="96">Cm</button>
-            </td>
-            <td>
-              <button title="Berkelium" class="atom-bk actinide from-decay" value="97">Bk</button>
-            </td>
-            <td>
-              <button title="Californium" class="atom-cf actinide from-decay" value="98">Cf</button>
-            </td>
-            <td>
-              <button title="Einsteinium" class="atom-es actinide synthetic" value="99">Es</button>
-            </td>
-            <td>
-              <button title="Fermium" class="atom-fm actinide synthetic unknown-phase" value="100">Fm</button>
-            </td>
-            <td>
-              <button title="Mendelevium" class="atom-md actinide synthetic unknown-phase" value="101">Md</button>
-            </td>
-            <td>
-              <button title="Nobelium" class="atom-no actinide synthetic unknown-phase" value="102">No</button>
-            </td>
-            <td>
-              <button title="Lawrencium" class="atom-lr actinide synthetic unknown-phase" value="103">Lr</button>
-            </td>
-            <td></td>
-          </tr>
-        </table>
-        <fieldset>
-          <label>
-            <input type="radio" value="single" name="mode">Single
-          </label>
-          <label>
-            <input type="radio" value="list" name="mode">List
-          </label>
-          <label>
-            <input type="radio" value="not-list" name="mode">Not List
-          </label>
-        </fieldset>
-        <footer>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="rgroup-table" style="display:none;">
-        <header>R-Group</header>
-        <ul>
-          <li>
-            <button>R1</button>
-          </li>
-          <li>
-            <button>R2</button>
-          </li>
-          <li>
-            <button>R3</button>
-          </li>
-          <li>
-            <button>R4</button>
-          </li>
-          <li>
-            <button>R5</button>
-          </li>
-          <li>
-            <button>R6</button>
-          </li>
-          <li>
-            <button>R7</button>
-          </li>
-          <li>
-            <button>R8</button>
-          </li>
-          <li>
-            <button>R9</button>
-          </li>
-          <li>
-            <button>R10</button>
-          </li>
-          <li>
-            <button>R11</button>
-          </li>
-          <li>
-            <button>R12</button>
-          </li>
-          <li>
-            <button>R13</button>
-          </li>
-          <li>
-            <button>R14</button>
-          </li>
-          <li>
-            <button>R15</button>
-          </li>
-          <li>
-            <button>R16</button>
-          </li>
-          <li>
-            <button>R17</button>
-          </li>
-          <li>
-            <button>R18</button>
-          </li>
-          <li>
-            <button>R19</button>
-          </li>
-          <li>
-            <button>R20</button>
-          </li>
-          <li>
-            <button>R21</button>
-          </li>
-          <li>
-            <button>R22</button>
-          </li>
-          <li>
-            <button>R23</button>
-          </li>
-          <li>
-            <button>R24</button>
-          </li>
-          <li>
-            <button>R25</button>
-          </li>
-          <li>
-            <button>R26</button>
-          </li>
-          <li>
-            <button>R27</button>
-          </li>
-          <li>
-            <button>R28</button>
-          </li>
-          <li>
-            <button>R29</button>
-          </li>
-          <li>
-            <button>R30</button>
-          </li>
-          <li>
-            <button>R31</button>
-          </li>
-          <li>
-            <button>R32</button>
-          </li>
-        </ul>
-        <footer>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="rlogic_table" style="display:none;">
-        <header>R-Group Logic</header>
-        <label for="rlogic_occurrence">Occurrence:
-          <input id="rlogic_occurrence" type="text" maxlength="50">
-        </label>
-        <label for="rlogic_resth">RestH:
-          <select id="rlogic_resth">
-            <option value="0">Off</option>
-            <option value="1">On</option>
-          </select>
-        </label>
-        <label for="rlogic_if">Condition:
-          <select id="rlogic_if">
-            <option value="0">Always</option>
-          </select>
-        </label>
-        <footer>
-          <input id="rlogic_cancel" type="button" value="Cancel">
-          <input id="rlogic_ok" type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="save-file" style="display:none;">
-        <header>Save Structure</header>
-        <label>Format:
-          <select>Format:
-            <option value="mol">MDL/Symyx Molfile</option>
-            <option value="smi">Daylight SMILES</option>
-            <option value="inchi">InChI String</option>
-          </select>
-        </label>
-        <textarea readonly></textarea>
-        <footer>
-          <a class="save" download>Save To File…</a> 
-          <input type="button" value="Close">
-        </footer>
-      </form>
-      <form role="dialog" id="sgroup_properties" style="display:none;">
-        <header>S-Group Properties</header>
-        <label>Type:
-          <select id="sgroup_type">
-            <option value="GEN">Generic</option>
-            <option value="MUL">Multiple group</option>
-            <option value="SRU">SRU polymer</option>
-            <option value="SUP">Superatom</option>
-            <option value="DAT">Data</option>
-          </select>
-        </label>
-        <fieldset class="base">
-          <label>Connection:
-            <select id="sgroup_connection">
-              <option value="ht">Head-to-tail</option>
-              <option value="hh">Head-to-head</option>
-              <option value="eu">Either unknown</option>
-            </select>
-          </label>
-          <label>Label (subscript):
-            <input id="sgroup_label" type="text" maxlength="15">
-          </label>
-        </fieldset>
-        <fieldset class="data">
-          <label>Field name:
-            <input id="sgroup_field_name" type="text" maxlength="30">
-          </label>
-          <label>Field value:
-            <textarea id="sgroup_field_value"></textarea>
-          </label>
-          <label class="pos">
-            <input type="radio" id="sgroup_pos_absolute" name="data_field_pos" checked>Absolute
-          </label>
-          <label class="pos">
-            <input type="radio" id="sgroup_pos_relative" name="data_field_pos">Relative
-          </label>
-          <label class="pos">
-            <input type="radio" id="sgroup_pos_attached" name="data_field_pos">Attached
-          </label>
-        </fieldset>
-        <footer>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-      <form role="dialog" id="custom_templates" style="display:none">
-        <header>Custom templates</header>
-        <ul></ul>
-        <footer>
-          <input type="button" value="Cancel">
-          <input type="button" value="OK">
-        </footer>
-      </form>
-    </div>
-    <div id="toolText" style="display: none;"></div>
-    <input id="input_label" type="text" maxlength="4" size="4" style="display:none;">
-  </body>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<title>Ketcher v2.0.0-alpha.7+r262</title>
+		<link rel="stylesheet" href="ketcher.css">
+		<script src="raphael.min.js"></script>
+		<script src="ketcher.js"></script>
+		<script src="prototype.js"></script>
+	</head>
+
+	<body role="applicaion">
+		<main id="canvas"></main>
+		<menu role="toolbar">
+			<li id="mainmenu">
+				<menu>
+					<li id="document">
+						<menu>
+							<li id="new"><button data-keys="Mod-n">Clear Canvas</button></li>
+							<li id="open"><button data-keys="Mod-o">Open…</button></li>
+							<li id="save"><button data-keys="Mod-s">Save As…</button></li>
+						</menu>
+					</li>
+					<li id="edit">
+						<menu>
+							<li id="undo"><button data-keys="Mod-z">Undo</button></li>
+							<li id="redo"><button data-keys="Mod-Shift-z, Mod-y">Redo</button></li>
+							<li id="cut"><button data-keys="Mod-x">Cut</button></li>
+							<li id="copy"><button data-keys="Mod-c">Copy</button></li>
+							<li id="paste"><button data-keys="Mod-v">Paste</button></li>
+						</menu>
+					</li>
+					<li id="zoom">
+						<menu>
+							<li id="zoom-in"><button data-keys="+, =, Shift-=">Zoom In</button></li>
+							<li id="zoom-out"><button data-keys="-, _, Shift--">Zoom Out</button></li>
+							<li id="zoom-list">
+								<select autocomplete="off">
+									<option>20%</option>
+									<option>30%</option>
+									<option>40%</option>
+									<option>50%</option>
+									<option>60%</option>
+									<option>70%</option>
+									<option>80%</option>
+									<option>90%</option>
+									<option selected>100%</option>
+									<option>110%</option>
+									<option>120%</option>
+									<option>130%</option>
+									<option>140%</option>
+									<option>150%</option>
+									<option>170%</option>
+									<option>200%</option>
+									<option>250%</option>
+									<option>300%</option>
+									<option>350%</option>
+									<option>400%</option>
+								</select>
+							</li>
+						</menu>
+					</li>
+					<li id="process">
+						<menu>
+							<li id="layout"><button data-keys="Mod-l">Layout</button></li>
+							<li id="clean"><button data-keys="Mod-Shift-l">Clean Up</button></li>
+							<li id="arom"><button>Aromatize</button></li>
+							<li id="dearom"><button>Dearomatize</button></li>
+							<li id="cip"><button data-keys="Mod-p">Calculate CIP</button></li>
+							<li id="check"><button>Check Structure</button></li>
+							<li id="analyse"><button>Calculated Values</button></li>
+							<li id="recognize"><button>Recognize Molecule</button></li>
+						</menu>
+					</li>
+					<li id="meta">
+						<menu>
+							<li id="settings"><button>Settings</button></li>
+							<li id="help"><button data-keys="?, Shift-/">Help</button></li>
+							<li id="about"><button>About</button></li>
+						</menu>
+					</li>
+				</menu>
+			</li>
+			<li id="toolbox">
+				<menu>
+					<li id="select">
+						<menu>
+							<li id="select-lasso"><button data-keys="Esc, Escape">Lasso Selection</button></li>
+							<li id="select-rectangle"><button data-keys="Esc, Escape">Rectangle Selection</button></li>
+							<li id="select-fragment"><button data-keys="Esc, Escape">Fragment Selection</button></li>
+						</menu>
+					</li>
+					<li id="erase"><button data-keys="Del, Delete, Backspace">Erase</button></li>
+					<li id="bond">
+						<menu>
+							<li id="bond-common">
+								<menu>
+									<li id="bond-single"><button data-keys="1">Single Bond</button></li>
+									<li id="bond-double"><button data-keys="2">Double Bond</button></li>
+									<li id="bond-triple"><button data-keys="3">Triple Bond</button></li>
+								</menu>
+							</li>
+							<li id="bond-stereo">
+								<menu>
+									<li id="bond-up"><button data-keys="1">Single Up Bond</button></li>
+									<li id="bond-down"><button data-keys="1">Single Down Bond</button></li>
+									<li id="bond-updown"><button data-keys="1">Single Up/Down Bond</button></li>
+									<li id="bond-crossed"><button data-keys="2">Double Cis/Trans Bond</button></li>
+								</menu>
+							</li>
+							<li id="bond-query">
+								<menu>
+									<li id="bond-any"><button data-keys="0">Any Bond</button></li>
+									<li id="bond-aromatic"><button data-keys="4">Aromatic Bond</button></li>
+									<li id="bond-singledouble"><button>Single/Double Bond</button></li>
+									<li id="bond-singlearomatic"><button>Single/Aromatic Bond</button></li>
+									<li id="bond-doublearomatic"><button>Double/Aromatic Bond</button></li>
+								</menu>
+							</li>
+						</menu>
+					</li>
+					<li id="chain"><button>Chain</button></li>
+					<li id="charge">
+						<menu>
+							<li id="charge-plus"><button data-keys="5">Charge Plus</button></li>
+							<li id="charge-minus"><button data-keys="5">Charge Minus</button></li>
+						</menu>
+					</li>
+					<li id="transform">
+						<menu>
+							<li id="transform-rotate"><button data-keys="Alt-r">Rotate Tool</button></li>
+							<li id="transform-flip-h"><button data-keys="Alt-h">Horizontal Flip</button></li>
+							<li id="transform-flip-v"><button data-keys="Alt-v">Vertical Flip</button></li>
+						</menu>
+					</li>
+						<li id="sgroup"><button data-keys="Mod-g">S-Group</button></li>
+						<li id="sgroup-data"><button data-keys="Mod-g">Data S-Group</button></li>
+						<li id="reaction">
+							<menu>
+								<li id="reaction-arrow"><button>Reaction Arrow Tool</button></li>
+								<li id="reaction-plus"><button>Reaction Plus Tool</button></li>
+								<li id="reaction-automap"><button>Reaction Auto-Mapping Tool</button></li>
+								<li id="reaction-map"><button>Reaction Mapping Tool</button></li>
+								<li id="reaction-unmap"><button>Reaction Unmapping Tool</button></li>
+							</menu>
+						</li>
+						<li id="rgroup">
+							<menu>
+								<li id="rgroup-label"><button data-keys="Mod-r">R-Group Label Tool</button></li>
+								<li id="rgroup-fragment"><button data-keys="Mod-Shift-r, Mod-r">R-Group Fragment Tool</button></li>
+								<li id="rgroup-attpoints"><button data-keys="Mod-r">Attachment Point Tool</button></li>
+							</menu>
+						</li>
+				</menu>
+			</li>
+			<li id="template">
+				<menu>
+					<li id="template-common">
+						<menu>
+							<li id="template-0"><button data-keys="t">Benzene</button></li>
+							<li id="template-1"><button data-keys="t">Cyclopentadiene</button></li>
+							<li id="template-2"><button data-keys="t">Cyclohexane</button></li>
+							<li id="template-3"><button data-keys="t">Cyclopentane</button></li>
+							<li id="template-4"><button data-keys="t">Cyclopropane</button></li>
+							<li id="template-5"><button data-keys="t">Cyclobutane</button></li>
+							<li id="template-6"><button data-keys="t">Cycloheptane</button></li>
+							<li id="template-7"><button data-keys="t">Cyclooctane</button></li>
+						</menu>
+					</li>
+					<li id="template-lib"><button data-keys="Shift-t">Custom Templates</button></li>
+				</menu>
+			</li>
+			<li id="elements">
+				<menu>
+					<li id="atom">
+						<menu>
+							<li id="atom-h"><button title="Hydrogen" class="atom-h diatomic gas" data-number="1" data-keys="h">H</button></li>
+							<li id="atom-c"><button title="Carbon" class="atom-c polyatomic" data-number="6" data-keys="c">C</button></li>
+							<li id="atom-n"><button title="Nitrogen" class="atom-n diatomic gas" data-number="7" data-keys="n">N</button></li>
+							<li id="atom-o"><button title="Oxygen" class="atom-o diatomic gas" data-number="8" data-keys="o">O</button></li>
+							<li id="atom-s"><button title="Sulfur" class="atom-s polyatomic" data-number="16" data-keys="s">S</button></li>
+							<li id="atom-p"><button title="Phosphorus" class="atom-p polyatomic" data-number="15" data-keys="p">P</button></li>
+							<li id="atom-f"><button title="Fluorine" class="atom-f diatomic gas" data-number="9" data-keys="f">F</button></li>
+							<li id="atom-cl"><button title="Chlorine" class="atom-cl diatomic gas" data-number="17" data-keys="Shift-c">Cl</button></li>
+							<li id="atom-br"><button title="Bromine" class="atom-br diatomic liquid" data-number="35"  data-keys="Shift-b">Br</button></li>
+							<li id="atom-i"><button title="Iodine" class="atom-i diatomic" data-number="53" data-keys="i">I</button></li>
+						</menu>
+					</li>
+					<li id="period-table"><button>Periodic Table</button></li>
+				</menu>
+			</li>
+		</menu>
+		<div class="overlay" style="display:none">
+			<div id="loading" class="spinner" style="display:none"></div>
+		</div>
+        <div class="cellar"></div>
+	</body>
 </html>

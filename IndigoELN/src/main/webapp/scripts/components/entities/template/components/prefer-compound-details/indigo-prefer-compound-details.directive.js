@@ -13,13 +13,18 @@
             bindToController: true,
             scope: {
                 model: '=',
+                batches: '=',
+                batchesTrigger: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
                 experiment: '=',
                 isReadonly: '=',
                 onSelectBatch: '&',
                 onAddedBatch: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                experimentName: '=',
+                structureSize: '=',
+                isHideColumnSettings: '='
             }
         };
 
