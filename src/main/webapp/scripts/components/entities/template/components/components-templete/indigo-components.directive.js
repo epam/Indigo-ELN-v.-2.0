@@ -116,23 +116,23 @@
 
             function onRemoveBatches(batchesForRemove) {
                 var length = vm.batches.length;
-                var needToSelectNew = vm.selectedBatch && _.includes(batchesForRemove, vm.selectedBatch);
-                var batchToSelect;
-                if (needToSelectNew) {
-                    batchToSelect = findPrevBatchToSelect(batchesForRemove);
+                if (needToSelectNew(batchesForRemove)) {
+                    onSelectBatch(findPrevBatchToSelect(batchesForRemove));
                 }
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
                 if (vm.batches.length - length) {
                     vm.experimentForm.$setDirty();
                     vm.batchesTrigger++;
                 }
-                if (batchToSelect) {
-                    onSelectBatch(batchToSelect);
-                }
+            }
+
+            function needToSelectNew(batchesForRemove) {
+                return vm.selectedBatch && _.includes(batchesForRemove, vm.selectedBatch);
             }
 
             function findPrevBatchToSelect(batchesForRemove) {
                 var batchToSelect;
+                var batchesAfterRemove;
                 _.each(batchesForRemove, function(b) {
                     var prevInd = _.indexOf(vm.batches, b) - 1;
                     var batch = vm.batches[prevInd];
@@ -141,7 +141,8 @@
                     }
                 });
                 if (!batchToSelect) {
-                    batchToSelect = _.first(vm.batches);
+                    batchesAfterRemove = _.difference(vm.batches, batchesForRemove);
+                    batchToSelect = _.first(batchesAfterRemove);
                 }
 
                 return batchToSelect;
