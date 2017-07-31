@@ -25,27 +25,23 @@ public class MongoExt {
     }
 
     public static MongoExt of(BasicDBObject origin) {
-        if (origin != null){
+        if (origin != null) {
             return new MongoExt(origin);
-        }else {
+        } else {
             return new MongoExt(new BasicDBObject());
         }
     }
 
     public static MongoExt of(Component component) {
-        if (component.getContent() != null){
+        if (component.getContent() != null) {
             return new MongoExt(component.getContent());
-        }else {
+        } else {
             return new MongoExt(new BasicDBObject());
         }
     }
 
-    public List<AbstractPdfSection> map (Function<MongoExt, List<AbstractPdfSection>> function){
-        if (!origin.isEmpty()){
-            return function.apply(this);
-        }else{
-            return Collections.emptyList();
-        }
+    public List<AbstractPdfSection> map(Function<MongoExt, List<AbstractPdfSection>> function) {
+        return function.apply(this);
     }
 
     public StreamEx<MongoExt> streamObjects(String field) {

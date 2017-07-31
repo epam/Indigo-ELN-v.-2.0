@@ -111,14 +111,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private static List<AbstractPdfSection> reactionConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> {
-            String svgBase64 = content.getString("image");
-            if (!StringUtils.isBlank(svgBase64)) {
-                return singletonList(new ReactionSchemeSection(new ReactionSchemeModel(new SvgPdfImage(svgBase64))));
-            } else {
-                return Collections.emptyList();
-            }
-        });
+        return MongoExt.of(c).map(content -> singletonList(new ReactionSchemeSection(new ReactionSchemeModel(
+                new SvgPdfImage(content.getString("image"))
+        ))));
     }
 
     private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Component c, Experiment e) {
@@ -126,11 +121,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<PreferredCompoundsRow> rows = content.streamObjects("compounds")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
-            if (!rows.isEmpty()) {
-                return singletonList(new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
-            } else {
-                return Collections.emptyList();
-            }
+            return singletonList(new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
         });
     }
 
@@ -155,11 +146,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
             List<StoichiometryRow> reactants = content.streamObjects("reactants")
                     .map(ExperimentPdfSectionsProvider::getStoichiometryModel)
                     .toList();
-            if (!reactants.isEmpty()) {
-                return singletonList(new StoichiometrySection((new StoichiometryModel(reactants))));
-            } else {
-                return Collections.emptyList();
-            }
+            return singletonList(new StoichiometrySection((new StoichiometryModel(reactants))));
         });
     }
 
@@ -190,12 +177,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static List<AbstractPdfSection> experimentDescriptionConverter(Component c, Experiment e) {
         return MongoExt.of(c).map(content -> {
             String description = content.getString("description");
-            if (!StringUtils.isBlank(description)) {
-                return singletonList(new ExperimentDescriptionSection(
-                        new ExperimentDescriptionModel(description)));
-            } else {
-                return Collections.emptyList();
-            }
+            return singletonList(new ExperimentDescriptionSection(new ExperimentDescriptionModel(description)));
         });
     }
 
@@ -221,15 +203,10 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 ))
                 .filter(row -> Objects.equals(row.getRegistrationStatus(), "PASSED"))
                 .toList();
-
-        ArrayList<AbstractPdfSection> result = new ArrayList<>();
-        if (!batchInfoRows.isEmpty()) {
-            result.add(new BatchInformationSection(new BatchInformationModel(batchInfoRows)));
-        }
-        if (!regSummaryRows.isEmpty()) {
-            result.add(new RegistrationSummarySection(new RegistrationSummaryModel(regSummaryRows)));
-        }
-        return result;
+        return Arrays.asList(
+                new BatchInformationSection(new BatchInformationModel(batchInfoRows)),
+                new RegistrationSummarySection(new RegistrationSummaryModel(regSummaryRows))
+        );
     }
 
     private static BatchInformationRow getBatchInformationRow(MongoExt batch, Optional<List<String>> batchOwner) {
