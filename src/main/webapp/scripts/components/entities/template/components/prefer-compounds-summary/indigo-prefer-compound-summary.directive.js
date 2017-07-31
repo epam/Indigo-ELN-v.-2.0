@@ -8,13 +8,19 @@
             restrict: 'E',
             replace: true,
             scope: {
-                batches: '=',
                 model: '=',
-                readonly: '=',
-                experiment: '=',
+                batches: '=',
+                batchesTrigger: '=',
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
-                onSelectBatch: '&'
+                experimentName: '=',
+                structureSize: '=',
+                isHideColumnSettings: '=',
+                isReadonly: '=',
+                onShowStructure: '&',
+                onAddedBatch: '&',
+                onSelectBatch: '&',
+                onRemoveBatches: '&'
             },
             controller: controller,
             controllerAs: 'vm',

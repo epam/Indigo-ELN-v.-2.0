@@ -30,16 +30,12 @@
             // TODO: remove whole object or remove multiple properties
             var drag = dragulaService.options($scope, 'components', {
                 // removeOnSpill: true,
-                copy: function(el, source) {
-                    return source.classList.contains('palette');
-                },
                 accepts: function() {
                     return true;
                 },
                 moves: function(el, container, handle) {
                     return !handle.classList.contains('no-draggable');
-                }// ,
-                // copy: false
+                }
             });
 
             dragulaService.options($scope, 'tabs', {

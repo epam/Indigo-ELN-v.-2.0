@@ -8,11 +8,11 @@ public interface RegistrationRepository {
 
     RegistrationRepositoryInfo getInfo();
 
-    Long register(List<Compound> compounds) throws RegistrationException;
+    String register(List<Compound> compounds) throws RegistrationException;
 
-    RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException;
+    RegistrationStatus getRegisterJobStatus(String jobId) throws RegistrationException;
 
-    List<Compound> getRegisteredCompounds(long jobId) throws RegistrationException;
+    List<Compound> getRegisteredCompounds(String jobId) throws RegistrationException;
 
     List<Integer> searchExact(String structure, String searchOption) throws RegistrationException;
 

@@ -16,7 +16,8 @@
         function login(event) {
             vm.loading = true;
             event.preventDefault();
-
+            vm.authenticationError = false;
+            vm.serverError = false;
             Auth.login({
                 username: vm.username,
                 password: vm.password,
@@ -27,8 +28,12 @@
                     $state.go('experiment');
                     vm.loading = false;
                 });
-            }).catch(function() {
-                vm.authenticationError = true;
+            }).catch(function(e) {
+                if (e.status === 401) {
+                    vm.authenticationError = true;
+                } else {
+                    vm.serverError = true;
+                }
                 vm.shake = !vm.shake;
                 vm.loading = false;
             });

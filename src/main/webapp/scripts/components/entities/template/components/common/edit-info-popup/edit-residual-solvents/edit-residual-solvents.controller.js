@@ -3,15 +3,13 @@ angular
     .controller('EditResidualSolventsController', EditResidualSolventsController);
 
 /* @ngInject */
-function EditResidualSolventsController($scope, $uibModalInstance, data) {
+function EditResidualSolventsController($uibModalInstance, solvents) {
     var vm = this;
 
     init();
 
     function init() {
-        vm.solvents = data || {};
-        vm.solvents.data = vm.solvents.data || [];
-
+        vm.solvents = solvents;
         vm.save = save;
         vm.cancel = cancel;
         vm.addSolvent = addSolvent;
@@ -20,21 +18,21 @@ function EditResidualSolventsController($scope, $uibModalInstance, data) {
     }
 
     function addSolvent() {
-        $scope.solvents.data.push({
+        vm.solvents.push({
             name: '', eq: '', comment: ''
         });
     }
 
     function remove(solvent) {
-        $scope.solvents.data = _.without($scope.solvents.data, solvent);
+        vm.solvents = _.without(vm.solvents, solvent);
     }
 
     function removeAll() {
-        $scope.solvents.data = [];
+        vm.solvents = [];
     }
 
     function resultToString() {
-        var solventStrings = _.map($scope.solvents.data, function(solvent) {
+        var solventStrings = _.map(vm.solvents, function(solvent) {
             if (solvent.name && solvent.eq) {
                 return solvent.eq + ' mols of ' + solvent.name.name;
             }
@@ -46,8 +44,10 @@ function EditResidualSolventsController($scope, $uibModalInstance, data) {
     }
 
     function save() {
-        $scope.solvents.asString = resultToString();
-        $uibModalInstance.close($scope.solvents);
+        $uibModalInstance.close({
+            data: vm.solvents,
+            asString: resultToString()
+        });
     }
 
     function cancel() {
