@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
 
 import java.util.List;
 
@@ -58,11 +59,13 @@ public class PreferredCompoundsModel implements SectionModel {
     }
 
     public static class Structure {
+        private PdfImage image;
         private String virtualCompoundId;
         private String name;
         private String description;
 
-        public Structure(String virtualCompoundId, String name, String description) {
+        public Structure(PdfImage image, String virtualCompoundId, String name, String description) {
+            this.image = image;
             this.virtualCompoundId = virtualCompoundId;
             this.name = name;
             this.description = description;
@@ -78,6 +81,10 @@ public class PreferredCompoundsModel implements SectionModel {
 
         public String getDescription() {
             return description;
+        }
+
+        public PdfImage getImage() {
+            return image;
         }
     }
 }

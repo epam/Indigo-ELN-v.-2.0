@@ -108,7 +108,6 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
     }
 
     private PdfPCell getStructureCell(PdfPCell cell) {
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setBorder(Rectangle.NO_BORDER);
         return cell;

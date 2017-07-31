@@ -102,7 +102,6 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
     }
 
     private PdfPCell getStructureCell(PdfPCell cell) {
-        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         cell.setBorder(Rectangle.NO_BORDER);
         cell.setPaddingTop(CELL_VERTICAL_PADDING);
