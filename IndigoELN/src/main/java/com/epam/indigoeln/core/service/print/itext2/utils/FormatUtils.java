@@ -27,36 +27,35 @@ public class FormatUtils {
                 .orElse("");
     }
 
-    public static String format(String date){
-        if (!StringUtils.isBlank(date)){
+    public static String format(String date) {
+        if (!StringUtils.isBlank(date)) {
             TemporalAccessor parse = DateTimeFormatter.ofPattern(BATCH_DETAILS_FORMAT)
                     .withZone(ZoneId.systemDefault())
                     .parse(date);
             return formatSafe(parse);
         }
-       return StringUtils.EMPTY;
+        return StringUtils.EMPTY;
     }
 
-    public static String formatDecimal(String number){
+    public static String formatDecimal(String number) {
+        if (StringUtils.isBlank(number)) {
+            return StringUtils.EMPTY;
+        }
         double value = Double.parseDouble(number);
         String result = decimalFormat.format(value);
-        if (!StringUtils.isBlank(result) && !"0".equals(result)){
+        if (!StringUtils.isBlank(result) && !"0".equals(result)) {
             return result;
         }
         return StringUtils.EMPTY;
     }
 
-    public static String formatDecimal(String number, String unit){
-        double value = Double.parseDouble(number);
-        String result = decimalFormat.format(value);
-        if (!StringUtils.isBlank(result) && !"0".equals(result)){
-            if (!StringUtils.isBlank(unit)){
-                return result + DELIMITER + unit;
-            }else {
-                return result;
-            }
+    public static String formatDecimal(String number, String unit) {
+        String formattedNumber = formatDecimal(number);
+        if (!StringUtils.isAnyBlank(formattedNumber, unit)) {
+            return formattedNumber + DELIMITER + unit;
+        }else {
+            return formattedNumber;
         }
-        return StringUtils.EMPTY;
     }
 
 }

@@ -14,7 +14,7 @@ import com.lowagie.text.pdf.PdfPTable;
 
 import java.awt.*;
 
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_ARIAL;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_FONT_FAMILY;
 
 public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
         extends BasePdfSectionWithTableAndTitle<T>
@@ -22,7 +22,7 @@ public abstract class BaseHeaderSectionWithLogo<T extends BaseHeaderModel>
 
     private static final String CONFIDENTIAL = "CONFIDENTIAL";
     private static final Font CONFIDENTIAL_FONT = FontFactory.getFont(
-            FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H, true,14, Font.ITALIC | Font.BOLD, new Color(0x4252af)
+            BOLD_FONT_FAMILY, BaseFont.IDENTITY_H, true,14, Font.ITALIC | Font.BOLD, new Color(0x4252af)
     );
     private static final float FIRST_ROW_BOTTOM_PADDING = 15;
     private static final float HEADER_TITLE_HEIGHT = 50f;
