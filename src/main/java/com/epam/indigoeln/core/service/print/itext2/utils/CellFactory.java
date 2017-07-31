@@ -80,6 +80,17 @@ public class CellFactory {
         return pdfPCell;
     }
 
+    public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding, float horizontalPadding) {
+        PdfPCell pdfPCell = new PdfPCell(innerTable);
+        withCommonBorder(pdfPCell);
+        //TODO horizontal padding doesn't work
+        pdfPCell.setPaddingLeft(CELL_HORIZONTAL_PADDING - horizontalPadding);
+        pdfPCell.setPaddingRight(CELL_HORIZONTAL_PADDING - horizontalPadding);
+        pdfPCell.setPaddingTop(CELL_VERTICAL_PADDING - verticalPadding);
+        pdfPCell.setPaddingBottom(CELL_VERTICAL_PADDING - verticalPadding);
+        return pdfPCell;
+    }
+
     public static PdfPCell getCommonCell(PdfPTable innerTable) {
         PdfPCell pdfPCell = withCommonStyle(new PdfPCell(innerTable));
         pdfPCell.setPaddingLeft(0);
