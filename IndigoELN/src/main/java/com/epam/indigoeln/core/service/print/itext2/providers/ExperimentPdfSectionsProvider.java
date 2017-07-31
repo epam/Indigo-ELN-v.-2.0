@@ -136,7 +136,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {
         MongoExt stereoisomerObj = compound.getObject("stereoisomer");
-        Structure structure = new Structure(compound.getString("virtualCompoundId"),
+        Structure structure = new Structure(
+                new SvgPdfImage(compound.getString("structure", "image")),
+                compound.getString("virtualCompoundId"),
                 stereoisomerObj.getString("name"),
                 stereoisomerObj.getString("description"));
         return new PreferredCompoundsRow(
