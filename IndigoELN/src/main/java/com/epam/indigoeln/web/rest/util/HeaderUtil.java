@@ -1,6 +1,9 @@
 package com.epam.indigoeln.web.rest.util;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Utility class for http header creation.
@@ -77,5 +80,14 @@ public class HeaderUtil {
             message = "The " + entityName + " is successfully updated";
         }
         return createSuccessAlert(message, param);
+    }
+
+    public static HttpHeaders createPdfPreviewHeaders(String fileName) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+        httpHeaders.add("Content-disposition", "inline; filename=" + fileName);
+        httpHeaders.add("Access-Control-Allow-Headers", "Range");
+        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+        return httpHeaders;
     }
 }

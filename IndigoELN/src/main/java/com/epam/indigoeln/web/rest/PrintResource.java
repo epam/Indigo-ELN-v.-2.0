@@ -18,8 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
 import javax.websocket.server.PathParam;
 import java.io.*;
 import java.util.Map;
@@ -67,53 +65,19 @@ public class PrintResource {
         }
     }
 
+    @ApiOperation(value = "Open pdf preview", produces = "application/json")
     @RequestMapping(
             method = RequestMethod.GET,
-            path = "/itext/{projectId}/{notebookId}/{experimentId}",
+            path = "/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public void createExperimentPdf(@PathVariable String projectId,
-                                    @PathVariable String notebookId,
-                                    @PathVariable String experimentId,
-                                    HttpServletResponse response) throws IOException {
+    public ResponseEntity<byte[]> createExperimentPdf(@ApiParam("project id") @PathVariable String projectId,
+                                    @ApiParam("notebook id") @PathVariable String notebookId,
+                                    @ApiParam("experiment id") @PathVariable String experimentId) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
-        setPdfCommonHeaders(response, fileName);
-        iTextPrintService.generateNotebookPdf(projectId, notebookId, experimentId, response.getOutputStream());
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateNotebookPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
     }
-
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/itext/{projectId}/{notebookId}",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public void createNotebookPdf(@PathVariable String projectId,
-                                  @PathVariable String notebookId,
-                                  HttpServletResponse response) throws IOException {
-        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
-        setPdfCommonHeaders(response, fileName);
-        iTextPrintService.generateNotebookPdf(projectId, notebookId, response.getOutputStream());
-    }
-
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/itext/{projectId}",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public void createProjectPdf(@PathVariable String projectId,
-                                 HttpServletResponse response) throws IOException {
-        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
-        setPdfCommonHeaders(response, fileName);
-        iTextPrintService.generateProjectPdf(projectId, response.getOutputStream());
-    }
-
-    private void setPdfCommonHeaders(HttpServletResponse response, String fileName) {
-        response.setContentType("application/pdf");
-        response.setHeader("Content-disposition", "inline; filename=" + fileName);
-        response.setHeader("Access-Control-Allow-Headers", "Range");
-        response.setHeader(
-                "Access-Control-Expose-Headers",
-                "Accept-Ranges, Content-Encoding, Content-Length, Content-Range"
-        );
-    }
-
 }
