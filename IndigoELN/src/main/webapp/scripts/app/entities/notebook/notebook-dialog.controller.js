@@ -58,7 +58,7 @@
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
                 if (pageInfo.dirty) {
-                    $scope.createNotebookForm.$setDirty(pageInfo.dirty);
+                    $scope.createNotebookForm.$setDirty();
                 }
 
                 $scope.$watch(function() {
@@ -104,8 +104,8 @@
 
         function createExperiment() {
             var resolve = {
-                notebookId: function() {
-                    return vm.notebook.id;
+                fullNotebookId: function() {
+                 return vm.notebook.fullId;
                 }
             };
 

@@ -11,30 +11,26 @@
             restrict: 'E',
             replace: true,
             scope: {
-                indigoTemplate: '=',
-                indigoReadonly: '=',
-                indigoModel: '=',
-                indigoExperiment: '=',
-                indigoExperimentForm: '=',
-                indigoSaveExperimentFn: '&'
+                template: '=',
+                isReadonly: '=',
+                model: '=',
+                experiment: '=',
+                experimentForm: '=',
+                saveExperimentFn: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
+            bindToController: true,
             controllerAs: 'vm',
-            controller: function() {
-                var vm = this;
-
-                // for communication between components
-                vm.share = {};
-            }
+            controller: indigoComponentsController
         };
 
         /* @ngInject */
         function link(scope, element) {
-            if (!scope.indigoExperiment) {
+            if (!scope.experiment) {
                 return;
             }
-            var id = scope.indigoExperiment.fullId;
+            var id = scope.experiment.fullId;
             var tc;
             var preventFirstScroll;
             $timeout(function() {
@@ -69,6 +65,88 @@
                     nostore = false;
                 });
             }, 100);
+        }
+
+        /* @ngInject */
+        function indigoComponentsController($scope, ProductBatchSummaryOperations) {
+            var vm = this;
+
+            init();
+
+            function init() {
+                vm.batches = null;
+                vm.batchesTrigger = 0;
+                vm.selectedBatch = null;
+                vm.selectedBatchTrigger = 0;
+                vm.reactants = null;
+                vm.reactantsTrigger = 0;
+
+                vm.onAddedBatch = onAddedBatch;
+                vm.onSelectBatch = onSelectBatch;
+                vm.onRemoveBatches = onRemoveBatches;
+                vm.onPrecursorsChanged = onPrecursorsChanged;
+
+                bindEvents();
+            }
+
+            function updateModel() {
+                vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
+                vm.compounds = _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
+
+                updateSelections();
+            }
+
+            function updateSelections() {
+                if ((vm.batches.length && !vm.selectedBatch) || (vm.compounds.length && !vm.selectedCompound)) {
+                    updateSelectedBatch();
+                }
+            }
+
+            function bindEvents() {
+                $scope.$watch('vm.model', updateModel);
+            }
+
+            function updateSelectedBatch() {
+                var selectedBatch = vm.model && vm.model.productBatchDetails ?
+                    _.find(vm.batches, {nbkBatch: _.get(vm.model, 'productBatchDetails.nbkBatch')}) :
+                    _.first(vm.batches);
+
+                onSelectBatch(selectedBatch || null);
+            }
+
+            function onRemoveBatches() {
+                var length = vm.batches.length;
+
+                ProductBatchSummaryOperations.deleteBatches(vm.batches);
+
+                if (vm.batches.length - length) {
+                    vm.experimentForm.$setDirty();
+                    vm.batchesTrigger++;
+                }
+
+                if (vm.selectedBatch && !_.includes(vm.batches, vm.selectedBatch)) {
+                    onSelectBatch(_.first(vm.batches));
+                }
+            }
+
+            function onAddedBatch(batch) {
+                // TODO: uncomment it when form requestNbkBatchNumberAndAddToTable will be removed push to batches
+                // vm.batches.push(batch);
+                vm.batchesTrigger++;
+            }
+
+            function onSelectBatch(batch) {
+                vm.selectedBatch = batch;
+                vm.selectedBatchTrigger++;
+            }
+
+            function onPrecursorsChanged(precursors) {
+                $timeout(function() {
+                    _.forEach(vm.batches, function(batch) {
+                        batch.precursors = precursors;
+                    });
+                });
+            }
         }
     }
 })();

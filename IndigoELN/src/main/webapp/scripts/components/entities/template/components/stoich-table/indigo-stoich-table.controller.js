@@ -4,8 +4,9 @@
         .controller('indigoStoichTableController', indigoStoichTableController);
 
     /* @ngInject */
-    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues, AlertModal, Alert,
-                                         Dictionary, CalculationService, SearchService, RegistrationService, dialogService, StoichTableCache) {
+    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
+                                         AlertModal, Alert, Dictionary, CalculationService, SearchService,
+                                         RegistrationService, dialogService, StoichTableCache) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -16,13 +17,9 @@
         var saltCodeValues = AppValues.getSaltCodeValues();
         var loadFactorUnits = AppValues.getLoadFactorUnits();
         var reactionReactants;
-        var actualProducts;
         var ftimeout;
 
-        vm.model = $scope.model || {};
-        vm.share = $scope.share || {};
-        vm.selectedRow = $scope.selectedRow;
-        vm.indigoReadonly = $scope.indigoReadonly;
+        vm.model = vm.model || {};
         vm.model.stoichTable = vm.model.stoichTable || {};
         vm.model.stoichTable.reactants = vm.model.stoichTable.reactants || [];
         vm.model.stoichTable.products = vm.model.stoichTable.products || [];
@@ -72,7 +69,7 @@
         }
 
         function analyzeRxn() {
-            getMissingReactionReactantsInStoic(function(batchesToSearch) {
+            getMissingReactionReactantsInStoic().then(function(batchesToSearch) {
                 if (batchesToSearch.length) {
                     $uibModal.open({
                         animation: true,
@@ -450,6 +447,7 @@
 
         function setStoicReactants(reactants) {
             vm.model.stoichTable.reactants = reactants;
+            vm.onChangedReactants({reactants: reactants});
         }
 
         function setIntendedProducts(products) {
@@ -458,6 +456,7 @@
 
         function addStoicReactant(reactant) {
             vm.model.stoichTable.reactants.push(reactant);
+            vm.onChangedReactants({reactants: vm.model.stoichTable.reactants});
         }
 
         function fetchBatchByNbkNumber(nbkBatch, success) {
@@ -475,6 +474,7 @@
             }, 500);
         }
 
+        // TODO: Maybe will be better if use importHelper.getWord?
         function getWord(dicts, dictName, wordName) {
             var dict = _.find(dicts, function(dict) {
                 return dict.name === dictName;
@@ -649,18 +649,15 @@
                 }
             });
 
-            $scope.$watch('vm.share.actualProducts', function(products) {
-                actualProducts = products;
-            }, true);
-
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
                 _.each(stoichTable.products, function(batch) {
                     if (!batch.$$batchHash) {
                         batch.$$batchHash = batch.formula + batch.exactMass;
                     }
                 });
-                vm.share.stoichTable = stoichTable;
+                vm.onChangedProducts({products: stoichTable.products});
                 StoichTableCache.setStoicTable(stoichTable);
+                vm.onPrecursorsChanged({precursors: getPrecursors()});
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
@@ -686,7 +683,17 @@
             });
         }
 
-        function getMissingReactionReactantsInStoic(callback) {
+        function getPrecursors() {
+            return _
+                .filter(vm.model.stoichTable.reactants, function(r) {
+                    return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
+                })
+                .map(function(r) {
+                    return r.compoundId || r.fullNbkBatch;
+                }).join(', ');
+        }
+
+        function getMissingReactionReactantsInStoic() {
             var batchesToSearch = [];
             var stoicReactants = [];
             _.each(getStoicReactants(), function(item) {
@@ -698,8 +705,9 @@
             var allPromises = [];
             _.each(reactionReactants, function(reactionReactant) {
                 var stoicAndReactionReactantsEqualityPromises = [];
-                _.each(stoicReactants, function(stoicReactant) {
-                    stoicAndReactionReactantsEqualityPromises.push(CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
+                _.forEach(stoicReactants, function(stoicReactant) {
+                    stoicAndReactionReactantsEqualityPromises.push(
+                        CalculationService.isMoleculesEqual(stoicReactant.structure.molfile, reactionReactant.structure.molfile));
                 });
                 allPromises.push($q.all(stoicAndReactionReactantsEqualityPromises).then(function() {
                     if (stoicAndReactionReactantsEqualityPromises.length) {
@@ -714,8 +722,9 @@
                     }
                 }));
             });
-            $q.all(allPromises).then(function() {
-                callback(batchesToSearch);
+
+            return $q.all(allPromises).then(function() {
+                return batchesToSearch;
             });
         }
     }

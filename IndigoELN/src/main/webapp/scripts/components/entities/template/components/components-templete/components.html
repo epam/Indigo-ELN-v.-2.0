@@ -1,14 +1,9 @@
-<fieldset ng-disabled="indigoReadonly">
+<fieldset ng-disabled="vm.isReadonly">
     <uib-tabset class="inner-tabs">
-        <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in indigoTemplate track by tab.name">
-            <div class="my-component" ng-repeat="component in tab.components"
-                 indigo-component={{component.id}}
-                 indigo-model="indigoModel"
-                 indigo-experiment="indigoExperiment"
-                 indigo-experiment-form="indigoExperimentForm"
-                 indigo-share="vm.share"
-                 indigo-save-experiment-fn="indigoSaveExperimentFn()"
-                 indigo-readonly="indigoReadonly"></div>
+        <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in vm.template track by tab.name">
+            <indigo-component class="my-component" ng-repeat="component in tab.components"
+                              component-id="{{component.id}}">
+            </indigo-component>
         </uib-tab>
     </uib-tabset>
 </fieldset>

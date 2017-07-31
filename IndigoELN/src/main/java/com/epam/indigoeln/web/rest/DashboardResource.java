@@ -14,24 +14,24 @@ import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardDTO;
 import com.epam.indigoeln.web.rest.dto.DashboardRowDTO;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
+import com.mongodb.DBRef;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Api
 @RestController
@@ -86,13 +86,35 @@ public class DashboardResource {
 
     private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
         // Open and Completed Experiments
-        final List<Experiment> openAndCompletedExp = experimentRepository.findByAuthorAndStatusIn(user,
-                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED));
-        return openAndCompletedExp.stream()
-                .filter(e -> e.getCreationDate().isAfter(threshold))
-                .map(this::getEntities)
+        Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusInAndCreationDateAfter(user,
+                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), threshold)
+                .collect(Collectors.toMap(Experiment::getId, Function.identity()));
+
+        List<DBRef> experimentIds = experiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
+                .collect(Collectors.toList());
+
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
+                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
+
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
+                .collect(Collectors.toList());
+
+        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
+
+        return getEntities(projects, notebooks, experiments)
                 .filter(t -> hasAccess(user, t))
                 .map(t -> convert(t, null)).collect(Collectors.toList());
+    }
+
+    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Collection<Project> projects, Map<String, Notebook> notebooks, Map<String, Experiment> experiments) {
+        return projects.parallelStream()
+                .flatMap(p -> p.getNotebooks().stream()
+                        .filter(n -> notebooks.get(n.getId()) != null)
+                        .flatMap(n -> n.getExperiments().stream()
+                                .filter(e -> experiments.get(e.getId()) != null)
+                                .map(e -> Triple.of(p, n, e))));
     }
 
     private List<DashboardRowDTO> getWaitingRows(User user) {
@@ -106,9 +128,23 @@ public class DashboardResource {
             LOGGER.error("Unable to get list of documents from signature service.", e);
             throw new IndigoRuntimeException("Unable to get list of documents from signature service.");
         }
-        final List<Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet());
-        return waitingExperiments.stream()
-                .map(this::getEntities)
+        Map<String, Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet())
+                .collect(Collectors.toMap(Experiment::getId, Function.identity()));
+
+        List<DBRef> experimentIds = waitingExperiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
+                .collect(Collectors.toList());
+
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
+                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
+
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
+                .collect(Collectors.toList());
+
+        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
+
+        return getEntities(projects, notebooks, waitingExperiments)
                 .map(t -> convert(t, waitingDocuments)).collect(Collectors.toList());
     }
 
@@ -130,9 +166,25 @@ public class DashboardResource {
         } else {
             submittedDocuments = new HashMap<>();
         }
-        return submittedExp.stream()
+
+        Map<String, Experiment> experiments = submittedExp.stream()
                 .filter(e -> e.getCreationDate().isAfter(threshold))
-                .map(this::getEntities)
+                .collect(Collectors.toMap(Experiment::getId, Function.identity()));
+
+        List<DBRef> experimentIds = experiments.keySet().stream()
+                .map(k -> new DBRef("experiment", k))
+                .collect(Collectors.toList());
+
+        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
+                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
+
+        List<DBRef> notebookIds = notebooks.keySet().stream()
+                .map(k -> new DBRef("notebook", k))
+                .collect(Collectors.toList());
+
+        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
+
+        return getEntities(projects, notebooks, experiments)
                 .map(t -> convert(t, submittedDocuments)).collect(Collectors.toList());
 
     }
@@ -143,24 +195,6 @@ public class DashboardResource {
         final Experiment experiment = t.getRight();
         return convert(project, middle, experiment, Optional.ofNullable(documents)
                 .map(d -> d.get(experiment.getDocumentId())).orElse(null));
-    }
-
-    /**
-     * Gets all parent entities for experiment
-     *
-     * @param e experiment
-     * @return entities for experiment including itself
-     */
-    private Triple<Project, Notebook, Experiment> getEntities(Experiment e) {
-        Notebook notebook = null;
-        Project project = null;
-        if (e != null){
-            notebook = notebookRepository.findByExperimentId(e.getId());
-        }
-        if (notebook != null){
-            project= projectRepository.findByNotebookId(notebook.getId());
-        }
-        return Triple.of(project, notebook, e);
     }
 
     /**

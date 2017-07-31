@@ -4,13 +4,10 @@
         .controller('ProductBatchSummaryController', ProductBatchSummaryController);
 
     /* @ngInject */
-    function ProductBatchSummaryController($scope) {
+    function ProductBatchSummaryController() {
         var vm = this;
 
-        vm.model = $scope.model || {};
-        vm.share = $scope.share || {};
-        vm.experiment = $scope.experiment;
-        vm.indigoSaveExperimentFn = $scope.indigoSaveExperimentFn;
+        vm.model = vm.model || {};
         vm.structureSize = 0.3;
 
         vm.showStructure = showStructure;

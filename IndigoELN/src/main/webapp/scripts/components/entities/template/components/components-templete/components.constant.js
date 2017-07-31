@@ -15,12 +15,16 @@
             {
                 name: 'Product Batch Summary',
                 id: 'product-batch-summary',
-                desc: 'Represents all batches in table format. Allows user to review, create and edit batch details:Total amount weight, Yield%, Stereoisomer code, Purity, Solubility, Hazards,ect. Batch Registration (if it is allowed) is also executed here'
+                desc: 'Represents all batches in table format. Allows user to review, create and edit batch' +
+                ' details:Total amount weight, Yield%, Stereoisomer code, Purity, Solubility, Hazards,ect. Batch Registration (if it is allowed) is also executed here',
+                isBatch: true
             },
             {
                 name: 'Product Batch Details',
                 id: 'product-batch-details',
-                desc: 'Provides details for the individual batch. Allows user to review, create and edit batch details:Total amount weight, Yield%, Stereoisomer code, Purity, Solubility, Hazards,ect. Batch Registration (if it is allowed) is also executed here'
+                desc: 'Provides details for the individual batch. Allows user to review, create and edit batch' +
+                ' details:Total amount weight, Yield%, Stereoisomer code, Purity, Solubility, Hazards,ect. Batch Registration (if it is allowed) is also executed here',
+                isBatch: true
             },
             {
                 name: 'Reaction Scheme',
@@ -35,7 +39,8 @@
             {
                 name: 'Batch Structure',
                 id: 'batch-structure',
-                desc: 'Allows user to draw , import and export batch structure'
+                desc: 'Allows user to draw , import and export batch structure',
+                isBatch: true
             },
             {
                 name: 'Experiment Description',
@@ -50,12 +55,16 @@
             {
                 name: 'Preferred Compounds Summary',
                 id: 'preferred-compounds-summary',
-                desc: 'Allows user to review, create and edit compounds details: Stereoisomer code, Comments, ect. Virtual Compound Registration (if it is allowed) is also executed here.'
+                desc: 'Allows user to review, create and edit compounds details: Stereoisomer code, Comments, ect.' +
+                ' Virtual Compound Registration (if it is allowed) is also executed here.',
+                isBatch: true
             },
             {
                 name: 'Preferred Compound  Details',
                 id: 'preferred-compound-details',
-                desc: 'Provides details for the individual compound. Allows user to review, create and edit batch details: Stereoisomer code, Comments, ect. Virtual Compound Registration (if it is allowed) is also executed here.'
+                desc: 'Provides details for the individual compound. Allows user to review, create and edit batch' +
+                ' details: Stereoisomer code, Comments, ect. Virtual Compound Registration (if it is allowed) is also executed here.',
+                isBatch: true
             }
         ]);
 })();

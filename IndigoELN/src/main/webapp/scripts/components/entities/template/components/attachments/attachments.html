@@ -3,6 +3,8 @@
         Attachments
     </div>
     <div class="panel-body">
-        <indigo-file-uploader upload-url="api/experiment_files" indigo-readonly="myReadonly"></indigo-file-uploader>
+        <indigo-file-uploader upload-url="api/experiment_files"
+                              indigo-readonly="vm.isReadonly">
+        </indigo-file-uploader>
     </div>
 </div>

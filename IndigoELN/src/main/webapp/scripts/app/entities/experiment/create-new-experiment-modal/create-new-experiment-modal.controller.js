@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function CreateNewExperimentModalController($scope, $rootScope, $uibModalInstance, Experiment, Principal, $q,
-                                                localStorageService, notebookId, NotebooksForSubCreation, Template) {
+                                                localStorageService, fullNotebookId, NotebooksForSubCreation, Template) {
         var vm = this;
         var userId;
         var lastSelectedTemplateIdKey = '.lastSelectedTemplateId';
@@ -14,7 +14,7 @@
         init();
 
         function init() {
-            vm.notebookId = notebookId;
+            vm.fullNotebookId = fullNotebookId;
             vm.selectedNotebook = '';
             vm.selectedTemplate = '';
             vm.experiment = {
@@ -58,10 +58,10 @@
         }
 
         function selectNotebookById() {
-            var lastNotebookId = vm.notebookId || localStorageService.get(userId + lastSelectedTemplateIdKey);
+            var lastNotebookId = vm.fullNotebookId || localStorageService.get(userId + lastSelectedTemplateIdKey);
 
             if (lastNotebookId) {
-                vm.selectedNotebook = _.find(vm.notebooks, {id: lastNotebookId});
+                vm.selectedNotebook = _.find(vm.notebooks, {fullId: lastNotebookId});
             }
         }
 

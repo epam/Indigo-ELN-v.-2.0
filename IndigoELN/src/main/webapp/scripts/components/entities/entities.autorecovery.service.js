@@ -179,21 +179,21 @@ function autoRecoverEngine(Principal, localStorageService, $timeout, EntitiesBro
                             angular.extend(entity, rec.entity);
                         }
                         clear(kind, entity);
-                        form.$setDirty(true);
+                        form.$setDirty();
                         vm.restored = null;
                     }
                 };
             } else if (rec && curtab.tmpId) {
                 angular.extend(entity, rec.entity);
-                form.$setDirty(true);
+                form.$setDirty();
             }
             vm.undoAction = function() {
                 undoAction(entity);
-                form.$setDirty(true);
+                form.$setDirty();
             };
             vm.redoAction = function() {
                 redoAction(entity);
-                form.$setDirty(true);
+                form.$setDirty();
             };
             vm.canUndo = function() {
                 return canUndo(entity);

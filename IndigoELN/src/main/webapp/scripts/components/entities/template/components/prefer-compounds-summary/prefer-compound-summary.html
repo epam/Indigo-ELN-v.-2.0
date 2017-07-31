@@ -4,7 +4,7 @@
         Preferred Compound Summary
     </div>
     <div class="panel-body collapsible">
-        <div ng-show="vm.isStructure">
+        <div ng-show="vm.isStructure" class="stucture-size">
             <div class="form-horizontal">
                 <div class="row">
                     <div class="col-xs-2">
@@ -20,8 +20,14 @@
         </div>
 
         <!--TODO isVisible???-->
-        <indigo-compound-summary model="vm.model" share="vm.share" experiment-name="vm.experiment.name"
+        <indigo-compound-summary model="vm.model"
+                                 experiment-name="vm.experiment.name"
                                  on-show-structure="vm.showStructure(isVisible)"
-                                 structure-size="vm.structureSize"></indigo-compound-summary>
+                                 structure-size="vm.structureSize"
+                                 is-readonly="vm.isReadonly"
+                                 selected-batch="vm.selectedBatch"
+                                 selected-batch-trigger="vm.selectedBatchTrigger"
+                                 on-select-batch="vm.onSelectBatch({batch: batch})">
+        </indigo-compound-summary>
     </div>
 </div>
