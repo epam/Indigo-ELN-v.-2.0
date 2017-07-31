@@ -9,10 +9,10 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 public class LogoUtils {
+    private static final String LOGO_FILE_NAME = "logo_new_blue.png";
+
     private LogoUtils() {
     }
-
-    private static final String LOGO_FILE_NAME = "logo_new_blue.png";
 
     public static PdfImage loadDefaultLogo() {
         try {

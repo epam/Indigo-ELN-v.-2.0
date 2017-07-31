@@ -11,7 +11,6 @@ import com.lowagie.text.pdf.PdfPTable;
 import one.util.streamex.StreamEx;
 
 public class RegistrationSummarySection extends BasePdfSectionWithSimpleTitle<RegistrationSummaryModel> {
-    private static final String SPACE = " ";
     private static final String[] headers = new String[]{
             "Nbk Batch", "Total Amount Made", "Registration Status", "Conversational Batch"
     };
