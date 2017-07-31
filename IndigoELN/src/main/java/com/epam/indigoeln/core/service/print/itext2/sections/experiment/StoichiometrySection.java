@@ -18,10 +18,11 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
     private static final String[] HEADERS = new String[]{
             "Reagent", "Mol Wgh", "Weight", "Moles", "Volume", "EQ", "Other Information"
     };
-    private static final float[] COLUMN_WIDTH = new float[]{3.5f, 1, 1, 1, 1, 1, 3};
+    private static final float[] COLUMN_WIDTH = new float[]{3.5f, 1, 1, 1, 1.2f, 0.75f, 3.05f};
     private static final float[] INFO_COLUMN_WIDTH = new float[]{2, 3};
 
     private static final float CELL_VERTICAL_PADDING = 4;
+    private static final float CELL_HORIZONTAL_PADDING = 2;
 
     public StoichiometrySection(StoichiometryModel model) {
         super(model, "STOICHIOMETRY");
@@ -95,7 +96,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getMoles(), row.getMolesUnit())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getVolume(), row.getVolumeUnit())));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getEq())));
-            table.addCell(CellFactory.getCommonCell(otherInformation, CELL_VERTICAL_PADDING));
+            table.addCell(CellFactory.getCommonCell(otherInformation, CELL_VERTICAL_PADDING, CELL_HORIZONTAL_PADDING));
         }
 
         return table;
@@ -112,6 +113,8 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
     private PdfPCell getInfoCell(String content){
         PdfPCell commonCell = CellFactory.getCommonCell(content);
         commonCell.setBorder(Rectangle.NO_BORDER);
+        commonCell.setPaddingLeft(CELL_HORIZONTAL_PADDING);
+        commonCell.setPaddingRight(CELL_HORIZONTAL_PADDING);
         commonCell.setPaddingTop(CELL_VERTICAL_PADDING);
         commonCell.setPaddingBottom(CELL_VERTICAL_PADDING);
         return commonCell;

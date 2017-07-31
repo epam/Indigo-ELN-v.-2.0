@@ -17,7 +17,6 @@ import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import one.util.streamex.StreamEx;
-import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
