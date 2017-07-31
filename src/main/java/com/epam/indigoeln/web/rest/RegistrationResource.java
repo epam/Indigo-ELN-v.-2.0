@@ -21,8 +21,12 @@ import java.util.List;
 @RequestMapping("/api/registration")
 public class RegistrationResource {
 
+    private final RegistrationService registrationService;
+
     @Autowired
-    private RegistrationService registrationService;
+    public RegistrationResource(RegistrationService registrationService) {
+        this.registrationService = registrationService;
+    }
 
     @ApiOperation(value = "Gets registration repositories info.", produces = "application/json")
     @RequestMapping(value = "/info", method = RequestMethod.GET,
@@ -34,7 +38,7 @@ public class RegistrationResource {
     @ApiOperation(value = "Registers batches.", produces = "application/json")
     @RequestMapping(value = "/{repositoryId}/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long register(
+    public String register(
             @ApiParam("Registration repository id") @PathVariable("repositoryId") String id,
             @ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
     ) throws RegistrationException {
@@ -44,7 +48,7 @@ public class RegistrationResource {
     @ApiOperation(value = "Registers batches.", produces = "application/json")
     @RequestMapping(value = "/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long register(@ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
+    public String register(@ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
     ) throws RegistrationException {
         return registrationService.register(getRepositoryId(), Arrays.asList(fullBatchNumbers));
     }
@@ -54,7 +58,7 @@ public class RegistrationResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public RegistrationStatus status(
             @ApiParam("Registration repository id") String id,
-            @ApiParam("Registration job id") Long jobId
+            @ApiParam("Registration job id") String jobId
     ) throws RegistrationException {
         if (id == null) {
             id = getRepositoryId();
@@ -65,9 +69,9 @@ public class RegistrationResource {
     @ApiOperation(value = "Returns registration compounds.", produces = "application/json")
     @RequestMapping(value = "/compounds", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Compound> compounds(
+    public List<Compound> compoundsByJobId(
             @ApiParam("Registration repository id") String id,
-            @ApiParam("Registration job id") Long jobId
+            @ApiParam("Registration job id") String jobId
     ) throws RegistrationException {
         if (id == null) {
             id = getRepositoryId();
@@ -78,7 +82,7 @@ public class RegistrationResource {
     @ApiOperation(value = "Returns compounds by their number.", produces = "application/json")
     @RequestMapping(value = "/compounds/{compoundNo}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Compound> compounds(
+    public List<Compound> compoundsByCompoundNo(
             @ApiParam("Registration repository id") String id,
             @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
     ) throws RegistrationException {
