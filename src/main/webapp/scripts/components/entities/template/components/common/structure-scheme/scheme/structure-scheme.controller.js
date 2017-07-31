@@ -11,7 +11,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     function init() {
         vm.structureModel = getInitModel();
         if (!_.some(vm.structureModel, isEqualStructures)) {
-            onChange();
+            onChangeStructure();
         }
 
         vm.openEditor = openEditor;
@@ -55,7 +55,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
             data: structure.molfile
         }).success(function(result) {
             vm.structureModel.image = result.image;
-            onChange();
+            onChangeStructure();
         });
     }
 
@@ -63,7 +63,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
         $scope.$watch('vm.modelTrigger', updateModel);
     }
 
-    function onChange() {
+    function onChangeStructure() {
         vm.onChanged({structure: vm.structureModel});
     }
 
@@ -106,7 +106,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
             updateModelRestriction(data);
         }
 
-        onChange();
+        onChangeStructure();
     }
 
     function setStructure(structure, structureId) {

@@ -284,7 +284,7 @@
                     });
             }
 
-            toggleDirty(false);
+            toggleDirty(true);
         }
 
         function initEventListeners() {

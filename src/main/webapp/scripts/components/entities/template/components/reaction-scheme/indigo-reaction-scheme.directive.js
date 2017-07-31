@@ -13,7 +13,8 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                isReadonly: '='
+                isReadonly: '=',
+                onChanged: '&'
             }
         };
     }
@@ -41,6 +42,7 @@
             vm.model.reaction = structure;
             EntitiesBrowser.setCurrentFormDirty();
             $rootScope.$broadcast('REACTION_CHANGED', structure);
+            vm.onChanged();
         }
     }
 })();
