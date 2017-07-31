@@ -244,7 +244,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setTheoWeight(batch.getString("theoWeight", "value"))
                 .setTheoWeightUnit(batch.getString("theoWeight", "unit"))
                 .setYield(batch.getString("yield"))
-                .setPurity(batch.getString("stoicPurity", "value"))
+                .setPurity(batch.getString("purity", "asString"))
                 .setBatchInformation(new BatchInformation(
                         batch.getString("molWeight", "value"),
                         batch.getString("exactMass"),

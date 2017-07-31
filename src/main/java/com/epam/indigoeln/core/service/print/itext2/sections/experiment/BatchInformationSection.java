@@ -100,7 +100,7 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
             table.addCell(CellFactory.getCommonCell(structureTable));
             table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getAmountMade(), row.getAmountMadeUnit())));
             table.addCell(CellFactory.getCommonCell(yieldTable));
-            table.addCell(CellFactory.getCommonCell(FormatUtils.formatDecimal(row.getPurity())));
+            table.addCell(CellFactory.getCommonCell(row.getPurity()));
             table.addCell(CellFactory.getCommonCell(batchInformation, CELL_VERTICAL_PADDING));
         }
 

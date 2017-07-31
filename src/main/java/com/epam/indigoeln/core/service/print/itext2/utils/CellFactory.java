@@ -19,16 +19,16 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_ARIAL;
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.FONT_FAMILY_TREBUCHET_MS;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.BOLD_FONT_FAMILY;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.MAIN_FONT_FAMILY;
 
 public class CellFactory {
     private static final Color FONT_COLOR = new Color(100, 100, 100);
     private static final Color CELL_BORDER_COLOR = new Color(170, 170, 170);
 
     private static final float FONT_SIZE = 10f;
-    private static final Font FONT = FontFactory.getFont(FONT_FAMILY_TREBUCHET_MS, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.NORMAL, FONT_COLOR);
-    private static final Font FONT_BOLD = FontFactory.getFont(FONT_FAMILY_ARIAL, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.BOLD, FONT_COLOR);
+    private static final Font FONT = FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.NORMAL, FONT_COLOR);
+    private static final Font FONT_BOLD = FontFactory.getFont(BOLD_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, Font.BOLD, FONT_COLOR);
 
     private static final float CELL_HORIZONTAL_PADDING = 6;
     private static final float CELL_VERTICAL_PADDING = 9;
@@ -122,7 +122,7 @@ public class CellFactory {
 
     private static void setFont(Chunk chunk) {
         Font oldFont = chunk.getFont();
-        chunk.setFont(FontFactory.getFont(FONT_FAMILY_TREBUCHET_MS, BaseFont.IDENTITY_H, true, FONT_SIZE, oldFont.getStyle(), FONT_COLOR));
+        chunk.setFont(FontFactory.getFont(MAIN_FONT_FAMILY, BaseFont.IDENTITY_H, true, FONT_SIZE, oldFont.getStyle(), FONT_COLOR));
     }
 
     public static PdfPCell getCommonCell(String content, boolean isBold) {

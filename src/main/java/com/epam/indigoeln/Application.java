@@ -1,5 +1,6 @@
 package com.epam.indigoeln;
 
+import com.epam.indigoeln.core.service.print.itext2.utils.PdfConst;
 import com.lowagie.text.FontFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,7 +20,7 @@ public class Application extends SpringBootServletInitializer {
      * Main method, used to run the application.
      */
     public static void main(String[] args) {
-        FontFactory.registerDirectories();
+        FontFactory.register(PdfConst.MAIN_FONT_FAMILY_DIR, PdfConst.MAIN_FONT_FAMILY);
         SpringApplication.run(Application.class, args);
     }
 
