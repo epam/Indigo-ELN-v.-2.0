@@ -138,7 +138,7 @@ public class RegistrationService {
                                 if (registrationStatus.getStatus() == RegistrationStatus.Status.PASSED) {
                                     b.setRegistrationDate(registrationStatus.getDate());
                                     b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
-                                    b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
+                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                                 }
                             }
                     );
@@ -248,7 +248,7 @@ public class RegistrationService {
             delegate.put("compoundId", compoundId);
         }
 
-        public void setСonversationalBatchNumber(String conversationalBatchNumber) {
+        public void setConversationalBatchNumber(String conversationalBatchNumber) {
             delegate.put("conversationalBatchNumber", conversationalBatchNumber);
         }
     }
