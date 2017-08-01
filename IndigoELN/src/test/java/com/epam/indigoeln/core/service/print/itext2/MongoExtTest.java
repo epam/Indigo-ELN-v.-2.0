@@ -12,26 +12,26 @@ public class MongoExtTest {
     public void getObject() throws Exception {
         BasicDBObject object = BasicDBObject.parse("{obj: {a : \"1\"}}");
         assertEquals("1", MongoExt.of(object).getObject("obj").getString("a"));
-        assertEquals(null, MongoExt.of(object).getObject("XXX"));
+        assertTrue(MongoExt.of(object).getObject("XXX") != null);
     }
 
     @Test
     public void testGetStringByPath() throws Exception {
         BasicDBObject simpleObject = BasicDBObject.parse("{a: \"value\"}");
         assertEquals("value", MongoExt.of(simpleObject).getString("a"));
-        assertEquals(null, MongoExt.of(simpleObject).getString("X"));
+        assertEquals("", MongoExt.of(simpleObject).getString("X"));
 
         BasicDBObject shallowObject = BasicDBObject.parse("{a: {b: \"value\"}}");
         assertEquals("value", MongoExt.of(shallowObject).getString("a", "b"));
-        assertEquals(null, MongoExt.of(shallowObject).getString("X", "b"));
-        assertEquals(null, MongoExt.of(shallowObject).getString("a", "X"));
-        assertEquals(null, MongoExt.of(shallowObject).getString("X", "X"));
+        assertEquals("", MongoExt.of(shallowObject).getString("X", "b"));
+        assertEquals("", MongoExt.of(shallowObject).getString("a", "X"));
+        assertEquals("", MongoExt.of(shallowObject).getString("X", "X"));
 
         BasicDBObject deepObject = BasicDBObject.parse("{a: {b: {c: \"value\"}}}");
         assertEquals("value", MongoExt.of(deepObject).getString("a", "b", "c"));
-        assertEquals(null, MongoExt.of(deepObject).getString("X", "b", "c"));
-        assertEquals(null, MongoExt.of(deepObject).getString("a", "X", "c"));
-        assertEquals(null, MongoExt.of(deepObject).getString("a", "b", "X"));
+        assertEquals("", MongoExt.of(deepObject).getString("X", "b", "c"));
+        assertEquals("", MongoExt.of(deepObject).getString("a", "X", "c"));
+        assertEquals("", MongoExt.of(deepObject).getString("a", "b", "X"));
     }
 
     @Test(expected = Exception.class)
