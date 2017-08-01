@@ -15,6 +15,7 @@
                 model: '=',
                 batches: '=',
                 selectedBatch: '=',
+                isBatchesLocked: '=',
                 selectedBatchTrigger: '&',
                 experiment: '=',
                 isReadonly: '=',
