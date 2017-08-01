@@ -9,24 +9,28 @@ import com.lowagie.text.Element;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
+import one.util.streamex.DoubleStreamEx;
 import org.apache.commons.lang3.StringUtils;
 
 public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<PreferredCompoundsModel> {
-    private static String[] headers = new String[]{
+    private static final String[] HEADERS = new String[]{
             "Structure", "Notebook Batch #", "Mol Weight", "Mol Formula", "Structure Comments"
     };
+
+    private static final float[] COLUMN_WIDTH = new float[]{3, 2, 1, 1.5f, 2};
+
+    private static final float CELL_VERTICAL_PADDING = 4;
 
     public PreferedCompoundsSection(PreferredCompoundsModel model) {
         super(model, "PREFERRED COMPOUNDS");
     }
 
-    private static final float CELL_VERTICAL_PADDING = 4;
-
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(headers, width);
+        PdfPTable table = TableFactory.createDefaultTable(HEADERS, COLUMN_WIDTH, width);
 
-        float structureWidth = width / 5;
+        float structurePart = (float) (COLUMN_WIDTH[0] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
+        float structureWidth = structurePart * width;
 
         for (PreferredCompoundsModel.PreferredCompoundsRow row : model.getRows()) {
             PdfPTable structureTable = TableFactory.createDefaultTable(1, structureWidth);
