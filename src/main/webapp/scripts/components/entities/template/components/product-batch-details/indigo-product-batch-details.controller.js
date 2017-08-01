@@ -64,15 +64,18 @@
 
 
         function addNewBatch() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
             selectBatch(batch);
+            vm.isBatchesLocked = false;
         }
 
         function duplicateBatch() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
         }
 
@@ -87,12 +90,14 @@
         }
 
         function syncWithIntendedProducts() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
                 if (batches.length) {
                     _.forEach(batches, function(batch) {
                         vm.onAddedBatch({batch: batch});
                     });
                     selectBatch(batches[0]);
+                    vm.isBatchesLocked = false;
                 }
             });
         }

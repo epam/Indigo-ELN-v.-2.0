@@ -597,6 +597,7 @@
         }
 
         function syncWithIntendedProducts() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.syncWithIntendedProducts()
                 .then(successAddedBatches);
         }
@@ -621,11 +622,13 @@
         }
 
         function duplicateBatches() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
                 .then(successAddedBatches);
         }
 
         function addNewBatch() {
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
@@ -636,11 +639,13 @@
                 });
                 vm.onRowSelected(_.last(batches));
             }
+            vm.isBatchesLocked = false;
         }
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
             vm.onRowSelected(batch);
+            vm.isBatchesLocked = false;
         }
 
         function getCheckedBatches() {
@@ -660,12 +665,13 @@
         }
 
         function importSDFile() {
-            vm.importLoading = true;
+            vm.isBatchesLocked = true;
             ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 vm.importLoading = false;
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
+                vm.isBatchesLocked = false;
             });
         }
 
