@@ -425,9 +425,7 @@
         }
 
         function populateFetchedBatch(row, source) {
-            var cleanedSource = stoichHelper.cleanReactants([source]);
-            var cleanedBatch = cleanedSource[0];
-
+            var cleanedBatch = stoichHelper.cleanReactant(source);
             row.$$populatedBatch = cleanedBatch;
             _.extend(row, cleanedBatch);
             row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
