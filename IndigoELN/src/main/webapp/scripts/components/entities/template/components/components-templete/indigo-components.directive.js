@@ -132,21 +132,16 @@
 
             function findPrevBatchToSelect(batchesForRemove) {
                 var batchToSelect;
-                var batchesAfterRemove;
-                _.each(batchesForRemove, function(b) {
-                    var prevInd = _.indexOf(vm.batches, b) - 1;
-                    var batch = vm.batches[prevInd];
-                    if (batch && !_.includes(batchesForRemove, batch)) {
-                        batchToSelect = batch;
-                    }
-                });
-                if (!batchToSelect) {
-                    batchesAfterRemove = _.difference(vm.batches, batchesForRemove);
-                    batchToSelect = _.first(batchesAfterRemove);
-                }
+                var index = _.findIndex(vm.batches, vm.selectedBatch);
+                batchToSelect = _.findLast(vm.batches, comparator, index) || _.find(vm.batches, comparator, index);
 
                 return batchToSelect;
+
+                function comparator(batch) {
+                    return !_.includes(batchesForRemove, batch);
+                }
             }
+
 
             function onAddedBatch(batch) {
                 vm.batches.push(batch);
