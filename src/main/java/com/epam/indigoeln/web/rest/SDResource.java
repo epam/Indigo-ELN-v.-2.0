@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +76,7 @@ public class SDResource {
         final User user = userService.getUserWithAuthorities();
         String fileName = user.getLogin() + "_" + System.currentTimeMillis() + ".sdf";
         final String sdfileStr = sdFileInfo.getSdfileStr();
-        final File file = TempFileUtil.saveToTempDirectory(sdfileStr == null ? new byte[]{} : sdfileStr.getBytes(), fileName);
+        final File file = TempFileUtil.saveToTempDirectory(sdfileStr == null ? new byte[]{} : sdfileStr.getBytes(Charset.forName("UTF-8")), fileName);
         return ResponseEntity.ok(ImmutableMap.of("fileName", file.getName()));
     }
 
