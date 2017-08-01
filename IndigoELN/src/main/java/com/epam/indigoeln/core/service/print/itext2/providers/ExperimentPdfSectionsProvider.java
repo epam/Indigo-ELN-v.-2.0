@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
+import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformation;
@@ -16,12 +17,14 @@ import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
+import com.epam.indigoeln.web.rest.dto.FileDTO;
+import com.mongodb.gridfs.GridFSDBFile;
 import one.util.streamex.StreamEx;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
-
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
 import static java.util.Collections.singletonList;
 
@@ -32,6 +35,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final Project project;
     private final Notebook notebook;
     private final Experiment experiment;
+    private final FileRepository fileRepository;
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
@@ -46,20 +50,22 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static final String PRODUCT_BATCH_SUMMARY = "productBatchSummary";
     private static final String PRODUCT_BATCH_DETAILS = "productBatchDetails";
 
-    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment) {
+    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository) {
         this.project = project;
         this.notebook = notebook;
         this.experiment = experiment;
+        this.fileRepository = fileRepository;
     }
 
     /**
      * @return list of raw uninitialized pdf sections corresponding to experiment components.
      */
     public List<AbstractPdfSection> getContentSections() {
-        return StreamEx
-                .of(experiment.getComponents())
+        List<AbstractPdfSection> list = StreamEx.of(experiment.getComponents())
                 .flatMap(this::sections)
                 .toList();
+        list.add(getAttachmentsSection());
+        return list;
     }
 
     private Stream<AbstractPdfSection> sections(Component component) {
@@ -266,6 +272,18 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 ))
                 .toList());
         return sections.orElse(Collections.emptyList());
+    }
+
+    private AttachmentsSection getAttachmentsSection() {
+        List<FileDTO> files = new ArrayList<>();
+        Set<String> fileIds = experiment.getFileIds();
+        if (!fileIds.isEmpty()) {
+            Page<GridFSDBFile> gridFSDBFiles = fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size()));
+            gridFSDBFiles.getContent().stream()
+                    .map(FileDTO::new)
+                    .forEach(files::add);
+        }
+        return new AttachmentsSection(new AttachmentsModel(files));
     }
 
     public ExperimentHeaderSection getHeaderSection() {

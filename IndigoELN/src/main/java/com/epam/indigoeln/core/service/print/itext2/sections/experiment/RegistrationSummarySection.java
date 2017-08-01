@@ -12,9 +12,9 @@ import one.util.streamex.StreamEx;
 
 public class RegistrationSummarySection extends BasePdfSectionWithSimpleTitle<RegistrationSummaryModel> {
     private static final String[] headers = new String[]{
-            "Nbk Batch", "Total Amount Made", "Registration Status", "Conversational Batch"
+            "Nbk Batch", "Total Amount Made", "Registration Status", "Conversational Batch #"
     };
-    private static final float[] columnWidth = new float[]{4, 3, 4, 3};
+    private static final float[] columnWidth = new float[]{3, 3, 3, 4};
 
     public RegistrationSummarySection(RegistrationSummaryModel model) {
         super(model, "REGISTRATION SUMMARY");

@@ -3,20 +3,25 @@ package com.epam.indigoeln.core.service.print.itext2.utils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
+import java.util.Date;
 import java.util.Optional;
 
 public class FormatUtils {
-    private static String defaultFormat = "MMM d, yyyy HH:mm:ss z"; // ex: Jul 20, 2017 15:34:21 MSK
-    private static final String BATCH_DETAILS_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
-    private static final String DECIMAL_FORMAT = "#.####";
     private static final String DELIMITER = " ";
-    private static final DecimalFormat decimalFormat = new DecimalFormat(DECIMAL_FORMAT);
+    private static final SimpleDateFormat ATTACHMENTS_FORMAT = new SimpleDateFormat("d MMMM yyyy");
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat( "#.####");
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter
-            .ofPattern(defaultFormat)
+            .ofPattern("MMM d, yyyy HH:mm:ss z")
             .withZone(ZoneId.systemDefault());
+    private static final DateTimeFormatter BATCH_DETAILS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+            .withZone(ZoneId.systemDefault());
+    private static final String UNITS = "kMGTPE";
+    private static final String SIZE_FORMAT = "%.2f %sB";
+
 
     private FormatUtils() {
     }
@@ -29,9 +34,7 @@ public class FormatUtils {
 
     public static String format(String date) {
         if (!StringUtils.isBlank(date)) {
-            TemporalAccessor parse = DateTimeFormatter.ofPattern(BATCH_DETAILS_FORMAT)
-                    .withZone(ZoneId.systemDefault())
-                    .parse(date);
+            TemporalAccessor parse = BATCH_DETAILS_FORMATTER.parse(date);
             return formatSafe(parse);
         }
         return StringUtils.EMPTY;
@@ -42,7 +45,7 @@ public class FormatUtils {
             return StringUtils.EMPTY;
         }
         double value = Double.parseDouble(number);
-        String result = decimalFormat.format(value);
+        String result = DECIMAL_FORMAT.format(value);
         if (!StringUtils.isBlank(result) && !"0".equals(result)) {
             return result;
         }
@@ -58,4 +61,21 @@ public class FormatUtils {
         }
     }
 
+    public static String format(long size){
+        int base = 1000;
+        if (size < base) {
+            return size + " B";
+        }
+        int exp = (int) (Math.log(size) / Math.log(base));
+        char unit = UNITS.charAt(exp-1);
+        return String.format(SIZE_FORMAT, size / Math.pow(base, exp), unit);
+    }
+
+    public static String format(Date date){
+        if (date != null){
+            return ATTACHMENTS_FORMAT.format(date);
+        }else {
+            return StringUtils.EMPTY;
+        }
+    }
 }
