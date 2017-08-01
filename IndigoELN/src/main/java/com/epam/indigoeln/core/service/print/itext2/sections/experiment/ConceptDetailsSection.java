@@ -22,11 +22,11 @@ public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<Concept
         PdfPTableHelper wrapper = new PdfPTableHelper(table);
         wrapper.addKeyValueCells("Created Date", FormatUtils.formatSafe(model.getCreationDate()));
         wrapper.addKeyValueCells("Therapeutic Area", model.getTherapeuticArea());
-        wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(),COMMA));
+        wrapper.addKeyValueCells("Linked Experiment", StringUtils.join(model.getLinkedExperiment(), COMMA));
         wrapper.addKeyValueCells("Project Code", model.getProjectCode());
-        wrapper.addKeyValueCells("Concept Keyword", model.getConceptKeywords());
         wrapper.addKeyValueCells("Designers", StringUtils.join(model.getDesigners(), COMMA));
-        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA), 3);
+        wrapper.addKeyValueCells("Co-authors", StringUtils.join(model.getCoauthors(), COMMA));
+        wrapper.addKeyValueCells("Concept Keyword", model.getConceptKeywords(), 3);
 
         return table;
     }
