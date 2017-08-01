@@ -4,6 +4,7 @@ import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
+import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfGenerator;
@@ -23,6 +24,7 @@ public class ITextPrintService {
     private final ExperimentRepository experimentRepository;
     private final NotebookRepository notebookRepository;
     private final ProjectRepository projectRepository;
+    private final FileRepository fileRepository;
 
     private static final String PROJECT = "Project";
     private static final String NOTEBOOK = "Notebook";
@@ -31,10 +33,11 @@ public class ITextPrintService {
     @Autowired
     public ITextPrintService(ExperimentRepository experimentRepository,
                              NotebookRepository notebookRepository,
-                             ProjectRepository projectRepository) {
+                             ProjectRepository projectRepository, FileRepository fileRepository) {
         this.experimentRepository = experimentRepository;
         this.notebookRepository = notebookRepository;
         this.projectRepository = projectRepository;
+        this.fileRepository = fileRepository;
     }
 
     public void generateNotebookPdf(String projectId, String notebookId, String experimentId,
@@ -46,7 +49,7 @@ public class ITextPrintService {
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
         Experiment experiment = findChecked(experimentRepository, experimentFullId, EXPERIMENT);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         pdfGenerator.generate(outputStream);
     }

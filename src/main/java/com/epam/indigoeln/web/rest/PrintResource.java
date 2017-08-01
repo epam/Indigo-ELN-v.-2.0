@@ -65,7 +65,7 @@ public class PrintResource {
         }
     }
 
-    @ApiOperation(value = "Open pdf preview", produces = "application/json")
+    @ApiOperation(value = "Open experiment pdf preview", produces = "application/json")
     @RequestMapping(
             method = RequestMethod.GET,
             path = "/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}",
