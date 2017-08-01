@@ -59,7 +59,7 @@
 
 
         function checkEditDisabled() {
-            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected;
+            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected || !vm.batchSelected.nbkBatch;
         }
 
 
@@ -87,9 +87,13 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batch) {
-                vm.batchSelected = batch;
-                selectBatch(vm.batchSelected);
+            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
+                if (batches.length) {
+                    _.forEach(batches, function(batch) {
+                        vm.onAddedBatch({batch: batch});
+                    });
+                    selectBatch(batches[0]);
+                }
             });
         }
 
