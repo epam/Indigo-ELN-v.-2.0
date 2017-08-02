@@ -4,26 +4,26 @@
         .controller('ProductBatchSummarySetSourceController', ProductBatchSummarySetSourceController);
 
     /* @ngInject */
-    function ProductBatchSummarySetSourceController($uibModalInstance, name, sourceValues, sourceDetailExternal, sourceDetailInternal) {
+    function ProductBatchSummarySetSourceController($uibModalInstance, name, $q, Dictionary) {
         var vm = this;
+        var sources = Dictionary.getByName({name: 'Source'}).$promise;
+        var sourceDetails = Dictionary.getByName({name: 'Source Details'}).$promise;
+        $q.all([sources, sourceDetails]).then(function(results) {
+            vm.name = name;
+            vm.sourceValues = results[0].words;
+            vm.sourceDetails = results[1].words;
+            vm.save = save;
+            vm.clear = clear;
 
-        vm.name = name;
-        vm.sourceValues = sourceValues;
-        vm.source = sourceValues[0];
-        vm.sourceDetailExternal = sourceDetailExternal;
-        vm.sourceDetailInternal = sourceDetailInternal;
+            function save() {
+                $uibModalInstance.close({
+                    source: vm.source, sourceDetail: vm.sourceDetail
+                });
+            }
 
-        vm.save = save;
-        vm.clear = clear;
-
-        function save() {
-            $uibModalInstance.close({
-                source: vm.source, sourceDetail: vm.sourceDetail
-            });
-        }
-
-        function clear() {
-            $uibModalInstance.dismiss('cancel');
-        }
+            function clear() {
+                $uibModalInstance.dismiss('cancel');
+            }
+        });
     }
 })();
