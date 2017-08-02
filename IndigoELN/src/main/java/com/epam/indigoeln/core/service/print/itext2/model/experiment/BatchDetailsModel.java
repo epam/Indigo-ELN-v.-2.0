@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
-import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import java.util.List;
 
 public class BatchDetailsModel implements SectionModel {

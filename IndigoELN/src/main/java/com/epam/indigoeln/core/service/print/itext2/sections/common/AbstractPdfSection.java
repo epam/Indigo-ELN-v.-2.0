@@ -1,6 +1,6 @@
-package com.epam.indigoeln.core.service.print.itext2.sections;
+package com.epam.indigoeln.core.service.print.itext2.sections.common;
 
-import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfPTable;
