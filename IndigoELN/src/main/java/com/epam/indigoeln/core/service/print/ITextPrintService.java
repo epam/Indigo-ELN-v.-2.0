@@ -7,10 +7,12 @@ import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.print.itext2.PdfGenerator;
 import com.epam.indigoeln.core.service.print.itext2.providers.ExperimentPdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.providers.NotebookPdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.providers.ProjectPdfSectionsProvider;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
@@ -25,6 +27,8 @@ public class ITextPrintService {
     private final NotebookRepository notebookRepository;
     private final ProjectRepository projectRepository;
     private final FileRepository fileRepository;
+    private final ExperimentService experimentService;
+    private final UserService userService;
 
     private static final String PROJECT = "Project";
     private static final String NOTEBOOK = "Notebook";
@@ -33,11 +37,13 @@ public class ITextPrintService {
     @Autowired
     public ITextPrintService(ExperimentRepository experimentRepository,
                              NotebookRepository notebookRepository,
-                             ProjectRepository projectRepository, FileRepository fileRepository) {
+                             ProjectRepository projectRepository, FileRepository fileRepository, ExperimentService experimentService, UserService userService) {
         this.experimentRepository = experimentRepository;
         this.notebookRepository = notebookRepository;
         this.projectRepository = projectRepository;
         this.fileRepository = fileRepository;
+        this.experimentService = experimentService;
+        this.userService = userService;
     }
 
     public void generateExperimentPdf(String projectId, String notebookId, String experimentId,
@@ -59,7 +65,7 @@ public class ITextPrintService {
         Project project = findChecked(projectRepository, projectId, PROJECT);
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
 
-        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook);
+        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         pdfGenerator.generate(outputStream);
     }

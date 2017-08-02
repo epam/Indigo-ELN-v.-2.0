@@ -13,6 +13,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import one.util.streamex.DoubleStreamEx;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.*;
+
 public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<StoichiometryModel> {
 
     private static final String[] HEADERS = new String[]{
@@ -37,7 +39,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
         float infoPart = (float) (COLUMN_WIDTH[6] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
         float infoWidth = infoPart * width;
 
-        for (StoichiometryModel.StoichiometryRow row : model.getRows()) {
+        for (StoichiometryRow row : model.getRows()) {
             PdfPTable reagentTable = TableFactory.createDefaultTable(1, reagentCellWidth);
 
             Structure structure = row.getStructure();
