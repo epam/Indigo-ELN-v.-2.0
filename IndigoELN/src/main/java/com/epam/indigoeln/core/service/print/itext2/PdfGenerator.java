@@ -8,8 +8,7 @@ import com.epam.indigoeln.core.service.print.itext2.utils.PdfPostProcessor;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.PageSize;
-import com.lowagie.text.pdf.PdfWriter;
-
+import com.lowagie.text.pdf.*;
 import java.io.*;
 import java.util.List;
 
@@ -29,11 +28,13 @@ public class PdfGenerator {
     private final List<AbstractPdfSection> contentSections;
     private final PdfLayout layout;
     private final HeaderPdfSection headerSection;
+    private final List<InputStream> extraPdf;
 
     public PdfGenerator(PdfSectionsProvider sectionsProvider) {
         this.headerSection = sectionsProvider.getHeaderSection();
         this.contentSections = sectionsProvider.getContentSections();
         this.layout = new PdfLayout(PageSize.A4, 50, 35, 33, 33, headerSection);
+        this.extraPdf = sectionsProvider.getExtraPdf();
     }
 
     public void generate(OutputStream output) {
@@ -61,7 +62,11 @@ public class PdfGenerator {
         fillDocument(document, writer);
         document.close();
 
-        addDocumentHeaders(output, new ByteArrayInputStream(tempBaos.toByteArray()));
+        ByteArrayOutputStream pdfWithHeader = new ByteArrayOutputStream();
+        addDocumentHeaders(pdfWithHeader, new ByteArrayInputStream(tempBaos.toByteArray()));
+
+        extraPdf.add(0,new ByteArrayInputStream(pdfWithHeader.toByteArray()));
+        addExtraPdf(extraPdf, output);
     }
 
     private void fillDocument(Document document, PdfWriter writer) throws DocumentException {
@@ -71,6 +76,24 @@ public class PdfGenerator {
             section.addToDocument(document, writer);
         }
     }
+
+    private void addExtraPdf(List<InputStream> list, OutputStream output) throws IOException, DocumentException {
+        Document document = new Document();
+        PdfCopy pdfCopy = new PdfCopy(document, output);
+        document.open();
+
+        PdfReader pdfReader;
+        for (InputStream is : list) {
+            pdfReader = new PdfReader(is);
+            for (int i = 1; i <= pdfReader.getNumberOfPages(); i++) {
+                pdfCopy.addPage(pdfCopy.getImportedPage(pdfReader, i));
+            }
+            pdfCopy.freeReader(pdfReader);
+            pdfReader.close();
+        }
+        document.close();
+    }
+
 
     /**
      * The method adds header to document pages.

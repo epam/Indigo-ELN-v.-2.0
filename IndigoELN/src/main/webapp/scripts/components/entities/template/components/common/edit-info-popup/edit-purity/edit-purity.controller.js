@@ -41,10 +41,10 @@ function EditPurityController($uibModalInstance, data, dictionary) {
     function resultToString() {
         var purityStrings = _.map(vm.purity.data, function(purity) {
             if (purity.operator && purity.value && purity.comments) {
-                return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
+                return purity.determinedBy + ' ' + purity.operator.name + ' ' +
                     purity.value + '% ' + purity.comments;
             } else if (purity.operator && purity.value) {
-                return purity.determinedBy + ' purity ' + purity.operator.name + ' ' +
+                return purity.determinedBy + ' ' + purity.operator.name + ' ' +
                     purity.value + '%';
             }
 
