@@ -120,6 +120,14 @@ public class Experiment extends ExperimentShort {
         this.lastVersion = lastVersion;
     }
 
+    public String getFullName(){
+        if (experimentVersion > 1 || !lastVersion) {
+            return getName() + " v" + getExperimentVersion();
+        }else {
+            return getName();
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
