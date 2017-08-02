@@ -8,6 +8,8 @@ import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
@@ -28,7 +30,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     // reagent in the reaction
     boolean inCalculation = false; // Do not disturb. Batch is in process of calculating values
     // used to dynamically set the column names when used in a table
-//    private String[] propertyNames;
+
     private ParentCompoundModel compound; // Holds structure formula wgt and other info.
     private AmountModel molecularWeightAmount = new AmountModel(UnitType.SCALAR); // Holds batch molecular weight
     private AmountModel moleAmount = new AmountModel(UnitType.MOLES); // Unitless amount indicating how much of an Avagadro's
@@ -98,14 +100,13 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public void setDensityAmount(AmountModel density) {
         if (density != null) {
-            if (density.getUnitType().getOrdinal() == UnitType.DENSITY.getOrdinal()) {
+            if ((density.getUnitType().getOrdinal() == UnitType.DENSITY.getOrdinal()) && !densityAmount.equals(density)) {
                 // Check to see if it is a unit change
-                if (!densityAmount.equals(density)) {
-                    densityAmount.deepCopy(density);
-                    updateCalcFlags(densityAmount);
-                    recalcAmounts();
-                    this.modelChanged = true;
-                }
+
+                densityAmount.deepCopy(density);
+                updateCalcFlags(densityAmount);
+                recalcAmounts();
+                this.modelChanged = true;
             }
         } else {
             densityAmount.setValue("0");
@@ -137,15 +138,14 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     public void setMolarAmount(AmountModel molarAmnt) {
         if (molarAmnt != null) {
-            if (molarAmnt.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal()) {
+            if ((molarAmnt.getUnitType().getOrdinal() == UnitType.MOLAR.getOrdinal()) && !molarAmount.equals(molarAmnt)) {
                 // Check to see if it is a unit change
-                if (!molarAmount.equals(molarAmnt)) {
-                    boolean unitChange = BatchUtils.isUnitOnlyChanged(molarAmount, molarAmnt);
-                    molarAmount.deepCopy(molarAmnt);
-                    if (!unitChange) {
-                        recalcAmounts();
-                        setModified(true);
-                    }
+
+                boolean unitChange = BatchUtils.isUnitOnlyChanged(molarAmount, molarAmnt);
+                molarAmount.deepCopy(molarAmnt);
+                if (!unitChange) {
+                    recalcAmounts();
+                    setModified(true);
                 }
             }
         } else {
@@ -258,14 +258,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (!rxnEquivsAmount.equals(equiv)) {
             rxnEquivsAmount.deepCopy(equiv);
         }
-    }
-
-    private double getSaltEquivs() {
-        return saltEquivs;
-    }
-
-    private SaltFormModel getSaltForm() {
-        return saltForm;
     }
 
     public AmountModel getVolumeAmount() {
@@ -409,7 +401,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
                 weightAmount.setCalculated(true);
                 moleAmount.setCalculated(true);
             }
-            // applyLatestSigDigits(getSmallestSigFigs());
         }
     }
 
@@ -524,7 +515,8 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
                 rxnEquivsAmount.reset();
             }
         } else {
-            if ((lastUpdatedType != UPDATE_TYPE_WEIGHT && !moleAmount.isCalculated()) || !rxnEquivsAmount.isCalculated()
+            Supplier<Boolean> cond = () -> lastUpdatedType != UPDATE_TYPE_WEIGHT && !moleAmount.isCalculated();
+            if (cond.get() || !rxnEquivsAmount.isCalculated()
                     || moleAmount.doubleValue() > 0 && lastUpdatedType != UPDATE_TYPE_WEIGHT) {
                 updateWeightFromMoles();
             } else {
@@ -532,25 +524,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             }
             // Now that the solids are straightened out, we can calc the liquid
             if (molarAmount.doubleValue() > 0) {
-                // Due to artf60208 :Singleton: correct sig fig processing for Molarity in Stoich Table (CEN-705) comment sig fig calculation
-                //				// update volume
-                //				amts.add(moleAmount);
-                //				amts.add(molarAmount);
-                //				if (volumeAmount.isCalculated() && weightAmount.isCalculated())
-                //					volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                //				else
-                //					applySigFigRules(volumeAmount, amts);
 
-                //				amts.clear();// important to clear the amts list
                 volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
                 volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble() / molarAmount.getValueInStdUnitsAsDouble(),
                         true);
             } else if (densityAmount.doubleValue() > 0) {
-                // Due to artf60208 :Singleton: correct sig fig processing for Molarity in Stoich Table (CEN-705) comment sig fig calculation
-                //				amts.add(weightAmount);
-                //				amts.add(densityAmount);
-                //				applySigFigRules(volumeAmount, amts);
-                //				amts.clear();// important to clear the amts list
 
                 volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
                 // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
@@ -567,39 +545,57 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         BatchModel that = (BatchModel) o;
 
-        if (autoCalcOn != that.autoCalcOn) return false;
-        if (inCalculation != that.inCalculation) return false;
-        if (limiting != that.limiting) return false;
-        if (Double.compare(that.saltEquivs, saltEquivs) != 0) return false;
-        if (transactionOrder != that.transactionOrder) return false;
-        if (lastUpdatedType != that.lastUpdatedType) return false;
+        if (autoCalcOn != that.autoCalcOn)
+            return false;
+        if (inCalculation != that.inCalculation)
+            return false;
+        if (limiting != that.limiting)
+            return false;
+        if (Double.compare(that.saltEquivs, saltEquivs) != 0)
+            return false;
+        if (transactionOrder != that.transactionOrder)
+            return false;
+        if (lastUpdatedType != that.lastUpdatedType)
+            return false;
         if (previousMolarAmount != null ? !previousMolarAmount.equals(that.previousMolarAmount) : that.previousMolarAmount != null)
             return false;
-        if (compound != null ? !compound.equals(that.compound) : that.compound != null) return false;
+        if (compound != null ? !compound.equals(that.compound) : that.compound != null)
+            return false;
         if (molecularWeightAmount != null ? !molecularWeightAmount.equals(that.molecularWeightAmount) : that.molecularWeightAmount != null)
             return false;
-        if (moleAmount != null ? !moleAmount.equals(that.moleAmount) : that.moleAmount != null) return false;
-        if (weightAmount != null ? !weightAmount.equals(that.weightAmount) : that.weightAmount != null) return false;
+        if (moleAmount != null ? !moleAmount.equals(that.moleAmount) : that.moleAmount != null)
+            return false;
+        if (weightAmount != null ? !weightAmount.equals(that.weightAmount) : that.weightAmount != null)
+            return false;
         if (loadingAmount != null ? !loadingAmount.equals(that.loadingAmount) : that.loadingAmount != null)
             return false;
-        if (volumeAmount != null ? !volumeAmount.equals(that.volumeAmount) : that.volumeAmount != null) return false;
+        if (volumeAmount != null ? !volumeAmount.equals(that.volumeAmount) : that.volumeAmount != null)
+            return false;
         if (densityAmount != null ? !densityAmount.equals(that.densityAmount) : that.densityAmount != null)
             return false;
-        if (molarAmount != null ? !molarAmount.equals(that.molarAmount) : that.molarAmount != null) return false;
-        if (purityAmount != null ? !purityAmount.equals(that.purityAmount) : that.purityAmount != null) return false;
+        if (molarAmount != null ? !molarAmount.equals(that.molarAmount) : that.molarAmount != null)
+            return false;
+        if (purityAmount != null ? !purityAmount.equals(that.purityAmount) : that.purityAmount != null)
+            return false;
         if (rxnEquivsAmount != null ? !rxnEquivsAmount.equals(that.rxnEquivsAmount) : that.rxnEquivsAmount != null)
             return false;
-        if (saltForm != null ? !saltForm.equals(that.saltForm) : that.saltForm != null) return false;
-        if (totalVolume != null ? !totalVolume.equals(that.totalVolume) : that.totalVolume != null) return false;
-        if (totalWeight != null ? !totalWeight.equals(that.totalWeight) : that.totalWeight != null) return false;
+        if (saltForm != null ? !saltForm.equals(that.saltForm) : that.saltForm != null)
+            return false;
+        if (totalVolume != null ? !totalVolume.equals(that.totalVolume) : that.totalVolume != null)
+            return false;
+        if (totalWeight != null ? !totalWeight.equals(that.totalWeight) : that.totalWeight != null)
+            return false;
         if (totalMolarity != null ? !totalMolarity.equals(that.totalMolarity) : that.totalMolarity != null)
             return false;
-        if (batchType != null ? !batchType.equals(that.batchType) : that.batchType != null) return false;
+        if (batchType != null ? !batchType.equals(that.batchType) : that.batchType != null)
+            return false;
         return precursors != null ? precursors.equals(that.precursors) : that.precursors == null;
 
     }
@@ -643,12 +639,11 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             result = this.getBatchType().compareTo(ab.getBatchType());
             // Precedence should be batchNumber if Product otherwise (Transaction Step Number) for now: Compound Number then batch
             // then formula
-            if (result == 0) {
-                if (getCompound() != null)
-                    if (ab.getCompound() != null)
-                        result = (getCompound().compareTo(ab.getCompound()));
-                    else
-                        result = 1;
+            if (result == 0 && getCompound() != null) {
+                if (ab.getCompound() != null)
+                    result = (getCompound().compareTo(ab.getCompound()));
+                else
+                    result = 1;
             }
         }
         return result;
@@ -708,32 +703,10 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
      * @return weight based on molecularWeight of the compound + (Number of Salt Equivalents * Salt MW)
      */
     private double getMolWgtCalculated() {
-        // Significant Figures for calculated molecular weight was deemed to be ignored.
-        // Scientists want MW calculated out to the third place behind the decimal or 3 fixed figures if they are available.
-        // Do not enforce sig figs here.
-        // Don't return more than three places after decimal point
-        double result = 0.0;
-
-        // uncomment if there is a case when compound.getMolWgt() > 0.0 is true
-//        if (compound.getMolWgt() > 0.0) {
-//            result = compound.getMolWgt() + (getSaltForm().getMolWgt() * getSaltEquivs());
-//            String test = Double.toString(result);
-//            if (test.indexOf(".") > 0)
-//                if (test.substring(test.indexOf(".") + 1, test.length()).length() > 3)
-//                    result = new BigDecimal(result).setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
-//        }
-        return result;
+        return 0.0;
     }
 
     // All stoic interface methods. these methods are delegated to internal getter/setters
-
-    private void setMolWgtCalculated(double value) {
-        SignificantFigures sigs = new SignificantFigures(value);
-        // Only set if sigfigs are greater than zero.
-        if (sigs.getNumberSignificantFigures() > 0)
-            molecularWeightAmount.setSigDigits(sigs.getNumberSignificantFigures());
-        molecularWeightAmount.setValue(sigs.doubleValue());
-    }
 
     public AmountModel getStoicMoleAmount() {
         return this.getMoleAmount();
@@ -837,7 +810,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setTheoreticalWeightAmount(AmountModel theoreticalWeightAmount) {
-
+        // Do nothing
     }
 
     public AmountModel getTheoreticalMoleAmount() {
@@ -845,7 +818,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     public void setTheoreticalMoleAmount(AmountModel theoreticalMoleAmount) {
-
+        // Do nothing
     }
 
     public AmountModel getTotalMolarity() {
