@@ -20,11 +20,13 @@ import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.mongodb.gridfs.GridFSDBFile;
 import one.util.streamex.StreamEx;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
 import static java.util.Collections.singletonList;
 
@@ -36,6 +38,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final Notebook notebook;
     private final Experiment experiment;
     private final FileRepository fileRepository;
+    private final List<GridFSDBFile> files;
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
@@ -55,6 +58,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         this.notebook = notebook;
         this.experiment = experiment;
         this.fileRepository = fileRepository;
+        this.files = getFiles(experiment.getFileIds());
     }
 
     /**
@@ -274,16 +278,27 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         return sections.orElse(Collections.emptyList());
     }
 
-    private AttachmentsSection getAttachmentsSection() {
-        List<FileDTO> files = new ArrayList<>();
-        Set<String> fileIds = experiment.getFileIds();
+    private List<GridFSDBFile> getFiles(Set<String> fileIds) {
         if (!fileIds.isEmpty()) {
-            Page<GridFSDBFile> gridFSDBFiles = fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size()));
-            gridFSDBFiles.getContent().stream()
-                    .map(FileDTO::new)
-                    .forEach(files::add);
+            return fileRepository.findAll(fileIds, new PageRequest(0, fileIds.size())).getContent();
+        } else {
+            return Collections.emptyList();
         }
-        return new AttachmentsSection(new AttachmentsModel(files));
+    }
+
+    private AttachmentsSection getAttachmentsSection() {
+        List<FileDTO> list = files.stream()
+                .map(FileDTO::new)
+                .collect(Collectors.toList());
+        return new AttachmentsSection(new AttachmentsModel(list));
+    }
+
+    @Override
+    public List<InputStream> getExtraPdf() {
+        return files.stream()
+                .filter(f -> "application/pdf".equals(f.getContentType()))
+                .map(GridFSDBFile::getInputStream)
+                .collect(Collectors.toList());
     }
 
     public ExperimentHeaderSection getHeaderSection() {
