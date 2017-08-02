@@ -23,7 +23,7 @@ public interface PdfSectionsProvider {
     HeaderPdfSection getHeaderSection();
 
     /**
-     * @return streams with additional information
+     * @return streams with extra Pdf
      */
     default List<InputStream> getExtraPdf(){
         return new ArrayList<>(1);
