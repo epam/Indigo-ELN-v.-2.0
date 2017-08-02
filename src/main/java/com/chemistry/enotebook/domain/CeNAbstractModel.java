@@ -8,9 +8,6 @@ public abstract class CeNAbstractModel implements java.io.Serializable {
     // So every class should have explicit definition of serialVersionUID
     public static final long serialVersionUID = 7526472295622776147L;
     // Every POJO should implement this method to release memory
-    /*
-	 * public void dispose() throws Throwable{ finalize(); }
-	 */
     // GUID generated key ( Also Key in Database if highlevel object)
     // This key value is important for an object that represents a CeN table record
     // Ex: NotebookPageModel,ReactionStepModel,ReactionSchemeModel,BatchModel,ParentCompoundModel
