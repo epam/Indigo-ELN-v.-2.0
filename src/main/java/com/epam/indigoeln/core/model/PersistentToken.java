@@ -115,11 +115,7 @@ public class PersistentToken implements Serializable {
 
         PersistentToken that = (PersistentToken) o;
 
-        if (!series.equals(that.series)) {
-            return false;
-        }
-
-        return true;
+        return series.equals(that.series);
     }
 
     @Override

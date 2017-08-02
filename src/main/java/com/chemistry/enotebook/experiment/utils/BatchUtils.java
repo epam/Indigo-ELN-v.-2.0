@@ -5,6 +5,10 @@ import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class BatchUtils {
 
+    private BatchUtils() {
+        // Hide the default constructor
+    }
+
     public static boolean isUnitOnlyChanged(AmountModel from, AmountModel to) {
         boolean result;
         result = (CeNNumberUtils.doubleEquals(from.getValueInStdUnitsAsDouble(), to.getValueInStdUnitsAsDouble()) && !(from

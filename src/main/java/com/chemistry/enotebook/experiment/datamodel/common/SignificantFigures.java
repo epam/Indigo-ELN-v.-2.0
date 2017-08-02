@@ -371,12 +371,6 @@ public class SignificantFigures extends Number {
                         break;
                         case MIDZEROS:
                         case DIGITS:
-                            // only significant if followed
-                            // by a decimal point or nonzero digit.
-                            // mantissa++;
-                            // zeroCount++;
-                            // state = MIDZEROS;
-                            // zeroCount = 0;
                             digits.append(c);
                             mantissa++;
                             state = DIGITS;
