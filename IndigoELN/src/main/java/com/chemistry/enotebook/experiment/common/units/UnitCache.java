@@ -35,16 +35,21 @@ class UnitCache {
 
     public Unit getUnit(String unitCode) {
         Unit result = null;
-        if (unitCode.equals("G"))
-            unitCode = "GM";
-        if (unitCode.equals("SCLR"))
-            unitCode = "SCAL";
-        if (units.containsKey(unitCode))
-            result = units.get(unitCode);
-        if (units.containsKey(unitCode.toUpperCase()))
-            result = units.get(unitCode.toUpperCase());
-        if (unitsByDisplayName.containsKey(unitCode))
-            result = unitsByDisplayName.get(unitCode);
+
+        String uc = unitCode;
+
+        if ("G".equals(unitCode))
+            uc = "GM";
+        if ("SCLR".equals(unitCode))
+            uc = "SCAL";
+
+        if (units.containsKey(uc))
+            result = units.get(uc);
+        if (units.containsKey(uc.toUpperCase()))
+            result = units.get(uc.toUpperCase());
+        if (unitsByDisplayName.containsKey(uc))
+            result = unitsByDisplayName.get(uc);
+
         return result;
     }
 

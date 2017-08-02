@@ -60,6 +60,7 @@ public class Unit extends GenericCode implements Comparable {
         return type;
     }
 
+    @Override
     public int compareTo(Object o) {
         int comp = this.hashCode() - o.hashCode();
         if (o instanceof Unit) {
@@ -70,14 +71,17 @@ public class Unit extends GenericCode implements Comparable {
         return comp;
     }
 
+    @Override
     public String toString() {
         return this.displayValue;
     }
 
+    @Override
     public int hashCode() {
         return (HASH_PRIME + ordinal * HASH_PRIME) + this.type.hashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
         boolean result = false;
         if (obj instanceof Unit) {

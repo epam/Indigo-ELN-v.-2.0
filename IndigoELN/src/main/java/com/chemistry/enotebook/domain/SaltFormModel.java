@@ -13,7 +13,7 @@ class SaltFormModel extends GenericCodeModel {
 
     private static final String PARENT = "00";
     private static final String UNKNOWN = "99";
-    private String formula = "";
+
     private double molWgt = 0.0;
 
     SaltFormModel(String code) {
@@ -38,17 +38,17 @@ class SaltFormModel extends GenericCodeModel {
 
     @Override
     public void setCode(String newCode) {
-        if (newCode == null)
-            newCode = "";
-        if (!genericCode.equals(newCode)) {
-            if (!isParentCode(newCode)) {
-                genericCode = newCode;
+        String newCodeNonNull = newCode == null ? "" : newCode;
+
+        if (!genericCode.equals(newCodeNonNull)) {
+            if (!isParentCode(newCodeNonNull)) {
+                genericCode = newCodeNonNull;
                 updateValuesBasedOnCode();
             } else {
                 //setCode("00");  // vb 11/16 to avoid stack overflow
                 genericCode = PARENT;
                 setDescription("");
-                formula = "";
+
                 molWgt = 0.0;
             }
         }

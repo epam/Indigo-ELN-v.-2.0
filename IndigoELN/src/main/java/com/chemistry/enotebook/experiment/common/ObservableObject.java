@@ -16,11 +16,9 @@ class ObservableObject extends Observable implements Observer, java.io.Serializa
      *                     The object that has it's isModified() flag set.
      */
     public void setModified(boolean modifiedFlag) {
-        if (!isLoading()) {
-            if (modifiedFlag) {
-                setChanged();
-                notifyObservers(this);
-            }
+        if (!isLoading() && modifiedFlag) {
+            setChanged();
+            notifyObservers(this);
         }
     }
 
