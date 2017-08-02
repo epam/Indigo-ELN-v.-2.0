@@ -191,24 +191,26 @@ public class SdUnit implements Serializable, Externalizable {
                 return;
             }
             upperCase = allKeysToUpperCase;
-            if (molecule.contains("\r"))
-                molecule = createConsistentLineTermination(molecule);
+            String mol = molecule;
+            if (mol.contains("\r"))
+                mol = createConsistentLineTermination(mol);
             if (molFilePortionOnly) {
-                molecule = molecule.substring(0, molecule.indexOf("M  END") + 6);
-                molecule = molecule + "\n\n$$$$";
+                mol = mol.substring(0, mol.indexOf("M  END") + 6);
+                mol = mol + "\n\n$$$$";
             }
-            if (!molecule.contains("M  END") || !molecule.contains("$$$$")) {
+            if (!mol.contains("M  END") || !mol.contains("$$$$")) {
                 valid = false;
                 validString = "Does not contain \"M  END\" or \"$$$$\"";
                 molPortion = "Not a valid molecule!";
             }
-            if (molecule.contains("M  END"))
-                setMol(molecule.substring(0, molecule.indexOf("M  END") + 6) + "\n");
+            if (mol.contains("M  END"))
+                setMol(mol.substring(0, mol.indexOf("M  END") + 6) + "\n");
             validString = validateDetail(molPortion);
             if (!validString.startsWith("OK"))
                 valid = false;
-            infoPortion = parseInfo(molecule, keyList);
+            infoPortion = parseInfo(mol, keyList);
         } catch (IllegalArgumentException e) {
+            LOGGER.error("SDUnit init error",e);
             valid = false;
             if (validString.startsWith("OK"))
                 validString = e.getMessage();
@@ -313,7 +315,7 @@ public class SdUnit implements Serializable, Externalizable {
             try {
                 molPortion = createConsistentLineTermination(mol);
             } catch (Exception e) {
-                LOGGER.error("SDUnit setMol error");
+                LOGGER.error("SDUnit setMol error", e);
             }
     }
 

@@ -213,7 +213,7 @@ public class ChangeLogVersion10 {
 
             return properties.getProperty("default-admin-password");
         } catch (Exception e) {
-            LOGGER.warn("Cannot read default admin password from properties");
+            LOGGER.warn("Cannot read default admin password from properties", e);
         }
 
         return null;

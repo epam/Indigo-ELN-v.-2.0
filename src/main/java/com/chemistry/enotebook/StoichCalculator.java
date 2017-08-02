@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -644,26 +643,13 @@ public class StoichCalculator {
     }
 
     /**
-     * @return a List of Reactant batches for the displayed reaction step.
-     * Only Reactant batches are returned. Use getReagents() if
-     * you need all reagent types.
-     */
-    private List<StoicModelInterface> getReactantBatches() {
-        ArrayList<StoicModelInterface> result = new ArrayList<>();
-        if (rxnStepModel != null) {
-            result.addAll(rxnStepModel.getProductBatches().stream().filter(productBatchModel -> productBatchModel.getBatchType() == BatchType.REACTANT).collect(Collectors.toList()));
-        }
-        return result;
-    }
-
-    /**
      * @return a list of StoicModelInterface object: BatchesList and BatchModel
      * that are of a product type: ACTUAL or INTENDED for this reaction step
      */
     private List<StoicModelInterface> getProductBatches() {
         List<StoicModelInterface> result;
         result = getIntendedProductBatches();
-        Collections.sort(result, new ComparatorStoicAdditionOrder());
+        result.sort(new ComparatorStoicAdditionOrder());
         return result;
     }
 
