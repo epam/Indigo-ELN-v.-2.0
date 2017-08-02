@@ -13,12 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserReagentsService {
 
-    private final UserReagentsRepository userReagentsRepository;
-
     @Autowired
-    public UserReagentsService(UserReagentsRepository userReagentsRepository) {
-        this.userReagentsRepository = userReagentsRepository;
-    }
+    private UserReagentsRepository userReagentsRepository;
 
     public BasicDBList getUserReagents(User user) {
         final UserReagents userReagents = userReagentsRepository.findByUser(user);

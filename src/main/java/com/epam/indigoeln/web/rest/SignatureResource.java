@@ -35,21 +35,14 @@ import java.util.List;
 @RequestMapping("/api/signature")
 public class SignatureResource {
 
-    private final SignatureService signatureService;
-    private final ExperimentService experimentService;
-    private final UserService userService;
-    private final ObjectMapper objectMapper;
-
     @Autowired
-    public SignatureResource(SignatureService signatureService,
-                             ExperimentService experimentService,
-                             UserService userService,
-                             ObjectMapper objectMapper) {
-        this.signatureService = signatureService;
-        this.experimentService = experimentService;
-        this.userService = userService;
-        this.objectMapper = objectMapper;
-    }
+    private SignatureService signatureService;
+    @Autowired
+    private ExperimentService experimentService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @ApiOperation(value = "Returns reasons.", produces = "application/json")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,

@@ -31,15 +31,10 @@ public class PrintResource {
     public static final String HEADER =
             "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td><td align=\"right\">Some title</td></tr></table>";
 
-    private final PhantomJsService phantomJsService;
-    private final ITextPrintService iTextPrintService;
-
     @Autowired
-    public PrintResource(PhantomJsService phantomJsService,
-                         ITextPrintService iTextPrintService) {
-        this.phantomJsService = phantomJsService;
-        this.iTextPrintService = iTextPrintService;
-    }
+    private PhantomJsService phantomJsService;
+    @Autowired
+    private ITextPrintService iTextPrintService;
 
     @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,

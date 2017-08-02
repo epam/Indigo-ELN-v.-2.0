@@ -23,18 +23,12 @@ import java.util.List;
 @Service
 public class SignatureService {
 
-    private final SignatureRepository signatureRepository;
-    private final ExperimentRepository experimentRepository;
-    private final ObjectMapper objectMapper;
-
     @Autowired
-    public SignatureService(SignatureRepository signatureRepository,
-                            ExperimentRepository experimentRepository,
-                            ObjectMapper objectMapper) {
-        this.signatureRepository = signatureRepository;
-        this.experimentRepository = experimentRepository;
-        this.objectMapper = objectMapper;
-    }
+    private SignatureRepository signatureRepository;
+    @Autowired
+    private ExperimentRepository experimentRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public String getReasons() {
         return signatureRepository.getReasons();

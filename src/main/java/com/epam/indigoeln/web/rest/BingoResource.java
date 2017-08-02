@@ -25,15 +25,10 @@ public class BingoResource {
     private static final String BINGODB_MOLECULE_PATH = "/api/bingodb/molecule/";
     private static final String BINGODB_REACTION_PATH = "/api/bingodb/reaction/";
 
-    private final BingoService bingoService;
-    private final CalculationService calculationService;
-
     @Autowired
-    public BingoResource(BingoService bingoService,
-                         CalculationService calculationService) {
-        this.bingoService = bingoService;
-        this.calculationService = calculationService;
-    }
+    private BingoService bingoService;
+    @Autowired
+    private CalculationService calculationService;
 
     /**
      * GET /molecule/:id -> get structure of molecule

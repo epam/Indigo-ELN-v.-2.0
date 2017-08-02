@@ -26,15 +26,10 @@ import java.util.Optional;
 @RequestMapping("/api/calculations")
 public class CalculationResource {
 
-    private final CalculationService calculationService;
-    private final StoicCalculationService stoicCalculationService;
-
     @Autowired
-    public CalculationResource(CalculationService calculationService,
-                               StoicCalculationService stoicCalculationService) {
-        this.calculationService = calculationService;
-        this.stoicCalculationService = stoicCalculationService;
-    }
+    private CalculationService calculationService;
+    @Autowired
+    private StoicCalculationService stoicCalculationService;
 
     /**
      * PUT /molecule/info/ -> get calculated molecular fields

@@ -22,12 +22,8 @@ import java.util.List;
 @RequestMapping("/api/registration")
 public class RegistrationResource {
 
-    private final RegistrationService registrationService;
-
     @Autowired
-    public RegistrationResource(RegistrationService registrationService) {
-        this.registrationService = registrationService;
-    }
+    private RegistrationService registrationService;
 
     @ApiOperation(value = "Gets registration repositories info.", produces = "application/json")
     @RequestMapping(value = "/info", method = RequestMethod.GET,
