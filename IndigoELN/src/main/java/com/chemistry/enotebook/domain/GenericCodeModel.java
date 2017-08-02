@@ -7,12 +7,8 @@ class GenericCodeModel extends CeNAbstractModel {
 
     String genericCode = "";
 
-    private GenericCodeModel(String code, String desc) {
-        this.genericCode = code;
-    }
-
     GenericCodeModel(String code) {
-        this(code, "");
+        this.genericCode = code;
     }
 
     public String getCode() {
