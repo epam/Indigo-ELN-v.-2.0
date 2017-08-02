@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
-import com.epam.indigoeln.core.service.print.itext2.sections.HeaderPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
 import com.lowagie.text.Rectangle;
 
 public class PdfLayout {

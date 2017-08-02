@@ -1,8 +1,8 @@
 package com.epam.indigoeln.core.service.print.itext2;
 
-import com.epam.indigoeln.core.service.print.itext2.model.BaseHeaderModel;
-import com.epam.indigoeln.core.service.print.itext2.sections.HeaderPdfSection;
-import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.model.common.BaseHeaderModel;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfLayout;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPostProcessor;
 import com.lowagie.text.Document;

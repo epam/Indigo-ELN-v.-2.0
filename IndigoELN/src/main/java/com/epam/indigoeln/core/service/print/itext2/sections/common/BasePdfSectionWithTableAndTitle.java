@@ -1,6 +1,6 @@
-package com.epam.indigoeln.core.service.print.itext2.sections;
+package com.epam.indigoeln.core.service.print.itext2.sections.common;
 
-import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Document;

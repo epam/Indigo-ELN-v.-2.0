@@ -1,7 +1,7 @@
-package com.epam.indigoeln.core.service.print.itext2.sections;
+package com.epam.indigoeln.core.service.print.itext2.sections.common;
 
-import com.epam.indigoeln.core.service.print.itext2.model.BaseHeaderModel;
-import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
+import com.epam.indigoeln.core.service.print.itext2.model.common.BaseHeaderModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Element;

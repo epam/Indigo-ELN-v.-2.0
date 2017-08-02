@@ -3,8 +3,8 @@ package com.epam.indigoeln.core.service.print.itext2.providers;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
-import com.epam.indigoeln.core.service.print.itext2.sections.HeaderPdfSection;
-import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 
 import java.util.List;
 

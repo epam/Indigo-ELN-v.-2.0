@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service.print.itext2.model.image;
+package com.epam.indigoeln.core.service.print.itext2.model.common.image;
 
 import java.util.Optional;
 

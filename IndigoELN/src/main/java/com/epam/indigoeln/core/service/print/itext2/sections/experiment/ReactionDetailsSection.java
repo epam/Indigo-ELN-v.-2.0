@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 
-import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithSimpleTitle;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.BasePdfSectionWithSimpleTitle;
 import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
