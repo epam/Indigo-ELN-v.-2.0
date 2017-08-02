@@ -29,21 +29,14 @@ public class BatchRegisterStatusCheckingJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchRegisterStatusCheckingJob.class);
 
-    private final RegistrationService registrationService;
-    private final ExperimentRepository experimentRepository;
-    private final RegistrationJobRepository registrationJobRepository;
-    private final SimpMessagingTemplate template;
-
     @Autowired
-    public BatchRegisterStatusCheckingJob(RegistrationService registrationService,
-                                          ExperimentRepository experimentRepository,
-                                          RegistrationJobRepository registrationJobRepository,
-                                          SimpMessagingTemplate template) {
-        this.registrationService = registrationService;
-        this.experimentRepository = experimentRepository;
-        this.registrationJobRepository = registrationJobRepository;
-        this.template = template;
-    }
+    private RegistrationService registrationService;
+    @Autowired
+    private ExperimentRepository experimentRepository;
+    @Autowired
+    private RegistrationJobRepository registrationJobRepository;
+    @Autowired
+    private SimpMessagingTemplate template;
 
     @Scheduled(fixedRateString = "${indigoeln.schedule.batch.register.status.check.rate:10}000")
     public void execute() {

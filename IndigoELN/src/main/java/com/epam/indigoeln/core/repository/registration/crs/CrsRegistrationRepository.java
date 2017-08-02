@@ -28,18 +28,12 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     private static final String STATUS_FAILED = "FAILED";
     private static RegistrationRepositoryInfo INFO = new RegistrationRepositoryInfo(ID, NAME);
 
-    private final CrsProperties crsProperties;
-    private final BingoRegistration registration;
-    private final BingoSearch search;
-
     @Autowired
-    public CrsRegistrationRepository(CrsProperties crsProperties,
-                                     BingoRegistration registration,
-                                     BingoSearch search) {
-        this.crsProperties = crsProperties;
-        this.registration = registration;
-        this.search = search;
-    }
+    private CrsProperties crsProperties;
+    @Autowired
+    private BingoRegistration registration;
+    @Autowired
+    private BingoSearch search;
 
     private String getToken() throws RegistrationException {
         try {

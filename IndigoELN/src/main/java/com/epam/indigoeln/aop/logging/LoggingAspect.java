@@ -30,7 +30,6 @@ public class LoggingAspect {
             "|| within(com.epam.indigoeln.web.rest..*)) " +
             "&& " +
             "!(within(com.epam.indigoeln.core.service.bingo..*) " +
-            "|| within(com.epam.indigoeln.core.repository.bingo..*) " +
             "|| within(com.epam.indigoeln.web.rest.BingoResource))")
     public void loggingPointcut() {
         // all the Bingo related classes are excluded as IndigoObject.toString() method

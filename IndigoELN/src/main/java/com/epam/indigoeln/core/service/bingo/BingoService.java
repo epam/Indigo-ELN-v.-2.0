@@ -29,14 +29,10 @@ public class BingoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
 
-    private final ObjectMapper objectMapper;
-    private final BingoProperties bingoProperties;
-
     @Autowired
-    public BingoService(ObjectMapper objectMapper, BingoProperties bingoProperties) {
-        this.objectMapper = objectMapper;
-        this.bingoProperties = bingoProperties;
-    }
+    private ObjectMapper objectMapper;
+    @Autowired
+    private BingoProperties bingoProperties;
 
     /* Common */
 

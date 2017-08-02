@@ -43,27 +43,18 @@ public class DashboardResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DashboardResource.class);
 
-    private final ExperimentRepository experimentRepository;
-    private final NotebookRepository notebookRepository;
-    private final ProjectRepository projectRepository;
-    private final SignatureService signatureService;
-    private final UserService userService;
-    private final DashboardProperties dashboardProperties;
-
     @Autowired
-    public DashboardResource(ExperimentRepository experimentRepository,
-                             NotebookRepository notebookRepository,
-                             ProjectRepository projectRepository,
-                             SignatureService signatureService,
-                             UserService userService,
-                             DashboardProperties dashboardProperties) {
-        this.experimentRepository = experimentRepository;
-        this.notebookRepository = notebookRepository;
-        this.projectRepository = projectRepository;
-        this.signatureService = signatureService;
-        this.userService = userService;
-        this.dashboardProperties = dashboardProperties;
-    }
+    private ExperimentRepository experimentRepository;
+    @Autowired
+    private NotebookRepository notebookRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private SignatureService signatureService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private DashboardProperties dashboardProperties;
 
     /**
      * GET  /dashboard -> Returns dashboard experiments

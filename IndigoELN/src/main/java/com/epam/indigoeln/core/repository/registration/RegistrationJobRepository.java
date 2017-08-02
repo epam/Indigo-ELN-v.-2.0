@@ -11,12 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class RegistrationJobRepository {
 
-    private final MongoTemplate mongoTemplate;
-
     @Autowired
-    public RegistrationJobRepository(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-    }
+    private MongoTemplate mongoTemplate;
 
     public RegistrationJob save(RegistrationJob registrationJob) {
         mongoTemplate.save(registrationJob);

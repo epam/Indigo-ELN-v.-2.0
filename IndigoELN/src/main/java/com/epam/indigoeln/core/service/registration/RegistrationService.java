@@ -27,21 +27,14 @@ public class RegistrationService {
 
     private static final String DEFAULT_SIMILARITY = "tanimoto";
 
-    private final List<RegistrationRepository> repositories;
-    private final ComponentRepository componentRepository;
-    private final RegistrationJobRepository registrationJobRepository;
-    private final SimpMessagingTemplate template;
-
     @Autowired
-    public RegistrationService(List<RegistrationRepository> repositories,
-                               ComponentRepository componentRepository,
-                               RegistrationJobRepository registrationJobRepository,
-                               SimpMessagingTemplate template) {
-        this.repositories = repositories;
-        this.componentRepository = componentRepository;
-        this.registrationJobRepository = registrationJobRepository;
-        this.template = template;
-    }
+    private List<RegistrationRepository> repositories;
+    @Autowired
+    private ComponentRepository componentRepository;
+    @Autowired
+    private RegistrationJobRepository registrationJobRepository;
+    @Autowired
+    private SimpMessagingTemplate template;
 
     public List<RegistrationRepositoryInfo> getRepositoriesInfo() {
         return repositories
