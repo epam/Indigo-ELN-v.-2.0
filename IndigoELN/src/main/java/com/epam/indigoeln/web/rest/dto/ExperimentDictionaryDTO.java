@@ -31,10 +31,12 @@ public class ExperimentDictionaryDTO {
         private String notebookId;
         private String projectId;
 
+        @Override
         public String getId() {
             return id;
         }
 
+        @Override
         public void setId(String id) {
             this.id = id;
         }
