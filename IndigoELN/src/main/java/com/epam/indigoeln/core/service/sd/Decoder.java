@@ -23,7 +23,11 @@ import java.util.zip.Inflater;
 
 public class Decoder {
 
-    private static final Log log = LogFactory.getLog(Decoder.class);
+    private static final Log LOGGER = LogFactory.getLog(Decoder.class);
+
+    private Decoder() {
+        // Hide the default constructor
+    }
 
     public static String decodeString(String molRecord) {
         String result = molRecord;
@@ -49,7 +53,7 @@ public class Decoder {
 
                 result = bos.toString();
             } catch (Exception e) {
-                log.debug("Unable to decode Mol String - may be it is already decoded: " + e);
+                LOGGER.debug("Unable to decode Mol String - may be it is already decoded: " + e);
             } finally {
                 decompressor.reset();
             }

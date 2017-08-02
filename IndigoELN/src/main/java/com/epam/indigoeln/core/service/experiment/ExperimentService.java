@@ -32,26 +32,38 @@ import java.util.stream.Collectors;
 @Service
 public class ExperimentService {
 
-    @Autowired
-    CustomDtoMapper dtoMapper;
-    @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
-    private NotebookRepository notebookRepository;
-    @Autowired
-    private ExperimentRepository experimentRepository;
-    @Autowired
-    private ComponentRepository componentRepository;
-    @Autowired
-    private FileRepository fileRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private SequenceIdService sequenceIdService;
-    @Autowired
-    private SimpMessagingTemplate template;
+    private final CustomDtoMapper dtoMapper;
+    private final ProjectRepository projectRepository;
+    private final NotebookRepository notebookRepository;
+    private final ExperimentRepository experimentRepository;
+    private final ComponentRepository componentRepository;
+    private final FileRepository fileRepository;
+    private final UserRepository userRepository;
+    private final SequenceIdService sequenceIdService;
+    private final SimpMessagingTemplate template;
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
+
+    @Autowired
+    public ExperimentService(CustomDtoMapper dtoMapper,
+                             ProjectRepository projectRepository,
+                             NotebookRepository notebookRepository,
+                             ExperimentRepository experimentRepository,
+                             ComponentRepository componentRepository,
+                             FileRepository fileRepository,
+                             UserRepository userRepository,
+                             SequenceIdService sequenceIdService,
+                             SimpMessagingTemplate template) {
+        this.dtoMapper = dtoMapper;
+        this.projectRepository = projectRepository;
+        this.notebookRepository = notebookRepository;
+        this.experimentRepository = experimentRepository;
+        this.componentRepository = componentRepository;
+        this.fileRepository = fileRepository;
+        this.userRepository = userRepository;
+        this.sequenceIdService = sequenceIdService;
+        this.template = template;
+    }
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
         return experiments == null ? new ArrayList<>() :
@@ -126,10 +138,6 @@ public class ExperimentService {
         return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
-    public Collection<ExperimentDTO> getExperimentsByStatuses(List<ExperimentStatus> statuses) {
-        return experimentRepository.findByStatusIn(statuses).stream().map(ExperimentDTO::new).collect(Collectors.toList());
-    }
-
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
@@ -149,9 +157,9 @@ public class ExperimentService {
         experiment.setStatus(ExperimentStatus.OPEN);
 
         if (experimentDTO.getTemplate() != null) {
-            Template template = new Template();
-            template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
-            experiment.setTemplate(template);
+            Template tmpl = new Template();
+            tmpl.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+            experiment.setTemplate(tmpl);
         }
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
@@ -234,7 +242,7 @@ public class ExperimentService {
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
         components.forEach(c -> c.setId(null));
-        final List<Component> newComponents = updateComponents(Collections.EMPTY_LIST, components);
+        final List<Component> newComponents = updateComponents(Collections.emptyList(), components);
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
@@ -271,9 +279,9 @@ public class ExperimentService {
 
             Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
             if (experimentDTO.getTemplate() != null) {
-                Template template = new Template();
-                template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
-                experimentForSave.setTemplate(template);
+                Template tmpl = new Template();
+                tmpl.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+                experimentForSave.setTemplate(tmpl);
             }
 
             // check of user permissions's correctness in access control list
@@ -329,12 +337,12 @@ public class ExperimentService {
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
-        List<String> componentIdsForRemove = componentsFromDb.stream().filter(c -> c != null).map(Component::getId).collect(Collectors.toList());
+        List<String> componentIdsForRemove = componentsFromDb.stream().filter(Objects::nonNull).map(Component::getId).collect(Collectors.toList());
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
             if (component.getId() != null) {
-                Optional<Component> existing = componentsFromDb.stream().filter(c -> c != null).filter(c -> c.getId().equals(component.getId())).findFirst();
+                Optional<Component> existing = componentsFromDb.stream().filter(Objects::nonNull).filter(c -> c.getId().equals(component.getId())).findFirst();
                 if (existing.isPresent()) {
                     Component componentForSave = existing.get();
                     componentForSave.setContent(component.getContent());
@@ -351,7 +359,7 @@ public class ExperimentService {
 
         componentRepository.delete(
                 componentsFromDb.stream()
-                        .filter(c -> c != null)
+                        .filter(Objects::nonNull)
                         .filter(c -> componentIdsForRemove.contains(c.getId()))
                         .collect(Collectors.toList()));
 

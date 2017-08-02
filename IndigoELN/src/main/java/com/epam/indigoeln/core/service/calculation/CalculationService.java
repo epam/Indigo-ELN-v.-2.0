@@ -27,6 +27,8 @@ public class CalculationService {
     private static final String SALT_WEIGHT  = "SALT_WEIGHT";
     private static final String SALT_FORMULA = "SALT_FORMULA";
 
+    private static final String EXCEPTION_OCCURRED = "Exception occurred: ";
+
     private static final Map<String, String> SALT_METADATA_DEFAULT = ImmutableMap.of(
             SALT_CODE, "0",
             SALT_DESC, "Parent Structure",
@@ -44,7 +46,7 @@ public class CalculationService {
             indigoProvider.indigo().loadMolecule(s);
             return true;
         } catch (Exception e) {
-            LOGGER.trace("Exception occurred: ", e);
+            LOGGER.trace(EXCEPTION_OCCURRED, e);
             return false;
         }
     }
@@ -54,7 +56,7 @@ public class CalculationService {
             indigoProvider.indigo().loadReaction(s);
             return true;
         } catch (Exception e) {
-            LOGGER.trace("Exception occurred: ", e);
+            LOGGER.trace(EXCEPTION_OCCURRED, e);
             return false;
         }
     }
@@ -63,7 +65,7 @@ public class CalculationService {
         try {
             return Optional.of(indigoProvider.indigo().loadMolecule(molecule).countComponents() == 0);
         } catch (Exception e) {
-            LOGGER.trace("Exception occurred: ", e);
+            LOGGER.trace(EXCEPTION_OCCURRED, e);
             return Optional.empty();
         }
     }
@@ -72,13 +74,13 @@ public class CalculationService {
         try {
             indigoProvider.indigo().loadReaction(reaction);
         } catch (Exception e) {
-            LOGGER.trace("Exception occurred: ", e);
+            LOGGER.trace(EXCEPTION_OCCURRED, e);
             try {
                 if (indigoProvider.indigo().loadMolecule(reaction).countComponents() == 0) {
                     return Optional.of(true);
                 }
             } catch (Exception e1) {
-                LOGGER.trace("Exception occurred: ", e1);
+                LOGGER.trace(EXCEPTION_OCCURRED, e1);
                 return Optional.empty();
             }
         }

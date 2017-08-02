@@ -129,8 +129,7 @@ public class SignatureResource {
     @RequestMapping(value = "/document", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocuments() throws IOException {
-        User user = userService.getUserWithAuthorities();
-        return ResponseEntity.ok(signatureService.getDocumentsByUser(user));
+        return ResponseEntity.ok(signatureService.getDocumentsByUser());
     }
 
     @ApiOperation(value = "Returns signature document content.", produces = "application/json")

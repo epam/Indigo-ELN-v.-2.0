@@ -76,7 +76,7 @@ public class BatchRegisterStatusCheckingJob {
                         registrationJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
                     } catch (Exception e) {
                         registrationJob.setLastHandledBy("Unknown");
-                        LOGGER.debug("Error getting host name");
+                        LOGGER.trace("Error getting host name", e);
                     }
 
                     registrationJobRepository.save(registrationJob);
