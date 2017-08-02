@@ -20,7 +20,7 @@ public class ReactionStepModel extends CeNAbstractModel {
         stoicBatchesList.setPosition(CeNConstants.STOIC_POSITION_CONSTANT);
     }
 
-    public void setProducts(final ArrayList<BatchesList<ProductBatchModel>> products) {
+    public void setProducts(final List<BatchesList<ProductBatchModel>> products) {
         this.productBatchesList.clear();
 
         if (products != null && !products.isEmpty()) {

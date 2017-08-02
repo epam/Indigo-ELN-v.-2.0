@@ -91,6 +91,7 @@ public class Unit extends GenericCode implements Comparable {
         return result;
     }
 
+    @Override
     public void deepCopy(Object source) {
         if (source instanceof Unit) {
             Unit src = (Unit) source;
@@ -103,6 +104,7 @@ public class Unit extends GenericCode implements Comparable {
         }
     }
 
+    @Override
     public Object deepClone() {
         return new Unit(getCode());
     }

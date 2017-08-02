@@ -4,15 +4,16 @@ import com.chemistry.enotebook.domain.*;
 import com.chemistry.enotebook.experiment.businessmodel.stoichiometry.ComparatorStoicAdditionOrder;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
-import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleNumEq;
 
@@ -615,76 +616,6 @@ public class StoichCalculator {
         }
     }
 
-    /**
-     * This method adds a ProductBatchModel to products list if there are monomer batches and no INTENDED products in a ReactionStepModel
-     * This is applicable for non-Parallel exps only
-     */
-    private void addProductIfNeeded() {
-        if (getProductBatches().isEmpty() &&
-                !getReactantBatches().isEmpty()) {
-            createIntendedProduct(getProductBatches().size());  // Ignoring return value.
-        }
-    }
-
-    private ProductBatchModel createIntendedProduct(int additionOrder) {
-        ProductBatchModel result = null;
-        try {
-            result = new ProductBatchModel();
-            result.setBatchType(BatchType.INTENDED_PRODUCT);
-            resetRxnEquivs(result);
-            result.setIntendedBatchAdditionOrder(additionOrder);
-        } catch (Exception e) {
-            // should never throw this as we are in control of the batch type.
-            // development only error.
-            LOGGER.error("Failed to create Intended Product.\n" + e.toString(), e);
-        }
-        return result;
-    }
-
-    /**
-     * @return List of strings representing the precursors of each reactant and
-     * each reactant in that structurally contribute to the final product.
-     */
-    private ArrayList<String> getPreCursorsForReaction() {
-        ArrayList<String> tmpList = new ArrayList<>();
-        List<String> smPrecursors;
-        // Process all the Reagents to ensure the order is correct
-        for (StoicModelInterface stoicModelInterface : getReactantBatches()) {
-            // Does this reactant have precursors?  If so put them into
-            // the precursor list instead of the reactant.
-            MonomerBatchModel rb = (MonomerBatchModel) stoicModelInterface;
-            smPrecursors = rb.getPrecursors();
-            if (smPrecursors != null && !smPrecursors.isEmpty()) {
-                smPrecursors.stream().filter(testStr -> tmpList.indexOf(testStr) < 0).forEach(tmpList::add);
-            }
-            // clean up.
-            assert smPrecursors != null;
-            smPrecursors.clear();
-        }
-
-        return tmpList;
-    }
-
-    /**
-     * This method updates the precursor info for all Products.
-     * This is only required for MedChem/Conception. Parallel experiment precurosrs are computed in different way.
-     *
-     * @throws IllegalArgumentException if it encounters anything but ProductBatchModel when calling
-     *                                  getIntendedProductBatches()
-     */
-    private void updateIntendedProductPrecursors() {
-        ArrayList<String> precursors = getPreCursorsForReaction();
-        for (StoicModelInterface stoichItem : getIntendedProductBatches()) {
-            if (stoichItem instanceof ProductBatchModel) {
-                ((ProductBatchModel) stoichItem).setPrecursors(precursors);
-            } else if (stoichItem instanceof BatchesList<?>) {
-                throw new IllegalArgumentException("Parallel Experiments cannot use updateIntendedProductPrecursors.");
-            } else {
-                throw new IllegalArgumentException("Non-ProductBatchModel found when calling getIntendedProductBatches().");
-            }
-        }
-
-    }
 
     // Method to calc rxnEquivs for Reactants batches
     private void recalculateRxnEquivsBasedOnLimitingReagentMoles(StoicModelInterface limitingAB) {
