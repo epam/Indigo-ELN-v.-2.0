@@ -19,9 +19,9 @@ public class ProjectHeaderSection
         PdfPTable table = TableFactory.createDefaultTable(4, width);
 
         PdfPTableHelper helper = new PdfPTableHelper(table);
-        helper.addKeyValueCells("Author", model.getAuthor())
+        helper.addKeyValueCells("Project Name", model.getProjectName(), 3)
+                .addKeyValueCells("Author", model.getAuthor())
                 .addKeyValueCells("Creation Date", FormatUtils.formatSafe(model.getCreationDate()))
-                .addKeyValueCells("Project", model.getProjectName(), 3)
                 .addKeyValueCells("Printed Page", model.getCurrentPage() + " of " + model.getTotalPages())
                 .addKeyValueCells("Printed Date", FormatUtils.formatSafe(model.getPrintDate()));
 
