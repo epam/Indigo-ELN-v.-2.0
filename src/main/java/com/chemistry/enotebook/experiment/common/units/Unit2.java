@@ -47,10 +47,6 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
         this.ordinal = nextOrdinal++;
     }
 
-    public void finalize() {
-        type = null;
-    }
-
     /**
      * This is a kludge because of the necessity to set a single value upon load from storage. This needs to be revisited when
      * load/save happen in an easier manner.

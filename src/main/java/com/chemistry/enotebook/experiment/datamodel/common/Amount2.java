@@ -121,13 +121,6 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
 //        this.calculated = isCalculated;
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        unit = null;
-        value = null;
-    }
-
     /**
      * Returns the value set to defaultValue and sets unit to default value Calls Modified
      */

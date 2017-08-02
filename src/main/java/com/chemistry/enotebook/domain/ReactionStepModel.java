@@ -22,9 +22,24 @@ public class ReactionStepModel extends CeNAbstractModel {
 
     public void setProducts(final ArrayList<BatchesList<ProductBatchModel>> products) {
         this.productBatchesList.clear();
+
         if (products != null && products.size() > 0) {
-            products.stream().filter(batchesList -> !productBatchesList.contains(batchesList)).forEach(this.productBatchesList::add);
+            for (BatchesList<ProductBatchModel> batchesList : products) {
+                boolean found = false;
+
+                for (BatchesList<ProductBatchModel> batchesListProduct : productBatchesList) {
+                    if (batchesListProduct != null && batchesListProduct.equals(batchesList)) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    productBatchesList.add(batchesList);
+                }
+            }
         }
+
         setModified(true);
     }
 
