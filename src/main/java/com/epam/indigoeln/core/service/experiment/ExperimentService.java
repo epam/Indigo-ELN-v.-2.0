@@ -32,38 +32,26 @@ import java.util.stream.Collectors;
 @Service
 public class ExperimentService {
 
-    private final CustomDtoMapper dtoMapper;
-    private final ProjectRepository projectRepository;
-    private final NotebookRepository notebookRepository;
-    private final ExperimentRepository experimentRepository;
-    private final ComponentRepository componentRepository;
-    private final FileRepository fileRepository;
-    private final UserRepository userRepository;
-    private final SequenceIdService sequenceIdService;
-    private final SimpMessagingTemplate template;
+    @Autowired
+    private CustomDtoMapper dtoMapper;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private NotebookRepository notebookRepository;
+    @Autowired
+    private ExperimentRepository experimentRepository;
+    @Autowired
+    private ComponentRepository componentRepository;
+    @Autowired
+    private FileRepository fileRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private SequenceIdService sequenceIdService;
+    @Autowired
+    private SimpMessagingTemplate template;
 
     private Striped<Lock> locks = Striped.lazyWeakLock(2);
-
-    @Autowired
-    public ExperimentService(CustomDtoMapper dtoMapper,
-                             ProjectRepository projectRepository,
-                             NotebookRepository notebookRepository,
-                             ExperimentRepository experimentRepository,
-                             ComponentRepository componentRepository,
-                             FileRepository fileRepository,
-                             UserRepository userRepository,
-                             SequenceIdService sequenceIdService,
-                             SimpMessagingTemplate template) {
-        this.dtoMapper = dtoMapper;
-        this.projectRepository = projectRepository;
-        this.notebookRepository = notebookRepository;
-        this.experimentRepository = experimentRepository;
-        this.componentRepository = componentRepository;
-        this.fileRepository = fileRepository;
-        this.userRepository = userRepository;
-        this.sequenceIdService = sequenceIdService;
-        this.template = template;
-    }
 
     private static List<Experiment> getExperimentsWithAccess(List<Experiment> experiments, String userId) {
         return experiments == null ? new ArrayList<>() :
