@@ -13,9 +13,6 @@
 
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
-        vm.sourceValues = AppValues.getSourceValues();
-        vm.sourceDetailExternal = AppValues.getSourceDetailExternal();
-        vm.sourceDetailInternal = AppValues.getSourceDetailInternal();
         vm.detailTable = [];
         vm.selectControl = {};
         vm.saltCodeValues = AppValues.getSaltCodeValues();
@@ -41,7 +38,7 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-     
+   
         init();
 
         function init() {

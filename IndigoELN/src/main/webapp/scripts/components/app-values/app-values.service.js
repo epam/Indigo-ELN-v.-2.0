@@ -13,9 +13,6 @@ function appValues() {
     var rxnValues = [{name: 'REACTANT'}, {name: 'REAGENT'}, {name: 'SOLVENT'}];
     var rxnRoleReactant = {name: 'REACTANT'};
     var rxnRoleSolvent = {name: 'SOLVENT'};
-    var sourceValues = [{name: 'Internal'}, {name: 'External'}];
-    var sourceDetailExternal = [{name: 'External group 1'}, {name: 'External group 2'}, {name: 'External group 3'}];
-    var sourceDetailInternal = [{name: 'Internal group 1'}, {name: 'Internal group 2'}, {name: 'Internal group 3'}];
     var compoundProtectionValues = [{name: 'NONE - None'}, {name: 'ST1 - Standard 1'}, {name: 'ST2 - Standard 2'}];
     var loadFactorUnits = ['mmol/g'];
     var defaultSaltCode = {name: '00 - Parent Structure', value: '0', regValue: '00'};
@@ -66,9 +63,6 @@ function appValues() {
         getRxnValues: getRxnValues,
         getDefaultSaltCode: getDefaultSaltCode,
         getSaltCodeValues: getSaltCodeValues,
-        getSourceValues: getSourceValues,
-        getSourceDetailExternal: getSourceDetailExternal,
-        getSourceDetailInternal: getSourceDetailInternal,
         getCompoundProtectionValues: getCompoundProtectionValues,
         getLoadFactorUnits: getLoadFactorUnits,
         getDefaultBatch: getDefaultBatch
@@ -113,18 +107,6 @@ function appValues() {
 
     function getSaltCodeValues() {
         return saltCodeValues;
-    }
-
-    function getSourceValues() {
-        return sourceValues;
-    }
-
-    function getSourceDetailExternal() {
-        return sourceDetailExternal;
-    }
-
-    function getSourceDetailInternal() {
-        return sourceDetailInternal;
     }
 
     function getCompoundProtectionValues() {
