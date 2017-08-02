@@ -40,8 +40,19 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     }
 
     public void addBatch(E batch) {
-        if (!batchModels.contains(batch))
+        boolean found = false;
+
+        for (E batchModel : batchModels) {
+            if (batchModel != null && batchModel.equals(batch)) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
             batchModels.add(batch);
+        }
+
         setModelChanged(true);
     }
 

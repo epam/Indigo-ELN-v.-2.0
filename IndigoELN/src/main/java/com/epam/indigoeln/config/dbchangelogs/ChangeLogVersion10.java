@@ -3,14 +3,16 @@ package com.epam.indigoeln.config.dbchangelogs;
 import com.github.mongobee.changeset.ChangeLog;
 import com.github.mongobee.changeset.ChangeSet;
 import com.mongodb.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.io.InputStream;
+import java.util.*;
 
 @ChangeLog(order = "001")
 public class ChangeLogVersion10 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeLogVersion10.class);
 
     @ChangeSet(order = "01", author = "indigoeln", id = "01-initIndexes")
     public void initIndexes(DB db) {
@@ -55,7 +57,7 @@ public class ChangeLogVersion10 {
         db.getCollection("user").insert(BasicDBObjectBuilder.start()
                 .add("_id", "admin")
                 .add("login", "admin")
-                .add("password", "$2a$10$gSAhZrxMllrbgj/kkK9UceBPpChGWJA7SYIb1Mqo.n5aNLq1/oRrC")
+                .add("password", getDefaultAdminPassword())
                 .add("first_name", "admin")
                 .add("last_name", "Administrator")
                 .add("email", "admin@localhost")
@@ -202,5 +204,18 @@ public class ChangeLogVersion10 {
                 .add("rank", rank)
                 .add("accessList", Collections.emptyList())
                 .get();
+    }
+
+    private String getDefaultAdminPassword() {
+        try (InputStream is = ChangeLogVersion10.class.getClassLoader().getResourceAsStream("application.properties")) {
+            Properties properties = new Properties();
+            properties.load(is);
+
+            return properties.getProperty("default-admin-password");
+        } catch (Exception e) {
+            LOGGER.warn("Cannot read default admin password from properties");
+        }
+
+        return null;
     }
 }
