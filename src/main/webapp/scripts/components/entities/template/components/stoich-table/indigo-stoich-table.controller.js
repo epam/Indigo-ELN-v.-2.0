@@ -179,7 +179,7 @@
                             }
                             var nbkBatch = data.model;
                             row.$$popItems = null;
-                            row.$$populatedBatch = null;
+                            row.$$populatedBatch = false;
                             fetchBatchByNbkNumber(nbkBatch, function(result) {
                                 if (result[0]) {
                                     row.$$popItems = result.map(function(r) {
@@ -426,7 +426,7 @@
 
         function populateFetchedBatch(row, source) {
             var cleanedBatch = stoichHelper.cleanReactant(source);
-            row.$$populatedBatch = cleanedBatch;
+            row.$$populatedBatch = true;
             _.extend(row, cleanedBatch);
             row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
             row.weight = null;
