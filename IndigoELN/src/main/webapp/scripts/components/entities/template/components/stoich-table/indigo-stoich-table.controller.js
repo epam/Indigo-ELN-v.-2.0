@@ -6,7 +6,7 @@
     /* @ngInject */
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
                                          AlertModal, Alert, Dictionary, CalculationService, SearchService,
-                                         RegistrationService, dialogService, StoichTableCache) {
+                                         RegistrationService, dialogService, StoichTableCache, stoichHelper) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -425,8 +425,9 @@
         }
 
         function populateFetchedBatch(row, source) {
-            row.$$populatedBatch = source;
-            _.extend(row, source);
+            var cleanedBatch = stoichHelper.cleanReactant(source);
+            row.$$populatedBatch = cleanedBatch;
+            _.extend(row, cleanedBatch);
             row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
             row.weight = null;
             row.volume = null;
