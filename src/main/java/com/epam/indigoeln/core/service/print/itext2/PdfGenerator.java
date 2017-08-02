@@ -70,10 +70,15 @@ public class PdfGenerator {
     }
 
     private void fillDocument(Document document, PdfWriter writer) throws DocumentException {
-        float contentWidth = layout.getContentAvailableWidth();
-        for (AbstractPdfSection section : contentSections) {
-            section.init(contentWidth);
-            section.addToDocument(document, writer);
+        if (!contentSections.isEmpty()){
+            float contentWidth = layout.getContentAvailableWidth();
+            for (AbstractPdfSection section : contentSections) {
+                section.init(contentWidth);
+                section.addToDocument(document, writer);
+            }
+        }else {
+            document.newPage();
+            writer.setPageEmpty(false);
         }
     }
 
