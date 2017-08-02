@@ -47,7 +47,7 @@ public class StoicCalculationService {
         MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
         callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
         //Force to reacalc Amounts like Weight etc when MWT changes
-        if (stoicTableDTO.getChangedField().equals("molWeight")) {
+        if ("molWeight".equals(stoicTableDTO.getChangedField())) {
             batchModel.recalcAmounts();
         }
         StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
@@ -90,6 +90,8 @@ public class StoicCalculationService {
             case "density":
                 batchModel.setDensityAmountQuitly(new AmountModel(DENSITY, 0));
                 batchModel.setDensityAmount(new AmountModel(DENSITY, sourceBatch.getDensity().getValue(), !sourceBatch.getDensity().isEntered()));
+                break;
+            default:
                 break;
         }
     }
@@ -284,6 +286,8 @@ public class StoicCalculationService {
                 case "totalVolume":
                     lastUpdatedType = BatchModel.UPDATE_TYPE_TOTAL_VOLUME;
                     break;
+                default:
+                    break;
             }
         }
         return lastUpdatedType;
@@ -306,6 +310,8 @@ public class StoicCalculationService {
                 break;
             case BatchModel.UPDATE_TYPE_TOTAL_VOLUME:
                 result = "totalVolume";
+                break;
+            default:
                 break;
         }
         return result;

@@ -22,17 +22,18 @@ import java.util.Optional;
 @RequestMapping("/api/bingodb")
 public class BingoResource {
 
-    private static final String BINGODB_MOLECULE = "BingoDB Molecule";
-    private static final String BINGODB_REACTION = "BingoDB Reaction";
-
     private static final String BINGODB_MOLECULE_PATH = "/api/bingodb/molecule/";
     private static final String BINGODB_REACTION_PATH = "/api/bingodb/reaction/";
 
-    @Autowired
-    private BingoService bingoService;
+    private final BingoService bingoService;
+    private final CalculationService calculationService;
 
     @Autowired
-    private CalculationService calculationService;
+    public BingoResource(BingoService bingoService,
+                         CalculationService calculationService) {
+        this.bingoService = bingoService;
+        this.calculationService = calculationService;
+    }
 
     /**
      * GET /molecule/:id -> get structure of molecule
@@ -62,7 +63,7 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .created(new URI(BINGODB_MOLECULE_PATH + result.get()))
-                    .body(result.get().toString());
+                    .body(result.get());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -86,7 +87,7 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .ok()
-                    .body(result.get().toString());
+                    .body(result.get());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -151,7 +152,7 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .created(new URI(BINGODB_REACTION_PATH + result.get()))
-                    .body(result.get().toString());
+                    .body(result.get());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -174,7 +175,7 @@ public class BingoResource {
         if (result.isPresent()) {
             return ResponseEntity
                     .ok()
-                    .body(result.get().toString());
+                    .body(result.get());
         } else {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

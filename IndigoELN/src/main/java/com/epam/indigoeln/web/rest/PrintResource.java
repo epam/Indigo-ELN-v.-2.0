@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import javax.websocket.server.PathParam;
 import java.io.*;
 import java.util.Map;
@@ -30,10 +31,15 @@ public class PrintResource {
     public static final String HEADER =
             "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td><td align=\"right\">Some title</td></tr></table>";
 
+    private final PhantomJsService phantomJsService;
+    private final ITextPrintService iTextPrintService;
+
     @Autowired
-    private PhantomJsService phantomJsService;
-    @Autowired
-    private ITextPrintService iTextPrintService;
+    public PrintResource(PhantomJsService phantomJsService,
+                         ITextPrintService iTextPrintService) {
+        this.phantomJsService = phantomJsService;
+        this.iTextPrintService = iTextPrintService;
+    }
 
     @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
@@ -50,13 +56,14 @@ public class PrintResource {
     public ResponseEntity<byte[]> download(
             @ApiParam("File name") @PathParam("fileName") String fileName
     ) {
-        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
+        String fn = fileName;
+        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fn);
         try (InputStream is = new FileInputStream(file)) {
-            if (fileName.startsWith(TempFileUtil.TEMP_FILE_PREFIX)) {
-                fileName = fileName.substring(TempFileUtil.TEMP_FILE_PREFIX.length());
+            if (fn.startsWith(TempFileUtil.TEMP_FILE_PREFIX)) {
+                fn = fn.substring(TempFileUtil.TEMP_FILE_PREFIX.length());
             }
             byte[] bytes = IOUtils.toByteArray(is);
-            HttpHeaders headers = HeaderUtil.createAttachmentDescription(fileName);
+            HttpHeaders headers = HeaderUtil.createAttachmentDescription(fn);
             return ResponseEntity.ok().headers(headers).body(bytes);
         } catch (Exception e) {
             throw new IndigoRuntimeException(e);

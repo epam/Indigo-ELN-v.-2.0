@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -42,23 +43,27 @@ public class DashboardResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DashboardResource.class);
 
-    @Autowired
-    private ExperimentRepository experimentRepository;
+    private final ExperimentRepository experimentRepository;
+    private final NotebookRepository notebookRepository;
+    private final ProjectRepository projectRepository;
+    private final SignatureService signatureService;
+    private final UserService userService;
+    private final DashboardProperties dashboardProperties;
 
     @Autowired
-    private NotebookRepository notebookRepository;
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @Autowired
-    private SignatureService signatureService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private DashboardProperties dashboardProperties;
+    public DashboardResource(ExperimentRepository experimentRepository,
+                             NotebookRepository notebookRepository,
+                             ProjectRepository projectRepository,
+                             SignatureService signatureService,
+                             UserService userService,
+                             DashboardProperties dashboardProperties) {
+        this.experimentRepository = experimentRepository;
+        this.notebookRepository = notebookRepository;
+        this.projectRepository = projectRepository;
+        this.signatureService = signatureService;
+        this.userService = userService;
+        this.dashboardProperties = dashboardProperties;
+    }
 
     /**
      * GET  /dashboard -> Returns dashboard experiments
@@ -78,7 +83,7 @@ public class DashboardResource {
         ZonedDateTime threshold = ZonedDateTime.now().minus(dashboardProperties.getThresholdLevel(), dashboardProperties.getThresholdUnit());
 
         dashboardDTO.setOpenAndCompletedExp(getCurrentRows(user, threshold));
-        dashboardDTO.setWaitingSignatureExp(getWaitingRows(user));
+        dashboardDTO.setWaitingSignatureExp(getWaitingRows());
         dashboardDTO.setSubmittedAndSigningExp(getSubmittedRows(user, threshold));
 
         return ResponseEntity.ok(dashboardDTO);
@@ -117,11 +122,11 @@ public class DashboardResource {
                                 .map(e -> Triple.of(p, n, e))));
     }
 
-    private List<DashboardRowDTO> getWaitingRows(User user) {
+    private List<DashboardRowDTO> getWaitingRows() {
         // Experiments Waiting Author’s Signature
         final Map<String, SignatureService.Document> waitingDocuments;
         try {
-            waitingDocuments = signatureService.getDocumentsByUser(user).stream()
+            waitingDocuments = signatureService.getDocumentsByUser().stream()
                     .filter(d -> d.isActionRequired() && (d.getStatus() == SignatureService.ISSStatus.SIGNING || d.getStatus() == SignatureService.ISSStatus.SUBMITTED))
                     .collect(Collectors.toMap(SignatureService.Document::getId, d -> d));
         } catch (IOException e) {
@@ -214,10 +219,7 @@ public class DashboardResource {
             return false;
         }
         final Experiment experiment = t.getRight();
-        if (experiment == null || !PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY)) {
-            return false;
-        }
-        return true;
+        return experiment != null && PermissionUtil.hasEditorAuthorityOrPermissions(user, experiment.getAccessList(), UserPermission.READ_ENTITY);
     }
 
     /**
