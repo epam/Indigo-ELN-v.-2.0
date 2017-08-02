@@ -26,11 +26,15 @@ import java.util.Optional;
 @RequestMapping("/api/calculations")
 public class CalculationResource {
 
-    @Autowired
-    private CalculationService calculationService;
+    private final CalculationService calculationService;
+    private final StoicCalculationService stoicCalculationService;
 
     @Autowired
-    private StoicCalculationService stoicCalculationService;
+    public CalculationResource(CalculationService calculationService,
+                               StoicCalculationService stoicCalculationService) {
+        this.calculationService = calculationService;
+        this.stoicCalculationService = stoicCalculationService;
+    }
 
     /**
      * PUT /molecule/info/ -> get calculated molecular fields
@@ -78,17 +82,17 @@ public class CalculationResource {
         return ResponseEntity.ok(calculationService.isMoleculeEmpty(normalizeMolFile(molecule)));
     }
 
-    @ApiOperation(value = "Checks that all molecules have equal structure.", produces = "application/json")
     /**
      * PUT /molecule/equals/ -> check, that all molecules has equal structure
      */
+    @ApiOperation(value = "Checks that all molecules have equal structure.", produces = "application/json")
     @RequestMapping(value = "/molecule/equals",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Boolean> moleculesEquals(
             @ApiParam("Molecules") @RequestBody List<String> molecules
         ) {
-        return ResponseEntity.ok(calculationService.chemistryEquals(molecules, false));
+        return ResponseEntity.ok(calculationService.chemistryEquals(molecules));
     }
 
     /**
@@ -127,7 +131,7 @@ public class CalculationResource {
     public ResponseEntity<Boolean> reactionsEquals(
             @ApiParam("Reactions") @RequestBody List<String> reactions
         ) {
-        return ResponseEntity.ok(calculationService.chemistryEquals(reactions, true));
+        return ResponseEntity.ok(calculationService.chemistryEquals(reactions));
     }
 
     /**
