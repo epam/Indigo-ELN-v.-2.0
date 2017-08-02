@@ -2,7 +2,8 @@ package com.epam.indigoeln.core.service.print.itext2;
 
 import com.epam.indigoeln.core.service.print.itext2.sections.HeaderPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
-
+import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,4 +21,11 @@ public interface PdfSectionsProvider {
      * @return raw uninitialized header section
      */
     HeaderPdfSection getHeaderSection();
+
+    /**
+     * @return streams with additional information
+     */
+    default List<InputStream> getExtraPdf(){
+        return Collections.emptyList();
+    }
 }
