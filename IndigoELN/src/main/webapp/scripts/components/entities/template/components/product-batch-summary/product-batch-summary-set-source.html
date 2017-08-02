@@ -8,17 +8,10 @@
                        indigo-label-vertical="true"
         ></indigo-select>
         <indigo-select
-                ng-if="vm.source.name == 'External'"
                 indigo-label="Source Details"
-                indigo-items="vm.sourceDetailExternal"
+                indigo-items="vm.sourceDetails"
                 indigo-model="vm.sourceDetail"
                 indigo-label-vertical="true">
-        </indigo-select>
-        <indigo-select ng-if="vm.source.name == 'Internal'"
-                       indigo-label="Source Details"
-                       indigo-items="vm.sourceDetailInternal"
-                       indigo-model="vm.sourceDetail"
-                       indigo-label-vertical="true">
         </indigo-select>
     </div>
     <div class="modal-footer">
