@@ -76,7 +76,36 @@ public class PrintResource {
                                     @ApiParam("experiment id") @PathVariable String experimentId) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateNotebookPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+    }
+
+    @ApiOperation(value = "Open project pdf preview", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = "/project/{projectId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId) {
+        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateProjectPdf(projectId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+    }
+
+    @ApiOperation(value = "Open notebook pdf preview", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = "/project/{projectId}/notebook/{notebookId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<byte[]> createNotebookPdf(@ApiParam("project id") @PathVariable String projectId,
+                                                   @ApiParam("notebook id") @PathVariable String notebookId) {
+        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateNotebookPdf(projectId, notebookId, byteArrayOutputStream);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
         return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
     }
