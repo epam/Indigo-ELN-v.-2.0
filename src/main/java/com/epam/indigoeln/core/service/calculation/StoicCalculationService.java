@@ -1,10 +1,10 @@
 package com.epam.indigoeln.core.service.calculation;
 
-import com.chemistry.enotebook.ProductCalculator;
-import com.chemistry.enotebook.StoichCalculator;
-import com.chemistry.enotebook.domain.*;
-import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
-import com.chemistry.enotebook.experiment.datamodel.batch.BatchTypeFactory;
+import com.epam.indigoeln.core.chemistry.ProductCalculator;
+import com.epam.indigoeln.core.chemistry.StoichCalculator;
+import com.epam.indigoeln.core.chemistry.domain.*;
+import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
+import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchTypeFactory;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.chemistry.enotebook.experiment.common.units.UnitType.*;
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 
 /**
  * Service for stoichiometry calculations
