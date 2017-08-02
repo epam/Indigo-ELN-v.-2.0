@@ -138,22 +138,14 @@
                 <indigo-select indigo-label="Source"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.source"
-                               indigo-items="vm.sourceValues"
+                               indigo-dictionary="Source"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
                 <!--Source detail block-->
-                <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'Internal'"
-                               indigo-label="Source Detail"
+                <indigo-select indigo-label="Source Detail"
                                indigo-label-vertical="true"
                                indigo-model="vm.model.productBatchDetails.sourceDetail"
-                               indigo-items="vm.sourceDetailInternal"
-                               indigo-readonly="vm.isEditDisabled"
-                ></indigo-select>
-                <indigo-select ng-if="vm.model.productBatchDetails.source.name == 'External'"
-                               indigo-label="Source Detail"
-                               indigo-label-vertical="true"
-                               indigo-model="vm.model.productBatchDetails.sourceDetail"
-                               indigo-items="vm.sourceDetailExternal"
+                               indigo-dictionary="Source Details"
                                indigo-readonly="vm.isEditDisabled"
                 ></indigo-select>
                 <!--End block-->

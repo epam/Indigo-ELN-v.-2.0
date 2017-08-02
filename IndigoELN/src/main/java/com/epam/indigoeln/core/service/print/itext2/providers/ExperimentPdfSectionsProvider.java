@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
+import com.epam.indigoeln.core.service.print.itext2.model.AttachmentsModel;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformation;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformationRow;
@@ -14,6 +15,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.Registratio
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.StoichiometryRow;
 import com.epam.indigoeln.core.service.print.itext2.model.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.AttachmentsSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
