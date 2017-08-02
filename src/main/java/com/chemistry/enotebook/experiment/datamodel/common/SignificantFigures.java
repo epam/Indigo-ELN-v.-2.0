@@ -1,7 +1,5 @@
 package com.chemistry.enotebook.experiment.datamodel.common;
 
-import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
-
 /**
  * A number with an associated number of significant figures. This class handles parsing numbers, determining the number of
  * significant figures, adjusting the number of significant figures (including scientific rounding), and displaying the number. More
@@ -131,7 +129,7 @@ public class SignificantFigures extends Number {
      *
      * @since ostermillerutils 1.00.00
      */
-    private StringBuffer digits;
+    private StringBuilder digits;
     /**
      * The exponent of the digits if a decimal place were inserted after the first digit.
      *
@@ -151,16 +149,6 @@ public class SignificantFigures extends Number {
      */
     private boolean isZero = false;
 
-	/*
-     * public static void main(String[] args){ int significantFigures = 0; int lsd = Integer.MIN_VALUE; int msd = Integer.MAX_VALUE;
-	 * for (int i=0; i<args.length; i++){ if (args[i].equals("--sigfigs")){ i++; significantFigures = Integer.parseInt(args[i]); }
-	 * else if (args[i].equals("--lsd")){ i++; lsd = Integer.parseInt(args[i]); } else if (args[i].equals("--msd")){ i++; msd =
-	 * Integer.parseInt(args[i]); } else { SignificantFigures sf = new SignificantFigures(args[i]); System.out.print(args[i] + " ");
-	 * System.out.print(sf.getNumberSignificantFigures() + " "); System.out.print(sf.getLSD() + " "); if (significantFigures>0)
-	 * sf.setNumberSignificantFigures(significantFigures); sf.setLMSD(lsd, msd); System.out.print(sf.toString() + " ");
-	 * //System.out.println(sf.toScientificNotation()); } } }
-	 */
-
     /**
      * Create a SignificantFigures object from a String representation of a number.
      *
@@ -171,164 +159,6 @@ public class SignificantFigures extends Number {
     private SignificantFigures(String number) throws NumberFormatException {
         original = number;
         parse(original);
-    }
-
-//    /**
-//     * Adjust the number of significant figures such that the least significant digit is at the given place. This method may add
-//     * significant zeros to the end of this number, or remove significant digits from this number.
-//     * <p>
-//     * It is possible to remove all significant digits from this number which will cause the string representation of this number to
-//     * become "NaN". This could become a problem if you are adding numbers and the result is close to zero. All of the significant
-//     * digits may get removed, even though the result could be zero with some number of significant digits. Its is safes to use the
-//     * setLMSD() method which will make a zero with the appropriate number of significant figures in such instances.
-//     * <p>
-//     * This method has no effect if this number is not a number or infinity.
-//     *
-//     * @param place
-//     *            the desired place of the least significant digit.
-//     * @return this number.
-//     *
-//     * @since ostermillerutils 1.00.00
-//     */
-//    public SignificantFigures setLSD(int place) {
-//        setLMSD(place, Integer.MIN_VALUE);
-//        return this;
-//    }
-
-    /**
-     * Create a SignificantFigures object from a byte.
-     *
-     * @param number an 8 bit integer.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(byte number) {
-        original = Byte.toString(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-//    /**
-//     * Get the decimal place of the least significant digit.
-//     * <p>
-//     * If this number is not a number or infinity Integer.MIN_VALUE will be returned.
-//     *
-//     * @return the decimal place of the least significant digit.
-//     *
-//     * @since ostermillerutils 1.00.00
-//     */
-//    public int getLSD() {
-//        if (digits == null)
-//            return Integer.MIN_VALUE;
-//        return mantissa - digits.length() + 1;
-//    }
-//
-//    /**
-//     * Get the decimal place of the most significant digit.
-//     * <p>
-//     * If this number is not a number or infinity Integer.MIN_VALUE will be returned.
-//     *
-//     * @return the decimal place of the least significant digit.
-//     *
-//     * @since ostermillerutils 1.00.00
-//     */
-//    public int getMSD() {
-//        if (digits == null)
-//            return Integer.MIN_VALUE;
-//        return mantissa + 1;
-//    }
-
-    /**
-     * Create a SignificantFigures object from a short.
-     *
-     * @param number a 16 bit integer.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(short number) {
-        original = Short.toString(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-    /**
-     * Create a SignificantFigures object from an integer.
-     *
-     * @param number a 32 bit integer.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(int number) {
-        original = String.valueOf(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-    /**
-     * Create a SignificantFigures object from a long.
-     *
-     * @param number a 64 bit integer.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(long number) {
-        original = Long.toString(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-    /**
-     * Create a SignificantFigures object from a float.
-     *
-     * @param number a 32 bit floating point.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(float number) {
-        original = Float.toString(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-    /**
-     * Create a SignificantFigures object from a double.
-     *
-     * @param number a 64 bit floating point.
-     * @since ostermillerutils 1.00.00
-     */
-    public SignificantFigures(double number) {
-        original = Double.toString(number);
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
-    }
-
-    /**
-     * Create a SignificantFigures object from a java number such as a BigDecimal, BigInteger, Byte, Double, Float, Integer, Long,
-     * or Short.
-     *
-     * @param number a number.
-     * @since ostermillerutils 1.00.00
-     */
-    private SignificantFigures(Number number) {
-        original = number.toString();
-        try {
-            parse(original);
-        } catch (NumberFormatException nfe) {
-            digits = null;
-        }
     }
 
     /**
@@ -346,22 +176,6 @@ public class SignificantFigures extends Number {
     }
 
     /**
-     * Get the number of significant digits.
-     * <p>
-     * If this number is not a number or infinity zero will be returned.
-     *
-     * @return the number of significant digits in this number.
-     * @since ostermillerutils 1.00.00
-     */
-    public int getNumberSignificantFigures() {
-        if (digits == null)
-            return 0;
-        // Following code is added in order to get the correct sigfig count
-        String sigFigNumber = CeNNumberUtils.getSigFigsFromNumberString(digits.toString());
-        return sigFigNumber.length();
-    }
-
-    /**
      * Adjust the number of digits in the number. Pad the tail with zeros if too short, round the number according to scientific
      * rounding if too long, leave alone if just right.
      * <p>
@@ -375,7 +189,7 @@ public class SignificantFigures extends Number {
     private void setNumberSignificantFigures(int significantFigures) {
         if (significantFigures <= 0)
             throw new IllegalArgumentException("Desired number of significant figures must be positive.");
-        if (digits != null && !digits.toString().equals("0") && !digits.toString().equals("0.0")) {
+        if (digits != null && !"0".equals(digits.toString()) && !"0.0".equals(digits.toString())) {
             int length = digits.length();
             if (length < significantFigures) {
                 // number is not long enough, pad it with zeros.
@@ -442,39 +256,33 @@ public class SignificantFigures extends Number {
     public String toString() {
         if (digits == null)
             return original;
-        StringBuilder digits = new StringBuilder(this.digits.toString());
-        int length = digits.length();
-        //if (mantissa <= -4 || mantissa >= 7 //|| (mantissa >= length && digits.charAt(digits.length() - 1) == '0')
-        //		|| (isZero && mantissa != 0)) {
-        // vb 11/20
+        StringBuilder sb = new StringBuilder(this.digits.toString());
+        int length = sb.length();
+
         if (mantissa <= -9 || mantissa >= 9 || (isZero && mantissa != 0)) {
             // use scientific notation.
             if (length > 1) {
-                digits.insert(1, '.');
+                sb.insert(1, '.');
             }
             if (mantissa != 0) {
-                digits.append("E").append(mantissa);
+                sb.append("E").append(mantissa);
             }
         } else if (mantissa <= -1) {
-            digits.insert(0, "0.");
+            sb.insert(0, "0.");
             for (int i = mantissa; i < -1; i++) {
-                digits.insert(2, '0');
+                sb.insert(2, '0');
             }
-            // } else if (mantissa+1 == length){
-            // if (length > 1 && digits.charAt(digits.length()-1) == '0'){
-            // digits.append('.');
-            // }
-        } else if (mantissa < length && !(mantissa == length - 1)) { // && digits.charAt(length-1) == '0')){
-            digits.insert(mantissa + 1, '.');
+        } else if (mantissa < length && !(mantissa == length - 1)) {
+            sb.insert(mantissa + 1, '.');
         } else {
             for (int i = length; i <= mantissa; i++) {
-                digits.append('0');
+                sb.append('0');
             }
         }
         if (!sign) {
-            digits.insert(0, '-');
+            sb.insert(0, '-');
         }
-        return digits.toString();
+        return sb.toString();
     }
 
     /**
@@ -487,7 +295,7 @@ public class SignificantFigures extends Number {
      */
     private void parse(String number) throws NumberFormatException {
         int length = number.length();
-        digits = new StringBuffer(length);
+        digits = new StringBuilder(length);
         int state = INITIAL;
         int mantissaStart = -1;
         boolean foundMantissaDigit = false;
@@ -502,14 +310,13 @@ public class SignificantFigures extends Number {
         for (int i = 0; i < length; i++) {
             char c = number.charAt(i);
             switch (c) {
-                case '.': {
+                case '.':
                     switch (state) {
                         case INITIAL:
-                        case LEADZEROS: {
+                        case LEADZEROS:
                             state = LEADZEROSDOT;
-                        }
                         break;
-                        case MIDZEROS: {
+                        case MIDZEROS:
                             // we now know that these zeros
                             // are more than just trailing placeholders.
                             for (int j = 0; j < zeroCount; j++) {
@@ -517,65 +324,53 @@ public class SignificantFigures extends Number {
                             }
                             zeroCount = 0;
                             state = DIGITSDOT;
-                        }
                         break;
-                        case DIGITS: {
+                        case DIGITS:
                             state = DIGITSDOT;
-                        }
                         break;
-                        default: {
+                        default:
                             throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
+
                     }
-                }
                 break;
-                case '+': {
-                    switch (state) {
-                        case INITIAL: {
-                            sign = true;
-                            state = LEADZEROS;
-                        }
-                        break;
-                        case MANTISSA: {
-                            state = MANTISSADIGIT;
-                        }
-                        break;
-                        default: {
-                            throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
-                    }
-                }
-                break;
-                case '-': {
-                    switch (state) {
-                        case INITIAL: {
-                            sign = false;
-                            state = LEADZEROS;
-                        }
-                        break;
-                        case MANTISSA: {
-                            state = MANTISSADIGIT;
-                        }
-                        break;
-                        default: {
-                            throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
-                    }
-                }
-                break;
-                case '0': {
+                case '+':
                     switch (state) {
                         case INITIAL:
-                        case LEADZEROS: {
+                            sign = true;
+                            state = LEADZEROS;
+                        break;
+                        case MANTISSA:
+                            state = MANTISSADIGIT;
+                        break;
+                        default:
+                            throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+                    }
+                break;
+                case '-':
+                    switch (state) {
+                        case INITIAL:
+                            sign = false;
+                            state = LEADZEROS;
+                        break;
+                        case MANTISSA:
+                            state = MANTISSADIGIT;
+                        break;
+                        default:
+                            throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+                    }
+                break;
+                case '0':
+                    switch (state) {
+                        case INITIAL:
+                        case LEADZEROS:
                             // only significant if number
                             // is all zeros.
                             zeroCount++;
                             leadZeroCount++;
                             state = LEADZEROS;
-                        }
                         break;
                         case MIDZEROS:
-                        case DIGITS: {
+                        case DIGITS:
                             // only significant if followed
                             // by a decimal point or nonzero digit.
                             // mantissa++;
@@ -585,34 +380,28 @@ public class SignificantFigures extends Number {
                             digits.append(c);
                             mantissa++;
                             state = DIGITS;
-                        }
                         break;
-                        case LEADZEROSDOT: {
+                        case LEADZEROSDOT:
                             // only significant if number
                             // is all zeros.
                             mantissa--;
                             zeroCount++;
                             state = LEADZEROSDOT;
-                        }
                         break;
-                        case DIGITSDOT: {
+                        case DIGITSDOT:
                             // non-leading zeros after
                             // a decimal point are always
                             // significant.
                             digits.append(c);
-                        }
                         break;
                         case MANTISSA:
-                        case MANTISSADIGIT: {
+                        case MANTISSADIGIT:
                             foundMantissaDigit = true;
                             state = MANTISSADIGIT;
-                        }
                         break;
-                        default: {
+                        default:
                             throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
                     }
-                }
                 break;
                 case '1':
                 case '2':
@@ -622,18 +411,17 @@ public class SignificantFigures extends Number {
                 case '6':
                 case '7':
                 case '8':
-                case '9': {
+                case '9':
                     switch (state) {
                         case INITIAL:
                         case LEADZEROS:
-                        case DIGITS: {
+                        case DIGITS:
                             zeroCount = 0;
                             digits.append(c);
                             mantissa++;
                             state = DIGITS;
-                        }
                         break;
-                        case MIDZEROS: {
+                        case MIDZEROS:
                             // we now know that these zeros
                             // are more than just trailing placeholders.
                             for (int j = 0; j < zeroCount; j++) {
@@ -643,50 +431,41 @@ public class SignificantFigures extends Number {
                             digits.append(c);
                             mantissa++;
                             state = DIGITS;
-                        }
                         break;
                         case LEADZEROSDOT:
-                        case DIGITSDOT: {
+                        case DIGITSDOT:
                             zeroCount = 0;
                             digits.append(c);
                             state = DIGITSDOT;
-                        }
                         break;
                         case MANTISSA:
-                        case MANTISSADIGIT: {
+                        case MANTISSADIGIT:
                             state = MANTISSADIGIT;
                             foundMantissaDigit = true;
-                        }
                         break;
-                        default: {
+                        default:
                             throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
                     }
-                }
                 break;
                 case 'E':
-                case 'e': {
+                case 'e':
                     switch (state) {
                         case INITIAL:
                         case LEADZEROS:
                         case DIGITS:
                         case LEADZEROSDOT:
-                        case DIGITSDOT: {
+                        case DIGITSDOT:
                             // record the starting point of the mantissa
                             // so we can do a substring to get it back later
                             mantissaStart = i + 1;
                             state = MANTISSA;
-                        }
-                        break;
-                        default: {
+                            break;
+                        default:
                             throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                        }
                     }
-                }
-                break;
-                default: {
+                    break;
+                default:
                     throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
             }
         }
         if (mantissaStart != -1) {
@@ -723,6 +502,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a byte.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public byte byteValue() throws NumberFormatException {
         return Byte.parseByte(original);
     }
@@ -734,6 +514,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a double.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public double doubleValue() throws NumberFormatException {
         return Double.parseDouble(original);
     }
@@ -745,6 +526,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a float.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public float floatValue() throws NumberFormatException {
         return Float.parseFloat(original);
     }
@@ -756,6 +538,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a int.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public int intValue() throws NumberFormatException {
         return Integer.parseInt(original);
     }
@@ -767,6 +550,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a long.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public long longValue() throws NumberFormatException {
         return Long.parseLong(original);
     }
@@ -778,6 +562,7 @@ public class SignificantFigures extends Number {
      * @throws NumberFormatException if this number cannot be converted to a short.
      * @since ostermillerutils 1.00.00
      */
+    @Override
     public short shortValue() throws NumberFormatException {
         return Short.parseShort(original);
     }
