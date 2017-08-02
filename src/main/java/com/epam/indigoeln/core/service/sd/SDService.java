@@ -17,6 +17,7 @@ import com.chemistry.enotebook.domain.SDFileInfo;
 import com.chemistry.enotebook.utils.sdf.SdUnit;
 import com.chemistry.enotebook.utils.sdf.SdfileIterator;
 import com.chemistry.enotebook.utils.sdf.SdfileIteratorFactory;
+import com.epam.indigoeln.IndigoRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class SDService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SDService.class);
 
-    public Collection<SdUnit> parse(InputStream is) throws Exception {
+    public Collection<SdUnit> parse(InputStream is) throws IndigoRuntimeException {
         List<SdUnit> result = new ArrayList<>();
         try {
             SdUnit sdu;
@@ -50,12 +51,12 @@ public class SDService {
             }
         } catch (Exception e) {
             LOGGER.error("Error while extracting batch from SD file: " + e);
-            throw e;
+            throw new IndigoRuntimeException(e);
         }
         return result;
     }
 
-    public SDFileInfo create(Collection<SDExportItem> items) throws Exception {
+    public SDFileInfo create(Collection<SDExportItem> items) throws IndigoRuntimeException {
         SDFileInfo info = new SDFileInfo();
         if (items != null && !items.isEmpty()) {
             StringBuilder str = new StringBuilder();
@@ -77,7 +78,7 @@ public class SDService {
         }
     }
 
-    public String create(SDExportItem item) throws Exception {
+    public String create(SDExportItem item) throws IndigoRuntimeException {
         SdUnit sDunit;
 
         try {
@@ -91,7 +92,7 @@ public class SDService {
                     sDunit = new SdUnit(molfile, true);
                 }
             } else {
-                throw new Exception("Compound structure is emtpy. Cannot prepare SD.");
+                throw new RuntimeException("Compound structure is emtpy. Cannot prepare SD.");
             }
 
             item.getProperties().forEach(sDunit::setValue);
@@ -99,7 +100,7 @@ public class SDService {
             return sDunit.toString();
         } catch (Exception e) {
             LOGGER.error("Error occurred while creating SD unit for item.", e);
-            throw e;
+            throw new IndigoRuntimeException(e);
         }
 
     }

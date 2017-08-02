@@ -2,7 +2,6 @@ package com.epam.indigoeln.core.service.signature;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
-import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureRepository;
 import com.epam.indigoeln.core.security.SecurityUtils;
@@ -20,19 +19,22 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class SignatureService {
 
-    @Autowired
-    private SignatureRepository signatureRepository;
+    private final SignatureRepository signatureRepository;
+    private final ExperimentRepository experimentRepository;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    private ExperimentRepository experimentRepository;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    public SignatureService(SignatureRepository signatureRepository,
+                            ExperimentRepository experimentRepository,
+                            ObjectMapper objectMapper) {
+        this.signatureRepository = signatureRepository;
+        this.experimentRepository = experimentRepository;
+        this.objectMapper = objectMapper;
+    }
 
     public String getReasons() {
         return signatureRepository.getReasons();
@@ -64,7 +66,7 @@ public class SignatureService {
         return wrapper.getDocuments();
     }
 
-    public List<Document> getDocumentsByUser(com.epam.indigoeln.core.model.User user) throws IOException {
+    public List<Document> getDocumentsByUser() throws IOException {
         final String content = signatureRepository.getDocuments(SecurityUtils.getCurrentUser().getUsername());
         if (!StringUtils.isBlank(content)) {
             final DocumentsWrapper wrapper = objectMapper.readValue(content, DocumentsWrapper.class);
