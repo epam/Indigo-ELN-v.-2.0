@@ -22,8 +22,6 @@ function stoichHelperFactory() {
     }
 
     function cleanReactants(reactants) {
-        return _.map(reactants, function(batch) {
-            return cleanReactant(batch);
-        });
+        return _.map(reactants, cleanReactant);
     }
 }
