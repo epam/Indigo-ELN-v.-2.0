@@ -5,12 +5,10 @@ import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 public class ProjectSummaryModel implements SectionModel {
     private String keywords;
     private String literature;
-    private String description;
 
-    public ProjectSummaryModel(String keywords, String literature, String description) {
+    public ProjectSummaryModel(String keywords, String literature) {
         this.keywords = keywords;
         this.literature = literature;
-        this.description = description;
     }
 
     public String getKeywords() {
@@ -19,9 +17,5 @@ public class ProjectSummaryModel implements SectionModel {
 
     public String getLiterature() {
         return literature;
-    }
-
-    public String getDescription() {
-        return description;
     }
 }

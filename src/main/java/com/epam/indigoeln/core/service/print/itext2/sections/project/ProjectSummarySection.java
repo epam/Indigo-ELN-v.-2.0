@@ -17,7 +17,6 @@ public class ProjectSummarySection extends BasePdfSectionWithSimpleTitle<Project
         PdfPTableHelper helper = new PdfPTableHelper(table);
         helper.addKeyValueCells("Project keywords", model.getKeywords());
         helper.addKeyValueCells("Literature", model.getLiterature());
-        helper.addKeyValueCells("Project Description", model.getDescription());
         return table;
     }
 }
