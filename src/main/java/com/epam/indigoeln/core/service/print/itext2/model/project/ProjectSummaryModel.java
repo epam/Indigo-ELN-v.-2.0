@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.model.project;
 
-import com.epam.indigoeln.core.service.print.itext2.model.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 
 public class ProjectSummaryModel implements SectionModel {
     private String keywords;

@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service.print.itext2.sections;
+package com.epam.indigoeln.core.service.print.itext2.sections.common;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;

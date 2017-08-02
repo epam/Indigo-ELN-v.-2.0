@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.project;
 
 import com.epam.indigoeln.core.service.print.itext2.model.project.ProjectHeaderModel;
-import com.epam.indigoeln.core.service.print.itext2.sections.BaseHeaderSectionWithLogo;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.BaseHeaderSectionWithLogo;
 import com.epam.indigoeln.core.service.print.itext2.utils.FormatUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;

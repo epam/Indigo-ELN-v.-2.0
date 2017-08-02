@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
-import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
-import com.epam.indigoeln.core.service.print.itext2.model.image.PngPdfImage;
+import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
+import com.epam.indigoeln.core.service.print.itext2.model.common.image.PngPdfImage;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;

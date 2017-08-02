@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.experiment;
 
-import com.epam.indigoeln.core.service.print.itext2.sections.BasePdfSectionWithSimpleTitle;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.BasePdfSectionWithSimpleTitle;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel.RegistrationSummaryRow;
 import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
