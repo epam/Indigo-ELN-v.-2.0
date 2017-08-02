@@ -106,7 +106,7 @@ public class ProductBatchModel extends BatchModel {
                 getTheoreticalYieldPercentAmount().setSigDigits(
                         CeNNumberUtils
                                 .getSmallestSigFigsFromAmountModelList(amts));
-                // applySigFigRules(getTheoreticalYieldPercentAmount(), amts);
+
                 amts.clear();
                 theoreticalYieldPercentAmount.setValue(yield);
             } else if (doubleEqZero(theoreticalWeightAmount.doubleValue())) {
@@ -198,8 +198,6 @@ public class ProductBatchModel extends BatchModel {
     private void recalcTotalAmounts() {
         // Make sure we don't get into a loop!
         // And that we don't lose information on load.
-        // if (!autoCalcOn || inCalculation)
-        // return;
 
         ArrayList<AmountModel> amts = new ArrayList<>();
         inCalculation = true;
@@ -208,8 +206,6 @@ public class ProductBatchModel extends BatchModel {
         // considered driver
         // when there is a tie in flags.
         if (lastUpdatedProductType == UPDATE_TYPE_TOTAL_VOLUME) { // && !
-            // this.getTotalVolume().isCalculated())
-            // {
             // We need to update moles and weight from volume
             // Molarity takes precedence over density
             if (this.getMolarAmount().doubleValue() > 0) {
@@ -411,12 +407,12 @@ public class ProductBatchModel extends BatchModel {
                     this.getTotalWeight().deepCopy(weight);
                     if (!unitChange) {
                         lastUpdatedProductType = BatchModel.UPDATE_TYPE_TOTAL_WEIGHT;
-                        // updateCalcFlags(weightAmount);
+
                         setModified(true);
                     }
                 }
                 if (!unitChange)
-                    //this includes recalcTotalAmounts();
+
                     recalcAmounts();
             }
         } else {
@@ -443,7 +439,7 @@ public class ProductBatchModel extends BatchModel {
                     this.getTotalVolume().deepCopy(volume);
                     if (!unitChange) {
                         lastUpdatedProductType = UPDATE_TYPE_TOTAL_VOLUME;
-                        // updateCalcFlags(volumeAmount);
+
                         setModified(true);
                     }
                 }
