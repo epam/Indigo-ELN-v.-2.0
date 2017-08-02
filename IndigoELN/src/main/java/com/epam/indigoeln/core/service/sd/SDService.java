@@ -13,11 +13,11 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.service.sd;
 
-import com.chemistry.enotebook.domain.SDFileInfo;
-import com.chemistry.enotebook.utils.sdf.SdUnit;
-import com.chemistry.enotebook.utils.sdf.SdfileIterator;
-import com.chemistry.enotebook.utils.sdf.SdfileIteratorFactory;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.chemistry.domain.SDFileInfo;
+import com.epam.indigoeln.core.chemistry.sdf.SdUnit;
+import com.epam.indigoeln.core.chemistry.sdf.SdfileIterator;
+import com.epam.indigoeln.core.chemistry.sdf.SdfileIteratorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

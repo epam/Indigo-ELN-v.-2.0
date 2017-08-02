@@ -1,7 +1,7 @@
 package com.epam.indigoeln.web.rest;
 
-import com.chemistry.enotebook.domain.SDFileInfo;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.chemistry.domain.SDFileInfo;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.sd.SDExportItem;
 import com.epam.indigoeln.core.service.sd.SDService;
