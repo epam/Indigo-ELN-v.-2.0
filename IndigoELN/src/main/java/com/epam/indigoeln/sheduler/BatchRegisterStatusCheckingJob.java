@@ -65,12 +65,7 @@ public class BatchRegisterStatusCheckingJob {
 
                     registrationJob.setRegistrationStatus(status.getStatus());
 
-                    try {
-                        registrationJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
-                    } catch (Exception e) {
-                        registrationJob.setLastHandledBy("Unknown");
-                        LOGGER.trace("Error getting host name", e);
-                    }
+                    setLastHandledBy(registrationJob);
 
                     registrationJobRepository.save(registrationJob);
                 } catch (RegistrationException e) {
@@ -81,6 +76,15 @@ public class BatchRegisterStatusCheckingJob {
 
         if (!MapUtils.isEmpty(updatedBatchesStatuses)) {
             template.convertAndSend("/topic/registration_status", updatedBatchesStatuses);
+        }
+    }
+
+    private void setLastHandledBy(RegistrationJob registrationJob) {
+        try {
+            registrationJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
+        } catch (Exception e) {
+            registrationJob.setLastHandledBy("Unknown");
+            LOGGER.trace("Error getting host name", e);
         }
     }
 }
