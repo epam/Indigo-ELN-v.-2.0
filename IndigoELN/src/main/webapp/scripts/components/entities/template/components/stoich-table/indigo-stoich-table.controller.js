@@ -594,7 +594,7 @@
                 var batch = AppValues.getDefaultBatch();
                 batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.data.name;
                 batch.formula = result.data.molecularFormula;
-                batch.molWeight = result.data.molecularWeight;
+                batch.molWeight.value = result.data.molecularWeight;
                 batch.exactMass = result.data.exactMolecularWeight;
                 batch.structure = {
                     image: result.data.image,
