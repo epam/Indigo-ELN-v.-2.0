@@ -8,6 +8,7 @@ import com.epam.indigoeln.core.service.registration.RegistrationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -60,10 +61,7 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Registration job id") String jobId
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return registrationService.getStatus(id, jobId);
+        return registrationService.getStatus(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
     @ApiOperation(value = "Returns registration compounds.", produces = "application/json")
@@ -73,10 +71,7 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Registration job id") String jobId
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return registrationService.getRegisteredCompounds(id, jobId);
+        return registrationService.getRegisteredCompounds(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
     @ApiOperation(value = "Returns compounds by their number.", produces = "application/json")
@@ -86,10 +81,7 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Compound id") @PathVariable("compoundNo") String compoundNo
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return registrationService.getCompoundInfoByCompoundNo(id, compoundNo);
+        return registrationService.getCompoundInfoByCompoundNo(StringUtils.isBlank(id) ? getRepositoryId() : id, compoundNo);
     }
 
     @ApiOperation(value = "Searches for compounds by substructure.", produces = "application/json")
@@ -100,10 +92,7 @@ public class RegistrationResource {
             @ApiParam("Substructure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return ResponseEntity.ok(registrationService.searchSubstructure(id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchSubstructure(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
     }
 
     @ApiOperation(value = "Searches for compounds by similarity.", produces = "application/json")
@@ -114,10 +103,7 @@ public class RegistrationResource {
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return ResponseEntity.ok(registrationService.searchSimilarity(id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchSimilarity(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
     }
 
     @ApiOperation(value = "Smarts search.", produces = "application/json")
@@ -127,10 +113,7 @@ public class RegistrationResource {
             @ApiParam("Registration repository id") String id,
             @ApiParam("Structure") String structure
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return ResponseEntity.ok(registrationService.searchSmarts(id, structure));
+        return ResponseEntity.ok(registrationService.searchSmarts(StringUtils.isBlank(id) ? getRepositoryId() : id, structure));
     }
 
     @ApiOperation(value = "Exact search.", produces = "application/json")
@@ -141,10 +124,7 @@ public class RegistrationResource {
             @ApiParam("Structure") String structure,
             @ApiParam("Search options") String searchOption
     ) throws RegistrationException {
-        if (id == null) {
-            id = getRepositoryId();
-        }
-        return ResponseEntity.ok(registrationService.searchExact(id, structure, searchOption));
+        return ResponseEntity.ok(registrationService.searchExact(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
     }
 
     private String getRepositoryId() throws RegistrationException {

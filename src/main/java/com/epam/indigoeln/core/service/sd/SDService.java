@@ -92,7 +92,7 @@ public class SDService {
                     sDunit = new SdUnit(molfile, true);
                 }
             } else {
-                throw new RuntimeException("Compound structure is emtpy. Cannot prepare SD.");
+                throw new IndigoRuntimeException("Compound structure is emtpy. Cannot prepare SD.");
             }
 
             item.getProperties().forEach(sDunit::setValue);

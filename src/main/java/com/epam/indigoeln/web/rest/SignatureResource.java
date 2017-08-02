@@ -35,17 +35,21 @@ import java.util.List;
 @RequestMapping("/api/signature")
 public class SignatureResource {
 
-    @Autowired
-    private SignatureService signatureService;
+    private final SignatureService signatureService;
+    private final ExperimentService experimentService;
+    private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    private ExperimentService experimentService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    public SignatureResource(SignatureService signatureService,
+                             ExperimentService experimentService,
+                             UserService userService,
+                             ObjectMapper objectMapper) {
+        this.signatureService = signatureService;
+        this.experimentService = experimentService;
+        this.userService = userService;
+        this.objectMapper = objectMapper;
+    }
 
     @ApiOperation(value = "Returns reasons.", produces = "application/json")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
@@ -135,7 +139,7 @@ public class SignatureResource {
     @ApiOperation(value = "Returns signature document content.", produces = "application/json")
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<?> downloadDocument(
+    public ResponseEntity<InputStreamResource> downloadDocument(
             @ApiParam("Document id.") String documentId
         ) throws IOException {
 
