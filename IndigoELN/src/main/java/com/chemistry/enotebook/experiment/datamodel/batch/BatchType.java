@@ -13,8 +13,6 @@
  ***************************************************************************/
 package com.chemistry.enotebook.experiment.datamodel.batch;
 
-import com.chemistry.enotebook.domain.CeNConstants;
-
 import java.io.Serializable;
 
 /**
