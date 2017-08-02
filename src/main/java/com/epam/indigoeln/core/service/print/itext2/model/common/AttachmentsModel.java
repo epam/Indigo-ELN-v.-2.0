@@ -1,4 +1,4 @@
-package com.epam.indigoeln.core.service.print.itext2.model;
+package com.epam.indigoeln.core.service.print.itext2.model.common;
 
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 

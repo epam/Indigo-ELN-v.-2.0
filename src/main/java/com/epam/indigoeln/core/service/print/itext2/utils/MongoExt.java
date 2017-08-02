@@ -1,14 +1,13 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
 import com.epam.indigoeln.core.model.Component;
-import com.epam.indigoeln.core.service.print.itext2.sections.AbstractPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.Function;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;

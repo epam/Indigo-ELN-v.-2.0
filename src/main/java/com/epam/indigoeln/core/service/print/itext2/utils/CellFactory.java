@@ -1,6 +1,6 @@
 package com.epam.indigoeln.core.service.print.itext2.utils;
 
-import com.epam.indigoeln.core.service.print.itext2.model.image.PdfImage;
+import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
 import com.lowagie.text.Image;
