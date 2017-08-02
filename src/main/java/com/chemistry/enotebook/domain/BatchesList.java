@@ -4,11 +4,15 @@ import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
 import com.chemistry.enotebook.experiment.datamodel.common.Amount2;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BatchesList<E extends BatchModel> extends CeNAbstractModel implements Comparable<BatchesList<E>>, StoicModelInterface {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BatchesList.class);
 
     private static final long serialVersionUID = -229096776631434914L;
     // These attributes are used for List type ( Models > 1) in Stoich
@@ -35,9 +39,6 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     private boolean isAllBatchModelsMolarAmountIsSame = true;
     private boolean isAllBatchModelsPurityAmountIsSame = true;
     private boolean isAllBatchModelsRxnEquivsIsSame = true;
-
-    public BatchesList() {
-    }
 
     public void addBatch(E batch) {
         boolean found = false;
@@ -72,8 +73,6 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     }
 
     public int compareTo(BatchesList<E> anotherBatchesList) throws ClassCastException {
-//		if (!(anotherBatchesList instanceof BatchesList))
-//			throw new ClassCastException("A BatchesList object expected.");
         int thisPos = 0;
         int otherPos = 0;
         try {
@@ -84,7 +83,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
             thisPos = Character.getNumericValue(cthis);
 
         } catch (Exception e) {
-            // Any exception just ignore and return 0
+            LOGGER.trace("Exception in compareTo: " + e.getMessage());
         }
         // Compares this object with the specified object for order.
         // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the
@@ -322,9 +321,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     public void applyLatestSigDigits(int defaultSigs) {
         List<AmountModel> amts = getCalculatedAmounts();
-        amts.stream().filter(Amount2::isCalculated).forEach(amt -> {
-            amt.setSigDigits(defaultSigs);
-        });
+        amts.stream().filter(Amount2::isCalculated).forEach(amt -> amt.setSigDigits(defaultSigs));
     }
 
     /**
@@ -376,11 +373,9 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     //	empty Impl. ProdBAtchModel will ovveride with correct impl
     public AmountModel getTheoreticalWeightAmount() {
-        if (getBatchType().getOrdinal() == BatchType.ACTUAL_PRODUCT_ORDINAL) {
-            if (getListSize() >= 1) {
-                ProductBatchModel batchModel = (ProductBatchModel) batchModels.get(0);
-                return batchModel.getTheoreticalWeightAmount();
-            }
+        if (getBatchType().getOrdinal() == BatchType.ACTUAL_PRODUCT_ORDINAL && getListSize() >= 1) {
+            ProductBatchModel batchModel = (ProductBatchModel) batchModels.get(0);
+            return batchModel.getTheoreticalWeightAmount();
         }
         return null;
     }
@@ -390,12 +385,9 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
     }
 
     public AmountModel getTheoreticalMoleAmount() {
-        if (getBatchType().getOrdinal() == BatchType.ACTUAL_PRODUCT_ORDINAL) {
-            if (getListSize() >= 1) {
-
-                ProductBatchModel batchModel = (ProductBatchModel) batchModels.get(0);
-                return batchModel.getTheoreticalMoleAmount();
-            }
+        if (getBatchType().getOrdinal() == BatchType.ACTUAL_PRODUCT_ORDINAL && getListSize() >= 1) {
+            ProductBatchModel batchModel = (ProductBatchModel) batchModels.get(0);
+            return batchModel.getTheoreticalMoleAmount();
         }
         return null;
     }
@@ -533,18 +525,27 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         BatchesList<?> that = (BatchesList<?>) o;
 
-        if (isAllBatchModelsMoleAmountIsSame != that.isAllBatchModelsMoleAmountIsSame) return false;
-        if (isAllBatchModelsWeightAmountIsSame != that.isAllBatchModelsWeightAmountIsSame) return false;
-        if (isAllBatchModelsVolumeAmountIsSame != that.isAllBatchModelsVolumeAmountIsSame) return false;
-        if (isAllBatchModelsDensityAmountIsSame != that.isAllBatchModelsDensityAmountIsSame) return false;
-        if (isAllBatchModelsMolarAmountIsSame != that.isAllBatchModelsMolarAmountIsSame) return false;
-        if (isAllBatchModelsPurityAmountIsSame != that.isAllBatchModelsPurityAmountIsSame) return false;
-        if (isAllBatchModelsRxnEquivsIsSame != that.isAllBatchModelsRxnEquivsIsSame) return false;
+        if (isAllBatchModelsMoleAmountIsSame != that.isAllBatchModelsMoleAmountIsSame)
+            return false;
+        if (isAllBatchModelsWeightAmountIsSame != that.isAllBatchModelsWeightAmountIsSame)
+            return false;
+        if (isAllBatchModelsVolumeAmountIsSame != that.isAllBatchModelsVolumeAmountIsSame)
+            return false;
+        if (isAllBatchModelsDensityAmountIsSame != that.isAllBatchModelsDensityAmountIsSame)
+            return false;
+        if (isAllBatchModelsMolarAmountIsSame != that.isAllBatchModelsMolarAmountIsSame)
+            return false;
+        if (isAllBatchModelsPurityAmountIsSame != that.isAllBatchModelsPurityAmountIsSame)
+            return false;
+        if (isAllBatchModelsRxnEquivsIsSame != that.isAllBatchModelsRxnEquivsIsSame)
+            return false;
         if (!listMolecularWeightAmount.equals(that.listMolecularWeightAmount))
             return false;
         if (!listMoleAmount.equals(that.listMoleAmount))
