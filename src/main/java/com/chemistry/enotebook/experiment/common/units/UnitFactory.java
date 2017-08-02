@@ -3,8 +3,6 @@ package com.chemistry.enotebook.experiment.common.units;
 import java.util.Map;
 import java.util.TreeMap;
 
-//import com.chemistry.enotebook.experiment.datamodel.user.NotebookUser;
-
 /**
  * Molar Concentrations
  * <p>
@@ -22,6 +20,10 @@ import java.util.TreeMap;
  */
 class UnitFactory {
     private static final int STD_DISPLAY_FIGS = 3;
+
+    private UnitFactory() {
+        // Hide the default constructor
+    }
 
     public static Unit createUnitOfType(UnitType ut) {
         Unit result = null;

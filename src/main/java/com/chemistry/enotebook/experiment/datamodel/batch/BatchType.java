@@ -60,28 +60,6 @@ public class BatchType implements Serializable {
         this.ordinal = ordinal;
     }
 
-    public static BatchType getBatchType(String typeStr) {
-        if (typeStr != null) {
-            typeStr = typeStr.trim();
-            if (typeStr.length() > 0) {
-                if (typeStr.equalsIgnoreCase("ACTUAL")) {
-                    return ACTUAL_PRODUCT;
-                } else if (typeStr.equalsIgnoreCase("INTENDED")) {
-                    return INTENDED_PRODUCT;
-                } else if (typeStr.equalsIgnoreCase(CeNConstants.BATCH_TYPE_SOLVENT)) {
-                    return SOLVENT;
-                } else if (typeStr.equalsIgnoreCase(CeNConstants.BATCH_TYPE_REAGENT)) {
-                    return REAGENT;
-                } else if (typeStr.equalsIgnoreCase(CeNConstants.BATCH_TYPE_REACTANT)) {
-                    return REACTANT;
-                } else if (typeStr.equalsIgnoreCase("STARTING MATERIAL")) {
-                    return START_MTRL;
-                }
-            }
-        }
-        return null;
-    }
-
     // Using the ordinal ranking we can adjust which reaction type is
     // most to least important to us.
     public int compareTo(Object o) {

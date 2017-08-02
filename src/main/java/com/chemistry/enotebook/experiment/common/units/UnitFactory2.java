@@ -9,6 +9,10 @@ public class UnitFactory2 {
 
     private static final int STD_DISPLAY_FIGS = 3;
 
+    private UnitFactory2() {
+        // Hide the default constructor
+    }
+
     public static Unit2 createUnitOfType(UnitType ut) {
         Unit2 result = null;
         switch (ut.getOrdinal()) {
