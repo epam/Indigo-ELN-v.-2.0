@@ -27,7 +27,7 @@ public class StructureRendererResource {
             @ApiParam("Representation type.") @PathVariable String type,
             @ApiParam("Molecule structure.") @RequestBody String structure
         ) {
-        RendererResult result = calculationService.getStructureWithImage(structure, type);
+        RendererResult result = calculationService.getStructureWithImage(structure);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
