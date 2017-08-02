@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.model.common.AttachmentsModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.DescriptionModel;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformation;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformationRow;
@@ -16,6 +17,7 @@ import com.epam.indigoeln.core.service.print.itext2.model.experiment.Stoichiomet
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AttachmentsSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.DescriptionSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
@@ -188,7 +190,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static List<AbstractPdfSection> experimentDescriptionConverter(Component c, Experiment e) {
         return MongoExt.of(c).map(content -> {
             String description = content.getString("description");
-            return singletonList(new ExperimentDescriptionSection(new ExperimentDescriptionModel(description)));
+            return singletonList(new DescriptionSection(new DescriptionModel(description, "EXPERIMENT")));
         });
     }
 
