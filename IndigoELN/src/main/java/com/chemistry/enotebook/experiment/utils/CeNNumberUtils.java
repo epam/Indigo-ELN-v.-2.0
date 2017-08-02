@@ -8,6 +8,10 @@ public class CeNNumberUtils {
 
     public static final int DEFAULT_SIG_DIGITS = 3;
 
+    private CeNNumberUtils() {
+        // Hide the default constructor
+    }
+
     public static boolean doubleEquals(double x, double y, double delta) {
         boolean result;
         if (Math.abs(x) < Math.abs(y))
@@ -56,11 +60,10 @@ public class CeNNumberUtils {
                 } else if (result.length() > 0 && number == 0) {
                     // handle numbers like 1100
                     result.append(number);
-                } else if (indexOfDecimal >= 0 && i > indexOfDecimal) {
+                } else if (indexOfDecimal >= 0 && i > indexOfDecimal && result.length() > 0 && number == 0) {
                     // handle numbers with values after decimal point
-                    if (result.length() > 0 && number == 0) {
-                        result.append(number);
-                    }
+
+                    result.append(number);
                 }
             }
         }

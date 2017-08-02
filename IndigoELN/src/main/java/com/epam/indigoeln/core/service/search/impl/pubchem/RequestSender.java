@@ -109,7 +109,7 @@ public class RequestSender {
         HashMap<String, Object> properties = new HashMap<>();
 
         Structure structure = new Structure();
-        structure.setImage(calculationService.getStructureWithImage(sdUnit.getMol(),"molecule").getImage());
+        structure.setImage(calculationService.getStructureWithImage(sdUnit.getMol()).getImage());
         structure.setMolfile(sdUnit.getMol());
 
         properties.put("structure",structure);
