@@ -13,27 +13,6 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
     private double stdConversionFactor = -1;
     private int stdDisplayFigs = 3;
 
-    private Unit2(String code) {
-        super();
-
-        if (code == null) {
-            code = UnitFactory2.createUnitOfType(type).getCode();
-            setCode(code);
-        } else if (!code.equals("--") && !code.equals("null")) {
-            UnitCache2 uc = UnitCache2.getInstance();
-            Unit2 unit = uc.getUnit(code);
-            this.code = unit.getCode();
-            this.description = unit.getDescription();
-            this.type = unit.getType();
-            this.displayValue = unit.getDisplayValue();
-            this.stdCode = unit.getStdCode();
-            this.stdConversionFactor = unit.getStdConversionFactor();
-            this.stdDisplayFigs = unit.getStdDisplayFigs();
-        }
-        this.ordinal = nextOrdinal++;
-
-    }
-
     Unit2(String code, UnitType type, String displayValue, String description, String stdCode, double stdConversionFactor,
           int stdDisplayFigs) {
         super();
@@ -53,6 +32,7 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
      *
      * @param code The code to set - entire unit is rebuilt from UnitCache.getUnit(code)
      */
+    @Override
     public void setCode(String code) {
         deepCopy(UnitCache2.getInstance().getUnit(code));
     }
@@ -92,6 +72,7 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
         return stdDisplayFigs;
     }
 
+    @Override
     public int compareTo(Unit2 o) {
         int comp = this.type.compareTo(o.getType());
         if (comp == 0) {
@@ -100,14 +81,17 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
         return comp;
     }
 
+    @Override
     public String toString() {
         return this.displayValue;
     }
 
+    @Override
     public int hashCode() {
         return (HASH_PRIME + ordinal * HASH_PRIME) + this.type.hashCode();
     }
 
+    @Override
     public boolean equals(Object obj) {
         boolean result = false;
         if (obj instanceof Unit2) {
@@ -117,6 +101,7 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
         return result;
     }
 
+    @Override
     public void deepCopy(Object source) {
         if (source instanceof Unit2) {
             Unit2 src = (Unit2) source;
@@ -129,6 +114,7 @@ public class Unit2 extends GenericCode2 implements Comparable<Unit2> {
         }
     }
 
+    @Override
     public Unit2 deepClone() {
         return new Unit2(getCode(), this.getType(), this.getDisplayValue(), this.getDescription(),
                 this.getStdCode(), this.getStdConversionFactor(), this.getStdDisplayFigs());

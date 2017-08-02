@@ -30,7 +30,7 @@ public interface StoicModelInterface {
 
     //For MolecularWeight
     AmountModel getStoicMolecularWeightAmount();
-//	public void setStoicMolecularWeightAmount(AmountModel molWeight);
+
 
     //For Weight
     AmountModel getStoicWeightAmount();

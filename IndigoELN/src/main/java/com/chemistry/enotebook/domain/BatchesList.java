@@ -83,7 +83,7 @@ public class BatchesList<E extends BatchModel> extends CeNAbstractModel implemen
             thisPos = Character.getNumericValue(cthis);
 
         } catch (Exception e) {
-            LOGGER.trace("Exception in compareTo: " + e.getMessage());
+            LOGGER.trace("Exception in compareTo: " + e.getMessage(), e);
         }
         // Compares this object with the specified object for order.
         // Returns a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the

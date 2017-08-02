@@ -16,10 +16,10 @@ public class BatchTypeFactory {
                 || batchType.equalsIgnoreCase(BatchType.START_MTRL.toString())) {
             result = BatchType.REACTANT;
         }
-        if ((batchType.equalsIgnoreCase(BatchType.INTENDED_PRODUCT.toString())) || (batchType.equalsIgnoreCase("INTENDED"))) {
+        if ((batchType.equalsIgnoreCase(BatchType.INTENDED_PRODUCT.toString())) || ("INTENDED".equalsIgnoreCase(batchType))) {
             result = BatchType.INTENDED_PRODUCT;
         }
-        if ((batchType.equalsIgnoreCase(BatchType.ACTUAL_PRODUCT.toString())) || (batchType.equalsIgnoreCase("ACTUAL"))) {
+        if ((batchType.equalsIgnoreCase(BatchType.ACTUAL_PRODUCT.toString())) || ("ACTUAL".equalsIgnoreCase(batchType))) {
             result = BatchType.ACTUAL_PRODUCT;
         }
         return result;

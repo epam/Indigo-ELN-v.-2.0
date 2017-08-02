@@ -6,15 +6,9 @@ class GenericCodeModel extends CeNAbstractModel {
     private static final long serialVersionUID = -3999094756405895275L;
 
     String genericCode = "";
-    private String genericDescription = "";
-
-    private GenericCodeModel(String code, String desc) {
-        this.genericCode = code;
-        this.genericDescription = desc;
-    }
 
     GenericCodeModel(String code) {
-        this(code, "");
+        this.genericCode = code;
     }
 
     public String getCode() {
@@ -29,10 +23,7 @@ class GenericCodeModel extends CeNAbstractModel {
     }
 
     public void setDescription(String description) {
-        if (description == null)
-            this.genericDescription = "";
-        else
-            this.genericDescription = description;
+        // do nothing
     }
 
 }

@@ -9,7 +9,6 @@ public class UnitCache2 {
     private TreeMap<UnitType, Map<String, Unit2>> unitsByType = null;
     private TreeMap<String, Unit2> units = null; // Cached by code
     private TreeMap<String, Unit2> unitsByDisplayName = null;
-    private boolean debug = false;
 
     // Constructor
     private UnitCache2() {
@@ -34,16 +33,21 @@ public class UnitCache2 {
 
     public Unit2 getUnit(String unitCode) {
         Unit2 result = null;
-        if (unitCode.equals("G"))
-            unitCode = "GM";
-        if (unitCode.equals("SCLR"))
-            unitCode = "SCAL";
-        if (units.containsKey(unitCode))
-            result = units.get(unitCode);
-        if (units.containsKey(unitCode.toUpperCase()))
-            result = units.get(unitCode.toUpperCase());
-        if (unitsByDisplayName.containsKey(unitCode))
-            result = unitsByDisplayName.get(unitCode);
+
+        String uc = unitCode;
+
+        if ("G".equals(unitCode))
+            uc = "GM";
+        if ("SCLR".equals(unitCode))
+            uc = "SCAL";
+
+        if (units.containsKey(uc))
+            result = units.get(uc);
+        if (units.containsKey(uc.toUpperCase()))
+            result = units.get(uc.toUpperCase());
+        if (unitsByDisplayName.containsKey(uc))
+            result = unitsByDisplayName.get(uc);
+
         return result;
     }
 

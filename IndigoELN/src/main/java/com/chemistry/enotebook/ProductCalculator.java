@@ -8,6 +8,7 @@ import com.chemistry.enotebook.experiment.common.units.Unit2;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import static com.chemistry.enotebook.experiment.common.units.UnitType.*;
 
@@ -54,42 +55,55 @@ public class ProductCalculator {
     private static void syncUnitsAndSigDigits(ArrayList objectList, AmountModel amount, int property) {
         Unit2 unit = amount.getUnit();
         int sigDigits = amount.getSigDigits();
+
+        Consumer<Object> weightAmount = (object) -> {
+            if (object instanceof ProductBatchModel) {
+                ProductBatchModel productBatchModel = (ProductBatchModel) object;
+                productBatchModel.getTotalWeight().setUnit(unit);
+                productBatchModel.getTotalWeight().setSigDigits(sigDigits);
+                productBatchModel.getTheoreticalWeightAmount().setUnit(unit);
+                productBatchModel.getTheoreticalWeightAmount().setSigDigits(sigDigits);
+            } else if (object instanceof MonomerBatchModel) {
+                MonomerBatchModel monomerBatchModel = (MonomerBatchModel) object;
+                monomerBatchModel.getStoicWeightAmount().setUnit(unit);
+                monomerBatchModel.getStoicWeightAmount().setSigDigits(sigDigits);
+            }
+        };
+
+        Consumer<Object> volumeAmount = (object) -> {
+            if (object instanceof ProductBatchModel) {
+                ProductBatchModel productBatchModel = (ProductBatchModel) object;
+                productBatchModel.getTotalVolume().setUnit(unit);
+                productBatchModel.getTotalVolume().setSigDigits(sigDigits);
+            }
+        };
+
+        Consumer<Object> molesAmount = (object) -> {
+            if (object instanceof MonomerBatchModel) {
+                MonomerBatchModel monomerBatchModel = (MonomerBatchModel) object;
+                monomerBatchModel.getStoicMoleAmount().setUnit(unit);
+                monomerBatchModel.getStoicMoleAmount().setSigDigits(sigDigits);
+            }
+        };
+
         for (Object object : objectList) {
             if (object == null)
                 continue;
+
             switch (property) {
                 case WEIGHT_AMOUNT:
-                    if (object instanceof ProductBatchModel) {
-                        ProductBatchModel productBatchModel = (ProductBatchModel) object;
-                        productBatchModel.getTotalWeight().setUnit(unit);
-                        productBatchModel.getTotalWeight().setSigDigits(sigDigits);
-                        productBatchModel.getTheoreticalWeightAmount().setUnit(unit);
-                        productBatchModel.getTheoreticalWeightAmount().setSigDigits(sigDigits);
-                    } else if (object instanceof MonomerBatchModel) {
-                        MonomerBatchModel monomerBatchModel = (MonomerBatchModel) object;
-                        monomerBatchModel.getStoicWeightAmount().setUnit(unit);
-                        monomerBatchModel.getStoicWeightAmount().setSigDigits(sigDigits);
-                    }
+                    weightAmount.accept(object);
                     break;
 
                 case VOLUME_AMOUNT:
-                    if (object instanceof ProductBatchModel) {
-                        ProductBatchModel productBatchModel = (ProductBatchModel) object;
-                        productBatchModel.getTotalVolume().setUnit(unit);
-                        productBatchModel.getTotalVolume().setSigDigits(sigDigits);
-                    }
+                    volumeAmount.accept(object);
                     break;
 
                 case MOLES_AMOUNT:
-                    if (object instanceof ProductBatchModel) {
-                        //ProductBatchModel productBatchModel = (ProductBatchModel)object;
-                        //productBatchModel.getTotalVolume().setUnit(unit);
-                        //productBatchModel.getVolumeAmount().setUnit(unit);
-                    } else if (object instanceof MonomerBatchModel) {
-                        MonomerBatchModel monomerBatchModel = (MonomerBatchModel) object;
-                        monomerBatchModel.getStoicMoleAmount().setUnit(unit);
-                        monomerBatchModel.getStoicMoleAmount().setSigDigits(sigDigits);
-                    }
+                    molesAmount.accept(object);
+                    break;
+
+                default:
                     break;
             }
         }
@@ -112,6 +126,7 @@ public class ProductCalculator {
                 break;
             default:
                 batch.recalcAmounts();
+                break;
         }
 
     }

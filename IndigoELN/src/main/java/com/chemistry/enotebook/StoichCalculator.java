@@ -4,14 +4,16 @@ import com.chemistry.enotebook.domain.*;
 import com.chemistry.enotebook.experiment.businessmodel.stoichiometry.ComparatorStoicAdditionOrder;
 import com.chemistry.enotebook.experiment.common.units.UnitType;
 import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
-import com.chemistry.enotebook.experiment.utils.BatchUtils;
 import com.chemistry.enotebook.experiment.utils.CeNNumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleNumEq;
 
@@ -113,7 +115,10 @@ public class StoichCalculator {
      */
     private boolean isReactionEquivMeaningless(StoicModelInterface rb) {
         // if only Volume is set for it then don't display eq value
-        return !rb.getStoicVolumeAmount().isCalculated() && rb.getStoicMoleAmount().isCalculated() &&
+
+        Supplier<Boolean> cond = () -> !rb.getStoicVolumeAmount().isCalculated() && rb.getStoicMoleAmount().isCalculated();
+
+        return  cond.get() &&
                 rb.getStoicRxnEquivsAmount().isCalculated() && rb.getStoicDensityAmount().isCalculated() &&
                 rb.getStoicMolarAmount().isCalculated();
     }
@@ -282,29 +287,22 @@ public class StoichCalculator {
 // if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
 // if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
             getReagentBatches().stream().filter(b -> !b.equals(limitingAB) && b.isAutoCalcOn()).forEach(b -> {
-                // So in effect you are saying that if the volume of the limiting reagent is zero you don't
-                // want to permit any reagent from being updated by values in the limiting reagent.
-                // That is an incorrect assumption as limiting reagent can be dry or neat.
-                // I believe this check-in will break our calculations when volume of limiting reagent is zero.
-                // Try again.
+                Supplier<Boolean> cond = () -> b.getStoicMoleAmount().doubleValue() > 0.0 ||
+                        CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0) &&
+                                b.getStoicVolumeAmount().doubleValue() > 0.0;
+
                 if (CeNNumberUtils.doubleEquals(limitingAB.getStoicVolumeAmount().doubleValue(), 0.0) && CeNNumberUtils.doubleEquals(limitingAB.getStoicWeightAmount().doubleValue(), 0.0)) {
-                    //nothing
                     if (b.isStoicLimiting()) {
                         AmountModel am = b.getStoicMoleAmount();
                         AmountModel tmpAmt = new AmountModel(am.getUnitType());
                         tmpAmt.deepCopy(am);
                         limitingAB.setStoicMoleAmount(tmpAmt);
                     }
-                } else if (b.getStoicRxnEquivsAmount().getValueInStdUnitsAsDouble() > 0.0 &&
-                        (b.getStoicMoleAmount().doubleValue() > 0.0 ||
-                                CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0) &&
-                                        b.getStoicVolumeAmount().doubleValue() > 0.0) || limitingAB.isStoicLimiting()) {
-                    // Need to not calculate Amounts for SOLVENTS
+                } else if (b.getStoicRxnEquivsAmount().getValueInStdUnitsAsDouble() > 0.0 && cond.get() || limitingAB.isStoicLimiting()) {
                     if (!b.getStoicReactionRole().equals(BatchType.SOLVENT.toString())) {
                         // if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
                         if (limitingAB.isStoicLimiting()) {
                             recalculateAmountsForBatch(limitingAB, b, false);
-
                             // if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
                         } else if (b.isStoicLimiting()) {
                             recalculateAmountsForBatch(b, limitingAB, false);
@@ -618,150 +616,6 @@ public class StoichCalculator {
         }
     }
 
-    /**
-     * This method adds a ProductBatchModel to products list if there are monomer batches and no INTENDED products in a ReactionStepModel
-     * This is applicable for non-Parallel exps only
-     */
-    private void addProductIfNeeded() {
-        if (getProductBatches().isEmpty() &&
-                !getReactantBatches().isEmpty()) {
-            createIntendedProduct(getProductBatches().size());  // Ignoring return value.
-        }
-    }
-
-    private ProductBatchModel createIntendedProduct(int additionOrder) {
-        ProductBatchModel result = null;
-        try {
-            result = new ProductBatchModel();
-            result.setBatchType(BatchType.INTENDED_PRODUCT);
-            resetRxnEquivs(result);
-            result.setIntendedBatchAdditionOrder(additionOrder);
-        } catch (Exception e) {
-            // should never throw this as we are in control of the batch type.
-            // development only error.
-            LOGGER.error("Failed to create Intended Product.\n" + e.toString(), e);
-        }
-        return result;
-    }
-
-    /**
-     * @return List of strings representing the precursors of each reactant and
-     * each reactant in that structurally contribute to the final product.
-     */
-    private ArrayList<String> getPreCursorsForReaction() {
-        ArrayList<String> tmpList = new ArrayList<>();
-        List<String> smPrecursors;
-        // Process all the Reagents to ensure the order is correct
-        for (StoicModelInterface stoicModelInterface : getReactantBatches()) {
-            // Does this reactant have precursors?  If so put them into
-            // the precursor list instead of the reactant.
-            MonomerBatchModel rb = (MonomerBatchModel) stoicModelInterface;
-            smPrecursors = rb.getPrecursors();
-            if (smPrecursors != null && !smPrecursors.isEmpty()) {
-                smPrecursors.stream().filter(testStr -> tmpList.indexOf(testStr) < 0).forEach(tmpList::add);
-            }
-            // clean up.
-            assert smPrecursors != null;
-            smPrecursors.clear();
-        }
-
-        return tmpList;
-    }
-
-    /**
-     * This method updates the precursor info for all Products.
-     * This is only required for MedChem/Conception. Parallel experiment precurosrs are computed in different way.
-     *
-     * @throws IllegalArgumentException if it encounters anything but ProductBatchModel when calling
-     *                                  getIntendedProductBatches()
-     */
-    private void updateIntendedProductPrecursors() {
-        ArrayList<String> precursors = getPreCursorsForReaction();
-        for (StoicModelInterface stoichItem : getIntendedProductBatches()) {
-            if (stoichItem instanceof ProductBatchModel) {
-                ((ProductBatchModel) stoichItem).setPrecursors(precursors);
-            } else if (stoichItem instanceof BatchesList<?>) {
-                throw new IllegalArgumentException("Parallel Experiments cannot use updateIntendedProductPrecursors.");
-            } else {
-                throw new IllegalArgumentException("Non-ProductBatchModel found when calling getIntendedProductBatches().");
-            }
-        }
-
-    }
-
-    /*
-     * This method triggers calc of Moles based on user entered nEquivs and also calc of nEquiv based on user entered Moles and
-     * other calcs like yield and theoretical Wt for a particular product batch.(in Products Table ) nMoles = nEquiv *
-     * limitingReagentMoles
-     */
-    public void recalculateProductMolesandEquivs(StoicModelInterface prodBatch) {
-        StoicModelInterface limitingReag = findLimitingReagent();
-
-        if (limitingReag != null) {
-            addProductIfNeeded(); // used to keep a place marker for stoich products if there isn't one
-            // allows calcs to be setup such that the user can see the effect of
-            // their changes.
-
-            updateIntendedProductPrecursors();
-
-            // if intd prod nMoles is set zero then set its value back to limiting
-            // reagent nMoles and equivs as 1.0
-            if (doubleEqZero(prodBatch.getStoicWeightAmount().getValueInStdUnitsAsDouble())) {
-                // set nMoles
-                AmountModel amtTemp = (AmountModel) limitingReag.getStoicMoleAmount().deepClone();
-                amtTemp.setCalculated(true);
-                // Causes batch to recalculate amounts based on Mole change.
-                prodBatch.setStoicMoleAmount(amtTemp);
-
-                if (limitingReag.shouldApplySigFigRules())
-                    prodBatch.applyLatestSigDigits(amtTemp.getSigDigits());
-                else
-                    prodBatch.applyLatestSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-
-                // set nEquivs
-                AmountModel amtTemp2 = (AmountModel) limitingReag.getStoicRxnEquivsAmount().deepClone();
-                amtTemp2.setCalculated(true);
-                prodBatch.setStoicRxnEquivsAmount(amtTemp2);
-
-                prodBatch.recalcAmounts();
-
-            } else if (prodBatch.isAutoCalcOn()) {
-                AmountModel amtTemp = (AmountModel) limitingReag.getStoicMoleAmount().deepClone();
-
-                // if nEquiv set by the user.recalc moleAmount based on nEquiv and limiting reagent nMoles.
-                if (prodBatch.getStoicMoleAmount().isCalculated() && !prodBatch.getStoicRxnEquivsAmount().isCalculated()) {
-                    // calc new mole amount
-                    double newValue = BatchUtils.calcMolesWithEquivalents(amtTemp, prodBatch.getStoicRxnEquivsAmount());
-                    amtTemp.setValue(newValue);
-                    amtTemp.setCalculated(true);
-
-                    // Causes batch to recalculate amounts based on Mole change.
-                    prodBatch.setStoicMoleAmount(amtTemp);
-                    if (limitingReag.shouldApplySigFigRules())
-                        prodBatch.applyLatestSigDigits(amtTemp.getSigDigits());
-                    else
-                        prodBatch.applyLatestSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                }
-                // if moleAmount set by the user.
-                // recalc nEquiv based on moleAmount and limiting reagent nMoles.
-                else if (!prodBatch.getStoicMoleAmount().isCalculated() && prodBatch.getStoicRxnEquivsAmount().isCalculated()) {
-                    // calc new Equiv amount
-                    double newValue = BatchUtils.calcEquivalentsWithMoles(prodBatch.getStoicMoleAmount(), amtTemp);
-                    amtTemp.setValue(newValue);
-                    amtTemp.setCalculated(true);
-
-                    // Causes batch to recalculate amounts based on Equivs change.
-                    prodBatch.setStoicRxnEquivsAmount(amtTemp);
-                    if (limitingReag.shouldApplySigFigRules())
-                        prodBatch.applyLatestSigDigits(amtTemp.getSigDigits());
-                    else
-                        prodBatch.applyLatestSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                }
-
-                prodBatch.recalcAmounts(); // Updates the theo weight and yield
-            }
-        }
-    }
 
     // Method to calc rxnEquivs for Reactants batches
     private void recalculateRxnEquivsBasedOnLimitingReagentMoles(StoicModelInterface limitingAB) {
