@@ -63,7 +63,7 @@ public class RegistrationJob implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o) { //NOSONAR Equals should do equality
         if (this == o) {
             return true;
         }

@@ -36,7 +36,7 @@ public final class AggregationUtils {
         return createCriterion(searchCriterion.getField(), searchCriterion.getValue(), searchCriterion.getCondition(), prefix);
     }
 
-    public static Criteria createCriterion(String field, Object value, String condition, String prefix) {
+    public static Criteria createCriterion(String field, Object value, String condition, String prefix) { //NOSONAR This method should check all the operators
         final Criteria criteria = Criteria.where(prefix + field);
         switch (condition) {
             case "contains":
