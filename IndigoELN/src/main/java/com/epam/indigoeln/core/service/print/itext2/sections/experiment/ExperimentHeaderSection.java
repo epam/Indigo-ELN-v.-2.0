@@ -19,9 +19,9 @@ public class ExperimentHeaderSection
         PdfPTable table = TableFactory.createDefaultTable(4, width);
 
         PdfPTableHelper helper = new PdfPTableHelper(table);
-        helper.addKeyValueCells("Author", model.getAuthor())
+        helper.addKeyValueCells("Project Name", model.getProjectName())
                 .addKeyValueCells("Notebook Experiment", model.getNotebookExperiment())
-                .addKeyValueCells("Project", model.getProjectName())
+                .addKeyValueCells("Author", model.getAuthor())
                 .addKeyValueCells("Status", model.getStatus())
                 .addKeyValueCells("Printed Page", model.getCurrentPage() + " of " + model.getTotalPages())
                 .addKeyValueCells("Printed Date", FormatUtils.formatSafe(model.getPrintDate()))
