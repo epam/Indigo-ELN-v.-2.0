@@ -40,8 +40,8 @@ public class ITextPrintService {
         this.fileRepository = fileRepository;
     }
 
-    public void generateNotebookPdf(String projectId, String notebookId, String experimentId,
-                                    OutputStream outputStream) {
+    public void generateExperimentPdf(String projectId, String notebookId, String experimentId,
+                                      OutputStream outputStream) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         String experimentFullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
 
@@ -67,7 +67,7 @@ public class ITextPrintService {
     public void generateProjectPdf(String projectId, OutputStream outputStream) {
         Project project = findChecked(projectRepository, projectId, PROJECT);
 
-        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project);
+        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project, fileRepository);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
         pdfGenerator.generate(outputStream);
     }
