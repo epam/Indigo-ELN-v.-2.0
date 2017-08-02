@@ -12,6 +12,8 @@ import com.lowagie.text.pdf.PdfPTable;
 import one.util.streamex.DoubleStreamEx;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
+
 public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<PreferredCompoundsModel> {
     private static final String[] HEADERS = new String[]{
             "Structure", "Notebook Batch #", "Mol Weight", "Mol Formula", "Structure Comments"
@@ -32,10 +34,10 @@ public class PreferedCompoundsSection extends BasePdfSectionWithSimpleTitle<Pref
         float structurePart = (float) (COLUMN_WIDTH[0] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
         float structureWidth = structurePart * width;
 
-        for (PreferredCompoundsModel.PreferredCompoundsRow row : model.getRows()) {
+        for (PreferredCompoundsRow row : model.getRows()) {
             PdfPTable structureTable = TableFactory.createDefaultTable(1, structureWidth);
 
-            PreferredCompoundsModel.Structure structure = row.getStructure();
+            Structure structure = row.getStructure();
 
             if (structure.getImage().getPngBytes(structureWidth).isPresent()) {
                 PdfPCell imageCell = CellFactory.getImageCell(structure.getImage(), structureWidth);
