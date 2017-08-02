@@ -16,9 +16,7 @@ public class ExperimentTreeNodeDTO extends TreeNodeDTO {
     public ExperimentTreeNodeDTO(Experiment experiment) {
         super(experiment);
         this.status = experiment.getStatus().toString();
-        if (experiment.getExperimentVersion() > 1 || !experiment.isLastVersion()) {
-            setName(getName() + " v" + experiment.getExperimentVersion());
-        }
+        setName(experiment.getFullName());
     }
 
     public String getStatus() {

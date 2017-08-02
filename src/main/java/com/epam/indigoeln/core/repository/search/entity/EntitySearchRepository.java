@@ -112,11 +112,7 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO convert(String notebookName, ExperimentDTO experiment) {
         EntitySearchResultDTO result = new EntitySearchResultDTO();
         result.setKind(KIND_EXPERIMENT);
-        if (experiment.getExperimentVersion() > 1 || !experiment.isLastVersion()) {
-            result.setName(notebookName + "-" + experiment.getName() + " v" + experiment.getExperimentVersion());
-        } else {
-            result.setName(notebookName + "-" + experiment.getName());
-        }
+        result.setName(notebookName + "-" + experiment.getFullName());
         result.setDetails(getDetails(experiment));
         result.setProjectId(SequenceIdUtil.extractFirstId(experiment));
         result.setNotebookId(experiment.getParentId());
