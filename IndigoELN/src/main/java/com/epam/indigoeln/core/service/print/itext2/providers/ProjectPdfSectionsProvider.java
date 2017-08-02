@@ -4,9 +4,11 @@ import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.model.common.AttachmentsModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.DescriptionModel;
 import com.epam.indigoeln.core.service.print.itext2.model.project.ProjectHeaderModel;
 import com.epam.indigoeln.core.service.print.itext2.model.project.ProjectSummaryModel;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
+import com.epam.indigoeln.core.service.print.itext2.sections.common.DescriptionSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.HeaderPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AttachmentsSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectHeaderSection;
@@ -37,12 +39,22 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
 
     @Override
     public List<AbstractPdfSection> getContentSections() {
-        return Arrays.asList(new ProjectSummarySection(new ProjectSummaryModel(
-                        project.getKeywords(),
-                        project.getReferences(),
-                        project.getDescription()
-                )),
-                getAttachmentsSection());
+        return Arrays.asList(
+                getSummarySection(),
+                getDescriptionSection(),
+                getAttachmentsSection()
+        );
+    }
+
+    private AbstractPdfSection getSummarySection(){
+        return new ProjectSummarySection(new ProjectSummaryModel(
+                project.getKeywords(),
+                project.getReferences()
+        ));
+    }
+
+    private AbstractPdfSection getDescriptionSection(){
+        return new DescriptionSection(new DescriptionModel(project.getDescription(), "PROJECT"));
     }
 
     @Override
