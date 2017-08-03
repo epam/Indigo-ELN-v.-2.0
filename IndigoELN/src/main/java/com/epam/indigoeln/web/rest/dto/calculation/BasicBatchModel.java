@@ -130,7 +130,7 @@ public class BasicBatchModel {
         this.eq = eq;
     }
 
-    public double getYield() {
+    public long getYield() {
         return yield;
     }
 
