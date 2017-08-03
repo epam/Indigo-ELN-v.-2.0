@@ -2,9 +2,10 @@ package com.epam.indigoeln.core.service.print.itext2.model.notebook;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
 import com.epam.indigoeln.core.service.print.itext2.model.common.image.PdfImage;
-
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class NotebookContentModel implements SectionModel {
 
@@ -29,7 +30,7 @@ public class NotebookContentModel implements SectionModel {
             this.reactionScheme = reactionScheme;
         }
 
-        public String getNotebokExperiment() {
+        public String getNotebookExperiment() {
             return notebookExperiment;
         }
 
@@ -43,19 +44,19 @@ public class NotebookContentModel implements SectionModel {
     }
 
     public static class Details {
-        private ZonedDateTime creationDate;
+        private Date creationDate;
         private String title;
         private String author;
         private String status;
 
         public Details(ZonedDateTime creationDate, String title, String author, String status) {
-            this.creationDate = creationDate;
+            this.creationDate = Optional.ofNullable(creationDate).map(d -> Date.from(d.toInstant())).orElse(null);
             this.title = title;
             this.author = author;
             this.status = status;
         }
 
-        public ZonedDateTime getCreationDate() {
+        public Date getCreationDate() {
             return creationDate;
         }
 
