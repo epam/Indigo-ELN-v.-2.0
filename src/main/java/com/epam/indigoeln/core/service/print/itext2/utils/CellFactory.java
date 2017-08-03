@@ -83,7 +83,6 @@ public class CellFactory {
     public static PdfPCell getCommonCell(PdfPTable innerTable, float verticalPadding, float horizontalPadding) {
         PdfPCell pdfPCell = new PdfPCell(innerTable);
         withCommonBorder(pdfPCell);
-        //TODO horizontal padding doesn't work
         pdfPCell.setPaddingLeft(CELL_HORIZONTAL_PADDING - horizontalPadding);
         pdfPCell.setPaddingRight(CELL_HORIZONTAL_PADDING - horizontalPadding);
         pdfPCell.setPaddingTop(CELL_VERTICAL_PADDING - verticalPadding);
