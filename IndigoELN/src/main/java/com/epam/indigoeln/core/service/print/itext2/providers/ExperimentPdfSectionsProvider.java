@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
+import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.*;
 import static java.util.Collections.singletonList;
 
 /**
@@ -47,15 +48,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
     private static final String TITLE = "title";
-
-    private static final String REACTION_DETAILS = "reactionDetails";
-    private static final String CONCEPT_DETAILS = "conceptDetails";
-    private static final String REACTION = "reaction";
-    private static final String PREFERRED_COMPOUND_SUMMARY = "preferredCompoundSummary";
-    private static final String STOICH_TABLE = "stoichTable";
-    private static final String EXPERIMENT_DESCRIPTION = "experimentDescription";
-    private static final String PRODUCT_BATCH_SUMMARY = "productBatchSummary";
-    private static final String PRODUCT_BATCH_DETAILS = "productBatchDetails";
 
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository) {
         this.project = project;
