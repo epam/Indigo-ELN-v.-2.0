@@ -18,6 +18,8 @@ public class NotebookContentSection extends BasePdfSectionWithSimpleTitle<Notebo
             "Notebook - Experiment", "Experiment Details", "Reaction Scheme"
     };
     private static final float[] COLUMNS_WIDTH = new float[]{2, 3, 5};
+    private static final float CELL_VERTICAL_PADDING = 4;
+    private static final float CELL_HORIZONTAL_PADDING = 2;
 
     public NotebookContentSection(NotebookContentModel model) {
         super(model, "NOTEBOOK CONTENT");
@@ -28,9 +30,6 @@ public class NotebookContentSection extends BasePdfSectionWithSimpleTitle<Notebo
 
         PdfPTable table = TableFactory.createDefaultTable(HEADERS, COLUMNS_WIDTH, width);
 
-        float detailsPart = (float) (COLUMNS_WIDTH[1] / DoubleStreamEx.of(COLUMNS_WIDTH).sum());
-        float detailsWidth = detailsPart * width;
-
         float schemePart = (float) (COLUMNS_WIDTH[2] / DoubleStreamEx.of(COLUMNS_WIDTH).sum());
         float schemeWidth = schemePart * width;
 
@@ -38,29 +37,30 @@ public class NotebookContentSection extends BasePdfSectionWithSimpleTitle<Notebo
 
             Details details = row.getDetails();
 
-            PdfPTable detailsTable = TableFactory.createDefaultTable(2, detailsWidth);
-
+            PdfPTable detailsTable = new PdfPTable(2);
 
             PdfPCell dateLabel = getDetailsCell("Creation date:");
             PdfPCell date = getDetailsCell(FormatUtils.format(details.getCreationDate()));
-            PdfPCell titleLabel = getDetailsCell("Subject/Title:");
-            PdfPCell title = getDetailsCell(details.getTitle());
             PdfPCell authorLabel = getDetailsCell("Author:");
             PdfPCell author = getDetailsCell(details.getAuthor());
             PdfPCell statusLabel = getDetailsCell("Experiment Status:");
             PdfPCell status = getDetailsCell(details.getStatus());
+            PdfPCell titleLabel = getDetailsCell("Subject/Title:");
+            titleLabel.setColspan(2);
+            PdfPCell title = getDetailsCell(details.getTitle());
+            title.setColspan(2);
 
             detailsTable.addCell(dateLabel);
             detailsTable.addCell(date);
-            detailsTable.addCell(titleLabel);
-            detailsTable.addCell(title);
             detailsTable.addCell(authorLabel);
             detailsTable.addCell(author);
             detailsTable.addCell(statusLabel);
             detailsTable.addCell(status);
+            detailsTable.addCell(titleLabel);
+            detailsTable.addCell(title);
 
             table.addCell(CellFactory.getCommonCell(row.getNotebookExperiment()));
-            table.addCell(CellFactory.getCommonCell(detailsTable));
+            table.addCell(CellFactory.getCommonCell(detailsTable, CELL_VERTICAL_PADDING, CELL_HORIZONTAL_PADDING));
             table.addCell(CellFactory.getImageCell(row.getReactionScheme(), schemeWidth));
         }
         return table;
@@ -69,6 +69,10 @@ public class NotebookContentSection extends BasePdfSectionWithSimpleTitle<Notebo
     private static PdfPCell getDetailsCell(String content) {
         PdfPCell commonCell = CellFactory.getCommonCell(content);
         commonCell.setBorder(Rectangle.NO_BORDER);
+        commonCell.setPaddingTop(CELL_VERTICAL_PADDING);
+        commonCell.setPaddingBottom(CELL_VERTICAL_PADDING);
+        commonCell.setPaddingLeft(CELL_HORIZONTAL_PADDING);
+        commonCell.setPaddingRight(CELL_HORIZONTAL_PADDING);
         return commonCell;
     }
 }
