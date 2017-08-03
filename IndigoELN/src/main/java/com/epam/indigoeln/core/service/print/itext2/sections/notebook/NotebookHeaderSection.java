@@ -9,13 +9,15 @@ import com.lowagie.text.pdf.PdfPTable;
 
 public class NotebookHeaderSection extends BaseHeaderSectionWithLogo<NotebookHeaderModel> {
 
+    private static final float[] COLUMN_WIDTH = new float[]{1, 1, 1, 1.15f};
+
     public NotebookHeaderSection(NotebookHeaderModel model) {
         super(model);
     }
 
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(4, width);
+        PdfPTable table = TableFactory.createDefaultTable(COLUMN_WIDTH, width);
 
         PdfPTableHelper helper = new PdfPTableHelper(table);
         helper.addKeyValueCells("Project Name", model.getProjectName())
