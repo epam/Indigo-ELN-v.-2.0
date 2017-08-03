@@ -47,8 +47,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
-    private static final String TITLE = "title";
-
     public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository) {
         this.project = project;
         this.notebook = notebook;
@@ -301,10 +299,14 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         List<Component> components = experiment.getComponents();
         Optional<String> title1 = StreamEx.of(components)
                 .findFirst(c -> c.getName().equals(REACTION_DETAILS))
-                .map(Component::getContent).map(c -> c.getString(TITLE));
+                .map(Component::getContent)
+                .map(MongoExt::of)
+                .map(c -> c.getString("title"));
         Optional<String> title2 = StreamEx.of(components)
                 .findFirst(c -> c.getName().equals(CONCEPT_DETAILS))
-                .map(Component::getContent).map(c -> c.getString(TITLE));
+                .map(Component::getContent)
+                .map(MongoExt::of)
+                .map(c -> c.getString("title"));
 
         return new ExperimentHeaderSection(new ExperimentHeaderModel(
                 LogoUtils.loadDefaultLogo(),
