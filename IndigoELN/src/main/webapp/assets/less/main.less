@@ -1039,15 +1039,16 @@ ul.my-dropdown-list {
         overflow: hidden;
         border: 1px solid #ccc;
         left: 64px;
-        top: 44px;
+        top: 48px;
         background: #fff;
         z-index: 1;
         transition: visibility 0s ease-out, opacity 0.3s ease-out;
         transition-delay: 0s;
         opacity: 0;
     }
-    .search-table-wrap:last-of-type .search-table-popup {
-      top:-80px;
+    .search-table-wrap:last-child .search-table-popup,
+    .search-table-wrap:nth-last-child(2) .search-table-popup {
+      top:-84px;
     }
   .t-item {
     &:first-child,
