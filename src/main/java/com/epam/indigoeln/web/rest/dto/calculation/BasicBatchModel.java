@@ -23,7 +23,7 @@ public class BasicBatchModel {
     private ScalarValueDTO molWeight; // molecularWeightAmount
     private ScalarValueDTO stoicPurity;
     private ScalarValueDTO eq; // rxnEq
-    private double yield; // theoreticalYieldPercentAmount; - product
+    private long yield; // theoreticalYieldPercentAmount; - product
     private String lastUpdatedType; // weight, volume, mol, totalWeight, totalVolume
     private UnitValueDTO prevMolarAmount; // needed for solvent
 
@@ -135,7 +135,7 @@ public class BasicBatchModel {
     }
 
     public void setYield(double yield) {
-        this.yield = yield;
+        this.yield = Math.round(yield);
     }
 
     public UnitValueDTO getTotalVolume() {
