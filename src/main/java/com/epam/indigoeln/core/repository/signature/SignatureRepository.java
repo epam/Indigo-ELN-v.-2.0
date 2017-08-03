@@ -12,8 +12,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
 
 import java.util.*;
 
@@ -22,10 +20,11 @@ public class SignatureRepository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SignatureRepository.class);
 
-    private static final String SESSION_ID_ATTRIBUTE = "SignatureSessionId";
-
     @Autowired
     private SignatureProperties signatureProperties;
+
+    private final Object signatureSessionIdLock = new Object();
+    private String signatureSessionId;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -78,7 +77,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocumentInfo?id={id}", HttpMethod.GET, null,
                     String.class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
-            LOGGER.error("Couldn't get document info, document id = " + documentId,e);
+            LOGGER.error("Couldn't get document info, document id = " + documentId, e);
             return StringUtils.EMPTY;
         }
     }
@@ -92,7 +91,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocumentsByIds", HttpMethod.POST,
                     Collections.singletonMap("documentsIds", documentIds), String.class, new HashMap<>()).getBody();
         } catch (Exception e) {
-            LOGGER.error("Couldn't get documents info, document ids = " + documentIds.stream().reduce("",(s1,s2) -> s1 + ", " + s2),e);
+            LOGGER.error("Couldn't get documents info, document ids = " + documentIds.stream().reduce("", (s1, s2) -> s1 + ", " + s2), e);
             return StringUtils.EMPTY;
         }
     }
@@ -106,7 +105,7 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/getDocuments?username={username}", HttpMethod.GET, null,
                     String.class, Collections.singletonMap("username", username)).getBody();
         } catch (Exception e) {
-            LOGGER.error("Couldn't get documents, username = " + username,e);
+            LOGGER.error("Couldn't get documents, username = " + username, e);
             return StringUtils.EMPTY;
         }
     }
@@ -120,27 +119,31 @@ public class SignatureRepository {
             return exchange(signatureProperties.getUrl() + "/api/downloadDocument?id={id}", HttpMethod.GET, null,
                     byte[].class, Collections.singletonMap("id", documentId)).getBody();
         } catch (Exception e) {
-            LOGGER.error("Couldn't download document, document id = " + documentId,e);
+            LOGGER.error("Couldn't download document, document id = " + documentId, e);
             return new byte[0];
         }
     }
 
-    private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz,
-                                           Map<String, Object> args) {
-        String sessionId = getSessionId();
-        HttpEntity<Object> entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
+    private <E> ResponseEntity<E> exchange(String url, HttpMethod method, Object body, Class<E> clazz, Map<String, Object> args) {
         try {
-            return restTemplate.exchange(url, method, entity, clazz, args);
+            return restTemplate.exchange(
+                    url,
+                    method,
+                    new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + getSignatureSessionId())),
+                    clazz,
+                    args);
         } catch (HttpStatusCodeException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                sessionId = login(signatureProperties.getUsername(), signatureProperties.getPassword());
-                setSessionId(sessionId);
-                entity = new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + sessionId));
-                return restTemplate.exchange(url, method, entity, clazz, args);
+                setSignatureSessionId(login(signatureProperties.getUsername(), signatureProperties.getPassword()));
+
+                return restTemplate.exchange(
+                        url,
+                        method,
+                        new HttpEntity<>(body, header(HttpHeaders.COOKIE, "JSESSIONID=" + getSignatureSessionId())),
+                        clazz,
+                        args);
             } else {
-                if (LOGGER.isErrorEnabled()) {
-                    LOGGER.error("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
-                }
+                LOGGER.warn("Error occurred while exchanging with signature service:" + e.getResponseBodyAsString(), e);
                 throw e;
             }
         }
@@ -156,33 +159,35 @@ public class SignatureRepository {
         Map<String, Object> o = new HashMap<>();
         o.put("username", username);
         o.put("password", password);
-        ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureProperties.getUrl() + "/loginProcess", o,
-                Object.class);
+
+        ResponseEntity<Object> responseEntity = restTemplate.postForEntity(signatureProperties.getUrl() + "/loginProcess", o, Object.class);
+
         if (responseEntity.getStatusCode() == HttpStatus.OK) {
-            Optional<String> jsessionid = responseEntity.getHeaders().entrySet().stream()
+            return responseEntity.getHeaders()
+                    .entrySet()
+                    .stream()
                     .filter(e -> e.getKey().equals(HttpHeaders.SET_COOKIE))
                     .map(e -> e.getValue().get(0))
                     .flatMap(s -> Arrays.stream(s.split(";")))
                     .flatMap(s -> Arrays.stream(s.split(",")))
                     .filter(s -> s.contains("JSESSIONID"))
                     .findAny()
-                    .map(s -> s.split("=")[1]);
-            return jsessionid.get();
+                    .map(s -> s.split("=")[1])
+                    .orElse(null);
         }
+
         return null;
     }
 
-    private String getSessionId() {
-        return Optional.ofNullable(RequestContextHolder.getRequestAttributes()).map(
-                ra -> (String) ra.getAttribute(SESSION_ID_ATTRIBUTE, RequestAttributes.SCOPE_SESSION)
-        ).orElse(null);
+    private String getSignatureSessionId() {
+        synchronized (signatureSessionIdLock) {
+            return signatureSessionId;
+        }
     }
 
-    private void setSessionId(String sessionId) {
-        Optional.ofNullable(RequestContextHolder.getRequestAttributes()).ifPresent(
-                ra ->ra.setAttribute(SESSION_ID_ATTRIBUTE, sessionId,
-                    RequestAttributes.SCOPE_SESSION)
-        );
+    private void setSignatureSessionId(String signatureSessionId) {
+        synchronized (signatureSessionIdLock) {
+            this.signatureSessionId = signatureSessionId;
+        }
     }
-
 }
