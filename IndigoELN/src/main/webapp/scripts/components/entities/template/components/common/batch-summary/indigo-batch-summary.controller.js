@@ -597,8 +597,7 @@
         }
 
         function syncWithIntendedProducts() {
-            vm.isBatchesLocked = true;
-            ProductBatchSummaryOperations.syncWithIntendedProducts()
+            vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts()
                 .then(successAddedBatches);
         }
 
@@ -622,15 +621,14 @@
         }
 
         function duplicateBatches() {
-            vm.isBatchesLocked = true;
-            ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
+            vm.batchOperation = ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
                 .then(successAddedBatches);
         }
 
         function addNewBatch() {
-            vm.isBatchesLocked = true;
-            ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
+
 
         function successAddedBatches(batches) {
             if (batches.length) {
@@ -639,13 +637,11 @@
                 });
                 vm.onRowSelected(_.last(batches));
             }
-            vm.isBatchesLocked = false;
         }
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
             vm.onRowSelected(batch);
-            vm.isBatchesLocked = false;
         }
 
         function getCheckedBatches() {
@@ -665,13 +661,10 @@
         }
 
         function importSDFile() {
-            vm.isBatchesLocked = true;
-            ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                vm.importLoading = false;
+            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
-                vm.isBatchesLocked = false;
             });
         }
 
