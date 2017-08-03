@@ -27,16 +27,12 @@ import java.util.Optional;
 @Service
 public class BingoService {
 
-    private static final Logger log = LoggerFactory.getLogger(BingoService.class);
-
-    private final ObjectMapper objectMapper;
-    private final BingoProperties bingoProperties;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
 
     @Autowired
-    public BingoService(ObjectMapper objectMapper, BingoProperties bingoProperties) {
-        this.objectMapper = objectMapper;
-        this.bingoProperties = bingoProperties;
-    }
+    private ObjectMapper objectMapper;
+    @Autowired
+    private BingoProperties bingoProperties;
 
     /* Common */
 
@@ -48,7 +44,7 @@ public class BingoService {
                 return Optional.of(response.getStructures().get(0).getStructure());
             }
         } catch (Exception e) {
-            log.warn("Cannot find by id=" + id + ": " + e.getMessage());
+            LOGGER.warn("Cannot find by id=" + id + ": " + e.getMessage(), e);
         }
 
         return Optional.empty();
@@ -62,7 +58,7 @@ public class BingoService {
                 return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
-            log.warn("Cannot insert: " + e.getMessage());
+            LOGGER.warn("Cannot insert: " + e.getMessage(), e);
         }
 
         return Optional.empty();
@@ -76,7 +72,7 @@ public class BingoService {
                 return Optional.of(response.getStructures().get(0).getId());
             }
         } catch (Exception e) {
-            log.warn("Cannot update by id=" + id + ": " + e.getMessage());
+            LOGGER.warn("Cannot update by id=" + id + ": " + e.getMessage(), e);
         }
 
         return Optional.empty();
@@ -86,7 +82,7 @@ public class BingoService {
         try {
             getResponse("DELETE", "/structures/" + id, StringUtils.EMPTY);
         } catch (Exception e) {
-            log.warn("Cannot delete by id=" + id + ": " + e.getMessage());
+            LOGGER.warn("Cannot delete by id=" + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -94,48 +90,40 @@ public class BingoService {
 
     public List<String> searchMoleculeExact(String molecule, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/molecule/exact?options=" + options, molecule));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/molecule/exact?options=" + opts, molecule));
         } catch (Exception e) {
-            log.warn("Cannot search exact molecule: " + e.getMessage());
+            LOGGER.warn("Cannot search exact molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchMoleculeSub(String molecule, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/molecule/substructure?options=" + options, molecule));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/molecule/substructure?options=" + opts, molecule));
         } catch (Exception e) {
-            log.warn("Cannot search sub molecule: " + e.getMessage());
+            LOGGER.warn("Cannot search sub molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchMoleculeSim(String molecule, Float min, Float max, String metric) {
         try {
-            if (metric == null) {
-                metric = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/molecule/similarity?min=" + min + "&max=" + max + "&metric=" + metric, molecule));
+            String mtrc = metric == null ? StringUtils.EMPTY : metric;
+            return result(getResponse("POST", "/search/molecule/similarity?min=" + min + "&max=" + max + "&metric=" + mtrc, molecule));
         } catch (Exception e) {
-            log.warn("Cannot search sim molecule: " + e.getMessage());
+            LOGGER.warn("Cannot search sim molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchMoleculeMolFormula(String formula, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/molecule/molformula?options=" + options, formula));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/molecule/molformula?options=" + opts, formula));
         } catch (Exception e) {
-            log.warn("Cannot search molformula molecule: " + e.getMessage());
+            LOGGER.warn("Cannot search molformula molecule: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
@@ -144,48 +132,40 @@ public class BingoService {
 
     public List<String> searchReactionExact(String reaction, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/reaction/exact?options=" + options, reaction));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/reaction/exact?options=" + opts, reaction));
         } catch (Exception e) {
-            log.warn("Cannot search exact reaction: " + e.getMessage());
+            LOGGER.warn("Cannot search exact reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchReactionSub(String reaction, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/reaction/substructure?options=" + options, reaction));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/reaction/substructure?options=" + opts, reaction));
         } catch (Exception e) {
-            log.warn("Cannot search sub reaction: " + e.getMessage());
+            LOGGER.warn("Cannot search sub reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchReactionSim(String reaction, Float min, Float max, String metric) {
         try {
-            if (metric == null) {
-                metric = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/reaction/similarity?min=" + min + "&max=" + max + "&metric=" + metric, reaction));
+            String mtrc = metric == null ? StringUtils.EMPTY : metric;
+            return result(getResponse("POST", "/search/reaction/similarity?min=" + min + "&max=" + max + "&metric=" + mtrc, reaction));
         } catch (Exception e) {
-            log.warn("Cannot search sim reaction: " + e.getMessage());
+            LOGGER.warn("Cannot search sim reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
 
     public List<String> searchReactionMolFormula(String formula, String options) {
         try {
-            if (options == null) {
-                options = StringUtils.EMPTY;
-            }
-            return result(getResponse("POST", "/search/reaction/molformula?options=" + options, formula));
+            String opts = options == null ? StringUtils.EMPTY : options;
+            return result(getResponse("POST", "/search/reaction/molformula?options=" + opts, formula));
         } catch (Exception e) {
-            log.warn("Cannot search molformula reaction: " + e.getMessage());
+            LOGGER.warn("Cannot search molformula reaction: " + e.getMessage(), e);
         }
         return Collections.emptyList();
     }
@@ -232,7 +212,7 @@ public class BingoService {
                 }
             }
         } catch (IOException e) {
-            log.warn("Error executing BingoDB request: " + e.getMessage(), e);
+            LOGGER.warn("Error executing BingoDB request: " + e.getMessage(), e);
         }
 
         throw new IndigoRuntimeException("Error executing BingoDB request");

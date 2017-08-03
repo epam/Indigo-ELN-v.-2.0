@@ -73,6 +73,6 @@ public class RegistrationStatus {
     }
 
     public enum Status {
-        PASSED, FAILED, IN_PROGRESS
+        PASSED, FAILED, IN_PROGRESS, IN_CHECK
     }
 }

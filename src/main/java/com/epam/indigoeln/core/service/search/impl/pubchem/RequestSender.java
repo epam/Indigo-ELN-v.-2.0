@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.service.search.impl.pubchem;
 
-import com.chemistry.enotebook.utils.sdf.SdUnit;
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.chemistry.sdf.SdUnit;
 import com.epam.indigoeln.core.service.calculation.CalculationService;
 import com.epam.indigoeln.core.service.sd.SDService;
 import com.epam.indigoeln.core.service.search.impl.pubchem.dto.CidsDTO;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
+
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.*;
@@ -109,7 +110,7 @@ public class RequestSender {
         HashMap<String, Object> properties = new HashMap<>();
 
         Structure structure = new Structure();
-        structure.setImage(calculationService.getStructureWithImage(sdUnit.getMol(),"molecule").getImage());
+        structure.setImage(calculationService.getStructureWithImage(sdUnit.getMol()).getImage());
         structure.setMolfile(sdUnit.getMol());
 
         properties.put("structure",structure);

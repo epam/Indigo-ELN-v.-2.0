@@ -1,6 +1,7 @@
 package com.epam.indigoeln.web.rest.util;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * Utility class for http header creation.
@@ -8,36 +9,15 @@ import org.springframework.http.HttpHeaders;
 public class HeaderUtil {
 
     private static final String SUCCESS_ALERT = "X-indigoeln-success-alert";
-    private static final String ERROR_ALERT = "X-indigoeln-error-alert";
-    private static final String WARNING_ALERT = "X-indigoeln-warning-alert";
-    private static final String INFO_ALERT = "X-indigoeln-info-alert";
-    private static final String FAILURE_ALERT = "X-indigoeln-error";
-    private static final String ALERT_PARAMS = "X-indigoeln-params";
 
     private HeaderUtil() {
     }
 
-    public static HttpHeaders createSuccessAlert(String message, String param) {
-        return createAlert(SUCCESS_ALERT, message, param);
+    private static HttpHeaders createSuccessAlert(String message) {
+        return createAlert(SUCCESS_ALERT, message);
     }
 
-    public static HttpHeaders createErrorAlert(String message, String param) {
-        return createAlert(ERROR_ALERT, message, param);
-    }
-
-    public static HttpHeaders createWarningAlert(String message, String param) {
-        return createAlert(WARNING_ALERT, message, param);
-    }
-
-    public static HttpHeaders createInfoAlert(String message, String param) {
-        return createAlert(INFO_ALERT, message, param);
-    }
-
-    public static HttpHeaders createFailureAlert(String message, String entityName) {
-        return createAlert(FAILURE_ALERT, message, entityName);
-    }
-
-    private static HttpHeaders createAlert(String type, String message, String params) {
+    private static HttpHeaders createAlert(String type, String message) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(type, message);
         return headers;
@@ -56,7 +36,7 @@ public class HeaderUtil {
         } else {
             message = "The " + entityName + " is successfully created";
         }
-        return createSuccessAlert(message, param);
+        return createSuccessAlert(message);
     }
 
     public static HttpHeaders createEntityDeleteAlert(String entityName, String param) {
@@ -66,7 +46,7 @@ public class HeaderUtil {
         } else {
             message = "The " + entityName + " is successfully deleted";
         }
-        return createSuccessAlert(message, param);
+        return createSuccessAlert(message);
     }
 
     public static HttpHeaders createEntityUpdateAlert(String entityName, String param) {
@@ -76,6 +56,15 @@ public class HeaderUtil {
         } else {
             message = "The " + entityName + " is successfully updated";
         }
-        return createSuccessAlert(message, param);
+        return createSuccessAlert(message);
+    }
+
+    public static HttpHeaders createPdfPreviewHeaders(String fileName) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+        httpHeaders.add("Content-disposition", "inline; filename=" + fileName);
+        httpHeaders.add("Access-Control-Allow-Headers", "Range");
+        httpHeaders.add("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+        return httpHeaders;
     }
 }

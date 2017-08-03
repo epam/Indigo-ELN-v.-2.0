@@ -37,6 +37,7 @@ public class Experiment extends ExperimentShort {
     private List<Component> components;
 
     @JsonIgnore
+    transient
     private Set<String> fileIds = new HashSet<>();
 
     public List<User> getCoAuthors() {
@@ -117,6 +118,14 @@ public class Experiment extends ExperimentShort {
 
     public void setLastVersion(boolean lastVersion) {
         this.lastVersion = lastVersion;
+    }
+
+    public String getFullName(){
+        if (experimentVersion > 1 || !lastVersion) {
+            return getName() + " v" + getExperimentVersion();
+        }else {
+            return getName();
+        }
     }
 
     @Override

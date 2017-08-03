@@ -31,10 +31,10 @@ public class Dictionary implements Serializable, Persistable<String> {
     private String description;
 
     @Field("words")
-    private Set<Word> words = new HashSet<>();
+    private transient Set<Word> words = new HashSet<>();
 
     @Field("accessList")
-    private Set<UserPermission> accessList = new HashSet<>();
+    private transient Set<UserPermission> accessList = new HashSet<>();
 
     @Override
     public String getId() {

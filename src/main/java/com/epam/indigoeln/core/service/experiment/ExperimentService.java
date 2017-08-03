@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ExperimentService {
 
     @Autowired
-    CustomDtoMapper dtoMapper;
+    private CustomDtoMapper dtoMapper;
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
@@ -101,8 +101,9 @@ public class ExperimentService {
     }
 
     public ExperimentDTO getExperiment(String projectId, String notebookId, String id, User user) {
-        Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
-                orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
+        Experiment experiment = Optional
+                .ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id)))
+                .orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
 
         // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
         // "Read Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
@@ -125,10 +126,6 @@ public class ExperimentService {
         return experimentRepository.findByAuthor(user).stream().map(ExperimentDTO::new).collect(Collectors.toList());
     }
 
-    public Collection<ExperimentDTO> getExperimentsByStatuses(List<ExperimentStatus> statuses) {
-        return experimentRepository.findByStatusIn(statuses).stream().map(ExperimentDTO::new).collect(Collectors.toList());
-    }
-
     public ExperimentDTO createExperiment(ExperimentDTO experimentDTO, String projectId, String notebookId, User user) {
         Project project = projectRepository.findOne(projectId);
         if (project == null) {
@@ -148,9 +145,9 @@ public class ExperimentService {
         experiment.setStatus(ExperimentStatus.OPEN);
 
         if (experimentDTO.getTemplate() != null) {
-            Template template = new Template();
-            template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
-            experiment.setTemplate(template);
+            Template tmpl = new Template();
+            tmpl.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+            experiment.setTemplate(tmpl);
         }
         // check of user permissions's correctness in access control list
         PermissionUtil.checkCorrectnessOfAccessList(userRepository, experiment.getAccessList());
@@ -233,7 +230,7 @@ public class ExperimentService {
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
         components.forEach(c -> c.setId(null));
-        final List<Component> newComponents = updateComponents(Collections.EMPTY_LIST, components);
+        final List<Component> newComponents = updateComponents(Collections.emptyList(), components);
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
@@ -270,9 +267,9 @@ public class ExperimentService {
 
             Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
             if (experimentDTO.getTemplate() != null) {
-                Template template = new Template();
-                template.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
-                experimentForSave.setTemplate(template);
+                Template tmpl = new Template();
+                tmpl.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
+                experimentForSave.setTemplate(tmpl);
             }
 
             // check of user permissions's correctness in access control list
@@ -328,12 +325,12 @@ public class ExperimentService {
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
-        List<String> componentIdsForRemove = componentsFromDb.stream().filter(c -> c != null).map(Component::getId).collect(Collectors.toList());
+        List<String> componentIdsForRemove = componentsFromDb.stream().filter(Objects::nonNull).map(Component::getId).collect(Collectors.toList());
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
             if (component.getId() != null) {
-                Optional<Component> existing = componentsFromDb.stream().filter(c -> c != null).filter(c -> c.getId().equals(component.getId())).findFirst();
+                Optional<Component> existing = componentsFromDb.stream().filter(Objects::nonNull).filter(c -> c.getId().equals(component.getId())).findFirst();
                 if (existing.isPresent()) {
                     Component componentForSave = existing.get();
                     componentForSave.setContent(component.getContent());
@@ -350,7 +347,7 @@ public class ExperimentService {
 
         componentRepository.delete(
                 componentsFromDb.stream()
-                        .filter(c -> c != null)
+                        .filter(Objects::nonNull)
                         .filter(c -> componentIdsForRemove.contains(c.getId()))
                         .collect(Collectors.toList()));
 

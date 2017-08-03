@@ -122,18 +122,32 @@
 
             function onRemoveBatches(batchesForRemove) {
                 var length = vm.batches.length;
-
+                if (needToSelectNew(batchesForRemove)) {
+                    onSelectBatch(findPrevBatchToSelect(batchesForRemove));
+                }
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
-
                 if (vm.batches.length - length) {
                     vm.onChanged();
                     vm.batchesTrigger++;
                 }
+            }
 
-                if (vm.selectedBatch && !_.includes(vm.batches, vm.selectedBatch)) {
-                    onSelectBatch(_.first(vm.batches));
+            function needToSelectNew(batchesForRemove) {
+                return vm.selectedBatch && _.includes(batchesForRemove, vm.selectedBatch);
+            }
+
+            function findPrevBatchToSelect(batchesForRemove) {
+                var batchToSelect;
+                var index = _.findIndex(vm.batches, vm.selectedBatch);
+                batchToSelect = _.findLast(vm.batches, comparator, index) || _.find(vm.batches, comparator, index);
+
+                return batchToSelect;
+
+                function comparator(batch) {
+                    return !_.includes(batchesForRemove, batch);
                 }
             }
+
 
             function onAddedBatch(batch) {
                 vm.batches.push(batch);

@@ -4,8 +4,6 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.model.UserReagents;
 import com.epam.indigoeln.core.repository.userreagents.UserReagentsRepository;
 import com.mongodb.BasicDBList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +12,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserReagentsService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserReagentsService.class);
 
     @Autowired
     private UserReagentsRepository userReagentsRepository;

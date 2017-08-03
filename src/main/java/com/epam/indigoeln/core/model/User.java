@@ -60,6 +60,7 @@ public class User implements Serializable {
 
     @JsonIgnore
     @DBRef(lazy = true)
+    transient
     private HashSet<Role> roles = new HashSet<>();
 
     public String getId() {
@@ -166,11 +167,7 @@ public class User implements Serializable {
 
         User user = (User) o;
 
-        if (!login.equals(user.login)) {
-            return false;
-        }
-
-        return true;
+        return login.equals(user.login);
     }
 
     @Override

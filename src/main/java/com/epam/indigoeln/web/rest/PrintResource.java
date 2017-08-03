@@ -2,31 +2,22 @@ package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.service.print.HtmlWrapper;
+import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.ColumnText;
-import com.itextpdf.text.pdf.PdfPageEventHelper;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.tool.xml.ElementList;
-import com.itextpdf.tool.xml.XMLWorkerHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 import java.io.*;
@@ -37,13 +28,13 @@ import java.util.Map;
 @RequestMapping("/api/print")
 public class PrintResource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrintResource.class);
-
     public static final String HEADER =
-            "<table width=\"100%\" border=\"0\"><tr><td>Header</td><td align=\"right\">Some title</td></tr></table>";
+            "<table width=\"100%\" border=\"0\"><tr><td>HeaderPageEvent</td><td align=\"right\">Some title</td></tr></table>";
 
     @Autowired
     private PhantomJsService phantomJsService;
+    @Autowired
+    private ITextPrintService iTextPrintService;
 
     @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
@@ -59,14 +50,15 @@ public class PrintResource {
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> download(
             @ApiParam("File name") @PathParam("fileName") String fileName
-        ) {
-        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        try (InputStream is = new FileInputStream(file)){
-            if (fileName.startsWith(TempFileUtil.TEMP_FILE_PREFIX)){
-                fileName = fileName.substring(TempFileUtil.TEMP_FILE_PREFIX.length());
+    ) {
+        String fn = fileName;
+        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fn);
+        try (InputStream is = new FileInputStream(file)) {
+            if (fn.startsWith(TempFileUtil.TEMP_FILE_PREFIX)) {
+                fn = fn.substring(TempFileUtil.TEMP_FILE_PREFIX.length());
             }
             byte[] bytes = IOUtils.toByteArray(is);
-            HttpHeaders headers = HeaderUtil.createAttachmentDescription(fileName);
+            HttpHeaders headers = HeaderUtil.createAttachmentDescription(fn);
             return ResponseEntity.ok().headers(headers).body(bytes);
         } catch (Exception e) {
             throw new IndigoRuntimeException(e);
@@ -75,25 +67,48 @@ public class PrintResource {
         }
     }
 
-    public static class HeaderFooter extends PdfPageEventHelper {
-        protected ElementList header;
+    @ApiOperation(value = "Open experiment pdf preview", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = "/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<byte[]> createExperimentPdf(@ApiParam("project id") @PathVariable String projectId,
+                                    @ApiParam("notebook id") @PathVariable String notebookId,
+                                    @ApiParam("experiment id") @PathVariable String experimentId) {
+        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+    }
 
-        public HeaderFooter() throws IOException {
-            header = XMLWorkerHelper.parseToElementList(HEADER, null);
-        }
+    @ApiOperation(value = "Open project pdf preview", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = "/project/{projectId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId) {
+        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateProjectPdf(projectId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+    }
 
-        @Override
-        public void onEndPage(PdfWriter writer, Document document) {
-            try {
-                ColumnText ct = new ColumnText(writer.getDirectContent());
-                ct.setSimpleColumn(new Rectangle(36, 832, 559, 810));
-                for (Element e : header) {
-                    ct.addElement(e);
-                }
-                ct.go();
-            } catch (DocumentException de) {
-                throw new ExceptionConverter(de);
-            }
-        }
+    @ApiOperation(value = "Open notebook pdf preview", produces = "application/json")
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = "/project/{projectId}/notebook/{notebookId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<byte[]> createNotebookPdf(@ApiParam("project id") @PathVariable String projectId,
+                                                   @ApiParam("notebook id") @PathVariable String notebookId) {
+        String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        iTextPrintService.generateNotebookPdf(projectId, notebookId, byteArrayOutputStream);
+        HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
+        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
     }
 }
