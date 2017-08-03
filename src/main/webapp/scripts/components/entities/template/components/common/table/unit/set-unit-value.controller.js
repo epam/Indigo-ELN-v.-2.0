@@ -1,10 +1,9 @@
 angular
     .module('indigoeln')
-    .controller('SetUnitValueController', function($scope, name, unitNames, $uibModalInstance) {
+    .controller('SetUnitValueController', function($scope, name, unitNames, $uibModalInstance, UnitsConverter) {
         var vm = this;
 
         init();
-
         function init() {
             vm.name = name;
             vm.unitNames = unitNames;
@@ -17,7 +16,7 @@ angular
 
         function save() {
             $uibModalInstance.close({
-                value: $u($scope.value, $scope.unit).val(), unit: $scope.unit
+                value: UnitsConverter.convert(vm.value, vm.unit).val(), unit: vm.unit
             });
         }
 
