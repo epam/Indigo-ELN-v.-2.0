@@ -19,7 +19,7 @@
                 selectedBatchTrigger: '=',
                 experiment: '=',
                 isReadonly: '=',
-                isBatchesLocked: '=',
+                batchOperation: '=',
                 onSelectBatch: '&',
                 onAddedBatch: '&',
                 onRemoveBatches: '&',

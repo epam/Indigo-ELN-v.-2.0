@@ -6,6 +6,8 @@ angular
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
                                        Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
                                        sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+    var curNbkOperation;
+
     return {
         exportSDFile: exportSDFile,
         getSelectedNonEditableBatches: getSelectedNonEditableBatches,
@@ -51,6 +53,22 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             .value();
     }
 
+    function chainNbkBatches(batches) {
+        function setOperation(resolve) {
+            curNbkOperation = updateNbkBatches(batches).then(resolve);
+        }
+
+        return $q(function(resolve) {
+            if (curNbkOperation) {
+                curNbkOperation.then(function() {
+                    setOperation(resolve);
+                });
+            } else {
+                setOperation(resolve);
+            }
+        });
+    }
+
     function updateNbkBatches(batches) {
         var experiment = EntitiesBrowser.getCurrentEntity();
 
@@ -84,7 +102,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         return $q
             .all(promises)
             .then(function(batches) {
-                return updateNbkBatches(batches)
+                return chainNbkBatches(batches)
                     .then(function() {
                         // TODO: extract to controller
                         EntitiesBrowser.getCurrentForm().$setDirty();
@@ -152,7 +170,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function addNewBatch() {
         return createBatch().then(function(batch) {
-            return updateNbkBatches([batch]).then(function() {
+            return chainNbkBatches([batch]).then(function() {
                 EntitiesBrowser.getCurrentForm().$setDirty();
 
                 return batch;
@@ -167,7 +185,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             });
 
             return $q.all(promises).then(function(batches) {
-                return updateNbkBatches(batches).then(function() {
+                return chainNbkBatches(batches).then(function() {
                     EntitiesBrowser.getCurrentForm().$setDirty();
 
                     return batches;

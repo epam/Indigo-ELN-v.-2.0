@@ -28,7 +28,7 @@
                                      structure-size="vm.structureSize"
                                      is-readonly="vm.isReadonly"
                                      selected-batch="vm.selectedBatch"
-                                     is-batches-locked="vm.isBatchesLocked"
+                                     batch-operation="vm.batchOperation"
                                      selected-batch-trigger="vm.selectedBatchTrigger"
                                      on-added-batch="vm.onAddedBatch({batch: batch})"
                                      on-select-batch="vm.onSelectBatch({batch: batch})"
@@ -94,6 +94,7 @@
                                 <i class="fa fa-trash"></i>
                                 <span class="m-l5">Delete</span>
                             </button>
+                            <indigo-inline-loader promise = "vm.batchOperation"></indigo-inline-loader>
                         </div>
                     </div>
                 </div>

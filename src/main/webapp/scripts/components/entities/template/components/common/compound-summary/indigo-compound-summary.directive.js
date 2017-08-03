@@ -17,7 +17,7 @@
                 structureSize: '=',
                 isHideColumnSettings: '=',
                 isReadonly: '=',
-                isBatchesLocked: '=',
+                batchOperation: '=',
                 onShowStructure: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
