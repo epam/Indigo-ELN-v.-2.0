@@ -6,7 +6,7 @@
     /* @ngInject */
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
                                          AlertModal, Alert, Dictionary, CalculationService, SearchService,
-                                         RegistrationService, dialogService, StoichTableCache) {
+                                         RegistrationService, dialogService, StoichTableCache, stoichHelper) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -179,7 +179,7 @@
                             }
                             var nbkBatch = data.model;
                             row.$$popItems = null;
-                            row.$$populatedBatch = null;
+                            row.$$populatedBatch = false;
                             fetchBatchByNbkNumber(nbkBatch, function(result) {
                                 if (result[0]) {
                                     row.$$popItems = result.map(function(r) {
@@ -425,8 +425,9 @@
         }
 
         function populateFetchedBatch(row, source) {
-            row.$$populatedBatch = source;
-            _.extend(row, source);
+            var cleanedBatch = stoichHelper.cleanReactant(source);
+            row.$$populatedBatch = true;
+            _.extend(row, cleanedBatch);
             row.rxnRole = row.rxnRole || AppValues.getRxnRoleReactant();
             row.weight = null;
             row.volume = null;
@@ -593,7 +594,7 @@
                 var batch = AppValues.getDefaultBatch();
                 batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.data.name;
                 batch.formula = result.data.molecularFormula;
-                batch.molWeight = result.data.molecularWeight;
+                batch.molWeight.value = result.data.molecularWeight;
                 batch.exactMass = result.data.exactMolecularWeight;
                 batch.structure = {
                     image: result.data.image,

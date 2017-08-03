@@ -10,8 +10,7 @@
             scope: {
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
-                // TODO: rename to isReadonly
-                readonly: '=',
+                isReadonly: '='
                 onChanged: '&'
             },
             controller: indigoBatchStructureController,

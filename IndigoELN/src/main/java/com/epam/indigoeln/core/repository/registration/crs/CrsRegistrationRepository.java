@@ -30,10 +30,8 @@ public class CrsRegistrationRepository implements RegistrationRepository {
 
     @Autowired
     private CrsProperties crsProperties;
-
     @Autowired
     private BingoRegistration registration;
-
     @Autowired
     private BingoSearch search;
 
@@ -46,19 +44,21 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public Long register(List<Compound> compounds) throws RegistrationException {
+    public String register(List<Compound> compounds) throws RegistrationException {
         try {
-            return registration.submitListForRegistration(getToken(), compounds.stream().map(this::convert)
-                    .collect(Collectors.toList()));
+            return String.valueOf(
+                    registration.submitListForRegistration(
+                            getToken(),
+                            compounds.stream().map(this::convert).collect(Collectors.toList())));
         } catch (CRSException e) {
             throw new RegistrationException(e);
         }
     }
 
     @Override
-    public RegistrationStatus getRegisterJobStatus(long jobId) throws RegistrationException {
+    public RegistrationStatus getRegisterJobStatus(String jobId) throws RegistrationException {
         try {
-            CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), jobId);
+            CompoundRegistrationStatus status = registration.checkRegistrationStatus(getToken(), Long.valueOf(jobId));
             final RegistrationStatus result = convert(status, new Date());
             if (RegistrationStatus.Status.PASSED.equals(result.getStatus())) {
                 final List<FullCompoundInfo> compounds = search.getCompoundByJobId(String.valueOf(jobId));
@@ -74,9 +74,12 @@ public class CrsRegistrationRepository implements RegistrationRepository {
     }
 
     @Override
-    public List<Compound> getRegisteredCompounds(long jobId) throws RegistrationException {
+    public List<Compound> getRegisteredCompounds(String jobId) throws RegistrationException {
         try {
-            return search.getCompoundByJobId(Long.toString(jobId)).stream().map(this::convert)
+            return search
+                    .getCompoundByJobId(jobId)
+                    .stream()
+                    .map(this::convert)
                     .collect(Collectors.toList());
         } catch (CRSException e) {
             throw new RegistrationException(e);

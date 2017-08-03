@@ -1,10 +1,10 @@
 package com.epam.indigoeln.core.service.calculation;
 
-import com.chemistry.enotebook.ProductCalculator;
-import com.chemistry.enotebook.StoichCalculator;
-import com.chemistry.enotebook.domain.*;
-import com.chemistry.enotebook.experiment.datamodel.batch.BatchType;
-import com.chemistry.enotebook.experiment.datamodel.batch.BatchTypeFactory;
+import com.epam.indigoeln.core.chemistry.ProductCalculator;
+import com.epam.indigoeln.core.chemistry.StoichCalculator;
+import com.epam.indigoeln.core.chemistry.domain.*;
+import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
+import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchTypeFactory;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 import com.epam.indigoeln.web.rest.dto.calculation.ProductTableDTO;
 import com.epam.indigoeln.web.rest.dto.calculation.StoicTableDTO;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.chemistry.enotebook.experiment.common.units.UnitType.*;
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 
 /**
  * Service for stoichiometry calculations
@@ -47,7 +47,7 @@ public class StoicCalculationService {
         MonomerBatchModel batchModel = (MonomerBatchModel) reactionStepModel.getStoicElementListInTransactionOrder().get(stoicTableDTO.getChangedBatchRowNumber());
         callRecalculatingSetterForChangedField(sourceBatch, batchModel, changedField);
         //Force to reacalc Amounts like Weight etc when MWT changes
-        if (stoicTableDTO.getChangedField().equals("molWeight")) {
+        if ("molWeight".equals(stoicTableDTO.getChangedField())) {
             batchModel.recalcAmounts();
         }
         StoichCalculator stoichCalculator = new StoichCalculator(reactionStepModel);
@@ -90,6 +90,8 @@ public class StoicCalculationService {
             case "density":
                 batchModel.setDensityAmountQuitly(new AmountModel(DENSITY, 0));
                 batchModel.setDensityAmount(new AmountModel(DENSITY, sourceBatch.getDensity().getValue(), !sourceBatch.getDensity().isEntered()));
+                break;
+            default:
                 break;
         }
     }
@@ -284,6 +286,8 @@ public class StoicCalculationService {
                 case "totalVolume":
                     lastUpdatedType = BatchModel.UPDATE_TYPE_TOTAL_VOLUME;
                     break;
+                default:
+                    break;
             }
         }
         return lastUpdatedType;
@@ -306,6 +310,8 @@ public class StoicCalculationService {
                 break;
             case BatchModel.UPDATE_TYPE_TOTAL_VOLUME:
                 result = "totalVolume";
+                break;
+            default:
                 break;
         }
         return result;

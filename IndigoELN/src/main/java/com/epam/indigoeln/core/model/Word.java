@@ -4,8 +4,6 @@ import com.google.common.base.Objects;
 
 public class Word {
 
-    private static final long serialVersionUID = 3317184304499940837L;
-
     private String id;
     private String name;
     private String description;
@@ -69,7 +67,7 @@ public class Word {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(Object o) { //NOSONAR Equals should do equality
         if (this == o) {
             return true;
         }

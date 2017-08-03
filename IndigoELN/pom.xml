@@ -15,8 +15,11 @@
         <java.version>1.8</java.version>
         <org.mapstruct.version>1.0.0.Final</org.mapstruct.version>
         <springfox.version>2.3.1</springfox.version>
-        <itext.version>5.5.7</itext.version>
+        <itext.version>2.1.7</itext.version>
         <bingo.version>1.2.3.r0</bingo.version>
+        <jasper.version>6.4.1</jasper.version>
+        <batik.version>1.9</batik.version>
+        <streamex.version>0.6.5</streamex.version>
     </properties>
 
     <parent>
@@ -131,12 +134,12 @@
         </dependency>
 
         <!-- CRS -->
-        
+
         <dependency>
             <groupId>com.epam.indigo.crs</groupId>
             <artifactId>crs-client</artifactId>
             <version>1.0</version>
-        </dependency>        
+        </dependency>
 
         <!-- Swagger Dependencies-->
 
@@ -171,17 +174,21 @@
         </dependency>
 
         <!-- iText PDF -->
-
         <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext-pdfa</artifactId>
+            <groupId>com.lowagie</groupId>
+            <artifactId>itext</artifactId>
             <version>${itext.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.itextpdf.tool</groupId>
-            <artifactId>xmlworker</artifactId>
-            <version>${itext.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.itextpdf</groupId>-->
+            <!--<artifactId>itext-pdfa</artifactId>-->
+            <!--<version>${itext.version}</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>com.itextpdf.tool</groupId>-->
+            <!--<artifactId>xmlworker</artifactId>-->
+            <!--<version>${itext.version}</version>-->
+        <!--</dependency>-->
 
         <!-- Apache Commons -->
 
@@ -207,15 +214,44 @@
         </dependency>
 
         <!-- Apache Commons CSV-->
-        
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-csv</artifactId>
             <version>1.2</version>
         </dependency>
 
+        <!-- Apachec Batik -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-bridge</artifactId>
+            <version>${batik.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-dom</artifactId>
+            <version>${batik.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>${batik.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-codec</artifactId>
+            <version>${batik.version}</version>
+        </dependency>
+
+        <!-- StreamEx: Java8 Stream Api extentions -->
+        <dependency>
+            <groupId>one.util</groupId>
+            <artifactId>streamex</artifactId>
+            <version>${streamex.version}</version>
+        </dependency>
+
         <!-- WebSockets -->
-        
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>

@@ -4,7 +4,7 @@
         .directive('indigoTableVal', indigoTableVal);
 
     /* @ngInject */
-    function indigoTableVal($sce, roundFilter, Alert, $timeout, EntitiesBrowser) {
+    function indigoTableVal($sce, roundFilter, Alert, $timeout, EntitiesBrowser, UnitsConverter) {
         return {
             restrict: 'E',
             controller: IndigoTableValController,
@@ -33,11 +33,11 @@
 
             function init() {
                 vm.unitParsers = [function(viewValue) {
-                    return +$u(viewValue, vm.indigoRow[vm.indigoColumn.id].unit).val();
+                    return +UnitsConverter.convert(viewValue, vm.indigoRow[vm.indigoColumn.id].unit).val();
                 }];
 
                 vm.unitFormatters = [function(modelValue) {
-                    return +roundFilter($u(modelValue)
+                    return +roundFilter(UnitsConverter.convert(modelValue)
                         .as(vm.indigoRow[vm.indigoColumn.id].unit)
                         .val(), vm.indigoRow[vm.indigoColumn.id].sigDigits, vm.indigoColumn, vm.indigoRow);
                 }];

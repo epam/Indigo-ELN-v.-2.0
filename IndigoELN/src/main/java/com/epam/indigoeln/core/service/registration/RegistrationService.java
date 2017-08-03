@@ -2,14 +2,13 @@ package com.epam.indigoeln.core.service.registration;
 
 import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Compound;
+import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
-import com.epam.indigoeln.core.repository.registration.RegistrationException;
-import com.epam.indigoeln.core.repository.registration.RegistrationRepository;
-import com.epam.indigoeln.core.repository.registration.RegistrationRepositoryInfo;
-import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
+import com.epam.indigoeln.core.repository.registration.*;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +29,10 @@ public class RegistrationService {
 
     @Autowired
     private List<RegistrationRepository> repositories;
-
     @Autowired
     private ComponentRepository componentRepository;
-
+    @Autowired
+    private RegistrationJobRepository registrationJobRepository;
     @Autowired
     private SimpMessagingTemplate template;
 
@@ -73,7 +72,7 @@ public class RegistrationService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    public Long register(String id, List<String> fullBatchNumbers) throws RegistrationException {
+    public String register(String id, List<String> fullBatchNumbers) throws RegistrationException {
         Map<BatchSummary, Component> batches = getBatches(
                 () -> componentRepository.findBatchSummariesByFullBatchNumbers(fullBatchNumbers),
                 b -> fullBatchNumbers.contains(b.getFullNbkBatch()));
@@ -102,7 +101,7 @@ public class RegistrationService {
                 .map(b -> convert(b.getDelegate()))
                 .collect(Collectors.toList());
 
-        Long jobId = getRegistrationRepository(id).register(compounds);
+        String jobId = getRegistrationRepository(id).register(compounds);
 
         batches.keySet()
                 .forEach(b -> {
@@ -113,20 +112,28 @@ public class RegistrationService {
 
         componentRepository.save(new HashSet<>(batches.values()));
 
+        RegistrationJob registrationJob = new RegistrationJob();
+
+        registrationJob.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS);
+        registrationJob.setRegistrationJobId(jobId);
+        registrationJob.setRegistrationRepositoryId(id);
+
+        registrationJobRepository.save(registrationJob);
+
         template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
 
         return jobId;
     }
 
-    public RegistrationStatus getStatus(String id, long jobId) throws RegistrationException {
+    public RegistrationStatus getStatus(String id, String jobId) throws RegistrationException {
         RegistrationStatus registrationStatus = getRegistrationRepository(id).getRegisterJobStatus(jobId);
 
         if (registrationStatus.getStatus() != RegistrationStatus.Status.IN_PROGRESS) {
             Map<BatchSummary, Component> batches = getBatches(
                     () -> componentRepository.findBatchSummariesByRegistrationJobId(jobId),
                     b -> {
-                        Long registrationJobId = b.getRegistrationJobId();
-                        return registrationJobId != null && registrationJobId == jobId;
+                        String registrationJobId = b.getRegistrationJobId();
+                        return registrationJobId != null && StringUtils.equals(registrationJobId, jobId);
                     });
 
             batches
@@ -138,7 +145,7 @@ public class RegistrationService {
                                 if (registrationStatus.getStatus() == RegistrationStatus.Status.PASSED) {
                                     b.setRegistrationDate(registrationStatus.getDate());
                                     b.setCompoundId(registrationStatus.getCompoundNumbers().get(b.getFullNbkBatch()));
-                                    b.setСonversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
+                                    b.setConversationalBatchNumber(registrationStatus.getConversationalBatchNumbers().get(b.getFullNbkBatch()));
                                 }
                             }
                     );
@@ -149,7 +156,7 @@ public class RegistrationService {
         return registrationStatus;
     }
 
-    public List<Compound> getRegisteredCompounds(String id, Long jobId) throws RegistrationException {
+    public List<Compound> getRegisteredCompounds(String id, String jobId) throws RegistrationException {
         return getRegistrationRepository(id).getRegisteredCompounds(jobId);
     }
 
@@ -203,52 +210,51 @@ public class RegistrationService {
         return result;
     }
 
-    private static class BatchSummary {
+    private class BatchSummary {
 
         private BasicDBObject delegate;
 
-        public BatchSummary(BasicDBObject delegate) {
+        BatchSummary(BasicDBObject delegate) {
             this.delegate = delegate;
         }
 
-        public BasicDBObject getDelegate() {
+        BasicDBObject getDelegate() {
             return delegate;
         }
 
-        public String getFullNbkBatch() {
+        String getFullNbkBatch() {
             return delegate.getString("fullNbkBatch");
         }
 
-        public String getRegistrationStatus() {
+        String getRegistrationStatus() {
             return delegate.getString("registrationStatus");
         }
 
-        public void setRegistrationStatus(String registrationStatus) {
+        void setRegistrationStatus(String registrationStatus) {
             delegate.put("registrationStatus", registrationStatus);
         }
 
-        public Long getRegistrationJobId() {
-            long registrationJobId = delegate.getLong("registrationJobId", -1);
-            return registrationJobId == -1 ? null : registrationJobId;
+        String getRegistrationJobId() {
+            return delegate.getString("registrationJobId");
         }
 
-        public void setRegistrationJobId(long registrationJobId) {
+        void setRegistrationJobId(String registrationJobId) {
             delegate.put("registrationJobId", registrationJobId);
         }
 
-        public void setRegistrationRepositoryId(String registrationRepositoryId) {
+        void setRegistrationRepositoryId(String registrationRepositoryId) {
             delegate.put("registrationRepositoryId", registrationRepositoryId);
         }
 
-        public void setRegistrationDate(Date registrationDate) {
+        void setRegistrationDate(Date registrationDate) {
             delegate.put("registrationDate", registrationDate);
         }
 
-        public void setCompoundId(String compoundId) {
+        void setCompoundId(String compoundId) {
             delegate.put("compoundId", compoundId);
         }
 
-        public void setСonversationalBatchNumber(String conversationalBatchNumber) {
+        void setConversationalBatchNumber(String conversationalBatchNumber) {
             delegate.put("conversationalBatchNumber", conversationalBatchNumber);
         }
     }

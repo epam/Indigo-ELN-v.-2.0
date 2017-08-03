@@ -12,9 +12,6 @@
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
         var saltCodeValues = AppValues.getSaltCodeValues();
-        var sourceValues = AppValues.getSourceValues();
-        var sourceDetailExternal = AppValues.getSourceDetailExternal();
-        var sourceDetailInternal = AppValues.getSourceDetailInternal();
         var compoundProtectionValues = AppValues.getCompoundProtectionValues();
         var compounds = [{
             name: 'Intermediate'
@@ -75,15 +72,6 @@
                 resolve: {
                     name: function() {
                         return that.title;
-                    },
-                    sourceValues: function() {
-                        return sourceValues;
-                    },
-                    sourceDetailExternal: function() {
-                        return sourceDetailExternal;
-                    },
-                    sourceDetailInternal: function() {
-                        return sourceDetailInternal;
                     }
                 }
             }).result.then(function(result) {
@@ -300,12 +288,7 @@
                     id: 'source',
                     name: 'Source',
                     type: 'select',
-                    values: function() {
-                        return sourceValues;
-                    },
-                    onChange: function(row) {
-                        row.sourceDetail = {};
-                    },
+                    dictionary: 'Source',
                     hideSelectValue: true,
                     actions: [_.extend({}, setSelectSourceValueAction, {
                         name: 'Set value for Source',
@@ -316,17 +299,7 @@
                     id: 'sourceDetail',
                     name: 'Source Detail',
                     type: 'select',
-                    values: function(row) {
-                        if (row.source && row.source.name) {
-                            if (row.source.name === 'Internal') {
-                                return sourceDetailInternal;
-                            } else if (row.source.name === 'External') {
-                                return sourceDetailExternal;
-                            }
-                        }
-
-                        return null;
-                    },
+                    dictionary: 'Source Details',
                     hideSelectValue: true,
                     actions: [_.extend({}, setSelectSourceValueAction, {
                         name: 'Set value for Source Detail',
@@ -597,7 +570,8 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts();
+            ProductBatchSummaryOperations.syncWithIntendedProducts()
+                .then(successAddedBatches);
         }
 
         function isEditable(row, columnId) {
@@ -621,13 +595,20 @@
 
         function duplicateBatches() {
             ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
-                .then(function(batches) {
-                    _.forEach(batches, successAddedBatch);
-                });
+                .then(successAddedBatches);
         }
 
         function addNewBatch() {
             ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+        }
+
+        function successAddedBatches(batches) {
+            if (batches.length) {
+                _.forEach(batches, function(batch) {
+                    vm.onAddedBatch({batch: batch});
+                });
+                vm.onRowSelected(_.last(batches));
+            }
         }
 
         function successAddedBatch(batch) {
