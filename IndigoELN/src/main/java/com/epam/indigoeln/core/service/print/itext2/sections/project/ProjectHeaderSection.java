@@ -7,8 +7,9 @@ import com.epam.indigoeln.core.service.print.itext2.utils.PdfPTableHelper;
 import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.pdf.PdfPTable;
 
-public class ProjectHeaderSection
-        extends BaseHeaderSectionWithLogo<ProjectHeaderModel> {
+public class ProjectHeaderSection extends BaseHeaderSectionWithLogo<ProjectHeaderModel> {
+
+    private static final float[] COLUMN_WIDTH = new float[]{1, 1, 1, 1.15f};
 
     public ProjectHeaderSection(ProjectHeaderModel model) {
         super(model);
@@ -16,7 +17,7 @@ public class ProjectHeaderSection
 
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(4, width);
+        PdfPTable table = TableFactory.createDefaultTable(COLUMN_WIDTH, width);
 
         PdfPTableHelper helper = new PdfPTableHelper(table);
         helper.addKeyValueCells("Project Name", model.getProjectName(), 3)
