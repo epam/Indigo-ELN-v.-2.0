@@ -21,7 +21,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
             "Reagent", "Mol Wgh", "Weight", "Moles", "Volume", "EQ", "Other Information"
     };
     private static final float[] COLUMN_WIDTH = new float[]{3.5f, 1, 1, 1, 1.2f, 0.75f, 3.05f};
-    private static final float[] INFO_COLUMN_WIDTH = new float[]{2, 3};
+    private static final float[] INFO_COLUMN_WIDTH = new float[]{2.15f, 3};
 
     private static final float CELL_VERTICAL_PADDING = 4;
     private static final float CELL_HORIZONTAL_PADDING = 2;
@@ -35,9 +35,6 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
         PdfPTable table = TableFactory.createDefaultTable(HEADERS, COLUMN_WIDTH, width);
         float imagePart = (float) (COLUMN_WIDTH[0] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
         float reagentCellWidth = imagePart * width;
-
-        float infoPart = (float) (COLUMN_WIDTH[6] / DoubleStreamEx.of(COLUMN_WIDTH).sum());
-        float infoWidth = infoPart * width;
 
         for (StoichiometryRow row : model.getRows()) {
             PdfPTable reagentTable = TableFactory.createDefaultTable(1, reagentCellWidth);
@@ -56,7 +53,7 @@ public class StoichiometrySection extends BasePdfSectionWithSimpleTitle<Stoichio
                 reagentTable.addCell(getStructureCell(compoundId));
             }
 
-            PdfPTable otherInformation = TableFactory.createDefaultTable(INFO_COLUMN_WIDTH, infoWidth);
+            PdfPTable otherInformation = new PdfPTable(INFO_COLUMN_WIDTH);
 
             PdfPCell chemNameLabel = getInfoCell("Name:");
             PdfPCell chemicalName = getInfoCell(row.getChemicalName());

@@ -37,9 +37,6 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
         float imagePart = (float) (columnWidth[1] / DoubleStreamEx.of(columnWidth).sum());
         float structureTableWidth = imagePart * width;
 
-        float infoPart = (float) (columnWidth[5] / DoubleStreamEx.of(columnWidth).sum());
-        float infoWidth = infoPart * width;
-
         float yieldPart = (float) (columnWidth[3] / DoubleStreamEx.of(columnWidth).sum());
         float yieldWidth = yieldPart * width;
 
@@ -67,7 +64,7 @@ public class BatchInformationSection extends BasePdfSectionWithSimpleTitle<Batch
                 yieldTable.addCell(getYieldCell(FormatUtils.formatDecimal(row.getYield(), "%")));
             }
 
-            PdfPTable batchInformation = TableFactory.createDefaultTable(infoColumnWidth, infoWidth);
+            PdfPTable batchInformation = new PdfPTable(infoColumnWidth);
             BatchInformation batchInfo = row.getBatchInformation();
 
             PdfPCell molWeightLabel = getBatchCell("Mol Wgt:");
