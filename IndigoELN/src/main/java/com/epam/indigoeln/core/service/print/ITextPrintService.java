@@ -73,12 +73,14 @@ public class ITextPrintService {
         pdfGenerator.generate(outputStream);
     }
 
-    public void generateProjectPdf(String projectId, OutputStream outputStream) {
+    public byte[] generateProjectPdf(String projectId, PrintRequest printRequest) {
         Project project = findChecked(projectRepository, projectId, PROJECT);
 
-        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project, fileRepository);
+        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project, fileRepository, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        pdfGenerator.generate(outputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
 
