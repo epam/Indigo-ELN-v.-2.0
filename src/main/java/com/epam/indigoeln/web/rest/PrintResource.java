@@ -90,12 +90,12 @@ public class PrintResource {
             path = "/project/{projectId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId) {
+    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId,
+                                                   @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateProjectPdf(projectId, byteArrayOutputStream);
+        byte[] bytes =  iTextPrintService.generateProjectPdf(projectId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
     @ApiOperation(value = "Open notebook pdf preview", produces = "application/json")
