@@ -78,6 +78,7 @@
                 vm.batchesTrigger = 0;
                 vm.selectedBatch = null;
                 vm.selectedBatchTrigger = 0;
+                vm.batchOperation = null;
                 vm.reactants = null;
                 vm.reactantsTrigger = 0;
 

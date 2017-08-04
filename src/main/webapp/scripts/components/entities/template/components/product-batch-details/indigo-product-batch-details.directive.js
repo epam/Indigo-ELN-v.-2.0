@@ -21,6 +21,7 @@
                 reactants: '=',
                 reactantsTrigger: '=',
                 isReadonly: '=',
+                batchOperation: '=',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&'
