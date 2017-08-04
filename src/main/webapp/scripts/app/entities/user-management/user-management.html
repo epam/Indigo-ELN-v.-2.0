@@ -124,7 +124,7 @@
                 <td ng-bind="user.firstName"></td>
                 <td ng-bind="user.lastName"></td>
                 <td>
-                    <div ng-repeat="role in user.roles track by role.id" ng-bind="role.name"></div>
+                    <div ng-bind="user.roles | joinBy: ', ': 'name'"></div>
                 </td>
                 <td ng-bind="user.email"></td>
                 <td>
