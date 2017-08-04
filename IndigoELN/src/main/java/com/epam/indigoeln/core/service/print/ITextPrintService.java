@@ -18,9 +18,7 @@ import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.util.Optional;
 
 @Service
