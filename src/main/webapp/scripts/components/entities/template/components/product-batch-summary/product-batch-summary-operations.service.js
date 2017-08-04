@@ -6,16 +6,18 @@ angular
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
                                        Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
                                        sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
+    var curNbkOperation = $q.when();
+
     return {
         exportSDFile: exportSDFile,
         getSelectedNonEditableBatches: getSelectedNonEditableBatches,
-        duplicateBatches: duplicateBatches,
-        duplicateBatch: duplicateBatch,
+        duplicateBatches: chainPromises(duplicateBatches),
+        duplicateBatch: chainPromises(duplicateBatch),
         setStoicTable: setStoicTable,
         getIntendedNotInActual: getIntendedNotInActual,
         syncWithIntendedProducts: syncWithIntendedProducts,
-        addNewBatch: addNewBatch,
-        importSDFile: importSDFile,
+        addNewBatch: chainPromises(addNewBatch),
+        importSDFile: chainPromises(importSDFile),
         registerBatches: registerBatches,
         deleteBatches: deleteBatches
     };
@@ -49,6 +51,14 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 return item.fullNbkBatch;
             })
             .value();
+    }
+
+    function chainPromises(fn) {
+        return function() {
+            curNbkOperation = curNbkOperation.then(fn);
+
+            return curNbkOperation;
+        };
     }
 
     function updateNbkBatches(batches) {

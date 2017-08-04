@@ -28,6 +28,7 @@
                               selected-batch-trigger="vm.selectedBatchTrigger"
                               is-readonly="vm.isReadonly"
                               on-added-batch="vm.onAddedBatch({batch: batch})"
+                              batch-operation="vm.batchOperation"
                               on-select-batch="vm.onSelectBatch({batch: batch})"
                               on-remove-batches="vm.onRemoveBatches({batch: batches})"
         ></indigo-batch-summary>
@@ -74,6 +75,7 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
+                        <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
