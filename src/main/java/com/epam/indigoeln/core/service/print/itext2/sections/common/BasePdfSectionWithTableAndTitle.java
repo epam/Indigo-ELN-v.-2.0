@@ -1,9 +1,12 @@
 package com.epam.indigoeln.core.service.print.itext2.sections.common;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
+import com.epam.indigoeln.core.service.print.itext2.utils.CellFactory;
+import com.epam.indigoeln.core.service.print.itext2.utils.TableFactory;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.PdfPRow;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import one.util.streamex.StreamEx;
@@ -16,6 +19,8 @@ public abstract class BasePdfSectionWithTableAndTitle<T extends SectionModel> ex
     private PdfPTable titleTable;
     private PdfPTable contentTable;
 
+    private static final int MIN_SPACE_FOR_CONTENT_ON_PAGE = 40;
+
     public BasePdfSectionWithTableAndTitle(T model) {
         super(model);
     }
@@ -24,7 +29,18 @@ public abstract class BasePdfSectionWithTableAndTitle<T extends SectionModel> ex
     protected List<PdfPTable> generateSectionElements(float width) {
         titleTable = generateTitleTable(width);
         contentTable = generateContentTable(width);
-        return StreamEx.of(titleTable, contentTable).filter(Objects::nonNull).toList();
+
+        PdfPTable table = TableFactory.createDefaultTable(1, width);
+        table.setHeaderRows(1);
+
+        PdfPCell title = CellFactory.getCommonCell(titleTable);
+        title.setBorder(Rectangle.NO_BORDER);
+        table.addCell(title);
+
+        PdfPCell content = CellFactory.getCommonCell(contentTable);
+        table.addCell(content);
+
+        return StreamEx.of(table).filter(Objects::nonNull).toList();
     }
 
     protected abstract PdfPTable generateTitleTable(float width);
@@ -46,6 +62,6 @@ public abstract class BasePdfSectionWithTableAndTitle<T extends SectionModel> ex
         float contentTableHeaderHeight = Optional.of(contentTable).map(PdfPTable::getHeaderHeight).orElse(0f);
         float contentAvailableHeight = remainingPageHeight - titleTableHeight - contentTableHeaderHeight;
 
-        return contentAvailableHeight >= Optional.of(contentTable.getRow(contentTable.getHeaderRows())).map(PdfPRow::getMaxHeights).orElse(0f);
+        return contentAvailableHeight >= MIN_SPACE_FOR_CONTENT_ON_PAGE;
     }
 }
