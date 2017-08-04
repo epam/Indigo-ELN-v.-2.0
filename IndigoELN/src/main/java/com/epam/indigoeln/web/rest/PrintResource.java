@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -75,12 +76,12 @@ public class PrintResource {
     )
     public ResponseEntity<byte[]> createExperimentPdf(@ApiParam("project id") @PathVariable String projectId,
                                     @ApiParam("notebook id") @PathVariable String notebookId,
-                                    @ApiParam("experiment id") @PathVariable String experimentId) {
+                                    @ApiParam("experiment id") @PathVariable String experimentId,
+                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
     @ApiOperation(value = "Open project pdf preview", produces = "application/json")
