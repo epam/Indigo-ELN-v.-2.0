@@ -570,7 +570,7 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts()
+            vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts()
                 .then(successAddedBatches);
         }
 
@@ -594,13 +594,14 @@
         }
 
         function duplicateBatches() {
-            ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
+            vm.batchOperation = ProductBatchSummaryOperations.duplicateBatches(getCheckedBatches())
                 .then(successAddedBatches);
         }
 
         function addNewBatch() {
-            ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
+
 
         function successAddedBatches(batches) {
             if (batches.length) {
@@ -633,9 +634,7 @@
         }
 
         function importSDFile() {
-            vm.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                vm.importLoading = false;
+            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });

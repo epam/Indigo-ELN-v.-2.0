@@ -18,6 +18,7 @@
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
                 stoichTable: '=',
+                batchOperation: '=',
                 onShowStructure: '&',
                 saveExperimentFn: '&',
                 onAddedBatch: '&',
