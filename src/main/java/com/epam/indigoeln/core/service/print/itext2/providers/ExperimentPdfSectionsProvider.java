@@ -22,6 +22,7 @@ import com.epam.indigoeln.core.service.print.itext2.sections.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.mongodb.gridfs.GridFSDBFile;
 import one.util.streamex.StreamEx;
 import org.springframework.data.domain.PageRequest;
@@ -44,15 +45,18 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     private final Experiment experiment;
     private final FileRepository fileRepository;
     private final List<GridFSDBFile> files;
+    private final PrintRequest printRequest;
 
     private static final HashMap<String, ComponentToPdfSectionsConverter> componentNameToConverter = new HashMap<>();
 
-    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository) {
+    public ExperimentPdfSectionsProvider(Project project, Notebook notebook, Experiment experiment, FileRepository fileRepository,
+                                         PrintRequest printRequest) {
         this.project = project;
         this.notebook = notebook;
         this.experiment = experiment;
         this.fileRepository = fileRepository;
         this.files = getFiles(experiment.getFileIds());
+        this.printRequest = printRequest;
     }
 
     /**
@@ -60,9 +64,12 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
      */
     public List<AbstractPdfSection> getContentSections() {
         List<AbstractPdfSection> list = StreamEx.of(experiment.getComponents())
+                .filter(c -> printRequest.getComponents().contains(c.getName()))
                 .flatMap(this::sections)
                 .toList();
-        list.add(getAttachmentsSection());
+        if (printRequest.getComponents().contains(ATTACHMENTS)){
+            list.add(getAttachmentsSection());
+        }
         return list;
     }
 
@@ -289,10 +296,14 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     @Override
     public List<InputStream> getExtraPdf() {
-        return files.stream()
-                .filter(f -> "application/pdf".equals(f.getContentType()))
-                .map(GridFSDBFile::getInputStream)
-                .collect(Collectors.toList());
+        if (printRequest.isIncludeAttachments()) {
+            return files.stream()
+                    .filter(f -> "application/pdf".equals(f.getContentType()))
+                    .map(GridFSDBFile::getInputStream)
+                    .collect(Collectors.toList());
+        } else {
+            return PdfSectionsProvider.super.getExtraPdf();
+        }
     }
 
     public ExperimentHeaderSection getHeaderSection() {
