@@ -28,13 +28,12 @@ angular.module('indigoeln')
     })
     .factory('NotebookSummaryExperiments', function($resource) {
         function toModel(experiment) {
-            var components = experiment.components;
-            if (_.isArray(components)) {
-                experiment.components = _.zipObject(_.map(components, function(component) {
-                    return [component.name, component.content];
-                }));
-
-                return experiment;
+            if (_.isArray(experiment.components)) {
+                var components = {};
+                _.each(experiment.components, function(component) {
+                    components[component.name] = component.content;
+                });
+                experiment.components = components;
             }
 
             return experiment;
