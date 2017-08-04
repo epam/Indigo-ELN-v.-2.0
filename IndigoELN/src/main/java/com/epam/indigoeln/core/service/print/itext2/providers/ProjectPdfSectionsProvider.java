@@ -89,7 +89,7 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
 
     @Override
     public List<InputStream> getExtraPdf() {
-        if (printRequest.isIncludeAttachments()){
+        if (printRequest.includeAttachments()){
             return files.stream()
                     .filter(f -> "application/pdf".equals(f.getContentType()))
                     .map(GridFSDBFile::getInputStream)

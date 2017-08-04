@@ -63,14 +63,16 @@ public class ITextPrintService {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public void generateNotebookPdf(String projectId, String notebookId, OutputStream outputStream) {
+    public byte[] generateNotebookPdf(String projectId, String notebookId, PrintRequest printRequest) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         Project project = findChecked(projectRepository, projectId, PROJECT);
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
 
-        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService);
+        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        pdfGenerator.generate(outputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
     public byte[] generateProjectPdf(String projectId, PrintRequest printRequest) {

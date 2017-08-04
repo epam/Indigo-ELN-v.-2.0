@@ -105,11 +105,11 @@ public class PrintResource {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<byte[]> createNotebookPdf(@ApiParam("project id") @PathVariable String projectId,
-                                                   @ApiParam("notebook id") @PathVariable String notebookId) {
+                                                    @ApiParam("notebook id") @PathVariable String notebookId,
+                                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateNotebookPdf(projectId, notebookId, byteArrayOutputStream);
+        byte[] bytes = iTextPrintService.generateNotebookPdf(projectId, notebookId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 }
