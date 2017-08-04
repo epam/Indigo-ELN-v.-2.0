@@ -79,21 +79,21 @@ function EditSolubilityController($uibModalInstance, solubility) {
     }
 
     function resultToString() {
-        var solubilityStrings = _.map(vm.solubility.data, function(solubility) {
-            var solvent = solubility.solventName && solubility.solventName.name ? solubility.solventName.name : null;
-            var type = solubility.type && solubility.type.name ? solubility.type.name : null;
-            var value = solubility.value && solubility.value.value ? solubility.value : null;
+        var solubilityStrings = _.map(vm.solubility.data, function(sb) {
+            var solvent = sb.solventName ? sb.solventName.name : null;
+            var type = sb.type ? sb.type.name : null;
+            var val = sb.value ? sb.value : null;
             var result = '';
-            if (!type || !value || !solvent) {
-                return '';
+            if (type === 'Quantitative' && val) {
+                result = val.operator.name + ' ' + val.value + ' ' + val.unit.name;
+            } else if (val.value) {
+                result = val.value.name;
             }
-            if (type === 'Quantitative') {
-                result = value.operator.name + ' ' + value.value + ' ' + value.unit.name; // > 5 g/mL
-            } else {
-                result = value.value.name; // Unsoluble
+            if (result && solvent) {
+                result += ' in ' + solvent;
             }
 
-            return result + ' in ' + solvent; // in Acetic acid
+            return result;
         });
 
         return _.compact(solubilityStrings).join(', ');
