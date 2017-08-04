@@ -61,7 +61,7 @@
 
 
         function addNewBatch() {
-            ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
+            vm.batchOperation = ProductBatchSummaryOperations.addNewBatch().then(successAddedBatch);
         }
 
         function successAddedBatch(batch) {
@@ -70,7 +70,7 @@
         }
 
         function duplicateBatch() {
-            ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
+            vm.batchOperation = ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
         }
 
         function deleteBatches() {
@@ -84,7 +84,7 @@
         }
 
         function syncWithIntendedProducts() {
-            ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
+            vm.batchOperation = ProductBatchSummaryOperations.syncWithIntendedProducts().then(function(batches) {
                 if (batches.length) {
                     _.forEach(batches, function(batch) {
                         vm.onAddedBatch({batch: batch});
@@ -99,9 +99,7 @@
         }
 
         function importSDFile() {
-            vm.importLoading = true;
-            ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                vm.importLoading = false;
+            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
