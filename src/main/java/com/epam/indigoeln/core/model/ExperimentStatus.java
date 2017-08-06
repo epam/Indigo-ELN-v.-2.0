@@ -11,7 +11,8 @@ public enum ExperimentStatus {
     SUBMIT_FAIL("Submit_Fail"),
     SINGING("Signing"),
     SINGED("Signed"),
-    ARCHIVED("Archived");
+    ARCHIVED("Archived"),
+    IN_CHECK("In_Check");
 
     private final String value;
 
