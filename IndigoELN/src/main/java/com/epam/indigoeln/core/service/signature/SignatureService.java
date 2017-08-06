@@ -107,7 +107,7 @@ public class SignatureService {
         return experimentDTO.getStatus();
     }
 
-    private ExperimentStatus getExperimentStatus(SignatureService.ISSStatus status) {
+    public ExperimentStatus getExperimentStatus(SignatureService.ISSStatus status) {
 
         // match statuses
         // Indigo Signature Service statuses:
