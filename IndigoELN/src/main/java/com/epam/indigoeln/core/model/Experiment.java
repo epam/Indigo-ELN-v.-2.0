@@ -26,6 +26,7 @@ public class Experiment extends ExperimentShort {
 
     private String documentId;
 
+    @DBRef
     private User submittedBy;
 
     private int experimentVersion;
