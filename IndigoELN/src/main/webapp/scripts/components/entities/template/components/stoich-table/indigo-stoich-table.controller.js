@@ -51,11 +51,12 @@
 
         function removeRow() {
             setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-            $rootScope.$broadcast('stoich-rows-changed');
+            $rootScope.$broadcast('stoich-rows-changed', vm.model.stoichTable.reactants);
         }
 
         function onRowSelected(row) {
             vm.selectedRow = row || null;
+            vm.selectedBatch= row || null;
             $log.debug(row);
         }
 
