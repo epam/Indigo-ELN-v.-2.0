@@ -50,7 +50,7 @@
                     ]
                 },
                 {
-                    id: 'virtualBatchId', name: 'Virtual Batch ID', type: 'input'
+                    id: 'virtualCompoundId', name: ' Virtual Compound ID', type: 'input'
                 },
                 {
                     id: 'molWeight', name: 'Mol Wgt', type: 'scalar'
