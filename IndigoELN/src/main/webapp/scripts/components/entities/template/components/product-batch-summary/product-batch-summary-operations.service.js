@@ -56,6 +56,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             var args = arguments;
             curNbkOperation = curNbkOperation.then(function() {
                 return fn.apply(this, args);
+            }, function() {
+                return fn.apply(this, args);
             });
 
             return curNbkOperation;
@@ -171,6 +173,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         });
     }
 
+
     function importSDFile() {
         return sdImportService.importFile().then(function(sdUnits) {
             var promises = _.map(sdUnits, function(unit) {
@@ -180,6 +183,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             return $q.all(promises).then(function(batches) {
                 return updateNbkBatches(batches).then(function() {
                     EntitiesBrowser.getCurrentForm().$setDirty();
+                    Alert.info(batches.length + ' batches successfully imported');
 
                     return batches;
                 });
