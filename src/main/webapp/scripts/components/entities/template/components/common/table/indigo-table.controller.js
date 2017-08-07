@@ -264,6 +264,9 @@
             $scope.$watchCollection('vm.indigoRows', function() {
                 search(vm.searchText);
             });
+            $scope.$on('SET_UNIT', function() {
+                vm.onChanged();
+            });
         }
     }
 })();
