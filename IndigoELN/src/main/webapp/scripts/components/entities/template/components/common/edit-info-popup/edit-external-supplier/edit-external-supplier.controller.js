@@ -28,12 +28,15 @@ function EditExternalSupplierController($uibModalInstance, data) {
     }
 
     function resultToString() {
-        if (vm.externalSupplier.codeAndName && vm.externalSupplier.catalogRegistryNumber) {
-            return '<' + vm.externalSupplier.codeAndName.name + '> ' +
-                vm.externalSupplier.catalogRegistryNumber;
+        var res = '';
+        if (vm.externalSupplier.codeAndName) {
+            res += '<' + vm.externalSupplier.codeAndName.name + '> ';
+        }
+        if (vm.externalSupplier.catalogRegistryNumber) {
+            res += vm.externalSupplier.catalogRegistryNumber;
         }
 
-        return null;
+        return res;
     }
 
     function save() {

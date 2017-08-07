@@ -104,7 +104,7 @@ public class StoicCalculationServiceTest {
         BasicBatchModel result = stoicCalculationService.calculateProductBatch(productTableDTO);
 
         assertEquals(expectedTotalMol,result.getMol().getValue(), EqualsUtil.PRECISION);
-        assertEquals(expectedYield,result.getYield(), EqualsUtil.PRECISION);
+        assertEquals(Math.round(expectedYield),result.getYield());
     }
 
     private StoicTableDTO getStoicTableDTO(){
