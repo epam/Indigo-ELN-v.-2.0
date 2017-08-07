@@ -5,11 +5,14 @@ import com.epam.indigoeln.core.chemistry.experiment.businessmodel.stoichiometry.
 import com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -115,9 +118,9 @@ public class StoichCalculator {
     private boolean isReactionEquivMeaningless(StoicModelInterface rb) {
         // if only Volume is set for it then don't display eq value
 
-        Supplier<Boolean> cond = () -> !rb.getStoicVolumeAmount().isCalculated() && rb.getStoicMoleAmount().isCalculated();
+        Supplier<Boolean> isVolumeAndMolCalculated = () -> !rb.getStoicVolumeAmount().isCalculated() && rb.getStoicMoleAmount().isCalculated();
 
-        return  cond.get() &&
+        return isVolumeAndMolCalculated.get() &&
                 rb.getStoicRxnEquivsAmount().isCalculated() && rb.getStoicDensityAmount().isCalculated() &&
                 rb.getStoicMolarAmount().isCalculated();
     }
@@ -166,78 +169,103 @@ public class StoichCalculator {
 
     private void recalculateSolventAmounts(StoicModelInterface rb, StoicModelInterface limitingReagent) {
         LOGGER.debug("StoichCalculator.recalculateSolventAmounts().enter");
-        if (limitingReagent == null)
+
+        if (rb == null || limitingReagent == null) {
             return;
+        }
+
         AmountModel molarAmount = rb.getStoicMolarAmount();
         AmountModel volumeAmount = rb.getStoicVolumeAmount();
-        ArrayList<AmountModel> volumeAmountList = getVolumeAmountsForAllSolvents();
-        if (doubleEqZero(molarAmount.getValueInStdUnitsAsDouble()) && doubleEqZero(volumeAmount.getValueInStdUnitsAsDouble()))
-            return;
 
         List<StoicModelInterface> reagents = getReagentBatches();
-        for (int i = 0; i < reagents.size(); i++) {
-            StoicModelInterface b = reagents.get(i);
-            // if solvant go ahead
-            if (b.getStoicReactionRole().equals(BatchType.SOLVENT.toString()) && b.equals(rb)) {
-                // if this batch is the editing batch
-                if (volumeAmount.isCalculated()) {
-                    // Case for user entry for Molar amount
-                    if (!molarAmount.isCalculated() && !doubleEqZero(molarAmount.getValueInStdUnitsAsDouble())) {
-                        recalculateVolumeForSolvent(limitingReagent.getStoicMoleAmount(), rb, volumeAmountList);
-                        molarAmount = rb.getStoicMolarAmount();
-                        updateMolarAmountsForSolvent(molarAmount.getValueInStdUnitsAsDouble(), molarAmount.getSigDigits());
-                        molarAmount.setCalculated(false);
-                        rb.setPreviousMolarAmount(molarAmount);
-                    }
-                } else if (molarAmount.isCalculated()) {
-                    if (doubleEqZero(molarAmount.getValueInStdUnitsAsDouble()) || areAllVolumesUserEnteredForSovents())
-                        recalculateMolarAmountForSolvent(limitingReagent.getStoicMoleAmount());
-                    // User entered Volume amount
-                    // once Molar amounts are updated for the volume entered, it is required
-                    // to find and update the volume that was calculated.
-                    findAndRecalculateVolumeForSolvents(reagents, limitingReagent.getStoicMoleAmount(), volumeAmount);
-                    rb.getStoicVolumeAmount().setCalculated(false);
-                } else {
-                    // Volume and Molarity are both user entered, check if Molar Amount
-                    // is different than other solvents, if different then user have entered
-                    // for Molarity
-                    AmountModel tempMolarAmt = rb.getPreviousMolarAmount();
-                    if (!doubleNumEq(tempMolarAmt.getValueInStdUnitsAsDouble(), molarAmount.getValueInStdUnitsAsDouble())) {
-                        // Molarity entered by the user
-                        updateMolarAmountsForSolvent(rb.getStoicMolarAmount().getValueInStdUnitsAsDouble(), rb
-                                .getStoicMolarAmount().getSigDigits());
-                        applySigDigitsToAllSolventMolarites(rb.getStoicMolarAmount());
-                        rb.getStoicMolarAmount().setCalculated(false);
-                        // Calculate Volume for this solvent
-                        recalculateVolumeForSolvent(limitingReagent.getStoicMoleAmount(), rb, volumeAmountList);
-                        rb.getStoicVolumeAmount().setCalculated(true);
-                        rb.setPreviousMolarAmount(rb.getStoicMolarAmount());
-                    } else {
-                        if (areAllVolumesUserEnteredForSovents()) {
-                            // recalculate Molarity with the updated total volume
-                            recalculateMolarAmountForSolvent(limitingReagent.getStoicMoleAmount());
-                            rb.getStoicVolumeAmount().setCalculated(false);
-                            rb.getStoicMolarAmount().setCalculated(true);
-                        } else {
-                            // once Molar amounts are updated for the volume entered, it is required
-                            // to find and update the volume that was calculated.
-                            findAndRecalculateVolumeForSolvents(reagents, limitingReagent.getStoicMoleAmount(), volumeAmount);
-                        }
-                    }
+        List<AmountModel> volumeAmountList = getVolumeAmountsForAllSolvents();
+
+        if (doubleEqZero(molarAmount.getValueInStdUnitsAsDouble()) && doubleEqZero(volumeAmount.getValueInStdUnitsAsDouble())) {
+            return;
+        }
+
+        for (StoicModelInterface b : reagents) {
+            if (!StringUtils.equals(b.getStoicReactionRole(), BatchType.SOLVENT.toString())) {
+                continue;
+            }
+
+            // if solvent go ahead
+            // if this batch is the editing batch
+            if (volumeAmount.isCalculated()) {
+                // Case for user entry for Molar amount
+                if (!molarAmount.isCalculated() && !doubleEqZero(molarAmount.getValueInStdUnitsAsDouble())) {
+                    recalculateVolumeForSolvent(limitingReagent.getStoicMoleAmount(), rb, volumeAmountList);
+
+                    molarAmount = rb.getStoicMolarAmount();
+                    updateMolarAmountsForSolvent(molarAmount.getValueInStdUnitsAsDouble(), molarAmount.getSigDigits());
+                    molarAmount.setCalculated(false);
+
+                    rb.setPreviousMolarAmount(molarAmount);
                 }
+
+                continue;
+            }
+
+            if (molarAmount.isCalculated()) {
+                if (doubleEqZero(molarAmount.getValueInStdUnitsAsDouble()) || areAllVolumesUserEnteredForSovents()) {
+                    recalculateMolarAmountForSolvent(limitingReagent.getStoicMoleAmount());
+                }
+
+                // User entered Volume amount
+                // once Molar amounts are updated for the volume entered, it is required
+                // to find and update the volume that was calculated.
+                findAndRecalculateVolumeForSolvents(reagents, limitingReagent.getStoicMoleAmount(), volumeAmount);
+                rb.getStoicVolumeAmount().setCalculated(false);
+
+                continue;
+            }
+
+            // Volume and Molarity are both user entered, check if Molar Amount
+            // is different than other solvents, if different then user have entered
+            // for Molarity
+            AmountModel tempMolarAmt = rb.getPreviousMolarAmount();
+
+            if (!doubleNumEq(tempMolarAmt.getValueInStdUnitsAsDouble(), molarAmount.getValueInStdUnitsAsDouble())) {
+                // Molarity entered by the user
+                updateMolarAmountsForSolvent(rb.getStoicMolarAmount().getValueInStdUnitsAsDouble(), rb.getStoicMolarAmount().getSigDigits());
+                applySigDigitsToAllSolventMolarites(rb.getStoicMolarAmount());
+                rb.getStoicMolarAmount().setCalculated(false);
+
+                // Calculate Volume for this solvent
+                recalculateVolumeForSolvent(limitingReagent.getStoicMoleAmount(), rb, volumeAmountList);
+                rb.getStoicVolumeAmount().setCalculated(true);
+                rb.setPreviousMolarAmount(rb.getStoicMolarAmount());
+
+                continue;
+            }
+
+            if (areAllVolumesUserEnteredForSovents()) {
+                // recalculate Molarity with the updated total volume
+                recalculateMolarAmountForSolvent(limitingReagent.getStoicMoleAmount());
+                rb.getStoicVolumeAmount().setCalculated(false);
+                rb.getStoicMolarAmount().setCalculated(true);
+            } else {
+                // once Molar amounts are updated for the volume entered, it is required
+                // to find and update the volume that was calculated.
+                findAndRecalculateVolumeForSolvents(reagents, limitingReagent.getStoicMoleAmount(), volumeAmount);
             }
         }
+
         LOGGER.debug("StoichCalculator.recalculateSolventAmounts().exit");
     }
 
     private void recalculateAmountsForBatch(StoicModelInterface limtReag, StoicModelInterface targetReag, boolean calcMolesOnly) {
         LOGGER.debug("StoichCalculator.recalculateAmountsForBatch().enter");
+
         if (limtReag != null && targetReag != null && limtReag != targetReag && targetReag.isAutoCalcOn()) {
             // Need to decide if we are updating RxnEquivs or a weight amount
-            if (!targetReag.getStoicRxnEquivsAmount().isCalculated() ||
-                    (targetReag.getStoicMoleAmount().isCalculated() &&
+
+            Supplier<Boolean> isMoleWeightVolumeCalculated = () ->
+                    targetReag.getStoicMoleAmount().isCalculated() &&
                             targetReag.getStoicWeightAmount().isCalculated() &&
-                            targetReag.getStoicVolumeAmount().isCalculated())) {
+                            targetReag.getStoicVolumeAmount().isCalculated();
+
+            if (!targetReag.getStoicRxnEquivsAmount().isCalculated() || isMoleWeightVolumeCalculated.get()) {
                 recalculateMoleAmountForBatch(limtReag, targetReag);
             }
 
@@ -247,6 +275,7 @@ public class StoichCalculator {
                 recalculateRxnEquivsForBatch(limtReag, targetReag);
             }
         }
+
         LOGGER.debug("StoichCalculator.recalculateAmountsForBatch().exit");
     }
 
@@ -275,44 +304,55 @@ public class StoichCalculator {
      */
     private void recalculateMolesBasedOnLimitingReagent(StoicModelInterface limitingAB) {
         LOGGER.debug("StoichCalculator.recalculateMolesBasedOnLimitingReagent().enter");
+
         if (limitingAB != null && canBeLimiting(limitingAB)) {
             // So in effect you are saying that if the volume of the limiting reagent is zero you don't
-// want to permit any reagent from being updated by values in the limiting reagent.
-// That is an incorrect assumption as limiting reagent can be dry or neat.
-// I believe this check-in will break our calculations when volume of limiting reagent is zero.
-// Try again.
-//nothing
-// Need to not calculate Amounts for SOLVENTS
-// if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
-// if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
-            getReagentBatches().stream().filter(b -> !b.equals(limitingAB) && b.isAutoCalcOn()).forEach(b -> {
-                Supplier<Boolean> cond = () -> b.getStoicMoleAmount().doubleValue() > 0.0 ||
-                        CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0) &&
-                                b.getStoicVolumeAmount().doubleValue() > 0.0;
+            // want to permit any reagent from being updated by values in the limiting reagent.
+            // That is an incorrect assumption as limiting reagent can be dry or neat.
+            // I believe this check-in will break our calculations when volume of limiting reagent is zero.
+            // Try again.
+            //nothing
+            // Need to not calculate Amounts for SOLVENTS
+            // if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
+            // if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
 
-                if (CeNNumberUtils.doubleEquals(limitingAB.getStoicVolumeAmount().doubleValue(), 0.0) && CeNNumberUtils.doubleEquals(limitingAB.getStoicWeightAmount().doubleValue(), 0.0)) {
-                    if (b.isStoicLimiting()) {
-                        AmountModel am = b.getStoicMoleAmount();
-                        AmountModel tmpAmt = new AmountModel(am.getUnitType());
-                        tmpAmt.deepCopy(am);
-                        limitingAB.setStoicMoleAmount(tmpAmt);
-                    }
-                } else if (b.getStoicRxnEquivsAmount().getValueInStdUnitsAsDouble() > 0.0 && cond.get() || limitingAB.isStoicLimiting()) {
-                    if (!b.getStoicReactionRole().equals(BatchType.SOLVENT.toString())) {
-                        // if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
-                        if (limitingAB.isStoicLimiting()) {
-                            recalculateAmountsForBatch(limitingAB, b, false);
-                            // if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
-                        } else if (b.isStoicLimiting()) {
-                            recalculateAmountsForBatch(b, limitingAB, false);
+            Function<AmountModel, AmountModel> copyAmount = (am) -> {
+                AmountModel tmpAmt = new AmountModel(am.getUnitType());
+                tmpAmt.deepCopy(am);
+                return tmpAmt;
+            };
+
+            Function<StoicModelInterface, Boolean> amountsGreaterThanZero = (b) ->
+                    b.getStoicMoleAmount().doubleValue() > 0.0 ||
+                            CeNNumberUtils.doubleEquals(b.getStoicMoleAmount().doubleValue(), 0.0) &&
+                                    b.getStoicVolumeAmount().doubleValue() > 0.0;
+
+            getReagentBatches()
+                    .stream()
+                    .filter(b -> !b.equals(limitingAB) && b.isAutoCalcOn())
+                    .forEach(b -> {
+                        if (CeNNumberUtils.doubleEquals(limitingAB.getStoicVolumeAmount().doubleValue(), 0.0) && CeNNumberUtils.doubleEquals(limitingAB.getStoicWeightAmount().doubleValue(), 0.0)) {
+                            if (b.isStoicLimiting()) {
+                                limitingAB.setStoicMoleAmount(copyAmount.apply(b.getStoicMoleAmount()));
+                            }
+                        } else if (b.getStoicRxnEquivsAmount().getValueInStdUnitsAsDouble() > 0.0 && amountsGreaterThanZero.apply(b) || limitingAB.isStoicLimiting()) {
+                            if (!b.getStoicReactionRole().equals(BatchType.SOLVENT.toString())) {
+                                // if the batch 'limitingAB' is a limited reagent then all the batches should be recalculated.
+                                if (limitingAB.isStoicLimiting()) {
+                                    recalculateAmountsForBatch(limitingAB, b, false);
+                                    // if the batch 'limitingAB' is NOT a limited reagent then only this batch should be recalculated basing on the limited one
+                                } else if (b.isStoicLimiting()) {
+                                    recalculateAmountsForBatch(b, limitingAB, false);
+                                }
+                            }
+                        } else if (b.getStoicMoleAmount().doubleValue() > 0.0) {
+                            b.resetAmount(CeNConstants.MOLE_AMOUNT);
                         }
-                    }
-                } else if (b.getStoicMoleAmount().doubleValue() > 0.0) {
-                    b.resetAmount(CeNConstants.MOLE_AMOUNT);
-                }
-            });
+                    });
+
             updateActualProductTheoAmounts(limitingAB);
         }
+
         LOGGER.debug("StoichCalculator.recalculateMolesBasedOnLimitingReagent().exit");
     }
 
@@ -428,7 +468,7 @@ public class StoichCalculator {
         return true;
     }
 
-    private void recalculateVolumeForSolvent(AmountModel limitingMole, StoicModelInterface rb, ArrayList<AmountModel> volumeAmounts) {
+    private void recalculateVolumeForSolvent(AmountModel limitingMole, StoicModelInterface rb, List<AmountModel> volumeAmounts) {
         ArrayList<AmountModel> amts = new ArrayList<>();
         AmountModel tempVolumeAmt;
         double tempMolarAmtValue = rb.getStoicMolarAmount().getValueInStdUnitsAsDouble();
@@ -530,91 +570,79 @@ public class StoichCalculator {
     }
 
     private void recalculateRxnEquivsForBatch(StoicModelInterface limtReag, StoicModelInterface targetReagent) {
-        if (limtReag != null && targetReagent != null && targetReagent.isAutoCalcOn() && targetReagent.getStoicRxnEquivsAmount().isCalculated()) {
-            // Need to account for interesting ratios like a limiting reagent that has
-            // a rxnEquiv of 2 while the target only has a 1.
-            // Invariant limitingRxnEquivs != 0.0
-            double result = 1.0; // default rxnEquiv amount.
-            // TODO: when is 1.0 going to fall through and make this calc wrong?
+        if (limtReag == null || targetReagent == null) {
+            return;
+        }
 
-            double sourceMoles = limtReag.getStoicMoleAmount().getValueInStdUnitsAsDouble();
-            double sourceRxnEquivs = limtReag.getStoicRxnEquivsAmount().doubleValue();
-            if (targetReagent instanceof BatchesList<?>) {
-                BatchesList<MonomerBatchModel> blist = (BatchesList<MonomerBatchModel>) targetReagent;
-                if (blist.getBatchModels() == null)
-                    return;
+        if (!targetReagent.isAutoCalcOn() || !targetReagent.getStoicRxnEquivsAmount().isCalculated()) {
+            return;
+        }
 
-                for (MonomerBatchModel batchModel : blist.getBatchModels()) {
-                    double targetReagMoles = batchModel.getStoicMoleAmount().getValueInStdUnitsAsDouble();
+        // Need to account for interesting ratios like a limiting reagent that has
+        // a rxnEquiv of 2 while the target only has a 1.
+        // Invariant limitingRxnEquivs != 0.0
 
-                    ArrayList<AmountModel> amts = new ArrayList<>();
-                    if (targetReagMoles > 0.0) {
-                        amts.add(batchModel.getStoicMoleAmount());
-                    }
-                    // Make sure targetReagMoles > 0
-                    if (doubleEqZero(targetReagMoles) && batchModel.getStoicMolecularWeightAmount().doubleValue() > 0.0) {
-                        targetReagMoles = batchModel.getStoicWeightAmount().getValueInStdUnitsAsDouble() / batchModel.getStoicMolecularWeightAmount().doubleValue();
-                        amts.add(batchModel.getStoicMolecularWeightAmount());
-                        amts.add(batchModel.getStoicWeightAmount());
-                        if (batchModel.getStoicPurityAmount().doubleValue() < 100d && batchModel.getStoicPurityAmount().doubleValue() > 0.0) {
-                            result = result * (batchModel.getStoicPurityAmount().doubleValue() / 100);
-                            amts.add(batchModel.getStoicPurityAmount());
-                        }
-                    }
-                    if (batchModel.getStoicRxnEquivsAmount().isCalculated() && targetReagMoles > 0.0) {
-// need to use version from Singleton in else clause below.  This version creates multiples when limiting rxn equivs < 0.
-// (targetReagMoles * targetReag.getRxnEquivs()) = (sourceMoles * sourceReag.getRxnEquivs())
-                        // (targetReagMoles / sourceMoles) = (targetReag.getRxnEquivs() / sourceReag.getRxnEquivs())
-                        // RxnEquivsAmount is scalar, hence no need for std units.
-                        double testResult = (targetReagMoles / sourceMoles) * sourceRxnEquivs;
-                        // Doing this is wrong!
-                        if (testResult >= 0.0)
-                            result = testResult;
-                        // RxnEquivs is a scalar Unit, though Mole amounts are currently only mMole amounts.
-                        // Hence we can simply set the result, but it is safer tu use InStdUnits() method
-                        // as there is noise of adding mole amounts in the future.
-                        amts.add(limtReag.getStoicMoleAmount());
-                        amts.add(limtReag.getStoicRxnEquivsAmount());
-                        batchModel.getStoicRxnEquivsAmount().setValueInStdUnits(result, true);
-                        batchModel.applySigFigRules(batchModel.getStoicRxnEquivsAmount(), amts);
-                    }
-                }//for each batch
-            } else {
-                MonomerBatchModel batchModel = (MonomerBatchModel) targetReagent;
-                double targetReagMoles = batchModel.getStoicMoleAmount().getValueInStdUnitsAsDouble();
+        double[] result = {1.0}; // default rxnEquiv amount. TODO: when is 1.0 going to fall through and make this calc wrong?
 
-                ArrayList<AmountModel> amts = new ArrayList<>();
-                if (targetReagMoles > 0.0) {
-                    amts.add(batchModel.getStoicMoleAmount());
-                }
-                // Make sure targetReagMoles > 0
-                if (doubleEqZero(targetReagMoles) && batchModel.getStoicMolecularWeightAmount().doubleValue() > 0.0) {
-                    targetReagMoles = batchModel.getStoicWeightAmount().getValueInStdUnitsAsDouble() / batchModel.getStoicMolecularWeightAmount().doubleValue();
-                    amts.add(batchModel.getStoicMolecularWeightAmount());
-                    amts.add(batchModel.getStoicWeightAmount());
-                    if (batchModel.getStoicPurityAmount().doubleValue() < 100d && batchModel.getStoicPurityAmount().doubleValue() > 0.0) {
-                        result = result * (batchModel.getStoicPurityAmount().doubleValue() / 100);
-                        amts.add(batchModel.getStoicPurityAmount());
-                    }
-                }
-                if (targetReagMoles > 0.0) {
-                    // (targetReagMoles / sourceMoles) = (targetReag.getRxnEquivs() / sourceReag.getRxnEquivs())
-                    // RxnEquivsAmount is scalar, hence no need for std units.
-                    double testResult = (targetReagMoles / sourceMoles) * sourceRxnEquivs;
-                    if (testResult >= 0.0)
-                        result = testResult;
-                    // RxnEquivs is a scalar Unit, though Mole amounts are currently only mMole amounts.
-                    // Hence we can simply set the result, but it is safer tu use InStdUnits() method
-                    // as there is noise of adding mole amounts in the future.
-                    amts.add(limtReag.getStoicMoleAmount());
-                    amts.add(limtReag.getStoicRxnEquivsAmount());
-                    batchModel.getStoicRxnEquivsAmount().setValueInStdUnits(result, true);
-                    batchModel.applySigFigRules(batchModel.getStoicRxnEquivsAmount(), amts);
+        double sourceMoles = limtReag.getStoicMoleAmount().getValueInStdUnitsAsDouble();
+        double sourceRxnEquivs = limtReag.getStoicRxnEquivsAmount().doubleValue();
+
+        Consumer<MonomerBatchModel> addAmounts = (batchModel) -> {
+            double targetReagMoles = batchModel.getStoicMoleAmount().getValueInStdUnitsAsDouble();
+
+            ArrayList<AmountModel> amts = new ArrayList<>();
+
+            if (targetReagMoles > 0.0) {
+                amts.add(batchModel.getStoicMoleAmount());
+            }
+
+            // Make sure targetReagMoles > 0
+            if (doubleEqZero(targetReagMoles) && batchModel.getStoicMolecularWeightAmount().doubleValue() > 0.0) {
+                targetReagMoles = batchModel.getStoicWeightAmount().getValueInStdUnitsAsDouble() / batchModel.getStoicMolecularWeightAmount().doubleValue();
+                amts.add(batchModel.getStoicMolecularWeightAmount());
+                amts.add(batchModel.getStoicWeightAmount());
+                if (batchModel.getStoicPurityAmount().doubleValue() < 100d && batchModel.getStoicPurityAmount().doubleValue() > 0.0) {
+                    result[0] = result[0] * (batchModel.getStoicPurityAmount().doubleValue() / 100);
+                    amts.add(batchModel.getStoicPurityAmount());
                 }
             }
+
+            if (batchModel.getStoicRxnEquivsAmount().isCalculated() && targetReagMoles > 0.0) {
+                // need to use version from Singleton in else clause below.  This version creates multiples when limiting rxn equivs < 0.
+                // (targetReagMoles * targetReag.getRxnEquivs()) = (sourceMoles * sourceReag.getRxnEquivs())
+                // (targetReagMoles / sourceMoles) = (targetReag.getRxnEquivs() / sourceReag.getRxnEquivs())
+                // RxnEquivsAmount is scalar, hence no need for std units.
+                double testResult = (targetReagMoles / sourceMoles) * sourceRxnEquivs;
+
+                // Doing this is wrong!
+                if (testResult >= 0.0) {
+                    result[0] = testResult;
+                }
+
+                // RxnEquivs is a scalar Unit, though Mole amounts are currently only mMole amounts.
+                // Hence we can simply set the result, but it is safer tu use InStdUnits() method
+                // as there is noise of adding mole amounts in the future.
+                amts.add(limtReag.getStoicMoleAmount());
+                amts.add(limtReag.getStoicRxnEquivsAmount());
+
+                batchModel.getStoicRxnEquivsAmount().setValueInStdUnits(result[0], true);
+                batchModel.applySigFigRules(batchModel.getStoicRxnEquivsAmount(), amts);
+            }
+        };
+
+        if (targetReagent instanceof BatchesList<?>) {
+            BatchesList<MonomerBatchModel> blist = (BatchesList<MonomerBatchModel>) targetReagent;
+
+            if (blist.getBatchModels() == null) {
+                return;
+            }
+
+            blist.getBatchModels().forEach(addAmounts);
+        } else {
+            MonomerBatchModel batchModel = (MonomerBatchModel) targetReagent;
+            addAmounts.accept(batchModel);
         }
     }
-
 
     // Method to calc rxnEquivs for Reactants batches
     private void recalculateRxnEquivsBasedOnLimitingReagentMoles(StoicModelInterface limitingAB) {
