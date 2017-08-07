@@ -55,8 +55,6 @@ function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, Alert, 
             return filled;
         });
 
-        Alert.info(batches.length + ' batches successfully imported');
-
         return batches;
     }
 
