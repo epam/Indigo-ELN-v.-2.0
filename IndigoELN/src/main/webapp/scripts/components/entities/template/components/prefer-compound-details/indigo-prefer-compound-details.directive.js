@@ -25,7 +25,8 @@
                 onRemoveBatches: '&',
                 experimentName: '=',
                 structureSize: '=',
-                isHideColumnSettings: '='
+                isHideColumnSettings: '=',
+                onChanged: '&'
             }
         };
 
@@ -70,6 +71,7 @@
 
             function successAddedBatch(batch) {
                 vm.onAddedBatch({batch: batch});
+                vm.onChanged();
                 selectBatch(batch);
             }
 

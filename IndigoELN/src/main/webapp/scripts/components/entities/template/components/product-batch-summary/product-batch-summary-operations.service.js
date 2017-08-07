@@ -97,9 +97,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             .then(function(batches) {
                 return updateNbkBatches(batches)
                     .then(function() {
-                        // TODO: extract to controller
-                        EntitiesBrowser.getCurrentForm().$setDirty();
-
                         return batches;
                     });
             });
@@ -164,8 +161,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function addNewBatch() {
         return createBatch().then(function(batch) {
             return updateNbkBatches([batch]).then(function() {
-                EntitiesBrowser.getCurrentForm().$setDirty();
-
                 return batch;
             });
         });
@@ -179,8 +174,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
             return $q.all(promises).then(function(batches) {
                 return updateNbkBatches(batches).then(function() {
-                    EntitiesBrowser.getCurrentForm().$setDirty();
-
                     return batches;
                 });
             });

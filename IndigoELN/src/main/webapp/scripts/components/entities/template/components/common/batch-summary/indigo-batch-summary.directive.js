@@ -23,7 +23,8 @@
                 saveExperimentFn: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                onChanged: '&'
             },
             bindToController: true,
             controller: 'IndigoBatchSummaryController',

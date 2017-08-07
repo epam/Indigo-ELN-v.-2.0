@@ -100,6 +100,7 @@
             }
 
             function init() {
+                // TODO: remove
                 $scope.$watchCollection('vm.ctrl.selected', function(newSelected) {
                     vm.indigoModel = newSelected;
                 });

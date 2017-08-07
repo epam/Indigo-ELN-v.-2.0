@@ -106,12 +106,14 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
+                vm.onChanged();
                 vm.onRowSelected(_.last(batches));
             }
         }
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
+            vm.onChanged();
             vm.onRowSelected(batch);
         }
 

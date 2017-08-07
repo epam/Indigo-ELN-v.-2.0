@@ -5,8 +5,7 @@
 
     /* @ngInject */
     function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter,
-                                          ProductBatchSummaryCache) {
+                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -609,6 +608,7 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
+                vm.onChanged();
                 vm.onRowSelected(_.last(batches));
             }
         }
@@ -616,6 +616,7 @@
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
             vm.onRowSelected(batch);
+            vm.onChanged();
         }
 
         function getCheckedBatches() {
