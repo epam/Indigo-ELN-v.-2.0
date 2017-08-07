@@ -8,7 +8,8 @@
             restrict: 'E',
             templateUrl: 'scripts/components/entities/template/components/common/inline-loader/inline-loader.html',
             scope: {
-                promise: '='
+                promise: '=',
+                isLoading: '='
             },
             controller: indigoInlineLoaderController,
             controllerAs: 'vm',
@@ -28,7 +29,7 @@
 
         function bindEvents() {
             $scope.$watch('vm.promise.$$state', function(val) {
-                vm.isLoading = (val) ? (val.status !== 1) : false;
+                vm.isLoading = (val && val.status === 0);
             }, true);
         }
     }
