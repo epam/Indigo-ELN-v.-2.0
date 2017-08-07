@@ -1,11 +1,15 @@
 package com.epam.indigoeln.web.rest.dto.search.request;
 
+import java.util.Collections;
+import java.util.List;
+
 public class SearchCriterion {
 
     private String name;
     private String field;
     private String condition;
     private Object value;
+    private List<String> components = Collections.emptyList();
 
     public SearchCriterion() {
     }
@@ -47,5 +51,13 @@ public class SearchCriterion {
 
     public void setValue(Object value) {
         this.value = value;
+    }
+
+    public List<String> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<String> components) {
+        this.components = components;
     }
 }

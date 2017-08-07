@@ -22,20 +22,24 @@ import static java.util.stream.Collectors.toList;
 @Component
 public class ComponentSearchRepository implements InitializingBean {
 
-    public static final String CONDITION_CONTAINS = "contains";
-    public static final String CONDITION_EQUALS = "=";
-    private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", "purity", "name", "description", "compoundId",
+    private static final String CONDITION_CONTAINS = "contains";
+    private static final String CONDITION_EQUALS = "=";
+    public static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", "purity", "name", "description", "compoundId",
             "references", "keywords", "chemicalName");
     private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", "purity");
     private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName");
 
-    @Autowired
-    private MongoTemplate mongoTemplate;
+    private final MongoTemplate mongoTemplate;
 
     @Value("classpath:mongo/search/components.js")
     private Resource scriptResource;
 
     private ExecutableMongoScript searchScript;
+
+    @Autowired
+    public ComponentSearchRepository(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -45,7 +49,7 @@ public class ComponentSearchRepository implements InitializingBean {
     public Optional<Set<DBRef>> searchWithQuery(EntitySearchRequest request) {
         List<String> fields = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
-                .map(c -> c.getField())
+                .map(SearchCriterion::getField)
                 .collect(toList());
 
         List<Criteria> querySearch = new ArrayList<>();
@@ -63,11 +67,7 @@ public class ComponentSearchRepository implements InitializingBean {
                     .forEach(querySearch::add);
         });
 
-        if (!querySearch.isEmpty()) {
-            return Optional.of(new Criteria().orOperator(querySearch.toArray(new Criteria[querySearch.size()]))).map(this::find);
-        } else {
-            return Optional.empty();
-        }
+        return AggregationUtils.orCriteria(querySearch).map(this::find);
     }
 
     public Optional<Set<DBRef>> searchWithAdvanced(EntitySearchRequest request) {
@@ -76,11 +76,7 @@ public class ComponentSearchRepository implements InitializingBean {
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
 
-        if (!advancedSearch.isEmpty()) {
-            return Optional.of(new Criteria().andOperator(advancedSearch.toArray(new Criteria[advancedSearch.size()]))).map(this::find);
-        } else {
-            return Optional.empty();
-        }
+        return AggregationUtils.andCriteria(advancedSearch).map(this::find);
     }
 
     public Optional<Set<DBRef>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
