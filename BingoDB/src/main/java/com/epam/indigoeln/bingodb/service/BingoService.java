@@ -6,7 +6,7 @@ import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.bingodb.config.IndigoProvider;
 import com.epam.indigoeln.bingodb.domain.BingoStructure;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
