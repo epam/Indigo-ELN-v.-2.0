@@ -1,6 +1,6 @@
 <indigo-table indigo-id="preferred-compound-summary"
               indigo-columns="vm.columns"
-              indigo-rows="vm.model.preferredCompoundSummary.compounds"
+              indigo-rows="vm.batches"
               indigo-draggable-columns="true"
               is-readonly="vm.isReadonly"
               indigo-editable="isEditable"
@@ -28,14 +28,19 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-info btn-small"
                             ng-disabled="vm.isReadonly"
-                            ng-click="vm.addNewCompound()">
+                            ng-click="vm.addNewBatch()">
                         <i class="fa fa-plus"></i>
                         <span class="m-l5">Add</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteCompounds()"
+                    <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteBatches()"
                             ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
                         <i class="fa fa-trash"></i>
                         <span class="m-l5">Delete</span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-small" ng-click="vm.duplicateBatches()"
+                            ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">Duplicate</span>
                     </button>
                     <indigo-inline-loader promise = "vm.batchOperation"></indigo-inline-loader>
                 </div>
