@@ -15,6 +15,7 @@ import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectHead
 import com.epam.indigoeln.core.service.print.itext2.sections.project.ProjectSummarySection;
 import com.epam.indigoeln.core.service.print.itext2.utils.LogoUtils;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.data.domain.PageRequest;
 
@@ -30,11 +31,13 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
     private Project project;
     private FileRepository fileRepository;
     private List<GridFSDBFile> files;
+    private PrintRequest printRequest;
 
-    public ProjectPdfSectionsProvider(Project project, FileRepository fileRepository) {
+    public ProjectPdfSectionsProvider(Project project, FileRepository fileRepository, PrintRequest printRequest) {
         this.project = project;
         this.fileRepository = fileRepository;
         this.files = getFiles(project.getFileIds());
+        this.printRequest = printRequest;
     }
 
     @Override
@@ -86,9 +89,13 @@ public class ProjectPdfSectionsProvider implements PdfSectionsProvider {
 
     @Override
     public List<InputStream> getExtraPdf() {
-        return files.stream()
-                .filter(f -> "application/pdf".equals(f.getContentType()))
-                .map(GridFSDBFile::getInputStream)
-                .collect(Collectors.toList());
+        if (printRequest.includeAttachments()){
+            return files.stream()
+                    .filter(f -> "application/pdf".equals(f.getContentType()))
+                    .map(GridFSDBFile::getInputStream)
+                    .collect(Collectors.toList());
+        }else {
+            return PdfSectionsProvider.super.getExtraPdf();
+        }
     }
 }

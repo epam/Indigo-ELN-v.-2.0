@@ -1,4 +1,4 @@
-<div cg-busy="{promise: vm.loading, minDuration:700}">
+<div>
     <indigo-table indigo-id="product-batch-summary"
                   indigo-tab-support="true"
                   indigo-columns="vm.columns"
@@ -47,6 +47,7 @@
                         <i class="fa fa-floppy-o"></i>
                         <span class="m-l5">Register</span>
                     </button>
+                    <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
                 </div>
             </div>
             <div class="col-lg-4 text-align-lg">

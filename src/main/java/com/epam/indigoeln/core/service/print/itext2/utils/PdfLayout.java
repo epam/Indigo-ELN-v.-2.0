@@ -12,7 +12,7 @@ public class PdfLayout {
     private float marginLeft;
     private float marginRight;
 
-    private static final float HEADER_OFFSET = 30;
+    private static final float HEADER_OFFSET = 0;
 
     public PdfLayout(Rectangle pageSize,
                      float marginTop, float marginBottom,

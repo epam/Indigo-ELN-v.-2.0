@@ -14,11 +14,11 @@ import com.epam.indigoeln.core.service.print.itext2.providers.NotebookPdfSection
 import com.epam.indigoeln.core.service.print.itext2.providers.ProjectPdfSectionsProvider;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
-
-import java.io.OutputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.Optional;
 
 @Service
@@ -46,8 +46,7 @@ public class ITextPrintService {
         this.userService = userService;
     }
 
-    public void generateExperimentPdf(String projectId, String notebookId, String experimentId,
-                                      OutputStream outputStream) {
+    public byte[] generateExperimentPdf(String projectId, String notebookId, String experimentId, PrintRequest printRequest) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         String experimentFullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
 
@@ -55,27 +54,33 @@ public class ITextPrintService {
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
         Experiment experiment = findChecked(experimentRepository, experimentFullId, EXPERIMENT);
 
-        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository);
+        ExperimentPdfSectionsProvider provider = new ExperimentPdfSectionsProvider(project, notebook, experiment, fileRepository, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        pdfGenerator.generate(outputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
-    public void generateNotebookPdf(String projectId, String notebookId, OutputStream outputStream) {
+    public byte[] generateNotebookPdf(String projectId, String notebookId, PrintRequest printRequest) {
         String notebookFullId = SequenceIdUtil.buildFullId(projectId, notebookId);
         Project project = findChecked(projectRepository, projectId, PROJECT);
         Notebook notebook = findChecked(notebookRepository, notebookFullId, NOTEBOOK);
 
-        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService);
+        NotebookPdfSectionsProvider provider = new NotebookPdfSectionsProvider(project, notebook, experimentService, userService, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        pdfGenerator.generate(outputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
-    public void generateProjectPdf(String projectId, OutputStream outputStream) {
+    public byte[] generateProjectPdf(String projectId, PrintRequest printRequest) {
         Project project = findChecked(projectRepository, projectId, PROJECT);
 
-        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project, fileRepository);
+        ProjectPdfSectionsProvider provider = new ProjectPdfSectionsProvider(project, fileRepository, printRequest);
         PdfGenerator pdfGenerator = new PdfGenerator(provider);
-        pdfGenerator.generate(outputStream);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        pdfGenerator.generate(byteArrayOutputStream);
+        return byteArrayOutputStream.toByteArray();
     }
 
 

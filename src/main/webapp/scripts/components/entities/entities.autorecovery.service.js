@@ -238,10 +238,8 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
                 prev = deleteServiceFields(angular.extend({}, old));
             }
             somethingUserChanged = false;
-            if (dirty) {
-                EntitiesBrowser.changeDirtyTab($stateParams, dirty);
-            }
             ctimeout = $timeout(function() {
+                EntitiesBrowser.changeDirtyTab($stateParams, dirty);
                 if (dirty) {
                     save(target.kind, entity);
                     if (!entity.$$undo) {

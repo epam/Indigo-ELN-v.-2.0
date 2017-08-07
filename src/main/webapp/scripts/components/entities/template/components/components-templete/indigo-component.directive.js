@@ -21,6 +21,7 @@
             ' selected-batch-trigger="vm.ComponentsCtrl.selectedBatchTrigger"' +
             ' on-select-batch="vm.ComponentsCtrl.onSelectBatch(batch)"' +
             ' on-remove-batches="vm.ComponentsCtrl.onRemoveBatches(batches)"' +
+            ' batch-operation="vm.ComponentsCtrl.batchOperation"' +
             ' save-experiment-fn="vm.ComponentsCtrl.saveExperimentFn()"';
 
         var stoichTableAttributes = defaultAttributes +

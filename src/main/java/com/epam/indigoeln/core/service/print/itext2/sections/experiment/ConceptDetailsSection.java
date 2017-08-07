@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<ConceptDetailsModel> {
     private static final String COMMA = ", ";
+    private static final float[] COLUMNS_WIDTH = new float[]{4, 5, 4, 5};
 
     public ConceptDetailsSection(ConceptDetailsModel model) {
         super(model, "CONCEPT DETAILS");
@@ -17,7 +18,7 @@ public class ConceptDetailsSection extends BasePdfSectionWithSimpleTitle<Concept
 
     @Override
     protected PdfPTable generateContentTable(float width) {
-        PdfPTable table = TableFactory.createDefaultTable(4, width);
+        PdfPTable table = TableFactory.createDefaultTable(COLUMNS_WIDTH, width);
 
         PdfPTableHelper wrapper = new PdfPTableHelper(table);
         wrapper.addKeyValueCells("Created Date", FormatUtils.formatSafe(model.getCreationDate()));

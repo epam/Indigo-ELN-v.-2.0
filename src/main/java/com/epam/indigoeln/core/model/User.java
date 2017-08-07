@@ -25,6 +25,9 @@ import java.util.Set;
 @Document(collection = User.COLLECTION_NAME)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements Serializable {
+
+    private static final long serialVersionUID = 2477615973136366527L;
+
     public static final String COLLECTION_NAME = "user";
 
     @Id
@@ -144,7 +147,7 @@ public class User implements Serializable {
     }
 
     public String getFullName() {
-        return CharMatcher.WHITESPACE.trimFrom(Joiner.on(' ').skipNulls().join(ImmutableList.of(lastName, firstName)));
+        return CharMatcher.whitespace().trimFrom(Joiner.on(' ').skipNulls().join(ImmutableList.of(lastName, firstName)));
     }
 
     public Set<Authority> getAuthorities() {

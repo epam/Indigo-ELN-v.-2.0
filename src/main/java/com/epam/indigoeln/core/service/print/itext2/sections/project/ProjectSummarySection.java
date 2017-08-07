@@ -8,7 +8,7 @@ import com.lowagie.text.pdf.PdfPTable;
 
 public class ProjectSummarySection extends BasePdfSectionWithSimpleTitle<ProjectSummaryModel> {
     public ProjectSummarySection(ProjectSummaryModel model) {
-        super(model, "SUMMARY");
+        super(model, "PROJECT SUMMARY");
     }
 
     @Override
