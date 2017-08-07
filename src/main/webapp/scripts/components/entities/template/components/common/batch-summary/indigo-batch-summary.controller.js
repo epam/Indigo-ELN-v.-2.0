@@ -28,7 +28,8 @@
             vm.loading = false;
             vm.model = vm.model || {};
             vm.columns = getDefaultColumns();
-
+            vm.model.productBatchSummary = vm.model.productBatchSummary || {};
+            vm.model.productBatchSummary.batches = vm.batches;
             RegistrationService.info({}, function(info) {
                 vm.isHasRegService = _.isArray(info) && info.length > 0;
             });
@@ -634,11 +635,7 @@
         }
 
         function importSDFile() {
-            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(function(batches) {
-                _.forEach(batches, function(batch) {
-                    vm.onAddedBatch({batch: batch});
-                });
-            });
+            vm.batchOperation = ProductBatchSummaryOperations.importSDFile().then(successAddedBatches);
         }
 
         function exportSDFile() {
@@ -647,7 +644,7 @@
 
         function registerBatches() {
             vm.loading = vm.saveExperimentFn().then(function() {
-                return ProductBatchSummaryOperations.registerBatches();
+                return ProductBatchSummaryOperations.registerBatches(getCheckedBatches());
             });
         }
 
@@ -668,8 +665,6 @@
                     batch.$$healthHazards = batch.healthHazards ? batch.healthHazards.asString : null;
                     batch.$$batchType = getBatchType(batch);
                 });
-                // TODO: move to productBatchSummary
-                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
             }, true);
 
             $scope.$watch('vm.isHasRegService', function(val) {
@@ -690,12 +685,6 @@
                 vm.onShowStructure({
                     isVisible: val
                 });
-            });
-
-            $scope.$on('product-batch-details-command', function(event, data) {
-                if (_.isFunction(vm[data.command])) {
-                    vm[data.command]();
-                }
             });
 
             $scope.$on('product-batch-summary-recalculated', function(event, data) {
