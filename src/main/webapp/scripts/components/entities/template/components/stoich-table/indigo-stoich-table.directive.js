@@ -17,7 +17,8 @@
                 isReadonly: '=',
                 onChangedReactants: '&',
                 onChangedProducts: '&',
-                onPrecursorsChanged: '&'
+                onPrecursorsChanged: '&',
+                selectedBatch: '='
             }
         };
     }
