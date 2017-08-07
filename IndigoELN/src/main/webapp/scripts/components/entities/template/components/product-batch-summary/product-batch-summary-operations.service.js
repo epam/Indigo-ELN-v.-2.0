@@ -40,12 +40,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function getSelectedNonEditableBatches(batches) {
-        var batches = batches || ProductBatchSummaryCache.getProductBatchSummary();
-
         return _
             .chain(batches)
             .filter(function(item) {
-                return item.select && RegistrationUtil.isRegistered(item);
+                return RegistrationUtil.isRegistered(item);
             })
             .map(function(item) {
                 return item.fullNbkBatch;
@@ -55,7 +53,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
     function chainPromises(fn) {
         return function() {
-            curNbkOperation = curNbkOperation.then(fn);
+            var args = arguments;
+            curNbkOperation = curNbkOperation.then(function() {
+                return fn.apply(this, args);
+            });
 
             return curNbkOperation;
         };
@@ -186,15 +187,15 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         });
     }
 
-    function registerBatches() {
-        var nonEditableBatches = getSelectedNonEditableBatches();
+    function registerBatches(batches) {
+        var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (nonEditableBatches && nonEditableBatches.length > 0) {
             Alert.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.');
 
-            return registerBatchesWith(nonEditableBatches);
+            return registerBatchesWith(batches, nonEditableBatches);
         }
 
-        return registerBatchesWith([]);
+        return registerBatchesWith(batches, []);
     }
 
     function requestNbkBatchNumber(lastNbkBatch) {
@@ -222,8 +223,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         if (stoichTable) {
             _.extend(batch, angular.copy(CalculationService.createBatch(stoichTable, true)));
         }
-
-        _.extend(batch, sdUnit);
+        _.merge(batch, sdUnit);
 
         if (sdUnit) {
             batch.conversationalBatchNumber = null;
@@ -292,30 +292,33 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function saveMolecule(mol) {
-        return $http.post('api/bingodb/molecule/', mol).then(function(response) {
-            return response.data;
-        });
+        if (mol) {
+            return $http.post('api/bingodb/molecule/', mol).then(function(response) {
+                return response.data;
+            });
+        }
+
+        return $q.resolve();
     }
 
-    function registerBatchesWith(excludes) {
-        var batches = ProductBatchSummaryCache.getProductBatchSummary();
-        var _batches = _.filter(batches, function(row) {
-            return row.select && !_.includes(excludes, row.fullNbkBatch);
+    function registerBatchesWith(batchesToRegister, excludes) {
+        var batches = _.filter(batchesToRegister, function(row) {
+            return !_.includes(excludes, row.fullNbkBatch);
         });
         var message = '';
-        var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(_batches);
+        var notFullBatches = RegistrationUtil.getNotFullForRegistrationBatches(batches);
         if (notFullBatches.length) {
             _.each(notFullBatches, function(notFullBatch) {
                 message = message + '<br><b>Batch ' + notFullBatch.nbkBatch + ':</b><br>' + notFullBatch.emptyFields.join('<br>');
             });
             AlertModal.error(message);
         } else {
-            var batchNumbers = _.map(_batches, function(batch) {
+            var batchNumbers = _.map(batches, function(batch) {
                 return batch.fullNbkBatch;
             });
             if (batchNumbers.length) {
                 return saveAndRegister(batchNumbers, function() {
-                    _batches.forEach(function(b) {
+                    batches.forEach(function(b) {
                         b.registrationStatus = 'IN_PROGRESS'; // EPMLSOPELN-403
                     });
                 });
