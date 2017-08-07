@@ -305,12 +305,6 @@
             });
 
             $scope.$watch('experimentForm', function() {
-                // TODO: remove before merge to dev
-               var a = $scope.experimentForm.$setDirty;
-                $scope.experimentForm.$setDirty = function() {
-                    console.log('setDirty')
-                    a();
-                };
                 EntitiesBrowser.setCurrentForm($scope.experimentForm);
             });
 
