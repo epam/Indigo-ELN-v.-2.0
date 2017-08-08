@@ -56,7 +56,6 @@
 
         function onRowSelected(row) {
             vm.selectedRow = row || null;
-            vm.selectedBatch= row || null;
             $log.debug(row);
         }
 
