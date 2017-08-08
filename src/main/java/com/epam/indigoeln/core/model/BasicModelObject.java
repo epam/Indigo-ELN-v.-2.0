@@ -20,9 +20,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     @Id
     private String id;
 
-    @ReadOnlyProperty
-    private String _class;
-
     @NotEmpty
     private String name;
 
