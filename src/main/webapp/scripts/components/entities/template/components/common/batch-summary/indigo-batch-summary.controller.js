@@ -49,6 +49,8 @@
             vm.duplicateBatches = duplicateBatches;
             vm.exportSDFile = exportSDFile;
             vm.registerBatches = registerBatches;
+            vm.isBatchLoading = false;
+            vm.onBatchOperationChanged = onBatchOperationChanged;
 
             bindEvents();
         }
@@ -654,6 +656,10 @@
             }
 
             return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {

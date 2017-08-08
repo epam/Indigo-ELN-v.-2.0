@@ -52,6 +52,8 @@
                 vm.addNewBatch = addNewBatch;
                 vm.deleteBatch = deleteBatch;
                 vm.duplicateBatch = duplicateBatch;
+                vm.onBatchOperationChanged = onBatchOperationChanged;
+                vm.isBatchLoading = false;
 
                 bindEvents();
             }
@@ -93,6 +95,11 @@
             function exportSDFile() {
                 ProductBatchSummaryOperations.exportSDFile();
             }
+
+            function onBatchOperationChanged(completed) {
+                vm.isBatchLoading = completed;
+            }
+
 
             function onRowSelected(batch) {
                 if (batch) {
