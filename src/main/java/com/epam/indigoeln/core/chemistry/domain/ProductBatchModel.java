@@ -6,10 +6,14 @@ import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
+import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.MASS;
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.MOLES;
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.SCALAR;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class ProductBatchModel extends BatchModel {
@@ -28,14 +32,16 @@ public class ProductBatchModel extends BatchModel {
     private int lastUpdatedProductType = UPDATE_TYPE_MOLES;
 
     public ProductBatchModel() {
+        super();
         super.setBatchType(BatchType.INTENDED_PRODUCT);
     }
 
-    public ProductBatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount, AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount, AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType, AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity, AmountModel theoreticalYieldPercentAmount, AmountModel theoreticalWeightAmount, AmountModel theoreticalMoleAmount) {
-        super(molecularWeightAmount, moleAmount, weightAmount, volumeAmount, densityAmount, molarAmount, purityAmount, rxnEquivsAmount, limiting, batchType, totalVolume, totalWeight, totalMolarity);
-        this.theoreticalMoleAmount = theoreticalMoleAmount;
-        this.theoreticalWeightAmount = theoreticalWeightAmount;
-        this.theoreticalYieldPercentAmount = theoreticalYieldPercentAmount;
+    @Override
+    public void copyAmounts(BasicBatchModel rawBatch) {
+        super.copyAmounts(rawBatch);
+        this.theoreticalMoleAmount = new AmountModel(MOLES, rawBatch.getTheoMoles().getValue(), !rawBatch.getTheoMoles().isEntered());
+        this.theoreticalWeightAmount = new AmountModel(MASS, rawBatch.getTheoWeight().getValue(), !rawBatch.getTheoWeight().isEntered());
+        this.theoreticalYieldPercentAmount = new AmountModel(SCALAR, rawBatch.getYield());
     }
 
     /**
