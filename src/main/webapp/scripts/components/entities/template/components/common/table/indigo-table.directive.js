@@ -34,12 +34,12 @@
         function compile(tElement, tAttrs) {
             if (tAttrs.indigoDraggableRows) {
                 var $tBody = $(tElement.find('tbody'));
-                $tBody.attr('dragula', '\'my-table-rows\'');
-                $tBody.attr('dragula-model', 'indigoRows');
+                $tBody.attr('dragula', '"my-table-rows"');
+                $tBody.attr('dragula-model', 'vm.indigoRows');
             }
             if (tAttrs.indigoDraggableColumns) {
                 var $tr = $(tElement.find('thead tr'));
-                $tr.attr('dragula', '\'my-table-columns\'');
+                $tr.attr('dragula', '"my-table-columns"');
                 $tr.attr('dragula-model', 'indigoColumns');
             }
 

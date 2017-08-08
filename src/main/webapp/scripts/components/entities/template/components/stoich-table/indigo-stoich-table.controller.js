@@ -51,7 +51,7 @@
 
         function removeRow() {
             setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-            $rootScope.$broadcast('stoich-rows-changed', vm.model.stoichTable.reactants);
+            $rootScope.$broadcast('stoich-rows-changed');
         }
 
         function onRowSelected(row) {
@@ -663,9 +663,8 @@
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
-                if (data) {
-                    setStoicReactants(_.union(getStoicReactants(), data));
-                }
+                var reactants = data ? data : vm.model.stoichTable.reactants;
+                setStoicReactants(_.union(getStoicReactants(), reactants));
                 CalculationService.recalculateStoich();
             });
 
