@@ -3,7 +3,7 @@ package com.epam.indigoeln.core.model;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class ExperimentShort extends BasicModelObject {
 

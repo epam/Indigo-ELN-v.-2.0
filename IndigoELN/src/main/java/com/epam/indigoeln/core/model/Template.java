@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 /**
  * Entity class presents Template
  */
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = Template.COLLECTION_NAME)
 public class Template extends BasicModelObject {

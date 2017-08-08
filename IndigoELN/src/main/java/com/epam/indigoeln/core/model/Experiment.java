@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@ToString
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = Experiment.COLLECTION_NAME)
 public class Experiment extends ExperimentShort {
