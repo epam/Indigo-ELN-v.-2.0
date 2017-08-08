@@ -3,7 +3,7 @@ angular
     .factory('notificationInterceptor', notificationInterceptor);
 
 /* @ngInject */
-function notificationInterceptor(Alert) {
+function notificationInterceptor($injector) {
     var SUCCESS_ALERT = 'X-indigoeln-success-alert',
         ERROR_ALERT = 'X-indigoeln-error-alert',
         WARNING_ALERT = 'X-indigoeln-warning-alert',
@@ -11,10 +11,11 @@ function notificationInterceptor(Alert) {
         ALERT_PARAMS = 'X-indigoeln-params';
 
     return {
-        response: response
+        responseHandler: responseHandler
     };
 
-    function response(response) {
+    function responseHandler(response) {
+        var Alert = $injector.get('Alert');
         if (_.isString(response.headers(SUCCESS_ALERT))) {
             Alert.success(response.headers(SUCCESS_ALERT), {
                 param: response.headers(ALERT_PARAMS)
