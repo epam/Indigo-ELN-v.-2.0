@@ -9,7 +9,7 @@
             templateUrl: 'scripts/components/entities/template/components/common/inline-loader/inline-loader.html',
             scope: {
                 promise: '=',
-                onChangedStatus: '&'
+                onStatusChanged: '&'
             },
             controller: indigoInlineLoaderController,
             controllerAs: 'vm',
@@ -30,8 +30,8 @@
         function bindEvents() {
             $scope.$watch('vm.promise.$$state', function(val) {
                 vm.isLoading = (val && val.status === 0);
-                if (vm.onChangedStatus) {
-                    vm.onChangedStatus(vm.isLoading);
+                if (vm.onStatusChanged) {
+                    vm.onStatusChanged({completed: vm.isLoading});
                 }
             }, true);
         }
