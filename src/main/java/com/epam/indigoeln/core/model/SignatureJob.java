@@ -1,11 +1,14 @@
 package com.epam.indigoeln.core.model;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
-import java.util.Objects;
 
+@ToString
+@EqualsAndHashCode
 @Document(collection = SignatureJob.COLLECTION_NAME)
 public class SignatureJob implements Serializable {
 
@@ -50,35 +53,5 @@ public class SignatureJob implements Serializable {
 
     public void setLastHandledBy(String lastHandledBy) {
         this.lastHandledBy = lastHandledBy;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        SignatureJob that = (SignatureJob) o;
-        return Objects.equals(id, that.id) &&
-                experimentStatus == that.experimentStatus &&
-                Objects.equals(experimentId, that.experimentId) &&
-                Objects.equals(lastHandledBy, that.lastHandledBy);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, experimentStatus, experimentId, lastHandledBy);
-    }
-
-    @Override
-    public String toString() {
-        return "SignatureJob{" +
-                "id='" + id + '\'' +
-                ", experimentStatus=" + experimentStatus +
-                ", experimentId='" + experimentId + '\'' +
-                ", lastHandledBy='" + lastHandledBy + '\'' +
-                '}';
     }
 }

@@ -1,7 +1,8 @@
 package com.epam.indigoeln.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -10,7 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Document(collection=Project.COLLECTION_NAME)
+@ToString
+@EqualsAndHashCode(callSuper = true)
+@Document(collection = Project.COLLECTION_NAME)
 public class Project extends BasicModelObject {
 
     public static final String COLLECTION_NAME = "project";
@@ -75,31 +78,5 @@ public class Project extends BasicModelObject {
 
     public void setFileIds(Set<String> fileIds) {
         this.fileIds = fileIds;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Project)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Project project = (Project) o;
-        return  Objects.equal(description, project.description);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), description);
-    }
-
-    @Override
-    public String toString() {
-        return "Project{} " + super.toString();
     }
 }
