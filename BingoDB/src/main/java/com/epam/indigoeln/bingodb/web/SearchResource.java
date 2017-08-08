@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/search")
 public class SearchResource {
 
-    private static final Logger log = LoggerFactory.getLogger(SearchResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchResource.class);
+
+    private final BingoService bingoService;
 
     @Autowired
-    private BingoService bingoService;
+    public SearchResource(BingoService bingoService) {
+        this.bingoService = bingoService;
+    }
 
     @RequestMapping(method = RequestMethod.POST, path = "/molecule/exact")
     public ResponseEntity<ResponseDTO> searchMoleculeExact(@RequestBody String s,
@@ -23,7 +27,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeExact(s, options)));
         } catch (Exception e) {
-            log.warn("Cannot search molecule exact: " + e.getMessage());
+            LOGGER.warn("Cannot search molecule exact: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search molecule exact with given structure"));
     }
@@ -34,7 +38,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSub(s, options)));
         } catch (Exception e) {
-            log.warn("Cannot search molecule substructure: " + e.getMessage());
+            LOGGER.warn("Cannot search molecule substructure: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search molecule substructure with given structure"));
     }
@@ -47,7 +51,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeSim(s, min, max, metric)));
         } catch (Exception e) {
-            log.warn("Cannot search molecule similarity: " + e.getMessage());
+            LOGGER.warn("Cannot search molecule similarity: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search molecule similarity with given structure"));
     }
@@ -58,7 +62,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchMoleculeMolFormula(molFormula, options)));
         } catch (Exception e) {
-            log.warn("Cannot search molecule molformula: " + e.getMessage());
+            LOGGER.warn("Cannot search molecule molformula: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search molecule molformula with given mol formula"));
     }
@@ -69,7 +73,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionExact(s, options)));
         } catch (Exception e) {
-            log.warn("Cannot search reaction exact: " + e.getMessage());
+            LOGGER.warn("Cannot search reaction exact: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction exact with given structure"));
     }
@@ -80,7 +84,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSub(s, options)));
         } catch (Exception e) {
-            log.warn("Cannot search reaction substructure: " + e.getMessage());
+            LOGGER.warn("Cannot search reaction substructure: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction substructure with given structure"));
     }
@@ -93,7 +97,7 @@ public class SearchResource {
         try {
             return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSim(s, min, max, metric)));
         } catch (Exception e) {
-            log.warn("Cannot search reaction similarity: " + e.getMessage());
+            LOGGER.warn("Cannot search reaction similarity: " + e.getMessage());
         }
         return ResponseEntity.badRequest().body(new ResponseDTO("Cannot search reaction similarity with given structure"));
     }
