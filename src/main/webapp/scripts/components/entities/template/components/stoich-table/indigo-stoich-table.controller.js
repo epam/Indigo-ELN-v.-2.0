@@ -51,7 +51,7 @@
 
         function removeRow() {
             setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-            $rootScope.$broadcast('stoich-rows-changed');
+            updateReactants(vm.model.stoichTable.reactants);
         }
 
         function onRowSelected(row) {
@@ -197,9 +197,7 @@
                     onClose: function(data) {
                         var row = data.row;
                         var nbkBatch = data.model;
-                        var bid = row.fullNbkBatch || '';
                         if (!row.$$populatedBatch) {
-                            bid = bid.replace(/[^0-9.-]/g, '').trim();
                             if (row.fullNbkBatch) {
                                 fetchBatchByNbkNumber(nbkBatch, function(result) {
                                     var pb = result[0];
@@ -662,9 +660,7 @@
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
-                var reactants = data ? data : vm.model.stoichTable.reactants;
-                setStoicReactants(_.union(getStoicReactants(), reactants));
-                CalculationService.recalculateStoich();
+                updateReactants(data);
             });
 
             $scope.$on('stoic-table-recalculated', function(event, data) {
@@ -681,6 +677,11 @@
                     });
                 }
             });
+        }
+
+        function updateReactants(reactants) {
+            setStoicReactants(_.union(getStoicReactants(), reactants));
+            CalculationService.recalculateStoich();
         }
 
         function getPrecursors() {
