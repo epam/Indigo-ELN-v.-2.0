@@ -8,6 +8,7 @@ import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
@@ -66,7 +67,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
                AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
                AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType,
-               AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) {
+               AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) { // NOSONAR This copy constructor is necessary
         this.molecularWeightAmount = molecularWeightAmount;
         this.moleAmount = moleAmount;
         this.weightAmount = weightAmount;
@@ -170,24 +171,32 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     public void setMoleAmount(AmountModel moles) {
         if (moles != null) {
             if (moles.getUnitType().getOrdinal() == UnitType.MOLES.getOrdinal()) {
-                boolean unitChange = false;
-                // Check to see if it is a unit change
-                if (!moleAmount.equals(moles)) {
-                    unitChange = BatchUtils.isUnitOnlyChanged(moleAmount, moles);
-                    moleAmount.deepCopy(moles);
-                    if (!unitChange) {
-                        lastUpdatedType = UPDATE_TYPE_MOLES;
-                        updateCalcFlags(moleAmount);
-                        setModified(true);
-                    }
-                }
-                if (!unitChange)
-                    recalcAmounts();
+                checkUnitChange(moleAmount, moles, UPDATE_TYPE_MOLES);
             }
         } else {
             moleAmount.setValue("0");
         }
         setModelChanged(true);
+    }
+
+    private void checkUnitChange(AmountModel orig, AmountModel updated, int lastUpdatedType) {
+        boolean unitChange = false;
+
+        if (!orig.equals(updated)) {
+            unitChange = BatchUtils.isUnitOnlyChanged(orig, updated);
+
+            orig.deepCopy(updated);
+
+            if (!unitChange) {
+                this.lastUpdatedType = lastUpdatedType;
+                updateCalcFlags(orig);
+                setModified(true);
+            }
+        }
+
+        if (!unitChange) {
+            recalcAmounts();
+        }
     }
 
     public void setMoleAmountQuitly(AmountModel moles) {
@@ -267,18 +276,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     public void setVolumeAmount(AmountModel volume) {
         if (volume != null) {
             if (volume.getUnitType().getOrdinal() == UnitType.VOLUME.getOrdinal()) {
-                boolean unitChange = false;
-                if (!volumeAmount.equals(volume)) {
-                    unitChange = BatchUtils.isUnitOnlyChanged(volumeAmount, volume);
-                    volumeAmount.deepCopy(volume);
-                    if (!unitChange) {
-                        lastUpdatedType = UPDATE_TYPE_VOLUME;
-                        updateCalcFlags(volumeAmount);
-                        setModified(true);
-                    }
-                }
-                if (!unitChange)
-                    recalcAmounts();
+                checkUnitChange(volumeAmount, volume, UPDATE_TYPE_VOLUME);
             }
         } else {
             this.volumeAmount.setValue("0");
@@ -300,19 +298,7 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     public void setWeightAmount(AmountModel weight) {
         if (weight != null) {
             if (weight.getUnitType().getOrdinal() == UnitType.MASS.getOrdinal()) {
-                boolean unitChange = false;
-                // Check to see if it is a unit change
-                if (!weightAmount.equals(weight)) {
-                    unitChange = BatchUtils.isUnitOnlyChanged(weightAmount, weight);
-                    weightAmount.deepCopy(weight);
-                    if (!unitChange) {
-                        lastUpdatedType = UPDATE_TYPE_WEIGHT;
-                        updateCalcFlags(weightAmount);
-                        setModified(true);
-                    }
-                }
-                if (!unitChange)
-                    recalcAmounts();
+                checkUnitChange(weightAmount, weight, UPDATE_TYPE_WEIGHT);
             }
         } else {
             weightAmount.setValue("0");
@@ -385,22 +371,42 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
     }
 
     private void updateCalcFlags(Amount2 changingAmount) {
-        if (!changingAmount.isCalculated()) {
-            if (changingAmount.equals(rxnEquivsAmount)) {
-                moleAmount.setCalculated(true);
-                if (!this.isLimiting())
-                    weightAmount.setCalculated(true);
-                if (!volumeAmount.isCalculated() && isVolumeConnectedToMass())
-                    volumeAmount.setCalculated(true);
-            } else if (changingAmount.equals(weightAmount) || changingAmount.equals(moleAmount)) {
-                rxnEquivsAmount.setCalculated(true);
-                if (!volumeAmount.isCalculated() && isVolumeConnectedToMass())
-                    volumeAmount.setCalculated(true);
-            } else if (changingAmount.equals(volumeAmount) && isVolumeConnectedToMass()) {
-                rxnEquivsAmount.setCalculated(true);
-                weightAmount.setCalculated(true);
-                moleAmount.setCalculated(true);
+        if (changingAmount.isCalculated()) {
+            return;
+        }
+
+        Consumer<BatchModel> rxnEquivs = (b) -> {
+            b.getMoleAmount().setCalculated(true);
+
+            if (!b.isLimiting()) {
+                b.getWeightAmount().setCalculated(true);
             }
+
+            if (!b.getVolumeAmount().isCalculated() && b.isVolumeConnectedToMass()) {
+                b.getVolumeAmount().setCalculated(true);
+            }
+        };
+
+        Consumer<BatchModel> weight = (b) -> {
+            b.getRxnEquivsAmount().setCalculated(true);
+
+            if (!b.getVolumeAmount().isCalculated() && b.isVolumeConnectedToMass()) {
+                b.getVolumeAmount().setCalculated(true);
+            }
+        };
+
+        Consumer<BatchModel> volume = (b) -> {
+            b.getRxnEquivsAmount().setCalculated(true);
+            b.getWeightAmount().setCalculated(true);
+            b.getMoleAmount().setCalculated(true);
+        };
+
+        if (changingAmount.equals(rxnEquivsAmount)) {
+            rxnEquivs.accept(this);
+        } else if (changingAmount.equals(weightAmount) || changingAmount.equals(moleAmount)) {
+            weight.accept(this);
+        } else if (changingAmount.equals(volumeAmount) && isVolumeConnectedToMass()) {
+            volume.accept(this);
         }
     }
 
@@ -476,71 +482,79 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         if (getBatchType() == null || getBatchType().equals(BatchType.SOLVENT))
             return;
 
-        List<AmountModel> amts = new ArrayList<>();
         inCalculation = true;
         // Check which value was set by hand: solid or liquid
         // Molar type as last updated not considered here because moles is considered driver
         // when there is a tie in flags.
         if (lastUpdatedType == UPDATE_TYPE_VOLUME && !volumeAmount.isCalculated()) {
-            // We need to update moles and weight from volume
-            // Molarity takes precedence over density
-            if (molarAmount.doubleValue() > 0) {
-                amts.add(molarAmount);
-                amts.add(volumeAmount);
-                applySigFigRules(moleAmount, amts);
-                amts.clear(); // important to clear the amts list
-                // Update mole amount
-                // Std unit for molar is mMolar
-                //
-                // mMoles = (mole/L) * mL
-                moleAmount.setValueInStdUnits(molarAmount.getValueInStdUnitsAsDouble() * volumeAmount.getValueInStdUnitsAsDouble(),
-                        true);
-                updateWeightFromMoles();
-            } else if (densityAmount.doubleValue() > 0) {
-                // find governing sig figs
-                amts.add(volumeAmount);
-                amts.add(densityAmount);
-                applySigFigRules(weightAmount, amts);
-                amts.clear();// important to clear the amts list
-                // mg = (mL * g/mL)/ (1000 mg/g)
-                weightAmount.setValueInStdUnits(1000 * volumeAmount.getValueInStdUnitsAsDouble()
-                        * densityAmount.getValueInStdUnitsAsDouble(), true);
-                updateMolesFromWeight();
-            }
-            // SourceForge 3.4 bug 28030 - remove data not connected
-            if (!isVolumeConnectedToMass()) {
-                // set weight, moles and rxn equivs to default values.
-                weightAmount.reset();
-                moleAmount.reset();
-                rxnEquivsAmount.reset();
-            }
+            recalcAmountsVolume();
         } else {
-            Supplier<Boolean> cond = () -> lastUpdatedType != UPDATE_TYPE_WEIGHT && !moleAmount.isCalculated();
-            if (cond.get() || !rxnEquivsAmount.isCalculated()
-                    || moleAmount.doubleValue() > 0 && lastUpdatedType != UPDATE_TYPE_WEIGHT) {
-                updateWeightFromMoles();
-            } else {
-                updateMolesFromWeight();
-            }
-            // Now that the solids are straightened out, we can calc the liquid
-            if (molarAmount.doubleValue() > 0) {
-
-                volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble() / molarAmount.getValueInStdUnitsAsDouble(),
-                        true);
-            } else if (densityAmount.doubleValue() > 0) {
-
-                volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
-                // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
-                volumeAmount.setValueInStdUnits(weightAmount.getValueInStdUnitsAsDouble()
-                        / (1000 * densityAmount.getValueInStdUnitsAsDouble()), true);
-            }
-            if (!isVolumeConnectedToMass()) {
-                // set weight, moles and rxn equivs to default values.
-                volumeAmount.softReset();
-            }
+            recalcAmountsOther();
         }
         inCalculation = false;
+    }
+
+    private void recalcAmountsVolume() {
+        List<AmountModel> amts = new ArrayList<>();
+        // We need to update moles and weight from volume
+        // Molarity takes precedence over density
+        if (molarAmount.doubleValue() > 0) {
+            amts.add(molarAmount);
+            amts.add(volumeAmount);
+            applySigFigRules(moleAmount, amts);
+            amts.clear(); // important to clear the amts list
+            // Update mole amount
+            // Std unit for molar is mMolar
+            //
+            // mMoles = (mole/L) * mL
+            moleAmount.setValueInStdUnits(molarAmount.getValueInStdUnitsAsDouble() * volumeAmount.getValueInStdUnitsAsDouble(),
+                    true);
+            updateWeightFromMoles();
+        } else if (densityAmount.doubleValue() > 0) {
+            // find governing sig figs
+            amts.add(volumeAmount);
+            amts.add(densityAmount);
+            applySigFigRules(weightAmount, amts);
+            amts.clear();// important to clear the amts list
+            // mg = (mL * g/mL)/ (1000 mg/g)
+            weightAmount.setValueInStdUnits(1000 * volumeAmount.getValueInStdUnitsAsDouble()
+                    * densityAmount.getValueInStdUnitsAsDouble(), true);
+            updateMolesFromWeight();
+        }
+        // SourceForge 3.4 bug 28030 - remove data not connected
+        if (!isVolumeConnectedToMass()) {
+            // set weight, moles and rxn equivs to default values.
+            weightAmount.reset();
+            moleAmount.reset();
+            rxnEquivsAmount.reset();
+        }
+    }
+
+    private void recalcAmountsOther() {
+        Supplier<Boolean> notWeightUpdated = () -> lastUpdatedType != UPDATE_TYPE_WEIGHT && !moleAmount.isCalculated();
+        if (notWeightUpdated.get() || !rxnEquivsAmount.isCalculated()
+                || moleAmount.doubleValue() > 0 && lastUpdatedType != UPDATE_TYPE_WEIGHT) {
+            updateWeightFromMoles();
+        } else {
+            updateMolesFromWeight();
+        }
+        // Now that the solids are straightened out, we can calc the liquid
+        if (molarAmount.doubleValue() > 0) {
+
+            volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+            volumeAmount.setValueInStdUnits(moleAmount.getValueInStdUnitsAsDouble() / molarAmount.getValueInStdUnitsAsDouble(),
+                    true);
+        } else if (densityAmount.doubleValue() > 0) {
+
+            volumeAmount.setSigDigits(CeNNumberUtils.DEFAULT_SIG_DIGITS);
+            // update volume from weight value: mg /(1000mg/g)* (g/mL) = mL
+            volumeAmount.setValueInStdUnits(weightAmount.getValueInStdUnitsAsDouble()
+                    / (1000 * densityAmount.getValueInStdUnitsAsDouble()), true);
+        }
+        if (!isVolumeConnectedToMass()) {
+            // set weight, moles and rxn equivs to default values.
+            volumeAmount.softReset();
+        }
     }
 
     @Override
