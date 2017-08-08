@@ -2,15 +2,18 @@ package com.epam.indigoeln.core.chemistry.domain;
 
 import com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchType;
+import com.epam.indigoeln.core.chemistry.experiment.datamodel.batch.BatchTypeFactory;
 import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
+import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
@@ -64,23 +67,20 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
         this.compound = new ParentCompoundModel();
     }
 
-    BatchModel(AmountModel molecularWeightAmount, AmountModel moleAmount, AmountModel weightAmount,
-               AmountModel volumeAmount, AmountModel densityAmount, AmountModel molarAmount,
-               AmountModel purityAmount, AmountModel rxnEquivsAmount, boolean limiting, BatchType batchType,
-               AmountModel totalVolume, AmountModel totalWeight, AmountModel totalMolarity) { // NOSONAR This copy constructor is necessary
-        this.molecularWeightAmount = molecularWeightAmount;
-        this.moleAmount = moleAmount;
-        this.weightAmount = weightAmount;
-        this.volumeAmount = volumeAmount;
-        this.densityAmount = densityAmount;
-        this.molarAmount = molarAmount;
-        this.purityAmount = purityAmount;
-        this.rxnEquivsAmount = rxnEquivsAmount;
-        this.limiting = limiting;
-        this.batchType = batchType;
-        this.totalVolume = totalVolume;
-        this.totalWeight = totalWeight;
-        this.totalMolarity = totalMolarity;
+    public void copyAmounts(BasicBatchModel rawBatch) {
+        this.molecularWeightAmount = new AmountModel(MASS, rawBatch.getMolWeight().getValue(), !rawBatch.getMolWeight().isEntered());
+        this.moleAmount = new AmountModel(MOLES, rawBatch.getMol().getValue(), !rawBatch.getMol().isEntered());
+        this.weightAmount = new AmountModel(MASS, rawBatch.getWeight().getValue(), !rawBatch.getWeight().isEntered());
+        this.volumeAmount = new AmountModel(VOLUME, rawBatch.getVolume().getValue(), !rawBatch.getVolume().isEntered());
+        this.densityAmount = new AmountModel(DENSITY, rawBatch.getDensity().getValue(), !rawBatch.getDensity().isEntered());
+        this.molarAmount = new AmountModel(MOLAR, rawBatch.getMolarity().getValue(), !rawBatch.getMolarity().isEntered());
+        this.purityAmount = new AmountModel(SCALAR, rawBatch.getStoicPurity().getValue(), !rawBatch.getStoicPurity().isEntered());
+        this.rxnEquivsAmount = new AmountModel(SCALAR, rawBatch.getEq().getValue(), !rawBatch.getEq().isEntered());
+        this.limiting = rawBatch.isLimiting();
+        this.batchType = BatchTypeFactory.getBatchType(rawBatch.getRxnRole().getName());
+        this.totalVolume = new AmountModel(VOLUME, rawBatch.getTotalVolume().getValue(), !rawBatch.getTotalVolume().isEntered());
+        this.totalWeight = new AmountModel(MASS, rawBatch.getTotalWeight().getValue(), !rawBatch.getTotalWeight().isEntered());
+        this.totalMolarity = new AmountModel(MOLES, rawBatch.getTotalMoles().getValue(), !rawBatch.getTotalMoles().isEntered());
     }
 
     public int getLastUpdatedType() {
