@@ -63,7 +63,7 @@ public class RegistrationJob implements Serializable {
     }
 
     @Override
-    public boolean equals(Object o) { //NOSONAR Equals should do equality
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -71,11 +71,22 @@ public class RegistrationJob implements Serializable {
             return false;
         }
         RegistrationJob that = (RegistrationJob) o;
-        return Objects.equals(id, that.id) &&
-                registrationStatus == that.registrationStatus &&
-                Objects.equals(registrationJobId, that.registrationJobId) &&
-                Objects.equals(registrationRepositoryId, that.registrationRepositoryId) &&
-                Objects.equals(lastHandledBy, that.lastHandledBy);
+        if (!Objects.equals(id, that.id)) {
+            return false;
+        }
+        if (registrationStatus != that.registrationStatus) {
+            return false;
+        }
+        if (!Objects.equals(registrationJobId, that.registrationJobId)) {
+            return false;
+        }
+        if (!Objects.equals(registrationRepositoryId, that.registrationRepositoryId)) {
+            return false;
+        }
+        if (!Objects.equals(lastHandledBy, that.lastHandledBy)) {
+            return false;
+        }
+        return true;
     }
 
     @Override
