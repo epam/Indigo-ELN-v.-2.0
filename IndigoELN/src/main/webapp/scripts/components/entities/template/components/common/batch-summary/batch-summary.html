@@ -47,7 +47,7 @@
                         <i class="fa fa-floppy-o"></i>
                         <span class="m-l5">Register</span>
                     </button>
-                    <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
+                    <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                 </div>
             </div>
             <div class="col-lg-4 text-align-lg">
@@ -56,7 +56,7 @@
                     <button type="button"
                             class="btn btn-info btn-small btn-can-loading}}"
                             ng-class="{'btn-loading': importLoading}"
-                            ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly">
+                            ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
                         <i class="fa fa-cloud-download"></i>
                         <span class="m-l5">Import</span>
                     </button>

@@ -50,7 +50,7 @@
                     ]
                 },
                 {
-                    id: 'virtualBatchId', name: 'Virtual Batch ID', type: 'input'
+                    id: 'virtualCompoundId', name: ' Virtual Compound ID', type: 'input'
                 },
                 {
                     id: 'molWeight', name: 'Mol Wgt', type: 'scalar'
@@ -85,6 +85,9 @@
             vm.exportSDFile = exportSDFile;
             vm.isHasCheckedRows = isHasCheckedRows;
             vm.vnv = vnv;
+            vm.onBatchOperationChanged = onBatchOperationChanged;
+            vm.isBatchLoading = false;
+
             bindEvents();
         }
 
@@ -149,6 +152,10 @@
 
         function vnv() {
             $log.debug('VnV');
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {
