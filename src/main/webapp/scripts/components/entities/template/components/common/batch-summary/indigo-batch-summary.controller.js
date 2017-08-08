@@ -103,7 +103,11 @@
                     name: 'Nbk Batch #'
                 },
                 {
-                    id: 'registrationStatus', name: 'Registration Status'
+                    id: 'registrationStatus',
+                    name: 'Registration Status',
+                    mark: function(batch) {
+                        return (batch.registrationStatus === 'PASSED') ? 'batch-registered' : '';
+                    }
                 },
                 {
                     id: 'select',
