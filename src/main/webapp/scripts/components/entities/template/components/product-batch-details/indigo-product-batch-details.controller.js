@@ -255,7 +255,7 @@
                 id: 'registrationStatus',
                 name: 'Registration Status',
                 mark: function(batch) {
-                    return (batch.registrationStatus === 'PASSED') ? 'batch-registered' : '';
+                    return batch.registrationStatus ? ('batch-' + batch.registrationStatus.toLowerCase()) : '';
                 }
             }
         ];
