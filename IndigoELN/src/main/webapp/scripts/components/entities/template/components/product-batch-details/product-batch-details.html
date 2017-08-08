@@ -75,7 +75,7 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
