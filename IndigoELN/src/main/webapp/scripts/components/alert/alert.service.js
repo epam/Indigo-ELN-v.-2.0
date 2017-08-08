@@ -3,7 +3,7 @@ angular
     .factory('Alert', alert);
 
 /* @ngInject */
-function alert() {
+function alert(notify, $scope) {
     // TODO: move to file
     var common = {
         allow_dismiss: true,
@@ -21,6 +21,11 @@ function alert() {
         }
     };
 
+    notify.config({
+        container: document.getElementById('page-content'),
+        startTop: 0
+    });
+
     return {
         success: success,
         error: error,
@@ -30,11 +35,11 @@ function alert() {
 
 
     function success(msg) {
-        $.notify({
-            message: msg
-        }, _.extend(common, {
-            type: 'success'
-        }));
+        $scope.success = 'success';
+        notify({
+            message: msg,
+            templateUrl: 'scripts/components/alert/success-template.html'
+        });
     }
 
     function error(msg) {

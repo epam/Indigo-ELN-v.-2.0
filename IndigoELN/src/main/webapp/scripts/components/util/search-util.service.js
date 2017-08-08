@@ -164,6 +164,7 @@ function searchUtilService() {
                 if (restrictionCopy.getValue) {
                     restrictionCopy.value = restrictionCopy.getValue(restrictionCopy.value);
                 }
+                restrictionCopy.someField = 'Value that means nothing'
                 advancedSummary.push(restrictionCopy);
             }
         });
