@@ -39,7 +39,9 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-   
+        vm.onBatchOperationChanged = onBatchOperationChanged;
+        vm.isBatchLoading = false;
+
         init();
 
         function init() {
@@ -286,6 +288,10 @@
                     return !!val;
                 }).join(', ');
             }
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {

@@ -85,6 +85,9 @@
             vm.exportSDFile = exportSDFile;
             vm.isHasCheckedRows = isHasCheckedRows;
             vm.vnv = vnv;
+            vm.onBatchOperationChanged = onBatchOperationChanged;
+            vm.isBatchLoading = false;
+
             bindEvents();
         }
 
@@ -149,6 +152,10 @@
 
         function vnv() {
             $log.debug('VnV');
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {
