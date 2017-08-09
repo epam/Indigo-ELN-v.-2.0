@@ -37,6 +37,14 @@
 
     <dependencies>
 
+        <!-- Code generation -->
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Database -->
 
         <dependency>

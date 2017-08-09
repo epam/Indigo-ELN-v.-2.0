@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.base.Objects;
-
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -10,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
+@ToString
+@EqualsAndHashCode
 @Document(collection = SequenceId.COLLECTION_NAME)
 public class SequenceId implements Serializable {
 
@@ -63,35 +65,6 @@ public class SequenceId implements Serializable {
 
     public void setChildren(List<SequenceId> children) {
         this.children = children;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof SequenceId)) {
-            return false;
-        }
-        SequenceId that = (SequenceId) o;
-        return  Objects.equal(id, that.id) &&
-                Objects.equal(sequence, that.sequence) &&
-                Objects.equal(children, that.children);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, sequence, children);
-    }
-
-    @Override
-    public String toString() {
-        return "SequenceId{" +
-                "id='" + id + '\'' +
-                ", sequence='" + sequence + '\'' +
-                ", children=" + children +
-                '}';
     }
 }
 

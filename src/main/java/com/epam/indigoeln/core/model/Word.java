@@ -1,7 +1,10 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+@ToString
+@EqualsAndHashCode
 public class Word {
 
     private String id;
@@ -48,40 +51,5 @@ public class Word {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "Word{" +
-                "id='" + id + '\'' +
-                "name='" + name + '\'' +
-                "description='" + description + '\'' +
-                "enable='" + enable + '\'' +
-                "rank='" + rank + '\'' +
-                "} " + super.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), id, name, description, enable, rank);
-    }
-
-    @Override
-    public boolean equals(Object o) { //NOSONAR Equals should do equality
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Word)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Word w = (Word) o;
-        return Objects.equal(id, w.id) &&
-                Objects.equal(name, w.name) &&
-                Objects.equal(description, w.description) &&
-                Objects.equal(rank, w.rank) &&
-                Objects.equal(enable, w.enable);
     }
 }
