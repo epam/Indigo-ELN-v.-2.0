@@ -1172,24 +1172,25 @@ ul.my-dropdown-list {
 .inline-loader.is-loading {
   visibility: visible;
 }
-.batch-passed:before,
-.batch-failed:before {
-  content: '';
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 10px;
-  margin-right: 4px;
-}
-.batch-passed {
-  color: #a3c644;
-}
-.batch-passed:before {
-  background-color: #a3c644;   
-}
-.batch-failed {
-  color: #e4445f;
-}
-.batch-failed:before {
-  background-color: #e4445f;   
+.batch-status{
+  &:before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    margin-right: 4px;
+  }
+  &.status-passed {
+    color: #a3c644;
+  }
+  &.status-passed:before {
+    background-color: #a3c644;   
+  }
+  &.status-failed {
+    color: #e4445f;
+  }
+  &.status:before {
+    background-color: #e4445f;   
+  }
 }
