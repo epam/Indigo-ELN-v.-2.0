@@ -82,8 +82,7 @@ public class DashboardResource {
 
     private List<DashboardRowDTO> getCurrentRows(User user, ZonedDateTime threshold) {
         // Open and Completed Experiments
-        Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusInAndCreationDateAfter(user,
-                Arrays.asList(ExperimentStatus.OPEN, ExperimentStatus.COMPLETED), threshold)
+        Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusAndCreationDateAfter(user, ExperimentStatus.OPEN, threshold)
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
         List<DBRef> experimentIds = experiments.keySet().stream()

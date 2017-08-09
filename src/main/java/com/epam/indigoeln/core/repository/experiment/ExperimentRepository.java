@@ -22,7 +22,7 @@ public interface ExperimentRepository extends MongoRepository<Experiment, String
 
     List<Experiment> findByStatusIn(List<ExperimentStatus> statuses);
 
-    Stream<Experiment> findByAuthorAndStatusInAndCreationDateAfter(User user, List<ExperimentStatus> statuses, ZonedDateTime creationTime);
+    Stream<Experiment> findByAuthorAndStatusAndCreationDateAfter(User user, ExperimentStatus status, ZonedDateTime creationTime);
 
     Stream<Experiment> findByDocumentIdIn(Collection<String> documentsIds);
 
