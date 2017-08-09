@@ -39,7 +39,9 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-   
+        vm.onBatchOperationChanged = onBatchOperationChanged;
+        vm.isBatchLoading = false;
+
         init();
 
         function init() {
@@ -100,7 +102,7 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
-                successAddedBatch(batches[0]);
+                selectBatch(batches[0]);
             });
         }
 
@@ -287,6 +289,10 @@
                     return !!val;
                 }).join(', ');
             }
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {

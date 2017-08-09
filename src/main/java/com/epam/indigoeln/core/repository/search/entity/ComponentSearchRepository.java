@@ -15,8 +15,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.script.ExecutableMongoScript;
 import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
 import static java.util.stream.Collectors.toList;
 
 @Component
@@ -86,9 +88,9 @@ public class ComponentSearchRepository implements InitializingBean {
     public Optional<Set<DBRef>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
         if (!bingoIds.isEmpty()) {
             StructureSearchType type = request.getStructure().get().getType().getName();
-            if (type == StructureSearchType.Product) {
+            if (type == StructureSearchType.PRODUCT) {
                 return Optional.of(Criteria.where("batchStructureId").in(bingoIds)).map(this::find);
-            } else if (type == StructureSearchType.Reaction) {
+            } else if (type == StructureSearchType.REACTION) {
                 return Optional.of(Criteria.where("reactionStructureId").in(bingoIds)).map(this::find);
             }
         }

@@ -43,7 +43,7 @@
                         <i class="fa fa-trash"></i>
                         <span class="m-l5">Duplicate</span>
                     </button>
-                    <indigo-inline-loader promise = "vm.batchOperation"></indigo-inline-loader>
+                    <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.importSDFile()"
-                        ng-disabled="vm.isReadonly">
+                        ng-disabled="vm.isReadonly || vm.isBatchLoading">
                     <i class="fa fa-cloud-download"></i>
                     <span class="m-l5">Import</span>
                 </button>
