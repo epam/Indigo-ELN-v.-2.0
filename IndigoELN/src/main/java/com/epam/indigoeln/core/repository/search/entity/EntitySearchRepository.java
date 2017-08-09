@@ -135,7 +135,7 @@ public class EntitySearchRepository {
     private EntitySearchResultDTO.Details getDetails(BasicDTO dto) {
         EntitySearchResultDTO.Details details = new EntitySearchResultDTO.Details();
         details.setCreationDate(dto.getCreationDate());
-        if (details.getAuthor() != null){
+        if (dto.getAuthor() != null){
             details.setAuthor(dto.getAuthor().getFullName());
 
         }
