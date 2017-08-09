@@ -11,14 +11,19 @@ import java.io.File;
 @Configuration
 public class BingoConfig {
 
-    @Autowired
-    private BingoProperties bingoProperties;
+    private final BingoProperties bingoProperties;
+
+    private final Indigo moleculeIndigo;
+    private final Indigo reactionIndigo;
 
     @Autowired
-    private Indigo moleculeIndigo;
-
-    @Autowired
-    private Indigo reactionIndigo;
+    public BingoConfig(BingoProperties bingoProperties,
+                       Indigo moleculeIndigo,
+                       Indigo reactionIndigo) {
+        this.bingoProperties = bingoProperties;
+        this.moleculeIndigo = moleculeIndigo;
+        this.reactionIndigo = reactionIndigo;
+    }
 
     @Bean
     public Bingo moleculeBingo() {

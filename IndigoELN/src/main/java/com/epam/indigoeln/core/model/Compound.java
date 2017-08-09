@@ -1,7 +1,12 @@
 package com.epam.indigoeln.core.model;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
 import java.io.Serializable;
 
+@ToString
+@EqualsAndHashCode
 public class Compound implements Serializable {
 
     private static final long serialVersionUID = 8575074604535672749L;
@@ -144,14 +149,5 @@ public class Compound implements Serializable {
 
     public void setRegistrationStatus(String registrationStatus) {
         this.registrationStatus = registrationStatus;
-    }
-
-    @Override
-    public String toString() {
-        return "Compound{" +
-                "compoundNo='" + compoundNo + '\'' +
-                ", conversationalBatchNo='" + conversationalBatchNo + '\'' +
-                ", batchNo='" + batchNo + '\'' +
-                '}';
     }
 }

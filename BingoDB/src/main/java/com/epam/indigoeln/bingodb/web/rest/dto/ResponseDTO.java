@@ -1,10 +1,17 @@
-package com.epam.indigoeln.bingodb.web.dto;
+package com.epam.indigoeln.bingodb.web.rest.dto;
 
 import com.epam.indigoeln.bingodb.domain.BingoStructure;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ResponseDTO {
+@ToString
+@EqualsAndHashCode
+public class ResponseDTO implements Serializable {
+
+    private static final long serialVersionUID = 5155039727188884838L;
 
     private String message;
     private List<BingoStructure> structures;

@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.InputStream;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,11 +32,11 @@ public class SDService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SDService.class);
 
-    public Collection<SdUnit> parse(InputStream is) throws IndigoRuntimeException {
+    public Collection<SdUnit> parse(Reader reader) throws IndigoRuntimeException {
         List<SdUnit> result = new ArrayList<>();
         try {
             SdUnit sdu;
-            SdfileIterator it = SdfileIteratorFactory.getIterator(is);
+            SdfileIterator it = SdfileIteratorFactory.getIterator(reader);
             int offset = 0;
             while ((sdu = it.getNext()) != null) {
                 offset++;

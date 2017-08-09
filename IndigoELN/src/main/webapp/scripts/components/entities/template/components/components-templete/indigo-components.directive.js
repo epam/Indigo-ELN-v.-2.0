@@ -68,7 +68,7 @@
         }
 
         /* @ngInject */
-        function indigoComponentsController($scope, ProductBatchSummaryOperations) {
+        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache) {
             var vm = this;
 
             init();
@@ -91,14 +91,14 @@
             }
 
             function updateModel() {
-                vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-                vm.compounds = _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
-
+                vm.batches = _.get(vm.model, 'productBatchSummary.batches')
+                    || _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
+                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
                 updateSelections();
             }
 
             function updateSelections() {
-                if ((vm.batches.length && !vm.selectedBatch) || (vm.compounds.length && !vm.selectedCompound)) {
+                if ((vm.batches.length && !vm.selectedBatch)) {
                     updateSelectedBatch();
                 }
             }

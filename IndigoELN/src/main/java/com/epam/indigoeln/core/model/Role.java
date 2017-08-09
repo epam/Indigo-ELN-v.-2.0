@@ -2,6 +2,8 @@ package com.epam.indigoeln.core.model;
 
 import com.epam.indigoeln.core.security.Authority;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,9 +11,12 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Document(collection=Role.COLLECTION_NAME)
+@ToString
+@EqualsAndHashCode
+@Document(collection = Role.COLLECTION_NAME)
 public class Role implements Serializable {
     public static final String COLLECTION_NAME = "role";
+    private static final long serialVersionUID = 1883639262323115257L;
 
     @Id
     private String id;
@@ -54,34 +59,5 @@ public class Role implements Serializable {
 
     public void setAuthorities(Set<Authority> authorities) {
         this.authorities = new HashSet<>(authorities);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Role)) {
-            return false;
-        }
-
-        Role role = (Role) o;
-
-        return (id != null ? id.equals(role.id) : role.id == null) && (name != null ? name.equals(role.name) : role.name == null);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                "}";
     }
 }
