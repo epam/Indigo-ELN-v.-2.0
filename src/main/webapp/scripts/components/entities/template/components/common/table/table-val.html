@@ -1,5 +1,5 @@
 <div>
-    <div ng-if="!vm.isEditable()">
+    <div ng-if="!vm.isEditable()"  ng-class="vm.indigoColumn.mark(vm.indigoRow)">
         <span ng-if="!vm.indigoColumn.type">
             <span ng-if="!vm.indigoColumn.format">
             {{vm.indigoRow[vm.indigoColumn.id]}}
