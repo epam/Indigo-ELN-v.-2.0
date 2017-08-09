@@ -7,6 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @Configuration
 public class BingoConfig {
@@ -26,24 +29,24 @@ public class BingoConfig {
     }
 
     @Bean
-    public Bingo moleculeBingo() {
+    public Bingo moleculeBingo() throws IOException {
         return bingo("molecule", moleculeIndigo);
     }
 
     @Bean
-    public Bingo reactionBingo() {
+    public Bingo reactionBingo() throws IOException {
         return bingo("reaction", reactionIndigo);
     }
 
-    private Bingo bingo(String type, Indigo indigo) {
+    private Bingo bingo(String type, Indigo indigo) throws IOException {
         String folder = bingoProperties.getFolder() + File.separator + type;
 
         Bingo bingo;
 
-        if (new File(folder).exists()) {
+        if (Files.exists(Paths.get(folder))) {
             bingo = Bingo.loadDatabaseFile(indigo, folder);
         } else {
-            new File(folder).mkdirs();
+            Files.createDirectories(Paths.get(folder));
             bingo = Bingo.createDatabaseFile(indigo, folder, type);
         }
 
