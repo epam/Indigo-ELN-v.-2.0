@@ -60,18 +60,18 @@ public class ExperimentSearchRepository implements InitializingBean {
     }
 
     private Optional<Criteria> getComponentWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithBingoIds(request, bingoIds);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithBingoIds(request, bingoIds);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getComponentWithQuery(EntitySearchRequest request) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithQuery(request);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithQuery(request);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getComponentWithAdvanced(EntitySearchRequest request) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithAdvanced(request);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithAdvanced(request);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getAdvancedCriteria(EntitySearchRequest request) {
@@ -86,7 +86,7 @@ public class ExperimentSearchRepository implements InitializingBean {
 
     private Optional<Criteria> getExperimentIdsWithBingoIds(EntitySearchRequest request, List<String> bingoIds){
         Optional<Criteria> componentWithBingoIds = getComponentWithBingoIds(request, bingoIds);
-        return componentWithBingoIds.map(this::find).map(Criteria.where("_id")::in);
+        return componentWithBingoIds.map(this::find).map(ids -> Criteria.where("_id").in(ids));
     }
 
     private Optional<Criteria> getQueryCriteria(EntitySearchRequest request) {
