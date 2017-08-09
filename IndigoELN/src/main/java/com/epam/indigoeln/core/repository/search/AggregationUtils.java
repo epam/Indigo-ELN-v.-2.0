@@ -32,13 +32,13 @@ public final class AggregationUtils {
     }
 
     public static Criteria createCriterion(String condition, String key, Object value) {
+        Criteria regex = createCriterionRegex(condition, key, value);
+
+        if (regex != null) {
+            return regex;
+        }
+
         switch (condition) {
-            case "contains":
-                return Criteria.where(key).regex(regexContains(value), "i");
-            case "starts with":
-                return Criteria.where(key).regex(regexStartsWith(value), "i");
-            case "ends with":
-                return Criteria.where(key).regex(regexEndsWith(value), "i");
             case "in":
                 return Criteria.where(key).in(convertToCollection(value));
             case "=":
@@ -53,6 +53,19 @@ public final class AggregationUtils {
                 return Criteria.where(key).lte(convertToDouble(value));
             default:
                 return Criteria.where(key).is(value);
+        }
+    }
+
+    private static Criteria createCriterionRegex(String condition, String key, Object value) {
+        switch (condition) {
+            case "contains":
+                return Criteria.where(key).regex(regexContains(value), "i");
+            case "starts with":
+                return Criteria.where(key).regex(regexStartsWith(value), "i");
+            case "ends with":
+                return Criteria.where(key).regex(regexEndsWith(value), "i");
+            default:
+                return null;
         }
     }
 
