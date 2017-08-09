@@ -1,11 +1,7 @@
-<div class="cg-notify-message success-notify" ng-class="success ? success-notify : danger-notify">
+<div class="cg-notify-message {{$classes}}">
 
     <div ng-show="!$messageTemplate" align="left">
         {{$message}}
-    </div>
-
-    <div ng-show="$messageTemplate" class="cg-notify-message-template">
-
     </div>
 
     <button type="button" class="cg-notify-close" ng-click="$close()">
