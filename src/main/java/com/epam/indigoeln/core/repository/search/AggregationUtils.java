@@ -64,10 +64,7 @@ public final class AggregationUtils {
             default:
                 criteria.is(criterion.getValue());
         }
-        List<Criteria> componentNameCriteria = criterion.getComponents().stream()
-                .map(Criteria.where("name")::is)
-                .collect(toList());
-        return andCriteria(Optional.of(criteria), orCriteria(componentNameCriteria)).get();
+        return criteria;
     }
 
     public static Optional<Criteria> andCriteria(Optional<Criteria>... mas) {

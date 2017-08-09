@@ -6,7 +6,6 @@ import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBRef;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +47,7 @@ public class ComponentSearchRepository implements InitializingBean {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
-    public Optional<Set<DBRef>> searchWithQuery(EntitySearchRequest request) {
+    public Optional<Set<Object>> searchWithQuery(EntitySearchRequest request) {
         List<String> fields = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(SearchCriterion::getField)
@@ -72,7 +71,7 @@ public class ComponentSearchRepository implements InitializingBean {
         return AggregationUtils.orCriteria(querySearch).map(this::find);
     }
 
-    public Optional<Set<DBRef>> searchWithAdvanced(EntitySearchRequest request) {
+    public Optional<Set<Object>> searchWithAdvanced(EntitySearchRequest request) {
         List<Criteria> advancedSearch = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
                 .map(AggregationUtils::createCriterion)
@@ -81,7 +80,7 @@ public class ComponentSearchRepository implements InitializingBean {
         return AggregationUtils.andCriteria(advancedSearch).map(this::find);
     }
 
-    public Optional<Set<DBRef>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
+    public Optional<Set<Object>> searchWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
         if (!bingoIds.isEmpty()) {
             StructureSearchType type = request.getStructure().get().getType().getName();
             if (type == StructureSearchType.PRODUCT) {
@@ -93,11 +92,12 @@ public class ComponentSearchRepository implements InitializingBean {
         return Optional.empty();
     }
 
-    private Set<DBRef> find(Criteria criteria) {
+    private Set<Object> find(Criteria criteria) {
         return ((BasicDBList) mongoTemplate.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .map(o -> (ObjectId) o)
-                .map(id -> new DBRef("component", id))
+                .filter(Objects::nonNull)
+                .map(o -> (DBRef) o)
+                .map(DBRef::getId)
                 .collect(Collectors.toSet()
                 );
     }
