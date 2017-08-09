@@ -13,6 +13,7 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.chemistry.sdf;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -77,112 +78,130 @@ public class SdUnit implements Serializable, Externalizable {
         return out;
     }
 
-    static String validateDetail(String mol) {
+    private static String validateDetail(String mol) {
+        if (!StringUtils.contains(mol, "M  END")) {
+            return "Does not contain \"M  END\"";
+        }
+
         String returnString = "OK";
+
         int numAtoms;
-        try {
-            if (mol.indexOf("M  END") <= 0)
-                return "Does not contain \"M  END\"";
-            StringReader sr = new StringReader(mol);
-            BufferedReader br = new BufferedReader(sr);
-            String line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
+        int numBonds;
+
+        try (StringReader sr = new StringReader(mol); BufferedReader br = new BufferedReader(sr)) {
+            String line = null;
+
+            for (int i = 0; i < 4; ++i) {
+                line = br.readLine();
+                if (StringUtils.isBlank(line)) {
+                    return "Molecule has too few lines";
+                }
+            }
+
             int impossibleNumber = -1;
-            int numBonds;
-            try {
-                numAtoms = Integer.parseInt(line.substring(0, 3).trim());
-            } catch (NumberFormatException e) {
+
+            numAtoms = validateDetailGetInteger(line, 0, 3);
+            if (numAtoms <= impossibleNumber) {
                 return "Number of atoms is invalid";
             }
-            if (numAtoms <= impossibleNumber)
-                return "Number of atoms is invalid";
-            try {
-                numBonds = Integer.parseInt(line.substring(3, 6).trim());
-            } catch (NumberFormatException e) {
+
+            numBonds = validateDetailGetInteger(line, 3, 6);
+            if (numBonds <= impossibleNumber) {
                 return "Number of bonds is invalid";
             }
-            if (numAtoms <= impossibleNumber)
-                return "Number of bonds is invalid";
+
             double improbablyLargeValue = 10000.0D;
+
             for (int x = 0; x <= numAtoms - 1; ++x) {
                 line = br.readLine();
-                if (line == null)
+
+                if (StringUtils.isBlank(line)) {
                     return "Incorrect number of atoms and/or bonds";
-                double test;
-                try {
-                    test = Double.parseDouble(line.substring(0, 10).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid X coordinate";
                 }
-                if (line.indexOf(".") != 5)
+
+                if (line.indexOf(".") != 5) {
                     return "X coordinate decimal in wrong place";
-                if (Math.abs(test) >= improbablyLargeValue)
+                }
+
+                double test;
+
+                test = validateDetailGetDouble(line, 0, 10);
+                if (Math.abs(test) >= improbablyLargeValue) {
                     return "Invalid X coordinate";
-                try {
-                    test = Double.parseDouble(line.substring(10, 20).trim());
-                } catch (NumberFormatException e) {
+                }
+
+                test = validateDetailGetDouble(line, 10, 20);
+                if (Math.abs(test) >= improbablyLargeValue) {
                     return "Invalid Y coordinate";
                 }
-                if (Math.abs(test) >= improbablyLargeValue)
-                    return "Invalid Y coordinate";
-                try {
-                    test = Double.parseDouble(line.substring(20, 30).trim());
-                } catch (NumberFormatException e) {
+
+                test = validateDetailGetDouble(line, 20, 30);
+                if (Math.abs(test) >= improbablyLargeValue) {
                     return "Invalid Z coordinate";
                 }
-                if (Math.abs(test) >= improbablyLargeValue)
-                    return "Invalid Z coordinate";
-                if (doubleEqZero(test))
+
+                if (doubleEqZero(test)) {
                     continue;
+                }
+
                 returnString = "OK 3D";
             }
+
             int impossibleAtomNumber = 0;
+
             for (int x = 0; x <= numBonds - 1; ++x) {
                 line = br.readLine();
-                if (line == null)
-                    return "Incorrect number of atoms and/or bonds";
-                if (line.startsWith("M")) {
-                    LOGGER.info(mol);
+
+                if (StringUtils.isBlank(line) || StringUtils.startsWith(line, "M")) {
                     return "Incorrect number of atoms and/or bonds";
                 }
-                if (line.length() < 12)
+
+                if (line.length() < 12) {
                     return "Invalid Bond Line - too short";
+                }
+
                 int test;
-                try {
-                    test = Integer.parseInt(line.substring(0, 3).trim());
-                } catch (NumberFormatException e) {
+
+                test = validateDetailGetInteger(line, 0, 3);
+                if (test <= impossibleAtomNumber) {
                     return "Invalid Bond Line - invalid atom1 number";
                 }
-                if (test <= impossibleAtomNumber)
-                    return "Invalid Bond Line - invalid atom1 number";
-                try {
-                    test = Integer.parseInt(line.substring(3, 6).trim());
-                } catch (NumberFormatException e) {
+
+                test = validateDetailGetInteger(line, 3, 6);
+                if (test <= impossibleAtomNumber) {
                     return "Invalid Bond Line - invalid atom2 number";
                 }
-                if (test <= impossibleAtomNumber)
-                    return "Invalid Bond Line - invalid atom2 number";
             }
+
             line = br.readLine();
-            if (line == null)
+
+            if (StringUtils.isBlank(line)) {
                 return "Molecule has too few lines";
+            }
         } catch (Exception e) {
             LOGGER.error("Unexpected error parsing molecule",e);
             return "Unexpected error parsing molecule";
         }
-        if (returnString.startsWith("OK"))
-            returnString = returnString + " " + Integer.toString(numAtoms);
-        return returnString;
+
+        return returnString + " " + Integer.toString(numAtoms);
+    }
+
+    private static int validateDetailGetInteger(String s, int beginIndex, int endIndex) {
+        try {
+            return Integer.parseInt(s.substring(beginIndex, endIndex).trim());
+        } catch (Exception e) {
+            LOGGER.trace("validateDetailGetInteger: " + s + ", " + beginIndex + ", " + endIndex, e);
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    private static double validateDetailGetDouble(String s, int beginIndex, int endIndex) {
+        try {
+            return Double.parseDouble(s.substring(beginIndex, endIndex).trim());
+        } catch (Exception e) {
+            LOGGER.trace("validateDetailGetDouble: " + s + ", " + beginIndex + ", " + endIndex, e);
+        }
+        return Double.MAX_VALUE;
     }
 
     public void init(String molecule, boolean allKeysToUpperCase, boolean molFilePortionOnly) {
