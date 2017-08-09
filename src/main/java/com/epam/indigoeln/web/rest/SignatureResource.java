@@ -1,11 +1,14 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.core.model.ExperimentStatus;
+import com.epam.indigoeln.core.model.SignatureJob;
 import com.epam.indigoeln.core.model.User;
+import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,6 +38,8 @@ import java.util.List;
 @RequestMapping("/api/signature")
 public class SignatureResource {
 
+    @Autowired
+    private SignatureJobRepository signatureJobRepository;
     @Autowired
     private SignatureService signatureService;
     @Autowired
@@ -100,6 +105,13 @@ public class SignatureResource {
         experimentDto.setStatus(ExperimentStatus.SUBMITTED);
         experimentDto.setSubmittedBy(user);
         experimentService.updateExperiment(projectId, notebookId, experimentDto, user);
+
+        // create status checking job
+
+        SignatureJob signatureJob = new SignatureJob();
+        signatureJob.setExperimentId(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
+        signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
+        signatureJobRepository.save(signatureJob);
 
         return ResponseEntity.ok(result);
     }

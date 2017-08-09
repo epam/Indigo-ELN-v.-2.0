@@ -1,5 +1,8 @@
 package com.epam.indigoeln.core.chemistry.domain;
 
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public abstract class CeNAbstractModel implements java.io.Serializable {
 
     // If you dont explicitly define a serialVersionUID, the language requires that the VM generate one,

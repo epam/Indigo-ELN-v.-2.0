@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
@@ -75,12 +76,12 @@ public class PrintResource {
     )
     public ResponseEntity<byte[]> createExperimentPdf(@ApiParam("project id") @PathVariable String projectId,
                                     @ApiParam("notebook id") @PathVariable String notebookId,
-                                    @ApiParam("experiment id") @PathVariable String experimentId) {
+                                    @ApiParam("experiment id") @PathVariable String experimentId,
+                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, byteArrayOutputStream);
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
     @ApiOperation(value = "Open project pdf preview", produces = "application/json")
@@ -89,12 +90,12 @@ public class PrintResource {
             path = "/project/{projectId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId) {
+    public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId,
+                                                   @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateProjectPdf(projectId, byteArrayOutputStream);
+        byte[] bytes =  iTextPrintService.generateProjectPdf(projectId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
     @ApiOperation(value = "Open notebook pdf preview", produces = "application/json")
@@ -104,11 +105,11 @@ public class PrintResource {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<byte[]> createNotebookPdf(@ApiParam("project id") @PathVariable String projectId,
-                                                   @ApiParam("notebook id") @PathVariable String notebookId) {
+                                                    @ApiParam("notebook id") @PathVariable String notebookId,
+                                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        iTextPrintService.generateNotebookPdf(projectId, notebookId, byteArrayOutputStream);
+        byte[] bytes = iTextPrintService.generateNotebookPdf(projectId, notebookId, printRequest);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
-        return ResponseEntity.ok().headers(headers).body(byteArrayOutputStream.toByteArray());
+        return ResponseEntity.ok().headers(headers).body(bytes);
     }
 }

@@ -14,6 +14,7 @@ public class PdfConst {
     public static final String EXPERIMENT_DESCRIPTION = "experimentDescription";
     public static final String PRODUCT_BATCH_SUMMARY = "productBatchSummary";
     public static final String PRODUCT_BATCH_DETAILS = "productBatchDetails";
+    public static final String ATTACHMENTS = "attachments";
 
     private PdfConst(){}
 }

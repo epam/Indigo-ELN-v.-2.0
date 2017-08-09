@@ -21,10 +21,10 @@ import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.UserDTO;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import org.apache.commons.lang3.StringUtils;
-
 import java.time.Instant;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,21 +41,26 @@ public final class NotebookPdfSectionsProvider implements PdfSectionsProvider {
     private final Notebook notebook;
     private final ExperimentService experimentService;
     private final UserService userService;
+    private final PrintRequest printRequest;
 
-    public NotebookPdfSectionsProvider(Project project, Notebook notebook, ExperimentService experimentService, UserService userService) {
+    public NotebookPdfSectionsProvider(Project project, Notebook notebook, ExperimentService experimentService,
+                                       UserService userService, PrintRequest printRequest) {
         this.project = project;
         this.notebook = notebook;
         this.experimentService = experimentService;
         this.userService = userService;
+        this.printRequest = printRequest;
     }
 
 
     @Override
     public List<AbstractPdfSection> getContentSections() {
-        return Arrays.asList(
-                new DescriptionSection(new DescriptionModel(notebook.getDescription(), "NOTEBOOK")),
-                getContentSection()
-        );
+        ArrayList<AbstractPdfSection> list = new ArrayList<>();
+        list.add(new DescriptionSection(new DescriptionModel(notebook.getDescription(), "NOTEBOOK")));
+        if (printRequest.withContent()){
+            list.add(getContentSection());
+        }
+        return list;
     }
 
     @Override

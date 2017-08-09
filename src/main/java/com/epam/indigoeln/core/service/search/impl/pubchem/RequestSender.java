@@ -23,7 +23,11 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,9 +99,11 @@ public class RequestSender {
             ResponseEntity<String> responseEntity = restTemplate.exchange(requestEntity, String.class);
             if (responseEntity.getStatusCode() == HttpStatus.OK) {
                 String body = responseEntity.getBody();
-                try {
-                    Collection<SdUnit> parse = sdService.parse(new ByteArrayInputStream(body.getBytes()));
-                    return parse.stream().map(this::convert).collect(Collectors.toList());
+                try (InputStream is = new ByteArrayInputStream(body.getBytes())){
+                    try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                        Collection<SdUnit> parse = sdService.parse(r);
+                        return parse.stream().map(this::convert).collect(Collectors.toList());
+                    }
                 } catch (Exception e) {
                     throw new IndigoRuntimeException("Error occurred while parsing SD file.", e);
                 }

@@ -11,7 +11,8 @@ public enum ExperimentStatus {
     SUBMIT_FAIL("Submit_Fail"),
     SINGING("Signing"),
     SINGED("Signed"),
-    ARCHIVED("Archived");
+    ARCHIVED("Archived"),
+    IN_CHECK("In_Check");
 
     private final String value;
 
@@ -26,9 +27,9 @@ public enum ExperimentStatus {
     }
 
     @JsonCreator
-    public static ExperimentStatus fromValue(String value){
-        for(ExperimentStatus status : ExperimentStatus.values()){
-            if(status.toString().equals(value)){
+    public static ExperimentStatus fromValue(String value) {
+        for (ExperimentStatus status : ExperimentStatus.values()) {
+            if (status.toString().equals(value)) {
                 return status;
             }
         }

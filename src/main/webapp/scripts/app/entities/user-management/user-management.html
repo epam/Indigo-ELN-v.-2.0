@@ -124,9 +124,7 @@
                 <td ng-bind="user.firstName"></td>
                 <td ng-bind="user.lastName"></td>
                 <td>
-                    <span ng-repeat="role in vm.user.roles track by role.id" ng-bind="role.name">
-                        <span ng-if="!$last">, </span>
-                    </span>
+                    <div ng-bind="user.roles | joinBy: ', ': 'name'"></div>
                 </td>
                 <td ng-bind="user.email"></td>
                 <td>
