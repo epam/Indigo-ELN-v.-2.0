@@ -2,6 +2,7 @@
 function searchComponents(filter) {
 
     return db.getCollection('component').aggregate([
+        {$match: {"$experiment":{exists: true}}},
         {
             $group:{
                 _id: "$experiment",
