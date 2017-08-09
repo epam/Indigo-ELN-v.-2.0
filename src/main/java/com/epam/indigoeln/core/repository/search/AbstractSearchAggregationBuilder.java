@@ -41,7 +41,7 @@ public class AbstractSearchAggregationBuilder {
     public AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
         List<Criteria> fieldCriteriaList = criteria.stream()
                 .filter(c -> availableFields == null || availableFields.contains(c.getField()))
-                .map(criterion -> AggregationUtils.createCriterion(criterion.getCondition(), contextPrefix + criterion.getField(), criterion.getValue()))
+                .map(criterion -> AggregationUtils.createCriterion(criterion, contextPrefix))
                 .collect(toList());
         if (!fieldCriteriaList.isEmpty()) {
             Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
