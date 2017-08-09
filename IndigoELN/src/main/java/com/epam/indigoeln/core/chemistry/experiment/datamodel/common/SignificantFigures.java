@@ -268,7 +268,7 @@ public class SignificantFigures extends Number {
      * @return representation of this number.
      * @since ostermillerutils 1.00.00
      */
-    public String toString() { //NOSONAR toString should convert to string properly
+    public String toString() {
         if (digits == null)
             return original;
         StringBuilder sb = new StringBuilder(this.digits.toString());
