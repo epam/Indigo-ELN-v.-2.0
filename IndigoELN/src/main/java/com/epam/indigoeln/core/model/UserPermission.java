@@ -1,6 +1,8 @@
 package com.epam.indigoeln.core.model;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.util.Set;
@@ -10,11 +12,13 @@ import java.util.Set;
  * User can be <b>VIEWER</b>, <b>CHILD_VIEWER</b>, <b>USER</b> or <b>OWNER</b> in relation to Entity.<br/>
  * By roles:
  * <ul>
- *  <li><b>VIEWER</b> can only <b>read Entity</b></li>
- *  <li><b>USER</b> can <b>create Sub-Entity</b> and all above</li>
- *  <li><b>OWNER</b> can <b>update Entity</b> and all above</li>
+ * <li><b>VIEWER</b> can only <b>read Entity</b></li>
+ * <li><b>USER</b> can <b>create Sub-Entity</b> and all above</li>
+ * <li><b>OWNER</b> can <b>update Entity</b> and all above</li>
  * </ul>
  */
+@ToString
+@EqualsAndHashCode
 public class UserPermission {
 
     public static final String READ_ENTITY = "READ_ENTITY";
@@ -89,32 +93,5 @@ public class UserPermission {
             return VIEWER;
         }
         return null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        UserPermission userPermission = (UserPermission) o;
-
-        return user != null ? user.equals(userPermission.user) : userPermission.user == null;
-    }
-
-    @Override
-    public int hashCode() {
-        return user != null ? user.hashCode() : 0;
-    }
-
-    @Override
-    public String toString() {
-        return "UserPermission{" +
-                "id='" + user.getId() + '\'' +
-                ", permissions='" + permissions + '\'' +
-                "}";
     }
 }

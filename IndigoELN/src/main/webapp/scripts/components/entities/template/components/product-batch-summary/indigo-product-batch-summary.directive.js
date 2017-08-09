@@ -22,7 +22,8 @@
                 saveExperimentFn: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                onChanged: '&'
             }
         };
     }

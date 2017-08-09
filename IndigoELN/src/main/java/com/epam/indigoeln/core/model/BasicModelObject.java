@@ -1,9 +1,8 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.base.Objects;
-
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
-
 import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Persistable;
 
@@ -12,15 +11,14 @@ import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@ToString
+@EqualsAndHashCode
 public abstract class BasicModelObject implements Serializable, Persistable<String> {
 
     private static final long serialVersionUID = 315161850216225505L;
 
     @Id
     private String id;
-
-    @ReadOnlyProperty
-    private String _class;
 
     @NotEmpty
     private String name;
@@ -106,32 +104,6 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
 
     public void setVersion(Long version) {
         this.version = version;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)  {
-            return true;
-        }
-        if (!(o instanceof BasicModelObject)) {
-            return false;
-        }
-        BasicModelObject that = (BasicModelObject) o;
-        return  Objects.equal(id, that.id) &&
-                Objects.equal(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, name);
-    }
-
-    @Override
-    public String toString() {
-        return "BasicModelObject{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                '}';
     }
 
     @Override

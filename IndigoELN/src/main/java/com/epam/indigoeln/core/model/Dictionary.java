@@ -1,6 +1,7 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.domain.Persistable;
@@ -14,6 +15,8 @@ import java.util.Set;
 /**
  * A dictionary model
  */
+@ToString
+@EqualsAndHashCode
 @Document(collection = Dictionary.COLLECTION_NAME)
 //@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Dictionary implements Serializable, Persistable<String> {
@@ -76,35 +79,6 @@ public class Dictionary implements Serializable, Persistable<String> {
 
     public void setAccessList(Set<UserPermission> accessList) {
         this.accessList = accessList;
-    }
-
-    @Override
-    public String toString() {
-        return "Dictionary{" +
-                "description='" + description + '\'' +
-                "words='" + words + '\'' +
-                "} " + super.toString();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), description, words);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Dictionary)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Dictionary dict = (Dictionary) o;
-        return Objects.equal(description, dict.description) &&
-                Objects.equal(words, dict.words);
     }
 
     @Override

@@ -39,7 +39,9 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-   
+        vm.onBatchOperationChanged = onBatchOperationChanged;
+        vm.isBatchLoading = false;
+
         init();
 
         function init() {
@@ -62,6 +64,7 @@
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
+            vm.onChanged();
             selectBatch(batch);
         }
 
@@ -99,7 +102,7 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
-                successAddedBatch(batches[0]);
+                selectBatch(batches[0]);
             });
         }
 
@@ -110,7 +113,7 @@
         function editSolubility() {
             var callback = function(result) {
                 vm.selectedBatch.solubility = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editSolubility(vm.selectedBatch.solubility, callback);
         }
@@ -118,14 +121,14 @@
         function editResidualSolvents() {
             InfoEditor.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
                 vm.selectedBatch.residualSolvents = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             });
         }
 
         function editExternalSupplier() {
             var callback = function(result) {
                 vm.selectedBatch.externalSupplier = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
         }
@@ -133,7 +136,7 @@
         function editMeltingPoint() {
             var callback = function(result) {
                 vm.selectedBatch.meltingPoint = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
         }
@@ -141,7 +144,7 @@
         function editPurity() {
             var callback = function(result) {
                 vm.selectedBatch.purity = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editPurity(vm.selectedBatch.purity, callback);
         }
@@ -149,7 +152,7 @@
         function editHealthHazards() {
             var callback = function(result) {
                 vm.selectedBatch.healthHazards = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editHealthHazards(vm.selectedBatch.healthHazards, callback);
         }
@@ -157,7 +160,7 @@
         function editHandlingPrecautions() {
             var callback = function(result) {
                 vm.selectedBatch.handlingPrecautions = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
         }
@@ -165,7 +168,7 @@
         function editStorageInstructions() {
             var callback = function(result) {
                 vm.selectedBatch.storageInstructions = result;
-                vm.experimentForm.$setDirty();
+                vm.onChanged();
             };
             InfoEditor.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
         }
@@ -250,7 +253,11 @@
                 }
             },
             {
-                id: 'registrationStatus', name: 'Registration Status'
+                id: 'registrationStatus',
+                name: 'Registration Status',
+                mark: function(batch) {
+                    return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
+                }
             }
         ];
 
@@ -286,6 +293,10 @@
                     return !!val;
                 }).join(', ');
             }
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {

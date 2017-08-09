@@ -16,7 +16,8 @@
                 model: '=',
                 experiment: '=',
                 experimentForm: '=',
-                saveExperimentFn: '&'
+                saveExperimentFn: '&',
+                onChanged: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
@@ -86,14 +87,20 @@
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
                 vm.onPrecursorsChanged = onPrecursorsChanged;
-
+                vm.onChangedComponent = onChangedComponent;
                 bindEvents();
+            }
+
+            function onChangedComponent(componentId) {
+                vm.onChanged({componentId: componentId});
             }
 
             function updateModel() {
                 vm.batches = _.get(vm.model, 'productBatchSummary.batches')
                     || _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
                 ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
+                vm.batchesTrigger++;
+
                 updateSelections();
             }
 
@@ -122,7 +129,7 @@
                 }
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
                 if (vm.batches.length - length) {
-                    vm.experimentForm.$setDirty();
+                    vm.onChanged();
                     vm.batchesTrigger++;
                 }
             }
