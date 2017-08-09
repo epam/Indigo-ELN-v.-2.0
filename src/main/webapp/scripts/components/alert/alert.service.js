@@ -7,7 +7,7 @@ function alert(notify) {
     notify.config({
         container: document.getElementById('page-content'),
         templateUrl: 'scripts/components/alert/alert-template.html',
-        startTop: 0
+        startTop: -10
     });
 
     return {
