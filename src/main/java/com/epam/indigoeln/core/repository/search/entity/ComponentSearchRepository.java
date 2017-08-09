@@ -95,7 +95,6 @@ public class ComponentSearchRepository implements InitializingBean {
     private Set<Object> find(Criteria criteria) {
         return ((BasicDBList) mongoTemplate.scriptOps().execute(searchScript, criteria.getCriteriaObject()))
                 .stream()
-                .filter(Objects::nonNull)
                 .map(o -> (DBRef) o)
                 .map(DBRef::getId)
                 .collect(Collectors.toSet()

@@ -2,7 +2,7 @@
 function searchComponents(filter) {
 
     return db.getCollection('component').aggregate([
-        {$match: {"$experiment":{exists: true}}},
+        {$match: {"experiment":{exists: true}}},
         {
             $group:{
                 _id: "$experiment",
@@ -37,8 +37,7 @@ function searchComponents(filter) {
         {$unwind:'$batchStructureId'},
         {$unwind:'$batchStructureId'},
         {$match: filter}
-    ], {allowDiskUse: true}
-    ).map(function (obj) {
+    ]).map(function (obj) {
         return obj._id;
     });
 }
