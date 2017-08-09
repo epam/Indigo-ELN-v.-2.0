@@ -36,7 +36,8 @@ function searchComponents(filter) {
         {$unwind:'$batchStructureId'},
         {$unwind:'$batchStructureId'},
         {$match: filter}
-    ]).map(function (obj) {
+    ], {allowDiskUse: true}
+    ).map(function (obj) {
         return obj._id;
     });
 }
