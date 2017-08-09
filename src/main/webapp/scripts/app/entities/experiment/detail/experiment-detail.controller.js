@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
-                                        PermissionManagement, FileUploaderCash, AutoRecoverEngine, EntitiesBrowser,
+                                        PermissionManagement, FileUploaderCash, autoRecoverEngine, EntitiesBrowser,
                                         Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
                                         Components) {
         var vm = this;
@@ -75,7 +75,7 @@
         }
 
         function initAutoRecoverTrack() {
-            AutoRecoverEngine.track({
+            autoRecoverEngine.track({
                 vm: vm,
                 kind: $state.$current.data.tab.kind,
                 onSetDirty: function() {
@@ -178,7 +178,7 @@
                 $scope.experimentForm.$setPristine();
             }
             vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-            AutoRecoverEngine.tracker.changeDirty(isDirty);
+            autoRecoverEngine.tracker.changeDirty(isDirty);
             EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
         }
 
@@ -290,13 +290,13 @@
         function initEventListeners() {
             $scope.$watch('vm.experiment', function(entity, old) {
                 EntitiesBrowser.setCurrentEntity(vm.experiment);
-                AutoRecoverEngine.tracker.change(entity, old);
+                autoRecoverEngine.tracker.change(entity, old);
             }, true);
 
             $scope.$watch('experimentForm.$dirty', function(cur, old) {
                 // TODO: after refactored checking changes
                 vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-                AutoRecoverEngine.tracker.changeDirty(cur, old);
+                autoRecoverEngine.tracker.changeDirty(cur, old);
             }, true);
 
             $scope.$watch('vm.experiment.status', function() {

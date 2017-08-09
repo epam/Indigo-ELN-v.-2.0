@@ -6,7 +6,7 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      AutoRecoverEngine, notebookSummaryExperiments) {
+                                      autoRecoverEngine, notebookSummaryExperiments) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -62,7 +62,7 @@
         function initDirtyListener() {
             $timeout(function() {
                 var tabKind = $state.$current.data.tab.kind;
-                AutoRecoverEngine.track({
+                autoRecoverEngine.track({
                     vm: vm,
                     kind: tabKind,
                     onSetDirty: function() {
@@ -76,7 +76,7 @@
                 vm.dirtyListener = $scope.$watch(function() {
                     return vm.notebook;
                 }, function(entity, old) {
-                    AutoRecoverEngine.tracker.change(entity, old);
+                    autoRecoverEngine.tracker.change(entity, old);
                     EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
                     if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
                         vm.isBtnSaveActive = true;
@@ -87,7 +87,7 @@
                     }
                 }, true);
                 vm.formDirtyListener = $scope.$watch('createNotebookForm.$dirty', function(cur, old) {
-                    AutoRecoverEngine.tracker.changeDirty(cur, old);
+                    autoRecoverEngine.tracker.changeDirty(cur, old);
                 }, true);
             }, 0, false);
         }

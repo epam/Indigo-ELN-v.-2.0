@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
-                                                 ProductBatchSummaryCache, $filter, ProductBatchSummaryOperations) {
+                                                 $filter, ProductBatchSummaryOperations) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
