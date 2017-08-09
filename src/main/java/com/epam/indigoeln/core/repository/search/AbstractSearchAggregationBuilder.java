@@ -4,6 +4,7 @@ import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -40,7 +41,7 @@ public class AbstractSearchAggregationBuilder {
     public AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
         List<Criteria> fieldCriteriaList = criteria.stream()
                 .filter(c -> availableFields == null || availableFields.contains(c.getField()))
-                .map(criterion -> AggregationUtils.createCriterion(criterion, contextPrefix))
+                .map(criterion -> AggregationUtils.createCriterion(criterion.getCondition(), contextPrefix + criterion.getField(), criterion.getValue()))
                 .collect(toList());
         if (!fieldCriteriaList.isEmpty()) {
             Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
