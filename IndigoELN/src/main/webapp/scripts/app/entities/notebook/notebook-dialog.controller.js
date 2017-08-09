@@ -6,7 +6,7 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      AutoRecoverEngine, NotebookSummaryExperiments) {
+                                      AutoRecoverEngine, notebookSummaryExperiments) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -147,7 +147,7 @@
 
                 return;
             }
-            vm.loading = NotebookSummaryExperiments.query({
+            vm.loading = notebookSummaryExperiments.query({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
             }).$promise.then(function(data) {
