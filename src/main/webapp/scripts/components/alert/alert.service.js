@@ -3,26 +3,10 @@ angular
     .factory('Alert', alert);
 
 /* @ngInject */
-function alert(notify, $scope) {
-    // TODO: move to file
-    var common = {
-        allow_dismiss: true,
-        offset: {
-            x: 20,
-            y: 10
-        },
-        spacing: 10,
-        z_index: 1131,
-        delay: 5000,
-        timer: 1000,
-        placement: {
-            from: 'top',
-            align: 'right'
-        }
-    };
-
+function alert(notify) {
     notify.config({
         container: document.getElementById('page-content'),
+        templateUrl: 'scripts/components/alert/alert-template.html',
         startTop: 0
     });
 
@@ -35,34 +19,29 @@ function alert(notify, $scope) {
 
 
     function success(msg) {
-        $scope.success = 'success';
         notify({
             message: msg,
-            templateUrl: 'scripts/components/alert/success-template.html'
+            classes: "success-notify"
         });
     }
 
     function error(msg) {
-        $.notify({
-            message: msg
-        }, _.extend(common, {
-            type: 'danger'
-        }));
+        notify({
+            message: msg,
+            classes: "danger-notify"
+        });
     }
 
     function warning(msg) {
-        $.notify({
-            message: msg
-        }, _.extend(common, {
-            type: 'warning'
-        }));
+        notify({
+            message: msg,
+            classes: "warning-notify"
+        });
     }
 
     function info(msg) {
-        $.notify({
+        notify({
             message: msg
-        }, _.extend(common, {
-            type: 'info'
-        }));
+        });
     }
 }
