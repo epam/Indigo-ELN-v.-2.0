@@ -76,7 +76,7 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
@@ -107,7 +107,7 @@
                     <div class="btn-group">
                         <button type="button"
                                 class="btn btn-info btn-small  btn-can-loading {{(vm.importLoading) ? 'btn-loading' : ''}}"
-                                ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly">
+                                ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
                             <i class="fa fa-cloud-download"></i>
                             <span class="m-l5">Import</span>
                         </button>

@@ -27,9 +27,9 @@ public enum ExperimentStatus {
     }
 
     @JsonCreator
-    public static ExperimentStatus fromValue(String value){
-        for(ExperimentStatus status : ExperimentStatus.values()){
-            if(status.toString().equals(value)){
+    public static ExperimentStatus fromValue(String value) {
+        for (ExperimentStatus status : ExperimentStatus.values()) {
+            if (status.toString().equals(value)) {
                 return status;
             }
         }

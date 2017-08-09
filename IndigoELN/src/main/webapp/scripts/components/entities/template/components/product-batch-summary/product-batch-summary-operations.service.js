@@ -56,6 +56,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             var args = arguments;
             curNbkOperation = curNbkOperation.then(function() {
                 return fn.apply(this, args);
+            }, function() {
+                return fn.apply(this, args);
             });
 
             return curNbkOperation;
@@ -174,6 +176,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
             return $q.all(promises).then(function(batches) {
                 return updateNbkBatches(batches).then(function() {
+                    Alert.info(batches.length + ' batches successfully imported');
+
                     return batches;
                 });
             });
