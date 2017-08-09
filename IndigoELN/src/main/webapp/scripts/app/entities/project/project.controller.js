@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash,
-                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, AutoRecoverEngine) {
+                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autoRecoverEngine) {
         var vm = this;
         var identity = pageInfo.identity;
         var project = pageInfo.project;
@@ -112,7 +112,7 @@
 
         function initDirtyListener() {
             $timeout(function() {
-                AutoRecoverEngine.track({
+                autoRecoverEngine.track({
                     vm: vm,
                     kind: $state.$current.data.tab.kind,
                     onSetDirty: function() {
@@ -126,7 +126,7 @@
 
                 $scope.$watch('vm.project', function(newValue, oldValue) {
                     EntitiesBrowser.setCurrentForm($scope.createProjectForm);
-                    AutoRecoverEngine.tracker.change(newValue, oldValue);
+                    autoRecoverEngine.tracker.change(newValue, oldValue);
                     if (EntitiesBrowser.getActiveTab().name === 'New Project') {
                         vm.isBtnSaveActive = true;
                     } else {
@@ -137,7 +137,7 @@
                 }, true);
 
                 $scope.$watch('createProjectForm.$dirty', function(newValue, oldValue) {
-                    AutoRecoverEngine.tracker.changeDirty(newValue);
+                    autoRecoverEngine.tracker.changeDirty(newValue);
                 });
             }, 0, false);
         }

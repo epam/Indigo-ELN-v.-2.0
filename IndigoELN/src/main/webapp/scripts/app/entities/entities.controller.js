@@ -4,7 +4,7 @@
         .controller('EntitiesController', EntitiesController);
 
     function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal,
-                                AutoRecoverEngine, Alert, Experiment, Notebook, Project, dialogService) {
+                                autoRecoverEngine, Alert, Experiment, Notebook, Project, dialogService) {
         var vm = this;
 
         init();
@@ -121,7 +121,7 @@
             var entityPromise = EntitiesCache.getByKey(tab.tabKey);
             if (entityPromise) {
                 entityPromise.then(function(entity) {
-                    AutoRecoverEngine.clearRecovery(tab.kind, entity);
+                    autoRecoverEngine.clearRecovery(tab.kind, entity);
                 });
             }
         }
@@ -159,7 +159,7 @@
                 Principal.identity(true).then(function(user) {
                     EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
                         if (tab && user.id !== data.user) {
-                            onTabChanged(tab, data.entity);
+                            onTabChanged(tab);
                         }
                     });
                 });
