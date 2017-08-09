@@ -131,7 +131,7 @@ public class SdUnit implements Serializable, Externalizable {
                 return "Molecule has too few lines";
             }
         } catch (Exception e) {
-            LOGGER.error("Unexpected error parsing molecule",e);
+            LOGGER.error("Unexpected error parsing molecule", e);
             return "Unexpected error parsing molecule";
         }
 
@@ -255,14 +255,14 @@ public class SdUnit implements Serializable, Externalizable {
                 valid = false;
             infoPortion = parseInfo(mol, keyList);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("SDUnit init error",e);
+            LOGGER.error("SDUnit init error", e);
             valid = false;
             if (validString.startsWith("OK"))
                 validString = e.getMessage();
             else
                 validString = validString + " AND " + e.getMessage();
         } catch (Exception e) {
-            LOGGER.error("SDUnit init error",e);
+            LOGGER.error("SDUnit init error", e);
         }
     }
 
@@ -300,21 +300,29 @@ public class SdUnit implements Serializable, Externalizable {
 
     private void replaceKey(String key) {
         int len = keyList.size();
+
         boolean replaced = false;
+
         int x = 0;
+
         do {
-            if (x > len - 1)
+            if (x > len - 1) {
                 break;
+            }
+
             String s = keyList.get(x);
+
             if (s.equalsIgnoreCase(key)) {
                 keyList.set(x, key);
                 replaced = true;
-                break;
             }
+
             x++;
-        } while (true);
-        if (!replaced)
+        } while (!replaced);
+
+        if (!replaced) {
             keyList.add(key);
+        }
     }
 
     public void removeItem(String key) {
@@ -403,57 +411,64 @@ public class SdUnit implements Serializable, Externalizable {
 
     private Map<String, String> parseInfo(String sdInfo, List<String> origNames) {
         Map<String, String> out = new HashMap<>();
+
         try {
-            String attrPortion = sdInfo.substring(sdInfo.indexOf("M  END") + 6,
-                    sdInfo.indexOf("$$$$") + 4).trim();
+            String attrPortion = sdInfo.substring(sdInfo.indexOf("M  END") + 6, sdInfo.indexOf("$$$$") + 4).trim();
+
             String thisName;
             String thisOrigName;
             String thisValue;
+
             do {
-                if (attrPortion.indexOf(">") != 0
-                        || attrPortion.indexOf("<") <= 0)
+                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") <= 0) {
                     break;
-                attrPortion = attrPortion
-                        .substring(attrPortion.indexOf("<") + 1);
-                thisName = attrPortion.substring(0, attrPortion.indexOf(">"))
-                        .trim();
+                }
+
+                attrPortion = attrPortion.substring(attrPortion.indexOf("<") + 1);
+                thisName = attrPortion.substring(0, attrPortion.indexOf(">")).trim();
+
                 thisOrigName = thisName;
                 thisName = thisName.toUpperCase();
-                attrPortion = attrPortion.substring(attrPortion.indexOf("\n"))
-                        .trim();
-                if (attrPortion.contains(">"))
-                    thisValue = attrPortion.substring(0,
-                            attrPortion.indexOf("\n>")).trim();
-                else if (attrPortion.trim().indexOf(">") == 0
-                        && attrPortion.contains("<"))
+
+                attrPortion = attrPortion.substring(attrPortion.indexOf("\n")).trim();
+
+                if (attrPortion.contains(">")) {
+                    thisValue = attrPortion.substring(0, attrPortion.indexOf("\n>")).trim();
+                } else if (attrPortion.trim().indexOf(">") == 0 && attrPortion.contains("<")) {
                     thisValue = "";
-                else
-                    thisValue = attrPortion.substring(0,
-                            attrPortion.indexOf("$$$$")).trim();
-                if (!"".equals(thisValue.trim())) {
-                    if (out.containsKey(thisName)) {
-                        String tmp = out.get(thisName);
-                        if (tmp != null && !"".equals(tmp)) {
-                            out.put(thisName, tmp + "\n" + thisValue);
-                        } else {
-                            out.put(thisName, thisValue);
-                            origNames.add(thisOrigName);
-                        }
-                    } else {
-                        out.put(thisName, thisValue);
-                        origNames.add(thisOrigName);
-                    }
+                } else {
+                    thisValue = attrPortion.substring(0, attrPortion.indexOf("$$$$")).trim();
                 }
-                if (attrPortion.indexOf(">  <") != 0
-                        && attrPortion.indexOf("> <") != 0
-                        && attrPortion.contains("\n>"))
-                    attrPortion = attrPortion.substring(attrPortion
-                            .indexOf("\n>") + 1);
+
+                parseInfoAddOrigNames(out, origNames, thisOrigName, thisName, thisValue);
+
+                if (attrPortion.indexOf(">  <") != 0 && attrPortion.indexOf("> <") != 0 && attrPortion.contains("\n>")) {
+                    attrPortion = attrPortion.substring(attrPortion.indexOf("\n>") + 1);
+                }
             } while (true);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error parsing sdFile attributes", e);
         }
+
         return out;
+    }
+
+    private void parseInfoAddOrigNames(Map<String, String> out, List<String> origNames, String thisOrigName, String thisName, String thisValue) {
+        if (!"".equals(thisValue.trim())) {
+            if (out.containsKey(thisName)) {
+                String tmp = out.get(thisName);
+
+                if (tmp != null && !"".equals(tmp)) {
+                    out.put(thisName, tmp + "\n" + thisValue);
+                } else {
+                    out.put(thisName, thisValue);
+                    origNames.add(thisOrigName);
+                }
+            } else {
+                out.put(thisName, thisValue);
+                origNames.add(thisOrigName);
+            }
+        }
     }
 
     @Override
