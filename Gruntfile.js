@@ -249,23 +249,21 @@ module.exports = function (grunt) {
         less: {
             dev: {
                 options: {
-                    sourceMap: true
+                    sourceMap: true,
+                    sourceMapFileInline: true
+                    // Have trouble, in devTools need the assets/less to "add folder to workplace"
                 },
                 files: {
-                    '<%= yeoman.app %>/assets/styles/main.css': [
-                        '<%= yeoman.app %>/assets/less/*.less',
-                        '!<%= yeoman.app %>/assets/less/{boot,var,mix}*.less',
-                        '<%= yeoman.app %>/scripts/**/*.less'
-                    ]
+                    '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
+                    '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
+                        '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
                 }
             },
             prod: {
                 files: {
-                    '<%= yeoman.app %>/assets/styles/main.css': [
-                        '<%= yeoman.app %>/assets/less/*.less',
-                        '!<%= yeoman.app %>/assets/less/{boot,var,mix}*.less',
-                        '<%= yeoman.app %>/scripts/**/*.less'
-                    ]
+                    '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
+                    '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
+                        '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
                 }
             }
         }
