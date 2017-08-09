@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -14,12 +13,6 @@ import static java.util.stream.Collectors.toList;
 public final class AggregationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationUtils.class);
-
-    private static final String IGNORE_CASE = "i";
-
-    private static final Function<Object, String> CONTAINS = (o) -> ".*" + o + ".*";
-    private static final Function<Object, String> STARTS_WITH = (o) -> o + ".*";
-    private static final Function<Object, String> ENDS_WITH = (o) -> ".*" + o;
 
     private AggregationUtils() {
     }
@@ -30,51 +23,37 @@ public final class AggregationUtils {
 
     public static List<Criteria> createCriteria(Collection<SearchCriterion> criteria, String prefix) {
         return criteria.stream()
-                .map(c -> createCriterion(c, prefix))
+                .map(c -> createCriterion(c.getCondition(), prefix + c.getField(), c.getValue()))
                 .collect(toList());
     }
 
     public static Criteria createCriterion(SearchCriterion searchCriterion) {
-        return createCriterion(searchCriterion, "");
+        return createCriterion(searchCriterion.getCondition(), searchCriterion.getField(), searchCriterion.getValue());
     }
 
-    public static Criteria createCriterion(SearchCriterion criterion, String prefix) {
-        final Criteria criteria = Criteria.where(prefix + criterion.getField());
-
-        switch (criterion.getCondition()) {
+    public static Criteria createCriterion(String condition, String key, Object value) {
+        switch (condition) {
             case "contains":
-                criteria.regex(CONTAINS.apply(criterion.getValue()), IGNORE_CASE);
-                break;
+                return Criteria.where(key).regex(regexContains(value), "i");
             case "starts with":
-                criteria.regex(STARTS_WITH.apply(criterion.getValue()), IGNORE_CASE);
-                break;
+                return Criteria.where(key).regex(regexStartsWith(value), "i");
             case "ends with":
-                criteria.regex(ENDS_WITH.apply(criterion.getValue()), IGNORE_CASE);
-                break;
+                return Criteria.where(key).regex(regexEndsWith(value), "i");
             case "in":
-                criteria.in(convertToCollection(criterion.getValue()));
-                break;
+                return Criteria.where(key).in(convertToCollection(value));
             case "=":
-                criteria.is(convertToDouble(criterion.getValue()));
-                break;
+                return Criteria.where(key).is(convertToDouble(value));
             case ">":
-                criteria.gt(convertToDouble(criterion.getValue()));
-                break;
+                return Criteria.where(key).gt(convertToDouble(value));
             case ">=":
-                criteria.gte(convertToDouble(criterion.getValue()));
-                break;
+                return Criteria.where(key).gte(convertToDouble(value));
             case "<":
-                criteria.lt(convertToDouble(criterion.getValue()));
-                break;
+                return Criteria.where(key).lt(convertToDouble(value));
             case "<=":
-                criteria.lte(convertToDouble(criterion.getValue()));
-                break;
+                return Criteria.where(key).lte(convertToDouble(value));
             default:
-                criteria.is(criterion.getValue());
-                break;
+                return Criteria.where(key).is(value);
         }
-
-        return criteria;
     }
 
     public static Optional<Criteria> andCriteria(Optional<Criteria>... mas) {
@@ -128,4 +107,15 @@ public final class AggregationUtils {
         return null;
     }
 
+    private static String regexContains(Object value) {
+        return ".*" + value + ".*";
+    }
+
+    private static String regexStartsWith(Object value) {
+        return value + ".*";
+    }
+
+    private static String regexEndsWith(Object value) {
+        return ".*" + value;
+    }
 }
