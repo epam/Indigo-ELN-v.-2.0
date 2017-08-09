@@ -3,25 +3,23 @@
         .module('indigoeln')
         .controller('FileUploaderController', FileUploaderController);
 
-    function FileUploaderController($scope, $rootScope, $uibModal, $filter, $stateParams, FileUploaderCash,
+    function FileUploaderController($uibModal, $filter, $stateParams, FileUploaderCash,
                                     ParseLinks, Alert, ProjectFileUploaderService, ExperimentFileUploaderService) {
         var vm = this;
         var params = $stateParams;
-        var uploadUrl = $scope.uploadUrl;
         var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
-
-        vm.page = 1;
-        vm.indigoReadonly = $scope.indigoReadonly;
-
-        vm.loadAll = loadAll;
-        vm.loadPage = loadPage;
-        vm.upload = upload;
-        vm.deleteFile = deleteFile;
-        vm.search = search;
 
         init();
 
         function init() {
+            vm.page = 1;
+            vm.loadAll = loadAll;
+            vm.loadPage = loadPage;
+            vm.upload = upload;
+            vm.deleteFile = deleteFile;
+            vm.search = search;
+
+
             if (params.projectId) {
                 vm.loadAll();
             }
@@ -63,12 +61,14 @@
                         return params;
                     },
                     uploadUrl: function() {
-                        return uploadUrl;
+                        return vm.uploadUrl;
                     }
                 }
             }).result.then(function(result) {
                 vm.files = _.union(vm.files, result);
-                $rootScope.$broadcast('refresh after attach', 0);
+                if (vm.files.length) {
+                    vm.onChanged({files: vm.files});
+                }
             });
         }
 

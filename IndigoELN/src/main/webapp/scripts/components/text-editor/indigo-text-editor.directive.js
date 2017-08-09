@@ -9,59 +9,60 @@
             scope: {
                 indigoName: '@',
                 indigoModel: '=',
-                indigoReadonly: '='
+                indigoReadonly: '=',
+                onChanged: '&'
             },
-            require: '^form',
             restrict: 'E',
-            template: '<textarea name={{indigoName}} class="form-control" ng-model="indigoModel" data-autosave="editor-content" autofocus></textarea>',
+            template: '<textarea name={{::indigoName}} class="form-control" ng-model="indigoModel"' +
+            ' data-autosave="editor-content" autofocus></textarea>',
             replace: true,
             link: link
         };
 
         /* @ngInject */
-        function link(scope, elem, iAttrs, formCtrl, textEditorConfig) {
-            Simditor.locale = 'en_EN';
-            var editor = new Simditor(
-                angular.extend({
-                    textarea: elem
-                }, textEditorConfig)
-            );
+        function link($scope, $element, $attr, vm, textEditorConfig) {
+            var editor;
 
-            var newContent = null;
-            var unbinds = [];
-            var isInit = false;
-            unbinds.push(scope.$watch('indigoModel', function(value) {
-                if (value !== editor.getValue()) {
-                    editor.setValue(value);
-                }
-                if (isInit) {
-                    formCtrl[scope.indigoName].$setDirty();
-                }
-                isInit = true;
-            }));
+            init();
+            
+            function init() {
+                Simditor.locale = 'en_EN';
 
-            editor.on('valuechanged', function() {
-                if (scope.indigoModel !== editor.getValue()) {
-                    $timeout(function() {
-                        scope.indigoModel = newContent = editor.getValue();
-                        if (isInit) {
-                            formCtrl[scope.indigoName].$setDirty();
-                        }
-                    });
-                }
-            });
+                editor = new Simditor(
+                    angular.extend({
+                        textarea: $element
+                    }, textEditorConfig)
+                );
 
-            if (scope.indigoReadonly === true) {
-                editor.body.attr('contenteditable', false);
+                if ($scope.indigoReadonly === true) {
+                    editor.body.attr('contenteditable', false);
+                }
+
+                bindEvents();
             }
-            unbinds.push(scope.$watch('indigoReadonly', function(newValue) {
-                editor.body.attr('contenteditable', !newValue);
-            }));
-            scope.$on('$destroy', function() {
-                _.each(unbinds, function(unbind) {
-                    unbind();
+
+            function bindEvents() {
+                $scope.$watch('indigoModel', function(value) {
+                    if (value !== editor.getValue()) {
+                        editor.setValue(value);
+                    }
                 });
-            });
+
+                var editorListener = editor.on('valuechanged', function() {
+                    if (($scope.indigoModel || '') !== editor.getValue()) {
+                        $scope.indigoModel = editor.getValue();
+                        $scope.onChanged({text: $scope.indigoModel});
+                    }
+                });
+
+                $scope.$watch('indigoReadonly', function(newValue) {
+                    editor.body.attr('contenteditable', !newValue);
+                });
+
+                $scope.$on('$destroy', function() {
+                    editorListener.off();
+                });
+            }
         }
     }
 })();
