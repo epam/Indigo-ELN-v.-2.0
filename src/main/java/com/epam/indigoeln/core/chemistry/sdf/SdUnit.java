@@ -28,6 +28,9 @@ import java.util.zip.GZIPOutputStream;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class SdUnit implements Serializable, Externalizable {
+
+    private static final String OK_3D = "OK 3D";
+
     static final long serialVersionUID = 42L;
     boolean is3D;
     int numAtoms;
@@ -83,7 +86,7 @@ public class SdUnit implements Serializable, Externalizable {
             return "Does not contain \"M  END\"";
         }
 
-        String returnString = "OK";
+        String returnString;
 
         int numAtoms;
         int numBonds;
@@ -110,67 +113,16 @@ public class SdUnit implements Serializable, Externalizable {
                 return "Number of bonds is invalid";
             }
 
-            double improbablyLargeValue = 10000.0D;
-
-            for (int x = 0; x <= numAtoms - 1; ++x) {
-                line = br.readLine();
-
-                if (StringUtils.isBlank(line)) {
-                    return "Incorrect number of atoms and/or bonds";
-                }
-
-                if (line.indexOf(".") != 5) {
-                    return "X coordinate decimal in wrong place";
-                }
-
-                double test;
-
-                test = validateDetailGetDouble(line, 0, 10);
-                if (Math.abs(test) >= improbablyLargeValue) {
-                    return "Invalid X coordinate";
-                }
-
-                test = validateDetailGetDouble(line, 10, 20);
-                if (Math.abs(test) >= improbablyLargeValue) {
-                    return "Invalid Y coordinate";
-                }
-
-                test = validateDetailGetDouble(line, 20, 30);
-                if (Math.abs(test) >= improbablyLargeValue) {
-                    return "Invalid Z coordinate";
-                }
-
-                if (doubleEqZero(test)) {
-                    continue;
-                }
-
-                returnString = "OK 3D";
+            returnString = validateDetailCoordinates(numAtoms, br);
+            if (!StringUtils.equals(returnString, OK_3D)) {
+                return returnString;
             }
 
-            int impossibleAtomNumber = 0;
-
-            for (int x = 0; x <= numBonds - 1; ++x) {
-                line = br.readLine();
-
-                if (StringUtils.isBlank(line) || StringUtils.startsWith(line, "M")) {
-                    return "Incorrect number of atoms and/or bonds";
-                }
-
-                if (line.length() < 12) {
-                    return "Invalid Bond Line - too short";
-                }
-
-                int test;
-
-                test = validateDetailGetInteger(line, 0, 3);
-                if (test <= impossibleAtomNumber) {
-                    return "Invalid Bond Line - invalid atom1 number";
-                }
-
-                test = validateDetailGetInteger(line, 3, 6);
-                if (test <= impossibleAtomNumber) {
-                    return "Invalid Bond Line - invalid atom2 number";
-                }
+            returnString = validateDetailAtoms(numBonds, br);
+            if (!StringUtils.isBlank(returnString)) {
+                return returnString;
+            } else {
+                returnString = OK_3D;
             }
 
             line = br.readLine();
@@ -184,6 +136,78 @@ public class SdUnit implements Serializable, Externalizable {
         }
 
         return returnString + " " + Integer.toString(numAtoms);
+    }
+
+    private static String validateDetailCoordinates(int numAtoms, BufferedReader br) throws IOException {
+        String returnString = "";
+        double improbablyLargeValue = 10000.0D;
+
+        for (int x = 0; x <= numAtoms - 1; ++x) {
+            String line = br.readLine();
+
+            if (StringUtils.isBlank(line)) {
+                return "Incorrect number of atoms and/or bonds";
+            }
+
+            if (line.indexOf(".") != 5) {
+                return "X coordinate decimal in wrong place";
+            }
+
+            double test;
+
+            test = validateDetailGetDouble(line, 0, 10);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid X coordinate";
+            }
+
+            test = validateDetailGetDouble(line, 10, 20);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid Y coordinate";
+            }
+
+            test = validateDetailGetDouble(line, 20, 30);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid Z coordinate";
+            }
+
+            if (doubleEqZero(test)) {
+                continue;
+            }
+
+            returnString = OK_3D;
+        }
+
+        return returnString;
+    }
+
+    private static String validateDetailAtoms(int numBonds, BufferedReader br) throws IOException {
+        int impossibleAtomNumber = 0;
+
+        for (int x = 0; x <= numBonds - 1; ++x) {
+            String line = br.readLine();
+
+            if (StringUtils.isBlank(line) || StringUtils.startsWith(line, "M")) {
+                return "Incorrect number of atoms and/or bonds";
+            }
+
+            if (line.length() < 12) {
+                return "Invalid Bond Line - too short";
+            }
+
+            int test;
+
+            test = validateDetailGetInteger(line, 0, 3);
+            if (test <= impossibleAtomNumber) {
+                return "Invalid Bond Line - invalid atom1 number";
+            }
+
+            test = validateDetailGetInteger(line, 3, 6);
+            if (test <= impossibleAtomNumber) {
+                return "Invalid Bond Line - invalid atom2 number";
+            }
+        }
+
+        return StringUtils.EMPTY;
     }
 
     private static int validateDetailGetInteger(String s, int beginIndex, int endIndex) {
