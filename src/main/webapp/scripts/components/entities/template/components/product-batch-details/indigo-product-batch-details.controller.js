@@ -11,6 +11,7 @@
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
 
+
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
         vm.detailTable = [];
@@ -18,14 +19,14 @@
         vm.saltCodeValues = AppValues.getSaltCodeValues();
         vm.model = vm.model || {};
         vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-
+        vm.model.productBatchSummary.batches = vm.batches;
         vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
         vm.duplicateBatch = duplicateBatch;
-        vm.deleteBatches = deleteBatches;
+        vm.deleteBatch = deleteBatch;
         vm.isIntendedSynced = isIntendedSynced;
         vm.syncWithIntendedProducts = syncWithIntendedProducts;
-        vm.registerBatches = registerBatches;
+        vm.registerBatch = registerBatch;
         vm.importSDFile = importSDFile;
         vm.exportSDFile = exportSDFile;
         vm.editSolubility = editSolubility;
@@ -38,25 +39,22 @@
         vm.editStorageInstructions = editStorageInstructions;
         vm.canEditSaltEq = canEditSaltEq;
         vm.recalculateSalt = recalculateSalt;
-   
+        vm.onBatchOperationChanged = onBatchOperationChanged;
+        vm.isBatchLoading = false;
+
         init();
 
         function init() {
-            if (vm.batches) {
-                // TODO: move to productBathcSummary
-                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
-            }
             bindEvents();
         }
 
         function selectBatch(batch) {
-            vm.model.productBatchDetails = batch;
             vm.onSelectBatch({batch: batch});
         }
 
 
         function checkEditDisabled() {
-            return !getProductBatchDetails() || vm.isReadonly || !vm.batchSelected || !vm.batchSelected.nbkBatch;
+            return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch;
         }
 
 
@@ -66,6 +64,7 @@
 
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
+            vm.onChanged();
             selectBatch(batch);
         }
 
@@ -73,7 +72,7 @@
             vm.batchOperation = ProductBatchSummaryOperations.duplicateBatch(vm.selectedBatch).then(successAddedBatch);
         }
 
-        function deleteBatches() {
+        function deleteBatch() {
             vm.onRemoveBatches({batches: [vm.selectedBatch]});
         }
 
@@ -94,8 +93,8 @@
             });
         }
 
-        function registerBatches() {
-            vm.loading = ProductBatchSummaryOperations.registerBatches();
+        function registerBatch() {
+            vm.loading = ProductBatchSummaryOperations.registerBatches([vm.selectedBatch]);
         }
 
         function importSDFile() {
@@ -103,6 +102,7 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
+                selectBatch(batches[0]);
             });
         }
 
@@ -112,74 +112,74 @@
 
         function editSolubility() {
             var callback = function(result) {
-                getProductBatchDetails().solubility = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.solubility = result;
+                vm.onChanged();
             };
-            InfoEditor.editSolubility(getProductBatchDetails().solubility, callback);
+            InfoEditor.editSolubility(vm.selectedBatch.solubility, callback);
         }
 
         function editResidualSolvents() {
-            InfoEditor.editResidualSolvents(getProductBatchDetails().residualSolvents).then(function(result) {
-                getProductBatchDetails().residualSolvents = result;
-                vm.experimentForm.$setDirty();
+            InfoEditor.editResidualSolvents(vm.selectedBatch.residualSolvents).then(function(result) {
+                vm.selectedBatch.residualSolvents = result;
+                vm.onChanged();
             });
         }
 
         function editExternalSupplier() {
             var callback = function(result) {
-                getProductBatchDetails().externalSupplier = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.externalSupplier = result;
+                vm.onChanged();
             };
-            InfoEditor.editExternalSupplier(getProductBatchDetails().externalSupplier, callback);
+            InfoEditor.editExternalSupplier(vm.selectedBatch.externalSupplier, callback);
         }
 
         function editMeltingPoint() {
             var callback = function(result) {
-                getProductBatchDetails().meltingPoint = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.meltingPoint = result;
+                vm.onChanged();
             };
-            InfoEditor.editMeltingPoint(getProductBatchDetails().meltingPoint, callback);
+            InfoEditor.editMeltingPoint(vm.selectedBatch.meltingPoint, callback);
         }
 
         function editPurity() {
             var callback = function(result) {
-                getProductBatchDetails().purity = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.purity = result;
+                vm.onChanged();
             };
-            InfoEditor.editPurity(getProductBatchDetails().purity, callback);
+            InfoEditor.editPurity(vm.selectedBatch.purity, callback);
         }
 
         function editHealthHazards() {
             var callback = function(result) {
-                getProductBatchDetails().healthHazards = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.healthHazards = result;
+                vm.onChanged();
             };
-            InfoEditor.editHealthHazards(getProductBatchDetails().healthHazards, callback);
+            InfoEditor.editHealthHazards(vm.selectedBatch.healthHazards, callback);
         }
 
         function editHandlingPrecautions() {
             var callback = function(result) {
-                getProductBatchDetails().handlingPrecautions = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.handlingPrecautions = result;
+                vm.onChanged();
             };
-            InfoEditor.editHandlingPrecautions(getProductBatchDetails().handlingPrecautions, callback);
+            InfoEditor.editHandlingPrecautions(vm.selectedBatch.handlingPrecautions, callback);
         }
 
         function editStorageInstructions() {
             var callback = function(result) {
-                getProductBatchDetails().storageInstructions = result;
-                vm.experimentForm.$setDirty();
+                vm.selectedBatch.storageInstructions = result;
+                vm.onChanged();
             };
-            InfoEditor.editStorageInstructions(getProductBatchDetails().storageInstructions, callback);
+            InfoEditor.editStorageInstructions(vm.selectedBatch.storageInstructions, callback);
         }
 
         function canEditSaltEq() {
-            var o = vm.model.productBatchDetails;
+            var o = vm.selectedBatch;
             return o && o.saltCode && o.saltCode.value !== 0;
         }
 
         function recalculateSalt(reagent) {
-            var o = vm.model.productBatchDetails;
+            var o = vm.selectedBatch;
             if (o.saltCode.value === 0) {
                 o.saltEq.value = 0;
             } else {
@@ -257,28 +257,19 @@
             }
         ];
 
-        function getProductBatchDetails() {
-            return vm.model.productBatchDetails;
-        }
-
         function setStoicTable(table) {
             ProductBatchSummaryOperations.setStoicTable(table);
-        }
-
-        function setProductBatches(batches) {
-            productBatches = batches;
         }
 
         function onRowSelected(batch) {
             if (batch.stoichTable) {
                 setStoicTable(batch.stoichTable);
             }
-            if (batch.actualProducts) {
-                setProductBatches(batch.actualProducts);
-            }
+            // if (batch.actualProducts) {
+            //     setProductBatches(batch.actualProducts);
+            // }
             vm.detailTable[0] = batch;
-            vm.batchSelected = batch;
-            vm.model.productBatchDetails = batch;
+            vm.selectedBatch = batch;
             if (vm.selectControl.setSelection) {
                 vm.selectControl.setSelection(batch);
             }
@@ -286,13 +277,13 @@
 
         function onRowDeSelected() {
             vm.detailTable = [];
-            vm.batchSelected = null;
+            vm.selectedBatch = null;
             vm.selectControl.unSelect();
         }
 
         function updateReactrants() {
-            if (vm.model.productBatchDetails) {
-                vm.model.productBatchDetails.precursors = _.filter(_.map(vm.reactants, function(item) {
+            if (vm.selectedBatch) {
+                vm.selectedBatch.precursors = _.filter(_.map(vm.reactants, function(item) {
                     return item.compoundId || item.fullNbkBatch;
                 }), function(val) {
                     return !!val;
@@ -300,9 +291,12 @@
             }
         }
 
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
+        }
+
         function bindEvents() {
             $scope.$watch('vm.selectedBatchTrigger', function() {
-                vm.batchSelected = vm.selectedBatch;
                 if (vm.selectedBatch) {
                     onRowSelected(vm.selectedBatch);
                 } else {

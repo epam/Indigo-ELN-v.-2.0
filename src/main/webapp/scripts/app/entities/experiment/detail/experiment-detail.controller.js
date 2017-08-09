@@ -6,7 +6,8 @@
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, AutoRecoverEngine, EntitiesBrowser,
-                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook) {
+                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
+                                        Components) {
         var vm = this;
         var pageInfo;
         var tabName;
@@ -42,8 +43,8 @@
                     tabName += ' v' + response.experiment.experimentVersion;
                 }
 
-                initDirtyListener();
-                initEventListeners();
+                toggleDirty(!!pageInfo.dirty);
+                initAutoRecoverTrack();
             });
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
@@ -59,15 +60,27 @@
             vm.versionExperiment = versionExperiment;
             vm.printExperiment = printExperiment;
             vm.refresh = refresh;
-            vm.saveCurrent = saveCurrent;
+            vm.onChangedComponent = onChangedComponent;
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
-            EntitiesBrowser.setSaveCurrentEntity(saveCurrent);
+            EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setEntityActions({
-                save: saveCurrent,
+                save: save,
                 duplicate: repeatExperiment,
                 print: printExperiment
+            });
+
+            initEventListeners();
+        }
+
+        function initAutoRecoverTrack() {
+            AutoRecoverEngine.track({
+                vm: vm,
+                kind: $state.$current.data.tab.kind,
+                onSetDirty: function() {
+                    toggleDirty(false);
+                }
             });
         }
 
@@ -156,17 +169,35 @@
             $scope.experimentForm.$$isReadOnly = !vm.isEditAllowed;
         }
 
-        function save(experiment) {
-            initComponents(experiment.components);
-            var experimentForSave = _.extend({}, experiment);
-            vm.loading = (experiment.template !== null) ? Experiment.update($stateParams, vm.experiment).$promise
-                : Experiment.save(experimentForSave).$promise;
-            vm.loading.then(function(result) {
-                vm.experiment.version = result.version;
+        function toggleDirty(isDirty) {
+            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.experimentForm.$dirty;
+
+            if (isChanged) {
+                $scope.experimentForm.$setDirty();
+            } else {
                 $scope.experimentForm.$setPristine();
-            }, function() {
-                Alert.error('Experiment is not saved due to server error!');
-            });
+            }
+            vm.isBtnSaveActive = $scope.experimentForm.$dirty;
+            AutoRecoverEngine.tracker.changeDirty(isDirty);
+            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+        }
+
+        function getSaveService(experimentForSave) {
+            return (vm.experiment.template !== null ?
+                Experiment.update($stateParams, experimentForSave).$promise
+                : Experiment.save(experimentForSave).$promise);
+        }
+
+        function save() {
+            initComponents(vm.experiment.components);
+
+            vm.loading = getSaveService(_.extend({}, vm.experiment))
+                .then(function(result) {
+                    vm.experiment.version = result.version;
+                    toggleDirty(false);
+                }, function() {
+                    Alert.error('Experiment is not saved due to server error!');
+                });
 
             return vm.loading;
         }
@@ -213,16 +244,12 @@
             vm.loading.then(function(result) {
                 Alert.success('Experiment updated');
                 angular.extend(vm.experiment, result);
-                $timeout($scope.experimentForm.$setPristine);
+                toggleDirty(false);
             }, function() {
                 Alert.error('Experiment not refreshed due to server error!');
             });
 
             return vm.loading;
-        }
-
-        function saveCurrent() {
-            return vm.save(vm.experiment);
         }
 
         function initPermissions() {
@@ -236,41 +263,8 @@
             });
         }
 
-        function updateFormState() {
-            if (pageInfo.dirty) {
-                $scope.experimentForm.$setDirty();
-            } else {
-                $scope.experimentForm.$setPristine();
-            }
-        }
-
-        function initDirtyListener() {
-            $timeout(function() {
-                var tabKind = $state.$current.data.tab.kind;
-                EntitiesBrowser.setCurrentForm($scope.experimentForm);
-                AutoRecoverEngine.track({
-                    vm: vm,
-                    kind: tabKind,
-                    onSetDirty: function() {
-                        $scope.experimentForm.$setDirty();
-                    }
-                });
-                updateFormState();
-                $scope.$watch('vm.experiment', function(entity, old) {
-                    EntitiesBrowser.setCurrentEntity(vm.experiment);
-                    AutoRecoverEngine.tracker.change(entity, old);
-                }, true);
-
-                $scope.$watch('experimentForm.$dirty', function(cur, old) {
-                    var dirty = $scope.experimentForm.$dirty;
-                    vm.isBtnSaveActive = dirty;
-                    AutoRecoverEngine.tracker.changeDirty(cur, old);
-                }, true);
-            }, 0, false);
-        }
-
         function updateStatuses() {
-            var status = vm.experiment.status;
+            var status = _.get(vm.experiment, 'status');
             vm.isStatusOpen = status === 'Open';
             vm.isStatusComplete = status === 'Completed';
             vm.isStatusSubmitFail = status === 'Submit_Fail';
@@ -280,11 +274,29 @@
             vm.isStatusSigning = status === 'Signing';
         }
 
+        function onChangedComponent(componentId) {
+            if (componentId === Components.attachments) {
+                vm.loading = Experiment.get($stateParams).$promise
+                    .then(function(result) {
+                        vm.experiment.version = result.version;
+                    }, function() {
+                        Alert.error('Experiment not refreshed due to server error!');
+                    });
+            }
+
+            toggleDirty(true);
+        }
+
         function initEventListeners() {
-            $scope.$watch('vm.isEditAllowed', function() {
-                if (!vm.isEditAllowed) {
-                    $scope.experimentForm.$setPristine();
-                }
+            $scope.$watch('vm.experiment', function(entity, old) {
+                EntitiesBrowser.setCurrentEntity(vm.experiment);
+                AutoRecoverEngine.tracker.change(entity, old);
+            }, true);
+
+            $scope.$watch('experimentForm.$dirty', function(cur, old) {
+                // TODO: after refactored checking changes
+                vm.isBtnSaveActive = $scope.experimentForm.$dirty;
+                AutoRecoverEngine.tracker.changeDirty(cur, old);
             }, true);
 
             $scope.$watch('vm.experiment.status', function() {
@@ -292,9 +304,13 @@
                 setReadOnly();
             });
 
+            $scope.$watch('experimentForm', function() {
+                EntitiesBrowser.setCurrentForm($scope.experimentForm);
+            });
+
             $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
-                $scope.experimentForm.$setDirty();
+                toggleDirty(false);
             });
 
             $scope.$on('experiment-status-changed', function(event, data) {
@@ -312,16 +328,6 @@
                     vm.isBtnSaveActive = true;
                     // If put 0, then save button isn't activated
                 }, 10);
-            });
-
-            // This is necessary for correct saving after attaching files
-            $scope.$on('refresh after attach', function() {
-                vm.loading = Experiment.get($stateParams).$promise
-                    .then(function(result) {
-                        vm.experiment.version = result.version;
-                    }, function() {
-                        Alert.error('Experiment not refreshed due to server error!');
-                    });
             });
         }
     }

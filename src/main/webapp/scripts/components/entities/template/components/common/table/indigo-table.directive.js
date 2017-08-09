@@ -21,7 +21,8 @@
                 indigoHideColumnSettings: '=',
                 indigoSearchColumns: '=',
                 onSelectRow: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                onChanged: '&'
             },
             controller: 'IndigoTableController',
             controllerAs: 'vm',

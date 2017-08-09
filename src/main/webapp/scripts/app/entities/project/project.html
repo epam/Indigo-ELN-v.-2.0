@@ -50,11 +50,13 @@
                         <label>Project Description</label>
                         <indigo-text-editor indigo-model="vm.project.description"
                                             indigo-name="projectDescription"
-                                            indigo-readonly="!vm.isEditAllowed">
+                                            indigo-readonly="!vm.isEditAllowed"
+                                            on-changed="vm.onChanged()">
                         </indigo-text-editor>
                         <div class="m-t20">
                             <indigo-file-uploader upload-url="api/project_files"
-                                                  indigo-readonly="!vm.isEditAllowed">
+                                                  indigo-readonly="!vm.isEditAllowed"
+                                                  on-changed="vm.updateAttachments()">
                             </indigo-file-uploader>
                         </div>
                     </div>

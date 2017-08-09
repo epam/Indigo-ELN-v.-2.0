@@ -80,8 +80,8 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, NotebookSummaryExperiments,
-                                       AutoSaveEntitiesEngine, EntitiesBrowser) {
+                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, AutoSaveEntitiesEngine,
+                                       EntitiesBrowser) {
                         if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
                         }

@@ -1,6 +1,6 @@
 <indigo-table indigo-id="preferred-compound-summary"
               indigo-columns="vm.columns"
-              indigo-rows="vm.model.preferredCompoundSummary.compounds"
+              indigo-rows="vm.batches"
               indigo-draggable-columns="true"
               is-readonly="vm.isReadonly"
               indigo-editable="isEditable"
@@ -8,6 +8,7 @@
               selected-batch-trigger="vm.selectedBatchTrigger"
               on-select-row="vm.onRowSelected(row)"
               indigo-hide-column-settings="vm.isHideColumnSettings"
+              on-changed="vm.onChange()"
               indigo-tab-support="true"
               class="my-table-wrapper">
     <div class="row m-b20 ng-scope">
@@ -28,16 +29,21 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-info btn-small"
                             ng-disabled="vm.isReadonly"
-                            ng-click="vm.addNewCompound()">
+                            ng-click="vm.addNewBatch()">
                         <i class="fa fa-plus"></i>
                         <span class="m-l5">Add</span>
                     </button>
-                    <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteCompounds()"
+                    <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteBatches()"
                             ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
                         <i class="fa fa-trash"></i>
                         <span class="m-l5">Delete</span>
                     </button>
-                    <indigo-inline-loader promise = "vm.batchOperation"></indigo-inline-loader>
+                    <button type="button" class="btn btn-info btn-small" ng-click="vm.duplicateBatches()"
+                            ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
+                        <i class="fa fa-trash"></i>
+                        <span class="m-l5">Duplicate</span>
+                    </button>
+                    <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                 </div>
             </div>
         </div>
@@ -46,7 +52,7 @@
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.importSDFile()"
-                        ng-disabled="vm.isReadonly">
+                        ng-disabled="vm.isReadonly || vm.isBatchLoading">
                     <i class="fa fa-cloud-download"></i>
                     <span class="m-l5">Import</span>
                 </button>

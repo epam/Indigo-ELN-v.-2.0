@@ -36,12 +36,11 @@
         init();
 
         function clear() {
-            for (var key in vm.selectedRow) {
-                if (vm.selectedRow.hasOwnProperty(key) && !_.includes(['$$hashKey', 'selected'], key)) {
-                    delete vm.selectedRow[key];
-                }
-            }
+            _.remove(vm.selectedRow, function(value, key) {
+                return !_.includes(['$$hashKey', 'selected'], key);
+            });
             vm.selectedRow.rxnRole = AppValues.getRxnRoleReactant();
+            vm.onChanged();
         }
 
         function appendRow() {
@@ -52,11 +51,11 @@
         function removeRow() {
             setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
             updateReactants(vm.model.stoichTable.reactants);
+            vm.onChanged();
         }
 
         function onRowSelected(row) {
             vm.selectedRow = row || null;
-            $log.debug(row);
         }
 
         function noReactantsInStoic() {
@@ -447,6 +446,7 @@
         function setStoicReactants(reactants) {
             vm.model.stoichTable.reactants = reactants;
             vm.onChangedReactants({reactants: reactants});
+            vm.onChanged();
         }
 
         function setIntendedProducts(products) {
@@ -456,6 +456,7 @@
         function addStoicReactant(reactant) {
             vm.model.stoichTable.reactants.push(reactant);
             vm.onChangedReactants({reactants: vm.model.stoichTable.reactants});
+            vm.onChanged();
         }
 
         function fetchBatchByNbkNumber(nbkBatch, success) {
@@ -513,10 +514,9 @@
                 var queries = [];
                 _.each(result, function(item) {
                     queries.push(CalculationService.getMoleculeInfo(item));
-                });
-                _.each(result, function(item) {
                     queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
                 });
+
                 $q.all(queries).then(function(data) {
                     var i = 0;
                     for (i = 0; i < result.length; i++) {
@@ -606,9 +606,7 @@
         }
 
         function getPromisesForMoleculeInfoRequest(reactionProperties, target) {
-            return _.map(reactionProperties.data[target], function(reactionProperty) {
-                return CalculationService.getMoleculeInfo(reactionProperty);
-            });
+            return _.map(reactionProperties.data[target], CalculationService.getMoleculeInfo);
         }
 
         function getStructureImagesForIntendedProducts() {

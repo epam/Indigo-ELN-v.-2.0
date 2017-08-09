@@ -3,6 +3,8 @@ package com.epam.indigoeln.core.model;
 import com.epam.indigoeln.core.security.CustomPersistentRememberMeServices;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,6 +20,8 @@ import java.time.format.DateTimeFormatter;
  *
  * @see CustomPersistentRememberMeServices
  */
+@ToString
+@EqualsAndHashCode
 @Document(collection = PersistentToken.COLLECTION_NAME)
 public class PersistentToken implements Serializable {
     public static final String COLLECTION_NAME = "indigo_persistent_token";
@@ -25,6 +29,7 @@ public class PersistentToken implements Serializable {
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("d MMMM yyyy");
 
     private static final int MAX_USER_AGENT_LEN = 255;
+    private static final long serialVersionUID = 6046831962453397191L;
 
     @Id
     private String series;
@@ -102,35 +107,5 @@ public class PersistentToken implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        PersistentToken that = (PersistentToken) o;
-
-        return series.equals(that.series);
-    }
-
-    @Override
-    public int hashCode() {
-        return series.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "PersistentToken{" +
-                "series='" + series + '\'' +
-                ", tokenValue='" + tokenValue + '\'' +
-                ", tokenDate=" + tokenDate +
-                ", ipAddress='" + ipAddress + '\'' +
-                ", userAgent='" + userAgent + '\'' +
-                "}";
     }
 }
