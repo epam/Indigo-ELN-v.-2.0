@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.repository.search;
 
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
-import com.mongodb.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -32,59 +31,67 @@ public final class AggregationUtils {
         return createCriterion(searchCriterion, "");
     }
 
-    public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
-        return createCriterion(searchCriterion.getField(), searchCriterion.getValue(), searchCriterion.getCondition(), prefix);
-    }
-
-    public static Criteria createCriterion(String field, Object value, String condition, String prefix) { //NOSONAR This method should check all the operators
-        final Criteria criteria = Criteria.where(prefix + field);
-        switch (condition) {
+    public static Criteria createCriterion(SearchCriterion criterion, String prefix) { //NOSONAR This method should check all the operators
+        final Criteria criteria = Criteria.where(prefix + criterion.getField());
+        switch (criterion.getCondition()) {
             case "contains":
-                criteria.regex(".*" + value + ".*", "i");
+                criteria.regex(".*" + criterion.getValue() + ".*", "i");
                 break;
             case "starts with":
-                criteria.regex(value + ".*", "i");
+                criteria.regex(criterion.getValue() + ".*", "i");
                 break;
             case "ends with":
-                criteria.regex(".*" + value, "i");
+                criteria.regex(".*" + criterion.getValue(), "i");
                 break;
             case "in":
-                criteria.in(convertToCollection(value));
+                criteria.in(convertToCollection(criterion.getValue()));
                 break;
             case "=":
-                criteria.is(convertToDouble(value));
+                criteria.is(convertToDouble(criterion.getValue()));
                 break;
             case ">":
-                criteria.gt(convertToDouble(value));
+                criteria.gt(convertToDouble(criterion.getValue()));
                 break;
             case ">=":
-                criteria.gte(convertToDouble(value));
+                criteria.gte(convertToDouble(criterion.getValue()));
                 break;
             case "<":
-                criteria.lt(convertToDouble(value));
+                criteria.lt(convertToDouble(criterion.getValue()));
                 break;
             case "<=":
-                criteria.lte(convertToDouble(value));
+                criteria.lte(convertToDouble(criterion.getValue()));
                 break;
             default:
-                criteria.is(value);
+                criteria.is(criterion.getValue());
         }
         return criteria;
     }
 
-    public static <T> Optional<T> andCriteria(Function<Criteria, T> find, Optional<Criteria>... mas) {
-        ArrayList<Criteria> searchCriteria = new ArrayList<>();
-        for (Optional<Criteria> criteria : mas) {
-            criteria.ifPresent(searchCriteria::add);
-        }
-        if (!searchCriteria.isEmpty()) {
-            return Optional.of(new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))).map(find::apply);
+    public static Optional<Criteria> andCriteria(Optional<Criteria>... mas) {
+        List<Criteria> searchCriteria = Arrays.stream(mas)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
+        return andCriteria(searchCriteria);
+    }
+
+    public static Optional<Criteria> andCriteria(Collection<Criteria> criteriaCollection){
+        if (!criteriaCollection.isEmpty()) {
+            return Optional.of(new Criteria().andOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
         } else {
             return Optional.empty();
         }
     }
 
-    private static Collection<?> convertToCollection(Object obj) {
+    public static Optional<Criteria> orCriteria(Collection<Criteria> criteriaCollection){
+        if (!criteriaCollection.isEmpty()) {
+            return Optional.of(new Criteria().orOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public static Collection<?> convertToCollection(Object obj) {
         if (obj == null) {
             return Collections.emptyList();
         }
