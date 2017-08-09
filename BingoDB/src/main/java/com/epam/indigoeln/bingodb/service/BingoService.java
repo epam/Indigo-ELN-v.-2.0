@@ -6,8 +6,11 @@ import com.epam.indigo.Indigo;
 import com.epam.indigo.IndigoObject;
 import com.epam.indigoeln.bingodb.config.IndigoProvider;
 import com.epam.indigoeln.bingodb.domain.BingoStructure;
+import com.epam.indigoeln.bingodb.exception.BingoDbException;
 import lombok.Synchronized;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +20,14 @@ import java.util.List;
 @Service
 public class BingoService {
 
-    private static class Prefix {
-        static final String MOL = "MOL";
-        static final String RXN = "RXN";
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(BingoService.class);
+
+    private static final String PREFIX_MOL = "MOL";
+    private static final String PREFIX_RXN = "RXN";
+
+    private static final String ERROR_NOT_A_MOLECULE_OR_REACTION = "Not a molecule or reaction";
+    private static final String ERROR_NOT_A_MOLECULE = "Not a molecule";
+    private static final String ERROR_NOT_A_REACTION = "Not a reaction";
 
     private final IndigoProvider indigoProvider;
 
@@ -64,13 +71,13 @@ public class BingoService {
         if (isReaction(s)) {
             return getById(createId(reactionBingo.insert(reactionIndigo.loadReaction(s)), s));
         }
-        throw new RuntimeException("Not a molecule or reaction");
+        throw new BingoDbException(ERROR_NOT_A_MOLECULE_OR_REACTION);
     }
 
     @Synchronized
     public BingoStructure update(String id, String s) {
         if (!isMolecule(s) && !isReaction(s)) {
-            throw new RuntimeException("Not a molecule or reaction");
+            throw new BingoDbException(ERROR_NOT_A_MOLECULE_OR_REACTION);
         }
         delete(id);
         return insert(s);
@@ -91,93 +98,93 @@ public class BingoService {
     @Synchronized
     public List<BingoStructure> searchMoleculeExact(String s, String options) {
         if (isMolecule(s)) {
-            return result(moleculeBingo.searchExact(moleculeIndigo.loadMolecule(s), options), Prefix.MOL);
+            return result(moleculeBingo.searchExact(moleculeIndigo.loadMolecule(s), options), PREFIX_MOL);
         }
-        throw new RuntimeException("Not a molecule");
+        throw new BingoDbException(ERROR_NOT_A_MOLECULE);
     }
 
     @Synchronized
     public List<BingoStructure> searchMoleculeSub(String s, String options) {
         if (isMolecule(s)) {
-            return result(moleculeBingo.searchSub(moleculeIndigo.loadQueryMolecule(s), options), Prefix.MOL);
+            return result(moleculeBingo.searchSub(moleculeIndigo.loadQueryMolecule(s), options), PREFIX_MOL);
         }
-        throw new RuntimeException("Not a molecule");
+        throw new BingoDbException(ERROR_NOT_A_MOLECULE);
     }
 
     @Synchronized
     public List<BingoStructure> searchMoleculeSim(String s, Float min, Float max, String metric) {
         if (isMolecule(s)) {
-            return result(moleculeBingo.searchSim(moleculeIndigo.loadMolecule(s), min, max, metric), Prefix.MOL);
+            return result(moleculeBingo.searchSim(moleculeIndigo.loadMolecule(s), min, max, metric), PREFIX_MOL);
         }
-        throw new RuntimeException("Not a molecule");
+        throw new BingoDbException(ERROR_NOT_A_MOLECULE);
     }
 
     @Synchronized
     public List<BingoStructure> searchMoleculeMolFormula(String molFormula, String options) {
-        return result(moleculeBingo.searchMolFormula(molFormula, options), Prefix.MOL);
+        return result(moleculeBingo.searchMolFormula(molFormula, options), PREFIX_MOL);
     }
 
     @Synchronized
     public List<BingoStructure> searchReactionExact(String s, String options) {
         if (isReaction(s)) {
-            return result(reactionBingo.searchExact(reactionIndigo.loadReaction(s), options), Prefix.RXN);
+            return result(reactionBingo.searchExact(reactionIndigo.loadReaction(s), options), PREFIX_RXN);
         }
         if (isMolecule(s)) {
             List<BingoStructure> result = new ArrayList<>();
 
             IndigoObject rxn1 = reactionIndigo.createReaction();
             rxn1.addReactant(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchExact(rxn1, options), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchExact(rxn1, options), PREFIX_RXN));
 
             IndigoObject rxn2 = reactionIndigo.createReaction();
             rxn2.addProduct(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchExact(rxn2, options), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchExact(rxn2, options), PREFIX_RXN));
 
             return result;
         }
-        throw new RuntimeException("Not a reaction");
+        throw new BingoDbException(ERROR_NOT_A_REACTION);
     }
 
     @Synchronized
     public List<BingoStructure> searchReactionSub(String s, String options) {
         if (isReaction(s)) {
-            return result(reactionBingo.searchSub(reactionIndigo.loadQueryReaction(s), options), Prefix.RXN);
+            return result(reactionBingo.searchSub(reactionIndigo.loadQueryReaction(s), options), PREFIX_RXN);
         }
         if (isMolecule(s)) {
             List<BingoStructure> result = new ArrayList<>();
 
             IndigoObject rxn1 = reactionIndigo.createQueryReaction();
             rxn1.addReactant(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchSub(rxn1, options), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchSub(rxn1, options), PREFIX_RXN));
 
             IndigoObject rxn2 = reactionIndigo.createQueryReaction();
             rxn2.addProduct(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchSub(rxn2, options), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchSub(rxn2, options), PREFIX_RXN));
 
             return result;
         }
-        throw new RuntimeException("Not a reaction");
+        throw new BingoDbException(ERROR_NOT_A_REACTION);
     }
 
     @Synchronized
     public List<BingoStructure> searchReactionSim(String s, Float min, Float max, String metric) {
         if (isReaction(s)) {
-            return result(reactionBingo.searchSim(reactionIndigo.loadReaction(s), min, max, metric), Prefix.RXN);
+            return result(reactionBingo.searchSim(reactionIndigo.loadReaction(s), min, max, metric), PREFIX_RXN);
         }
         if (isMolecule(s)) {
             List<BingoStructure> result = new ArrayList<>();
 
             IndigoObject rxn1 = reactionIndigo.createReaction();
             rxn1.addReactant(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchSim(rxn1, min, max, metric), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchSim(rxn1, min, max, metric), PREFIX_RXN));
 
             IndigoObject rxn2 = reactionIndigo.createReaction();
             rxn2.addProduct(reactionIndigo.loadMolecule(s));
-            result.addAll(result(reactionBingo.searchSim(rxn2, min, max, metric), Prefix.RXN));
+            result.addAll(result(reactionBingo.searchSim(rxn2, min, max, metric), PREFIX_RXN));
 
             return result;
         }
-        throw new RuntimeException("Not a reaction");
+        throw new BingoDbException(ERROR_NOT_A_REACTION);
     }
 
     /* Common */
@@ -194,30 +201,30 @@ public class BingoService {
 
     private Integer getIntId(String id) {
         if (isMoleculeId(id)) {
-            return Integer.valueOf(id.substring(id.indexOf(Prefix.MOL) + Prefix.MOL.length()));
+            return Integer.valueOf(id.substring(id.indexOf(PREFIX_MOL) + PREFIX_MOL.length()));
         }
         if (isReactionId(id)) {
-            return Integer.valueOf(id.substring(id.indexOf(Prefix.RXN) + Prefix.RXN.length()));
+            return Integer.valueOf(id.substring(id.indexOf(PREFIX_RXN) + PREFIX_RXN.length()));
         }
         return Integer.valueOf(id);
     }
 
     private String createId(Integer id, String s) {
         if (isMolecule(s)) {
-            return Prefix.MOL + id;
+            return PREFIX_MOL + id;
         }
         if (isReaction(s)) {
-            return Prefix.RXN + id;
+            return PREFIX_RXN + id;
         }
         return Integer.toString(id);
     }
 
     private boolean isMoleculeId(String id) {
-        return StringUtils.startsWith(id, Prefix.MOL);
+        return StringUtils.startsWith(id, PREFIX_MOL);
     }
 
     private boolean isReactionId(String id) {
-        return StringUtils.startsWith(id, Prefix.RXN);
+        return StringUtils.startsWith(id, PREFIX_RXN);
     }
 
     private boolean isMolecule(String s) {
@@ -225,8 +232,9 @@ public class BingoService {
             indigoProvider.indigo().loadMolecule(s);
             return true;
         } catch (Exception e) {
-            return false;
+            LOGGER.trace("isMolecule", e);
         }
+        return false;
     }
 
     private boolean isReaction(String s) {
@@ -234,7 +242,8 @@ public class BingoService {
             indigoProvider.indigo().loadReaction(s);
             return true;
         } catch (Exception e) {
-            return false;
+            LOGGER.trace("isReaction", e);
         }
+        return false;
     }
 }
