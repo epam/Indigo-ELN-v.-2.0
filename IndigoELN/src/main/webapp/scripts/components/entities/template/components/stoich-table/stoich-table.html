@@ -11,7 +11,8 @@
                       on-select-row="vm.onRowSelected(row)"
                       is-readonly="vm.isReadonly"
                       indigo-label="Reactants, Reagents, Solvents"
-                      on-changed="vm.onChange()">
+                      on-changed="vm.onChange()"
+                      selected-batch="vm.selectedRow">
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
                     <div class="btn-group">
