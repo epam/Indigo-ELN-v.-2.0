@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -13,6 +14,12 @@ import static java.util.stream.Collectors.toList;
 public final class AggregationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AggregationUtils.class);
+
+    private static final String IGNORE_CASE = "i";
+
+    private static final Function<Object, String> CONTAINS = (o) -> ".*" + o + ".*";
+    private static final Function<Object, String> STARTS_WITH = (o) -> o + ".*";
+    private static final Function<Object, String> ENDS_WITH = (o) -> ".*" + o;
 
     private AggregationUtils() {
     }
@@ -33,15 +40,16 @@ public final class AggregationUtils {
 
     public static Criteria createCriterion(SearchCriterion criterion, String prefix) {
         final Criteria criteria = Criteria.where(prefix + criterion.getField());
+
         switch (criterion.getCondition()) {
             case "contains":
-                criteria.regex(".*" + criterion.getValue() + ".*", "i");
+                criteria.regex(CONTAINS.apply(criterion.getValue()), IGNORE_CASE);
                 break;
             case "starts with":
-                criteria.regex(criterion.getValue() + ".*", "i");
+                criteria.regex(STARTS_WITH.apply(criterion.getValue()), IGNORE_CASE);
                 break;
             case "ends with":
-                criteria.regex(".*" + criterion.getValue(), "i");
+                criteria.regex(ENDS_WITH.apply(criterion.getValue()), IGNORE_CASE);
                 break;
             case "in":
                 criteria.in(convertToCollection(criterion.getValue()));
@@ -63,7 +71,9 @@ public final class AggregationUtils {
                 break;
             default:
                 criteria.is(criterion.getValue());
+                break;
         }
+
         return criteria;
     }
 
@@ -75,7 +85,7 @@ public final class AggregationUtils {
         return andCriteria(searchCriteria);
     }
 
-    public static Optional<Criteria> andCriteria(Collection<Criteria> criteriaCollection){
+    public static Optional<Criteria> andCriteria(Collection<Criteria> criteriaCollection) {
         if (!criteriaCollection.isEmpty()) {
             return Optional.of(new Criteria().andOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
         } else {
@@ -83,7 +93,7 @@ public final class AggregationUtils {
         }
     }
 
-    public static Optional<Criteria> orCriteria(Collection<Criteria> criteriaCollection){
+    public static Optional<Criteria> orCriteria(Collection<Criteria> criteriaCollection) {
         if (!criteriaCollection.isEmpty()) {
             return Optional.of(new Criteria().orOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
         } else {
@@ -91,7 +101,7 @@ public final class AggregationUtils {
         }
     }
 
-    public static Collection<?> convertToCollection(Object obj) {
+    public static Collection convertToCollection(Object obj) {
         if (obj == null) {
             return Collections.emptyList();
         }
