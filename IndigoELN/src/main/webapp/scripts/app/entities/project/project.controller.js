@@ -23,6 +23,8 @@
 
             vm.save = save;
             vm.refresh = refresh;
+            vm.updateAttachments = updateAttachments;
+            vm.onChanged = onChanged;
 
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -50,16 +52,19 @@
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
+        }
 
-            // This is necessary for correct saving after attaching files
-            $scope.$on('refresh after attach', function() {
-                vm.loading = Project.get($stateParams).$promise
-                    .then(function(result) {
-                        vm.project.version = result.version;
-                    }, function() {
-                        Alert.error('Project not refreshed due to server error!');
-                    });
-            });
+        function onChanged() {
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
+        }
+
+        function updateAttachments() {
+            vm.loading = Project.get($stateParams).$promise
+                .then(function(result) {
+                    vm.project.version = result.version;
+                }, function() {
+                    Alert.error('Project not refreshed due to server error!');
+                });
         }
 
         function save() {
@@ -68,6 +73,7 @@
                     .then(function(result) {
                         vm.project.version = result.version;
                         $scope.createProjectForm.$setPristine();
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
@@ -131,7 +137,7 @@
                 }, true);
 
                 $scope.$watch('createProjectForm.$dirty', function(newValue, oldValue) {
-                    AutoRecoverEngine.tracker.changeDirty(newValue, oldValue);
+                    AutoRecoverEngine.tracker.changeDirty(newValue);
                 });
             }, 0, false);
         }

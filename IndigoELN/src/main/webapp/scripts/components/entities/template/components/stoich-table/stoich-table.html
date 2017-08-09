@@ -10,7 +10,8 @@
                       indigo-draggable-rows="true"
                       on-select-row="vm.onRowSelected(row)"
                       is-readonly="vm.isReadonly"
-                      indigo-label="Reactants, Reagents, Solvents">
+                      indigo-label="Reactants, Reagents, Solvents"
+                      on-changed="vm.onChange()">
             <div class="row m-b20">
                 <div class="col-lg-8 m-bt-lg">
                     <div class="btn-group">
@@ -64,6 +65,7 @@
         </indigo-table>
         <indigo-table indigo-id="intended" indigo-columns="vm.productsColumns"
                       indigo-rows="vm.model.stoichTable.products"
-                      is-readonly="vm.isReadonly" indigo-label="Intended Reaction Products"></indigo-table>
+                      is-readonly="vm.isReadonly" indigo-label="Intended Reaction Products"
+                      on-changed="vm.onChange()"></indigo-table>
     </div>
 </div>

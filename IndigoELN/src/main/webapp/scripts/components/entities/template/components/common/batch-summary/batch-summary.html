@@ -11,6 +11,7 @@
                   indigo-hide-column-settings="vm.isHideColumnSettings"
                   selected-batch="vm.selectedBatch"
                   selected-batch-trigger="vm.selectedBatchTrigger"
+                  on-changed="vm.onChange()"
               ng-class="{'product-batch-register': vm.isReadonly || !vm.isHasCheckedRows()}">
         <div class="row m-b20">
             <div class="col-lg-8 m-bt-lg">
