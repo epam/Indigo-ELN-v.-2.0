@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.model;
 import com.mongodb.BasicDBObject;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import com.mongodb.DBRef;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -25,6 +26,8 @@ public class Component implements Serializable {
     private String id;
     private String name;
     private BasicDBObject content;
+
+    private DBRef experiment;
 
     @Version
     private Long version;
@@ -60,5 +63,13 @@ public class Component implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public DBRef getExperiment() {
+        return experiment;
+    }
+
+    public void setExperiment(DBRef experiment) {
+        this.experiment = experiment;
     }
 }

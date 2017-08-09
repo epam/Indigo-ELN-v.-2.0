@@ -21,14 +21,15 @@ public class AbstractSearchAggregationBuilder {
         aggregationOperations = new ArrayList<>();
     }
 
-    public AbstractSearchAggregationBuilder withBingoIds(List<String> bingoIds){
+    public AbstractSearchAggregationBuilder withBingoIds(List<String> bingoIds) {
         throw new UnsupportedOperationException("This method should be implemented in subclasses");
     }
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
-        List<Criteria> fieldCriteriaList = searchQueryFields.stream().map(
-                field -> AggregationUtils.createCriterion(field, searchQuery, "contains", "")
-        ).collect(toList());
+        List<Criteria> fieldCriteriaList = searchQueryFields.stream()
+                .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
+                .map(AggregationUtils::createCriterion)
+                .collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
