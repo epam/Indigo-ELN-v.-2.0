@@ -23,15 +23,19 @@ public final class AggregationUtils {
 
     public static List<Criteria> createCriteria(Collection<SearchCriterion> criteria, String prefix) {
         return criteria.stream()
-                .map(c -> createCriterion(c.getCondition(), prefix + c.getField(), c.getValue()))
+                .map(c -> createCriterion(c, prefix))
                 .collect(toList());
     }
 
     public static Criteria createCriterion(SearchCriterion searchCriterion) {
-        return createCriterion(searchCriterion.getCondition(), searchCriterion.getField(), searchCriterion.getValue());
+        return createCriterion(searchCriterion, "");
     }
 
-    public static Criteria createCriterion(String condition, String key, Object value) {
+    public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
+        return createCriterion(searchCriterion.getCondition(), prefix + searchCriterion.getField(), searchCriterion.getValue());
+    }
+
+    private static Criteria createCriterion(String condition, String key, Object value) {
         Criteria regex = createCriterionRegex(condition, key, value);
 
         if (regex != null) {
