@@ -189,73 +189,60 @@ public class SignificantFigures extends Number {
      * @since ostermillerutils 1.00.00
      */
     private void setNumberSignificantFigures(int significantFigures) {
-        if (significantFigures <= 0) {
+        if (significantFigures <= 0)
             throw new IllegalArgumentException("Desired number of significant figures must be positive.");
-        }
-
-        if (digits == null || "0".equals(digits.toString()) || "0.0".equals(digits.toString())) {
-            return;
-        }
-
-        int length = digits.length();
-
-        if (length < significantFigures) {
-            // number is not long enough, pad it with zeros.
-            IntStream.range(length, significantFigures).forEach(i -> digits.append('0'));
-        }
-
-        if (length > significantFigures) {
-            // number is too long chop some of it off with rounding.
-            boolean addOne; // we need to round up if true.
-
-            char firstInSig = digits.charAt(significantFigures);
-
-            if (firstInSig < '5') {
-                // first non-significant digit less than five, round down.
-                addOne = false;
-            } else if (firstInSig == '5') {
-                // first non-significant digit equal to five
-                addOne = false;
-
-                for (int i = significantFigures + 1; !addOne && i < length; i++) {
-                    // if its followed by any non-zero digits, round up.
-                    if (digits.charAt(i) != '0') {
-                        addOne = true;
+        if (digits != null && !"0".equals(digits.toString()) && !"0.0".equals(digits.toString())) {
+            int length = digits.length();
+            if (length < significantFigures) {
+                // number is not long enough, pad it with zeros.
+                for (int i = length; i < significantFigures; i++) {
+                    digits.append('0');
+                }
+            } else if (length > significantFigures) {
+                // number is too long chop some of it off with rounding.
+                boolean addOne; // we need to round up if true.
+                char firstInSig = digits.charAt(significantFigures);
+                if (firstInSig < '5') {
+                    // first non-significant digit less than five, round down.
+                    addOne = false;
+                } else if (firstInSig == '5') {
+                    // first non-significant digit equal to five
+                    addOne = false;
+                    for (int i = significantFigures + 1; !addOne && i < length; i++) {
+                        // if its followed by any non-zero digits, round up.
+                        if (digits.charAt(i) != '0') {
+                            addOne = true;
+                        }
+                    }
+                    if (!addOne) {
+                        // if it was not followed by non-zero digits
+                        // if the last significant digit is odd round up
+                        // if the last significant digit is even round down
+                        addOne = (digits.charAt(significantFigures - 1) & 1) == 1;
+                    }
+                } else {
+                    // first non-significant digit greater than five, round up.
+                    addOne = true;
+                }
+                // loop to add one (and carry a one if added to a nine)
+                // to the last significant digit
+                for (int i = significantFigures - 1; addOne && i >= 0; i--) {
+                    char digit = digits.charAt(i);
+                    if (digit < '9') {
+                        digits.setCharAt(i, (char) (digit + 1));
+                        addOne = false;
+                    } else {
+                        digits.setCharAt(i, '0');
                     }
                 }
-
-                if (!addOne) {
-                    // if it was not followed by non-zero digits
-                    // if the last significant digit is odd round up
-                    // if the last significant digit is even round down
-                    addOne = (digits.charAt(significantFigures - 1) & 1) == 1;
+                if (addOne) {
+                    // if the number was all nines
+                    digits.insert(0, '1');
+                    mantissa++;
                 }
-            } else {
-                // first non-significant digit greater than five, round up.
-                addOne = true;
+                // chop it to the correct number of figures.
+                digits.setLength(significantFigures);
             }
-
-            // loop to add one (and carry a one if added to a nine)
-            // to the last significant digit
-            for (int i = significantFigures - 1; addOne && i >= 0; i--) {
-                char digit = digits.charAt(i);
-
-                if (digit < '9') {
-                    digits.setCharAt(i, (char) (digit + 1));
-                    addOne = false;
-                } else {
-                    digits.setCharAt(i, '0');
-                }
-            }
-
-            if (addOne) {
-                // if the number was all nines
-                digits.insert(0, '1');
-                mantissa++;
-            }
-
-            // chop it to the correct number of figures.
-            digits.setLength(significantFigures);
         }
     }
 
@@ -310,11 +297,12 @@ public class SignificantFigures extends Number {
      */
     private void parse(String number) throws NumberFormatException {
         int length = number.length();
+
         digits = new StringBuilder(length);
 
         int state = INITIAL;
-        int mantissaStart = -1;
 
+        int mantissaStart = -1;
         boolean foundMantissaDigit = false;
 
         // sometimes we don't know if a zero will be
@@ -325,102 +313,51 @@ public class SignificantFigures extends Number {
         int zeroCount = 0;
         int leadZeroCount = 0;
 
+        int[] counts;
+
         for (int i = 0; i < length; i++) {
             char c = number.charAt(i);
-
-            if (c == '.') {
-                if (state == INITIAL || state == LEADZEROS) {
-                    state = LEADZEROSDOT;
-                } else if (state == MIDZEROS) {
-                    IntStream.range(0, zeroCount).forEach(j -> digits.append('0'));
-                    zeroCount = 0;
-                    state = DIGITSDOT;
-                } else if (state == DIGITS) {
-                    state = DIGITSDOT;
-                } else {
+            switch (c) {
+                case '.':
+                    counts = parseCaseDot(state, zeroCount, c, i);
+                    state = counts[0];
+                    zeroCount = counts[1];
+                    break;
+                case '+':
+                    state = parseCasePlus(state, c, i);
+                    break;
+                case '-':
+                    state = parseCaseMinus(state, c, i);
+                    break;
+                case '0':
+                    counts = parseCaseZero(state, zeroCount, leadZeroCount, foundMantissaDigit, c, i);
+                    state = counts[0];
+                    zeroCount = counts[1];
+                    leadZeroCount = counts[2];
+                    foundMantissaDigit = counts[3] == 1;
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    counts = parseCaseNumbers(state, zeroCount, foundMantissaDigit, c, i);
+                    state = counts[0];
+                    zeroCount = counts[1];
+                    foundMantissaDigit = counts[2] == 1;
+                    break;
+                case 'E':
+                case 'e':
+                    counts = parseCaseE(state, mantissaStart, c, i);
+                    state = counts[0];
+                    mantissaStart = counts[1];
+                    break;
+                default:
                     throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else if (c == '+') {
-                if (state == INITIAL) {
-                    sign = true;
-                    state = LEADZEROS;
-                } else if (state == MANTISSA) {
-                    state = MANTISSADIGIT;
-                } else {
-                    throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else if (c == '-') {
-                if (state == INITIAL) {
-                    sign = false;
-                    state = LEADZEROS;
-                } else if (state == MANTISSA) {
-                    state = MANTISSADIGIT;
-                } else {
-                    throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else if (c == '0') {
-                if (state == INITIAL || state == LEADZEROS) {
-                    // only significant if number
-                    // is all zeros.
-                    zeroCount++;
-                    leadZeroCount++;
-                    state = LEADZEROS;
-                } else if (state == MIDZEROS || state == DIGITS) {
-                    digits.append(c);
-                    mantissa++;
-                    state = DIGITS;
-                } else if (state == LEADZEROSDOT) {
-                    // only significant if number
-                    // is all zeros.
-                    mantissa--;
-                    zeroCount++;
-                    state = LEADZEROSDOT;
-                } else if (state == DIGITSDOT) {
-                    // non-leading zeros after
-                    // a decimal point are always
-                    // significant.
-                    digits.append(c);
-                } else if (state == MANTISSA || state == MANTISSADIGIT) {
-                    foundMantissaDigit = true;
-                    state = MANTISSADIGIT;
-                } else {
-                    throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else if (c >= '1' && c <= '9') {
-                if (state == INITIAL || state == LEADZEROS || state == DIGITS) {
-                    zeroCount = 0;
-                    digits.append(c);
-                    mantissa++;
-                    state = DIGITS;
-                } else if (state == MIDZEROS) {
-                    // we now know that these zeros
-                    // are more than just trailing placeholders.
-                    IntStream.range(0, zeroCount).forEach(j -> digits.append('0'));
-                    zeroCount = 0;
-                    digits.append(c);
-                    mantissa++;
-                    state = DIGITS;
-                } else if (state == LEADZEROSDOT || state == DIGITSDOT) {
-                    zeroCount = 0;
-                    digits.append(c);
-                    state = DIGITSDOT;
-                } else if (state == MANTISSA || state == MANTISSADIGIT) {
-                    state = MANTISSADIGIT;
-                    foundMantissaDigit = true;
-                } else {
-                    throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else if (c == 'E' || c == 'e') {
-                if (state == INITIAL || state == LEADZEROS || state == DIGITS || state == LEADZEROSDOT || state == DIGITSDOT) {
-                    // record the starting point of the mantissa
-                    // so we can do a substring to get it back later
-                    mantissaStart = i + 1;
-                    state = MANTISSA;
-                } else {
-                    throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
-                }
-            } else {
-                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
             }
         }
 
@@ -448,6 +385,170 @@ public class SignificantFigures extends Number {
                 throw new NumberFormatException("No digits in number.");
             }
         }
+    }
+
+    private int[] parseCaseDot(int state, int zeroCount, char c, int i) {
+        int[] result = {state, zeroCount};
+
+        switch (state) {
+            case INITIAL:
+            case LEADZEROS:
+                result[0] = LEADZEROSDOT;
+                break;
+            case MIDZEROS:
+                // we now know that these zeros
+                // are more than just trailing placeholders.
+                IntStream.range(0, result[1]).forEach(j -> digits.append('0'));
+                result[1] = 0;
+                result[0] = DIGITSDOT;
+                break;
+            case DIGITS:
+                result[0] = DIGITSDOT;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+
+        }
+
+        return result;
+    }
+
+    private int parseCasePlus(int state, char c, int i) {
+        int result;
+
+        switch (state) {
+            case INITIAL:
+                sign = true;
+                result = LEADZEROS;
+                break;
+            case MANTISSA:
+                result = MANTISSADIGIT;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+        }
+
+        return result;
+    }
+
+    private int parseCaseMinus(int state, char c, int i) {
+        int result;
+
+        switch (state) {
+            case INITIAL:
+                sign = false;
+                result = LEADZEROS;
+                break;
+            case MANTISSA:
+                result = MANTISSADIGIT;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+        }
+
+        return result;
+    }
+
+    private int[] parseCaseZero(int state, int zeroCount, int leadZeroCount, boolean foundMantissaDigit, char c, int i) {
+        int[] result = {state, zeroCount, leadZeroCount, foundMantissaDigit ? 1 : 0};
+
+        switch (state) {
+            case INITIAL:
+            case LEADZEROS:
+                // only significant if number
+                // is all zeros.
+                result[1]++;
+                result[2]++;
+                result[0] = LEADZEROS;
+                break;
+            case MIDZEROS:
+            case DIGITS:
+                digits.append(c);
+                mantissa++;
+                result[0] = DIGITS;
+                break;
+            case LEADZEROSDOT:
+                // only significant if number
+                // is all zeros.
+                mantissa--;
+                result[1]++;
+                result[0] = LEADZEROSDOT;
+                break;
+            case DIGITSDOT:
+                // non-leading zeros after
+                // a decimal point are always
+                // significant.
+                digits.append(c);
+                break;
+            case MANTISSA:
+            case MANTISSADIGIT:
+                result[3] = 1;
+                result[0] = MANTISSADIGIT;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+        }
+
+        return result;
+    }
+
+    private int[] parseCaseNumbers(int state, int zeroCount, boolean foundMantissaDigit, char c, int i) {
+        int[] result = {state, zeroCount, foundMantissaDigit ? 1 : 0};
+        switch (state) {
+            case INITIAL:
+            case LEADZEROS:
+            case DIGITS:
+                result[1] = 0;
+                digits.append(c);
+                mantissa++;
+                result[0] = DIGITS;
+                break;
+            case MIDZEROS:
+                // we now know that these zeros
+                // are more than just trailing placeholders.
+                IntStream.range(0, result[1]).forEach(j -> digits.append('0'));
+                result[1] = 0;
+                digits.append(c);
+                mantissa++;
+                result[0] = DIGITS;
+                break;
+            case LEADZEROSDOT:
+            case DIGITSDOT:
+                result[1] = 0;
+                digits.append(c);
+                result[0] = DIGITSDOT;
+                break;
+            case MANTISSA:
+            case MANTISSADIGIT:
+                result[0] = MANTISSADIGIT;
+                result[2] = 1;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+        }
+
+        return result;
+    }
+
+    private int[] parseCaseE(int state, int mantissaStart, char c, int i) {
+        int[] result = {state, mantissaStart};
+
+        switch (state) {
+            case INITIAL:
+            case LEADZEROS:
+            case DIGITS:
+            case LEADZEROSDOT:
+            case DIGITSDOT:
+                // record the starting point of the mantissa
+                // so we can do a substring to get it back later
+                result[1] = i + 1;
+                result[0] = MANTISSA;
+                break;
+            default:
+                throw new NumberFormatException("Unexpected character '" + c + "' at position " + i);
+        }
+
+        return result;
     }
 
     /**
