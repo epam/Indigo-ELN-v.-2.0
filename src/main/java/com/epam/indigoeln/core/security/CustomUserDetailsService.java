@@ -28,7 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(final String login) {
         LOGGER.debug("Authenticating {}", login);
         String lowercaseLogin = login.toLowerCase();
-        User user = userRepository.findOneByLogin(lowercaseLogin);
+        User user = userRepository.findOneByLoginAndActivated(lowercaseLogin, true);
         if (user == null) {
             throw new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database");
         }
