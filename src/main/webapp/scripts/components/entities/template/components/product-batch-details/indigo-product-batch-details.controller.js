@@ -11,15 +11,12 @@
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
 
-
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
         vm.detailTable = [];
         vm.selectControl = {};
         vm.saltCodeValues = AppValues.getSaltCodeValues();
         vm.model = vm.model || {};
-        vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-        vm.model.productBatchSummary.batches = vm.batches;
         vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
         vm.duplicateBatch = duplicateBatch;

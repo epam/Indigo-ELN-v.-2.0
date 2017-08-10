@@ -4,7 +4,7 @@
         .directive('indigoTextEditor', indigoTextEditor);
 
     /* @ngInject */
-    function indigoTextEditor($timeout) {
+    function indigoTextEditor(textEditorConfig) {
         return {
             scope: {
                 indigoName: '@',
@@ -20,7 +20,7 @@
         };
 
         /* @ngInject */
-        function link($scope, $element, $attr, vm, textEditorConfig) {
+        function link($scope, $element, $attr, vm) {
             var editor;
 
             init();
@@ -49,7 +49,7 @@
                 });
 
                 var editorListener = editor.on('valuechanged', function() {
-                    if (($scope.indigoModel || '') !== editor.getValue()) {
+                    if (($scope.indigoModel || '') !== editor.getValue() && editor.getValue() !== '<p>undefined</p>') {
                         $scope.indigoModel = editor.getValue();
                         $scope.onChanged({text: $scope.indigoModel});
                     }

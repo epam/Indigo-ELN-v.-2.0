@@ -26,9 +26,6 @@
 
             vm.experiment = vm.experiment || {};
             vm.model = vm.model || {};
-            vm.model.conceptDetails = vm.model.conceptDetails || {};
-            vm.model.conceptDetails.experimentCreator = vm.model.conceptDetails.experimentCreator ||
-                {name: Principal.getIdentity().fullName};
 
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;
