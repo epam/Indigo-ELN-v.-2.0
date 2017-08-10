@@ -226,8 +226,6 @@ public class ExperimentService {
         newVersion.setAccessList(lastVersion.getAccessList());
         PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(),user);
         newVersion.setTemplate(lastVersion.getTemplate());
-        newVersion.setCoAuthors(lastVersion.getCoAuthors());
-        newVersion.setWitness(lastVersion.getWitness());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
         components.forEach(c -> c.setId(null));
@@ -278,10 +276,8 @@ public class ExperimentService {
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());
-            experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
             experimentFromDB.setComments(experimentForSave.getComments());
             experimentFromDB.setStatus(experimentForSave.getStatus());
-            experimentFromDB.setWitness(experimentForSave.getWitness());
             experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
             experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
             experimentFromDB.setVersion(experimentForSave.getVersion());

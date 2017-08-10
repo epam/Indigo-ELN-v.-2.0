@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.*;
+import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 import static java.util.Collections.singletonList;
 
 /**
