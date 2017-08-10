@@ -18,10 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -29,6 +26,7 @@ import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class SdUnit implements Serializable, Externalizable {
 
+    private static final String OK = "OK";
     private static final String OK_3D = "OK 3D";
 
     static final long serialVersionUID = 42L;
@@ -52,7 +50,7 @@ public class SdUnit implements Serializable, Externalizable {
         infoPortion = null;
         keyList = new ArrayList<>();
         valid = true;
-        validString = "OK";
+        validString = OK;
         is3D = false;
         numAtoms = -1;
         upperCase = true;
@@ -64,7 +62,7 @@ public class SdUnit implements Serializable, Externalizable {
         infoPortion = null;
         keyList = new ArrayList<>();
         valid = true;
-        validString = "OK";
+        validString = OK;
         is3D = false;
         numAtoms = -1;
         upperCase = true;
@@ -96,7 +94,7 @@ public class SdUnit implements Serializable, Externalizable {
 
             for (int i = 0; i < 4; ++i) {
                 line = br.readLine();
-                if (StringUtils.isBlank(line)) {
+                if (Objects.isNull(line)) {
                     return "Molecule has too few lines";
                 }
             }
@@ -119,7 +117,7 @@ public class SdUnit implements Serializable, Externalizable {
             }
 
             returnString = validateDetailAtoms(numBonds, br);
-            if (!StringUtils.isBlank(returnString)) {
+            if (Objects.nonNull(returnString)) {
                 return returnString;
             } else {
                 returnString = OK_3D;
@@ -127,7 +125,7 @@ public class SdUnit implements Serializable, Externalizable {
 
             line = br.readLine();
 
-            if (StringUtils.isBlank(line)) {
+            if (Objects.isNull(line)) {
                 return "Molecule has too few lines";
             }
         } catch (Exception e) {
@@ -139,13 +137,13 @@ public class SdUnit implements Serializable, Externalizable {
     }
 
     private static String validateDetailCoordinates(int numAtoms, BufferedReader br) throws IOException {
-        String returnString = "";
+        String returnString = OK;
         double improbablyLargeValue = 10000.0D;
 
         for (int x = 0; x <= numAtoms - 1; ++x) {
             String line = br.readLine();
 
-            if (StringUtils.isBlank(line)) {
+            if (Objects.isNull(line)) {
                 return "Incorrect number of atoms and/or bonds";
             }
 
@@ -186,7 +184,7 @@ public class SdUnit implements Serializable, Externalizable {
         for (int x = 0; x <= numBonds - 1; ++x) {
             String line = br.readLine();
 
-            if (StringUtils.isBlank(line) || StringUtils.startsWith(line, "M")) {
+            if (Objects.isNull(line) || StringUtils.startsWith(line, "M")) {
                 return "Incorrect number of atoms and/or bonds";
             }
 
@@ -207,7 +205,7 @@ public class SdUnit implements Serializable, Externalizable {
             }
         }
 
-        return StringUtils.EMPTY;
+        return null;
     }
 
     private static int validateDetailGetInteger(String s, int beginIndex, int endIndex) {
@@ -251,13 +249,13 @@ public class SdUnit implements Serializable, Externalizable {
             if (mol.contains("M  END"))
                 setMol(mol.substring(0, mol.indexOf("M  END") + 6) + "\n");
             validString = validateDetail(molPortion);
-            if (!validString.startsWith("OK"))
+            if (!validString.startsWith(OK))
                 valid = false;
             infoPortion = parseInfo(mol, keyList);
         } catch (IllegalArgumentException e) {
             LOGGER.error("SDUnit init error", e);
             valid = false;
-            if (validString.startsWith("OK"))
+            if (validString.startsWith(OK))
                 validString = e.getMessage();
             else
                 validString = validString + " AND " + e.getMessage();
@@ -348,7 +346,7 @@ public class SdUnit implements Serializable, Externalizable {
             mol1 = mol;
         }
         String tmp = validateDetail(mol1);
-        if (tmp.startsWith("OK")) {
+        if (tmp.startsWith(OK)) {
             if (tmp.contains("3D"))
                 is3D = true;
             String num = tmp.substring(tmp.lastIndexOf(" ") + 1).trim();
@@ -357,10 +355,10 @@ public class SdUnit implements Serializable, Externalizable {
             } catch (NumberFormatException nfe) {
                 numAtoms = -1;
             }
-            tmp = "OK";
+            tmp = OK;
         }
-        if (!"OK".equals(tmp))
-            if (validString.startsWith("OK"))
+        if (!OK.equals(tmp))
+            if (validString.startsWith(OK))
                 validString = tmp;
             else
                 validString = validString + " AND UPON MOL MODIFICATION " + tmp;
