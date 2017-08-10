@@ -89,8 +89,7 @@
             return _.debounce(function() {
                 if (vm.experiment) {
                     autorecoveryCache.put($stateParams, {
-                        experiment: vm.experiment,
-                        isDirty: $scope.experimentForm.$dirty
+                        experiment: vm.experiment
                     });
                 }
             }, 10);
@@ -263,24 +262,15 @@
             }
         }
 
-        function checkChanges(newEntity) {
-            if (originalExperiment && !angular.equals(originalExperiment, newEntity)) {
-                toggleDirty(true);
-            } else if ($scope.experimentForm.$dirty) {
-                toggleDirty(false);
-            }
-        }
-
         function initEventListeners() {
             $scope.$watch('vm.experiment', function(newEntity) {
                 EntitiesBrowser.setCurrentEntity(vm.experiment);
-                checkChanges(newEntity);
+                toggleDirty(originalExperiment && !angular.equals(originalExperiment, newEntity));
                 updateRecovery();
             }, true);
 
             $scope.$watch('experimentForm.$dirty', function() {
                 vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-                updateRecovery();
             }, true);
 
             $scope.$watch('vm.experiment.status', function() {
