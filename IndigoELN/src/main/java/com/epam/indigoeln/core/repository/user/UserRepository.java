@@ -14,6 +14,8 @@ public interface UserRepository extends MongoRepository<User, String> {
 
     User findOneByLogin(String login);
 
+    User findOneByLoginAndActivated(String login, boolean activated);
+
     @Query(value = "{'roles': {'$ref': '" + Role.COLLECTION_NAME + "', '$id': ?0}}", count = true)
     long countByRoleId(String roleId);
 
