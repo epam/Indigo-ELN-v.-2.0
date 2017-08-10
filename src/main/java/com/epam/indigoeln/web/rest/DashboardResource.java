@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
@@ -33,6 +34,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION_DETAILS;
 
 @Api
 @RestController
@@ -85,6 +88,13 @@ public class DashboardResource {
         Map<String, Experiment>  experiments = experimentRepository.findByAuthorAndStatusAndCreationDateAfter(user, ExperimentStatus.OPEN, threshold)
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
+        return getEntities(experiments)
+                .filter(t -> hasAccess(user, t))
+                .map(t -> convert(t, null))
+                .collect(Collectors.toList());
+    }
+
+    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Map<String, Experiment>  experiments) {
         List<DBRef> experimentIds = experiments.keySet().stream()
                 .map(k -> new DBRef("experiment", k))
                 .collect(Collectors.toList());
@@ -98,12 +108,6 @@ public class DashboardResource {
 
         Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
 
-        return getEntities(projects, notebooks, experiments)
-                .filter(t -> hasAccess(user, t))
-                .map(t -> convert(t, null)).collect(Collectors.toList());
-    }
-
-    private Stream<Triple<Project, Notebook, Experiment>> getEntities(Collection<Project> projects, Map<String, Notebook> notebooks, Map<String, Experiment> experiments) {
         return projects.parallelStream()
                 .flatMap(p -> p.getNotebooks().stream()
                         .filter(n -> notebooks.get(n.getId()) != null)
@@ -126,21 +130,9 @@ public class DashboardResource {
         Map<String, Experiment> waitingExperiments = experimentRepository.findByDocumentIdIn(waitingDocuments.keySet())
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
-        List<DBRef> experimentIds = waitingExperiments.keySet().stream()
-                .map(k -> new DBRef("experiment", k))
+        return getEntities(waitingExperiments)
+                .map(t -> convert(t, waitingDocuments))
                 .collect(Collectors.toList());
-
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
-                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
-
-        List<DBRef> notebookIds = notebooks.keySet().stream()
-                .map(k -> new DBRef("notebook", k))
-                .collect(Collectors.toList());
-
-        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
-
-        return getEntities(projects, notebooks, waitingExperiments)
-                .map(t -> convert(t, waitingDocuments)).collect(Collectors.toList());
     }
 
     private List<DashboardRowDTO> getSubmittedRows(User user, ZonedDateTime threshold) {
@@ -166,22 +158,9 @@ public class DashboardResource {
                 .filter(e -> e.getCreationDate().isAfter(threshold))
                 .collect(Collectors.toMap(Experiment::getId, Function.identity()));
 
-        List<DBRef> experimentIds = experiments.keySet().stream()
-                .map(k -> new DBRef("experiment", k))
+        return getEntities(experiments)
+                .map(t -> convert(t, submittedDocuments))
                 .collect(Collectors.toList());
-
-        Map<String, Notebook> notebooks = notebookRepository.findByExperimentsIds(experimentIds)
-                .collect(Collectors.toMap(Notebook::getId, Function.identity()));
-
-        List<DBRef> notebookIds = notebooks.keySet().stream()
-                .map(k -> new DBRef("notebook", k))
-                .collect(Collectors.toList());
-
-        Collection<Project> projects = projectRepository.findByNotebookIds(notebookIds);
-
-        return getEntities(projects, notebooks, experiments)
-                .map(t -> convert(t, submittedDocuments)).collect(Collectors.toList());
-
     }
 
     private DashboardRowDTO convert(Triple<Project, Notebook, Experiment> t, Map<String, SignatureService.Document> documents) {
@@ -249,11 +228,14 @@ public class DashboardResource {
                 u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
         ).orElse(null));
 
-        result.setCoAuthors(Optional.ofNullable(experiment.getCoAuthors()).orElse(new ArrayList<>())
-                .stream().map(
-                        u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
-                ).collect(Collectors.toList()));
+        List<String> coAuthors = experiment.getComponents().stream()
+                .filter(c -> REACTION_DETAILS.equals(c.getName()))
+                .map(MongoExt::of)
+                .flatMap(m -> m.streamObjects("coAuthors"))
+                .map(a -> a.getString("name"))
+                .collect(Collectors.toList());
 
+        result.setCoAuthors(coAuthors);
         result.setProject(project.getName());
         result.setCreationDate(experiment.getCreationDate());
         result.setLastEditDate(experiment.getLastEditDate());

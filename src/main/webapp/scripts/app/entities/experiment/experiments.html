@@ -76,7 +76,7 @@
                         <!-- <td class="table-list__item">{{exp.status}}</td> -->
                         <td class="table-list__item">
                             <ul>
-                                <li ng-repeat="user in exp.coAuthors track by $index" ng-bind="user.firstName + ' ' + user.lastName"></li>
+                                <li ng-repeat="user in exp.coAuthors track by $index" ng-bind="user"></li>
                             </ul>
                         </td>
                         <td class="table-list__item dash-proj-name"> <a class="ellipsis" ui-sref="entities.project-detail({projectId: exp.projectId})" ng-bind="exp.project"></a></td>
