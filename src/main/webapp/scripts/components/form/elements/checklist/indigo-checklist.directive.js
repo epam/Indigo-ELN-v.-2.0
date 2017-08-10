@@ -19,17 +19,17 @@
         };
 
         /* @ngInject */
-        function controller() {
+        function controller($scope) {
             var vm = this;
-
             vm.allItemsSelected = false;
-            vm.selectAll = selectAll;
 
-            function selectAll() {
-                for (var i = 0; i < vm.indigoItems.length; i++) {
-                    vm.indigoItems[i].isChecked = vm.allItemsSelected;
+            $scope.$watch('vm.allItemsSelected', function(val, old) {
+                if (old !== val) {
+                    _.each(vm.indigoItems, function(item) {
+                        item.isChecked = vm.allItemsSelected;
+                    });
                 }
-            }
+            })
         }
     }
 })();
