@@ -1,146 +1,150 @@
 <div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
-    <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
-    <div class="tab-content-pad">
-        <div>
-            <div class="row m-b20">
-                <div class="col-sm-6 col-xs-9">
-                    <div class="row-inline">
-                        <span class="txt-larger">Notebook Members:</span>
-                        <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
-                                class="btn btn-default btn-small"
-                                ng-disabled="!vm.isEditAllowed">
-                            <i class="fa fa-pencil"></i>
-                            <span class="m-l5">Edit</span>
-                        </button>
-                        <button type="button" class="btn btn-default btn-small"
-                                ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
-                            <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
-                        </button>
+    <autorecovery kind="{{vm.stateData.tab.kind}}"
+                  name="{{vm.stateData.tab.name}}"
+                  on-restore="vm.onRestore(recoveryData)">
+    </autorecovery>
+        <div class="tab-content-pad">
+            <div>
+                <div class="row m-b20">
+                    <div class="col-sm-6 col-xs-9">
+                        <div class="row-inline">
+                            <span class="txt-larger">Notebook Members:</span>
+                            <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
+                                    class="btn btn-default btn-small"
+                                    ng-disabled="!vm.isEditAllowed">
+                                <i class="fa fa-pencil"></i>
+                                <span class="m-l5">Edit</span>
+                            </button>
+                            <button type="button" class="btn btn-default btn-small"
+                                    ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
+                                <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div uib-collapse="vm.isCollapsed">
-                <hr>
-                <ul id="triple-list" class="list-triple members">
-                    <li class="members list-triple-members"
-                        ng-repeat="member in vm.notebook.accessList track by $index">
-                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
-                        + ')' }}
-                    </li>
-                </ul>
+                <div uib-collapse="vm.isCollapsed">
+                    <hr>
+                    <ul id="triple-list" class="list-triple members">
+                        <li class="members list-triple-members"
+                            ng-repeat="member in vm.notebook.accessList track by $index">
+                            {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
+                            + ')' }}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
-    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()"
-          autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
-        <div class="inner-tabs">
-            <div class="simple-tab-content">
-                <div class="row">
-                    <div class="col-xs-12">
-                        <indigo-input indigo-label="Notebook Name"
-                                      indigo-name="notebookName"
-                                      indigo-model="vm.notebook.name"
-                                      indigo-readonly="!vm.isEditAllowed"
-                                      indigo-label-vertical="true"
-                                      indigo-validation-pattern="/^\d{8}$/"
-                                      indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
-                                      indigo-validation-required="true">
-                        </indigo-input>
-                        <label>Notebook Description</label>
-                        <indigo-text-editor indigo-name="notebookDescription"
-                                            indigo-model="vm.notebook.description"
-                                            indigo-readonly="!vm.isEditAllowed"
-                                            on-changed="vm.onChangedDescription(text)">
-                        </indigo-text-editor>
+        <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()"
+              autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
+            <div class="inner-tabs">
+                <div class="simple-tab-content">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <indigo-input indigo-label="Notebook Name"
+                                          indigo-name="notebookName"
+                                          indigo-model="vm.notebook.name"
+                                          indigo-readonly="!vm.isEditAllowed"
+                                          indigo-label-vertical="true"
+                                          indigo-validation-pattern="/^\d{8}$/"
+                                          indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
+                                          indigo-validation-required="true">
+                            </indigo-input>
+                            <label>Notebook Description</label>
+                            <indigo-text-editor indigo-name="notebookDescription"
+                                                indigo-model="vm.notebook.description"
+                                                indigo-readonly="!vm.isEditAllowed"
+                                                on-changed="vm.onChangedDescription(text)">
+                            </indigo-text-editor>
 
 
-                        <div ng-if="vm.isSummary && vm.experiments.length"
-                             class="panel panel-info panel-info-table m-t20">
-                            <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
-                            <div class="panel-body panel-body-nopad">
-                                <div class="table-responsive" indigo-scroller="x">
-                                    <table class="main-table table table-striped table-condensed">
-                                        <thead class="main-table__header">
-                                        <tr class="table-list">
-                                            <th class="table-list__item table-list__item_header w-15">Notebook -
-                                                Experiment
-                                            </th>
-                                            <th class="table-list__item table-list__item_header w-35">Experiment
-                                                Details
-                                            </th>
-                                            <th class="table-list__item table-list__item_header w-35">Reaction Scheme
-                                            </th>
-                                            <th class="table-list__item table-list__item_header w-15">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody class="main-table__body">
-                                        <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
-                                            <td class="table-list__item"><a
-                                                    ng-click="vm.goToExp(exp)">{{exp.fullName}}</a></td>
-                                            <td class="table-list__item">
-                                                <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
-                                                <p>Subject/Title: {{exp.reactionDetails.title ||
-                                                    exp.conceptDetails.title}}</p>
-                                                <p>Author: {{exp.author.firstName + ' ' + exp.author.lastName}}</p>
-                                                <p>Experiment Status: {{exp.status}}</p>
-                                            </td>
-                                            <td class="table-list__item">
-                                                <img ng-if="!!exp.components.reaction.image"
-                                                     class="img-fill img-responsive center-block"
-                                                     ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
-                                                     alt="Image is unavailable.">
-                                            </td>
-                                            <td class="table-list__item">
-                                                <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    OPEN
-                                                </a>,
-                                                <a ui-sref="experiment-preview-print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    PRINT
-                                                </a>,
-                                                <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
-                                                    REPEAT
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
+                            <div ng-if="vm.isSummary && vm.experiments.length"
+                                 class="panel panel-info panel-info-table m-t20">
+                                <div class="panel-heading">Contents for Notebook {{notebook.name}}</div>
+                                <div class="panel-body panel-body-nopad">
+                                    <div class="table-responsive" indigo-scroller="x">
+                                        <table class="main-table table table-striped table-condensed">
+                                            <thead class="main-table__header">
+                                            <tr class="table-list">
+                                                <th class="table-list__item table-list__item_header w-15">Notebook -
+                                                    Experiment
+                                                </th>
+                                                <th class="table-list__item table-list__item_header w-35">Experiment
+                                                    Details
+                                                </th>
+                                                <th class="table-list__item table-list__item_header w-35">Reaction
+                                                    Scheme
+                                                </th>
+                                                <th class="table-list__item table-list__item_header w-15">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="main-table__body">
+                                            <tr class="table-list" ng-repeat="exp in vm.experiments track by $index">
+                                                <td class="table-list__item"><a
+                                                        ng-click="vm.goToExp(exp)">{{exp.fullName}}</a></td>
+                                                <td class="table-list__item">
+                                                    <p>Creation date: {{exp.creationDate | date:'MMM dd yyyy'}}</p>
+                                                    <p>Subject/Title: {{exp.reactionDetails.title ||
+                                                        exp.conceptDetails.title}}</p>
+                                                    <p>Author: {{exp.author.firstName + ' ' + exp.author.lastName}}</p>
+                                                    <p>Experiment Status: {{exp.status}}</p>
+                                                </td>
+                                                <td class="table-list__item">
+                                                    <img ng-if="!!exp.components.reaction.image"
+                                                         class="img-fill img-responsive center-block"
+                                                         ng-src="data:image/svg+xml;base64,{{exp.components.reaction.image}}"
+                                                         alt="Image is unavailable.">
+                                                </td>
+                                                <td class="table-list__item">
+                                                    <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
+                                                        OPEN
+                                                    </a>,
+                                                    <a ui-sref="experiment-preview-print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
+                                                        PRINT
+                                                    </a>,
+                                                    <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
+                                                        REPEAT
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
 
-    <div class="btn-bottom-block tab-content-pad">
-        <div class="pull-left">
-            <a class="btn btn-info" ng-click="vm.showSummary()">
-                <span class="m-l5" ng-show="!vm.isSummary">Show Notebook Content</span>
-                <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
-            </a>
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
-                <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
+        <div class="btn-bottom-block tab-content-pad">
+            <div class="pull-left">
+                <a class="btn btn-info" ng-click="vm.showSummary()">
+                    <span class="m-l5" ng-show="!vm.isSummary">Show Notebook Content</span>
+                    <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
+                </a>
+                <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
+                    <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
+                </button>
+                <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
+                    <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
+                </button>
+            </div>
+            <button class="btn btn-info" type="button"
+                    ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
+                    ng-click="vm.createExperiment()">Create Experiment
             </button>
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
-                <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
+            <button type="submit" form="createNotebookForm"
+                    ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
+                    class="btn btn-primary">
+                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+            </button>
+            <a class="btn btn-default" ng-click="vm.refresh()">
+                <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
+            </a>
+            <button type="button" class="btn btn-default" onclick="window.history.back()">
+                <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
             </button>
         </div>
-        <button class="btn btn-info" type="button"
-                ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
-                ng-click="vm.createExperiment()">Create Experiment
-        </button>
-        <button type="submit" form="createNotebookForm"
-                ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
-                class="btn btn-primary">
-            <i class="fa fa-save"></i><span class="m-l5">Save</span>
-        </button>
-        <a class="btn btn-default" ng-click="vm.refresh()">
-            <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
-        </a>
-        <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
-        </button>
-    </div>
 </div>
 
