@@ -24,9 +24,6 @@
             var deferred;
 
             vm.model = vm.model || {};
-            vm.model.reactionDetails = vm.model.reactionDetails || {};
-            vm.model.reactionDetails.experimentCreator = vm.model.reactionDetails.experimentCreator ||
-                {name: Principal.getIdentity().fullName};
 
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;

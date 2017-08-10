@@ -20,9 +20,6 @@
         var ftimeout;
 
         vm.model = vm.model || {};
-        vm.model.stoichTable = vm.model.stoichTable || {};
-        vm.model.stoichTable.reactants = vm.model.stoichTable.reactants || [];
-        vm.model.stoichTable.products = vm.model.stoichTable.products || [];
 
         vm.clear = clear;
         vm.appendRow = appendRow;

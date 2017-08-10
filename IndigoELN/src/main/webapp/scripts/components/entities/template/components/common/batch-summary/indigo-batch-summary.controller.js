@@ -27,8 +27,6 @@
             vm.loading = false;
             vm.model = vm.model || {};
             vm.columns = getDefaultColumns();
-            vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-            vm.model.productBatchSummary.batches = vm.batches;
             RegistrationService.info({}, function(info) {
                 vm.isHasRegService = _.isArray(info) && info.length > 0;
             });

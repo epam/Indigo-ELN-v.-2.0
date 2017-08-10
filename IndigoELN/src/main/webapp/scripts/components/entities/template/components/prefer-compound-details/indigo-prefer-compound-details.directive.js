@@ -39,9 +39,6 @@
             function init() {
                 vm.experiment = vm.experiment || {};
                 vm.model = vm.model || {};
-
-                vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-                vm.model.productBatchSummary.batches = vm.batches;
                 vm.showStructure = false;
                 vm.showSummary = false;
                 vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
