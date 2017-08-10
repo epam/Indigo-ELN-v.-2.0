@@ -5,12 +5,10 @@ angular
 /* @ngInject */
 function alert(notify) {
     notify.config({
-        container: document.getElementById('page-content'),
+        container: document.getElementById('tab-content'),
         templateUrl: 'scripts/components/alert/alert-template.html',
-        startTop: 0
+        startTop: -107
     });
-
-var container = document.getElementById('page-content');
 
     return {
         success: success,
@@ -20,9 +18,7 @@ var container = document.getElementById('page-content');
     };
 
     function success(msg) {
-    var container = document.getElementById('page-content');
         notify({
-        container: document.getElementById('page-content'),
             message: msg,
             classes: "success-notify"
         });
