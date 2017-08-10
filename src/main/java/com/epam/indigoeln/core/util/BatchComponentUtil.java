@@ -25,13 +25,20 @@ import static java.util.stream.Collectors.toList;
  */
 public final class BatchComponentUtil {
 
-    public static final String COMPONENT_NAME_BATCH_SUMMARY = "productBatchSummary";
-    public static final String COMPONENT_NAME_REACTION_DETAILS = "reactionDetails";
-    public static final String COMPONENT_NAME_CONCEPT_DETAILS = "conceptDetails";
     public static final String COMPONENT_FIELD_TITLE = "title";
     public static final String COMPONENT_FIELD_BATCHES = "batches";
     public static final String COMPONENT_FIELD_NBK_BATCH = "nbkBatch";
     public static final String COMPONENT_FIELD_FULL_NBK_BATCH = "fullNbkBatch";
+    
+    public static final String REACTION_DETAILS = "reactionDetails";
+    public static final String CONCEPT_DETAILS = "conceptDetails";
+    public static final String REACTION = "reaction";
+    public static final String PREFERRED_COMPOUND_SUMMARY = "preferredCompoundSummary";
+    public static final String STOICH_TABLE = "stoichTable";
+    public static final String EXPERIMENT_DESCRIPTION = "experimentDescription";
+    public static final String PRODUCT_BATCH_SUMMARY = "productBatchSummary";
+    public static final String PRODUCT_BATCH_DETAILS = "productBatchDetails";
+    public static final String ATTACHMENTS = "attachments";
 
     private static final String FORMAT_BATCH_NUMBER  = "000";
     private static final String PATTERN_BATCH_NUMBER = "\\d{3}";
@@ -40,11 +47,11 @@ public final class BatchComponentUtil {
     }
 
     public static Optional<ComponentDTO> getReactionDetails(Collection<ComponentDTO> components) {
-        return getComponent(components, COMPONENT_NAME_REACTION_DETAILS);
+        return getComponent(components, REACTION_DETAILS);
     }
 
     public static Optional<ComponentDTO> getConceptDetails(Collection<ComponentDTO> components) {
-        return getComponent(components, COMPONENT_NAME_CONCEPT_DETAILS);
+        return getComponent(components, CONCEPT_DETAILS);
     }
 
     public static Optional<ComponentDTO> getComponent(Collection<ComponentDTO> components, String componentName) {
@@ -72,7 +79,7 @@ public final class BatchComponentUtil {
      */
     @SuppressWarnings("unchecked")
     public static List<BasicDBObject> retrieveBatches(Collection<ComponentDTO> components) {
-        Predicate<ComponentDTO> batchFilter = c -> COMPONENT_NAME_BATCH_SUMMARY.equals(c.getName()) &&
+        Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName()) &&
                 c.getContent() != null && c.getContent().containsField(COMPONENT_FIELD_BATCHES);
 
         return components.stream().filter(batchFilter).

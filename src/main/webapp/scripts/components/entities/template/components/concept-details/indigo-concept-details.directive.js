@@ -11,7 +11,8 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                isReadonly: '='
+                isReadonly: '=',
+                onChanged: '&'
             },
             controller: IndigoConceptDetailsController,
             bindToController: true,

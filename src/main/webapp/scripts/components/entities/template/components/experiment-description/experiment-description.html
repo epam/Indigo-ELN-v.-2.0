@@ -3,6 +3,7 @@
     <div class="panel-body">
         <indigo-text-editor indigo-model="vm.model.experimentDescription.description"
                             indigo-name="vm.experimentDescriptionComponent"
-                            indigo-readonly="vm.isReadonly"></indigo-text-editor>
+                            indigo-readonly="vm.isReadonly"
+                            on-changed="vm.onChanged()"></indigo-text-editor>
     </div>
 </div>

@@ -11,7 +11,7 @@
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
-                        <button ui-sref=".permissions-view()" ng-if="!vm.project.id" type="button"
+                        <button ui-sref=".permissions-view()" type="button"
                                 class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
@@ -50,11 +50,13 @@
                         <label>Project Description</label>
                         <indigo-text-editor indigo-model="vm.project.description"
                                             indigo-name="projectDescription"
-                                            indigo-readonly="!vm.isEditAllowed">
+                                            indigo-readonly="!vm.isEditAllowed"
+                                            on-changed="vm.onChanged()">
                         </indigo-text-editor>
                         <div class="m-t20">
                             <indigo-file-uploader upload-url="api/project_files"
-                                                  indigo-readonly="!vm.isEditAllowed">
+                                                  indigo-readonly="!vm.isEditAllowed"
+                                                  on-changed="vm.updateAttachments()">
                             </indigo-file-uploader>
                         </div>
                     </div>

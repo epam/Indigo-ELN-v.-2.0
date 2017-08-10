@@ -10,7 +10,8 @@
             scope: {
                 selectedBatch: '=',
                 selectedBatchTrigger: '=',
-                isReadonly: '='
+                isReadonly: '=',
+                onChanged: '&'
             },
             controller: indigoBatchStructureController,
             controllerAs: 'vm',
@@ -19,7 +20,7 @@
     }
 
     /* @ngInject */
-    function indigoBatchStructureController(EntitiesBrowser, CalculationService) {
+    function indigoBatchStructureController(CalculationService) {
         var vm = this;
 
         init();
@@ -35,7 +36,7 @@
         function onChangedStructure(structure) {
             if (vm.selectedBatch) {
                 vm.selectedBatch.structure = structure;
-                EntitiesBrowser.setCurrentFormDirty();
+                vm.onChanged();
                 updateBatchMolInfo();
             }
         }
@@ -43,12 +44,13 @@
         function resetMolInfo(row) {
             row.formula = null;
             row.molWeight = null;
-            CalculationService.calculateProductBatch({
+
+            return CalculationService.calculateProductBatch({
                 row: row, column: 'totalWeight'
             });
         }
 
-        function getInfoCallback(batch, molInfo) {
+        function updateBatchFormula(batch, molInfo) {
             batch.formula = molInfo.data.molecularFormula;
             batch.molWeight = batch.molWeight || {};
             batch.molWeight.value = molInfo.data.molecularWeight;
@@ -56,21 +58,21 @@
             // TODO: it doesn't recalculate stoich table
             CalculationService.recalculateStoich();
 
-            CalculationService.calculateProductBatch({
+            return CalculationService.calculateProductBatch({
                 row: batch, column: 'totalWeight'
             });
         }
 
         function updateBatchMolInfo() {
             if (vm.selectedBatch.structure && vm.selectedBatch.structure.molfile) {
-                CalculationService.getMoleculeInfo(vm.selectedBatch, function(molInfo) {
-                    getInfoCallback(vm.selectedBatch, molInfo);
-                }, resetMolInfo);
-
-                return;
+                return CalculationService
+                    .getMoleculeInfo(vm.selectedBatch)
+                    .then(function(molInfo) {
+                        return updateBatchFormula(vm.selectedBatch, molInfo);
+                    }, resetMolInfo);
             }
 
-            resetMolInfo(vm.selectedBatch);
+            return resetMolInfo(vm.selectedBatch);
         }
     }
 })();

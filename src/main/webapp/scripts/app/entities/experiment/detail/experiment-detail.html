@@ -5,11 +5,13 @@
             <div class="col-sm-6 col-xs-9">
                 <div class="row-inline">
                     <span class="txt-larger">Experiment Members:</span>
-                    <button type="submit" ui-sref="entities.experiment-detail.permissions()" class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
+                    <button type="submit" ui-sref="entities.experiment-detail.permissions()"
+                            class="btn btn-default btn-small" ng-disabled="!vm.isEditAllowed">
                         <i class="fa fa-pencil"></i>
                         <span class="m-l5">Edit</span>
                     </button>
-                    <button type="button" class="btn btn-default btn-small" ui-sref="entities.experiment-detail.permissions-view()">
+                    <button type="button" class="btn btn-default btn-small"
+                            ui-sref="entities.experiment-detail.permissions-view()">
                         <i class="fa fa-eye"></i>
                         <span class="m-l5">View Members</span>
                     </button>
@@ -24,21 +26,22 @@
         </div>
     </div>
 
-    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save(vm.experiment)">
+    <form name="experimentForm" id="experimentForm" role="form" novalidate ng-submit="vm.save()">
         <indigo-components template="vm.experiment.template.templateContent"
                            is-readonly="!vm.isEditAllowed"
                            model="vm.experiment.components"
                            experiment-form="experimentForm"
                            experiment="vm.experiment"
-                           save-experiment-fn="vm.saveCurrent()">
+                           save-experiment-fn="vm.save()"
+                           on-changed="vm.onChangedComponent(componentId)">
         </indigo-components>
     </form>
     <div class="btn-bottom-block tab-content-pad">
         <div class="pull-left">
-           <button type="button" class="btn btn-default" ng-disabled = "!vm.canUndo()" ng-click="vm.undoAction()">
+            <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
                 <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
             </button>
-            <button  type="button" class="btn btn-default" ng-disabled = "!vm.canRedo()" ng-click="vm.redoAction()">
+            <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
                 <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
             </button>
         </div>
@@ -50,16 +53,21 @@
             <ul uib-dropdown-menu role="menu" aria-labelledby="single-button">
                 <li role="menuitem"><a><em>Status: </em><strong ng-bind="vm.experiment.status"></strong></a></li>
                 <li class="divider"></li>
-                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperiment()"><a>Complete Experiment</a></li>
-                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperimentAndSign()"><a>Complete & Sign </a></li>
-                <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.reopenExperiment()"><a>Reopen Experiment for Edit</a></li>
+                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperiment()"><a>Complete
+                    Experiment</a></li>
+                <li role="menuitem" ng-if="vm.isStatusOpen" ng-click="vm.completeExperimentAndSign()"><a>Complete &
+                    Sign </a></li>
+                <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.reopenExperiment()"><a>Reopen Experiment
+                    for Edit</a></li>
                 <li role="menuitem" ng-click="vm.repeatExperiment()"><a>Repeat Experiment</a></li>
                 <li role="menuitem"><a ng-click="vm.printExperiment()">Print Experiment</a></li>
                 <li role="menuitem"
                     ng-if="vm.experiment.lastVersion && (vm.isStatusComplete || vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusArchieved || vm.isStatusSigning || vm.isStatusSigned)"
                     ng-click="vm.versionExperiment()"><a>Version Experiment</a></li>
-                <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.completeExperimentAndSign()"><a href="#">Resubmit for Signature</a></li>
-                <li role="menuitem" ng-if="vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusSigning || vm.isStatusSigned">
+                <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.completeExperimentAndSign()"><a href="#">Resubmit
+                    for Signature</a></li>
+                <li role="menuitem"
+                    ng-if="vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusSigning || vm.isStatusSigned">
                     <a href="api/signature/document/content?documentId={{vm.experiment.documentId}}" target="_blank">
                         View Record Submitted for Signature
                     </a>
@@ -78,7 +86,9 @@
         </div>-->
 
 
-        <button type="submit" form="experimentForm" ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isBtnSaveActive" class="btn btn-primary">
+        <button type="submit" form="experimentForm"
+                ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isBtnSaveActive"
+                class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5"> Save</span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">

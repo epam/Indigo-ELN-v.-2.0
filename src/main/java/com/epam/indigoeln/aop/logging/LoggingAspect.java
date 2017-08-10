@@ -48,7 +48,7 @@ public class LoggingAspect {
     }
 
     @Around("loggingPointcut()")
-    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable { //NOSONAR: we really need to throw original throwable instead of wrapping it
+    public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Enter: {}.{}() with argument[s] = {}", joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
