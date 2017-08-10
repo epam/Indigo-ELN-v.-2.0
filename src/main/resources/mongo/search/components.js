@@ -35,7 +35,6 @@ function searchComponents(filter) {
         {$unwind:'$purity'},
         {$unwind:'$compoundId'},
         {$unwind:'$batchStructureId'},
-        {$unwind:'$batchStructureId'},
         {$match: filter}
     ]).map(function (obj) {
         return obj._id;
