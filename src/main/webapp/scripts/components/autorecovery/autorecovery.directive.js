@@ -18,7 +18,7 @@
         };
 
         /* @ngInject */
-        function AutoRecoveryController($stateParams, recoveryCacheFactory) {
+        function AutoRecoveryController($stateParams, autorecoveryCache) {
             var vm = this;
 
             var recoveryData;
@@ -28,7 +28,7 @@
                 vm.isResolved = false;
                 vm.isVisible = false;
 
-                recoveryData = recoveryCacheFactory.get($stateParams);
+                recoveryData = autorecoveryCache.get($stateParams);
 
                 if (recoveryData) {
                     vm.isVisible = true;
