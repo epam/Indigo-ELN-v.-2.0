@@ -5,9 +5,9 @@
 
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
-                                        PermissionManagement, FileUploaderCash, autoRecoverEngine, EntitiesBrowser,
-                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
-                                        Components) {
+                                        PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryCache,
+                                        Alert, EntitiesCache, $q, Principal, Notebook, Components,
+                                        componentsUtils) {
         var vm = this;
         var pageInfo;
         var tabName;
@@ -15,13 +15,16 @@
         var isContentEditor;
         var hasEditAuthority;
         var hasEditPermission;
+        var originalExperiment;
+        var updateRecovery = updateRecoveryDebounce();
 
         init();
 
         function init() {
+            vm.stateData = $state.current.data;
             vm.isCollapsed = true;
             vm.loading = getPageInfo().then(function(response) {
-                initComponents(response.experiment.components);
+                initComponents(response.experiment);
                 pageInfo = response;
                 tabName = getExperimentName(response.notebook, response.experiment);
                 params = {
@@ -33,6 +36,7 @@
                 hasEditAuthority = response.hasEditAuthority;
                 vm.experiment = response.experiment;
                 vm.notebook = response.notebook;
+                originalExperiment = angular.copy(vm.experiment);
 
                 EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.name, $stateParams);
 
@@ -44,7 +48,6 @@
                 }
 
                 toggleDirty(!!pageInfo.dirty);
-                initAutoRecoverTrack();
             });
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
@@ -61,6 +64,7 @@
             vm.printExperiment = printExperiment;
             vm.refresh = refresh;
             vm.onChangedComponent = onChangedComponent;
+            vm.onRestore = onRestore;
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -74,47 +78,26 @@
             initEventListeners();
         }
 
-        function initAutoRecoverTrack() {
-            autoRecoverEngine.track({
-                vm: vm,
-                kind: $state.$current.data.tab.kind,
-                onSetDirty: function() {
-                    toggleDirty(false);
+        function initComponents(experiment) {
+            componentsUtils.initComponents(
+                experiment.components,
+                experiment.template.templateContent
+            );
+        }
+
+        function updateRecoveryDebounce() {
+            return _.debounce(function() {
+                if (vm.experiment) {
+                    autorecoveryCache.put($stateParams, {
+                        experiment: vm.experiment,
+                        isDirty: $scope.experimentForm.$dirty
+                    });
                 }
-            });
+            }, 10);
         }
 
-        function initComponents(components) {
-            initPreferredCompoundSummary(components);
-            initProductBatchSummary(components);
-            initStoichTable(components);
-            initReactionDetails(components);
-        }
-
-        function initPreferredCompoundSummary(components) {
-            if (components.preferredCompoundSummary) {
-                components.preferredCompoundSummary.compounds = components.preferredCompoundSummary.compounds || [];
-            }
-        }
-
-        function initProductBatchSummary(components) {
-            if (components.productBatchSummary) {
-                components.productBatchSummary.batches = components.productBatchSummary.batches || [];
-            }
-        }
-
-        function initStoichTable(components) {
-            if (components.stoichTable) {
-                components.stoichTable.products = components.stoichTable.products || [];
-                components.stoichTable.reactants = components.stoichTable.reactants || [];
-            }
-        }
-
-        function initReactionDetails(components) {
-            if (components.reactionDetails) {
-                components.reactionDetails.batchOwner = components.reactionDetails.batchOwner || [];
-                components.reactionDetails.experimentCreator = components.reactionDetails.experimentCreator || {};
-            }
+        function onRestore(recovery) {
+            vm.experiment = recovery.experiment;
         }
 
         function getExperimentName(notebook, experiment) {
@@ -132,16 +115,12 @@
                 notebookId: $stateParams.notebookId
             };
 
-            if (!EntitiesCache.get(entityParams)) {
-                EntitiesCache.put(entityParams, AutoSaveEntitiesEngine.autoRecover(Experiment, entityParams));
-            }
-
             if (!EntitiesCache.get(notebookParams)) {
                 EntitiesCache.put(notebookParams, Notebook.get(notebookParams).$promise);
             }
 
             return $q.all([
-                EntitiesCache.get(entityParams),
+                Experiment.get(entityParams).$promise,
                 EntitiesCache.get(notebookParams),
                 Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                 Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
@@ -178,7 +157,6 @@
                 $scope.experimentForm.$setPristine();
             }
             vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-            autoRecoverEngine.tracker.changeDirty(isDirty);
             EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
         }
 
@@ -189,12 +167,12 @@
         }
 
         function save() {
-            initComponents(vm.experiment.components);
+            initComponents(vm.experiment);
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
                     vm.experiment.version = result.version;
-                    toggleDirty(false);
+                    originalExperiment = angular.copy(vm.experiment);
                 }, function() {
                     Alert.error('Experiment is not saved due to server error!');
                 });
@@ -244,7 +222,7 @@
             vm.loading.then(function(result) {
                 Alert.success('Experiment updated');
                 angular.extend(vm.experiment, result);
-                toggleDirty(false);
+                originalExperiment = angular.copy(vm.experiment);
             }, function() {
                 Alert.error('Experiment not refreshed due to server error!');
             });
@@ -283,20 +261,26 @@
                         Alert.error('Experiment not refreshed due to server error!');
                     });
             }
+        }
 
-            toggleDirty(true);
+        function checkChanges(newEntity) {
+            if (originalExperiment && !angular.equals(originalExperiment, newEntity)) {
+                toggleDirty(true);
+            } else if ($scope.experimentForm.$dirty) {
+                toggleDirty(false);
+            }
         }
 
         function initEventListeners() {
-            $scope.$watch('vm.experiment', function(entity, old) {
+            $scope.$watch('vm.experiment', function(newEntity) {
                 EntitiesBrowser.setCurrentEntity(vm.experiment);
-                autoRecoverEngine.tracker.change(entity, old);
+                checkChanges(newEntity);
+                updateRecovery();
             }, true);
 
-            $scope.$watch('experimentForm.$dirty', function(cur, old) {
-                // TODO: after refactored checking changes
+            $scope.$watch('experimentForm.$dirty', function() {
                 vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-                autoRecoverEngine.tracker.changeDirty(cur, old);
+                updateRecovery();
             }, true);
 
             $scope.$watch('vm.experiment.status', function() {
@@ -310,7 +294,6 @@
 
             $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
-                toggleDirty(false);
             });
 
             $scope.$on('experiment-status-changed', function(event, data) {
