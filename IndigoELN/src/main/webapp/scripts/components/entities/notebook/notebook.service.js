@@ -37,6 +37,10 @@ function notebook($resource, PermissionManagement) {
         },
         delete: {
             method: 'DELETE'
+        },
+        print: {
+            method: 'GET',
+            url: 'api/print/project/:projectId/notebook/:notebookId'
         }
     });
 
