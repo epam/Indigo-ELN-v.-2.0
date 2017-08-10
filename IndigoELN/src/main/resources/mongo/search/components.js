@@ -4,13 +4,38 @@ function searchComponents(filter) {
     return db.getCollection('component').aggregate([
         {$match: {"experiment":{$exists: true}}},
         {
+            $project: {
+                'experiment': 1,
+                'name': 1,
+                'content': 1,
+                'batch': '$content.batches',
+                'reactant': '$content.reactants',
+                'product': '$content.products'
+            }
+        },
+        {$unwind:{path:'$batch',preserveNullAndEmptyArrays:true}},
+        {$unwind:{path:'$reactant',preserveNullAndEmptyArrays:true}},
+        {$unwind:{path:'$product',preserveNullAndEmptyArrays:true}},
+        {
+            $project:{
+                'experiment': 1,
+                'name': 1,
+                'content': 1,
+                'batch': 1,
+                'reactant': 1,
+                'product': 1,
+                'purity': '$batch.purity.data.value'
+            }
+        },
+        {$unwind:{path:'$purity',preserveNullAndEmptyArrays:true}},
+        {
             $group:{
                 _id: "$experiment",
                 'componentName': {$addToSet:'$name'},
                 'therapeuticArea': {$addToSet:'$content.therapeuticArea.name'},
                 'projectCode': {$addToSet:'$content.codeAndName.name'},
-                'batchYield': {$addToSet:'$content.batches.yield'},
-                'purity': {$addToSet:'$content.batches.purity.data.value'},
+                'batchYield': {$addToSet:'$batch.yield'},
+                'purity': {$addToSet:'$purity'},
                 'name': {$addToSet:'$content.title'},
                 'description': {$addToSet:'$content.description'},
                 'compoundId': {
@@ -19,22 +44,18 @@ function searchComponents(filter) {
                             if: {
                                 $eq: ['$name', 'productBatchSummary']
                             },
-                            then: '$content.batches.compoundId',
-                            else: '$content.reactants.compoundId'
+                            then: '$batch.compoundId',
+                            else: '$reactant.compoundId'
                         }
                     }
                 },
                 'references': {$addToSet:'$content.literature'},
                 'keywords': {$addToSet:'$content.keywords'},
-                'chemicalName': {$addToSet:'$content.products.chemicalName'},
-                'batchStructureId': {$addToSet:'$content.batches.structure.structureId'},
+                'chemicalName': {$addToSet:'$product.chemicalName'},
+                'batchStructureId': {$addToSet:'$batch.structure.structureId'},
                 'reactionStructureId': {$addToSet:'$content.structureId'}
             }
         },
-        {$unwind:'$batchYield'},
-        {$unwind:'$purity'},
-        {$unwind:'$compoundId'},
-        {$unwind:'$batchStructureId'},
         {$match: filter}
     ]).map(function (obj) {
         return obj._id;
