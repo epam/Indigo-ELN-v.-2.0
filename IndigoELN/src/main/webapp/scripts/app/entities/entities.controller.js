@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal,
-                                autoRecoverEngine, Alert, Experiment, Notebook, Project, dialogService) {
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, Alert, Experiment,
+                                Notebook, Project, dialogService, autorecoveryCache) {
         var vm = this;
 
         init();
@@ -118,12 +118,7 @@
         }
 
         function clearRecovery(tab) {
-            var entityPromise = EntitiesCache.getByKey(tab.tabKey);
-            if (entityPromise) {
-                entityPromise.then(function(entity) {
-                    autoRecoverEngine.clearRecovery(tab.kind, entity);
-                });
-            }
+            autorecoveryCache.removeByParams(tab.params);
         }
 
         function onCloseTabClick($event, tab) {
