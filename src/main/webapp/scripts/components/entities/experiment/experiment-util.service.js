@@ -66,10 +66,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
             status: 'Open',
             template: experiment.template
         };
-        var productBatchSummary = experimentForSave.components.productBatchSummary;
-        if (productBatchSummary) {
-            productBatchSummary.batches = [];
-        }
 
         return Experiment.save({
             projectId: params.projectId,
