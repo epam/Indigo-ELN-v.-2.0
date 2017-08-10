@@ -7,8 +7,10 @@ function alert(notify) {
     notify.config({
         container: document.getElementById('page-content'),
         templateUrl: 'scripts/components/alert/alert-template.html',
-        startTop: -10
+        startTop: 0
     });
+
+var container = document.getElementById('page-content');
 
     return {
         success: success,
@@ -17,9 +19,10 @@ function alert(notify) {
         info: info
     };
 
-
     function success(msg) {
+    var container = document.getElementById('page-content');
         notify({
+        container: document.getElementById('page-content'),
             message: msg,
             classes: "success-notify"
         });
