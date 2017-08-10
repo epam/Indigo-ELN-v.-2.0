@@ -8,7 +8,14 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
     var servfields = ['lastModifiedBy', 'lastVersion', 'version', 'lastEditDate', 'creationDate', 'templateContent'];
     var kinds = ['experiment', 'project', 'notebook'];
     var somethingUserChanged;
-    var tracker = {};
+    var tracker = {
+        change: function() {
+
+        },
+        changeDirty: function() {
+
+        }
+    };
     var states = {};
     var target;
     var subkey;
@@ -176,8 +183,8 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
         var entity = args.vm[args.kind];
         var fullId = getFullId(entity);
         var state = states[fullId] || {
-            actions: []
-        };
+                actions: []
+            };
         var curtab = EntitiesBrowser.getActiveTab();
         target = args;
         if (!entity.id && !curtab.tmpId) {
@@ -231,10 +238,8 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
                 prev = deleteServiceFields(angular.extend({}, old));
             }
             somethingUserChanged = false;
-            if (dirty) {
-                EntitiesBrowser.changeDirtyTab($stateParams, dirty);
-            }
             ctimeout = $timeout(function() {
+                EntitiesBrowser.changeDirtyTab($stateParams, dirty);
                 if (dirty) {
                     save(target.kind, entity);
                     if (!entity.$$undo) {
@@ -251,13 +256,14 @@ function autoRecoverEngine(localStorageService, $timeout, EntitiesBrowser, Auth,
                 ctimeout = null;
             }, trackerDelay);
         };
-        tracker.changeDirty = function(val, old) {
+        tracker.changeDirty = function(isDirty) {
             var entity = target.vm[target.kind];
-            dirty = val;
-            if (!val && old) {
+
+            if (!isDirty && dirty) {
                 clear(target.kind, entity);
                 target.vm.restored = null;
             }
+            dirty = isDirty;
         };
     }
 

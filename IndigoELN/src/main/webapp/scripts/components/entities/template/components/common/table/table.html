@@ -76,7 +76,7 @@
             </thead>
             <tbody>
             <tr ng-if="vm.rowsForDisplay.length"
-                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize track by $index"
+                ng-repeat="row in vm.rowsForDisplay | limitTo : vm.pagination.pageSize : vm.limit - vm.pagination.pageSize"
                 ng-class="{'success': vm.selectedBatch === row}">
                 <td ng-repeat="column in vm.indigoColumns track by $index"
                     class="text-center readonly-{{!vm.indigoEditable(row, $index, columnId)}}"

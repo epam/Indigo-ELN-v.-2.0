@@ -8,8 +8,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class IndigoConfig {
 
+    private final IndigoProvider indigoProvider;
+
     @Autowired
-    private IndigoProvider indigoProvider;
+    public IndigoConfig(IndigoProvider indigoProvider) {
+        this.indigoProvider = indigoProvider;
+    }
 
     @Bean
     public Indigo moleculeIndigo() {

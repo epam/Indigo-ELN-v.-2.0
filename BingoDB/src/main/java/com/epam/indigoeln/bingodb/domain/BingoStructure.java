@@ -1,6 +1,15 @@
 package com.epam.indigoeln.bingodb.domain;
 
-public class BingoStructure {
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.io.Serializable;
+
+@ToString
+@EqualsAndHashCode
+public class BingoStructure implements Serializable {
+
+    private static final long serialVersionUID = 8965086228918128863L;
 
     private String id;
     private String structure;

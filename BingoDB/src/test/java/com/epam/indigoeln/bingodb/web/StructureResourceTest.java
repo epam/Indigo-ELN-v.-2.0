@@ -1,7 +1,8 @@
 package com.epam.indigoeln.bingodb.web;
 
 import com.epam.indigoeln.bingodb.config.IndigoProvider;
-import com.epam.indigoeln.bingodb.web.dto.ResponseDTO;
+import com.epam.indigoeln.bingodb.web.rest.dto.ResponseDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +43,7 @@ public class StructureResourceTest {
 
         ResponseDTO badResponse = restTemplate.postForObject("/api/structures", "o_O", ResponseDTO.class);
 
-        Assert.assertEquals("Cannot insert structure", badResponse.getMessage());
+        Assert.assertEquals("Error processing request: Not a molecule or reaction", badResponse.getMessage());
         Assert.assertNull(badResponse.getStructures());
     }
 
@@ -54,7 +55,7 @@ public class StructureResourceTest {
 
         ResponseEntity<ResponseDTO> badResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.PUT, new HttpEntity<>("o_O"), ResponseDTO.class);
 
-        Assert.assertEquals("Cannot update structure with id=" + id, badResponse.getBody().getMessage());
+        Assert.assertEquals("Error processing request: Not a molecule or reaction", badResponse.getBody().getMessage());
         Assert.assertNull(badResponse.getBody().getStructures());
 
         ResponseEntity<ResponseDTO> updResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.PUT, new HttpEntity<>("CC>>CC"), ResponseDTO.class);
@@ -79,10 +80,11 @@ public class StructureResourceTest {
         Assert.assertNull(delResponse.getBody());
 
         delResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.DELETE, HttpEntity.EMPTY, ResponseDTO.class);
-        Assert.assertEquals("Cannot delete structure with id=" + id, delResponse.getBody().getMessage());
+        Assert.assertTrue(StringUtils.contains(delResponse.getBody().getMessage(), "Error processing request"));
+        Assert.assertEquals("Error processing request: There is no object with this id", delResponse.getBody().getMessage());
 
         getResponse = restTemplate.getForObject("/api/structures/" + id, ResponseDTO.class);
-        Assert.assertEquals("Cannot load structure with id=" + id, getResponse.getMessage());
+        Assert.assertTrue(StringUtils.contains(getResponse.getMessage(), "Error processing request"));
     }
 
     @Test

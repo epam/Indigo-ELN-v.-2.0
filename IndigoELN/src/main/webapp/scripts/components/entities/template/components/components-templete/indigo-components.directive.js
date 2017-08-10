@@ -16,7 +16,8 @@
                 model: '=',
                 experiment: '=',
                 experimentForm: '=',
-                saveExperimentFn: '&'
+                saveExperimentFn: '&',
+                onChanged: '&'
             },
             link: link,
             templateUrl: 'scripts/components/entities/template/components/components-templete/components.html',
@@ -68,7 +69,7 @@
         }
 
         /* @ngInject */
-        function indigoComponentsController($scope, ProductBatchSummaryOperations) {
+        function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache) {
             var vm = this;
 
             init();
@@ -86,19 +87,25 @@
                 vm.onSelectBatch = onSelectBatch;
                 vm.onRemoveBatches = onRemoveBatches;
                 vm.onPrecursorsChanged = onPrecursorsChanged;
-
+                vm.onChangedComponent = onChangedComponent;
                 bindEvents();
             }
 
+            function onChangedComponent(componentId) {
+                vm.onChanged({componentId: componentId});
+            }
+
             function updateModel() {
-                vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-                vm.compounds = _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
+                vm.batches = _.get(vm.model, 'productBatchSummary.batches')
+                    || _.get(vm.model, 'preferredCompoundSummary.compounds') || [];
+                ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
+                vm.batchesTrigger++;
 
                 updateSelections();
             }
 
             function updateSelections() {
-                if ((vm.batches.length && !vm.selectedBatch) || (vm.compounds.length && !vm.selectedCompound)) {
+                if ((vm.batches.length && !vm.selectedBatch)) {
                     updateSelectedBatch();
                 }
             }
@@ -122,7 +129,7 @@
                 }
                 ProductBatchSummaryOperations.deleteBatches(vm.batches, batchesForRemove);
                 if (vm.batches.length - length) {
-                    vm.experimentForm.$setDirty();
+                    vm.onChanged();
                     vm.batchesTrigger++;
                 }
             }

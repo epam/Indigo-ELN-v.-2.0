@@ -21,7 +21,8 @@
                 onShowStructure: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                onChanged: '&'
             },
             controller: controller,
             controllerAs: 'vm',

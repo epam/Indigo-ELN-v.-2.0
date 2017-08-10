@@ -6,7 +6,7 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      AutoRecoverEngine, NotebookSummaryExperiments) {
+                                      AutoRecoverEngine, notebookSummaryExperiments) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -34,6 +34,7 @@
         vm.repeatExperiment = repeatExperiment;
         vm.refresh = refresh;
         vm.save = save;
+        vm.onChangedDescription = onChangedDescription;
 
         init();
 
@@ -52,6 +53,10 @@
             PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
                 vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
             });
+        }
+
+        function onChangedDescription() {
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
         }
 
         function initDirtyListener() {
@@ -142,7 +147,7 @@
 
                 return;
             }
-            vm.loading = NotebookSummaryExperiments.query({
+            vm.loading = notebookSummaryExperiments.query({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
             }).$promise.then(function(data) {
@@ -230,7 +235,9 @@
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
                     .then(function(result) {
                         vm.notebook.version = result.version;
+                        vm.notebookCopy = angular.copy(vm.notebook);
                         $scope.createNotebookForm.$setPristine();
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
                             projectId: vm.projectId, 

@@ -1,7 +1,9 @@
 package com.epam.indigoeln.core.model;
 
-import com.google.common.base.Objects;
 import com.mongodb.BasicDBObject;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import com.mongodb.DBRef;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,6 +13,8 @@ import java.io.Serializable;
 /**
  * Component model object
  */
+@ToString
+@EqualsAndHashCode
 @Document(collection = Component.COLLECTION_NAME)
 public class Component implements Serializable {
 
@@ -22,6 +26,8 @@ public class Component implements Serializable {
     private String id;
     private String name;
     private BasicDBObject content;
+
+    private DBRef experiment;
 
     @Version
     private Long version;
@@ -59,21 +65,11 @@ public class Component implements Serializable {
         this.version = version;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Component component = (Component) o;
-        return Objects.equal(id, component.id) &&
-               Objects.equal(content, component.content);
+    public DBRef getExperiment() {
+        return experiment;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, content);
+    public void setExperiment(DBRef experiment) {
+        this.experiment = experiment;
     }
 }
