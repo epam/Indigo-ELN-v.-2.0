@@ -1,9 +1,9 @@
 angular
     .module('indigoeln.autorecovery')
-    .factory('recoveryCacheFactory', recoveryCacheFactory);
+    .factory('autorecoveryCache', autorecoveryCacheFactory);
 
 /* @ngInject */
-function recoveryCacheFactory(CacheFactory, TabKeyUtils) {
+function autorecoveryCacheFactory(CacheFactory, TabKeyUtils) {
     var cache = CacheFactory('recoveryCache', {
         storageMode: 'localStorage'
     });
