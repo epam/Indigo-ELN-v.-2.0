@@ -78,7 +78,7 @@
             $scope.$watch(function() {
                 return vm.notebook;
             }, function(newEntity) {
-                toggleDirty(originalNotebook && !angular.equals(originalNotebook, newEntity));
+                toggleDirty(!!vm.stateData.isNew || (originalNotebook && !angular.equals(originalNotebook, newEntity)));
                 updateRecovery();
                 EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
                 // if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {

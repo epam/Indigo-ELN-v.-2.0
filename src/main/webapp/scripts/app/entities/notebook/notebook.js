@@ -33,7 +33,8 @@ angular.module('indigoeln')
                         kind: 'notebook',
                         type: 'entity',
                         state: 'entities.notebook-new'
-                    }
+                    },
+                    isNew: true
                 },
                 resolve: {
                     pageInfo: function($q, $stateParams, Principal) {
