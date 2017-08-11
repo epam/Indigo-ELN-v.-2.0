@@ -66,6 +66,10 @@ function experiment($resource, PermissionManagement, $rootScope) {
             },
             delete: {
                 method: 'DELETE'
+            },
+            print: {
+                method: 'GET',
+                url: 'api/print/project/:projectId/notebook/:notebookId/experiment/:experimentId'
             }
         });
 

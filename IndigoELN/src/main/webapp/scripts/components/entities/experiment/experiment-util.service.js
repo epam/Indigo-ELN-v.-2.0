@@ -5,23 +5,12 @@ angular
 /* @ngInject */
 function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement) {
     return {
-        printExperiment: printExperiment,
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
         reopenExperiment: reopenExperiment,
         completeExperiment: completeExperiment,
         completeExperimentAndSign: completeExperimentAndSign
     };
-
-
-    function printExperiment(params) {
-        $state.go('experiment-preview-print', {
-            experimentId: params.experimentId,
-            notebookId: params.notebookId,
-            projectId: params.projectId
-        });
-    }
-
 
     function versionExperiment(experiment, params) {
         return Experiment.version({

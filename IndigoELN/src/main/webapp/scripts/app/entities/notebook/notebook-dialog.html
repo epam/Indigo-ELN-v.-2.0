@@ -94,7 +94,7 @@
                                                 <a ui-sref="entities.experiment-detail({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
                                                     OPEN
                                                 </a>,
-                                                <a ui-sref="experiment-preview-print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
+                                                <a ui-sref="entities.experiment-detail.print({projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
                                                     PRINT
                                                 </a>,
                                                 <a ng-click="vm.repeatExperiment(exp, {projectId: vm.projectId, notebookId: vm.notebook.id, experimentId: exp.id})">
@@ -130,6 +130,7 @@
                 ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
                 ng-click="vm.createExperiment()">Create Experiment
         </button>
+        <button class="btn btn-info" type="button" ng-click="vm.print()">Print</button>
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary">

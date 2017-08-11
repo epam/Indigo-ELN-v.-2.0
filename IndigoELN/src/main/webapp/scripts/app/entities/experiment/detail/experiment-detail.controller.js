@@ -232,10 +232,10 @@
         function printExperiment() {
             if ($scope.experimentForm.$dirty) {
                 vm.save(vm.experiment).then(function() {
-                    ExperimentUtil.printExperiment(params);
+                    $state.go('entities.experiment-detail.print');
                 });
             } else {
-                ExperimentUtil.printExperiment(params);
+                $state.go('entities.experiment-detail.print');
             }
         }
 

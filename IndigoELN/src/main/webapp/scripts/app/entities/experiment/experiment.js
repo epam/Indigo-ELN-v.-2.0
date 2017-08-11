@@ -1,5 +1,5 @@
 angular.module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions, printModal) {
         var permissions = [
             userPermissions.VIEWER,
             userPermissions.OWNER
@@ -87,46 +87,12 @@ angular.module('indigoeln')
                 },
                 permissions: permissions
             }))
-            .state('experiment-preview-print', {
-                parent: 'entity',
-                url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/experiment-preview-print',
+            .state('entities.experiment-detail.print', _.extend({}, printModal, {
+                parent: 'entities.experiment-detail',
                 data: {
-                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR'],
-                    pageTitle: 'indigoeln',
-                    isFullPrint: false
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
                 },
-                views: {
-                    'content@app_page': {
-                        templateUrl: 'scripts/app/entities/experiment/preview/experiment-preview.html',
-                        controller: 'ExperimentPreviewController',
-                        controllerAs: 'vm'
-                    }
-                },
-                resolve: {
-                    pageInfo: function($q, $stateParams, Experiment, Notebook, Project) {
-                        var deferred = $q.defer();
-                        $q.all([
-                            // EntitiesBrowser.getCurrentEntity($stateParams),
-                            // EntitiesBrowser.getNotebookFromCache($stateParams),
-                            // EntitiesBrowser.getProjectFromCache($stateParams)
-
-                            Experiment.get($stateParams).$promise,
-                            Notebook.get($stateParams).$promise,
-                            Project.get($stateParams).$promise
-
-
-                        ]).then(function(results) {
-                            deferred.resolve({
-                                experiment: results[0],
-                                notebook: results[1],
-                                project: results[2]
-                            });
-                        });
-
-                        return deferred.promise;
-                    }
-                }
-            })
+            }))
             .state('experiment-preview-submit', {
                 parent: 'entity',
                 url: '/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}/preview-submit',
