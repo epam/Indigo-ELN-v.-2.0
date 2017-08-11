@@ -5,9 +5,9 @@ angular
 /* @ngInject */
 function notifyService(notify) {
     notify.config({
-        container: document.getElementById('page-wrapper'),
+        container: document.getElementById('content-wrapper'),
         templateUrl: 'scripts/components/alert/alert-template.html',
-        startTop: document.getElementById('notify-container').offsetTop
+        startTop: 0
     });
 
     return {
@@ -17,9 +17,9 @@ function notifyService(notify) {
         info: info
     };
 
-    function customNotify(msg, type){ var offset = document.getElementById('page-wrapper').offsetTop;
+    function customNotify(msg, type){
         return notify({
-            container: document.getElementById('page-wrapper'),
+            container: document.getElementById('content-wrapper'),
             message: msg,
             classes: type
         });
