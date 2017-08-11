@@ -7,6 +7,7 @@
         	ng-if="vm.indigoItems.length > 1"
 			indigo-classes="checklist-item checklist-item-all" 
 			indigo-model="vm.allItemsSelected"
+            ng-click="vm.allChanged()"
 			indigo-label="All"></indigo-checkbox>
         <indigo-checkbox ng-repeat="item in vm.indigoItems"
 			indigo-classes="checklist-item" 
