@@ -4,7 +4,7 @@
         .controller('UserManagementController', UserManagementController);
 
     /* @ngInject */
-    function UserManagementController($uibModal, User, ParseLinks, $filter, pageInfo, Alert) {
+    function UserManagementController($uibModal, User, ParseLinks, $filter, pageInfo, notifyService) {
         var vm = this;
         vm.users = [];
         vm.roles = pageInfo.roles;
@@ -55,11 +55,11 @@
             loadAll();
 
             if (!isEmailCorrect(result)) {
-                Alert.error('Email address is incorrect!');
+                notifyService.error('Email address is incorrect!');
                 return;
             }
 
-            Alert.error('User is not saved due to server error!');
+            notifyService.error('User is not saved due to server error!');
         }
 
         function isEmailCorrect (result) {
