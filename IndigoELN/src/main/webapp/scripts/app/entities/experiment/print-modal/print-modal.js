@@ -19,7 +19,7 @@ angular.module('indigoeln')
 
                 //This will go away when response of print service will be {response : 'pdfString'}
                 var qs = $httpParamSerializer(result);
-                var url = 'http://ecse00100843.epam.com/api/print/project/' + $stateParams.projectId;
+                var url = 'api/print/project/' + $stateParams.projectId;
                 if ($stateParams.notebookId >= 0) {
                     url += '/notebook/' + $stateParams.notebookId;
                 }
