@@ -11,10 +11,10 @@ function notificationInterceptor($injector) {
         ALERT_PARAMS = 'X-indigoeln-params';
 
     return {
-        responseHandler: responseHandler
+        response: response
     };
 
-    function responseHandler(response) {
+    function response(response) {
         var Alert = $injector.get('notifyService');
         if (_.isString(response.headers(SUCCESS_ALERT))) {
             Alert.success(response.headers(SUCCESS_ALERT), {
