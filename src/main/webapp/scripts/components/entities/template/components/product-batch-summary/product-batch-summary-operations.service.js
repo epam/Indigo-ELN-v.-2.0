@@ -4,7 +4,7 @@ angular
 
 /* @ngInject */
 function productBatchSummaryOperations($q, ProductBatchSummaryCache, RegistrationUtil, StoichTableCache, AppValues,
-                                       Alert, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
+                                       notifyService, $timeout, EntitiesBrowser, RegistrationService, sdImportService,
                                        sdExportService, AlertModal, $http, $stateParams, Notebook, CalculationService) {
     var curNbkOperation = $q.when();
 
@@ -56,6 +56,8 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             var args = arguments;
             curNbkOperation = curNbkOperation.then(function() {
                 return fn.apply(this, args);
+            }, function() {
+                return fn.apply(this, args);
             });
 
             return curNbkOperation;
@@ -97,9 +99,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
             .then(function(batches) {
                 return updateNbkBatches(batches)
                     .then(function() {
-                        // TODO: extract to controller
-                        EntitiesBrowser.getCurrentForm().$setDirty();
-
                         return batches;
                     });
             });
@@ -164,8 +163,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function addNewBatch() {
         return createBatch().then(function(batch) {
             return updateNbkBatches([batch]).then(function() {
-                EntitiesBrowser.getCurrentForm().$setDirty();
-
                 return batch;
             });
         });
@@ -179,7 +176,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
             return $q.all(promises).then(function(batches) {
                 return updateNbkBatches(batches).then(function() {
-                    EntitiesBrowser.getCurrentForm().$setDirty();
+                    notifyService.info(batches.length + ' batches successfully imported');
 
                     return batches;
                 });
@@ -190,7 +187,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function registerBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (nonEditableBatches && nonEditableBatches.length > 0) {
-            Alert.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.');
+            notifyService.warning('Batch(es) ' + _.uniq(nonEditableBatches).join(', ') + ' already have been registered.');
 
             return registerBatchesWith(batches, nonEditableBatches);
         }
@@ -246,7 +243,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                     return saveMolecule(batch.structure.molfile).then(function(structureId) {
                         batch.structure.structureId = structureId;
                     }, function() {
-                        Alert.error('Cannot save the structure!');
+                        notifyService.error('Cannot save the structure!');
                     });
                 })
                 .then(function() {
@@ -270,7 +267,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     function checkNonRemovableBatches(batches) {
         var nonEditableBatches = getSelectedNonEditableBatches(batches);
         if (nonEditableBatches && nonEditableBatches.length > 0) {
-            Alert.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
+            notifyService.error('Following batches were registered or sent to registration and cannot be deleted: ' + _.uniq(nonEditableBatches)
                     .join(', '));
         }
     }
@@ -323,7 +320,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                     });
                 });
             }
-            Alert.warning('No Batches was selected for Registration');
+            notifyService.warning('No Batches was selected for Registration');
         }
     }
 
@@ -333,10 +330,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 $timeout(function() {
                     RegistrationService.register({}, batchNumbers).$promise
                         .then(function() {
-                            Alert.success('Selected Batches successfully sent to Registration');
+                            notifyService.success('Selected Batches successfully sent to Registration');
                             success();
                         }, function() {
-                            Alert.error('ERROR! Selected Batches registration failed');
+                            notifyService.error('ERROR! Selected Batches registration failed');
                         });
                 }, 1000);
             });

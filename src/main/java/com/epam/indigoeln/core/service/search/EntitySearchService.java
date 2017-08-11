@@ -4,7 +4,6 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.search.entity.EntitySearchRepository;
 import com.epam.indigoeln.core.service.bingo.BingoService;
 import com.epam.indigoeln.web.rest.dto.search.EntitySearchResultDTO;
-import com.epam.indigoeln.web.rest.dto.search.request.BatchSearchStructure;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchStructure;
 import org.apache.commons.lang3.StringUtils;
@@ -33,9 +32,9 @@ public class EntitySearchService {
     @SuppressWarnings("unchecked")
     private List<String> searchByBingoDb(EntitySearchStructure structure) {
         switch (structure.getType().getName()) {
-            case Product:
+            case PRODUCT:
                 return searchMoleculeByBingoDb(structure);
-            case Reaction:
+            case REACTION:
                 return searchReactionByBingoDb(structure);
             default:
                 return Collections.emptyList();

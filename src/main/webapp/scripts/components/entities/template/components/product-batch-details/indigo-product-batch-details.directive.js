@@ -23,7 +23,8 @@
                 batchOperation: '=',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
-                onRemoveBatches: '&'
+                onRemoveBatches: '&',
+                onChanged: '&'
             }
         };
     }

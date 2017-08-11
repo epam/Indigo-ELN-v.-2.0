@@ -5,8 +5,7 @@
 
     /* @ngInject */
     function IndigoBatchSummaryController($scope, CalculationService, AppValues, InfoEditor, RegistrationUtil, $uibModal,
-                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter,
-                                          ProductBatchSummaryCache) {
+                                          EntitiesBrowser, RegistrationService, ProductBatchSummaryOperations, $filter) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
@@ -49,6 +48,8 @@
             vm.duplicateBatches = duplicateBatches;
             vm.exportSDFile = exportSDFile;
             vm.registerBatches = registerBatches;
+            vm.isBatchLoading = false;
+            vm.onBatchOperationChanged = onBatchOperationChanged;
 
             bindEvents();
         }
@@ -101,7 +102,11 @@
                     name: 'Nbk Batch #'
                 },
                 {
-                    id: 'registrationStatus', name: 'Registration Status'
+                    id: 'registrationStatus',
+                    name: 'Registration Status',
+                    mark: function(batch) {
+                        return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
+                    }
                 },
                 {
                     id: 'select',
@@ -609,6 +614,7 @@
                 _.forEach(batches, function(batch) {
                     vm.onAddedBatch({batch: batch});
                 });
+                vm.onChanged();
                 vm.onRowSelected(_.last(batches));
             }
         }
@@ -616,6 +622,7 @@
         function successAddedBatch(batch) {
             vm.onAddedBatch({batch: batch});
             vm.onRowSelected(batch);
+            vm.onChanged();
         }
 
         function getCheckedBatches() {
@@ -654,6 +661,10 @@
             }
 
             return compounds[0].name === batch.batchType ? compounds[0] : compounds[1];
+        }
+
+        function onBatchOperationChanged(completed) {
+            vm.isBatchLoading = completed;
         }
 
         function bindEvents() {

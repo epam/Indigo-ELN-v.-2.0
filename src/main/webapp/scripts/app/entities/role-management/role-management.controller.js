@@ -4,7 +4,7 @@
         .controller('RoleManagementController', RoleManagementController);
 
     /* @ngInject */
-    function RoleManagementController($scope, Role, AccountRole, $filter, $uibModal, pageInfo, Alert) {
+    function RoleManagementController($scope, Role, AccountRole, $filter, $uibModal, pageInfo, notifyService) {
         var ROLE_EDITOR_AUTHORITY = 'ROLE_EDITOR';
         var vm = this;
         vm.roles = pageInfo.roles;
@@ -89,7 +89,7 @@
 
         function onSaveError() {
             vm.isSaving = false;
-            Alert.error('Role is not saved due to server error!');
+            notifyService.error('Role is not saved due to server error!');
             loadAll();
         }
 

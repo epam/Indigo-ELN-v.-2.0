@@ -23,7 +23,7 @@ public class DashboardRowDTO {
 
     private UserDTO submitter;
 
-    private List<UserDTO> coAuthors;
+    private List<String> coAuthors;
 
     private String project;
 
@@ -99,11 +99,11 @@ public class DashboardRowDTO {
         this.submitter = submitter;
     }
 
-    public List<UserDTO> getCoAuthors() {
+    public List<String> getCoAuthors() {
         return coAuthors;
     }
 
-    public void setCoAuthors(List<UserDTO> coAuthors) {
+    public void setCoAuthors(List<String> coAuthors) {
         this.coAuthors = coAuthors;
     }
 

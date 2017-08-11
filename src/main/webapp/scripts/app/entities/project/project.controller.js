@@ -4,7 +4,7 @@
         .controller('ProjectController', ProjectController);
 
     /* @ngInject */
-    function ProjectController($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash,
+    function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, AutoRecoverEngine) {
         var vm = this;
         var identity = pageInfo.identity;
@@ -20,9 +20,11 @@
             vm.project = project;
             vm.project.author = vm.project.author || identity;
             vm.project.accessList = vm.project.accessList || PermissionManagement.getAuthorAccessList(identity);
-
+            vm.print = print;
             vm.save = save;
             vm.refresh = refresh;
+            vm.updateAttachments = updateAttachments;
+            vm.onChanged = onChanged;
 
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
@@ -50,16 +52,19 @@
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
+        }
 
-            // This is necessary for correct saving after attaching files
-            $scope.$on('refresh after attach', function() {
-                vm.loading = Project.get($stateParams).$promise
-                    .then(function(result) {
-                        vm.project.version = result.version;
-                    }, function() {
-                        Alert.error('Project not refreshed due to server error!');
-                    });
-            });
+        function onChanged() {
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
+        }
+
+        function updateAttachments() {
+            vm.loading = Project.get($stateParams).$promise
+                .then(function(result) {
+                    vm.project.version = result.version;
+                }, function() {
+                    notifyService.error('Project not refreshed due to server error!');
+                });
         }
 
         function save() {
@@ -68,6 +73,7 @@
                     .then(function(result) {
                         vm.project.version = result.version;
                         $scope.createProjectForm.$setPristine();
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
@@ -85,8 +91,12 @@
                     $scope.createProjectForm.$dirty = false;
                     EntitiesBrowser.changeDirtyTab($stateParams, false);
                 }, function() {
-                    Alert.error('Project not refreshed due to server error!');
+                    notifyService.error('Project not refreshed due to server error!');
                 });
+        }
+
+        function print() {
+            $state.go('entities.project-detail.print');
         }
 
         function initPermissions() {
@@ -131,7 +141,7 @@
                 }, true);
 
                 $scope.$watch('createProjectForm.$dirty', function(newValue, oldValue) {
-                    AutoRecoverEngine.tracker.changeDirty(newValue, oldValue);
+                    AutoRecoverEngine.tracker.changeDirty(newValue);
                 });
             }, 0, false);
         }
@@ -161,7 +171,7 @@
         function onSaveError(result) {
             var mess = (result.status === 400) ? 'this Project name is already in use in the system'
                 : 'Project is not saved due to server error';
-            Alert.error(mess);
+            notifyService.error(mess);
         }
     }
 })();

@@ -3,7 +3,7 @@ angular
     .factory('sdImportService', sdImportService);
 
 /* @ngInject */
-function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, Alert, sdImportHelperService, $q) {
+function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, notifyService, sdImportHelperService, $q) {
     return {
         importFile: importFile
     };
@@ -54,8 +54,6 @@ function sdImportService($uibModal, Dictionary, sdConstants, AlertModal, Alert, 
 
             return filled;
         });
-
-        Alert.info(batches.length + ' batches successfully imported');
 
         return batches;
     }

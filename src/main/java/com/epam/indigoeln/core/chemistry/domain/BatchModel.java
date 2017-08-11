@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.function.Supplier;
 import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
+@EqualsAndHashCode(callSuper = true)
 public class BatchModel extends CeNAbstractModel implements Comparable<BatchModel>, StoicModelInterface {
 
     public static final long serialVersionUID = 7526472295622776147L;
@@ -555,94 +557,6 @@ public class BatchModel extends CeNAbstractModel implements Comparable<BatchMode
             // set weight, moles and rxn equivs to default values.
             volumeAmount.softReset();
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-
-        BatchModel that = (BatchModel) o;
-
-        if (autoCalcOn != that.autoCalcOn)
-            return false;
-        if (inCalculation != that.inCalculation)
-            return false;
-        if (limiting != that.limiting)
-            return false;
-        if (Double.compare(that.saltEquivs, saltEquivs) != 0)
-            return false;
-        if (transactionOrder != that.transactionOrder)
-            return false;
-        if (lastUpdatedType != that.lastUpdatedType)
-            return false;
-        if (previousMolarAmount != null ? !previousMolarAmount.equals(that.previousMolarAmount) : that.previousMolarAmount != null)
-            return false;
-        if (compound != null ? !compound.equals(that.compound) : that.compound != null)
-            return false;
-        if (molecularWeightAmount != null ? !molecularWeightAmount.equals(that.molecularWeightAmount) : that.molecularWeightAmount != null)
-            return false;
-        if (moleAmount != null ? !moleAmount.equals(that.moleAmount) : that.moleAmount != null)
-            return false;
-        if (weightAmount != null ? !weightAmount.equals(that.weightAmount) : that.weightAmount != null)
-            return false;
-        if (loadingAmount != null ? !loadingAmount.equals(that.loadingAmount) : that.loadingAmount != null)
-            return false;
-        if (volumeAmount != null ? !volumeAmount.equals(that.volumeAmount) : that.volumeAmount != null)
-            return false;
-        if (densityAmount != null ? !densityAmount.equals(that.densityAmount) : that.densityAmount != null)
-            return false;
-        if (molarAmount != null ? !molarAmount.equals(that.molarAmount) : that.molarAmount != null)
-            return false;
-        if (purityAmount != null ? !purityAmount.equals(that.purityAmount) : that.purityAmount != null)
-            return false;
-        if (rxnEquivsAmount != null ? !rxnEquivsAmount.equals(that.rxnEquivsAmount) : that.rxnEquivsAmount != null)
-            return false;
-        if (saltForm != null ? !saltForm.equals(that.saltForm) : that.saltForm != null)
-            return false;
-        if (totalVolume != null ? !totalVolume.equals(that.totalVolume) : that.totalVolume != null)
-            return false;
-        if (totalWeight != null ? !totalWeight.equals(that.totalWeight) : that.totalWeight != null)
-            return false;
-        if (totalMolarity != null ? !totalMolarity.equals(that.totalMolarity) : that.totalMolarity != null)
-            return false;
-        if (batchType != null ? !batchType.equals(that.batchType) : that.batchType != null)
-            return false;
-        return precursors != null ? precursors.equals(that.precursors) : that.precursors == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result;
-        long temp;
-        result = previousMolarAmount != null ? previousMolarAmount.hashCode() : 0;
-        result = 31 * result + (compound != null ? compound.hashCode() : 0);
-        result = 31 * result + (molecularWeightAmount != null ? molecularWeightAmount.hashCode() : 0);
-        result = 31 * result + (moleAmount != null ? moleAmount.hashCode() : 0);
-        result = 31 * result + (weightAmount != null ? weightAmount.hashCode() : 0);
-        result = 31 * result + (loadingAmount != null ? loadingAmount.hashCode() : 0);
-        result = 31 * result + (volumeAmount != null ? volumeAmount.hashCode() : 0);
-        result = 31 * result + (densityAmount != null ? densityAmount.hashCode() : 0);
-        result = 31 * result + (molarAmount != null ? molarAmount.hashCode() : 0);
-        result = 31 * result + (purityAmount != null ? purityAmount.hashCode() : 0);
-        result = 31 * result + (rxnEquivsAmount != null ? rxnEquivsAmount.hashCode() : 0);
-        result = 31 * result + (saltForm != null ? saltForm.hashCode() : 0);
-        result = 31 * result + (totalVolume != null ? totalVolume.hashCode() : 0);
-        result = 31 * result + (totalWeight != null ? totalWeight.hashCode() : 0);
-        result = 31 * result + (totalMolarity != null ? totalMolarity.hashCode() : 0);
-        result = 31 * result + (autoCalcOn ? 1 : 0);
-        result = 31 * result + (inCalculation ? 1 : 0);
-        result = 31 * result + (limiting ? 1 : 0);
-        result = 31 * result + (batchType != null ? batchType.hashCode() : 0);
-        temp = Double.doubleToLongBits(saltEquivs);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (precursors != null ? precursors.hashCode() : 0);
-        result = 31 * result + transactionOrder;
-        result = 31 * result + lastUpdatedType;
-        return result;
     }
 
     // Before playing here familiarize yourself with the

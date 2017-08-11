@@ -1,74 +1,59 @@
 /* jshint unused: false */
 function searchComponents(filter) {
 
-    var createProjectCond = function (path) {
-        return {
-            $cond: {
-                if: {
-                    $eq: [path, undefined]
-                },
-                then: [null],
-                else: {
-                    $cond: {
-                        if: {
-                            $eq: [path, []]
-                        },
-                        then: [null],
-                        else: path
-                    }
-                }
-            }
-        };
-    };
-
-
     return db.getCollection('component').aggregate([
+        {$match: {"experiment":{$exists: true}}},
         {
             $project: {
+                'experiment': 1,
                 'name': 1,
                 'content': 1,
-                'batch': createProjectCond('$content.batches'),
-                'reactant': createProjectCond('$content.reactants'),
-                'product': createProjectCond('$content.products')
+                'batch': '$content.batches',
+                'reactant': '$content.reactants',
+                'product': '$content.products'
             }
         },
-        {$unwind: '$batch'},
+        {$unwind:{path:'$batch',preserveNullAndEmptyArrays:true}},
+        {$unwind:{path:'$reactant',preserveNullAndEmptyArrays:true}},
+        {$unwind:{path:'$product',preserveNullAndEmptyArrays:true}},
         {
-            $project: {
+            $project:{
+                'experiment': 1,
                 'name': 1,
                 'content': 1,
                 'batch': 1,
                 'reactant': 1,
                 'product': 1,
-                'batchPurity': createProjectCond('$batch.purity.data')
+                'purity': '$batch.purity.data.value'
             }
         },
-        {$unwind: '$batchPurity'},
-        {$unwind: '$reactant'},
-        {$unwind: '$product'},
+        {$unwind:{path:'$purity',preserveNullAndEmptyArrays:true}},
         {
-            $project: {
-                'componentName': '$name',
-                'therapeuticArea': '$content.therapeuticArea.name',
-                'projectCode': '$content.codeAndName.name',
-                'batchYield': '$batch.yield',
-                'purity': '$batchPurity.value',
-                'name': '$content.title',
-                'description': '$content.description',
+            $group:{
+                _id: "$experiment",
+                'componentName': {$addToSet:'$name'},
+                'therapeuticArea': {$addToSet:'$content.therapeuticArea.name'},
+                'projectCode': {$addToSet:'$content.codeAndName.name'},
+                'batchYield': {$addToSet:'$batch.yield'},
+                'purity': {$addToSet:'$purity'},
+                'name': {$addToSet:'$content.title'},
+                'description': {$addToSet:'$content.description'},
                 'compoundId': {
-                    $cond: {
-                        if: {
-                            $eq: ['$name', 'productBatchSummary']
-                        },
-                        then: '$batch.compoundId',
-                        else: '$reactant.compoundId'
+                    $addToSet:{
+                        $cond: {
+                            if: {
+                                $eq: ['$name', 'productBatchSummary']
+                            },
+                            then: '$batch.compoundId',
+                            else: '$reactant.compoundId'
+                        }
                     }
                 },
-                'references': '$content.literature',
-                'keywords': '$content.keywords',
-                'chemicalName': '$product.chemicalName',
-                'batchStructureId': '$batch.structure.structureId',
-                'reactionStructureId': '$content.structureId'
+                'references': {$addToSet:'$content.literature'},
+                'keywords': {$addToSet:'$content.keywords'},
+                'chemicalName': {$addToSet:'$product.chemicalName'},
+                'batchStructureId': {$addToSet:'$batch.structure.structureId'},
+                'reactionStructureId': {$addToSet:'$content.structureId'}
             }
         },
         {$match: filter}

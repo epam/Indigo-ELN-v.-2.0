@@ -3,15 +3,15 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
+function StructureSchemeController($scope, $q, $http, $uibModal, notifyService) {
     var vm = this;
 
     init();
 
     function init() {
         vm.structureModel = getInitModel();
-        if (!_.some(vm.structureModel, isEqualStructures)) {
-            onChange();
+        if (vm.model && !_.some(vm.structureModel, isEqualStructures)) {
+            onChangeStructure();
         }
 
         vm.openEditor = openEditor;
@@ -22,7 +22,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
     }
 
     function isEqualStructures(value, key) {
-        return !(key === 'entered' || key === 'structureScheme') && (vm.model && vm.model[key] === value);
+        return !(key === 'entered' || key === 'structureScheme') && (vm.model[key] === value);
     }
 
     function buildStructure(fromStructure) {
@@ -55,7 +55,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
             data: structure.molfile
         }).success(function(result) {
             vm.structureModel.image = result.image;
-            onChange();
+            onChangeStructure();
         });
     }
 
@@ -63,7 +63,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
         $scope.$watch('vm.modelTrigger', updateModel);
     }
 
-    function onChange() {
+    function onChangeStructure() {
         vm.onChanged({structure: vm.structureModel});
     }
 
@@ -106,7 +106,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
             updateModelRestriction(data);
         }
 
-        onChange();
+        onChangeStructure();
     }
 
     function setStructure(structure, structureId) {
@@ -140,7 +140,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
                 }).success(function(structureId) {
                     setStructure(structure, structureId);
                 }).error(function() {
-                    Alert.error('Cannot save the structure!');
+                    notifyService.error('Cannot save the structure!');
                 });
             }
         });

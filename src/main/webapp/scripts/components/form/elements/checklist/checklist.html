@@ -1,11 +1,17 @@
-<div class="row">
-    <div class="col-xs-3"><span ng-bind="vm.indigoLabel + ':'"></span></div>
+<div class="row checklist" >
+    <div class="col-xs-3" ng-if="!!vm.indigoLabel">
+    	<span ng-bind="vm.indigoLabel + ':'"></span>
+    </div>
     <div class="col-xs-9 form-inline">
-        <indigo-checkbox indigo-model="vm.allItemsSelected"
-                         indigo-change="vm.selectAll()"
-                         indigo-label="All"></indigo-checkbox>
+        <indigo-checkbox 
+        	ng-if="vm.indigoItems.length > 1"
+			indigo-classes="checklist-item checklist-item-all" 
+			indigo-model="vm.allItemsSelected"
+            ng-click="vm.allChanged()"
+			indigo-label="All"></indigo-checkbox>
         <indigo-checkbox ng-repeat="item in vm.indigoItems"
-                         indigo-label="{{item.value}}"
-                         indigo-model="item.isChecked"></indigo-checkbox>
+			indigo-classes="checklist-item" 
+			indigo-label="{{item.value}}"
+			indigo-model="item.isChecked"></indigo-checkbox>
     </div>
 </div>
