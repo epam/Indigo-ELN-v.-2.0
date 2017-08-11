@@ -3,7 +3,7 @@ angular
     .factory('LinkedExperimentUtils', linkedExperimentUtils);
 
 /* @ngInject */
-function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Project) {
+function linkedExperimentUtils(AllNotebooks, AllExperiments, notifyService, $state, Project) {
     return {
         onLinkedExperimentClick: onLinkedExperimentClick
     };
@@ -14,7 +14,7 @@ function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Proj
         var experimentName = names[1];
 
         if (!notebookName || !experimentName) {
-            Alert.error('Wrong experiment name: ' + tag.text);
+            notifyService.error('Wrong experiment name: ' + tag.text);
 
             return;
         }
@@ -27,7 +27,7 @@ function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Proj
                     name: notebookName
                 });
                 if (!notebook) {
-                    Alert.error('Can not find a notebook with the name: ' + notebookName);
+                    notifyService.error('Can not find a notebook with the name: ' + notebookName);
 
                     return;
                 }
@@ -39,7 +39,7 @@ function linkedExperimentUtils(AllNotebooks, AllExperiments, Alert, $state, Proj
                         return experiment.name === experimentName || experiment.name.startsWith(experimentName + ' ');
                     });
                     if (!experiment) {
-                        Alert.error('Can not find a experiment with the name: ' + experimentName);
+                        notifyService.error('Can not find a experiment with the name: ' + experimentName);
 
                         return;
                     }

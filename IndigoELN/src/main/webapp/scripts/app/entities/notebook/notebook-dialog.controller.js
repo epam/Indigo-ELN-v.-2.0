@@ -4,7 +4,7 @@
         .controller('NotebookDialogController', NotebookDialogController);
 
     /* @ngInject */
-    function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
+    function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
                                       AutoRecoverEngine, notebookSummaryExperiments) {
         var vm = this;
@@ -152,7 +152,7 @@
                 projectId: $stateParams.projectId
             }).$promise.then(function(data) {
                 if (!data.length) {
-                    Alert.info('There are no experiments in this notebook');
+                    notifyService.info('There are no experiments in this notebook');
 
                     return;
                 }
@@ -167,7 +167,7 @@
                 vm.experiments = data;
                 vm.isSummary = true;
             }, function() {
-                Alert.error('Cannot get summary right now due to server error');
+                notifyService.error('Cannot get summary right now due to server error');
             });
         }
 
@@ -198,10 +198,10 @@
             if (result.status === 400 && result.data.params) {
                 var firstParam = _.first(result.data.params);
                 if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
-                    Alert.error('This Notebook name cannot be changed because batches are created within its' +
+                    notifyService.error('This Notebook name cannot be changed because batches are created within its' +
                         ' experiments');
                 } else {
-                    Alert.error('This Notebook name is already in use in the system');
+                    notifyService.error('This Notebook name is already in use in the system');
                 }
                 vm.hasError = false;
                 partialRefresh();
@@ -211,7 +211,7 @@
             $timeout(function() {
                 vm.hasError = true;
             });
-            Alert.error('Notebook is not saved due to server error');
+            notifyService.error('Notebook is not saved due to server error');
         }
 
         function refresh() {

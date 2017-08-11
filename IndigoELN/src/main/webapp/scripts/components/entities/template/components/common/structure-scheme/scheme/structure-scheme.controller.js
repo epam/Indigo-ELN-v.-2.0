@@ -3,7 +3,7 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
+function StructureSchemeController($scope, $q, $http, $uibModal, notifyService) {
     var vm = this;
 
     init();
@@ -140,7 +140,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, Alert) {
                 }).success(function(structureId) {
                     setStructure(structure, structureId);
                 }).error(function() {
-                    Alert.error('Cannot save the structure!');
+                    notifyService.error('Cannot save the structure!');
                 });
             }
         });

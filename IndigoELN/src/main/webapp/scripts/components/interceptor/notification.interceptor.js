@@ -15,7 +15,7 @@ function notificationInterceptor($injector) {
     };
 
     function responseHandler(response) {
-        var Alert = $injector.get('Alert');
+        var Alert = $injector.get('notifyService');
         if (_.isString(response.headers(SUCCESS_ALERT))) {
             Alert.success(response.headers(SUCCESS_ALERT), {
                 param: response.headers(ALERT_PARAMS)

@@ -3,7 +3,7 @@ angular
     .factory('sdExportService', sdExportService);
 
 /* @ngInject */
-function sdExportService(sdService, sdConstants, Alert, $q, $log) {
+function sdExportService(sdService, sdConstants, notifyService, $q, $log) {
     return {
         exportItems: exportItems
     };
@@ -13,7 +13,7 @@ function sdExportService(sdService, sdConstants, Alert, $q, $log) {
         if (properties.length) {
             return sdService.export({}, properties).$promise;
         }
-        Alert.error('Please add Batch structure before export sd file');
+        notifyService.error('Please add Batch structure before export sd file');
 
         return $q.reject();
     }
