@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
-                                         AlertModal, Alert, Dictionary, CalculationService, SearchService,
+                                         AlertModal, notifyService, Dictionary, CalculationService, SearchService,
                                          RegistrationService, dialogService, StoichTableCache, stoichHelper) {
         var vm = this;
         var grams = AppValues.getGrams();
@@ -537,7 +537,7 @@
         }
 
         function alertCompoundWrongFormat() {
-            Alert.error('Compound does not exist or in the wrong format');
+            notifyService.error('Compound does not exist or in the wrong format');
         }
 
         function fetchBatchByCompoundId(compoundId, row) {
@@ -561,7 +561,7 @@
         }
 
         function alertWrongFormat() {
-            Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
+            notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
         }
 
         function onRxnRoleChange(data) {
