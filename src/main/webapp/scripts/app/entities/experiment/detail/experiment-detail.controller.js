@@ -6,7 +6,7 @@
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, AutoRecoverEngine, EntitiesBrowser,
-                                        Alert, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
+                                        notifyService, EntitiesCache, $q, AutoSaveEntitiesEngine, Principal, Notebook,
                                         Components) {
         var vm = this;
         var pageInfo;
@@ -196,7 +196,7 @@
                     vm.experiment.version = result.version;
                     toggleDirty(false);
                 }, function() {
-                    Alert.error('Experiment is not saved due to server error!');
+                    notifyService.error('Experiment is not saved due to server error!');
                 });
 
             return vm.loading;
@@ -242,11 +242,11 @@
         function refresh() {
             vm.loading = Experiment.get($stateParams).$promise;
             vm.loading.then(function(result) {
-                Alert.success('Experiment updated');
+                notifyService.success('Experiment updated');
                 angular.extend(vm.experiment, result);
                 toggleDirty(false);
             }, function() {
-                Alert.error('Experiment not refreshed due to server error!');
+                notifyService.error('Experiment not refreshed due to server error!');
             });
 
             return vm.loading;
@@ -280,7 +280,7 @@
                     .then(function(result) {
                         vm.experiment.version = result.version;
                     }, function() {
-                        Alert.error('Experiment not refreshed due to server error!');
+                        notifyService.error('Experiment not refreshed due to server error!');
                     });
             }
 
