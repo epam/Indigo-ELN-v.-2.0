@@ -1,9 +1,9 @@
 (function() {
     angular
         .module('indigoeln.autorecovery')
-        .directive('autorecovery', indigoAutorecovery);
+        .directive('autorecovery', autorecoveryDirective);
 
-    function indigoAutorecovery() {
+    function autorecoveryDirective() {
         return {
             restrict: 'E',
             templateUrl: 'scripts/components/autorecovery/autorecovery.html',
