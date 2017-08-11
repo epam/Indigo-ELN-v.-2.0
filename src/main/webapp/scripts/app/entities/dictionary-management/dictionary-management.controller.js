@@ -4,7 +4,7 @@
         .controller('DictionaryManagementController', DictionaryManagementController);
 
     /* @ngInject */
-    function DictionaryManagementController($scope, $filter, $uibModal, Alert, Dictionary, ParseLinks) {
+    function DictionaryManagementController($scope, $filter, $uibModal, notifyService, Dictionary, ParseLinks) {
         var vm = this;
 
         vm.dictionaries = [];
@@ -182,7 +182,7 @@
             vm.isSaving = false;
             vm.isWordSaving = false;
             vm.loadAllDictionaries();
-            Alert.error('Dictionary is not saved due to server error!');
+            notifyService.error('Dictionary is not saved due to server error!');
         }
 
         function updateRanks(len) {

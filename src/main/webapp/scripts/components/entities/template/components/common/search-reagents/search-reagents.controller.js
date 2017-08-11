@@ -3,7 +3,7 @@ angular
     .controller('SearchReagentsController', SearchReagentsController);
 
 /* @ngInject */
-function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValues, activeTab, UserReagents,
+function SearchReagentsController($rootScope, $uibModalInstance, notifyService, AppValues, activeTab, UserReagents,
                                   SearchService, SearchUtilService, searchReagentsConstant, stoichHelper) {
     var vm = this;
     var myReagentsSearchQuery;
@@ -101,13 +101,13 @@ function SearchReagentsController($rootScope, $uibModalInstance, Alert, AppValue
         if (count > 0) {
             UserReagents.save(vm.myReagentList, function() {
                 if (count === 1) {
-                    Alert.info(count + ' reagent successfully added to My Reagent List');
+                    notifyService.info(count + ' reagent successfully added to My Reagent List');
                 } else if (count > 0) {
-                    Alert.info(count + ' reagents successfully added to My Reagent List');
+                    notifyService.info(count + ' reagents successfully added to My Reagent List');
                 }
             });
         } else {
-            Alert.warning('My Reagent List already contains selected reagents');
+            notifyService.warning('My Reagent List already contains selected reagents');
         }
     }
 

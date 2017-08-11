@@ -4,7 +4,7 @@
         .directive('indigoTableVal', indigoTableVal);
 
     /* @ngInject */
-    function indigoTableVal($sce, roundFilter, Alert, $timeout, EntitiesBrowser, UnitsConverter) {
+    function indigoTableVal($sce, roundFilter, notifyService, $timeout, EntitiesBrowser, UnitsConverter) {
         return {
             restrict: 'E',
             controller: IndigoTableValController,
@@ -92,7 +92,7 @@
                     var absv = Math.abs(val.value);
                     if (absv != val.value) {
                         val.value = absv;
-                        Alert.error('Total Amount made must more than zero.');
+                        notifyService.error('Total Amount made must more than zero.');
                     }
                 }
                 if (col.type == 'input' && val === '') {
