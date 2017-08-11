@@ -250,8 +250,7 @@ module.exports = function (grunt) {
             dev: {
                 options: {
                     sourceMap: true,
-                    sourceMapFileInline: true
-                    // Have trouble, in devTools need the assets/less to "add folder to workplace"
+                    outputSourceFiles: true
                 },
                 files: {
                     '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
