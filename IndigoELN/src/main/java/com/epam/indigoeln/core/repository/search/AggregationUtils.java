@@ -107,7 +107,7 @@ public final class AggregationUtils {
         return Arrays.asList(obj.toString().split(";"));
     }
 
-    private static Object convertToDouble(Object obj) {
+    public static Object convertToDouble(Object obj) {
         if (obj == null) {
             return null;
         }

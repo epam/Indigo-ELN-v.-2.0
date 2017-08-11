@@ -25,9 +25,14 @@ public class ComponentSearchRepository implements InitializingBean {
 
     private static final String CONDITION_CONTAINS = "contains";
     private static final String CONDITION_EQUALS = "=";
-    public static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", "purity", "name", "description", "compoundId",
+    private static final String FIELD_PURITY = "purity";
+    private static final String FIELD_PURITY_VALUE = "value";
+    private static final String FIELD_PURITY_OPERATOR = "operator.name";
+    private static final String FIELD_PURITY_METHOD = "determinedBy";
+
+    public static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "batchYield", FIELD_PURITY, "name", "description", "compoundId",
             "references", "keywords", "chemicalName");
-    private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", "purity");
+    private static final Collection<String> SEARCH_QUERY_EQ_FIELDS = Arrays.asList("batchYield", FIELD_PURITY);
     private static final Collection<String> SEARCH_QUERY_CON_FIELDS = Arrays.asList("therapeuticArea", "projectCode", "name", "description", "compoundId", "references", "keywords", "chemicalName");
 
     private final MongoTemplate mongoTemplate;
@@ -74,9 +79,20 @@ public class ComponentSearchRepository implements InitializingBean {
     public Optional<Set<Object>> searchWithAdvanced(EntitySearchRequest request) {
         List<Criteria> advancedSearch = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
+                .filter(c -> !FIELD_PURITY.equals(c.getField()))
                 .map(AggregationUtils::createCriterion)
                 .collect(toList());
 
+        Optional<SearchCriterion> purityCriteria = request.getAdvancedSearch().stream()
+                .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
+                .filter(c -> FIELD_PURITY.equals(c.getField()))
+                .findAny();
+
+        purityCriteria.ifPresent(c -> {
+            Criteria criteria = Criteria.where(FIELD_PURITY_OPERATOR).is(c.getCondition())
+                    .and(FIELD_PURITY_VALUE).is(AggregationUtils.convertToDouble(c.getValue()));
+            advancedSearch.add(Criteria.where(FIELD_PURITY).elemMatch(criteria));
+        });
         return AggregationUtils.andCriteria(advancedSearch).map(this::find);
     }
 

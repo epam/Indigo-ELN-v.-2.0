@@ -4,7 +4,7 @@
         .controller('MultipleFileUploaderController', MultipleFileUploaderController);
 
     /* @ngInject */
-    function MultipleFileUploaderController($uibModalInstance, $cookies, Alert, FileUploaderCash, FileUploader, params, uploadUrl) {
+    function MultipleFileUploaderController($uibModalInstance, $cookies, notifyService, FileUploaderCash, FileUploader, params, uploadUrl) {
         var vm = this;
         var formData = [];
         var uploader;
@@ -45,10 +45,10 @@
             // CALLBACKS
             uploader.onSuccessItem = function(fileItem, response) {
                 vm.files.push(response);
-                Alert.success('Attachments are saved successfully.');
+                notifyService.success('Attachments are saved successfully.');
             };
             uploader.onErrorItem = function() {
-                Alert.error('Uploaded file size should be less than 10 Mb');
+                notifyService.error('Uploaded file size should be less than 10 Mb');
             };
         }
 
