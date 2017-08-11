@@ -4,7 +4,7 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, Principal, localStorageService, $stateParams, Experiment, Notebook, Project) {
+    function PrintModalController($uibModalInstance, Principal, localStorageService, $stateParams, Experiment, Notebook, Project, Components) {
         var vm = this;
         var userId;
         var storageKey = '-selected-components-for-print';
@@ -38,23 +38,36 @@
             } else if (resource === Notebook) {
                 vm.askContents = true;
             } else {
-                var tabs = _.get(entity, 'template.templateContent');
                 vm.hasAttachments = false;
                 vm.printContent = false;
                 vm.components = [];
-                _.each(tabs, function(tab) {
-                    _.each(tab.components, function(comp) {
-                        vm.components.push({
-                            id: comp.id,
-                            value: comp.name
-                        });
-                        //Should use constant('Components' when ready
-                        if (comp.id === 'attachments') {
-                            vm.hasAttachments = true;
-                        }
-                    });
-                });
+                initFromTemplate(entity);
             }
+        }
+
+        function mapComponentById(experiment, id) {
+            var key;
+            var component = _.find(Components, function(comp, ckey) {
+                key = ckey;
+                return comp.id === id;
+            });
+
+            return {
+                id: key,
+                value: component.name
+            };
+        }
+        // this will not work for compounds. Need to ask Backend to support it properly
+        function initFromTemplate(experiment) {
+            var tabs = _.get(experiment, 'template.templateContent');
+            _.each(tabs, function(tab) {
+                _.each(tab.components, function(comp) {
+                    vm.components.push(mapComponentById(experiment, comp.id));
+                    if (comp.id === Components.attachments.id) {
+                        vm.hasAttachments = true;
+                    }
+                });
+            });
         }
 
         function saveSelection() {
