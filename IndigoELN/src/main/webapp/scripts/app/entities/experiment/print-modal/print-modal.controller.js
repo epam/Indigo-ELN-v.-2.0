@@ -4,79 +4,82 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, entity, Principal, localStorageService, $scope, $timeout) {
+    function PrintModalController($uibModalInstance, Principal, localStorageService, $stateParams, Experiment, Notebook, Project) {
         var vm = this;
         var userId;
-        var delaySave;
         var storageKey = '-selected-components-for-print';
+        var resource;
         vm.dismiss = dismiss;
         vm.confirmCompletion = confirmCompletion;
-        console.log('print', entity);
 
         init();
 
         function init() {
-            var tabs = _.get(entity, 'template.templateContent');
-            if (!tabs) {
-                if (entity.notebooks) {
-                    vm.hasAttachments = true; //project
-                } else {
-                    vm.askContents = true; //notebooks
-                }
-                return;
+            if ($stateParams.experimentId >= 0) {
+                resource = Experiment;
+            } else if ($stateParams.notebookId >= 0) {
+                resource = Notebook;
+            } else if ($stateParams.projectId >= 0) {
+                resource = Project;
             }
-            vm.hasAttachments = false;
-            vm.printContent = false;
-            vm.components = [];
-            _.each(tabs, function(tab) {
-                _.each(tab.components, function(comp) {
-                    vm.components.push({
-                        id: comp.id,
-                        value: comp.name
+            vm.loading = resource.get($stateParams).$promise.then(function(entity) {
+                initCheckboxesForEntity(entity);
+                Principal.identity()
+                    .then(function(user) {
+                        userId = user.id;
+                        restoreSelection();
                     });
-                    //Should use constant('Components' when ready
-                    if (comp.id === 'attachments') {
-                        vm.hasAttachments = true;
-                    }
-                });
             });
-            Principal.identity()
-                .then(function(user) {
-                    userId = user.id;
-                    restoreSelection();
-                    initEvents();
+        }
+
+        function initCheckboxesForEntity(entity) {
+            if (resource === Project) {
+                vm.hasAttachments = true;
+            } else if (resource === Notebook) {
+                vm.askContents = true;
+            } else {
+                var tabs = _.get(entity, 'template.templateContent');
+                vm.hasAttachments = false;
+                vm.printContent = false;
+                vm.components = [];
+                _.each(tabs, function(tab) {
+                    _.each(tab.components, function(comp) {
+                        vm.components.push({
+                            id: comp.id,
+                            value: comp.name
+                        });
+                        //Should use constant('Components' when ready
+                        if (comp.id === 'attachments') {
+                            vm.hasAttachments = true;
+                        }
+                    });
                 });
+            }
         }
 
         function saveSelection() {
-            $timeout.cancel(delaySave);
-            delaySave = $timeout(function() {
-                var lastSelected = localStorageService.get(userId + storageKey) || {};
-                _.each(vm.components, function(comp) {
-                    lastSelected[comp.id] = comp.isChecked;
-                });
-                lastSelected.printAttachedPDF = vm.printAttachedPDF;
-                lastSelected.printContent = vm.printContent;
-                localStorageService.set(userId + storageKey, lastSelected);
-            }, 500);
+            var userSelection = localStorageService.get(userId + storageKey) || {};
+            _.each(vm.components, function(comp) {
+                userSelection[comp.id] = comp.isChecked;
+            });
+            userSelection.printAttachedPDF = vm.printAttachedPDF;
+            userSelection.printContent = vm.printContent;
+            localStorageService.set(userId + storageKey, userSelection);
         }
 
         function restoreSelection() {
-            var lastSelected = localStorageService.get(userId + storageKey);
-            if (lastSelected) {
+            var userSelection = localStorageService.get(userId + storageKey);
+            if (userSelection) {
                 _.each(vm.components, function(comp) {
-                    comp.isChecked = lastSelected[comp.id];
+                    comp.isChecked = userSelection[comp.id];
                 });
-                vm.printAttachedPDF = lastSelected.printAttachedPDF;
-                vm.printContent = lastSelected.printContent;
+                vm.printAttachedPDF = userSelection.printAttachedPDF;
+                vm.printContent = userSelection.printContent;
             }
         }
 
-        function initEvents() {
-            $scope.$watch('vm.components', saveSelection, true);
-        }
-
         function dismiss() {
+            saveSelection();
             $uibModalInstance.dismiss('cancel');
         }
 
@@ -95,7 +98,7 @@
             if (vm.printContent) {
                 resultForService.withContent = vm.printAttachedPDF;
             }
-
+            saveSelection();
             $uibModalInstance.close(resultForService);
         }
     }

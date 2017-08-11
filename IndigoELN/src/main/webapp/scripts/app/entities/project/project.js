@@ -1,6 +1,6 @@
 angular
     .module('indigoeln')
-    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions, PrintModal) {
+    .config(function($stateProvider, PermissionManagementConfig, PermissionViewManagementConfig, userPermissions, printModal) {
         var permissions = [
             userPermissions.VIEWER,
             userPermissions.USER,
@@ -102,7 +102,7 @@ angular
                     }
                 }
             })
-            .state('entities.project-detail.print', _.extend({}, PrintModal, {
+            .state('entities.project-detail.print', _.extend({}, printModal, {
                 parent: 'entities.project-detail',
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
