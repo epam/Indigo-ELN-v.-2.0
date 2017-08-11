@@ -18,12 +18,6 @@ public class Experiment extends ExperimentShort {
 
     private static final long serialVersionUID = -4215770980241351691L;
 
-    //TODO may be need to use @DBRef
-    private List<User> coAuthors;
-
-    //TODO may be need to use @DBRef
-    private List<User> witness;
-
     private String comments;
 
     private ExperimentStatus status;
@@ -44,14 +38,6 @@ public class Experiment extends ExperimentShort {
     transient
     private Set<String> fileIds = new HashSet<>();
 
-    public List<User> getCoAuthors() {
-        return coAuthors;
-    }
-
-    public void setCoAuthors(List<User> coAuthors) {
-        this.coAuthors = coAuthors;
-    }
-
     public String getComments() {
         return comments;
     }
@@ -66,14 +52,6 @@ public class Experiment extends ExperimentShort {
 
     public void setStatus(ExperimentStatus status) {
         this.status = status;
-    }
-
-    public List<User> getWitness() {
-        return witness;
-    }
-
-    public void setWitness(List<User> witness) {
-        this.witness = witness;
     }
 
     public List<Component> getComponents() {

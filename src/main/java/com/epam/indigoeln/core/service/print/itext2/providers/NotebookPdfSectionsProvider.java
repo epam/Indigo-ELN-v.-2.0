@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import static com.epam.indigoeln.core.service.print.itext2.model.notebook.NotebookContentModel.*;
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.CONCEPT_DETAILS;
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.REACTION;
-import static com.epam.indigoeln.core.service.print.itext2.utils.PdfConst.REACTION_DETAILS;
+import static com.epam.indigoeln.core.util.BatchComponentUtil.CONCEPT_DETAILS;
+import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION;
+import static com.epam.indigoeln.core.util.BatchComponentUtil.REACTION_DETAILS;
 
 /**
  * The class is responsible for mapping notebook to a list of pdf sections used by pdf generator.

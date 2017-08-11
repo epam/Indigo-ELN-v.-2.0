@@ -6,7 +6,7 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      autorecoveryHelper, notebookSummaryExperiments) {
+                                      autorecoveryHelper, notebookSummaryExperiments, $q) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -40,6 +40,7 @@
             vm.repeatExperiment = repeatExperiment;
             vm.refresh = refresh;
             vm.save = save;
+            vm.print = print;
 
             initPermissions();
 
@@ -214,7 +215,16 @@
             vm.notebook.name = originalNotebook.name;
         }
 
+        function print() {
+            save().then(function() {
+                $state.go('entities.notebook-detail.print');
+            });
+        }
+
         function save() {
+            if (!$scope.createNotebookForm.$dirty) {
+                return $q.resolve();
+            }
             vm.hasError = false;
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
@@ -228,11 +238,13 @@
                         });
                     }, onSaveError);
 
-                return;
+                return vm.loading;
             }
             vm.loading = Notebook.save({
                 projectId: vm.projectId
             }, vm.notebook, onSaveSuccess, onSaveError).$promise;
+
+            return vm.loading;
         }
     }
 })();

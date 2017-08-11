@@ -13,20 +13,22 @@
  ***************************************************************************/
 package com.epam.indigoeln.core.chemistry.sdf;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
 public class SdUnit implements Serializable, Externalizable {
+
+    private static final String OK = "OK";
+    private static final String OK_3D = "OK 3D";
+
     static final long serialVersionUID = 42L;
     boolean is3D;
     int numAtoms;
@@ -48,7 +50,7 @@ public class SdUnit implements Serializable, Externalizable {
         infoPortion = null;
         keyList = new ArrayList<>();
         valid = true;
-        validString = "OK";
+        validString = OK;
         is3D = false;
         numAtoms = -1;
         upperCase = true;
@@ -60,7 +62,7 @@ public class SdUnit implements Serializable, Externalizable {
         infoPortion = null;
         keyList = new ArrayList<>();
         valid = true;
-        validString = "OK";
+        validString = OK;
         is3D = false;
         numAtoms = -1;
         upperCase = true;
@@ -77,112 +79,151 @@ public class SdUnit implements Serializable, Externalizable {
         return out;
     }
 
-    static String validateDetail(String mol) {
-        String returnString = "OK";
+    private static String validateDetail(String mol) {
+        if (!StringUtils.contains(mol, "M  END")) {
+            return "Does not contain \"M  END\"";
+        }
+
+        String returnString;
+
         int numAtoms;
-        try {
-            if (mol.indexOf("M  END") <= 0)
-                return "Does not contain \"M  END\"";
-            StringReader sr = new StringReader(mol);
-            BufferedReader br = new BufferedReader(sr);
-            String line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
-            line = br.readLine();
-            if (line == null)
-                return "Molecule has too few lines";
+        int numBonds;
+
+        try (StringReader sr = new StringReader(mol); BufferedReader br = new BufferedReader(sr)) {
+            String line = null;
+
+            for (int i = 0; i < 4; ++i) {
+                line = br.readLine();
+                if (Objects.isNull(line)) {
+                    return "Molecule has too few lines";
+                }
+            }
+
             int impossibleNumber = -1;
-            int numBonds;
-            try {
-                numAtoms = Integer.parseInt(line.substring(0, 3).trim());
-            } catch (NumberFormatException e) {
+
+            numAtoms = validateDetailGetInteger(line, 0, 3);
+            if (numAtoms <= impossibleNumber) {
                 return "Number of atoms is invalid";
             }
-            if (numAtoms <= impossibleNumber)
-                return "Number of atoms is invalid";
-            try {
-                numBonds = Integer.parseInt(line.substring(3, 6).trim());
-            } catch (NumberFormatException e) {
+
+            numBonds = validateDetailGetInteger(line, 3, 6);
+            if (numBonds <= impossibleNumber) {
                 return "Number of bonds is invalid";
             }
-            if (numAtoms <= impossibleNumber)
-                return "Number of bonds is invalid";
-            double improbablyLargeValue = 10000.0D;
-            for (int x = 0; x <= numAtoms - 1; ++x) {
-                line = br.readLine();
-                if (line == null)
-                    return "Incorrect number of atoms and/or bonds";
-                double test;
-                try {
-                    test = Double.parseDouble(line.substring(0, 10).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid X coordinate";
-                }
-                if (line.indexOf(".") != 5)
-                    return "X coordinate decimal in wrong place";
-                if (Math.abs(test) >= improbablyLargeValue)
-                    return "Invalid X coordinate";
-                try {
-                    test = Double.parseDouble(line.substring(10, 20).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid Y coordinate";
-                }
-                if (Math.abs(test) >= improbablyLargeValue)
-                    return "Invalid Y coordinate";
-                try {
-                    test = Double.parseDouble(line.substring(20, 30).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid Z coordinate";
-                }
-                if (Math.abs(test) >= improbablyLargeValue)
-                    return "Invalid Z coordinate";
-                if (doubleEqZero(test))
-                    continue;
-                returnString = "OK 3D";
+
+            returnString = validateDetailCoordinates(numAtoms, br);
+            if (!StringUtils.equals(returnString, OK_3D)) {
+                return returnString;
             }
-            int impossibleAtomNumber = 0;
-            for (int x = 0; x <= numBonds - 1; ++x) {
-                line = br.readLine();
-                if (line == null)
-                    return "Incorrect number of atoms and/or bonds";
-                if (line.startsWith("M")) {
-                    LOGGER.info(mol);
-                    return "Incorrect number of atoms and/or bonds";
-                }
-                if (line.length() < 12)
-                    return "Invalid Bond Line - too short";
-                int test;
-                try {
-                    test = Integer.parseInt(line.substring(0, 3).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid Bond Line - invalid atom1 number";
-                }
-                if (test <= impossibleAtomNumber)
-                    return "Invalid Bond Line - invalid atom1 number";
-                try {
-                    test = Integer.parseInt(line.substring(3, 6).trim());
-                } catch (NumberFormatException e) {
-                    return "Invalid Bond Line - invalid atom2 number";
-                }
-                if (test <= impossibleAtomNumber)
-                    return "Invalid Bond Line - invalid atom2 number";
+
+            returnString = validateDetailAtoms(numBonds, br);
+            if (Objects.nonNull(returnString)) {
+                return returnString;
+            } else {
+                returnString = OK_3D;
             }
+
             line = br.readLine();
-            if (line == null)
+
+            if (Objects.isNull(line)) {
                 return "Molecule has too few lines";
+            }
         } catch (Exception e) {
-            LOGGER.error("Unexpected error parsing molecule",e);
+            LOGGER.error("Unexpected error parsing molecule", e);
             return "Unexpected error parsing molecule";
         }
-        if (returnString.startsWith("OK"))
-            returnString = returnString + " " + Integer.toString(numAtoms);
+
+        return returnString + " " + Integer.toString(numAtoms);
+    }
+
+    private static String validateDetailCoordinates(int numAtoms, BufferedReader br) throws IOException {
+        String returnString = OK;
+        double improbablyLargeValue = 10000.0D;
+
+        for (int x = 0; x <= numAtoms - 1; ++x) {
+            String line = br.readLine();
+
+            if (Objects.isNull(line)) {
+                return "Incorrect number of atoms and/or bonds";
+            }
+
+            if (line.indexOf(".") != 5) {
+                return "X coordinate decimal in wrong place";
+            }
+
+            double test;
+
+            test = validateDetailGetDouble(line, 0, 10);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid X coordinate";
+            }
+
+            test = validateDetailGetDouble(line, 10, 20);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid Y coordinate";
+            }
+
+            test = validateDetailGetDouble(line, 20, 30);
+            if (Math.abs(test) >= improbablyLargeValue) {
+                return "Invalid Z coordinate";
+            }
+
+            if (doubleEqZero(test)) {
+                continue;
+            }
+
+            returnString = OK_3D;
+        }
+
         return returnString;
+    }
+
+    private static String validateDetailAtoms(int numBonds, BufferedReader br) throws IOException {
+        int impossibleAtomNumber = 0;
+
+        for (int x = 0; x <= numBonds - 1; ++x) {
+            String line = br.readLine();
+
+            if (Objects.isNull(line) || StringUtils.startsWith(line, "M")) {
+                return "Incorrect number of atoms and/or bonds";
+            }
+
+            if (line.length() < 12) {
+                return "Invalid Bond Line - too short";
+            }
+
+            int test;
+
+            test = validateDetailGetInteger(line, 0, 3);
+            if (test <= impossibleAtomNumber) {
+                return "Invalid Bond Line - invalid atom1 number";
+            }
+
+            test = validateDetailGetInteger(line, 3, 6);
+            if (test <= impossibleAtomNumber) {
+                return "Invalid Bond Line - invalid atom2 number";
+            }
+        }
+
+        return null;
+    }
+
+    private static int validateDetailGetInteger(String s, int beginIndex, int endIndex) {
+        try {
+            return Integer.parseInt(s.substring(beginIndex, endIndex).trim());
+        } catch (Exception e) {
+            LOGGER.trace("validateDetailGetInteger: " + s + ", " + beginIndex + ", " + endIndex, e);
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    private static double validateDetailGetDouble(String s, int beginIndex, int endIndex) {
+        try {
+            return Double.parseDouble(s.substring(beginIndex, endIndex).trim());
+        } catch (Exception e) {
+            LOGGER.trace("validateDetailGetDouble: " + s + ", " + beginIndex + ", " + endIndex, e);
+        }
+        return Double.MAX_VALUE;
     }
 
     public void init(String molecule, boolean allKeysToUpperCase, boolean molFilePortionOnly) {
@@ -208,18 +249,18 @@ public class SdUnit implements Serializable, Externalizable {
             if (mol.contains("M  END"))
                 setMol(mol.substring(0, mol.indexOf("M  END") + 6) + "\n");
             validString = validateDetail(molPortion);
-            if (!validString.startsWith("OK"))
+            if (!validString.startsWith(OK))
                 valid = false;
             infoPortion = parseInfo(mol, keyList);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("SDUnit init error",e);
+            LOGGER.error("SDUnit init error", e);
             valid = false;
-            if (validString.startsWith("OK"))
+            if (validString.startsWith(OK))
                 validString = e.getMessage();
             else
                 validString = validString + " AND " + e.getMessage();
         } catch (Exception e) {
-            LOGGER.error("SDUnit init error",e);
+            LOGGER.error("SDUnit init error", e);
         }
     }
 
@@ -257,21 +298,29 @@ public class SdUnit implements Serializable, Externalizable {
 
     private void replaceKey(String key) {
         int len = keyList.size();
+
         boolean replaced = false;
+
         int x = 0;
+
         do {
-            if (x > len - 1)
+            if (x > len - 1) {
                 break;
+            }
+
             String s = keyList.get(x);
+
             if (s.equalsIgnoreCase(key)) {
                 keyList.set(x, key);
                 replaced = true;
-                break;
             }
+
             x++;
-        } while (true);
-        if (!replaced)
+        } while (!replaced);
+
+        if (!replaced) {
             keyList.add(key);
+        }
     }
 
     public void removeItem(String key) {
@@ -297,7 +346,7 @@ public class SdUnit implements Serializable, Externalizable {
             mol1 = mol;
         }
         String tmp = validateDetail(mol1);
-        if (tmp.startsWith("OK")) {
+        if (tmp.startsWith(OK)) {
             if (tmp.contains("3D"))
                 is3D = true;
             String num = tmp.substring(tmp.lastIndexOf(" ") + 1).trim();
@@ -306,10 +355,10 @@ public class SdUnit implements Serializable, Externalizable {
             } catch (NumberFormatException nfe) {
                 numAtoms = -1;
             }
-            tmp = "OK";
+            tmp = OK;
         }
-        if (!"OK".equals(tmp))
-            if (validString.startsWith("OK"))
+        if (!OK.equals(tmp))
+            if (validString.startsWith(OK))
                 validString = tmp;
             else
                 validString = validString + " AND UPON MOL MODIFICATION " + tmp;
@@ -360,57 +409,64 @@ public class SdUnit implements Serializable, Externalizable {
 
     private Map<String, String> parseInfo(String sdInfo, List<String> origNames) {
         Map<String, String> out = new HashMap<>();
+
         try {
-            String attrPortion = sdInfo.substring(sdInfo.indexOf("M  END") + 6,
-                    sdInfo.indexOf("$$$$") + 4).trim();
+            String attrPortion = sdInfo.substring(sdInfo.indexOf("M  END") + 6, sdInfo.indexOf("$$$$") + 4).trim();
+
             String thisName;
             String thisOrigName;
             String thisValue;
+
             do {
-                if (attrPortion.indexOf(">") != 0
-                        || attrPortion.indexOf("<") <= 0)
+                if (attrPortion.indexOf(">") != 0 || attrPortion.indexOf("<") <= 0) {
                     break;
-                attrPortion = attrPortion
-                        .substring(attrPortion.indexOf("<") + 1);
-                thisName = attrPortion.substring(0, attrPortion.indexOf(">"))
-                        .trim();
+                }
+
+                attrPortion = attrPortion.substring(attrPortion.indexOf("<") + 1);
+                thisName = attrPortion.substring(0, attrPortion.indexOf(">")).trim();
+
                 thisOrigName = thisName;
                 thisName = thisName.toUpperCase();
-                attrPortion = attrPortion.substring(attrPortion.indexOf("\n"))
-                        .trim();
-                if (attrPortion.contains(">"))
-                    thisValue = attrPortion.substring(0,
-                            attrPortion.indexOf("\n>")).trim();
-                else if (attrPortion.trim().indexOf(">") == 0
-                        && attrPortion.contains("<"))
+
+                attrPortion = attrPortion.substring(attrPortion.indexOf("\n")).trim();
+
+                if (attrPortion.contains(">")) {
+                    thisValue = attrPortion.substring(0, attrPortion.indexOf("\n>")).trim();
+                } else if (attrPortion.trim().indexOf(">") == 0 && attrPortion.contains("<")) {
                     thisValue = "";
-                else
-                    thisValue = attrPortion.substring(0,
-                            attrPortion.indexOf("$$$$")).trim();
-                if (!"".equals(thisValue.trim())) {
-                    if (out.containsKey(thisName)) {
-                        String tmp = out.get(thisName);
-                        if (tmp != null && !"".equals(tmp)) {
-                            out.put(thisName, tmp + "\n" + thisValue);
-                        } else {
-                            out.put(thisName, thisValue);
-                            origNames.add(thisOrigName);
-                        }
-                    } else {
-                        out.put(thisName, thisValue);
-                        origNames.add(thisOrigName);
-                    }
+                } else {
+                    thisValue = attrPortion.substring(0, attrPortion.indexOf("$$$$")).trim();
                 }
-                if (attrPortion.indexOf(">  <") != 0
-                        && attrPortion.indexOf("> <") != 0
-                        && attrPortion.contains("\n>"))
-                    attrPortion = attrPortion.substring(attrPortion
-                            .indexOf("\n>") + 1);
+
+                parseInfoAddOrigNames(out, origNames, thisOrigName, thisName, thisValue);
+
+                if (attrPortion.indexOf(">  <") != 0 && attrPortion.indexOf("> <") != 0 && attrPortion.contains("\n>")) {
+                    attrPortion = attrPortion.substring(attrPortion.indexOf("\n>") + 1);
+                }
             } while (true);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error parsing sdFile attributes", e);
         }
+
         return out;
+    }
+
+    private void parseInfoAddOrigNames(Map<String, String> out, List<String> origNames, String thisOrigName, String thisName, String thisValue) {
+        if (!"".equals(thisValue.trim())) {
+            if (out.containsKey(thisName)) {
+                String tmp = out.get(thisName);
+
+                if (tmp != null && !"".equals(tmp)) {
+                    out.put(thisName, tmp + "\n" + thisValue);
+                } else {
+                    out.put(thisName, thisValue);
+                    origNames.add(thisOrigName);
+                }
+            } else {
+                out.put(thisName, thisValue);
+                origNames.add(thisOrigName);
+            }
+        }
     }
 
     @Override
