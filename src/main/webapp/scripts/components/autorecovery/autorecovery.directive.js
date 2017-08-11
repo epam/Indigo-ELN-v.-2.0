@@ -34,10 +34,19 @@
                     vm.isVisible = true;
                 }
 
-                vm.restore = function() {
-                    vm.onRestore({recoveryData: recoveryData});
-                    vm.isResolved = true;
-                };
+                vm.restore = restore;
+                vm.remove = remove;
+            }
+
+            function restore() {
+                vm.onRestore({recoveryData: recoveryData});
+                vm.isResolved = true;
+            }
+
+            function remove() {
+                autorecoveryCache.remove($stateParams);
+                recoveryData = null;
+                vm.isResolved = true;
             }
         }
     }

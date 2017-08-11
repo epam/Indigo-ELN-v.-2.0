@@ -30,27 +30,25 @@ angular
                         kind: 'project',
                         type: 'entity',
                         state: 'entities.project-new'
-                    }
+                    },
+                    isNew: true
                 },
                 resolve: {
                     pageInfo: function($q, Principal) {
-                        var deferred = $q.defer();
-                        $q.all([
+                        return $q.all([
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 project: {},
                                 identity: results[0],
                                 isContentEditor: results[1],
                                 hasEditAuthority: results[2],
                                 hasCreateChildAuthority: results[3]
-                            });
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             })
@@ -75,30 +73,22 @@ angular
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Project, EntitiesCache, AutoSaveEntitiesEngine, EntitiesBrowser) {
-                        var deferred = $q.defer();
-                        if (!EntitiesCache.get($stateParams)) {
-                            EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Project, $stateParams));
-                        }
-                        $q.all([
-                            EntitiesCache.get($stateParams),
+                    pageInfo: function($q, $stateParams, Principal, Project) {
+                        return $q.all([
+                            Project.get($stateParams).$promise,
                             Principal.identity(),
                             Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                             Principal.hasAuthorityIdentitySafe('PROJECT_CREATOR'),
-                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                            EntitiesBrowser.getTabByParams($stateParams)
+                            Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
                         ]).then(function(results) {
-                            deferred.resolve({
+                            return {
                                 project: results[0],
                                 identity: results[1],
                                 isContentEditor: results[2],
                                 hasEditAuthority: results[3],
-                                hasCreateChildAuthority: results[4],
-                                dirty: results[5] ? results[5].dirty : false
-                            });
+                                hasCreateChildAuthority: results[4]
+                            };
                         });
-
-                        return deferred.promise;
                     }
                 }
             })

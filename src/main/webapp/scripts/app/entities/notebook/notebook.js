@@ -81,20 +81,14 @@ angular.module('indigoeln')
                     }
                 },
                 resolve: {
-                    pageInfo: function($q, $stateParams, Principal, Notebook, EntitiesCache, AutoSaveEntitiesEngine,
-                                       EntitiesBrowser) {
-                        if (!EntitiesCache.get($stateParams)) {
-                            EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
-                        }
-
+                    pageInfo: function($q, $stateParams, Principal, Notebook) {
                         return $q
                             .all([
-                                EntitiesCache.get($stateParams),
+                                Notebook.get($stateParams).$promise,
                                 Principal.identity(),
                                 Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                                 Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR'),
-                                Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
-                                EntitiesBrowser.getTabByParams($stateParams)
+                                Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                             ])
                             .then(function(results) {
                                 return {
@@ -103,7 +97,6 @@ angular.module('indigoeln')
                                     isContentEditor: results[2],
                                     hasEditAuthority: results[3],
                                     hasCreateChildAuthority: results[4],
-                                    dirty: results[5] ? results[5].dirty : false,
                                     projectId: $stateParams.projectId
                                 };
                             });

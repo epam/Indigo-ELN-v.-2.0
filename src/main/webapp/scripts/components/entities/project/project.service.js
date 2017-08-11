@@ -19,6 +19,8 @@ function project($resource, FileUploaderCash, PermissionManagement) {
                 text: tag
             };
         });
+        // assetsList is sorted by random on BE
+        data.accessList = _.sortBy(data.accessList, 'permissionView');
     }
 
     return $resource('api/projects/:projectId', {}, {
