@@ -4,7 +4,7 @@
         .controller('TemplateModalController', TemplateModalController);
 
     /* @ngInject */
-    function TemplateModalController($scope, $stateParams, Template, Alert, $state, dragulaService,
+    function TemplateModalController($scope, $stateParams, Template, notifyService, $state, dragulaService,
                                      Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
         var vm = this;
 
@@ -129,7 +129,7 @@
         function onSaveError(result) {
             vm.isSaving = false;
             var mess = result.status === 400 ? 'Error saving, template name already exists.' : 'Template is not saved due to server error!';
-            Alert.error(mess);
+            notifyService.error(mess);
         }
     }
 })();

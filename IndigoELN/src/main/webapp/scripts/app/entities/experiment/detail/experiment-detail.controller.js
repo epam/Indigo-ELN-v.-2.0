@@ -6,7 +6,7 @@
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
-                                        Alert, EntitiesCache, $q, Principal, Notebook, Components,
+                                        notifyService, EntitiesCache, $q, Principal, Notebook, Components,
                                         componentsUtils) {
         var vm = this;
         var pageInfo;
@@ -165,7 +165,7 @@
                     originalExperiment = angular.copy(vm.experiment);
                     // autorecoveryCache.remove($stateParams);
                 }, function() {
-                    Alert.error('Experiment is not saved due to server error!');
+                    notifyService.error('Experiment is not saved due to server error!');
                 });
 
             return vm.loading;
@@ -211,12 +211,12 @@
         function refresh() {
             vm.loading = Experiment.get($stateParams).$promise;
             vm.loading.then(function(result) {
-                Alert.success('Experiment updated');
+                notifyService.success('Experiment updated');
                 angular.extend(vm.experiment, result);
                 originalExperiment = angular.copy(vm.experiment);
                 // autorecoveryCache.remove($stateParams);
             }, function() {
-                Alert.error('Experiment not refreshed due to server error!');
+                notifyService.error('Experiment not refreshed due to server error!');
             });
 
             return vm.loading;
@@ -250,7 +250,7 @@
                     .then(function(result) {
                         vm.experiment.version = result.version;
                     }, function() {
-                        Alert.error('Experiment not refreshed due to server error!');
+                        notifyService.error('Experiment not refreshed due to server error!');
                     });
             }
         }

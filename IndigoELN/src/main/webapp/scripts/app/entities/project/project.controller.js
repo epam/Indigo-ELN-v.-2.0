@@ -4,7 +4,7 @@
         .controller('ProjectController', ProjectController);
 
     /* @ngInject */
-    function ProjectController($scope, $rootScope, $state, Project, Alert, PermissionManagement, FileUploaderCash,
+    function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper) {
         var vm = this;
         var identity = pageInfo.identity;
@@ -71,7 +71,7 @@
                 .then(function(result) {
                     vm.project.version = result.version;
                 }, function() {
-                    Alert.error('Project not refreshed due to server error!');
+                    notifyService.error('Project not refreshed due to server error!');
                 });
         }
 
@@ -96,7 +96,7 @@
                     angular.extend(vm.project, result);
                     originalProject = angular.copy(vm.project);
                 }, function() {
-                    Alert.error('Project not refreshed due to server error!');
+                    notifyService.error('Project not refreshed due to server error!');
                 });
         }
 
@@ -179,7 +179,7 @@
         function onSaveError(result) {
             var mess = (result.status === 400) ? 'this Project name is already in use in the system'
                 : 'Project is not saved due to server error';
-            Alert.error(mess);
+            notifyService.error(mess);
         }
     }
 })();

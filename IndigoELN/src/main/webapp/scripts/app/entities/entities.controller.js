@@ -3,7 +3,7 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, Alert, Experiment,
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService, Experiment,
                                 Notebook, Project, dialogService, autorecoveryCache) {
         var vm = this;
 
@@ -91,7 +91,7 @@
 
                 return;
             }
-            Alert.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded');
+            notifyService.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded');
             EntitiesBrowser.callUpdateCurrentEntity();
         }
 

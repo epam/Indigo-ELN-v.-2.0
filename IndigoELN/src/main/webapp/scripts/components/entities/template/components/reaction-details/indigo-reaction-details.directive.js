@@ -19,7 +19,7 @@
         };
 
         /* @ngInject */
-        function indigoReactionDetailsController($state, $q, Principal, Dictionary, Users, Alert) {
+        function indigoReactionDetailsController($state, $q, Principal, Dictionary, Users, notifyService) {
             var vm = this;
             var deferred;
 
@@ -47,7 +47,7 @@
                         return experiment.name === tag.text;
                     });
                     if (!experiment) {
-                        Alert.error('Can not find a experiment with the name: ' + tag.text);
+                        notifyService.error('Can not find a experiment with the name: ' + tag.text);
 
                         return;
                     }
