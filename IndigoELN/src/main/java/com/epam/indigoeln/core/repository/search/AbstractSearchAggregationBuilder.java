@@ -4,6 +4,7 @@ import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,14 +22,15 @@ public class AbstractSearchAggregationBuilder {
         aggregationOperations = new ArrayList<>();
     }
 
-    public AbstractSearchAggregationBuilder withBingoIds(List<String> bingoIds){
+    public AbstractSearchAggregationBuilder withBingoIds(List<String> bingoIds) {
         throw new UnsupportedOperationException("This method should be implemented in subclasses");
     }
 
     public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
-        List<Criteria> fieldCriteriaList = searchQueryFields.stream().map(
-                field -> AggregationUtils.createCriterion(field, searchQuery, "contains", "")
-        ).collect(toList());
+        List<Criteria> fieldCriteriaList = searchQueryFields.stream()
+                .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
+                .map(AggregationUtils::createCriterion)
+                .collect(toList());
 
         Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
         Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);

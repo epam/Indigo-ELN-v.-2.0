@@ -27,6 +27,7 @@
             vm.project.accessList = vm.project.accessList || PermissionManagement.getAuthorAccessList(identity);
             originalProject = angular.copy(vm.project);
 
+            vm.print = print;
             vm.save = save;
             vm.refresh = refresh;
             vm.updateAttachments = updateAttachments;
@@ -97,6 +98,10 @@
                 }, function() {
                     Alert.error('Project not refreshed due to server error!');
                 });
+        }
+
+        function print() {
+            $state.go('entities.project-detail.print');
         }
 
         function initPermissions() {

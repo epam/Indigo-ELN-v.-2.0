@@ -7,8 +7,9 @@ import org.springframework.context.annotation.Configuration;
 public class IndigoProvider {
 
     public Indigo indigo() {
-        return new Indigo() {{
-            setOption("ignore-stereochemistry-errors", "true");
-        }};
+        Indigo indigo = new Indigo();
+        indigo.setOption("ignore-stereochemistry-errors", "true");
+
+        return indigo;
     }
 }

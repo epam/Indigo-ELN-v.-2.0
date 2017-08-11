@@ -18,6 +18,7 @@ import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.google.common.util.concurrent.Striped;
+import com.mongodb.DBRef;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -156,10 +157,10 @@ public class ExperimentService {
         // add VIEWER's permissions for Project Author to experiment, if Experiment creator is another User
         PermissionUtil.addProjectAuthorToAccessList(experiment.getAccessList(), project.getAuthor(), user);
 
-        experiment.setComponents(updateComponents(null, experiment.getComponents()));
-
         //increment sequence Id
         experiment.setId(sequenceIdService.getNextExperimentId(projectId, notebookId));
+
+        experiment.setComponents(updateComponents(null, experiment.getComponents(), experiment.getId()));
 
         //generate name
         experiment.setName(SequenceIdUtil.generateExperimentName(experiment));
@@ -225,12 +226,10 @@ public class ExperimentService {
         newVersion.setAccessList(lastVersion.getAccessList());
         PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(),user);
         newVersion.setTemplate(lastVersion.getTemplate());
-        newVersion.setCoAuthors(lastVersion.getCoAuthors());
-        newVersion.setWitness(lastVersion.getWitness());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
         components.forEach(c -> c.setId(null));
-        final List<Component> newComponents = updateComponents(Collections.emptyList(), components);
+        final List<Component> newComponents = updateComponents(Collections.emptyList(), components, newVersion.getId());
         newVersion.setComponents(newComponents);
         newVersion.setLastVersion(true);
         newVersion.setExperimentVersion(newExperimentVersion);
@@ -277,15 +276,13 @@ public class ExperimentService {
 
             experimentFromDB.setTemplate(experimentForSave.getTemplate());
             experimentFromDB.setAccessList(experimentForSave.getAccessList());
-            experimentFromDB.setCoAuthors(experimentForSave.getCoAuthors());
             experimentFromDB.setComments(experimentForSave.getComments());
             experimentFromDB.setStatus(experimentForSave.getStatus());
-            experimentFromDB.setWitness(experimentForSave.getWitness());
             experimentFromDB.setDocumentId(experimentForSave.getDocumentId());
             experimentFromDB.setSubmittedBy(experimentForSave.getSubmittedBy());
             experimentFromDB.setVersion(experimentForSave.getVersion());
 
-            experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents()));
+            experimentFromDB.setComponents(updateComponents(experimentFromDB.getComponents(), experimentForSave.getComponents(), experimentFromDB.getId()));
 
             Experiment savedExperiment;
             try {
@@ -322,10 +319,11 @@ public class ExperimentService {
         return result;
     }
 
-    private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents) {
+    private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents, String experimentId) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
         List<String> componentIdsForRemove = componentsFromDb.stream().filter(Objects::nonNull).map(Component::getId).collect(Collectors.toList());
+        DBRef dbRef = new DBRef(Experiment.COLLECTION_NAME, experimentId);
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
@@ -336,11 +334,13 @@ public class ExperimentService {
                     componentForSave.setContent(component.getContent());
                     componentIdsForRemove.remove(componentForSave.getId());
                     componentForSave.setName(componentForSave.getName());
+                    componentForSave.setExperiment(dbRef);
                     componentsForSave.add(componentForSave);
                 } else {
                     throw new ValidationException("Cannot find component with id=" + component.getId());
                 }
             } else {
+                component.setExperiment(dbRef);
                 componentsForSave.add(component);
             }
         }

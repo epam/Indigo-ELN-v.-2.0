@@ -14,7 +14,7 @@
                             <i class="fa fa-pencil"></i>
                             <span class="m-l5">Edit</span>
                         </button>
-                        <button ui-sref=".permissions-view()" ng-if="!vm.project.id" type="button"
+                        <button ui-sref=".permissions-view()" type="button"
                                 class="btn btn-default btn-small">
                             <i class="fa fa-eye"></i>
                             <span class="m-l5">View Members</span>
@@ -81,6 +81,7 @@
                 ng-disabled="!vm.isCreateChildAllowed || !vm.project.id"
                 ui-sref="entities.notebook-new({parentId:vm.project.id})">Create Notebook
         </button>
+        <button class="btn btn-info" type="button" ng-click="vm.print()">Print</button>
         <button ng-click="vm.save()" form="createProjectForm"
                 ng-disabled="!vm.isEditAllowed || createProjectForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary"><i class="fa fa-save"></i><span class="m-l5">Save</span>

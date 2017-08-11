@@ -41,7 +41,7 @@ public class ChangeLogVersion10 {
         db.getCollection("role").insert(BasicDBObjectBuilder.start()
                 .add("_id", "role-0")
                 .add("name", "All Permissions")
-                .add("system", "true")
+                .add("system", true)
                 .add("authorities", Arrays.asList(
                         "USER_EDITOR", "ROLE_EDITOR", "CONTENT_EDITOR",
                         "PROJECT_READER", "NOTEBOOK_READER", "EXPERIMENT_READER",
@@ -61,8 +61,8 @@ public class ChangeLogVersion10 {
                 .add("first_name", "admin")
                 .add("last_name", "Administrator")
                 .add("email", "admin@localhost")
-                .add("activated", "true")
-                .add("system", "true")
+                .add("activated", true)
+                .add("system", true)
                 .add("lang_key", "en")
                 .add("created_by", "system")
                 .add("created_date", new Date())
