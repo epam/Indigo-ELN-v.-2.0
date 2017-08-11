@@ -5,7 +5,6 @@ angular
 /* @ngInject */
 function notifyService(notify) {
     notify.config({
-        container: document.getElementById('content-wrapper'),
         templateUrl: 'scripts/components/alert/alert-template.html',
         startTop: 0
     });

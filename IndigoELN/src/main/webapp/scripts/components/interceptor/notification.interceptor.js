@@ -15,21 +15,21 @@ function notificationInterceptor($injector) {
     };
 
     function response(response) {
-        var Alert = $injector.get('notifyService');
+        var notifyService = $injector.get('notifyService');
         if (_.isString(response.headers(SUCCESS_ALERT))) {
-            Alert.success(response.headers(SUCCESS_ALERT), {
+            notifyService.success(response.headers(SUCCESS_ALERT), {
                 param: response.headers(ALERT_PARAMS)
             });
         } else if (_.isString(response.headers(ERROR_ALERT))) {
-            Alert.error(response.headers(ERROR_ALERT), {
+            notifyService.error(response.headers(ERROR_ALERT), {
                 param: response.headers(ALERT_PARAMS)
             });
         } else if (_.isString(response.headers(WARNING_ALERT))) {
-            Alert.warning(response.headers(WARNING_ALERT), {
+            notifyService.warning(response.headers(WARNING_ALERT), {
                 param: response.headers(ALERT_PARAMS)
             });
         } else if (_.isString(response.headers(INFO_ALERT))) {
-            Alert.info(response.headers(INFO_ALERT), {
+            notifyService.info(response.headers(INFO_ALERT), {
                 param: response.headers(ALERT_PARAMS)
             });
         }
