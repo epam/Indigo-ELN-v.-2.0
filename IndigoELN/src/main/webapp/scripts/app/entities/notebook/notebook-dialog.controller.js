@@ -6,14 +6,14 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      autorecoveryCache, notebookSummaryExperiments) {
+                                      autorecoveryHelper, notebookSummaryExperiments) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
         var hasEditAuthority = pageInfo.hasEditAuthority;
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
         var originalNotebook;
-        var updateRecovery = updateRecoveryDebounce();
+        var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
 
         init();
 
@@ -40,7 +40,6 @@
             vm.repeatExperiment = repeatExperiment;
             vm.refresh = refresh;
             vm.save = save;
-            vm.onChangedDescription = onChangedDescription;
 
             initPermissions();
 
@@ -62,51 +61,38 @@
 
             // isEditAllowed
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
-                vm.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+                vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission);
             });
             // isCreateChildAllowed
             PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
-                vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
+                vm.isCreateChildAllowed = isContentEditor || (hasCreateChildAuthority && hasCreateChildPermission);
             });
-        }
-
-        function onChangedDescription() {
-            EntitiesBrowser.changeDirtyTab($stateParams, true);
         }
 
         function bindEvents() {
             $scope.$watch(function() {
                 return vm.notebook;
             }, function(newEntity) {
-                toggleDirty(!!vm.stateData.isNew || (originalNotebook && !angular.equals(originalNotebook, newEntity)));
-                updateRecovery();
-                EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
-                // if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
-                //     vm.isBtnSaveActive = true;
-                // }
+                var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalNotebook, newEntity);
+                toggleDirty(isDirty);
+                updateRecovery(newEntity, isDirty);
             }, true);
 
             $scope.$watch('createNotebookForm.$dirty', function(isDirty) {
                 vm.isBtnSaveActive = isDirty;
             }, true);
 
+            $scope.$watch('createNotebookForm', function(form) {
+                EntitiesBrowser.setCurrentForm(form);
+            });
+
             $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
             });
         }
 
-        function onRestore(recovery) {
-            vm.notebook = recovery.notebook;
-        }
-
-        function updateRecoveryDebounce() {
-            return _.debounce(function() {
-                if (vm.notebook) {
-                    autorecoveryCache.put($stateParams, {
-                        notebook: vm.notebook
-                    });
-                }
-            }, 10);
+        function onRestore(storeData) {
+            vm.notebook = storeData;
         }
 
         function createExperiment() {
@@ -221,16 +207,11 @@
 
         function refresh() {
             vm.hasError = false;
-            vm.notebook = originalNotebook;
-            $scope.createNotebookForm.$setPristine();
+            vm.notebook = angular.copy(originalNotebook);
         }
 
         function partialRefresh() {
             vm.notebook.name = originalNotebook.name;
-            if (vm.notebook.description === originalNotebook.description &&
-                _.isEqual(vm.notebook.accessList, originalNotebook.accessList)) {
-                $scope.createNotebookForm.$setPristine();
-            }
         }
 
         function save() {
@@ -240,8 +221,6 @@
                     .then(function(result) {
                         vm.notebook.version = result.version;
                         originalNotebook = angular.copy(vm.notebook);
-                        $scope.createNotebookForm.$setPristine();
-                        EntitiesBrowser.changeDirtyTab($stateParams, false);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
                             projectId: vm.projectId,

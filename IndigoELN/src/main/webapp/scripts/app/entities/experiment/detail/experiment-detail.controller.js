@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
-                                        PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryCache,
+                                        PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         Alert, EntitiesCache, $q, Principal, Notebook, Components,
                                         componentsUtils) {
         var vm = this;
@@ -16,11 +16,12 @@
         var hasEditAuthority;
         var hasEditPermission;
         var originalExperiment;
-        var updateRecovery = updateRecoveryDebounce();
+        var updateRecovery;
 
         init();
 
         function init() {
+            updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
             vm.stateData = $state.current.data;
             vm.isCollapsed = true;
             vm.loading = getPageInfo().then(function(response) {
@@ -85,18 +86,8 @@
             );
         }
 
-        function updateRecoveryDebounce() {
-            return _.debounce(function() {
-                if (vm.experiment) {
-                    autorecoveryCache.put($stateParams, {
-                        experiment: vm.experiment
-                    });
-                }
-            }, 10);
-        }
-
-        function onRestore(recovery) {
-            vm.experiment = recovery.experiment;
+        function onRestore(storeData) {
+            vm.experiment = storeData;
         }
 
         function getExperimentName(notebook, experiment) {
@@ -172,6 +163,7 @@
                 .then(function(result) {
                     vm.experiment.version = result.version;
                     originalExperiment = angular.copy(vm.experiment);
+                    // autorecoveryCache.remove($stateParams);
                 }, function() {
                     Alert.error('Experiment is not saved due to server error!');
                 });
@@ -222,6 +214,7 @@
                 Alert.success('Experiment updated');
                 angular.extend(vm.experiment, result);
                 originalExperiment = angular.copy(vm.experiment);
+                // autorecoveryCache.remove($stateParams);
             }, function() {
                 Alert.error('Experiment not refreshed due to server error!');
             });
@@ -265,8 +258,9 @@
         function initEventListeners() {
             $scope.$watch('vm.experiment', function(newEntity) {
                 EntitiesBrowser.setCurrentEntity(vm.experiment);
-                toggleDirty(originalExperiment && !angular.equals(originalExperiment, newEntity));
-                updateRecovery();
+                var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
+                toggleDirty(isDirty);
+                updateRecovery(newEntity, isDirty);
             }, true);
 
             $scope.$watch('experimentForm.$dirty', function() {
