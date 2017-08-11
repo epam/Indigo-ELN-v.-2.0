@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
-                                         AlertModal, Alert, Dictionary, CalculationService, SearchService,
+                                         AlertModal, notifyService, Dictionary, CalculationService, SearchService,
                                          RegistrationService, dialogService, StoichTableCache, stoichHelper) {
         var vm = this;
         var grams = AppValues.getGrams();
@@ -36,12 +36,11 @@
         init();
 
         function clear() {
-            for (var key in vm.selectedRow) {
-                if (vm.selectedRow.hasOwnProperty(key) && !_.includes(['$$hashKey', 'selected'], key)) {
-                    delete vm.selectedRow[key];
-                }
-            }
+            _.remove(vm.selectedRow, function(value, key) {
+                return !_.includes(['$$hashKey', 'selected'], key);
+            });
             vm.selectedRow.rxnRole = AppValues.getRxnRoleReactant();
+            vm.onChanged();
         }
 
         function appendRow() {
@@ -51,12 +50,12 @@
 
         function removeRow() {
             setStoicReactants(_.without(getStoicReactants(), vm.selectedRow));
-            $rootScope.$broadcast('stoich-rows-changed');
+            updateReactants(vm.model.stoichTable.reactants);
+            vm.onChanged();
         }
 
         function onRowSelected(row) {
             vm.selectedRow = row || null;
-            $log.debug(row);
         }
 
         function noReactantsInStoic() {
@@ -197,9 +196,7 @@
                     onClose: function(data) {
                         var row = data.row;
                         var nbkBatch = data.model;
-                        var bid = row.fullNbkBatch || '';
                         if (!row.$$populatedBatch) {
-                            bid = bid.replace(/[^0-9.-]/g, '').trim();
                             if (row.fullNbkBatch) {
                                 fetchBatchByNbkNumber(nbkBatch, function(result) {
                                     var pb = result[0];
@@ -449,6 +446,7 @@
         function setStoicReactants(reactants) {
             vm.model.stoichTable.reactants = reactants;
             vm.onChangedReactants({reactants: reactants});
+            vm.onChanged();
         }
 
         function setIntendedProducts(products) {
@@ -458,6 +456,7 @@
         function addStoicReactant(reactant) {
             vm.model.stoichTable.reactants.push(reactant);
             vm.onChangedReactants({reactants: vm.model.stoichTable.reactants});
+            vm.onChanged();
         }
 
         function fetchBatchByNbkNumber(nbkBatch, success) {
@@ -515,10 +514,9 @@
                 var queries = [];
                 _.each(result, function(item) {
                     queries.push(CalculationService.getMoleculeInfo(item));
-                });
-                _.each(result, function(item) {
                     queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
                 });
+
                 $q.all(queries).then(function(data) {
                     var i = 0;
                     for (i = 0; i < result.length; i++) {
@@ -539,7 +537,7 @@
         }
 
         function alertCompoundWrongFormat() {
-            Alert.error('Compound does not exist or in the wrong format');
+            notifyService.error('Compound does not exist or in the wrong format');
         }
 
         function fetchBatchByCompoundId(compoundId, row) {
@@ -563,7 +561,7 @@
         }
 
         function alertWrongFormat() {
-            Alert.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
+            notifyService.error('Notebook batch number does not exist or in the wrong format- format should be "nbk. number-exp. number-batch number"');
         }
 
         function onRxnRoleChange(data) {
@@ -608,9 +606,7 @@
         }
 
         function getPromisesForMoleculeInfoRequest(reactionProperties, target) {
-            return _.map(reactionProperties.data[target], function(reactionProperty) {
-                return CalculationService.getMoleculeInfo(reactionProperty);
-            });
+            return _.map(reactionProperties.data[target], CalculationService.getMoleculeInfo);
         }
 
         function getStructureImagesForIntendedProducts() {
@@ -662,10 +658,7 @@
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
-                if (data) {
-                    setStoicReactants(_.union(getStoicReactants(), data));
-                }
-                CalculationService.recalculateStoich();
+                updateReactants(data);
             });
 
             $scope.$on('stoic-table-recalculated', function(event, data) {
@@ -682,6 +675,11 @@
                     });
                 }
             });
+        }
+
+        function updateReactants(reactants) {
+            setStoicReactants(_.union(getStoicReactants(), reactants));
+            CalculationService.recalculateStoich();
         }
 
         function getPrecursors() {

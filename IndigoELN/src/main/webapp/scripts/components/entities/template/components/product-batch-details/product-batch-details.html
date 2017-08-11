@@ -39,6 +39,7 @@
                       indigo-rows="vm.detailTable"
                       selected-batch="vm.selectedBatch"
                       selected-batch-trigger="vm.selectedBatchTrigger"
+                      on-changed="vm.onChange()"
                       class="my-table-wrapper table-batch-details">
 
             <div class="action-panel m-b20">
@@ -75,13 +76,13 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioIntermediate"
                                    ng-disabled="vm.isEditDisabled || vm.selectedBatch.batchType == 'Intermediate'"
-                                   ng-click="vm.selectedBatch.batchType = 'Intermediate'; vm.experimentForm.$setDirty()"
+                                   ng-click="vm.selectedBatch.batchType = 'Intermediate'; vm.onChanged()"
                                    ng-checked="vm.selectedBatch.batchType == 'Intermediate'"
                                    class="product-batch-details__input">
                             <label for="batchDetailsRadioIntermediate"
@@ -92,7 +93,7 @@
                                    name="batchDetailsRadio"
                                    id="batchDetailsRadioTest"
                                    ng-disabled="vm.isEditDisabled ||vm.selectedBatch.batchType == 'Test Compound'"
-                                   ng-click="vm.selectedBatch.batchType = 'Test Compound'; vm.experimentForm.$setDirty()"
+                                   ng-click="vm.selectedBatch.batchType = 'Test Compound'; vm.onChanged()"
                                    ng-checked="vm.selectedBatch.batchType =='Test Compound'"
                                    class="product-batch-details__input">
                             <label for="batchDetailsRadioTest"
@@ -106,7 +107,7 @@
                     <div class="btn-group">
                         <button type="button"
                                 class="btn btn-info btn-small  btn-can-loading {{(vm.importLoading) ? 'btn-loading' : ''}}"
-                                ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly">
+                                ng-click="vm.importSDFile()" ng-disabled="vm.isReadonly || vm.isBatchLoading">
                             <i class="fa fa-cloud-download"></i>
                             <span class="m-l5">Import</span>
                         </button>

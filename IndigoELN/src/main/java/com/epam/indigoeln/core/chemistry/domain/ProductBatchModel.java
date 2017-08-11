@@ -7,6 +7,7 @@ import com.epam.indigoeln.core.chemistry.experiment.datamodel.common.Amount2;
 import com.epam.indigoeln.core.chemistry.experiment.utils.BatchUtils;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 import com.epam.indigoeln.web.rest.dto.calculation.BasicBatchModel;
+import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 import static com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType.*;
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
+@EqualsAndHashCode(callSuper = true)
 public class ProductBatchModel extends BatchModel {
 
     private static final long serialVersionUID = 213824001208174426L;
@@ -477,36 +479,5 @@ public class ProductBatchModel extends BatchModel {
         } else {
             this.getTotalVolume().setValue("0");
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-
-        ProductBatchModel that = (ProductBatchModel) o;
-
-        if (theoreticalYieldPercentAmount != null ? !theoreticalYieldPercentAmount.equals(that.theoreticalYieldPercentAmount) : that.theoreticalYieldPercentAmount != null)
-            return false;
-        if (theoreticalWeightAmount != null ? !theoreticalWeightAmount.equals(that.theoreticalWeightAmount) : that.theoreticalWeightAmount != null)
-            return false;
-        return theoreticalMoleAmount != null ? theoreticalMoleAmount.equals(that.theoreticalMoleAmount) : that.theoreticalMoleAmount == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (theoreticalYieldPercentAmount != null ? theoreticalYieldPercentAmount.hashCode() : 0);
-        result = 31 * result + (theoreticalWeightAmount != null ? theoreticalWeightAmount.hashCode() : 0);
-        result = 31 * result + (theoreticalMoleAmount != null ? theoreticalMoleAmount.hashCode() : 0);
-        return result;
     }
 }

@@ -3,6 +3,7 @@ package com.epam.indigoeln.core.repository.search.entity;
 import com.epam.indigoeln.core.repository.search.AggregationUtils;
 import com.epam.indigoeln.core.repository.search.ResourceUtils;
 import com.epam.indigoeln.web.rest.dto.search.request.EntitySearchRequest;
+import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import com.mongodb.BasicDBList;
 import com.mongodb.DBRef;
 import org.springframework.beans.factory.InitializingBean;
@@ -24,43 +25,53 @@ public class ExperimentSearchRepository implements InitializingBean {
 
     private static final List<String> SEARCH_QUERY_FIELDS = Arrays.asList("status", "name");
     private static final Collection<String> AVAILABLE_FIELDS = Arrays.asList("status", "author._id", "kind");
+    private static final String EXPERIMENT = "Experiment";
 
-    @Autowired
-    private ComponentSearchRepository componentSearchRepository;
+    private final ComponentSearchRepository componentSearchRepository;
 
-    @Autowired
-    private MongoTemplate template;
+    private final MongoTemplate template;
 
     @Value("classpath:mongo/search/experiments.js")
     private Resource scriptResource;
 
     private ExecutableMongoScript searchScript;
 
+    @Autowired
+    public ExperimentSearchRepository(ComponentSearchRepository componentSearchRepository, MongoTemplate template) {
+        this.componentSearchRepository = componentSearchRepository;
+        this.template = template;
+    }
+
     @Override
     public void afterPropertiesSet() throws Exception {
         searchScript = new ExecutableMongoScript(ResourceUtils.loadFunction(scriptResource));
     }
 
+    @SuppressWarnings("unchecked")
     public Optional<Set<String>> search(EntitySearchRequest request, List<String> bingoIds) {
-        Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
-        Optional<Criteria> queryCriteria = getQueryCriteria(request);
-        Optional<Criteria> experimentIdsWithBingoIds = getExperimentIdsWithBingoIds(request, bingoIds);
-        return AggregationUtils.andCriteria(this::find, advancedCriteria, queryCriteria, experimentIdsWithBingoIds);
+        if (checkConditions(request)){
+            Optional<Criteria> advancedCriteria = getAdvancedCriteria(request);
+            Optional<Criteria> queryCriteria = getQueryCriteria(request);
+            Optional<Criteria> experimentIdsWithBingoIds = getExperimentIdsWithBingoIds(request, bingoIds);
+            return AggregationUtils.andCriteria(advancedCriteria, queryCriteria, experimentIdsWithBingoIds).map(this::find);
+        }else {
+            return Optional.empty();
+        }
     }
 
     private Optional<Criteria> getComponentWithBingoIds(EntitySearchRequest request, List<String> bingoIds) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithBingoIds(request, bingoIds);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithBingoIds(request, bingoIds);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getComponentWithQuery(EntitySearchRequest request) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithQuery(request);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithQuery(request);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getComponentWithAdvanced(EntitySearchRequest request) {
-        Optional<Set<DBRef>> dbRefs = componentSearchRepository.searchWithAdvanced(request);
-        return dbRefs.map(Criteria.where("components")::in);
+        Optional<Set<Object>> dbRefs = componentSearchRepository.searchWithAdvanced(request);
+        return dbRefs.map(s -> Criteria.where("_id").in(s));
     }
 
     private Optional<Criteria> getAdvancedCriteria(EntitySearchRequest request) {
@@ -70,22 +81,18 @@ public class ExperimentSearchRepository implements InitializingBean {
                 .collect(toList());
 
         getComponentWithAdvanced(request).ifPresent(advancedSearch::add);
-        if (!advancedSearch.isEmpty()) {
-            return Optional.of(new Criteria().andOperator(advancedSearch.toArray(new Criteria[advancedSearch.size()])));
-        } else {
-            return Optional.empty();
-        }
+        return AggregationUtils.andCriteria(advancedSearch);
     }
 
     private Optional<Criteria> getExperimentIdsWithBingoIds(EntitySearchRequest request, List<String> bingoIds){
         Optional<Criteria> componentWithBingoIds = getComponentWithBingoIds(request, bingoIds);
-        return componentWithBingoIds.map(this::find).map(Criteria.where("_id")::in);
+        return componentWithBingoIds.map(this::find).map(ids -> Criteria.where("_id").in(ids));
     }
 
     private Optional<Criteria> getQueryCriteria(EntitySearchRequest request) {
         List<String> fields = request.getAdvancedSearch().stream()
                 .filter(c -> AVAILABLE_FIELDS.contains(c.getField()))
-                .map(c -> c.getField())
+                .map(SearchCriterion::getField)
                 .collect(toList());
 
         List<Criteria> querySearch = new ArrayList<>();
@@ -95,11 +102,22 @@ public class ExperimentSearchRepository implements InitializingBean {
                 .forEach(querySearch::add));
 
         getComponentWithQuery(request).ifPresent(querySearch::add);
-        if (!querySearch.isEmpty()) {
-            return Optional.of(new Criteria().orOperator(querySearch.toArray(new Criteria[querySearch.size()])));
-        } else {
-            return Optional.empty();
+        return AggregationUtils.orCriteria(querySearch);
+    }
+
+    private boolean checkConditions(EntitySearchRequest request){
+        boolean correct = request.getAdvancedSearch().stream()
+                .allMatch(c -> AVAILABLE_FIELDS.contains(c.getField()) || ComponentSearchRepository.AVAILABLE_FIELDS.contains(c.getField()));
+
+        if (correct){
+            return request.getAdvancedSearch().stream()
+                    .filter("kind"::equals)
+                    .findAny()
+                    .map(AggregationUtils::convertToCollection)
+                    .map(c -> c.contains(EXPERIMENT))
+                    .orElse(true);
         }
+        return false;
     }
 
     private Set<String> find(Criteria criteria) {

@@ -1174,5 +1174,27 @@ ul.my-dropdown-list {
 .inline-loader.is-loading {
   visibility: visible;
 }
+.batch-status{
+  &:before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+    margin-right: 4px;
+  }
+  &.status-passed {
+    color: #a3c644;
+  }
+  &.status-passed:before {
+    background-color: #a3c644;
+  }
+  &.status-failed {
+    color: #e4445f;
+  }
+  &.status:before {
+    background-color: #e4445f;
+  }
+}
 
 @import "../../scripts/components/entities/template/components/product-batch-details/indigo-product-batch-details";

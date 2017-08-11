@@ -25,7 +25,8 @@
                 onRemoveBatches: '&',
                 experimentName: '=',
                 structureSize: '=',
-                isHideColumnSettings: '='
+                isHideColumnSettings: '=',
+                onChanged: '&'
             }
         };
 
@@ -52,6 +53,8 @@
                 vm.addNewBatch = addNewBatch;
                 vm.deleteBatch = deleteBatch;
                 vm.duplicateBatch = duplicateBatch;
+                vm.onBatchOperationChanged = onBatchOperationChanged;
+                vm.isBatchLoading = false;
 
                 bindEvents();
             }
@@ -70,6 +73,7 @@
 
             function successAddedBatch(batch) {
                 vm.onAddedBatch({batch: batch});
+                vm.onChanged();
                 selectBatch(batch);
             }
 
@@ -86,13 +90,18 @@
                     _.forEach(batches, function(batch) {
                         vm.onAddedBatch({batch: batch});
                     });
-                    successAddedBatch(batches[0]);
+                    selectBatch(batches[0]);
                 });
             }
 
             function exportSDFile() {
                 ProductBatchSummaryOperations.exportSDFile();
             }
+
+            function onBatchOperationChanged(completed) {
+                vm.isBatchLoading = completed;
+            }
+
 
             function onRowSelected(batch) {
                 if (batch) {

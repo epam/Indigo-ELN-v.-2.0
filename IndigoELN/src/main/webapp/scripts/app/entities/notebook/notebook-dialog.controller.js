@@ -4,9 +4,9 @@
         .controller('NotebookDialogController', NotebookDialogController);
 
     /* @ngInject */
-    function NotebookDialogController($scope, $rootScope, $state, Notebook, Alert, PermissionManagement, modalHelper,
+    function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      AutoRecoverEngine, NotebookSummaryExperiments) {
+                                      AutoRecoverEngine, notebookSummaryExperiments, $q) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -34,6 +34,8 @@
         vm.repeatExperiment = repeatExperiment;
         vm.refresh = refresh;
         vm.save = save;
+        vm.onChangedDescription = onChangedDescription;
+        vm.print = print;
 
         init();
 
@@ -52,6 +54,10 @@
             PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
                 vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
             });
+        }
+
+        function onChangedDescription() {
+            EntitiesBrowser.changeDirtyTab($stateParams, true);
         }
 
         function initDirtyListener() {
@@ -142,12 +148,12 @@
 
                 return;
             }
-            vm.loading = NotebookSummaryExperiments.query({
+            vm.loading = notebookSummaryExperiments.query({
                 notebookId: $stateParams.notebookId,
                 projectId: $stateParams.projectId
             }).$promise.then(function(data) {
                 if (!data.length) {
-                    Alert.info('There are no experiments in this notebook');
+                    notifyService.info('There are no experiments in this notebook');
 
                     return;
                 }
@@ -162,7 +168,7 @@
                 vm.experiments = data;
                 vm.isSummary = true;
             }, function() {
-                Alert.error('Cannot get summary right now due to server error');
+                notifyService.error('Cannot get summary right now due to server error');
             });
         }
 
@@ -193,10 +199,10 @@
             if (result.status === 400 && result.data.params) {
                 var firstParam = _.first(result.data.params);
                 if (result.data.params.length > 1 || firstParam.indexOf('-') > -1) {
-                    Alert.error('This Notebook name cannot be changed because batches are created within its' +
+                    notifyService.error('This Notebook name cannot be changed because batches are created within its' +
                         ' experiments');
                 } else {
-                    Alert.error('This Notebook name is already in use in the system');
+                    notifyService.error('This Notebook name is already in use in the system');
                 }
                 vm.hasError = false;
                 partialRefresh();
@@ -206,7 +212,7 @@
             $timeout(function() {
                 vm.hasError = true;
             });
-            Alert.error('Notebook is not saved due to server error');
+            notifyService.error('Notebook is not saved due to server error');
         }
 
         function refresh() {
@@ -224,13 +230,24 @@
             }
         }
 
+        function print() {
+            save().then(function() {
+                $state.go('entities.notebook-detail.print');
+            });
+        }
+
         function save() {
+            if (!$scope.createNotebookForm.$dirty) {
+                return $q.resolve();
+            }
             vm.hasError = false;
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
                     .then(function(result) {
                         vm.notebook.version = result.version;
+                        vm.notebookCopy = angular.copy(vm.notebook);
                         $scope.createNotebookForm.$setPristine();
+                        EntitiesBrowser.changeDirtyTab($stateParams, false);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
                             projectId: vm.projectId, 
@@ -238,11 +255,13 @@
                         });
                     }, onSaveError);
 
-                return;
+                return vm.loading;
             }
             vm.loading = Notebook.save({
                 projectId: vm.projectId
             }, vm.notebook, onSaveSuccess, onSaveError).$promise;
+
+            return vm.loading;
         }
     }
 })();

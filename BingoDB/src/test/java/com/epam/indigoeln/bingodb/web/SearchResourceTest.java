@@ -1,7 +1,7 @@
 package com.epam.indigoeln.bingodb.web;
 
 import com.epam.indigoeln.bingodb.domain.BingoStructure;
-import com.epam.indigoeln.bingodb.web.dto.ResponseDTO;
+import com.epam.indigoeln.bingodb.web.rest.dto.ResponseDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,12 +83,6 @@ public class SearchResourceTest {
 
         ResponseDTO searchResponse = restTemplate.postForObject("/api/search/reaction/similarity?min=0.1&max=1.0", "CC>>CC", ResponseDTO.class);
         Assert.assertTrue(findById(id, searchResponse.getStructures()).isPresent());
-    }
-
-    @Test
-    public void testSearchReactionMolFormula() {
-        ResponseDTO searchResponse = restTemplate.postForObject("/api/search/reaction/molformula", "C2H6", ResponseDTO.class);
-        Assert.assertEquals("Operation is not supported", searchResponse.getMessage());
     }
 
     private Optional<BingoStructure> findById(String id, List<BingoStructure> structures) {

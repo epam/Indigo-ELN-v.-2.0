@@ -9,10 +9,12 @@
             replace: true,
             controller: 'FileUploaderController',
             controllerAs: 'vm',
+            bindToController: true,
             templateUrl: 'scripts/components/fileuploader/file-uploader/file-uploader.html',
             scope: {
                 uploadUrl: '@',
-                indigoReadonly: '='
+                indigoReadonly: '=',
+                onChanged: '&'
             }
         };
     }

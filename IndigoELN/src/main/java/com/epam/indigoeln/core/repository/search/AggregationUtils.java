@@ -1,7 +1,6 @@
 package com.epam.indigoeln.core.repository.search;
 
 import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
-import com.mongodb.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -33,58 +32,72 @@ public final class AggregationUtils {
     }
 
     public static Criteria createCriterion(SearchCriterion searchCriterion, String prefix) {
-        return createCriterion(searchCriterion.getField(), searchCriterion.getValue(), searchCriterion.getCondition(), prefix);
+        return createCriterion(searchCriterion.getCondition(), prefix + searchCriterion.getField(), searchCriterion.getValue());
     }
 
-    public static Criteria createCriterion(String field, Object value, String condition, String prefix) { //NOSONAR This method should check all the operators
-        final Criteria criteria = Criteria.where(prefix + field);
+    private static Criteria createCriterion(String condition, String key, Object value) {
+        Criteria regex = createCriterionRegex(condition, key, value);
+
+        if (regex != null) {
+            return regex;
+        }
+
+        switch (condition) {
+            case "in":
+                return Criteria.where(key).in(convertToCollection(value));
+            case "=":
+                return Criteria.where(key).is(convertToDouble(value));
+            case ">":
+                return Criteria.where(key).gt(convertToDouble(value));
+            case ">=":
+                return Criteria.where(key).gte(convertToDouble(value));
+            case "<":
+                return Criteria.where(key).lt(convertToDouble(value));
+            case "<=":
+                return Criteria.where(key).lte(convertToDouble(value));
+            default:
+                return Criteria.where(key).is(value);
+        }
+    }
+
+    private static Criteria createCriterionRegex(String condition, String key, Object value) {
         switch (condition) {
             case "contains":
-                criteria.regex(".*" + value + ".*", "i");
-                break;
+                return Criteria.where(key).regex(regexContains(value), "i");
             case "starts with":
-                criteria.regex(value + ".*", "i");
-                break;
+                return Criteria.where(key).regex(regexStartsWith(value), "i");
             case "ends with":
-                criteria.regex(".*" + value, "i");
-                break;
-            case "in":
-                criteria.in(convertToCollection(value));
-                break;
-            case "=":
-                criteria.is(convertToDouble(value));
-                break;
-            case ">":
-                criteria.gt(convertToDouble(value));
-                break;
-            case ">=":
-                criteria.gte(convertToDouble(value));
-                break;
-            case "<":
-                criteria.lt(convertToDouble(value));
-                break;
-            case "<=":
-                criteria.lte(convertToDouble(value));
-                break;
+                return Criteria.where(key).regex(regexEndsWith(value), "i");
             default:
-                criteria.is(value);
+                return null;
         }
-        return criteria;
     }
 
-    public static <T> Optional<T> andCriteria(Function<Criteria, T> find, Optional<Criteria>... mas) {
-        ArrayList<Criteria> searchCriteria = new ArrayList<>();
-        for (Optional<Criteria> criteria : mas) {
-            criteria.ifPresent(searchCriteria::add);
-        }
-        if (!searchCriteria.isEmpty()) {
-            return Optional.of(new Criteria().andOperator(searchCriteria.toArray(new Criteria[searchCriteria.size()]))).map(find::apply);
+    public static Optional<Criteria> andCriteria(Optional<Criteria>... mas) {
+        List<Criteria> searchCriteria = Arrays.stream(mas)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toList());
+        return andCriteria(searchCriteria);
+    }
+
+    public static Optional<Criteria> andCriteria(Collection<Criteria> criteriaCollection) {
+        if (!criteriaCollection.isEmpty()) {
+            return Optional.of(new Criteria().andOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
         } else {
             return Optional.empty();
         }
     }
 
-    private static Collection<?> convertToCollection(Object obj) {
+    public static Optional<Criteria> orCriteria(Collection<Criteria> criteriaCollection) {
+        if (!criteriaCollection.isEmpty()) {
+            return Optional.of(new Criteria().orOperator(criteriaCollection.toArray(new Criteria[criteriaCollection.size()])));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public static Collection convertToCollection(Object obj) {
         if (obj == null) {
             return Collections.emptyList();
         }
@@ -111,4 +124,15 @@ public final class AggregationUtils {
         return null;
     }
 
+    private static String regexContains(Object value) {
+        return ".*" + value + ".*";
+    }
+
+    private static String regexStartsWith(Object value) {
+        return value + ".*";
+    }
+
+    private static String regexEndsWith(Object value) {
+        return ".*" + value;
+    }
 }
