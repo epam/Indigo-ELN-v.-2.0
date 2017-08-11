@@ -1,14 +1,17 @@
-<div ng-if="!!indigoRestored" class="autorecovery">
+<div ng-if="!!indigoRestored" class="autorecovery row">
     <span>
-        <span ng-bind="indigoRestored.rec.rec.kind"
-        class="capitalized"></span>
-        <b ng-bind="indigoRestored.rec.entity.name"></b>
-        was not saved. Do you want to restore changes?
-        <button class="btn btn-primary" ng-click="indigoRestored.resolve(true)">
-            Yes
-        </button>
-        <button ng-click="indigoRestored.resolve(false)" class="btn btn-default">
-            No, thanks
-        </button>
-    </span> 
+        <div class="col-md-8">
+            <span ng-bind="indigoRestored.rec.rec.kind" class="capitalized"></span>
+            <b ng-bind="indigoRestored.rec.entity.name"></b>
+            was not saved. Do you want to restore changes?
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary yes-btn" ng-click="indigoRestored.resolve(true)">
+                Yes
+            </button>
+            <button ng-click="indigoRestored.resolve(false)" class="btn btn-default">
+                No, thanks
+            </button>
+        </div>
+    </span>
 </div>
