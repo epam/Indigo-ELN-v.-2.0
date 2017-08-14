@@ -5,20 +5,43 @@
   color: white;
   margin: 0;
   padding: 5px;
+  border-style: none;
+  border-radius: 0px;
 }
 #content-wrapper {
   position: relative;
 }
-.cg-notify-close {
-  font-size: 30px;
-  top: 7px;
+.notify-close {
+  -webkit-appearance: none;
+  padding: 7px;
+  cursor: pointer;
+  background: 0 0;
+  border: 0;
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+  color: @white;
+
+  position: absolute;
+  top: 0px;
+  right: 3px;
+  line-height: 17px;
 }
+
+.notify-close:hover, .notify-close:focus {
+  color: @white;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+
 .success-notify {
-  background-color: #A3C644;
+  background-color: @success-notify;
 }
 .danger-notify {
-  background-color: #E4445F;
+  background-color: @danger-notify;
 }
 .warning-notify {
-  background-color: #FF9B19;
+  background-color: @warring-notify;
 }
