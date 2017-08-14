@@ -5,7 +5,6 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.*;
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -31,11 +30,9 @@ public abstract class BasicModelObject implements Serializable, Persistable<Stri
     private ZonedDateTime lastEditDate;
 
     @CreatedBy
-    @DBRef
     private User author;
 
     @LastModifiedBy
-    @DBRef
     private User lastModifiedBy;
 
     @Version
