@@ -4,7 +4,7 @@
         .controller('PermissionManagementController', PermissionManagementController);
 
     /* @ngInject */
-    function PermissionManagementController($rootScope, $scope, $uibModalInstance, PermissionManagement, users, permissions, Alert, AlertModal) {
+    function PermissionManagementController($rootScope, $scope, $uibModalInstance, PermissionManagement, users, permissions, notifyService, AlertModal) {
         var vm = this;
 
         vm.accessList = PermissionManagement.getAccessList();
@@ -89,7 +89,7 @@
 
         function checkAuthority(member, permission) {
             if (!PermissionManagement.hasAuthorityForPermission(member, permission)) {
-                Alert.warning('This user cannot be set as ' + permission + ' as he does not have ' +
+                notifyService.warning('This user cannot be set as ' + permission + ' as he does not have ' +
                     'sufficient privileges in the system, please select another permissions level');
                 member.permissionView = vm.oldPermission;
             }

@@ -4,7 +4,7 @@
         .controller('FileUploaderDeleteDialogController', FileUploaderDeleteDialogController);
 
     /* @ngInject */
-    function FileUploaderDeleteDialogController($uibModalInstance, Alert, UploaderService, params, file) {
+    function FileUploaderDeleteDialogController($uibModalInstance, notifyService, UploaderService, params, file) {
         var vm = this;
 
         vm.deleteFile = deleteFile;
@@ -21,7 +21,7 @@
                         $uibModalInstance.close(file);
                     },
                     function(error) {
-                        Alert.error('Error deleting the file: ' + error);
+                        notifyService.error('Error deleting the file: ' + error);
                         $uibModalInstance.close();
                     }
                 );

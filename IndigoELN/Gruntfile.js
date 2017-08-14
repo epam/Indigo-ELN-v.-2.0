@@ -31,8 +31,8 @@ module.exports = function (grunt) {
                 tasks: ['wiredep']
             },
             less: {
-                files: ['<%= yeoman.app %>/assets/less/*.less'],
-                tasks: ['less']
+                files: ['<%= yeoman.app %>/assets/less/*.less', '<%= yeoman.app %>/scripts/**/*.less'],
+                tasks: ['less:dev']
             }
         },
         autoprefixer: {
@@ -61,7 +61,7 @@ module.exports = function (grunt) {
                 proxy: 'localhost:8080'
             }
         },
-        complexity : {
+        complexity: {
             generic: {
                 src: ['src/main/webapp/scripts/**/*.js'],
                 exclude: [],
@@ -84,14 +84,14 @@ module.exports = function (grunt) {
             server: '.tmp'
         },
         jshint: {
-           options: {
-               jshintrc: '.jshintrc',
-               reporter: require('jshint-stylish')
-           },
-           all: [
-               'Gruntfile.js',
-               'src/main/webapp/scripts/**/*.js'
-           ]
+            options: {
+                jshintrc: '.jshintrc',
+                reporter: require('jshint-stylish')
+            },
+            all: [
+                'Gruntfile.js',
+                'src/main/webapp/scripts/**/*.js'
+            ]
         },
         concat: {
             // src and dest is configured in a subtask called "generated" by usemin
@@ -247,33 +247,23 @@ module.exports = function (grunt) {
             }
         },
         less: {
-            components: {
-                files: [
-                    {
-                        expand: true,
-                        flatten: true,
-                        cwd: '.',
-                        src: ['<%= yeoman.app %>/assets/less/*.less', '!<%= yeoman.app %>/assets/less/{boot,var,mix}*.less'],
-                        dest: '<%= yeoman.app %>/assets/styles/',
-                        ext: '.css'
-                    }
-                ]
-            }
-        },
-        babel: {
-            options: {
-                presets: ['es2015'], // npm install babel-preset-es2015
-                compact: false
+            dev: {
+                options: {
+                    sourceMap: true,
+                    outputSourceFiles: true
+                },
+                files: {
+                    '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
+                    '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
+                        '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
+                }
             },
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        cwd: '.tmp/concat/scripts',
-                        src: 'app.js',
-                        dest: '.tmp/concat/scripts'
-                    }
-                ]
+            prod: {
+                files: {
+                    '<%= yeoman.app %>/assets/styles/main.css': '<%= yeoman.app %>/assets/less/main.less',
+                    '<%= yeoman.app %>/assets/styles/indigo-bootstrap.css':
+                        '<%= yeoman.app %>/assets/less/indigo-bootstrap.less'
+                }
             }
         }
     });
@@ -285,11 +275,8 @@ module.exports = function (grunt) {
         'watch'
     ]);
 
-    grunt.registerTask('watch-only', [
-        'watch'
-    ]);
 
-    grunt.registerTask('server', function(target) {
+    grunt.registerTask('server', function (target) {
         grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
         grunt.task.run([target ? ('serve:' + target) : 'serve']);
     });
@@ -299,11 +286,10 @@ module.exports = function (grunt) {
         'wiredep:app',
         'useminPrepare',
         'ngtemplates',
-        'less',
+        'less:prod',
         'imagemin',
         'svgmin',
         'concat',
-        'babel:dist',
         'copy:fonts',
         'copy:dist',
         'ngAnnotate',
