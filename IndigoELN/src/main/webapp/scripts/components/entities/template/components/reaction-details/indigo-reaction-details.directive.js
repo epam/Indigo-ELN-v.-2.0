@@ -1,4 +1,4 @@
-(function() {
+(function () {
     angular
         .module('indigoeln')
         .directive('indigoReactionDetails', indigoReactionDetails);
@@ -25,8 +25,6 @@
 
             vm.model = vm.model || {};
             vm.model.reactionDetails = vm.model.reactionDetails || {};
-            vm.model.reactionDetails.experimentCreator = vm.model.reactionDetails.experimentCreator ||
-                {name: Principal.getIdentity().fullName};
 
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;
@@ -35,18 +33,39 @@
             init();
 
             function init() {
-                Users.get().then(function(dictionary) {
+                Users.get().then(function (dictionary) {
                     vm.users = dictionary.words;
+
+                    vm.model.reactionDetails.experimentCreator = vm.model.reactionDetails.experimentCreator ||
+                        _.find(vm.users, {
+                            id: Principal.getIdentity().id
+                        });
+                    vm.model.reactionDetails.experimentCreator = getUser(vm.users, vm.model.reactionDetails.experimentCreator);
+
                     vm.model.reactionDetails.batchOwner = vm.model.reactionDetails.batchOwner ||
                         _.filter(vm.users, {
-                            name: Principal.getIdentity().fullName
+                            id: Principal.getIdentity().id
                         });
+                    vm.model.reactionDetails.batchOwner = updateUsersById(vm.model.reactionDetails.batchOwner, vm.users);
+                    vm.model.reactionDetails.coAuthors = updateUsersById(vm.model.reactionDetails.coAuthors, vm.users);
                 });
             }
 
+            function updateUsersById(array, users) {
+                return _.map(array, function (user) {
+                    return getUser(users, user);
+                });
+            }
+
+            function getUser(users, user) {
+                return _.find(users, function (element) {
+                        return element.id === user.id;
+                    }) || user;
+            }
+
             function onLinkedExperimentClick(tag) {
-                loadExperiments().then(function(experiments) {
-                    var experiment = _.find(experiments, function(experiment) {
+                loadExperiments().then(function (experiments) {
+                    var experiment = _.find(experiments, function (experiment) {
                         return experiment.name === tag.text;
                     });
                     if (!experiment) {
@@ -64,8 +83,8 @@
 
             function onAddLinkedExperiment(tag) {
                 var _deferred = $q.defer();
-                loadExperiments().then(function(experiments) {
-                    _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
+                loadExperiments().then(function (experiments) {
+                    _deferred.resolve(_.isObject(_.find(experiments, function (experiment) {
                         return experiment.name === tag.text;
                     })));
                 });
@@ -75,10 +94,10 @@
 
             function getExperiments(query) {
                 var _deferred = $q.defer();
-                loadExperiments().then(function(experiments) {
-                    var filtered = _.chain(experiments).filter(function(experiment) {
+                loadExperiments().then(function (experiments) {
+                    var filtered = _.chain(experiments).filter(function (experiment) {
                         return experiment.name.startsWith(query);
-                    }).map(function(experiment) {
+                    }).map(function (experiment) {
                         return experiment.name;
                     }).value();
                     _deferred.resolve(filtered);
@@ -95,7 +114,7 @@
                 deferred = $q.defer();
                 Dictionary.get({
                     id: 'experiments'
-                }, function(dictionary) {
+                }, function (dictionary) {
                     deferred.resolve(dictionary.words);
                 });
 
