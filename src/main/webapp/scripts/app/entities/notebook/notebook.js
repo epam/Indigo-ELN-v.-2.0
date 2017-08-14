@@ -85,7 +85,6 @@ angular.module('indigoeln')
                         if (!EntitiesCache.get($stateParams)) {
                             EntitiesCache.put($stateParams, AutoSaveEntitiesEngine.autoRecover(Notebook, $stateParams));
                         }
-
                         return $q
                             .all([
                                 EntitiesCache.get($stateParams),
@@ -107,6 +106,16 @@ angular.module('indigoeln')
                                 };
                             });
                     }
+                }
+            })
+            .state('entities.notebook-detail.print', {
+                parent: 'entities.notebook-detail',
+                url: '/print',
+                onEnter: function(printModal) {
+                    printModal.showPopup();
+                },
+                data: {
+                    authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
                 }
             })
             .state('entities.notebook-new.permissions', _.extend({}, PermissionManagementConfig, {

@@ -4,7 +4,7 @@
         .controller('FileUploaderController', FileUploaderController);
 
     function FileUploaderController($uibModal, $filter, $stateParams, FileUploaderCash,
-                                    ParseLinks, Alert, ProjectFileUploaderService, ExperimentFileUploaderService) {
+                                    ParseLinks, notifyService, ProjectFileUploaderService, ExperimentFileUploaderService) {
         var vm = this;
         var params = $stateParams;
         var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
@@ -45,7 +45,7 @@
 
         function upload() {
             if (!params.projectId) {
-                Alert.error('Please save project before attach files.');
+                notifyService.error('Please save project before attach files.');
 
                 return;
             }
@@ -92,7 +92,7 @@
             }).result.then(function(file) {
                 vm.files = _.without(vm.files, file);
                 FileUploaderCash.removeFile(file);
-                Alert.success('File was successfully deleted');
+                notifyService.success('File was successfully deleted');
             });
         }
 
