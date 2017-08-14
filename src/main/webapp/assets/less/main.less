@@ -930,18 +930,41 @@ ul.my-dropdown-list {
 .checkbox-label-wrapper {
     display: inline-block;
 }
+
 .autorecovery {
-    padding: 4px 20px;
-    background: #999999;
-    position: absolute;
-    z-index: 10;
-    top: 0;
-    right: 0;
-    left: 0;
+  padding: 4px 20px;
+  background: #999999;
+  position: absolute;
+  color: #ffffff;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  left: 0;
 }
 
 .autorecovery .btn {
-    margin-left: 50%
+  margin-left: 10px;
+}
+
+.message {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.autorecovery-buttons {
+  float: right;
+}
+
+.autorecovery-buttons .yes {
+  background-color: #A3C644;
+  border: none;
+}
+
+.autorecovery-buttons .no {
+  background-color: #999999;
+  border: 1px solid #ffffff;
+  color: #ffffff;
 }
 
 .reaction-popup .reaction-image {
