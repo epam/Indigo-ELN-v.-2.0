@@ -29,10 +29,7 @@
                 vm.isVisible = false;
 
                 recoveryData = autorecoveryCache.get($stateParams);
-
-                if (recoveryData) {
-                    vm.isVisible = true;
-                }
+                vm.isVisible = !!recoveryData;
 
                 vm.restore = restore;
                 vm.remove = remove;

@@ -16,18 +16,22 @@ function autorecoveryCacheFactory(CacheFactory, TabKeyUtils) {
     };
 
     function put(stateParams, data) {
-        cache.put(TabKeyUtils.getTabKeyFromParams(stateParams), data);
+        cache.put(paramsConverter(stateParams), data);
     }
 
     function get(stateParams) {
-        return cache.get(TabKeyUtils.getTabKeyFromParams(stateParams));
+        return cache.get(paramsConverter(stateParams));
     }
 
     function removeByParams(stateParams) {
-        cache.remove(TabKeyUtils.getTabKeyFromParams(stateParams));
+        cache.remove(paramsConverter(stateParams));
     }
 
     function clearAll() {
         cache.clearAll();
+    }
+    
+    function paramsConverter(stateParams) {
+        return TabKeyUtils.getTabKeyFromParams(_.extend({isAutorecovery: true}, stateParams));
     }
 }

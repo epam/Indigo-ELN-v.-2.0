@@ -35,9 +35,19 @@
                 };
                 isContentEditor = response.isContentEditor;
                 hasEditAuthority = response.hasEditAuthority;
-                vm.experiment = response.experiment;
                 vm.notebook = response.notebook;
-                originalExperiment = angular.copy(vm.experiment);
+
+                originalExperiment = angular.copy(response.experiment);
+
+                var restoredExperiment = EntitiesCache.get($stateParams);
+
+                vm.isVisibleAutoRecovery = !restoredExperiment;
+                if (!restoredExperiment) {
+                    EntitiesCache.put($stateParams, response.experiment);
+                    vm.experiment = response.experiment;
+                } else {
+                    vm.experiment = restoredExperiment;
+                }
 
                 EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.name, $stateParams);
 
@@ -88,6 +98,7 @@
 
         function onRestore(storeData) {
             vm.experiment = storeData;
+            EntitiesCache.put($stateParams, vm.experiment);
         }
 
         function getExperimentName(notebook, experiment) {
@@ -95,11 +106,6 @@
         }
 
         function getPageInfo() {
-            var entityParams = {
-                projectId: $stateParams.projectId,
-                notebookId: $stateParams.notebookId,
-                experimentId: $stateParams.experimentId
-            };
             var notebookParams = {
                 projectId: $stateParams.projectId,
                 notebookId: $stateParams.notebookId
@@ -110,7 +116,7 @@
             }
 
             return $q.all([
-                Experiment.get(entityParams).$promise,
+                Experiment.get($stateParams).$promise,
                 EntitiesCache.get(notebookParams),
                 Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                 Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
@@ -163,7 +169,6 @@
                 .then(function(result) {
                     vm.experiment.version = result.version;
                     originalExperiment = angular.copy(vm.experiment);
-                    // autorecoveryCache.remove($stateParams);
                 }, function() {
                     notifyService.error('Experiment is not saved due to server error!');
                 });
@@ -214,7 +219,6 @@
                 notifyService.success('Experiment updated');
                 angular.extend(vm.experiment, result);
                 originalExperiment = angular.copy(vm.experiment);
-                // autorecoveryCache.remove($stateParams);
             }, function() {
                 notifyService.error('Experiment not refreshed due to server error!');
             });
@@ -257,10 +261,12 @@
 
         function initEventListeners() {
             $scope.$watch('vm.experiment', function(newEntity) {
-                EntitiesBrowser.setCurrentEntity(vm.experiment);
                 var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
                 updateRecovery(newEntity, isDirty);
+                if (newEntity) {
+                    EntitiesBrowser.setCurrentEntity(newEntity);
+                }
             }, true);
 
             $scope.$watch('experimentForm.$dirty', function() {

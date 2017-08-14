@@ -27,6 +27,7 @@
         function closeTab(tab) {
             EntitiesBrowser.close(tab.tabKey);
             EntitiesCache.removeByKey(tab.tabKey);
+            autorecoveryCache.remove(tab.params);
         }
 
         // TODO: need to inject service by name but app does't have root elem
@@ -118,7 +119,7 @@
         }
 
         function clearRecovery(tab) {
-            autorecoveryCache.removeByParams(tab.params);
+            console.log('remove recovery', tab);
         }
 
         function onCloseTabClick($event, tab) {
