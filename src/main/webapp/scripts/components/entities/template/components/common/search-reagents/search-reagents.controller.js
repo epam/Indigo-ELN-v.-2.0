@@ -171,6 +171,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
 
     function search() {
         vm.loading = true;
+        vm.searchResults = [];
         var searchRequest = SearchUtilService.prepareSearchRequest(vm.model.restrictions, vm.model.databases);
         SearchService.search(searchRequest, function(result) {
             responseCallback(result);
