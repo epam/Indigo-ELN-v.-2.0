@@ -13,7 +13,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 /**
  * REST Controller for Custom Search Implementation
@@ -62,11 +62,12 @@ public class SearchResource {
             value = "/batch",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<ProductBatchDetailsDTO>> searchBatches(
-            @ApiParam("Search params.") @RequestBody BatchSearchRequest searchRequest
-        )  {
-        Collection<ProductBatchDetailsDTO> batchDetails = searchService.findBatches(searchRequest);
-        return ResponseEntity.ok(batchDetails);
+    public Callable<ResponseEntity<Collection<ProductBatchDetailsDTO>>> searchBatches(
+            @ApiParam("Search params.") @RequestBody BatchSearchRequest searchRequest) {
+        return () -> {
+            Collection<ProductBatchDetailsDTO> batchDetails = searchService.findBatches(searchRequest);
+            return ResponseEntity.ok(batchDetails);
+        };
     }
 
     /**
