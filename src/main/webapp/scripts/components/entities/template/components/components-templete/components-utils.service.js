@@ -12,6 +12,8 @@ function componentsUtilsFactory(Principal, Components) {
         initExperimentDescription(components, isExistInTemplate(templates, 'experimentDescription'));
         initConceptDetails(components, isExistInTemplate(templates, 'conceptDetails'));
         initPreferredCompoundSummary(components, isExistInTemplate(templates, 'preferredCompoundSummary'));
+        initPreferredCompoundDetails(components, isExistInTemplate(templates, 'preferredCompoundDetails'));
+        initProductBatchDetails(components, isExistInTemplate(templates, 'productBatchDetails'));
         initProductBatchSummary(components, isExistInTemplate(templates, 'productBatchSummary'));
         initStoichTable(components, isExistInTemplate(templates, 'stoichTable'));
         initReactionDetails(components, isExistInTemplate(templates, 'reactionDetails'));
@@ -44,6 +46,18 @@ function componentsUtilsFactory(Principal, Components) {
     function initPreferredCompoundSummary(components, isExist) {
         if (isExist) {
             _.defaultsDeep(components, {preferredCompoundSummary: {compounds: []}});
+        }
+    }
+
+    function initPreferredCompoundDetails(components, isExist) {
+        if (isExist) {
+            _.defaultsDeep(components, {preferredCompoundDetails: null});
+        }
+    }
+
+    function initProductBatchDetails(components, isExist) {
+        if (isExist) {
+            _.defaultsDeep(components, {productBatchDetails: null});
         }
     }
 
