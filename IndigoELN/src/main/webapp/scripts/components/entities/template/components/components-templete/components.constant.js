@@ -26,7 +26,7 @@
                 ' details:Total amount weight, Yield%, Stereoisomer code, Purity, Solubility, Hazards,ect. Batch Registration (if it is allowed) is also executed here',
                 isBatch: true
             },
-            reactionScheme: {
+            reaction: {
                 name: 'Reaction Scheme',
                 id: 'reaction-scheme',
                 desc: 'Allows user to draw , import and export reaction schema'

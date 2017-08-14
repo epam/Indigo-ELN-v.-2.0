@@ -8,13 +8,13 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.service.print.itext2.PdfSectionsProvider;
 import com.epam.indigoeln.core.service.print.itext2.model.common.AttachmentsModel;
 import com.epam.indigoeln.core.service.print.itext2.model.common.DescriptionModel;
+import com.epam.indigoeln.core.service.print.itext2.model.common.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.*;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformation;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.BatchInformationModel.BatchInformationRow;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.PreferredCompoundsRow;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.RegistrationSummaryModel.RegistrationSummaryRow;
 import com.epam.indigoeln.core.service.print.itext2.model.experiment.StoichiometryModel.StoichiometryRow;
-import com.epam.indigoeln.core.service.print.itext2.model.common.image.SvgPdfImage;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AbstractPdfSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.AttachmentsSection;
 import com.epam.indigoeln.core.service.print.itext2.sections.common.DescriptionSection;
@@ -25,14 +25,16 @@ import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.mongodb.gridfs.GridFSDBFile;
 import one.util.streamex.StreamEx;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.data.domain.PageRequest;
+
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.*;
+import static com.epam.indigoeln.core.service.print.itext2.model.experiment.PreferredCompoundsModel.Structure;
 import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 import static java.util.Collections.singletonList;
 
@@ -67,7 +69,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .filter(c -> printRequest.getComponents().contains(c.getName()))
                 .flatMap(this::sections)
                 .toList();
-        if (printRequest.getComponents().contains(ATTACHMENTS)){
+        if (printRequest.getComponents().contains(ATTACHMENTS)) {
             list.add(getAttachmentsSection());
         }
         return list;
@@ -75,7 +77,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
 
     private Stream<AbstractPdfSection> sections(Component component) {
         return Optional.ofNullable(componentNameToConverter.get(component.getName()))
-                .map(converter -> converter.convert(component, experiment).stream())
+                .map(converter -> converter.convert(Pair.of(component, experiment)).stream())
                 .orElseGet(Stream::empty);
     }
 
@@ -94,9 +96,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         componentNameToConverter.put(name, builder);
     }
 
-    private static List<AbstractPdfSection> reactionDetailsConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> singletonList(new ReactionDetailsSection(new ReactionDetailsModel()
-                .setCreationDate(e.getCreationDate())
+    private static List<AbstractPdfSection> reactionDetailsConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionDetailsSection(new ReactionDetailsModel()
+                .setCreationDate(p.getRight().getCreationDate())
                 .setTherapeuticArea(content.getString("therapeuticArea", "name"))
                 .setContinuedFrom(content.streamObjects("contFromRxn").map(m -> m.getString("text")).toList())
                 .setContinuedTo(content.streamObjects("contToRxn").map(m -> m.getString("text")).toList())
@@ -108,9 +110,9 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         )));
     }
 
-    private static List<AbstractPdfSection> conceptDetailsConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> singletonList(new ConceptDetailsSection(new ConceptDetailsModel(
-                e.getCreationDate(),
+    private static List<AbstractPdfSection> conceptDetailsConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ConceptDetailsSection(new ConceptDetailsModel(
+                p.getRight().getCreationDate(),
                 content.getString("therapeuticArea", "name"),
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
                 content.getString("codeAndName", "name"),
@@ -120,14 +122,14 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         ))));
     }
 
-    private static List<AbstractPdfSection> reactionConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> singletonList(new ReactionSchemeSection(new ReactionSchemeModel(
+    private static List<AbstractPdfSection> reactionConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> singletonList(new ReactionSchemeSection(new ReactionSchemeModel(
                 new SvgPdfImage(content.getString("image"))
         ))));
     }
 
-    private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> {
+    private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> {
             List<PreferredCompoundsRow> rows = content.streamObjects("compounds")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
@@ -151,8 +153,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         );
     }
 
-    private static List<AbstractPdfSection> stoichTableConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> {
+    private static List<AbstractPdfSection> stoichTableConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> {
             List<StoichiometryRow> reactants = content.streamObjects("reactants")
                     .map(ExperimentPdfSectionsProvider::getStoichiometryModel)
                     .toList();
@@ -184,25 +186,25 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setComments(reactant.getString("comments"));
     }
 
-    private static List<AbstractPdfSection> experimentDescriptionConverter(Component c, Experiment e) {
-        return MongoExt.of(c).map(content -> {
+    private static List<AbstractPdfSection> experimentDescriptionConverter(Pair<Component, Experiment> p) {
+        return MongoExt.of(p.getLeft()).map(content -> {
             String description = content.getString("description");
             return singletonList(new DescriptionSection(new DescriptionModel(description, "EXPERIMENT")));
         });
     }
 
-    private static List<AbstractPdfSection> productBatchSummaryConverter(Component c, Experiment e) {
-        Optional<List<String>> batchOwner = e.getComponents().stream()
+    private static List<AbstractPdfSection> productBatchSummaryConverter(Pair<Component, Experiment> p) {
+        Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
                 .map(m -> m.streamObjects("batchOwner").map(owner -> owner.getString("name")).toList())
                 .findAny();
 
-        List<BatchInformationRow> batchInfoRows = MongoExt.of(c)
+        List<BatchInformationRow> batchInfoRows = MongoExt.of(p.getLeft())
                 .streamObjects("batches")
                 .map(batch -> getBatchInformationRow(batch, batchOwner)).toList();
 
-        List<RegistrationSummaryRow> regSummaryRows = MongoExt.of(c)
+        List<RegistrationSummaryRow> regSummaryRows = MongoExt.of(p.getLeft())
                 .streamObjects("batches")
                 .map(batch -> new RegistrationSummaryRow(
                         batch.getString("fullNbkBatch"),
@@ -244,14 +246,14 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 ));
     }
 
-    private static List<AbstractPdfSection> productBatchDetailsConverter(Component c, Experiment e) {
-        Optional<MongoExt> content = e.getComponents().stream()
+    private static List<AbstractPdfSection> productBatchDetailsConverter(Pair<Component, Experiment> p) {
+        Optional<MongoExt> content = p.getRight().getComponents().stream()
                 .filter(component -> PRODUCT_BATCH_SUMMARY.equals(component.getName()))
                 .map(Component::getContent)
                 .map(MongoExt::of)
                 .findAny();
 
-        Optional<List<String>> batchOwner = e.getComponents().stream()
+        Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
                 .map(m -> m.streamObjects("batchOwner").map(owner -> owner.getString("name")).toList())
@@ -336,12 +338,6 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
      */
     @FunctionalInterface
     private interface ComponentToPdfSectionsConverter {
-        List<AbstractPdfSection> convert(Component component, Experiment e);
-    }
-
-    private static class PdfSectionsBuilderException extends RuntimeException {
-        PdfSectionsBuilderException(Throwable e) {
-            super(e);
-        }
+        List<AbstractPdfSection> convert(Pair<Component, Experiment> p);
     }
 }

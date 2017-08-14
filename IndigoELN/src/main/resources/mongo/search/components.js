@@ -2,60 +2,35 @@
 function searchComponents(filter) {
 
     return db.getCollection('component').aggregate([
-        {$match: {"experiment":{$exists: true}}},
-        {
-            $project: {
-                'experiment': 1,
-                'name': 1,
-                'content': 1,
-                'batch': '$content.batches',
-                'reactant': '$content.reactants',
-                'product': '$content.products'
-            }
-        },
-        {$unwind:{path:'$batch',preserveNullAndEmptyArrays:true}},
-        {$unwind:{path:'$reactant',preserveNullAndEmptyArrays:true}},
-        {$unwind:{path:'$product',preserveNullAndEmptyArrays:true}},
-        {
-            $project:{
-                'experiment': 1,
-                'name': 1,
-                'content': 1,
-                'batch': 1,
-                'reactant': 1,
-                'product': 1,
-                'purity': '$batch.purity.data.value'
-            }
-        },
-        {$unwind:{path:'$purity',preserveNullAndEmptyArrays:true}},
+        {$match: {'experiment':{$exists: true}}},
         {
             $group:{
-                _id: "$experiment",
-                'componentName': {$addToSet:'$name'},
-                'therapeuticArea': {$addToSet:'$content.therapeuticArea.name'},
-                'projectCode': {$addToSet:'$content.codeAndName.name'},
-                'batchYield': {$addToSet:'$batch.yield'},
-                'purity': {$addToSet:'$purity'},
-                'name': {$addToSet:'$content.title'},
-                'description': {$addToSet:'$content.description'},
+                _id: '$experiment',
+                'therapeuticArea': {$max:'$content.therapeuticArea.name'},
+                'projectCode': {$max:'$content.codeAndName.name'},
+                'batchYield': {$max:'$content.batches.yield'},
+                'purity': {$max:'$content.batches.purity.data'},
+                'name': {$max:'$content.title'},
+                'description': {$max:'$content.description'},
                 'compoundId': {
-                    $addToSet:{
+                    $max:{
                         $cond: {
                             if: {
                                 $eq: ['$name', 'productBatchSummary']
                             },
-                            then: '$batch.compoundId',
-                            else: '$reactant.compoundId'
+                            then: '$content.batches.compoundId',
+                            else: '$content.reactants.compoundId'
                         }
                     }
                 },
-                'references': {$addToSet:'$content.literature'},
-                'keywords': {$addToSet:'$content.keywords'},
-                'chemicalName': {$addToSet:'$product.chemicalName'},
-                'batchStructureId': {$addToSet:'$batch.structure.structureId'},
-                'reactionStructureId': {$addToSet:'$content.structureId'}
+                'references': {$max:'$content.literature'},
+                'keywords': {$max:'$content.keywords'},
+                'chemicalName': {$max:'$content.products.chemicalName'},
+                'batchStructureId': {$max:'$content.batches.structure.structureId'},
+                'reactionStructureId': {$max:'$content.structureId'}
             }
         },
+        {$unwind: {path:'$purity',preserveNullAndEmptyArrays:true}},
         {$match: filter}
     ]).map(function (obj) {
         return obj._id;

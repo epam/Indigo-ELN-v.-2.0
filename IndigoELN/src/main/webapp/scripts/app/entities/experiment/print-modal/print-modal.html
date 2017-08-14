@@ -6,7 +6,7 @@
             <span>Print settings</span>
         </h5>
     </div>
-    <div class="modal-body" cg-busy="{promise: vm.loading, minDuration:100}">
+    <div class="modal-body" cg-busy="{promise: vm.loading, minDuration:500}">
         <p>Please select components for print:</p>
         <indigo-checklist indigo-items="vm.components" class="checklist-wrap-lines"></indigo-checklist>
         <indigo-checkbox ng-if="vm.hasAttachments" indigo-classes="checklist-item" 
