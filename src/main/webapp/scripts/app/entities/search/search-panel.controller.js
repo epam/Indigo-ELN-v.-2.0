@@ -55,6 +55,7 @@
 
         function initDefaultState() {
             vm.state = {};
+            vm.clearStructureTrigger = 0;
             vm.state.model = SearchUtilService.getStoredModel();
             vm.state.$$isCollapsed = SearchUtilService.getStoredOptions().isCollapsed;
             vm.state.selectedItemsFlags = {};
@@ -68,6 +69,7 @@
         }
 
         function clear() {
+            vm.clearStructureTrigger = !vm.clearStructureTrigger;
             vm.state.model = SearchUtilService.getStoredModel(true);
         }
 
