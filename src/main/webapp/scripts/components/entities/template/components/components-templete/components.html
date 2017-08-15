@@ -1,7 +1,7 @@
 <fieldset ng-disabled="vm.isReadonly">
     <uib-tabset class="inner-tabs">
         <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in vm.template track by tab.name">
-            <indigo-component class="my-component" ng-repeat="component in tab.components"
+            <indigo-component class="my-component" indigo-component-id={{component.id}} ng-repeat="component in tab.components"
                               component="component">
             </indigo-component>
         </uib-tab>
