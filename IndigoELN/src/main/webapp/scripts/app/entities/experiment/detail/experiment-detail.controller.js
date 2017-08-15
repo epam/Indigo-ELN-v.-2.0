@@ -7,7 +7,7 @@
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        componentsUtils) {
+                                        componentsUtils, autorecoveryCache) {
         var vm = this;
         var pageInfo;
         var tabName;
@@ -37,17 +37,16 @@
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
 
-                originalExperiment = angular.copy(response.experiment);
-
                 var restoredExperiment = EntitiesCache.get($stateParams);
 
-                vm.isVisibleAutoRecovery = !restoredExperiment;
                 if (!restoredExperiment) {
                     EntitiesCache.put($stateParams, response.experiment);
                     vm.experiment = response.experiment;
                 } else {
                     vm.experiment = restoredExperiment;
                 }
+
+                originalExperiment = angular.copy(response.experiment);
 
                 EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.name, $stateParams);
 
@@ -111,13 +110,9 @@
                 notebookId: $stateParams.notebookId
             };
 
-            if (!EntitiesCache.get(notebookParams)) {
-                EntitiesCache.put(notebookParams, Notebook.get(notebookParams).$promise);
-            }
-
             return $q.all([
                 Experiment.get($stateParams).$promise,
-                EntitiesCache.get(notebookParams),
+                Notebook.get(notebookParams).$promise,
                 Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                 Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
                 EntitiesBrowser.getTabByParams($stateParams)
@@ -167,6 +162,7 @@
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
+                    EntitiesCache.put($stateParams, result);
                     vm.experiment.version = result.version;
                     originalExperiment = angular.copy(vm.experiment);
                 }, function() {
@@ -219,6 +215,7 @@
                 notifyService.success('Experiment updated');
                 angular.extend(vm.experiment, result);
                 originalExperiment = angular.copy(vm.experiment);
+                autorecoveryCache.hide($stateParams);
             }, function() {
                 notifyService.error('Experiment not refreshed due to server error!');
             });

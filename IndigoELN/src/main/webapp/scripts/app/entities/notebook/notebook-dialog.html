@@ -3,58 +3,58 @@
                   name="{{vm.stateData.tab.name}}"
                   on-restore="vm.onRestore(recoveryData)">
     </autorecovery>
-        <div class="tab-content-pad">
-            <div>
-                <div class="row m-b20">
-                    <div class="col-sm-6 col-xs-9">
-                        <div class="row-inline">
-                            <span class="txt-larger">Notebook Members:</span>
-                            <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
-                                    class="btn btn-default btn-small"
-                                    ng-disabled="!vm.isEditAllowed">
-                                <i class="fa fa-pencil"></i>
-                                <span class="m-l5">Edit</span>
-                            </button>
-                            <button type="button" class="btn btn-default btn-small"
-                                    ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
-                                <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
-                            </button>
-                        </div>
+    <div class="tab-content-pad">
+        <div>
+            <div class="row m-b20">
+                <div class="col-sm-6 col-xs-9">
+                    <div class="row-inline">
+                        <span class="txt-larger">Notebook Members:</span>
+                        <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
+                                class="btn btn-default btn-small"
+                                ng-disabled="!vm.isEditAllowed">
+                            <i class="fa fa-pencil"></i>
+                            <span class="m-l5">Edit</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-small"
+                                ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
+                            <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
+                        </button>
                     </div>
                 </div>
-                <div uib-collapse="vm.isCollapsed">
-                    <hr>
-                    <ul id="triple-list" class="list-triple members">
-                        <li class="members list-triple-members"
-                            ng-repeat="member in vm.notebook.accessList track by $index">
-                            {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
-                            + ')' }}
-                        </li>
-                    </ul>
-                </div>
+            </div>
+            <div uib-collapse="vm.isCollapsed">
+                <hr>
+                <ul id="triple-list" class="list-triple members">
+                    <li class="members list-triple-members"
+                        ng-repeat="member in vm.notebook.accessList track by $index">
+                        {{ '- ' + member.user.lastName + ' ' + member.user.firstName + ' (' + member.permissionView
+                        + ')' }}
+                    </li>
+                </ul>
             </div>
         </div>
-        <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()"
-              autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
-            <div class="inner-tabs">
-                <div class="simple-tab-content">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <indigo-input indigo-label="Notebook Name"
-                                          indigo-name="notebookName"
-                                          indigo-model="vm.notebook.name"
-                                          indigo-readonly="!vm.isEditAllowed"
-                                          indigo-label-vertical="true"
-                                          indigo-validation-pattern="/^\d{8}$/"
-                                          indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
-                                          indigo-validation-required="true">
-                            </indigo-input>
-                            <label>Notebook Description</label>
-                            <indigo-text-editor indigo-name="notebookDescription"
-                                                indigo-model="vm.notebook.description"
-                                                indigo-readonly="!vm.isEditAllowed"
-                                                on-changed="vm.onChangedDescription(text)">
-                            </indigo-text-editor>
+    </div>
+    <form id="createNotebookForm" name="createNotebookForm" role="form" novalidate ng-submit="vm.save()"
+          autocomplete="off" ng-class="vm.hasError ? 'has-error' : ''">
+        <div class="inner-tabs">
+            <div class="simple-tab-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <indigo-input indigo-label="Notebook Name"
+                                      indigo-name="notebookName"
+                                      indigo-model="vm.notebook.name"
+                                      indigo-readonly="!vm.isEditAllowed"
+                                      indigo-label-vertical="true"
+                                      indigo-validation-pattern="/^\d{8}$/"
+                                      indigo-validation-pattern-text="Only 8 digits possible in this field. Example : 01234567"
+                                      indigo-validation-required="true">
+                        </indigo-input>
+                        <label>Notebook Description</label>
+                        <indigo-text-editor indigo-name="notebookDescription"
+                                            indigo-model="vm.notebook.description"
+                                            indigo-readonly="!vm.isEditAllowed"
+                                            on-changed="vm.onChangedDescription(text)">
+                        </indigo-text-editor>
 
 
                         <div ng-if="vm.isSummary && vm.experiments.length"
@@ -139,9 +139,10 @@
                 class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
-        <a class="btn btn-default" ng-click="vm.refresh()">
+        <button class="btn btn-default" ng-click="vm.refresh()"
+                ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
             <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
-        </a>
+        </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </button>

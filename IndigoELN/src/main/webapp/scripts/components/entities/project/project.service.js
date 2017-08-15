@@ -13,6 +13,12 @@ function project($resource, FileUploaderCash, PermissionManagement) {
         return data;
     }
 
+    function sortAccessList(accessList) {
+        return _.sortBy(accessList, function(value) {
+            return value.user.id;
+        });
+    }
+
     function transformResponse(data) {
         _.each(data.tags, function(tag, i) {
             data.tags[i] = {
@@ -20,7 +26,10 @@ function project($resource, FileUploaderCash, PermissionManagement) {
             };
         });
         // assetsList is sorted by random on BE
-        data.accessList = _.sortBy(data.accessList, 'permissionView');
+        data.accessList = sortAccessList(data.accessList);
+        _.forEach(data.notebooks, function(notebook) {
+            notebook.accessList = sortAccessList(notebook.accessList);
+        });
     }
 
     return $resource('api/projects/:projectId', {}, {
@@ -51,6 +60,12 @@ function project($resource, FileUploaderCash, PermissionManagement) {
                 data = transformRequest(data);
 
                 return angular.toJson(data);
+            },
+            transformResponse: function(data) {
+                data = angular.fromJson(data);
+                transformResponse(data);
+
+                return data;
             }
         },
         delete: {

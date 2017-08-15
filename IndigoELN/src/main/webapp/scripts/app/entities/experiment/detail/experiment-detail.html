@@ -1,6 +1,5 @@
 <div class="experiments" cg-busy="{promise: vm.loading, minDuration:700}">
-    <autorecovery ng-if="vm.isVisibleAutoRecovery"
-                  kind="{{vm.stateData.tab.kind}}"
+    <autorecovery kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.experiment.name}}"
                   on-restore="vm.onRestore(recoveryData)">
     </autorecovery>

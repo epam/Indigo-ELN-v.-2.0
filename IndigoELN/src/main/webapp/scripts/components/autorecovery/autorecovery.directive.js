@@ -22,28 +22,41 @@
             var vm = this;
 
             var recoveryData;
+            var tempRecoveryData;
+
             init();
 
             function init() {
-                vm.isResolved = false;
-                vm.isVisible = false;
-
                 recoveryData = autorecoveryCache.get($stateParams);
-                vm.isVisible = !!recoveryData;
+                tempRecoveryData = autorecoveryCache.getTempRecoveryData($stateParams);
+
+                if (recoveryData && !tempRecoveryData) {
+                    autorecoveryCache.tryToVisible($stateParams);
+                    autorecoveryCache.putTempRecoveryData($stateParams, recoveryData);
+                }
+
+                if (!recoveryData && !autorecoveryCache.isVisible($stateParams)) {
+                    autorecoveryCache.hide($stateParams);
+                }
+
+                vm.isVisible = (tempRecoveryData || recoveryData) && autorecoveryCache.isVisible($stateParams);
 
                 vm.restore = restore;
                 vm.remove = remove;
             }
 
             function restore() {
-                vm.onRestore({recoveryData: recoveryData});
-                vm.isResolved = true;
+                vm.onRestore({recoveryData: tempRecoveryData || recoveryData});
+                remove();
             }
 
             function remove() {
+                autorecoveryCache.hide($stateParams);
                 autorecoveryCache.remove($stateParams);
+                autorecoveryCache.removeTempRecoveryData($stateParams);
                 recoveryData = null;
-                vm.isResolved = true;
+                tempRecoveryData = null;
+                vm.isVisible = false;
             }
         }
     }
