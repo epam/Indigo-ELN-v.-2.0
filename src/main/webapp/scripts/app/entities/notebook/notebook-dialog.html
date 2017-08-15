@@ -1,6 +1,6 @@
 <div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
     <autorecovery kind="{{vm.stateData.tab.kind}}"
-                  name="{{vm.stateData.tab.name}}"
+                  name="{{vm.notebook.name}}"
                   on-restore="vm.onRestore(recoveryData)">
     </autorecovery>
     <div class="tab-content-pad">
