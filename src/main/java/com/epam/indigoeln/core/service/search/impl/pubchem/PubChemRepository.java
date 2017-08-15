@@ -75,11 +75,7 @@ public class PubChemRepository {
     }
 
     private String addBatchesLimit(String searchURI, Optional<Integer> batchesLimit) {
-        if (batchesLimit.isPresent()) {
-            return searchURI + "?" + MAX_RECORDS_PARAM + "=" + batchesLimit.get();
-        } else {
-            //TODO set timeout and remove limit, now it might return about 250 000 batches
-            return searchURI + "?" + MAX_RECORDS_PARAM + "=" + LIMIT;
-        }
+        return batchesLimit.map(limit -> searchURI + "?" + MAX_RECORDS_PARAM + "=" + limit)
+                .orElse(searchURI);
     }
 }

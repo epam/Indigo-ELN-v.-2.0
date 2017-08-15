@@ -175,15 +175,18 @@
                     <indigo-structure-scheme class="search-structure-scheme"
                                              ss-structure-type="molecule"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model.molecule"
+                                             ss-model="vm.state.model.restrictions.structure"
+                                             model-trigger="vm.clearStructureTrigger"
                                              ss-autosave="false"
+                                             model-trigger="vm.selectedBatchTrigger"
                                              on-changed="vm.onChangeModel(structure)"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Product'">
                     </indigo-structure-scheme>
                     <indigo-structure-scheme class="search-structure-scheme"
                                              ss-structure-type="reaction"
                                              ss-title="'Structure or reaction'"
-                                             ss-model="vm.state.model.reaction"
+                                             ss-model="vm.state.model.restrictions.structure"
+                                             model-trigger="vm.clearStructureTrigger"
                                              on-changed="vm.onChangeModel(structure)"
                                              ss-autosave="false"
                                              ng-if="vm.state.model.restrictions.structure.type.name == 'Reaction'">
