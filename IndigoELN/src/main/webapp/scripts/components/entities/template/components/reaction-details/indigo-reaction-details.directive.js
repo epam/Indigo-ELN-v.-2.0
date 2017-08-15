@@ -24,6 +24,7 @@
             var deferred;
 
             vm.model = vm.model || {};
+            vm.model.reactionDetails = vm.model.reactionDetails || {};
 
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;
@@ -32,13 +33,34 @@
             init();
 
             function init() {
-                Users.get().then(function(dictionary) {
+                Users.get().then(function (dictionary) {
                     vm.users = dictionary.words;
+
+                    vm.model.reactionDetails.experimentCreator = vm.model.reactionDetails.experimentCreator ||
+                        _.find(vm.users, {
+                            id: Principal.getIdentity().id
+                        });
+                    vm.model.reactionDetails.experimentCreator = getUser(vm.users, vm.model.reactionDetails.experimentCreator);
+
                     vm.model.reactionDetails.batchOwner = vm.model.reactionDetails.batchOwner ||
                         _.filter(vm.users, {
-                            name: Principal.getIdentity().fullName
+                            id: Principal.getIdentity().id
                         });
+                    vm.model.reactionDetails.batchOwner = updateUsersById(vm.model.reactionDetails.batchOwner, vm.users);
+                    vm.model.reactionDetails.coAuthors = updateUsersById(vm.model.reactionDetails.coAuthors, vm.users);
                 });
+            }
+
+            function updateUsersById(array, users) {
+                return _.map(array, function(user) {
+                    return getUser(users, user);
+                });
+            }
+
+            function getUser(users, user) {
+                return _.find(users, function(element) {
+                        return element.id === user.id;
+                    }) || user;
             }
 
             function onLinkedExperimentClick(tag) {

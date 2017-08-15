@@ -34,6 +34,8 @@ public class ChangeLogVersion10 {
 
         db.getCollection("experiment").createIndex(BasicDBObjectBuilder.start().add("fileIds", 1).get());
         db.getCollection("experiment").createIndex(BasicDBObjectBuilder.start().add("sequenceId", 1).get());
+
+        db.getCollection("component").createIndex(BasicDBObjectBuilder.start().add("experiment", 1).get());
     }
 
     @ChangeSet(order = "02", author = "indigoeln", id = "02-initRoles")
