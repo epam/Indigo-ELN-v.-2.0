@@ -6,7 +6,8 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      autorecoveryHelper, notebookSummaryExperiments, $q) {
+                                      autorecoveryHelper, notebookSummaryExperiments, $q, EntitiesCache,
+                                      autorecoveryCache) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -19,12 +20,19 @@
 
         function init() {
             vm.stateData = $state.current.data;
-            vm.notebook = pageInfo.notebook;
-            originalNotebook = angular.copy(vm.notebook);
+            var restoredEntity = EntitiesCache.get($stateParams);
 
-            vm.newNotebook = _.isUndefined(vm.notebook.id) || _.isNull(vm.notebook.id);
-            vm.notebook.author = vm.notebook.author || identity;
-            vm.notebook.accessList = vm.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
+            if (!restoredEntity) {
+                pageInfo.notebook.author = pageInfo.notebook.author || identity;
+                pageInfo.notebook.accessList = pageInfo.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
+                EntitiesCache.put($stateParams, pageInfo.notebook);
+                vm.notebook = pageInfo.notebook;
+            } else {
+                vm.notebook = restoredEntity;
+            }
+
+            originalNotebook = angular.copy(pageInfo.notebook);
+
             vm.projectId = pageInfo.projectId;
             vm.isCollapsed = true;
             vm.isBtnSaveActive = false;
@@ -41,6 +49,7 @@
             vm.refresh = refresh;
             vm.save = save;
             vm.print = print;
+            vm.onRestore = onRestore;
 
             initPermissions();
 
@@ -48,7 +57,6 @@
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
             EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
 
-            vm.onRestore = onRestore;
 
             bindEvents();
         }
@@ -94,6 +102,7 @@
 
         function onRestore(storeData) {
             vm.notebook = storeData;
+            EntitiesCache.put($stateParams, vm.notebook);
         }
 
         function createExperiment() {
@@ -209,6 +218,8 @@
         function refresh() {
             vm.hasError = false;
             vm.notebook = angular.copy(originalNotebook);
+            autorecoveryCache.hide($stateParams);
+            EntitiesCache.put($stateParams, vm.notebook);
         }
 
         function partialRefresh() {
@@ -229,8 +240,11 @@
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
                     .then(function(result) {
+                        EntitiesCache.removeByParams($stateParams);
+                        autorecoveryCache.remove($stateParams);
                         vm.notebook.version = result.version;
                         originalNotebook = angular.copy(vm.notebook);
+                        EntitiesCache.put($stateParams, vm.notebook);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
                             projectId: vm.projectId,

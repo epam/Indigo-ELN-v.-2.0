@@ -14,7 +14,7 @@ function autorecoveryHelper(autorecoveryCache) {
             if (storeData) {
                 if (isDirty) {
                     autorecoveryCache.put($stateParams, storeData);
-                } else {
+                } else if (autorecoveryCache.isResolved($stateParams)) {
                     autorecoveryCache.remove($stateParams);
                 }
             }

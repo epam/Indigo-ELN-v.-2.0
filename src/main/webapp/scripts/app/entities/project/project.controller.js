@@ -5,10 +5,10 @@
 
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
-                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper) {
+                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper,
+                               autorecoveryCache, EntitiesCache) {
         var vm = this;
         var identity = pageInfo.identity;
-        var project = pageInfo.project;
         var isContentEditor = pageInfo.isContentEditor;
         var hasEditAuthority = pageInfo.hasEditAuthority;
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
@@ -21,11 +21,19 @@
             updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
             vm.stateData = $state.current.data;
             vm.isBtnSaveActive = false;
-            vm.project = project;
 
-            vm.project.author = vm.project.author || identity;
-            vm.project.accessList = vm.project.accessList || PermissionManagement.getAuthorAccessList(identity);
-            originalProject = angular.copy(vm.project);
+            var restoredEntity = EntitiesCache.get($stateParams);
+
+            if (!restoredEntity) {
+                pageInfo.project.author = pageInfo.project.author || identity;
+                pageInfo.project.accessList = pageInfo.project.accessList || PermissionManagement.getAuthorAccessList(identity);
+                EntitiesCache.put($stateParams, pageInfo.project);
+                vm.project = pageInfo.project;
+            } else {
+                vm.project = restoredEntity;
+            }
+
+            originalProject = angular.copy(pageInfo.project);
 
             vm.print = print;
             vm.save = save;
@@ -36,7 +44,7 @@
 
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
-            EntitiesBrowser.setCurrentTabTitle(project.name, $stateParams);
+            EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
 
             initPermissions();
             initDirtyListener();
@@ -79,8 +87,9 @@
             if (vm.project.id) {
                 vm.loading = Project.update($stateParams, vm.project).$promise
                     .then(function(result) {
-                        vm.project.version = result.version;
+                        vm.project = result;
                         originalProject = angular.copy(vm.project);
+                        EntitiesCache.put($stateParams, vm.project);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
@@ -95,6 +104,7 @@
                 .then(function(result) {
                     angular.extend(vm.project, result);
                     originalProject = angular.copy(vm.project);
+                    autorecoveryCache.hide($stateParams);
                 }, function() {
                     notifyService.error('Project not refreshed due to server error!');
                 });
