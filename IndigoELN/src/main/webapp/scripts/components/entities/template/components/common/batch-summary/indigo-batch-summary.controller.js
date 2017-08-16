@@ -184,7 +184,7 @@
                     readonly: true
                 },
                 {
-                    id: 'yield', name: '%Yield', type: 'primitive', sigDigits: 2, readonly: true
+                    id: 'yield', name: '%Yield', readonly: true
                 },
                 {
                     id: 'compoundState',
