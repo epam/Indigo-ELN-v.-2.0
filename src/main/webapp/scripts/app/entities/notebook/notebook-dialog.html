@@ -1,5 +1,8 @@
 <div class="notebooks" ng-class="{'notebook-create': !vm.notebook.id}" cg-busy="{promise:vm.loading, minDuration:700}">
-    <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
+    <autorecovery kind="{{vm.stateData.tab.kind}}"
+                  name="{{vm.notebook.name}}"
+                  on-restore="vm.onRestore(recoveryData)">
+    </autorecovery>
     <div class="tab-content-pad">
         <div>
             <div class="row m-b20">
@@ -136,9 +139,10 @@
                 class="btn btn-primary">
             <i class="fa fa-save"></i><span class="m-l5">Save</span>
         </button>
-        <a class="btn btn-default" ng-click="vm.refresh()">
+        <button class="btn btn-default" ng-click="vm.refresh()"
+                ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
             <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
-        </a>
+        </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
             <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
         </button>

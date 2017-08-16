@@ -11,8 +11,6 @@
 
         function init() {
             vm.model = vm.model || {};
-            vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-            vm.model.productBatchSummary.batches = vm.batches;
             vm.columns = [
                 {
                     id: 'structure',

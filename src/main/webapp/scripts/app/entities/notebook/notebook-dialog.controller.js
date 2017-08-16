@@ -6,38 +6,60 @@
     /* @ngInject */
     function NotebookDialogController($scope, $rootScope, $state, Notebook, notifyService, PermissionManagement, modalHelper,
                                       ExperimentUtil, pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils,
-                                      AutoRecoverEngine, notebookSummaryExperiments, $q) {
+                                      autorecoveryHelper, notebookSummaryExperiments, $q, EntitiesCache,
+                                      autorecoveryCache) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
         var hasEditAuthority = pageInfo.hasEditAuthority;
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
-
-
-        vm.notebook = pageInfo.notebook;
-        vm.newNotebook = _.isUndefined(vm.notebook.id) || _.isNull(vm.notebook.id);
-        vm.notebook.author = vm.notebook.author || identity;
-        vm.notebook.accessList = vm.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
-        vm.projectId = pageInfo.projectId;
-        vm.isCollapsed = true;
-        vm.isBtnSaveActive = false;
-        vm.isSummary = false;
-        vm.hasError = false;
-        vm.loading = false;
-        vm.isEditAllowed = true;
-        vm.isCreateChildAllowed = true;
-
-
-        vm.createExperiment = createExperiment;
-        vm.showSummary = showSummary;
-        vm.goToExp = goToExp;
-        vm.repeatExperiment = repeatExperiment;
-        vm.refresh = refresh;
-        vm.save = save;
-        vm.onChangedDescription = onChangedDescription;
-        vm.print = print;
+        var originalNotebook;
+        var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
 
         init();
+
+        function init() {
+            vm.stateData = $state.current.data;
+            var restoredEntity = EntitiesCache.get($stateParams);
+
+            if (!restoredEntity) {
+                pageInfo.notebook.author = pageInfo.notebook.author || identity;
+                pageInfo.notebook.accessList = pageInfo.notebook.accessList || PermissionManagement.getAuthorAccessList(identity);
+                EntitiesCache.put($stateParams, pageInfo.notebook);
+                vm.notebook = pageInfo.notebook;
+            } else {
+                vm.notebook = restoredEntity;
+            }
+
+            originalNotebook = angular.copy(pageInfo.notebook);
+
+            vm.projectId = pageInfo.projectId;
+            vm.isCollapsed = true;
+            vm.isBtnSaveActive = false;
+            vm.isSummary = false;
+            vm.hasError = false;
+            vm.loading = false;
+            vm.isEditAllowed = true;
+            vm.isCreateChildAllowed = true;
+
+            vm.createExperiment = createExperiment;
+            vm.showSummary = showSummary;
+            vm.goToExp = goToExp;
+            vm.repeatExperiment = repeatExperiment;
+            vm.refresh = refresh;
+            vm.save = save;
+            vm.print = print;
+            vm.onRestore = onRestore;
+
+            initPermissions();
+
+            EntitiesBrowser.setSaveCurrentEntity(save);
+            EntitiesBrowser.setUpdateCurrentEntity(refresh);
+            EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
+
+
+            bindEvents();
+        }
 
         function initPermissions() {
             PermissionManagement.setEntity('Notebook');
@@ -48,83 +70,45 @@
 
             // isEditAllowed
             PermissionManagement.hasPermission('UPDATE_ENTITY').then(function(hasEditPermission) {
-                vm.isEditAllowed = isContentEditor || hasEditAuthority && hasEditPermission;
+                vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission);
             });
             // isCreateChildAllowed
             PermissionManagement.hasPermission('CREATE_SUB_ENTITY').then(function(hasCreateChildPermission) {
-                vm.isCreateChildAllowed = isContentEditor || hasCreateChildAuthority && hasCreateChildPermission;
+                vm.isCreateChildAllowed = isContentEditor || (hasCreateChildAuthority && hasCreateChildPermission);
             });
         }
 
-        function onChangedDescription() {
-            EntitiesBrowser.changeDirtyTab($stateParams, true);
-        }
+        function bindEvents() {
+            $scope.$watch(function() {
+                return vm.notebook;
+            }, function(newEntity) {
+                var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalNotebook, newEntity);
+                toggleDirty(isDirty);
+                updateRecovery(newEntity, isDirty);
+            }, true);
 
-        function initDirtyListener() {
-            $timeout(function() {
-                var tabKind = $state.$current.data.tab.kind;
-                AutoRecoverEngine.track({
-                    vm: vm,
-                    kind: tabKind,
-                    onSetDirty: function() {
-                        $scope.createNotebookForm.$setDirty();
-                    }
-                });
-                if (pageInfo.dirty) {
-                    $scope.createNotebookForm.$setDirty();
-                }
+            $scope.$watch('createNotebookForm.$dirty', function(isDirty) {
+                vm.isBtnSaveActive = isDirty;
+            }, true);
 
-                vm.dirtyListener = $scope.$watch(function() {
-                    return vm.notebook;
-                }, function(entity, old) {
-                    AutoRecoverEngine.tracker.change(entity, old);
-                    EntitiesBrowser.setCurrentForm($scope.createNotebookForm);
-                    if (EntitiesBrowser.getActiveTab().name === 'New Notebook') {
-                        vm.isBtnSaveActive = true;
-                    } else {
-                        $timeout(function() {
-                            vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                        }, 0);
-                    }
-                }, true);
-                vm.formDirtyListener = $scope.$watch('createNotebookForm.$dirty', function(cur, old) {
-                    AutoRecoverEngine.tracker.changeDirty(cur, old);
-                }, true);
-            }, 0, false);
-        }
-
-        function init() {
-            initPermissions();
-
-            EntitiesBrowser.setSaveCurrentEntity(save);
-            EntitiesBrowser.setUpdateCurrentEntity(refresh);
-            EntitiesBrowser.setCurrentTabTitle(pageInfo.notebook.name, $stateParams);
-
-            initDirtyListener();
-
-            vm.notebookCopy = angular.copy(vm.notebook);
+            $scope.$watch('createNotebookForm', function(form) {
+                EntitiesBrowser.setCurrentForm(form);
+            });
 
             $scope.$on('access-list-changed', function() {
                 vm.notebook.accessList = PermissionManagement.getAccessList();
             });
+        }
 
-            // Activate save button when change permission
-            $scope.$on('activate button', function() {
-                // If put 0, then save button isn't activated
-                $timeout(function() {
-                    vm.isBtnSaveActive = true;
-                }, 10);
-            });
-            $scope.$on('$destroy', function() {
-                vm.dirtyListener();
-                vm.formDirtyListener();
-            });
+        function onRestore(storeData) {
+            vm.notebook = storeData;
+            EntitiesCache.put($stateParams, vm.notebook);
         }
 
         function createExperiment() {
             var resolve = {
                 fullNotebookId: function() {
-                 return vm.notebook.fullId;
+                    return vm.notebook.fullId;
                 }
             };
 
@@ -215,19 +199,31 @@
             notifyService.error('Notebook is not saved due to server error');
         }
 
+        function toggleDirty(isDirty) {
+            if (!$scope.createNotebookForm) {
+                return;
+            }
+
+            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createNotebookForm.$dirty;
+
+            if (isChanged) {
+                $scope.createNotebookForm.$setDirty();
+            } else {
+                $scope.createNotebookForm.$setPristine();
+            }
+            vm.isBtnSaveActive = $scope.createNotebookForm.$dirty;
+            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+        }
+
         function refresh() {
             vm.hasError = false;
-            _.extend(vm.notebook, vm.notebookCopy);
-            $scope.createNotebookForm.$setPristine();
-            EntitiesBrowser.changeDirtyTab($stateParams, false);
+            vm.notebook = angular.copy(originalNotebook);
+            autorecoveryCache.hide($stateParams);
+            EntitiesCache.put($stateParams, vm.notebook);
         }
 
         function partialRefresh() {
-            vm.notebook.name = vm.notebookCopy.name;
-            if (vm.notebook.description === vm.notebookCopy.description &&
-                _.isEqual(vm.notebook.accessList, vm.notebookCopy.accessList)) {
-                $scope.createNotebookForm.$setPristine();
-            }
+            vm.notebook.name = originalNotebook.name;
         }
 
         function print() {
@@ -244,13 +240,14 @@
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
                     .then(function(result) {
+                        EntitiesCache.removeByParams($stateParams);
+                        autorecoveryCache.remove($stateParams);
                         vm.notebook.version = result.version;
-                        vm.notebookCopy = angular.copy(vm.notebook);
-                        $scope.createNotebookForm.$setPristine();
-                        EntitiesBrowser.changeDirtyTab($stateParams, false);
+                        originalNotebook = angular.copy(vm.notebook);
+                        EntitiesCache.put($stateParams, vm.notebook);
                         EntitiesBrowser.setCurrentTabTitle(vm.notebook.name, $stateParams);
                         $rootScope.$broadcast('notebook-changed', {
-                            projectId: vm.projectId, 
+                            projectId: vm.projectId,
                             notebook: vm.notebook
                         });
                     }, onSaveError);

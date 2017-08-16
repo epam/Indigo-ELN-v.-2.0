@@ -59,6 +59,10 @@
                 ' Virtual Compound Registration (if it is allowed) is also executed here.',
                 isBatch: true
             },
+            // TODO: fix wrong name, now we have differrent names into templateContent and components of experiment
+            preferredCompoundSummary: {
+                id: 'preferred-compounds-summary'
+            },
             preferredCompoundDetails: {
                 name: 'Preferred Compound  Details',
                 id: 'preferred-compound-details',

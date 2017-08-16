@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .directive('indigoReactionDetails', indigoReactionDetails);
@@ -52,20 +52,20 @@
             }
 
             function updateUsersById(array, users) {
-                return _.map(array, function (user) {
+                return _.map(array, function(user) {
                     return getUser(users, user);
                 });
             }
 
             function getUser(users, user) {
-                return _.find(users, function (element) {
+                return _.find(users, function(element) {
                         return element.id === user.id;
                     }) || user;
             }
 
             function onLinkedExperimentClick(tag) {
-                loadExperiments().then(function (experiments) {
-                    var experiment = _.find(experiments, function (experiment) {
+                loadExperiments().then(function(experiments) {
+                    var experiment = _.find(experiments, function(experiment) {
                         return experiment.name === tag.text;
                     });
                     if (!experiment) {
@@ -83,8 +83,8 @@
 
             function onAddLinkedExperiment(tag) {
                 var _deferred = $q.defer();
-                loadExperiments().then(function (experiments) {
-                    _deferred.resolve(_.isObject(_.find(experiments, function (experiment) {
+                loadExperiments().then(function(experiments) {
+                    _deferred.resolve(_.isObject(_.find(experiments, function(experiment) {
                         return experiment.name === tag.text;
                     })));
                 });
@@ -94,10 +94,10 @@
 
             function getExperiments(query) {
                 var _deferred = $q.defer();
-                loadExperiments().then(function (experiments) {
-                    var filtered = _.chain(experiments).filter(function (experiment) {
+                loadExperiments().then(function(experiments) {
+                    var filtered = _.chain(experiments).filter(function(experiment) {
                         return experiment.name.startsWith(query);
-                    }).map(function (experiment) {
+                    }).map(function(experiment) {
                         return experiment.name;
                     }).value();
                     _deferred.resolve(filtered);
@@ -114,7 +114,7 @@
                 deferred = $q.defer();
                 Dictionary.get({
                     id: 'experiments'
-                }, function (dictionary) {
+                }, function(dictionary) {
                     deferred.resolve(dictionary.words);
                 });
 

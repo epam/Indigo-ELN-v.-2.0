@@ -1,17 +1,41 @@
-angular.module('indigoeln',
-
-    ['ui.router', 'ngResource', 'ui.tree', 'ui.bootstrap', 'ngAnimate', 'ngRoute', 'ngIdle', 'ct.ui.router.extras',
-        'xeditable', 'angularFileUpload', 'ngTagsInput', 'ngCookies', 'prettyBytes', angularDragula(angular),
-        'cgBusy', 'angular.filter', 'ngFileSaver', 'ui.select', 'ngSanitize', 'datePicker', 'monospaced.mousewheel',
-        'ui.checkbox', 'monospaced.elastic', 'ui.bootstrap-slider', 'LocalStorageModule', 'angular-click-outside',
-        'config', 'angular-cache', 'cgNotify'])
+angular.module('indigoeln', [
+    'ui.router',
+    'ngResource',
+    'ui.tree',
+    'ui.bootstrap',
+    'ngAnimate',
+    'ngRoute',
+    'ngIdle',
+    'ct.ui.router.extras',
+    'xeditable',
+    'angularFileUpload',
+    'ngTagsInput',
+    'ngCookies',
+    'prettyBytes',
+    angularDragula(angular),
+    'cgBusy',
+    'angular.filter',
+    'ngFileSaver',
+    'ui.select',
+    'ngSanitize',
+    'datePicker',
+    'monospaced.mousewheel',
+    'ui.checkbox',
+    'monospaced.elastic',
+    'ui.bootstrap-slider',
+    'LocalStorageModule',
+    'angular-click-outside',
+    'config',
+    'angular-cache',
+    'indigoeln.autorecovery',
+    'cgNotify'
+])
     .run(function($rootScope, $window, $state, $uibModal, editableOptions, Auth, Principal, Idle, EntitiesBrowser) {
         $.mCustomScrollbar.defaults.advanced.autoScrollOnFocus = false;
         // idleTime: 30 minutes, countdown: 30 seconds
         var countdownDialog = null;
         var idleTime = 30;
         var countdown = 30;
-
 
         $rootScope.$on('$stateChangeStart', function(event, toState, toStateParams) {
             $rootScope.toState = toState;
