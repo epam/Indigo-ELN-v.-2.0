@@ -18,7 +18,6 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
 
         vm.isActiveTab0 = activeTab === 0;
         vm.isActiveTab1 = activeTab === 1;
-        vm.searchReagentsModelScheme = {};
         vm.isSearchResultFound = false;
         vm.conditionText = [{
             name: 'contains'
@@ -60,6 +59,7 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.filterMyReagents = filterMyReagents;
         vm.clearMyReagentsSearchQuery = clearMyReagentsSearchQuery;
         vm.searchMyReagents = searchMyReagents;
+        vm.onChangedStructure = onChangedStructure;
         vm.search = search;
         vm.cancel = cancel;
     }
@@ -182,5 +182,9 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
 
     function cancel() {
         $uibModalInstance.close({});
+    }
+
+    function onChangedStructure(structure) {
+        _.extend(vm.model.restrictions.structure, structure);
     }
 }
