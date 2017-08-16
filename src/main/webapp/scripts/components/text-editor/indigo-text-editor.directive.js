@@ -49,7 +49,7 @@
                 });
 
                 var editorListener = editor.on('valuechanged', function() {
-                    if (($scope.indigoModel || '') !== editor.getValue() && editor.getValue() !== '<p>undefined</p>') {
+                    if (($scope.indigoModel || '') !== editor.getValue()) {
                         $timeout(function() {
                             $scope.indigoModel = editor.getValue();
                             $scope.onChanged({text: $scope.indigoModel});

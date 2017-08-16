@@ -59,13 +59,11 @@
                     return !service ? null : service.update(tab.params, entity).$promise
                         .then(function() {
                             closeTab(tab);
-                            clearRecovery(tab);
                         });
                 });
             }
 
             closeTab(tab);
-            clearRecovery(tab);
 
             return $q.resolve();
         }
@@ -116,10 +114,6 @@
                 .then(function() {
                     _.each(tabs, closeTab);
                 });
-        }
-
-        function clearRecovery(tab) {
-            console.log('remove recovery', tab);
         }
 
         function onCloseTabClick($event, tab) {
