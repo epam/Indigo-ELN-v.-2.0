@@ -4,10 +4,7 @@ import com.epam.indigoeln.web.rest.dto.search.request.SearchCriterion;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -15,7 +12,7 @@ public class AbstractSearchAggregationBuilder {
 
     protected List<AggregationOperation> aggregationOperations;
     private Collection<String> searchQueryFields;
-    private Collection<String> availableFields;
+    private Set<String> advancedFields = new HashSet<>();
     private String contextPrefix = "";
 
     public AbstractSearchAggregationBuilder() {
@@ -26,40 +23,34 @@ public class AbstractSearchAggregationBuilder {
         throw new UnsupportedOperationException("This method should be implemented in subclasses");
     }
 
-    public AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
-        List<Criteria> fieldCriteriaList = searchQueryFields.stream()
+    protected AbstractSearchAggregationBuilder withSearchQuery(String searchQuery) {
+        List<Criteria> querySearch = searchQueryFields.stream()
+                .filter(f -> !advancedFields.contains(f))
                 .map(f -> new SearchCriterion(f, f, "contains", searchQuery))
-                .map(AggregationUtils::createCriterion)
+                .map(c -> AggregationUtils.createCriterion(c, contextPrefix))
                 .collect(toList());
 
-        Criteria[] fieldCriteriaArr = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-        Criteria orCriteria = new Criteria().orOperator(fieldCriteriaArr);
-        aggregationOperations.add(Aggregation.match(orCriteria));
+        AggregationUtils.orCriteria(querySearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
         return this;
     }
 
-    public AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
-        List<Criteria> fieldCriteriaList = criteria.stream()
-                .filter(c -> availableFields == null || availableFields.contains(c.getField()))
-                .map(criterion -> AggregationUtils.createCriterion(criterion, contextPrefix))
+    protected AbstractSearchAggregationBuilder withAdvancedCriteria(List<SearchCriterion> criteria) {
+        List<Criteria> advancedSearch = criteria.stream()
+                .map(criterion -> {
+                    advancedFields.add(criterion.getField());
+                    return AggregationUtils.createCriterion(criterion, contextPrefix);
+                })
                 .collect(toList());
-        if (!fieldCriteriaList.isEmpty()) {
-            Criteria[] mongoCriteriaList = fieldCriteriaList.toArray(new Criteria[fieldCriteriaList.size()]);
-            Criteria andCriteria = new Criteria().andOperator(mongoCriteriaList);
-            aggregationOperations.add(Aggregation.match(andCriteria));
-        }
+
+        AggregationUtils.andCriteria(advancedSearch).ifPresent(c -> aggregationOperations.add(Aggregation.match(c)));
         return this;
     }
 
-    public void setContextPrefix(String contextPrefix) {
+    protected void setContextPrefix(String contextPrefix) {
         this.contextPrefix = contextPrefix;
     }
 
-    public void setAvailableFields(Collection<String> availableFields) {
-        this.availableFields = availableFields;
-    }
-
-    public void setSearchQueryFields(Collection<String> searchQueryFields) {
+    protected void setSearchQueryFields(Collection<String> searchQueryFields) {
         this.searchQueryFields = searchQueryFields;
     }
 }
