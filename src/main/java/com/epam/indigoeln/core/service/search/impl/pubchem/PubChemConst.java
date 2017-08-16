@@ -17,7 +17,7 @@ public class PubChemConst {
 
     public static final long DELAY = 5000;
     public static final int TIMEOUT = 60000;
-    public static final int CHUNK_COUNT = 50;
+    public static final int CHUNK_COUNT = 20;
 
     public static final String COMPOUND_CID = "PUBCHEM_COMPOUND_CID";
     public static final String MOLECULAR_FORMULA = "PUBCHEM_MOLECULAR_FORMULA";

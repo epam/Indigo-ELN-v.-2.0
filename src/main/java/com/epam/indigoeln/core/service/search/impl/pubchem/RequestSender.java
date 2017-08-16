@@ -39,7 +39,13 @@ public class RequestSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestSender.class);
 
-    private static RestTemplate restTemplate;
+    private static final RestTemplate restTemplate;
+    static {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setReadTimeout(TIMEOUT);
+        factory.setConnectTimeout(TIMEOUT);
+        restTemplate = new RestTemplate(factory);
+    }
 
     private final SDService sdService;
 
@@ -49,10 +55,6 @@ public class RequestSender {
     public RequestSender(SDService sdService, CalculationService calculationService) {
         this.sdService = sdService;
         this.calculationService = calculationService;
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setReadTimeout(TIMEOUT);
-        factory.setConnectTimeout(TIMEOUT);
-        RequestSender.restTemplate = new RestTemplate(factory);
     }
 
     public Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity){
