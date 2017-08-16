@@ -5,30 +5,46 @@
 
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
-                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, AutoRecoverEngine) {
+                               pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper,
+                               autorecoveryCache, EntitiesCache) {
         var vm = this;
         var identity = pageInfo.identity;
-        var project = pageInfo.project;
         var isContentEditor = pageInfo.isContentEditor;
         var hasEditAuthority = pageInfo.hasEditAuthority;
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
+        var updateRecovery;
+        var originalProject;
 
         init();
 
         function init() {
+            updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+            vm.stateData = $state.current.data;
             vm.isBtnSaveActive = false;
-            vm.project = project;
-            vm.project.author = vm.project.author || identity;
-            vm.project.accessList = vm.project.accessList || PermissionManagement.getAuthorAccessList(identity);
+
+            var restoredEntity = EntitiesCache.get($stateParams);
+
+            if (!restoredEntity) {
+                pageInfo.project.author = pageInfo.project.author || identity;
+                pageInfo.project.accessList = pageInfo.project.accessList || PermissionManagement.getAuthorAccessList(identity);
+                EntitiesCache.put($stateParams, pageInfo.project);
+                vm.project = pageInfo.project;
+            } else {
+                vm.project = restoredEntity;
+            }
+
+            originalProject = angular.copy(pageInfo.project);
+
             vm.print = print;
             vm.save = save;
             vm.refresh = refresh;
             vm.updateAttachments = updateAttachments;
             vm.onChanged = onChanged;
+            vm.onRestore = onRestore;
 
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setUpdateCurrentEntity(refresh);
-            EntitiesBrowser.setCurrentTabTitle(project.name, $stateParams);
+            EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
 
             initPermissions();
             initDirtyListener();
@@ -41,10 +57,6 @@
                 vm.project.accessList = PermissionManagement.getAccessList();
             });
 
-            $scope.$watch('vm.project', function() {
-                EntitiesBrowser.setCurrentEntity(vm.project);
-            });
-
             // Activate save button when change permission
             $scope.$on('activate button', function() {
                 // If put 0, then save button isn't activated
@@ -52,6 +64,10 @@
                     vm.isBtnSaveActive = true;
                 }, 10);
             });
+        }
+
+        function onRestore(storeData) {
+            vm.project = storeData;
         }
 
         function onChanged() {
@@ -71,9 +87,9 @@
             if (vm.project.id) {
                 vm.loading = Project.update($stateParams, vm.project).$promise
                     .then(function(result) {
-                        vm.project.version = result.version;
-                        $scope.createProjectForm.$setPristine();
-                        EntitiesBrowser.changeDirtyTab($stateParams, false);
+                        vm.project = result;
+                        originalProject = angular.copy(vm.project);
+                        EntitiesCache.put($stateParams, vm.project);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
@@ -87,9 +103,8 @@
             vm.loading = Project.get($stateParams).$promise
                 .then(function(result) {
                     angular.extend(vm.project, result);
-                    $scope.createProjectForm.$setPristine();
-                    $scope.createProjectForm.$dirty = false;
-                    EntitiesBrowser.changeDirtyTab($stateParams, false);
+                    originalProject = angular.copy(vm.project);
+                    autorecoveryCache.hide($stateParams);
                 }, function() {
                     notifyService.error('Project not refreshed due to server error!');
                 });
@@ -114,34 +129,37 @@
             });
         }
 
+        function toggleDirty(isDirty) {
+            if (!$scope.createProjectForm) {
+                return;
+            }
+
+            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createProjectForm.$dirty;
+
+            if (isChanged) {
+                $scope.createProjectForm.$setDirty();
+            } else {
+                $scope.createProjectForm.$setPristine();
+            }
+            vm.isBtnSaveActive = $scope.createProjectForm.$dirty;
+            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+        }
+
         function initDirtyListener() {
             $timeout(function() {
-                AutoRecoverEngine.track({
-                    vm: vm,
-                    kind: $state.$current.data.tab.kind,
-                    onSetDirty: function() {
-                        $scope.createProjectForm.$setDirty();
-                    }
-                });
-
-                if (pageInfo.dirty) {
-                    $scope.createProjectForm.$setDirty();
-                }
-
-                $scope.$watch('vm.project', function(newValue, oldValue) {
-                    EntitiesBrowser.setCurrentForm($scope.createProjectForm);
-                    AutoRecoverEngine.tracker.change(newValue, oldValue);
-                    if (EntitiesBrowser.getActiveTab().name === 'New Project') {
-                        vm.isBtnSaveActive = true;
-                    } else {
-                        $timeout(function() {
-                            vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
-                        }, 0);
-                    }
+                $scope.$watch('vm.project', function(newEntity) {
+                    EntitiesBrowser.setCurrentEntity(vm.project);
+                    var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalProject, newEntity);
+                    toggleDirty(isDirty);
+                    updateRecovery(newEntity, isDirty);
                 }, true);
 
-                $scope.$watch('createProjectForm.$dirty', function(newValue, oldValue) {
-                    AutoRecoverEngine.tracker.changeDirty(newValue);
+                $scope.$watch('createProjectForm.$dirty', function(isDirty) {
+                    vm.isBtnSaveActive = isDirty;
+                });
+
+                $scope.$watch('createProjectForm', function(newValue) {
+                    EntitiesBrowser.setCurrentForm(newValue);
                 });
             }, 0, false);
         }

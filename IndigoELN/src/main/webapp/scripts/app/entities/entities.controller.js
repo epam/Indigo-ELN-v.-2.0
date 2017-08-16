@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal,
-                                AutoRecoverEngine, notifyService, Experiment, Notebook, Project, dialogService) {
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService, Experiment,
+                                Notebook, Project, dialogService, autorecoveryCache) {
         var vm = this;
 
         init();
@@ -27,6 +27,7 @@
         function closeTab(tab) {
             EntitiesBrowser.close(tab.tabKey);
             EntitiesCache.removeByKey(tab.tabKey);
+            autorecoveryCache.remove(tab.params);
         }
 
         // TODO: need to inject service by name but app does't have root elem
@@ -58,13 +59,11 @@
                     return !service ? null : service.update(tab.params, entity).$promise
                         .then(function() {
                             closeTab(tab);
-                            clearRecovery(tab);
                         });
                 });
             }
 
             closeTab(tab);
-            clearRecovery(tab);
 
             return $q.resolve();
         }
@@ -117,15 +116,6 @@
                 });
         }
 
-        function clearRecovery(tab) {
-            var entityPromise = EntitiesCache.getByKey(tab.tabKey);
-            if (entityPromise) {
-                entityPromise.then(function(entity) {
-                    AutoRecoverEngine.clearRecovery(tab.kind, entity);
-                });
-            }
-        }
-
         function onCloseTabClick($event, tab) {
             $event.stopPropagation();
             if (tab.dirty) {
@@ -159,7 +149,7 @@
                 Principal.identity(true).then(function(user) {
                     EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
                         if (tab && user.id !== data.user) {
-                            onTabChanged(tab, data.entity);
+                            onTabChanged(tab);
                         }
                     });
                 });
