@@ -28,14 +28,16 @@ public class SearchComponentsRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchComponentsRepository.class);
     @SuppressWarnings("unchecked")
     private static Function<DBObject, ProductBatchDetailsDTO> convertResult = dbObject -> {
-        Map content = (Map) dbObject.toMap().getOrDefault("content", Collections.emptyMap());
-        Map map = (Map) content.getOrDefault("batches", Collections.emptyMap());
-
+        Map map = (Map) dbObject.toMap().getOrDefault("batches", Collections.emptyMap());
         String fullBatchNumber = map.getOrDefault(BatchComponentUtil.COMPONENT_FIELD_NBK_BATCH, "").toString();
         return new ProductBatchDetailsDTO(fullBatchNumber, map);
     };
+    private final MongoTemplate mongoTemplate;
+
     @Autowired
-    private MongoTemplate mongoTemplate;
+    public SearchComponentsRepository(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public List<ProductBatchDetailsDTO> findBatches(BatchSearchRequest searchRequest, List<String> bingoIds) {
         Aggregation aggregation = buildAggregation(searchRequest, bingoIds);
@@ -48,18 +50,9 @@ public class SearchComponentsRepository {
 
     private Aggregation buildAggregation(BatchSearchRequest request, List<String> bingoIds) {
         BatchSearchAggregationBuilder builder = BatchSearchAggregationBuilder.getInstance();
-        request.getSearchQuery().ifPresent(builder::withSearchQuery);
-
-        if(!bingoIds.isEmpty()) {
-            builder.withBingoIds(bingoIds);
-        }
-
-        if(!request.getAdvancedSearch().isEmpty()) {
-            builder.withAdvancedCriteria(request.getAdvancedSearch());
-        }
-
-        request.getBatchesLimit().ifPresent(builder::withLimit);
-
-        return builder.build();
+        return builder.search(request.getSearchQuery(), request.getAdvancedSearch())
+                .withBingoIds(bingoIds)
+                .withLimit(request.getBatchesLimit())
+                .build();
     }
 }

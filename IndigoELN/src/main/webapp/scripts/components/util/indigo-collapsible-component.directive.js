@@ -42,7 +42,7 @@
                     var isCollapsed = false;
                     var $element = $(iElement);
                     var $heading = $element.find('.panel-heading:first');
-                    var componentId = $element.parents('.my-component:first').attr('my-component');
+                    var componentId = $element.parents('.my-component:first').attr('indigo-component-id');
                     var collapsedComponents = JSON.parse(localStorageService.get(user.id + '.collapsed-components'));
                     var entityId = compactIds($state.params);
                     if (collapsedComponents && collapsedComponents[entityId]) {

@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -38,13 +39,23 @@ public class RequestSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestSender.class);
 
-    private static RestTemplate restTemplate = new RestTemplate();
+    private static final RestTemplate restTemplate;
+    static {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setReadTimeout(TIMEOUT);
+        factory.setConnectTimeout(TIMEOUT);
+        restTemplate = new RestTemplate(factory);
+    }
+
+    private final SDService sdService;
+
+    private final CalculationService calculationService;
 
     @Autowired
-    private SDService sdService;
-
-    @Autowired
-    private CalculationService calculationService;
+    public RequestSender(SDService sdService, CalculationService calculationService) {
+        this.sdService = sdService;
+        this.calculationService = calculationService;
+    }
 
     public Collection<ProductBatchDetailsDTO> sendRequest(RequestEntity requestEntity){
         WaitingDTO waitingDTO = sendAsyncRequest(requestEntity);
@@ -77,9 +88,8 @@ public class RequestSender {
             }
             response = restTemplate.exchange(requestEntity, CidsDTO.class);
         }
-        //TODO SET TIMEOUT
+        //parallel stream can't be used here because of async request. If request is interrupted rest template continues to work
         return Lists.partition(response.getBody().getCids(), CHUNK_COUNT).stream()
-                .parallel()
                 .flatMap(cids -> getByCids(cids).stream())
                 .collect(Collectors.toList());
     }

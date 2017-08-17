@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.chemistry.experiment.datamodel.common;
 
+import com.Ostermiller.util.SignificantFigures;
 import com.epam.indigoeln.core.chemistry.domain.CeNAbstractModel;
 import com.epam.indigoeln.core.chemistry.experiment.common.interfaces.DeepClone;
 import com.epam.indigoeln.core.chemistry.experiment.common.interfaces.DeepCopy;

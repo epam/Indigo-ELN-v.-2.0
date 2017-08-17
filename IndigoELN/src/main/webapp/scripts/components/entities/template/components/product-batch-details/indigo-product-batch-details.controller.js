@@ -5,12 +5,11 @@
 
     /* @ngInject */
     function IndigoProductBatchDetailsController($scope, AppValues, InfoEditor, CalculationService, EntitiesBrowser,
-                                                 ProductBatchSummaryCache, $filter, ProductBatchSummaryOperations) {
+                                                 $filter, ProductBatchSummaryOperations) {
         var vm = this;
         var grams = AppValues.getGrams();
         var liters = AppValues.getLiters();
         var moles = AppValues.getMoles();
-
 
         vm.showSummary = false;
         vm.notebookId = EntitiesBrowser.getActiveTab().$$title;
@@ -18,8 +17,6 @@
         vm.selectControl = {};
         vm.saltCodeValues = AppValues.getSaltCodeValues();
         vm.model = vm.model || {};
-        vm.model.productBatchSummary = vm.model.productBatchSummary || {};
-        vm.model.productBatchSummary.batches = vm.batches;
         vm.selectBatch = selectBatch;
         vm.addNewBatch = addNewBatch;
         vm.duplicateBatch = duplicateBatch;

@@ -1,9 +1,9 @@
 angular
     .module('indigoeln')
-    .factory('EntitiesCache', entitiesCache);
+    .factory('EntitiesCache', entitiesCacheFactory);
 
 /* @ngInject */
-function entitiesCache(CacheFactory, TabKeyUtils) {
+function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
     var entitiesCache = CacheFactory('entitiesCache');
 
     return {
@@ -46,6 +46,6 @@ function entitiesCache(CacheFactory, TabKeyUtils) {
     }
 
     function clearAll() {
-        CacheFactory.clearAll();
+        entitiesCache.clearAll();
     }
 }

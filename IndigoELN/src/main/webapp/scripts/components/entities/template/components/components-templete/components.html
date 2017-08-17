@@ -1,12 +1,11 @@
-<div>
-    <div class="access-notification" ng-if="accessDenied">Access denied.</div>
-    <fieldset ng-disabled="vm.isReadonly">
-        <uib-tabset class="inner-tabs">
-            <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in vm.template track by tab.name">
-                <indigo-component class="my-component" ng-repeat="component in tab.components"
-                                  component="component">
-                </indigo-component>
-            </uib-tab>
-        </uib-tabset>
-    </fieldset>
-</div>
+<fieldset ng-disabled="vm.isReadonly">
+    <uib-tabset class="inner-tabs">
+        <uib-tab class="" heading="{{tab.name}}" ng-repeat="tab in vm.template track by tab.name">
+            <indigo-component class="my-component"
+                              ng-repeat="component in tab.components track by component.id"
+                              indigo-component-id={{component.id}}
+                              component="component">
+            </indigo-component>
+        </uib-tab>
+    </uib-tabset>
+</fieldset>

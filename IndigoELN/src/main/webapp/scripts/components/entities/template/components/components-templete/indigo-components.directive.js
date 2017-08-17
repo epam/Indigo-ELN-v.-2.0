@@ -105,7 +105,7 @@
             }
 
             function updateSelections() {
-                if ((vm.batches.length && !vm.selectedBatch)) {
+                if ((vm.batches.length && !_.find(vm.batches, vm.selectedBatch))) {
                     updateSelectedBatch();
                 }
             }
