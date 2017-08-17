@@ -1,9 +1,9 @@
 <div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
-        Product Batch Details
+        Product Batch Details123
     </div>
     <div class="panel-body collapsible">
-        <form class="form-inline form-batch-details">
+        <div class="form-inline form-batch-details">
             <label>Notebook Batch #: <span ng-bind="vm.selectedBatch.fullNbkImmutablePart"></span></label>
             <indigo-select
                     indigo-model="vm.selectedBatch"
@@ -17,7 +17,7 @@
                     indigo-model="vm.showSummary"
                     indigo-label="Show summary table"
             ></indigo-checkbox>
-        </form>
+        </div>
         <indigo-batch-summary ng-if="vm.showSummary"
                               my-tab-support="true"
                               model="vm.model"
@@ -76,7 +76,7 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" style="position:relative;float:left" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
