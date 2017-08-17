@@ -51,9 +51,9 @@
         }
 
         function updateBatchFormula(batch, molInfo) {
-            batch.formula = molInfo.data.molecularFormula;
+            batch.formula = molInfo.molecularFormula;
             batch.molWeight = batch.molWeight || {};
-            batch.molWeight.value = molInfo.data.molecularWeight;
+            batch.molWeight.value = molInfo.molecularWeight;
 
             // TODO: it doesn't recalculate stoich table
             CalculationService.recalculateStoich();

@@ -31,18 +31,46 @@ angular
             subPropName: 'name'
         },
         {
-            code: 'STEREOISOMER_CODE',
+            code: 'STEREOISOMER_CODE_NAME',
             name: 'stereoisomer',
             path: 'name',
             propName: 'Stereoisomer Code',
             subPropName: 'name'
         },
         {
-            code: 'GLOBAL_SALT_CODE',
+            code: 'STEREOISOMER_CODE_DESCRIPTION',
+            name: 'stereoisomer',
+            path: 'description',
+            propName: 'Stereoisomer Code',
+            subPropName: 'description'
+        },
+        {
+            code: 'STEREOISOMER_CODE_RANK',
+            name: 'stereoisomer',
+            path: 'rank',
+            propName: 'Stereoisomer Code',
+            subPropName: 'rank'
+        },
+        {
+            code: 'SALT_CODE_REG_VALUE',
             name: 'saltCode',
             path: 'regValue',
             propName: 'saltCode',
             subPropName: 'regValue'
+        },
+        {
+            code: 'SALT_CODE_NAME',
+            name: 'saltCode',
+            path: 'name',
+            propName: 'saltCode',
+            subPropName: 'name'
+        },
+        {
+            code: 'SALT_CODE_VALUE',
+            name: 'saltCode',
+            path: 'value',
+            propName: 'saltCode',
+            subPropName: 'value'
         },
         {
             code: 'GLOBAL_SALT_EQ',
@@ -267,8 +295,9 @@ angular
             name: 'comments'
         },
         {
-            code: 'BUTCH_TYPE',
-            name: 'butchType'
+            code: 'BATCH_TYPE',
+            name: '$$batchType',
+            path: 'name'
         },
         {
             code: 'THEO_MOLES_DISPLAY_VALUE',
@@ -300,54 +329,6 @@ angular
         {
             code: 'THEO_WEIGHT_UNIT',
             name: 'theoWeight',
-            path: 'unit'
-        },
-        {
-            code: 'TOTAL_MOLES_DISPLAY_VALUE',
-            name: 'totalMoles',
-            path: 'displayValue'
-        },
-        {
-            code: 'TOTAL_MOLES_VALUE',
-            name: 'totalMoles',
-            path: 'value',
-            isNumeric: true
-        },
-        {
-            code: 'TOTAL_MOLES_UNIT',
-            name: 'totalMoles',
-            path: 'unit'
-        },
-        {
-            code: 'TOTAL_VOLUME_DISPLAY_VALUE',
-            name: 'totalVolume',
-            path: 'displayValue'
-        },
-        {
-            code: 'TOTAL_VOLUME_VALUE',
-            name: 'totalVolume',
-            path: 'value',
-            isNumeric: true
-        },
-        {
-            code: 'TOTAL_VOLUME_UNIT',
-            name: 'totalVolume',
-            path: 'unit'
-        },
-        {
-            code: 'TOTAL_WEIGHT_DISPLAY_VALUE',
-            name: 'totalWeight',
-            path: 'displayValue'
-        },
-        {
-            code: 'TOTAL_WEIGHT_VALUE',
-            name: 'totalWeight',
-            path: 'value',
-            isNumeric: true
-        },
-        {
-            code: 'TOTAL_WEIGHT_UNIT',
-            name: 'totalWeight',
             path: 'unit'
         }
     ]

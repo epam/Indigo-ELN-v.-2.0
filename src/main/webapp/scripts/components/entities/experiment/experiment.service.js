@@ -33,6 +33,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
             },
             get: {
                 method: 'GET',
+                cache: true,
                 transformResponse: function(data) {
                     data = angular.fromJson(data);
                     data = toModel(data);
