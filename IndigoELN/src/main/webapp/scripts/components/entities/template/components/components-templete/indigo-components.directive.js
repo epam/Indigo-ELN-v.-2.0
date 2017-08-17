@@ -168,6 +168,10 @@
                     });
                 });
             }
+
+            $scope.$on('access-denied', function(){
+                $scope.accessDenied = true;
+            });
         }
     }
 })();
