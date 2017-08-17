@@ -104,6 +104,12 @@
             return notebook.name ? notebook.name + '-' + experiment.name : experiment.name;
         }
 
+        function getExperimentPromise() {
+            return Experiment.get($stateParams).$promise.catch(function() {
+                vm.isNotHavePermissions = true;
+            });
+        }
+
         function getPageInfo() {
             var notebookParams = {
                 projectId: $stateParams.projectId,
@@ -111,7 +117,7 @@
             };
 
             return $q.all([
-                Experiment.get($stateParams).$promise,
+                getExperimentPromise(),
                 Notebook.get(notebookParams).$promise,
                 Principal.hasAuthorityIdentitySafe('CONTENT_EDITOR'),
                 Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR'),
