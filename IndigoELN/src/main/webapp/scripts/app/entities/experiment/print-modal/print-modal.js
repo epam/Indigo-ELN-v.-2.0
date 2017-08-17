@@ -1,6 +1,5 @@
 angular.module('indigoeln')
     .factory('printModal', function($rootScope, $stateParams, $state, $uibModal, $window, $httpParamSerializer) {
-        console.log(1)
         return {
             showPopup: showPopup
         };

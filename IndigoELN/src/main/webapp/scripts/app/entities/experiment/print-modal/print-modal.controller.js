@@ -4,33 +4,44 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, Principal, localStorageService, $stateParams, Experiment, Notebook, Project, Components) {
+    function PrintModalController($uibModalInstance, Principal, $stateParams, Experiment, Notebook, Project, Components, EntitiesBrowser) {
         var vm = this;
         var userId;
-        var storageKey = '-selected-components-for-print';
         var resource;
         vm.dismiss = dismiss;
         vm.confirmCompletion = confirmCompletion;
 
         init();
 
+
         function init() {
-            if ($stateParams.experimentId >= 0) {
-                resource = Experiment;
-            } else if ($stateParams.notebookId >= 0) {
-                resource = Notebook;
-            } else if ($stateParams.projectId >= 0) {
-                resource = Project;
-            }
+            initService(EntitiesBrowser.getActiveTab().kind);
             vm.loading = resource.get($stateParams).$promise.then(function(entity) {
                 initCheckboxesForEntity(entity);
                 Principal.identity()
                     .then(function(user) {
                         userId = user.id;
-                        restoreSelection();
                     });
             });
         }
+
+        function initService(kind) {
+            switch (kind) {
+                case 'project':
+                    resource = Project;
+                    break;
+                case 'notebook':
+                    resource = Notebook;
+                    break;
+                case 'experiment':
+                    resource = Experiment;
+                    break;
+                default:
+                    break;
+            }
+            return resource;
+        }
+
 
         function initCheckboxesForEntity(entity) {
             if (resource === Project) {
@@ -54,7 +65,7 @@
 
             return {
                 id: key,
-                value: component.name
+                value: component ? component.name : 'Unknown'
             };
         }
         // this will not work for compounds. Need to ask Backend to support it properly
@@ -70,29 +81,7 @@
             });
         }
 
-        function saveSelection() {
-            var userSelection = localStorageService.get(userId + storageKey) || {};
-            _.each(vm.components, function(comp) {
-                userSelection[comp.id] = comp.isChecked;
-            });
-            userSelection.printAttachedPDF = vm.printAttachedPDF;
-            userSelection.printContent = vm.printContent;
-            localStorageService.set(userId + storageKey, userSelection);
-        }
-
-        function restoreSelection() {
-            var userSelection = localStorageService.get(userId + storageKey);
-            if (userSelection) {
-                _.each(vm.components, function(comp) {
-                    comp.isChecked = userSelection[comp.id];
-                });
-                vm.printAttachedPDF = userSelection.printAttachedPDF;
-                vm.printContent = userSelection.printContent;
-            }
-        }
-
         function dismiss() {
-            saveSelection();
             $uibModalInstance.dismiss('cancel');
         }
 
@@ -109,9 +98,8 @@
                 resultForService.includeAttachments = vm.printAttachedPDF;
             }
             if (vm.printContent) {
-                resultForService.withContent = vm.printAttachedPDF;
+                resultForService.withContent = vm.printContent;
             }
-            saveSelection();
             $uibModalInstance.close(resultForService);
         }
     }

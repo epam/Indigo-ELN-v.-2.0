@@ -233,9 +233,6 @@
         }
 
         function save() {
-            if (!$scope.createNotebookForm.$dirty) {
-                return $q.resolve();
-            }
             vm.hasError = false;
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise
