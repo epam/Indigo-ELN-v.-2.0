@@ -3,7 +3,8 @@ angular
     .controller('analyzeRxnController', analyzeRxnController);
 
 /* @ngInject */
-function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged, stoichHelper) {
+function analyzeRxnController($uibModalInstance, reactants, SearchService, AppValues, onStoichRowsChanged, stoichHelper,
+                              $q) {
     var vm = this;
 
     vm.addToStoichTable = addToStoichTable;
@@ -41,13 +42,14 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
 
     function search() {
         vm.loading = true;
-        _.each(vm.tabs, function(tab) {
-            getSearchResult(tab.formula, function(searchResult) {
-                vm.loading = false;
+        $q.all(_.map(vm.tabs, function(tab) {
+            return getSearchResult(tab.formula).then(function(searchResult) {
                 tab.searchResult = responseCallback(searchResult);
             });
+        })).finally(function() {
+            vm.loading = false;
+            vm.isSearchCompleted = true;
         });
-        vm.isSearchCompleted = true;
     }
 
     function cancel() {
@@ -85,7 +87,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
         });
     }
 
-    function getSearchResult(formula, callback) {
+    function getSearchResult(formula) {
         var databases = prepareDatabases();
         var searchRequest = {
             databases: databases,
@@ -93,6 +95,7 @@ function analyzeRxnController($uibModalInstance, reactants, SearchService, AppVa
                 formula: formula, searchMode: 'molformula'
             }
         };
-        SearchService.search(searchRequest, callback);
+
+        return SearchService.search(searchRequest).$promise;
     }
 }

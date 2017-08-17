@@ -13,6 +13,7 @@ function calculationService($rootScope, $http, $q, AppValues,
         getMoleculeInfo: getMoleculeInfo,
         getImageForStructure: getImageForStructure,
         getSaltFormula: getSaltFormula,
+        getReactionProductsAndReactants: getReactionProductsAndReactants,
         setEntered: setEntered,
         findLimiting: findLimiting,
         isMoleculesEqual: isMoleculesEqual,
@@ -91,7 +92,9 @@ function calculationService($rootScope, $http, $q, AppValues,
         var data = reagent.structure ? reagent.structure.molfile : reagent;
         var url = 'api/calculations/molecule/info';
 
-        return $http.put(url, data, config);
+        return $http.put(url, data, config).then(function(response) {
+            return response.data;
+        });
     }
 
     function getImageForStructure(molfile, type, callback) {
@@ -238,7 +241,8 @@ function calculationService($rootScope, $http, $q, AppValues,
     }
 
     function isMoleculesEqual(molecule1, molecule2) {
-        return $http.put('api/calculations/molecule/equals', [molecule1, molecule2]);
+        var isEqual = _.isEqual(molecule1, molecule2);
+        return $q.when(isEqual || $http.put('api/calculations/molecule/equals', [molecule1, molecule2]));
     }
 
     function getSaltFormula(data) {
@@ -267,5 +271,11 @@ function calculationService($rootScope, $http, $q, AppValues,
         };
 
         return $http.put('api/calculations/reaction/combine', requestData);
+    }
+
+    function getReactionProductsAndReactants(molfile) {
+        return $http.put('api/calculations/reaction/extract', molfile).then(function(response) {
+            return response.data;
+        });
     }
 }
