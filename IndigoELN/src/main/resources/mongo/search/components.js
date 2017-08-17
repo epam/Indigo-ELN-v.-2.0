@@ -13,7 +13,7 @@ function searchComponents(filter) {
                 'name': {$max:'$content.title'},
                 'description': {$max:'$content.description'},
                 'compoundId': {
-                    $max:{
+                    $addToSet:{
                         $cond: {
                             if: {
                                 $eq: ['$name', 'productBatchSummary']
@@ -31,6 +31,7 @@ function searchComponents(filter) {
             }
         },
         {$unwind: {path:'$purity',preserveNullAndEmptyArrays:true}},
+        {$unwind: {path:'$compoundId',preserveNullAndEmptyArrays:true}},
         {$match: filter}
     ]).map(function (obj) {
         return obj._id;
