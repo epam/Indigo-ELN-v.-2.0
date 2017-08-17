@@ -176,6 +176,10 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
 
             return $q.all(promises).then(function(batches) {
                 return updateNbkBatches(batches).then(function() {
+                    CalculationService.calculateProductBatch({
+                        row: batches[0],
+                        column: "totalWeight"
+                    });
                     notifyService.info(batches.length + ' batches successfully imported');
 
                     return batches;

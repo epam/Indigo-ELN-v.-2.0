@@ -20,7 +20,7 @@ function sdImportHelperService(AppValues) {
         BATCH_COMMENTS: function(property, value) {
             return value;
         },
-        BUTCH_TYPE: function(property, value) {
+        BATCH_TYPE: function(property, value) {
             return value;
         }
     };
