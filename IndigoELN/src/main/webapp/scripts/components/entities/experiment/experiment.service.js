@@ -36,9 +36,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
                 transformResponse: function(data) {
                     data = angular.fromJson(data);
                     data = toModel(data);
-                    _.isUndefined(data.message) ?
-                        $rootScope.$broadcast('experiment-updated', data) :
-                        $rootScope.$broadcast('access-denied', data);
+                    $rootScope.$broadcast('experiment-updated', data);
 
                     return data;
                 }
