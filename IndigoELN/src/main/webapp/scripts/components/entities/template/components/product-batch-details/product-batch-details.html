@@ -1,6 +1,6 @@
 <div class="panel panel-info component" indigo-collapsible-component>
     <div class="panel-heading">
-        Product Batch Details123
+        Product Batch Details
     </div>
     <div class="panel-body collapsible">
         <div class="form-inline form-batch-details">
@@ -76,7 +76,7 @@
                             <i class="fa fa-floppy-o"></i>
                             <span class="m-l5">Register</span>
                         </button>
-                        <indigo-inline-loader promise="vm.batchOperation" style="position:relative;float:left" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
+                        <indigo-inline-loader promise="vm.batchOperation" class="product-batch-details__loader" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
                         <div class="product-batch-details__radio">
                             <input type="radio"
                                    name="batchDetailsRadio"
