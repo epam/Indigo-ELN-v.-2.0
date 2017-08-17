@@ -111,7 +111,9 @@
         }
 
         function print() {
-            $state.go('entities.project-detail.print');
+            save().then(function() {
+                $state.go('entities.project-detail.print');
+            });
         }
 
         function initPermissions() {
