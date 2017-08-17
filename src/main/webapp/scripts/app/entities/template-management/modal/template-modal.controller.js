@@ -8,9 +8,7 @@
                                      Components, pageInfo, EntitiesBrowser, TabKeyUtils) {
         var vm = this;
 
-        vm.components = Components.map(function(c) {
-            return c;
-        });
+        vm.components = _.values(Components);
         vm.template = pageInfo.entity || {};
         vm.template.templateContent = vm.template.templateContent || [];
 
