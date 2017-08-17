@@ -14,6 +14,9 @@ function notebook($resource, PermissionManagement) {
             method: 'GET',
             transformResponse: function(data) {
                 data = angular.fromJson(data);
+                data.accessList = _.sortBy(data.accessList, function(value) {
+                    return value.user.id;
+                });
 
                 return data;
             }

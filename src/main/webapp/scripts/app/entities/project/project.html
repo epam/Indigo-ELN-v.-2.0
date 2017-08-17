@@ -1,5 +1,8 @@
 <div class="experiments" cg-busy="{promise: vm.loading, minDuration:700}">
-    <indigo-autorecovery indigo-restored="vm.restored"></indigo-autorecovery>
+    <autorecovery kind="{{vm.stateData.tab.kind}}"
+                  name="{{vm.project.name}}"
+                  on-restore="vm.onRestore(recoveryData)">
+    </autorecovery>
     <div class="tab-content-pad">
         <div>
             <div class="row m-b20">
