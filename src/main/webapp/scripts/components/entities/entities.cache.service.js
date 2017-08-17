@@ -46,6 +46,6 @@ function entitiesCacheFactory(CacheFactory, TabKeyUtils) {
     }
 
     function clearAll() {
-        entitiesCache.clearAll();
+        entitiesCache.removeAll();
     }
 }
