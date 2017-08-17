@@ -37,6 +37,6 @@ function notifyService(notify) {
     }
 
     function info(msg) {
-        customNotify(msg);
+        customNotify(msg, "info-notify");
     }
 }
