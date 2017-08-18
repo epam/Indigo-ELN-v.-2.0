@@ -53,8 +53,8 @@
                 initPermissions();
                 FileUploaderCash.setFiles([]);
 
-                if (response.experiment.experimentVersion > 1 || !response.experiment.lastVersion) {
-                    tabName += ' v' + response.experiment.experimentVersion;
+                if (response.experiment.version > 1 || !response.experiment.lastVersion) {
+                    tabName += ' v' + response.experiment.version;
                 }
 
                 toggleDirty(!!pageInfo.dirty);
