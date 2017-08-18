@@ -32,7 +32,7 @@ function sdImportHelperService(AppValues) {
     };
 
     function formatPropertyPath(property, value, index) {
-        var parsedValue = property.isNumeric ? parseInt(value, 10) : value;
+        var parsedValue = property.isNumeric ? parseFloat(value) : value;
 
         return _.set({}, property.path.replace(/<%= index =>/, index), parsedValue);
     }
