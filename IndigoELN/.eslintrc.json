@@ -77,6 +77,7 @@
     "afterEach": false,
     "beforeEach": false,
     "angularDragula": false,
-    "Simditor": false
+    "Simditor": false,
+    "moment": false
   }
 }
