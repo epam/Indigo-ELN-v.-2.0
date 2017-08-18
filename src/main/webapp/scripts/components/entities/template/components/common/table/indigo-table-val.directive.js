@@ -81,21 +81,20 @@
                     return false;
                 }
 
-                return obj === 0 || _.isNull(obj) || _.isUndefined(obj) ||
-                    (_.isObject(obj) && (_.isEmpty(obj) || obj.value === 0) || obj.value === '0');
+                return _.isEmpty(obj) || obj.value === '0' || obj.value === 0;
             }
 
             function closeThis() {
                 var col = vm.indigoColumn;
                 var val = vm.indigoRow[col.id];
-                if ((col.type == 'scalar' || col.type == 'unit') && isChanged) {
+                if ((col.type === 'scalar' || col.type === 'unit') && isChanged) {
                     var absv = Math.abs(val.value);
-                    if (absv != val.value) {
+                    if (absv !== val.value) {
                         val.value = absv;
                         notifyService.error('Total Amount made must more than zero.');
                     }
                 }
-                if (col.type == 'input' && val === '') {
+                if (col.type === 'input' && val === '') {
                     vm.indigoRow[col.id] = val = undefined;
                 }
                 if (col.onClose && isChanged) {
@@ -114,13 +113,6 @@
             function unitChange() {
                 EntitiesBrowser.setCurrentFormDirty();
             }
-
-            // unbinds.push($scope.$watch(function () {
-            // 	var cell= vm.indigoRow[vm.indigoColumn.id];
-            // 	if (_.isObject(cell) && cell.unit) return cell.unit;
-            // }, function(newVal, prevVal) {
-            // 	if (!angular.equals(newVal, prevVal))
-            // }, true))
 
             function updatePopover() {
                 vm.popoverTitle = vm.indigoRow[vm.indigoColumn.id];
@@ -141,11 +133,13 @@
 
                 if (vm.indigoColumn.onClose) {
                     $scope.$watch(function() {
-                        return _.isObject(vm.indigoRow[vm.indigoColumn.id]) ? vm.indigoRow[vm.indigoColumn.id].value || vm.indigoRow[vm.indigoColumn.id].name : vm.indigoRow[vm.indigoColumn.id];
+                        return _.isObject(vm.indigoRow[vm.indigoColumn.id]) ?
+                        vm.indigoRow[vm.indigoColumn.id].value || vm.indigoRow[vm.indigoColumn.id].name :
+                            vm.indigoRow[vm.indigoColumn.id];
                     }, function(newVal, prevVal) {
+                        var col = vm.indigoColumn;
                         oldVal = prevVal;
                         isChanged = !_.isEqual(newVal, prevVal) && vm.isEditable();
-                        var col = vm.indigoColumn;
                         if (isChanged && col.onChange) {
                             col.onChange({
                                 row: vm.indigoRow, model: vm.indigoRow[col.id], oldVal: oldVal

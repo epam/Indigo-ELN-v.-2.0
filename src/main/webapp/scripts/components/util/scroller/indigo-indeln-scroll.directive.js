@@ -3,7 +3,7 @@
         .module('indigoeln')
         .directive('indigoIndelnScroll', indigoIndelnScroll);
 
-    function indigoIndelnScroll() {
+    function indigoIndelnScroll($document) {
         return {
             restrict: 'A',
             link: link
@@ -13,23 +13,28 @@
         function link(scope, iAttrs) {
             var scrollToTop = function() {
                 var h = $(window).height();
-                $(document).mousemove(function(e) {
+                var elDocument = angular.element($document);
+
+                elDocument.mousemove(function(e) {
                     var mousePosition = e.pageY - $(window).scrollTop();
                     var topRegion = 220;
                     var bottomRegion = h - 220;
-                    if (e.which == 1 && (mousePosition < topRegion || mousePosition > bottomRegion)) {    // e.wich = 1 => click down !
-                        var distance = e.clientY - h / 2;
-                        distance *= 0.1; // <- velocity
-                        $('#entities-content-id').scrollTop(distance + $(document).scrollTop());
+                    if (isClickDown(e, mousePosition, topRegion, bottomRegion)) {
+                        var distance = e.clientY - (h / 2);
+                        // <- velocity
+                        distance *= 0.1;
+                        angular.element('#entities-content-id').scrollTop(distance + elDocument.scrollTop());
                     } else {
-                        $('#entities-content-id').unbind('mousemove');
+                        angular.element('#entities-content-id').unbind('mousemove');
                     }
                 });
+
+                function isClickDown(e, mousePosition, topRegion, bottomRegion) {
+                    return e.which === 1 && (mousePosition < topRegion || mousePosition > bottomRegion);
+                }
             };
             if (iAttrs.dragulaModel) {
-                scope.$on(iAttrs.dragulaModel + '.drag', function(el, source) {
-                    scrollToTop();
-                });
+                scope.$on(iAttrs.dragulaModel + '.drag', scrollToTop);
             }
         }
     }
