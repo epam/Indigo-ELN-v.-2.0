@@ -33,11 +33,8 @@
                     if (scope.indigoModel) {
                         scope.ctrl = {};
                         scope.ctrl.model = moment(scope.indigoModel);
-                        var unsubscribe = scope.$watch('ctrl.model', function(date) {
+                        scope.$watch('ctrl.model', function(date) {
                             scope.indigoModel = date ? date.toISOString() : null;
-                        });
-                        scope.$on('$destroy', function() {
-                            unsubscribe();
                         });
                     }
                     formUtils.showValidation(iElement, scope, formCtrl);
