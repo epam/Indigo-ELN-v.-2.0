@@ -2,7 +2,7 @@
     angular
         .module('indigoeln')
         .directive('indigoChecklist', indigoChecklist);
-    
+
     function indigoChecklist() {
         return {
             restrict: 'E',

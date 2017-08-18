@@ -266,9 +266,7 @@
             if (batch.stoichTable) {
                 setStoicTable(batch.stoichTable);
             }
-            // if (batch.actualProducts) {
-            //     setProductBatches(batch.actualProducts);
-            // }
+
             vm.detailTable[0] = batch;
             vm.selectedBatch = batch;
             if (vm.selectControl.setSelection) {

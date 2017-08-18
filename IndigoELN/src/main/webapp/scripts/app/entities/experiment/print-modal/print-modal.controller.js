@@ -4,24 +4,18 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, Principal, $stateParams, Experiment, Notebook, Project, Components, EntitiesBrowser) {
+    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components, EntitiesBrowser) {
         var vm = this;
-        var userId;
         var resource;
         vm.dismiss = dismiss;
         vm.confirmCompletion = confirmCompletion;
 
         init();
 
-
         function init() {
             initService(EntitiesBrowser.getActiveTab().kind);
             vm.loading = resource.get($stateParams).$promise.then(function(entity) {
                 initCheckboxesForEntity(entity);
-                Principal.identity()
-                    .then(function(user) {
-                        userId = user.id;
-                    });
             });
         }
 
@@ -39,9 +33,9 @@
                 default:
                     break;
             }
+
             return resource;
         }
-
 
         function initCheckboxesForEntity(entity) {
             if (resource === Project) {
@@ -56,10 +50,11 @@
             }
         }
 
-        function mapComponentById(experiment, id) {
+        function mapComponentById(id) {
             var key;
             var component = _.find(Components, function(comp, ckey) {
                 key = ckey;
+
                 return comp.id === id;
             });
 
@@ -73,7 +68,7 @@
             var tabs = _.get(experiment, 'template.templateContent');
             _.each(tabs, function(tab) {
                 _.each(tab.components, function(comp) {
-                    vm.components.push(mapComponentById(experiment, comp.id));
+                    vm.components.push(mapComponentById(comp.id));
                     if (comp.id === Components.attachments.id) {
                         vm.hasAttachments = true;
                     }

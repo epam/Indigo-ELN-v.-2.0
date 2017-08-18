@@ -35,16 +35,18 @@
             var tc;
             var preventFirstScroll;
             $timeout(function() {
+                var stimeout;
+                var nostore;
                 tc = element.find('.tab-content');
+
                 if (scrollCache[id]) {
                     setTimeout(function() {
                         nostore = true;
                         tc[0].scrollTop = scrollCache[id];
                     }, 100);
                 }
-                var stimeout,
-                    nostore;
-                tc.on('scroll', function(e) {
+
+                tc.on('scroll', function() {
                     // will close some dropdowns EPMLSOPELN-437
                     element.trigger('click');
                     if (nostore) {
@@ -150,7 +152,6 @@
                 }
             }
 
-
             function onAddedBatch(batch) {
                 vm.batches.push(batch);
                 vm.batchesTrigger++;
@@ -168,10 +169,6 @@
                     });
                 });
             }
-
-            $scope.$on('access-denied', function(){
-                $scope.accessDenied = true;
-            });
         }
     }
 })();

@@ -137,7 +137,7 @@
         }
 
         function getRate(str, query, rate) {
-            if (str.indexOf(query) == 0) {
+            if (str.indexOf(query) === 0) {
                 return 10;
             } else if (str.indexOf(query) > 0) {
                 return 1;
@@ -208,9 +208,10 @@
             var $input = $tar.find('input').focus();
             if (!$input.attr('tab-initiated')) {
                 $input.on('keydown', function(e) {
-                    if (e.keyCode != 9) {
+                    if (e.keyCode !== 9) {
                         return;
-                    } // tab key
+                    }
+                    // tab key
                     var $next = $tar.nextAll('[col-read-only="false"]').filter(function() {
                         return angular.element(this).find('[toggleEditable]')[0];
                     }).eq(0);
