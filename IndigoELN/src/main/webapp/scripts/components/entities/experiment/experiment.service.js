@@ -4,15 +4,6 @@ angular
 
 /* @ngInject */
 function experiment($resource, PermissionManagement, $rootScope) {
-    var interceptor = {
-        response: function(config) {
-            var _data = _.extend({}, config.data);
-            $rootScope.$broadcast('experiment-updated', toModel(_data));
-
-            return config.data;
-        }
-    };
-
     return $resource('api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId',
         {
             projectId: '@projectId',
@@ -34,13 +25,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
             get: {
                 method: 'GET',
                 cache: true,
-                transformResponse: function(data) {
-                    data = angular.fromJson(data);
-                    data = toModel(data);
-                    $rootScope.$broadcast('experiment-updated', data);
-
-                    return data;
-                }
+                transformResponse: transformResponse
             },
             save: {
                 method: 'POST',
@@ -49,7 +34,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
 
                     return angular.toJson(data);
                 },
-                interceptor: interceptor
+                transformResponse: transformResponse
             },
             version: {
                 method: 'POST',
@@ -63,7 +48,7 @@ function experiment($resource, PermissionManagement, $rootScope) {
 
                     return angular.toJson(data);
                 },
-                interceptor: interceptor
+                transformResponse: transformResponse
             },
             delete: {
                 method: 'DELETE'
@@ -102,6 +87,15 @@ function experiment($resource, PermissionManagement, $rootScope) {
         data = _.extend({}, data);
         data.components = toComponents(data.components);
         data.accessList = PermissionManagement.expandPermission(data.accessList);
+
+        return data;
+    }
+
+    function transformResponse(data) {
+        data = angular.fromJson(data);
+        data = toModel(data);
+        data.creationDate = moment(data.creationDate).toISOString();
+        $rootScope.$broadcast('experiment-updated', data);
 
         return data;
     }
