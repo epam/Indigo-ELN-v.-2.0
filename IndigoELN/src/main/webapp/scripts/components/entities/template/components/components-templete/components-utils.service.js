@@ -29,7 +29,9 @@ function componentsUtilsFactory(Principal, Components) {
 
     function initExperimentDescription(components, isExist) {
         if (isExist) {
-            _.defaultsDeep(components.experimentDescription, {description: ''});
+            _.defaultsDeep(components, {
+                experimentDescription: {description: ''}
+            });
         }
     }
 
@@ -77,7 +79,11 @@ function componentsUtilsFactory(Principal, Components) {
         if (isExist) {
             _.defaultsDeep(
                 components, {
-                    reactionDetails: {batchOwner: [], experimentCreator: {name: Principal.getIdentity().fullName}}
+                    reactionDetails: {
+                        batchOwner: [],
+                        coAuthors: [],
+                        experimentCreator: {name: Principal.getIdentity().fullName}
+                    }
                 });
         }
     }
