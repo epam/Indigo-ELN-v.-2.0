@@ -11,6 +11,7 @@ function stoichHelperFactory() {
 
     function cleanReactant(batch) {
         return {
+            structure: batch.structure,
             compoundId: batch.compoundId,
             fullNbkBatch: batch.fullNbkBatch,
             molWeight: batch.molWeight,
