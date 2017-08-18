@@ -298,38 +298,6 @@ angular
             code: 'BATCH_TYPE',
             name: '$$batchType',
             path: 'name'
-        },
-        {
-            code: 'THEO_MOLES_DISPLAY_VALUE',
-            name: 'theoMoles',
-            path: 'displayValue'
-        },
-        {
-            code: 'THEO_MOLES_VALUE',
-            name: 'theoMoles',
-            path: 'value',
-            isNumeric: true
-        },
-        {
-            code: 'THEO_MOLES_UNIT',
-            name: 'theoMoles',
-            path: 'unit'
-        },
-        {
-            code: 'THEO_WEIGHT_DISPLAY_VALUE',
-            name: 'theoWeight',
-            path: 'displayValue'
-        },
-        {
-            code: 'THEO_WEIGHT_VALUE',
-            name: 'theoWeight',
-            path: 'value',
-            isNumeric: true
-        },
-        {
-            code: 'THEO_WEIGHT_UNIT',
-            name: 'theoWeight',
-            path: 'unit'
         }
     ]
     );
