@@ -3,9 +3,13 @@
 @import 'helper.less';
 
 /******************DIALOGS STYLE*********************/
-
+@media (min-width: @screen-sm) {
+  .modal-dialog {
+    width: 600px;
+    margin: 100px auto;
+  }
+}
 .modal-dialog {
-
   .modal-title{
     font-size: @modal-title-size;
 

@@ -33,7 +33,7 @@
         }
 
         function checkReaction() {
-            if (vm.model.reaction.molfile && !_.has(vm.model.reaction, 'molReactants')) {
+            if (vm.model.reaction && vm.model.reaction.molfile && !_.has(vm.model.reaction, 'molReactants')) {
                 onChangedStructure(vm.model.reaction).then(function() {
                     notifyService.info('The old version of reaction scheme is updated. ' +
                         'Save Experiment for apply changes');
