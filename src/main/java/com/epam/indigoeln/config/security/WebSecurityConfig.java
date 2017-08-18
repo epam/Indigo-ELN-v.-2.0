@@ -26,6 +26,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
 import static com.epam.indigoeln.core.security.Authority.*;
+import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
 
 
 @Configuration
@@ -263,7 +264,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private CookieCsrfTokenRepository cookieCsrfTokenRepository(){
         CookieCsrfTokenRepository cookieCsrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         cookieCsrfTokenRepository.setCookieName(CookieConstants.CSRF_TOKEN);
-        cookieCsrfTokenRepository.setHeaderName("X-CSRF-TOKEN");
+        cookieCsrfTokenRepository.setHeaderName(CSRF_TOKEN_HEADER);
         return cookieCsrfTokenRepository;
     }
 

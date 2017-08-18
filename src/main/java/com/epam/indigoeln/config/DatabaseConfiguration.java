@@ -44,7 +44,7 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
 
     @Override
     protected String getDatabaseName() {
-        return mongoProperties.getDatabase();
+        return mongoProperties.getMongoClientDatabase();
     }
 
     @Override
@@ -57,7 +57,7 @@ public class DatabaseConfiguration extends AbstractMongoConfiguration {
         Mongobee runner = new Mongobee(mongo);
 
         runner.setChangeLogsScanPackage("com.epam.indigoeln.config.dbchangelogs");
-        runner.setDbName(mongoProperties.getDatabase());
+        runner.setDbName(mongoProperties.getMongoClientDatabase());
         runner.setEnabled(true);
 
         return runner;
