@@ -3,16 +3,10 @@ package com.epam.indigoeln.web.rest;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
-import org.springframework.test.context.junit4.SpringRunner;
 import com.epam.indigoeln.util.AuthUtil;
-import com.epam.indigoeln.util.DatabaseUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,30 +15,10 @@ import java.util.*;
 import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN_HEADER;
 import static org.junit.Assert.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class ProjectResourceTest {
-
-    @Autowired
-    private TestRestTemplate restTemplate;
+public class ProjectResourceTest extends RestBase {
 
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private DatabaseUtil databaseUtil;
-
-    private String[] cookie;
-    private String csrfToken;
-
-    @Before
-    public void getCookies() throws Exception {
-        AuthUtil authUtil = new AuthUtil(restTemplate);
-        cookie = authUtil.getCookie();
-        csrfToken = authUtil.getCsrfToken();
-
-        databaseUtil.init();
-    }
 
     @Test
     public void createProject() throws Exception {
@@ -72,7 +46,7 @@ public class ProjectResourceTest {
         assertEquals(projectDTO.getReferences(), result.getReferences());
         assertEquals(projectDTO.getTags(), result.getTags());
         assertEquals(projectDTO.getName(), result.getName());
-        assertNotNull(result.getId());
+        assertNotNull(result.getFullId());
         assertEquals(AuthUtil.login, result.getAuthor().getLogin());
         assertNotNull(result.getCreationDate());
         assertNotNull(result.getLastEditDate());
@@ -122,8 +96,8 @@ public class ProjectResourceTest {
         assertEquals(projectDTO.getReferences(), result.getReferences());
         assertEquals(projectDTO.getTags(), result.getTags());
         assertEquals(projectDTO.getName(), result.getName());
-        assertEquals(projectDTO.getId(), result.getId());
-        assertEquals(AuthUtil.login, result.getAuthor().getLogin());
+        assertEquals(projectDTO.getFullId(), result.getFullId());
+        assertEquals(projectDTO.getAuthor().getLogin(), result.getAuthor().getLogin());
         assertTrue(projectDTO.getCreationDate().isEqual(result.getCreationDate()));
         assertFalse(projectDTO.getLastEditDate().isEqual(result.getLastEditDate()));
         assertEquals(AuthUtil.login, result.getLastModifiedBy().getLogin());
@@ -165,6 +139,10 @@ public class ProjectResourceTest {
         assertEquals("references1", projectDTO.getReferences());
         assertEquals(Arrays.asList("tag11", "tag21"), projectDTO.getTags());
         assertEquals(AuthUtil.login, projectDTO.getAuthor().getLogin());
+        assertNotNull(projectDTO.getCreationDate());
+        assertNotNull(projectDTO.getLastEditDate());
+        assertNotNull(projectDTO.getLastModifiedBy());
+        assertNotNull(projectDTO.getVersion());
 
     }
 }
