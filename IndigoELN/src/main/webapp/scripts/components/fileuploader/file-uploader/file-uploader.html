@@ -7,10 +7,13 @@
             </button>
         </div>
         <div class="col-sm-6 text-right">
-            <div class="search-field m-t5">
-                <i class="fa fa-search" ng-click="vm.search()"></i>
-                <input type="search" class="uui-search" placeholder="File name" id="searchFile" ng-model="vm.searchText">
-            </div>
+            <form>
+                <div class="search-field m-t5">
+                    <i class="fa fa-search" ng-click="vm.search()"></i>
+                    <input type="search" class="uui-search" placeholder="File name" id="searchFile"
+                           ng-model="vm.searchText">
+                </div>
+            </form>
         </div>
     </div>
     <div class="table-responsive" indigo-scroller="x">
@@ -48,8 +51,8 @@
         </table>
     </div>
     <div class="text-center">
-    <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
-                    ng-change="vm.loadAll()"></uib-pagination>
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
+                        ng-change="vm.loadAll()"></uib-pagination>
     </div>
 </div>
 
