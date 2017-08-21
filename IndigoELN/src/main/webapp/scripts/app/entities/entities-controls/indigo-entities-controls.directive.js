@@ -6,17 +6,20 @@
     function indigoEntitiesControls() {
         return {
             restrict: 'E',
-            templateUrl: 'scripts/app/entities/entities-controls.html',
-            controller: controller,
+            templateUrl: 'scripts/app/entities/entities-controls/entities-controls.html',
+            controller: indigoEntitiesControlsController,
+            bindToController: true,
             controllerAs: 'vm',
             scope: {
                 onCloseTab: '&',
-                onCloseAllTabs: '&'
+                onCloseAllTabs: '&',
+                onCloseNonActiveTabs: '&',
+                onSave: '&'
             }
         };
 
         /* @ngInject */
-        function controller($scope, $state, EntitiesBrowser, modalHelper, ProjectsForSubCreation) {
+        function indigoEntitiesControlsController($state, EntitiesBrowser, modalHelper, ProjectsForSubCreation) {
             var vm = this;
 
             // TODO: move it ti file
@@ -41,7 +44,6 @@
             vm.print = print;
             vm.canDuplicate = canDuplicate;
             vm.duplicate = duplicate;
-            vm.onCloseAllTabs = onCloseAllTabs;
             vm.onCloseTabClick = onCloseTabClick;
             vm.createExperiment = createExperiment;
             vm.createNotebook = createNotebook;
@@ -65,7 +67,7 @@
             }
 
             function save() {
-                EntitiesBrowser.saveCurrentEntity();
+                vm.onSave();
             }
 
             function canPrint() {
@@ -88,20 +90,10 @@
                 EntitiesBrowser.getEntityActions().duplicate();
             }
 
-            function onCloseAllTabs(exceptCurrent) {
-                if ($scope.onCloseAllTabs) {
-                    $scope.onCloseAllTabs({
-                        exceptCurrent: exceptCurrent
-                    });
-                }
-            }
-
             function onCloseTabClick($event, tab) {
-                if ($scope.onCloseTab) {
-                    $scope.onCloseTab({
-                        $event: $event, tab: tab
-                    });
-                }
+                vm.onCloseTab({
+                    $event: $event, tab: tab
+                });
             }
 
             function createExperiment() {

@@ -1,5 +1,8 @@
 <indigo-entities-controls on-close-tab="vm.onCloseTabClick($event, tab)"
-                          on-close-all-tabs="vm.onCloseAllTabs(exceptCurrent)"></indigo-entities-controls>
+                          on-close-all-tabs="vm.onCloseAllTabs()"
+                          on-close-non-active-tabs="vm.onCloseAllTabs(true)"
+                          on-save="vm.saveEntity(vm.activeTab)">
+</indigo-entities-controls>
 <div class="main-tabs" indigo-tab-scroller>
     <ul class="nav nav-tabs">
         <li role="presentation"

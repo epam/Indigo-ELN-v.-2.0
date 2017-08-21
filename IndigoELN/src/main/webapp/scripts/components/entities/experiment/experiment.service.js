@@ -24,7 +24,6 @@ function experiment($resource, PermissionManagement, $rootScope) {
             },
             get: {
                 method: 'GET',
-                cache: true,
                 transformResponse: transformResponse
             },
             save: {
