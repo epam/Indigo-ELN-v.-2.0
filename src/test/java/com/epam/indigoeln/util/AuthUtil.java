@@ -15,8 +15,8 @@ import static com.epam.indigoeln.core.security.CookieConstants.CSRF_TOKEN;
 import static org.junit.Assert.assertEquals;
 
 public class AuthUtil {
-    private static final String login = "admin";
-    private static final String password = "admin";
+    public static final String login = "admin";
+    public static final String password = "admin";
     private String[] cookie;
     private String csrfToken;
 
