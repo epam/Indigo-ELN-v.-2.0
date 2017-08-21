@@ -3,9 +3,9 @@ angular
     .factory('notifyService', notifyService);
 
 /* @ngInject */
-function notifyService(notify) {
+function notifyService(notify, $document) {
     notify.config({
-        templateUrl: 'scripts/components/alert/alert-template.html',
+        templateUrl: 'scripts/components/notify-service/notify-service.html',
         startTop: 0
     });
 
@@ -16,27 +16,27 @@ function notifyService(notify) {
         info: info
     };
 
-    function customNotify(msg, type){
+    function customNotify(msg, type) {
         return notify({
-            container: document.getElementById('content-wrapper'),
+            container: $document[0].getElementById('content-wrapper'),
             message: msg,
             classes: type
         });
     }
 
     function success(msg) {
-        customNotify(msg, "success-notify");
+        customNotify(msg, 'success-notify');
     }
 
     function error(msg) {
-        customNotify(msg, "danger-notify");
+        customNotify(msg, 'danger-notify');
     }
 
     function warning(msg) {
-        customNotify(msg, "warning-notify");
+        customNotify(msg, 'warning-notify');
     }
 
     function info(msg) {
-        customNotify(msg, "info-notify");
+        customNotify(msg, 'info-notify');
     }
 }
