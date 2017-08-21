@@ -298,6 +298,22 @@ angular
             code: 'BATCH_TYPE',
             name: '$$batchType',
             path: 'name'
+        },
+        {
+            code: 'THEO_WEIGHT_DISPLAY_VALUE',
+            name: 'theoWeight',
+            path: 'displayValue'
+        },
+        {
+            code: 'THEO_WEIGHT_VALUE',
+            name: 'theoWeight',
+            path: 'value',
+            isNumeric: true
+        },
+        {
+            code: 'THEO_WEIGHT_UNIT',
+            name: 'theoWeight',
+            path: 'unit'
         }
-    ]
+        ]
     );
