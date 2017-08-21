@@ -15,6 +15,7 @@
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
         var originalNotebook;
         var updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
+        var isChanged;
 
         init();
 
@@ -79,6 +80,12 @@
         }
 
         function bindEvents() {
+            $scope.$on('ON_ENTITY_SAVE', function(event, data) {
+                if (data.tab.params === $stateParams) {
+                    save().then(data.defer.resolve);
+                }
+            });
+
             $scope.$watch(function() {
                 return vm.notebook;
             }, function(newEntity) {
@@ -204,7 +211,7 @@
                 return;
             }
 
-            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createNotebookForm.$dirty;
+            isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createNotebookForm.$dirty;
 
             if (isChanged) {
                 $scope.createNotebookForm.$setDirty();
@@ -233,6 +240,10 @@
         }
 
         function save() {
+            if (!isChanged) {
+                return;
+            }
+
             vm.hasError = false;
             if (vm.notebook.id) {
                 vm.loading = Notebook.update($stateParams, vm.notebook).$promise

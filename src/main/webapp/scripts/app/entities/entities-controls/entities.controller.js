@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService, Experiment,
-                                Notebook, Project, dialogService, autorecoveryCache) {
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService,
+                                dialogService, autorecoveryCache) {
         var vm = this;
 
         init();
@@ -13,6 +13,7 @@
             vm.onTabClick = onTabClick;
             vm.onCloseTabClick = onCloseTabClick;
             vm.onCloseAllTabs = onCloseAllTabs;
+            vm.saveEntity = saveEntity;
 
             bindEvents();
             Principal.identity().then(function(user) {
@@ -30,42 +31,14 @@
             autorecoveryCache.remove(tab.params);
         }
 
-        // TODO: need to inject service by name but app does't have root elem
-        function getService(kind) {
-            var service;
-            switch (kind) {
-                case 'project':
-                    service = Project;
-                    break;
-                case 'notebook':
-                    service = Notebook;
-                    break;
-                case 'experiment':
-                    service = Experiment;
-                    break;
-                default:
-                    break;
-            }
-
-            return service;
-        }
-
         function saveEntity(tab) {
-            var entityPromise = EntitiesCache.getByKey(tab.tabKey);
-            if (entityPromise) {
-                return entityPromise.then(function(entity) {
-                    var service = getService(tab.kind);
+            var defer = $q.defer();
+            $scope.$broadcast('ON_ENTITY_SAVE', {
+                tab: tab,
+                defer: defer
+            });
 
-                    return !service ? null : service.update(tab.params, entity).$promise
-                        .then(function() {
-                            closeTab(tab);
-                        });
-                });
-            }
-
-            closeTab(tab);
-
-            return $q.resolve();
+            return defer.promise;
         }
 
         function onTabChanged(tab) {
@@ -97,7 +70,9 @@
         function openCloseDialog(editTabs) {
             return dialogService.selectEntitiesToSave(editTabs, function(tabsToSave) {
                 return $q.all(_.map(tabsToSave, function(tabToSave) {
-                    return saveEntity(tabToSave);
+                    return saveEntity(tabToSave).then(function() {
+                        closeTab(tabToSave);
+                    });
                 }));
             });
         }
@@ -121,7 +96,9 @@
             if (tab.dirty) {
                 AlertModal.save('Do you want to save the changes?', null, function(isSave) {
                     if (isSave) {
-                        saveEntity(tab);
+                        saveEntity(tab).then(function() {
+                            closeTab(tab);
+                        });
                     } else {
                         closeTab(tab);
                     }

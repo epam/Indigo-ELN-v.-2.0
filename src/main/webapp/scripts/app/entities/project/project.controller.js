@@ -14,6 +14,7 @@
         var hasCreateChildAuthority = pageInfo.hasCreateChildAuthority;
         var updateRecovery;
         var originalProject;
+        var isChanged;
 
         init();
 
@@ -84,6 +85,10 @@
         }
 
         function save() {
+            if (!isChanged) {
+                return;
+            }
+
             if (vm.project.id) {
                 vm.loading = Project.update($stateParams, vm.project).$promise
                     .then(function(result) {
@@ -136,7 +141,7 @@
                 return;
             }
 
-            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createProjectForm.$dirty;
+            isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.createProjectForm.$dirty;
 
             if (isChanged) {
                 $scope.createProjectForm.$setDirty();
@@ -149,6 +154,12 @@
 
         function initDirtyListener() {
             $timeout(function() {
+                $scope.$on('ON_ENTITY_SAVE', function(event, data) {
+                    if (data.tab.params === $stateParams) {
+                        save().then(data.defer.resolve);
+                    }
+                });
+
                 $scope.$watch('vm.project', function(newEntity) {
                     EntitiesBrowser.setCurrentEntity(vm.project);
                     var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalProject, newEntity);

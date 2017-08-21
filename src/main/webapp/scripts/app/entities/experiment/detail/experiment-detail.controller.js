@@ -17,6 +17,7 @@
         var hasEditPermission;
         var originalExperiment;
         var updateRecovery;
+        var isChanged;
 
         init();
 
@@ -138,15 +139,15 @@
 
         function setStatus(status) {
             vm.experiment.status = status;
+            updateStatuses();
         }
 
         function setReadOnly() {
             vm.isEditAllowed = ((isContentEditor || hasEditAuthority) && hasEditPermission) && vm.isStatusOpen;
-            $scope.experimentForm.$$isReadOnly = !vm.isEditAllowed;
         }
 
         function toggleDirty(isDirty) {
-            var isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.experimentForm.$dirty;
+            isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.experimentForm.$dirty;
 
             if (isChanged) {
                 $scope.experimentForm.$setDirty();
@@ -164,6 +165,10 @@
         }
 
         function save() {
+            if (!isChanged) {
+                return;
+            }
+
             initComponents(vm.experiment);
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
@@ -263,6 +268,12 @@
         }
 
         function initEventListeners() {
+            $scope.$on('ON_ENTITY_SAVE', function(event, data) {
+                if (data.tab.params === $stateParams) {
+                    save().then(data.defer.resolve);
+                }
+            });
+
             $scope.$watch('vm.experiment', function(newEntity) {
                 var isDirty = autorecoveryHelper.isEntityDirty(originalExperiment, newEntity);
                 toggleDirty(isDirty);
@@ -276,11 +287,6 @@
                 vm.isBtnSaveActive = $scope.experimentForm.$dirty;
             }, true);
 
-            $scope.$watch('vm.experiment.status', function() {
-                updateStatuses();
-                setReadOnly();
-            });
-
             $scope.$watch('experimentForm', function() {
                 EntitiesBrowser.setCurrentForm($scope.experimentForm);
             });
@@ -289,13 +295,12 @@
                 vm.experiment.accessList = PermissionManagement.getAccessList();
             });
 
-            $scope.$on('experiment-status-changed', function(event, data) {
-                _.each(data, function(status, id) {
-                    if (id === vm.experiment.fullId) {
-                        setStatus(status);
-                        setReadOnly();
-                    }
-                });
+            $scope.$on('experiment-status-changed', function(event, experiments) {
+                var experimentStatus = experiments[vm.experiment.fullId];
+                if (experimentStatus) {
+                    setStatus(experimentStatus);
+                    setReadOnly();
+                }
             });
 
             // Activate save button when change permission
