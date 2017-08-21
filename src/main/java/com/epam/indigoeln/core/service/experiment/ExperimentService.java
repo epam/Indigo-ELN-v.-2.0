@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.service.experiment;
 
+import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
@@ -265,6 +266,12 @@ public class ExperimentService {
             }
 
             Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
+
+            //Check experiment version before component's saving
+            if (!experimentForSave.getVersion().equals(experimentFromDB.getVersion())){
+                throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), new IndigoRuntimeException());
+            }
+
             if (experimentDTO.getTemplate() != null) {
                 Template tmpl = new Template();
                 tmpl.setTemplateContent(experimentDTO.getTemplate().getTemplateContent());
