@@ -1,4 +1,4 @@
-package util;
+package com.epam.indigoeln.util;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpHeaders;
