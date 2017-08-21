@@ -1,11 +1,11 @@
 package com.epam.indigoeln.util;
 
-import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.sequenceid.SequenceIdRepository;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.project.ProjectService;
@@ -41,17 +41,14 @@ public class DatabaseUtil {
     @Autowired
     private ComponentRepository componentRepository;
     @Autowired
+    private SequenceIdRepository sequenceIdRepository;
+    @Autowired
     private UserService userService;
 
     @MockBean
     private AuditorAware<User> auditorAware;
 
     public void init() {
-        projectRepository.deleteAll();
-        notebookRepository.deleteAll();
-        experimentRepository.deleteAll();
-        componentRepository.deleteAll();
-
         given(auditorAware.getCurrentAuditor()).willReturn(userService.getUserWithAuthoritiesByLogin("admin"));
 
         User admin = userService.getUserWithAuthoritiesByLogin("admin");
@@ -87,5 +84,13 @@ public class DatabaseUtil {
             projectWithId.setNotebooks(notebooks);
             projectService.updateProject(projectWithId, admin);
         }
+    }
+
+    public void dropDBs(){
+        projectRepository.deleteAll();
+        notebookRepository.deleteAll();
+        experimentRepository.deleteAll();
+        componentRepository.deleteAll();
+        sequenceIdRepository.deleteAll();
     }
 }
