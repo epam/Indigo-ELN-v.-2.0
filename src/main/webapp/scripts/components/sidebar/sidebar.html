@@ -4,8 +4,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleBookmarksProjects(vm.myBookmarks)"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-bookmark"></i>
+                <em class="fa fa-angle-down arrow"></em>
+                <em class="fa fa-bookmark"></em>
                 <span>My Bookmarks</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.myBookmarks.projects.length">
@@ -53,8 +53,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleMyprojects(vm.allProjects, true); $event.stopPropagation();"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-sitemap"></i>
+                <em class="fa fa-angle-down arrow"></em>
+                <em class="fa fa-sitemap"></em>
                 <span>All Projects</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.allProjects.projects.length">
@@ -99,8 +99,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleAdministration()"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-cogs"></i>
+                <em class="fa fa-angle-down arrow"></em>
+                <em class="fa fa-cogs"></em>
                 <span>Administration</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">

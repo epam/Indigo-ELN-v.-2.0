@@ -34,7 +34,9 @@
                     <div class="col-xs-6">
                         <div class="m-b20">
                             <span class="semi-b">Reagent Information</span>
-                            <button class="btn btn-default btn-small m-l5" type="button" ng-if="indigoEditableInfo" ng-click="editInfo(item)" ng-disabled="isEditMode"><i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
+                            <button class="btn btn-default btn-small m-l5" type="button" ng-if="indigoEditableInfo"
+                                    ng-click="editInfo(item)" ng-disabled="isEditMode">
+                                <em class="fa fa-pencil"></em><span class="m-l5">Edit</span>
                             </button>
                         </div>
                         <div>
@@ -165,9 +167,11 @@
                                 </div>
                             </div>
                             <div class="btn-group" ng-if="isEditMode">
-                                <button class="btn btn-primary" type="button" ng-click="finishEdit()" ng-disabled="false"><i class="fa fa-save"></i><span class="m-l5">Save</span>
+                                <button class="btn btn-primary" type="button" ng-click="finishEdit()"
+                                        ng-disabled="false"><em class="fa fa-save"></em><span class="m-l5">Save</span>
                                 </button>
-                                <button class="btn btn-default" type="button" ng-click="cancelEdit($index)" ng-disabled="false"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                                <button class="btn btn-default" type="button" ng-click="cancelEdit($index)"
+                                        ng-disabled="false"><em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
                                 </button>
                             </div>
                         </div>

@@ -15,7 +15,7 @@
                 <div class="panel-heading">Components</div>
                 <div class="panel-body panel-body-h">
                     <div class="search-field search-full">
-                        <i class="fa fa-search" ng-click="search()"></i>
+                        <em class="fa fa-search" ng-click="search()"></em>
                         <input type="search" class="uui-search" placeholder="Search by name or description"
                                id="searchRole" ng-model="search">
                     </div>
@@ -38,7 +38,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <em class="fa fa-plus" aria-hidden="true"></em>
                         <span class="m-l5">Create new tab</span>
                     </button>
                     Template Builder
@@ -50,9 +50,9 @@
                     </div>
                     <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
-                            <i class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></i>
+                            <em class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></em>
                             <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b" ng-bind="tab.name">
-                                <i class="fa fa-pencil m-l5"></i>
+                                <em class="fa fa-pencil m-l5"></em>
                             </span>
                             <!--<em class="fa fa-remove pull-right text-muted clickable" title="Remove" ng-click="removeTab(tab)"></em>-->
                         </span>
@@ -95,10 +95,10 @@
 
 <div class="btn-bottom-block tab-content-pad">
     <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
-        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+        <em class="fa fa-save"></em><span class="m-l5">Save</span>
     </button>
     <button type="button" class="btn btn-default" ng-click="vm.close()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        <em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
     </button>
 </div>
 

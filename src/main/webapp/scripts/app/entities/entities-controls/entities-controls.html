@@ -2,13 +2,13 @@
     <ul class="controls-list">
         <li ng-if="!vm.isDashboard" ui-sref="experiment">
             <a>
-                <i class="fa fa-home"></i>
+                <em class="fa fa-home"></em>
                 <span class="tooltip-icon-header">Home</span>
             </a>
         </li>
         <li uib-dropdown on-toggle="toggled(open)" id="new-entity-dropdown" uib-dropdown-toggle>
             <a>
-                <i class="fa fa-file-o"></i>
+                <em class="fa fa-file-o"></em>
                 <span class="tooltip-icon-header">New Entity</span>
             </a>
             <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="new-entity-dropdown"
@@ -26,13 +26,13 @@
         </li>
         <li indigo-toggle-class-child="open-menu" ng-hide="true">
             <a>
-                <i class="fa fa-arrow-circle-o-up"></i>
+                <em class="fa fa-arrow-circle-o-up"></em>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
         <li uib-dropdown on-toggle="toggled(open)" id="opened-entities-dropdown" uib-dropdown-toggle>
             <a ng-class="{'disabled' : vm.isDashboard &&  !vm.entities.length}">
-                <i class="fa fa-th-large"></i>
+                <em class="fa fa-th-large"></em>
                 <span class="tooltip-icon-header">Opened Entities</span>
             </a>
             <ul class="dropdown-menu" uib-dropdown-menu aria-labelledby="opened-entities-dropdown">
@@ -56,7 +56,7 @@
         </li>
         <li ng-click="vm.openSearch()" indigo-has-authority="{{vm.GLOBAL_SEARCH}}">
             <a>
-                <i class="fa fa-search"></i>
+                <em class="fa fa-search"></em>
                 <span class="tooltip-icon-header">Search</span>
             </a>
         </li>
@@ -65,43 +65,43 @@
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-click="vm.save()" ng-class="{'disabled' : !vm.canSave() }">
-                <i class="fa fa-floppy-o"></i>
+                <em class="fa fa-floppy-o"></em>
                 <span class="tooltip-icon-header">Save</span>
             </a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-click="vm.duplicate()" ng-class="{'disabled' : !vm.canDuplicate() }">
-                <i class="fa fa-files-o"></i>
+                <em class="fa fa-files-o"></em>
                 <span class="tooltip-icon-header">Duplicate</span>
             </a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-disabled="vm.canUndo()" ng-click="vm.onUndo()">
-                <i class="fa fa-mail-reply"></i>
+                <em class="fa fa-mail-reply"></em>
                 <span class="tooltip-icon-header">Undo</span>
             </a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-disabled="vm.canRedo()" ng-click="vm.onRedo()">
-                <i class="fa fa-mail-forward"></i>
+                <em class="fa fa-mail-forward"></em>
                 <span class="tooltip-icon-header">Redo</span>
             </a>
         </li>
         <li ng-if="false">
             <a>
-                <i class="fa fa-inbox"></i>
+                <em class="fa fa-inbox"></em>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
         <li ng-if="false">
             <a>
-                <i class="fa fa-folder-open"></i>
+                <em class="fa fa-folder-open"></em>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
         <li ng-if="!vm.isDashboard">
             <a ng-click="vm.print()" ng-class="{'disabled' : !vm.canPrint() }">
-                <i class="fa fa-print"></i>
+                <em class="fa fa-print"></em>
                 <span class="tooltip-icon-header">Print</span>
             </a>
         </li>
@@ -110,13 +110,13 @@
         </li>
         <li indigo-toggle-class-child="open-menu">
             <a>
-                <i class="fa fa-cog"></i>
+                <em class="fa fa-cog"></em>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>
         <li indigo-toggle-class-child="open-menu">
             <a>
-                <i class="fa fa-question-circle"></i>
+                <em class="fa fa-question-circle"></em>
                 <span class="tooltip-icon-header">Fake Tooltip</span>
             </a>
         </li>

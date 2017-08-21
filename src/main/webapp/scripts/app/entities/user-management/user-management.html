@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <i class="fa fa-plus" aria-hidden="true"></i>
+                <em class="fa fa-plus" aria-hidden="true"></em>
                 <span class="m-l5">Create new user</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <i class="fa fa-search" ng-click="vm.search()"></i>
+                <em class="fa fa-search" ng-click="vm.search()"></em>
                 <input type="search" class="uui-search" placeholder="Search" id="searchUser" ng-change="vm.search()"
                        ng-model="vm.searchText">
             </div>
@@ -97,11 +97,11 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                <em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
             </button>
             <button ng-click="vm.save()" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving || !vm.user.roles.length"
                     class="btn btn-primary m-l5">
-                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+                <em class="fa fa-save"></em><span class="m-l5">Save</span>
             </button>
         </div>
     </div>
@@ -139,7 +139,7 @@
                             ng-click="vm.edit(user)"
                             ng-show="!user.system"
                             class="btn btn-info btn-small">
-                        <i class="fa fa-pencil"></i>
+                        <em class="fa fa-pencil"></em>
                         <span class="m-l5">Edit</span>
                     </button>
                     <!--Deactivate for all now (Task EPMLSOPELN-629)-->
@@ -147,7 +147,7 @@
                             <!--ui-sref="entities.user-management.delete({login:user.login})"-->
                             <!--ng-show="!user.system"-->
                             <!--class="btn btn-info btn-small">-->
-                        <!--<i class="fa fa-trash"></i>-->
+                        <!--<em class="fa fa-trash"></em>-->
                         <!--<span class="m-l5">delete</span>-->
                     <!--</button>-->
                 </td>
