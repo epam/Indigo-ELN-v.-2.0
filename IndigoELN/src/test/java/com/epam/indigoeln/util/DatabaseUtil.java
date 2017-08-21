@@ -10,9 +10,11 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.notebook.NotebookService;
 import com.epam.indigoeln.core.service.project.ProjectService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.NotebookDTO;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
+import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.AuditorAware;
@@ -71,7 +73,15 @@ public class DatabaseUtil {
                 ArrayList<ExperimentDTO> experiments = new ArrayList<>();
                 for (int k = 0; k < 3; k++) {
                     ExperimentDTO experimentDTO = new ExperimentDTO();
-                    experimentDTO.setName("exp name" + (3 * i + 3 * j + k));
+
+                    ArrayList<ComponentDTO> components = new ArrayList<>();
+                    for (int l = 0; l < 3; l++) {
+                        ComponentDTO component = new ComponentDTO();
+                        component.setName("component" + l);
+                        component.setContent(new BasicDBObject("field", "value"));
+                        components.add(component);
+                    }
+                    experimentDTO.setComponents(components);
                     ExperimentDTO savedExperiment = experimentService.createExperiment(experimentDTO, savedProject.getId(), savedNotebook.getId(), admin);
                     experiments.add(savedExperiment);
                 }

@@ -50,7 +50,7 @@ public class ProjectResourceTest extends RestBase {
         assertEquals(AuthUtil.login, result.getAuthor().getLogin());
         assertNotNull(result.getCreationDate());
         assertNotNull(result.getLastEditDate());
-        assertNotNull(result.getLastModifiedBy());
+        assertNotNull(AuthUtil.login, result.getLastModifiedBy().getLogin());
         assertEquals(Long.valueOf(0), result.getVersion());
 
         Project projectSaved = projectRepository.findOne(result.getId());
@@ -102,7 +102,7 @@ public class ProjectResourceTest extends RestBase {
         assertFalse(projectDTO.getLastEditDate().isEqual(result.getLastEditDate()));
         assertEquals(AuthUtil.login, result.getLastModifiedBy().getLogin());
         assertNotNull(result.getVersion());
-        assertNotEquals(Long.valueOf(0), result.getVersion());
+        assertEquals(projectDTO.getVersion() + 1, result.getVersion().longValue());
 
         Project projectSaved = projectRepository.findOne(result.getId());
 
@@ -141,7 +141,7 @@ public class ProjectResourceTest extends RestBase {
         assertEquals(AuthUtil.login, projectDTO.getAuthor().getLogin());
         assertNotNull(projectDTO.getCreationDate());
         assertNotNull(projectDTO.getLastEditDate());
-        assertNotNull(projectDTO.getLastModifiedBy());
+        assertNotNull(AuthUtil.login, projectDTO.getLastModifiedBy().getLogin());
         assertNotNull(projectDTO.getVersion());
 
     }

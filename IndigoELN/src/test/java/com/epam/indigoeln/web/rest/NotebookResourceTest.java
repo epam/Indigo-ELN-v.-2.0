@@ -48,7 +48,7 @@ public class NotebookResourceTest extends RestBase {
         assertEquals(AuthUtil.login, result.getAuthor().getLogin());
         assertNotNull(result.getCreationDate());
         assertNotNull(result.getLastEditDate());
-        assertNotNull(result.getLastModifiedBy());
+        assertEquals(AuthUtil.login, result.getLastModifiedBy().getLogin());
         assertEquals(Long.valueOf(0), result.getVersion());
 
         Notebook savedNotebook = notebookRepository.findOne(result.getFullId());
@@ -62,13 +62,8 @@ public class NotebookResourceTest extends RestBase {
         assertEquals(savedNotebook.getLastModifiedBy().getLogin(), result.getLastModifiedBy().getLogin());
         assertEquals(savedNotebook.getVersion(), result.getVersion());
 
-        Project project = projectRepository.findOne("1");
-
-        boolean exists = project.getNotebooks().stream()
-                .anyMatch(n -> n.getId().equals(savedNotebook.getId()));
-
-        assertTrue(exists);
-
+        Project project = projectRepository.findByNotebookId(result.getFullId());
+        assertNotNull(project);
     }
 
     @Test
@@ -98,7 +93,7 @@ public class NotebookResourceTest extends RestBase {
         assertFalse(notebookDTO.getLastEditDate().isEqual(result.getLastEditDate()));
         assertEquals(AuthUtil.login, result.getLastModifiedBy().getLogin());
         assertNotNull(result.getVersion());
-        assertNotEquals(Long.valueOf(0), result.getVersion());
+        assertEquals(notebookDTO.getVersion() + 1, result.getVersion().longValue());
 
         Notebook savedNotebook = notebookRepository.findOne(result.getFullId());
 
@@ -129,7 +124,7 @@ public class NotebookResourceTest extends RestBase {
         assertEquals(AuthUtil.login, notebookDTO.getAuthor().getLogin());
         assertNotNull(notebookDTO.getCreationDate());
         assertNotNull(notebookDTO.getLastEditDate());
-        assertNotNull(notebookDTO.getLastModifiedBy());
+        assertEquals(AuthUtil.login, notebookDTO.getLastModifiedBy().getLogin());
         assertNotNull(notebookDTO.getVersion());
     }
 }
