@@ -18,31 +18,31 @@
                     <div class="btn-group">
                         <button type="button" ng-click="vm.searchReagents(0)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
-                            <i class="fa fa-list"></i>
+                            <em class="fa fa-list"></em>
                             <span class="m-l5">My Reagent List</span>
                         </button>
                         <button type="button" ng-click="vm.searchReagents(1)" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly">
-                            <i class="fa fa-search"></i>
+                            <em class="fa fa-search"></em>
                             <span class="m-l5">Search DBs</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" disabled>
-                            <i class="fa fa-search"></i>
+                            <em class="fa fa-search"></em>
                             <span class="m-l5">MSDS Search</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-disabled="vm.isReadonly"
                                 ng-click="vm.appendRow()">
-                            <i class="fa fa-plus"></i>
+                            <em class="fa fa-plus"></em>
                             <span class="m-l5">Add</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.clear()">
-                            <i class="fa fa-eraser"></i>
+                            <em class="fa fa-eraser"></em>
                             <span class="m-l5">Clear</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small"
                                 ng-disabled="vm.isReadonly || !vm.selectedRow" ng-click="vm.removeRow()">
-                            <i class="fa fa-trash"></i>
+                            <em class="fa fa-trash"></em>
                             <span class="m-l5">Delete</span>
                         </button>
                     </div>
@@ -52,12 +52,12 @@
                         <button type="button" ng-click="vm.analyzeRxn()"
                                 ng-disabled="vm.isReadonly || !vm.model.stoichTable.products"
                                 class="btn btn-info btn-small">
-                            <i class="fa fa-line-chart"></i>
+                            <em class="fa fa-line-chart"></em>
                             <span class="m-l5">Analyze Rxn</span>
                         </button>
                         <button type="button" class="btn btn-info btn-small" ng-click="vm.createRxn()"
                                 ng-disabled="vm.isReadonly || vm.noReactantsInStoic()">
-                            <i class="fa fa-plus"></i>
+                            <em class="fa fa-plus"></em>
                             <span class="m-l5">Create Rxn</span>
                         </button>
                     </div>
