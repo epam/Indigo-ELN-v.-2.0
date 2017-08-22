@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService,
-                                dialogService, autorecoveryCache) {
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, dialogService,
+                                autorecoveryCache) {
         var vm = this;
 
         init();
@@ -39,32 +39,6 @@
             });
 
             return defer.promise;
-        }
-
-        function onTabChanged(tab) {
-            if (!EntitiesBrowser.getUpdateCurrentEntityFunc()) {
-                return;
-            }
-
-            if (tab.dirty) {
-                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title +
-                    ' has been changed by another user while you have not applied changes. ' +
-                    'You can Accept or Reject saved changes. ' +
-                    '"Accept" button reloads page to show saved data,' +
-                    ' "Reject" button leave entered data and allows you to save them.',
-                    null,
-                    function() {
-                        EntitiesBrowser.callUpdateCurrentEntity();
-                    },
-                    function() {
-                        EntitiesBrowser.callUpdateCurrentEntity(true);
-                    }, 'Accept', true, 'Reject'
-                );
-
-                return;
-            }
-            notifyService.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded');
-            EntitiesBrowser.callUpdateCurrentEntity();
         }
 
         function openCloseDialog(editTabs) {
@@ -120,16 +94,6 @@
                 return EntitiesBrowser.getActiveTab();
             }, function(value) {
                 vm.activeTab = value;
-            });
-
-            $scope.$on('entity-updated', function(event, data) {
-                Principal.identity(true).then(function(user) {
-                    EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                        if (tab && user.id !== data.user) {
-                            onTabChanged(tab);
-                        }
-                    });
-                });
             });
         }
     }
