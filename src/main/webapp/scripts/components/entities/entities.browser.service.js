@@ -7,7 +7,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     var tabs = {};
     var activeTab = {};
     var entityActions;
-    var updateCurrentEntityFunction;
     var saveCurrentEntityFunction;
     var activeEntity;
     var curForm;
@@ -21,9 +20,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
         getTabs: getTabs,
         setEntityActions: setEntityActions,
         getEntityActions: getEntityActions,
-        setUpdateCurrentEntity: setUpdateCurrentEntity,
-        getUpdateCurrentEntityFunc: getUpdateCurrentEntityFunc,
-        callUpdateCurrentEntity: callUpdateCurrentEntity,
         setSaveCurrentEntity: setSaveCurrentEntity,
         getSaveCurrentEntityFunc: getSaveCurrentEntityFunc,
         callSaveCurrentEntity: callSaveCurrentEntity,
@@ -69,19 +65,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
 
     function getEntityActions() {
         return entityActions;
-    }
-
-
-    function setUpdateCurrentEntity(f) {
-        updateCurrentEntityFunction = f;
-    }
-
-    function getUpdateCurrentEntityFunc() {
-        return updateCurrentEntityFunction;
-    }
-
-    function callUpdateCurrentEntity() {
-        updateCurrentEntityFunction();
     }
 
     function setSaveCurrentEntity(f) {
