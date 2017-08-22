@@ -57,7 +57,6 @@
                         <th indigo-sort-by="id" class="table-list__item table-list__item_header dash-exp-id">Experiment ID <span class="glyphicon glyphicon-sort experiments__icon-sort"></span> </th>
                         <th indigo-sort-by="name"  class="table-list__item table-list__item_header dash-exp-name">Title <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="author.firstName"  class="table-list__item table-list__item_header">Author <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
-                        <!-- <th  my-sort-by="name" class="table-list__item table-list__item_header">Status <span class="glyphicon glyphicon-sort"></span></th> -->
                         <th  class="table-list__item table-list__item_header">Co-authors</th>
                         <th indigo-sort-by="project" class="table-list__item table-list__item_header">Project <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
                         <th indigo-sort-by="creationDate" class="table-list__item table-list__item_header dash-exp-date">Creation Date <span class="glyphicon glyphicon-sort experiments__icon-sort"></span></th>
@@ -73,7 +72,6 @@
                         </td>
                         <td class="table-list__item dash-exp-name"  title="{{exp.name}}">  <div class="ellipsis" ng-bind="exp.name"> </div>  </td>
                         <td class="table-list__item" ng-bind="exp.author.firstName"></td>
-                        <!-- <td class="table-list__item">{{exp.status}}</td> -->
                         <td class="table-list__item">
                             <ul>
                                 <li ng-repeat="user in exp.coAuthors track by $index" ng-bind="user"></li>
