@@ -207,6 +207,7 @@ public class NotebookService {
             entity.put("projectId", projectId);
             entity.put("notebookId", SequenceIdUtil.extractShortId(notebookFromDB));
             data.put("entity", entity);
+            data.put("version", notebookFromDB.getVersion());
             template.convertAndSend("/topic/entity_updated", data);
 
             return result;
