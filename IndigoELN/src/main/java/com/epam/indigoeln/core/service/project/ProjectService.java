@@ -144,6 +144,7 @@ public class ProjectService {
         Map<String, Object> entity = new HashMap<>();
         entity.put("projectId", SequenceIdUtil.extractShortId(projectFromDb));
         data.put("entity", entity);
+        data.put("version", project.getVersion());
         template.convertAndSend("/topic/entity_updated", data);
 
         return new ProjectDTO(project);
