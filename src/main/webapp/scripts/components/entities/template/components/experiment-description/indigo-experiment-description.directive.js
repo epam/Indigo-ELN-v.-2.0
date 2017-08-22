@@ -17,7 +17,6 @@
             bindToController: true,
             controllerAs: 'vm',
             controller: function() {
-                
             }
         };
     }

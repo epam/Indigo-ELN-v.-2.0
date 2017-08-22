@@ -13,7 +13,7 @@ angular.module('indigoeln')
             }).result.then(function(result) {
                 //this won't work while response is not an object
                 // entity.print(angular.extend($stateParams, result)).$promise.then(function(data) {
-                //     //window.open("data:application/pdf," + escape(data)); 
+                //     //window.open("data:application/pdf," + escape(data));
                 // });
 
                 //This will go away when response of print service will be {response : 'pdfString'}
