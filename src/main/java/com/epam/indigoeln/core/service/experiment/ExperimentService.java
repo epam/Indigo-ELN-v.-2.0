@@ -318,7 +318,7 @@ public class ExperimentService {
             entity.put("notebookId", notebookId);
             entity.put("experimentId", SequenceIdUtil.extractShortId(experimentFromDB));
             data.put("entity", entity);
-            data.put("version", experimentFromDB.getVersion());
+            data.put("version", savedExperiment.getVersion());
             template.convertAndSend("/topic/entity_updated", data);
 
         } finally {
