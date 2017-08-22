@@ -83,14 +83,12 @@
                     <table class="table table-striped authorities-table">
                         <thead>
                         <tr>
-                            <!--<th><p>Role name</p></th>-->
                             <th ng-repeat="authority in vm.authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
                             <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="role in vm.roles track by role.id">
-                            <!--<td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>-->
                             <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                              class="role-check-icon"></span>

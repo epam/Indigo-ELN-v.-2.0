@@ -6,7 +6,6 @@
         <div class="t-item t-head">Molecular Formula</div>
         <div class="t-item t-head">Chemical Name</div>
         <div class="t-item t-head">Compound ID</div>
-        <!-- <th>Database</th> -->
     </div>
     <div class="search-table-body">
         <div ng-repeat="item in indigoTableContent | filter : indigoTableFilter track by $index" class="search-table-wrap">
@@ -27,7 +26,6 @@
                 <div class="search-table-popup" ng-if="item.structure.image && item.$$isCollapsed">
                     <img uib-popover-html="item.$$popoverTemplate" class="search-table-img" popover-title="{{item.fullNbkBatch}}" popover-trigger="mouseenter" popover-placement="left" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
                 </div>
-                <!-- <td>{{item.database}}</td> -->
             </div>
             <div uib-collapse="item.$$isCollapsed" class="search-table-row-details">
                 <div class="row" ng-if="!item.$$isCollapsed">
