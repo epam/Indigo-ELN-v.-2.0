@@ -9,13 +9,13 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.*;
 import com.epam.indigoeln.web.rest.util.CustomDtoMapper;
 import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -41,7 +41,7 @@ public class NotebookService {
     private CustomDtoMapper dtoMapper;
 
     @Autowired
-    private SimpMessagingTemplate template;
+    private WebSocketUtil webSocketUtil;
 
     @Autowired
     private ExperimentService experimentService;
@@ -65,7 +65,7 @@ public class NotebookService {
      * If user is null, then retrieve notebooks without checking for UserPermissions
      * Otherwise, use checking for UserPermissions
      */
-    public Collection<Notebook> getAllNotebooks(String  projectId, User user) {
+    public Collection<Notebook> getAllNotebooks(String projectId, User user) {
         Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                 orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
 
@@ -87,12 +87,13 @@ public class NotebookService {
      * Fetch all notebooks for current user available when create sub entity
      * return notebooks where users is in accessList and has permission CREATE_SUB_ENTITY,
      * or has authority CONTENT_EDITOR (but not in accessLIst)
+     *
      * @param user user
      * @return list of notebooks available for experiment creation
      */
     public List<ShortEntityDTO> getNotebooksForExperimentCreation(User user) {
         List<Notebook> notebooks = PermissionUtil.isContentEditor(user) ?
-            notebookRepository.findAllIgnoreChildren() :
+                notebookRepository.findAllIgnoreChildren() :
                 notebookRepository.findByUserIdAndPermissionsShort(user.getId(), Collections.singletonList(UserPermission.CREATE_SUB_ENTITY));
         return notebooks.stream().map(ShortEntityDTO::new).sorted(Comparator.comparing(ShortEntityDTO::getName)).collect(Collectors.toList());
     }
@@ -157,7 +158,7 @@ public class NotebookService {
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, String projectId, User user) {
         Lock lock = experimentService.getLock(projectId);
-        try{
+        try {
             lock.lock();
             String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookDTO.getId());
             Notebook notebookFromDB = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
@@ -182,9 +183,9 @@ public class NotebookService {
             // check of user permissions's correctness in access control list
             PermissionUtil.checkCorrectnessOfAccessList(userRepository, notebook.getAccessList());
 
-            if (!notebookFromDB.getName().equals(notebookDTO.getName())){
+            if (!notebookFromDB.getName().equals(notebookDTO.getName())) {
                 List<String> numbers = BatchComponentUtil.hasBatches(notebookFromDB);
-                if (!numbers.isEmpty()){
+                if (!numbers.isEmpty()) {
                     throw OperationDeniedException.createNotebookUpdateNameOperation(numbers.toArray(new String[numbers.size()]));
                 }
                 notebookFromDB.setName(notebookDTO.getName());
@@ -192,7 +193,8 @@ public class NotebookService {
             notebookFromDB.setDescription(notebookDTO.getDescription());
             notebookFromDB.setAccessList(notebook.getAccessList());// Stay old notebook's experiments for updated notebook
             notebookFromDB.setVersion(notebook.getVersion());
-            NotebookDTO result = new NotebookDTO(saveNotebookAndHandleError(notebookFromDB));
+
+            Notebook savedNotebook = saveNotebookAndHandleError(notebookFromDB);
 
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
@@ -201,17 +203,10 @@ public class NotebookService {
                     PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
             projectRepository.save(project);
 
-            Map<String, Object> data = new HashMap<>();
-            data.put("user", user.getId());
-            Map<String, Object> entity = new HashMap<>();
-            entity.put("projectId", projectId);
-            entity.put("notebookId", SequenceIdUtil.extractShortId(notebookFromDB));
-            data.put("entity", entity);
-            data.put("version", result.getVersion());
-            template.convertAndSend("/topic/entity_updated", data);
+            webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
-            return result;
-        }finally {
+            return new NotebookDTO(savedNotebook);
+        } finally {
             lock.unlock();
         }
     }
@@ -221,7 +216,7 @@ public class NotebookService {
         Notebook notebook = Optional.ofNullable(notebookRepository.findOne(fullNotebookId)).
                 orElseThrow(() -> EntityNotFoundException.createWithNotebookId(id));
 
-        if(notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
+        if (notebook.getExperiments() != null && !notebook.getExperiments().isEmpty()) {
             throw new ChildReferenceException(notebook.getId());
         }
 
@@ -239,14 +234,15 @@ public class NotebookService {
     /**
      * Checks if user can be deleted from notebook's access list with all the permissions without any problems.
      * It checks all the experiments and if any has this user added, then it will return false.
-     * @param projectId project id
+     *
+     * @param projectId  project id
      * @param notebookId notebook id
-     * @param userId user id
+     * @param userId     user id
      * @return true if none of experiments has user added to it, true otherwise
      */
     public boolean isUserRemovable(String projectId, String notebookId, String userId) {
         String fullNotebookId = SequenceIdUtil.buildFullId(projectId, notebookId);
-        Optional<Notebook> notebookOpt =  Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
+        Optional<Notebook> notebookOpt = Optional.ofNullable(notebookRepository.findOne(fullNotebookId));
         Notebook notebook = notebookOpt.orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
 
         return notebook.getExperiments().stream().filter(e -> {

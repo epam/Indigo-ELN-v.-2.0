@@ -5,11 +5,10 @@ import com.epam.indigoeln.core.repository.file.FileRepository;
 import com.epam.indigoeln.core.repository.file.GridFSFileUtil;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
-import com.epam.indigoeln.core.repository.registration.RegistrationStatus;
 import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.exception.*;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
-import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ProjectDTO;
 import com.epam.indigoeln.web.rest.dto.ShortEntityDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
@@ -19,7 +18,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -47,7 +45,7 @@ public class ProjectService {
     private SequenceIdService sequenceIdService;
 
     @Autowired
-    private SimpMessagingTemplate template;
+    private WebSocketUtil webSocketUtil;
 
     public List<TreeNodeDTO> getAllProjectsAsTreeNodes() {
         return getAllProjectsAsTreeNodes(null);
@@ -139,14 +137,7 @@ public class ProjectService {
 
         project = saveProjectAndHandleError(projectFromDb);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("user", user.getId());
-        Map<String, Object> entity = new HashMap<>();
-        entity.put("projectId", SequenceIdUtil.extractShortId(projectFromDb));
-        data.put("entity", entity);
-        data.put("version", project.getVersion());
-        template.convertAndSend("/topic/entity_updated", data);
-
+        webSocketUtil.updateProject(user, project);
         return new ProjectDTO(project);
     }
 
