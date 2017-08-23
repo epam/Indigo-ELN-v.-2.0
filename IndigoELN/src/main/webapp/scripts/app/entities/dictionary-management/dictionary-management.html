@@ -2,13 +2,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.createDictionary()">
-                <em class="fa fa-plus" aria-hidden="true"></em>
+                <span class="fa fa-plus" aria-hidden="true"></span>
                 <span class="m-l5">Create new Dictionary</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <em class="fa fa-search"></em>
+                <span class="fa fa-search"></span>
                 <input type="search" class="uui-search" placeholder="Search" id="searchDictionary"
                        ng-change="vm.searchDictionary()"
                        ng-model="vm.searchText">
@@ -45,10 +45,10 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clearDictionary()">
-                <em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
+                <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
             </button>
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-                <em class="fa fa-save"></em><span class="m-l5">Save</span>
+                <span class="fa fa-save"></span><span class="m-l5">Save</span>
             </button>
         </div>
     </div>
@@ -77,7 +77,7 @@
                     <button type="submit"
                             ng-click="vm.editDictionary(dictionary)"
                             class="btn btn-info btn-small">
-                        <em class="fa fa-pencil"></em>
+                        <span class="fa fa-pencil"></span>
                         <span class="m-l5">Edit</span>
                     </button>
                     <button type="submit"
@@ -100,9 +100,9 @@
 
     <div class="panel panel-info panel-info-collapse words">
         <div class="panel-heading">
-            <em class="pull-right glyphicon"
+            <span class="pull-right glyphicon"
                 ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
-                ng-click="vm.isCollapsed = !vm.isCollapsed"></em>
+                ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
             Words
         </div>
 
@@ -111,7 +111,7 @@
                 <button class="btn btn-primary"
                         ng-click="vm.addWord()"
                         ng-disabled="vm.selectedDictionaryId == null">
-                    <em class="fa fa-plus" aria-hidden="true"></em>
+                    <span class="fa fa-plus" aria-hidden="true"></span>
                     <span class="m-l5">Add new Word</span>
                 </button>
             </div>
@@ -150,10 +150,10 @@
                 </div>
                 <div class="panel-footer text-right">
                     <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clearWord()">
-                        <em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
+                        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                     </button>
                     <button type="submit" form="editWordForm" ng-disabled="editWordForm.$invalid || vm.isWordSaving" class="btn btn-primary m-l5">
-                        <em class="fa fa-save"></em><span class="m-l5">Save</span>
+                        <span class="fa fa-save"></span><span class="m-l5">Save</span>
                     </button>
                 </div>
             </div>
@@ -176,7 +176,7 @@
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.name"></td>
                         <td class="dictionary-col-width dictionary-col-elipsis" ng-bind="word.description"></td>
                         <td>
-                            <em ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></em>
+                            <span ng-class="{'glyphicon glyphicon-ok': word.enable, 'glyphicon glyphicon-remove': !word.enable}"></span>
                         </td>
                         <td ng-bind="word.rank"></td>
                         <td ng-bind="word.creationDate | date:'MMM DD, YYYY HH:mm:ss z'"></td>

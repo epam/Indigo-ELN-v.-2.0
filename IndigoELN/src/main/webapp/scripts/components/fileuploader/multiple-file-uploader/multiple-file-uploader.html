@@ -45,11 +45,11 @@
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.cancel()"
                                     ng-disabled="!item.isUploading">
-                                <em class="fa fa-ban"></em>
+                                <span class="fa fa-ban"></span>
                                 <span class="m-l5">Cancel</span>
                             </button>
                             <button type="button" class="btn btn-info btn-small" ng-click="item.remove();remove($index)">
-                                <em class="fa fa-trash"></em>
+                                <span class="fa fa-trash"></span>
                                 <span class="m-l5">Remove</span>
                             </button>
                         </td>
@@ -70,12 +70,12 @@
                 </button>
                 <button type="button" class="btn btn-default" ng-click="vm.uploader.cancelAll()"
                         ng-disabled="!vm.uploader.isUploading">
-                    <em class="fa fa-ban"></em>
+                    <span class="fa fa-ban"></span>
                     <span class="m-l5">Cancel all</span>
                 </button>
                 <button type="button" class="btn btn-danger" ng-click="vm.uploader.clearQueue()"
                         ng-disabled="!vm.uploader.queue.length">
-                    <em class="fa fa-trash"></em>
+                    <span class="fa fa-trash"></span>
                     <span class="m-l5">Remove all</span>
                 </button>
             </div>
