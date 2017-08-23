@@ -11,12 +11,6 @@
 
         init();
 
-        document.getElementById("searchFile").addEventListener("keyup", function(event){
-            if (event.keyCode == 13) {
-                search();
-            }
-        });
-
         function init() {
             vm.page = 1;
             vm.loadAll = loadAll;
@@ -24,7 +18,6 @@
             vm.upload = upload;
             vm.deleteFile = deleteFile;
             vm.search = search;
-
 
             if (params.projectId) {
                 vm.loadAll();
