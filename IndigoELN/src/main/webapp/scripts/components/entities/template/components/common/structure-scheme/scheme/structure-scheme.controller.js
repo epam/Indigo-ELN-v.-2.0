@@ -3,7 +3,7 @@ angular
     .controller('StructureSchemeController', StructureSchemeController);
 
 /* @ngInject */
-function StructureSchemeController($scope, $q, $http, $uibModal, notifyService) {
+function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, CalculationService) {
     var vm = this;
 
     init();
@@ -67,19 +67,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService) 
         vm.onChanged({structure: vm.structureModel});
     }
 
-    function renderStructure(type, structure) {
-        var deferred = $q.defer();
-        $http({
-            url: 'api/renderer/' + type + '/image',
-            method: 'POST',
-            data: structure
-        }).success(function(result) {
-            deferred.resolve(result);
-        });
-
-        return deferred.promise;
-    }
-
     function isEmptyStructure(structure) {
         var deferred = $q.defer();
         $http({
@@ -111,7 +98,7 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService) 
 
     function setStructure(structure, structureId) {
         if (structure) {
-            renderStructure(vm.structureType, structure).then(function(result) {
+            CalculationService.getImageForStructure(structure, vm.structureType).then(function(result) {
                 setRenderedStructure({
                     molfile: structure,
                     structureId: structureId,
