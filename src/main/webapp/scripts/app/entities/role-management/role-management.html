@@ -3,13 +3,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <em class="fa fa-plus" aria-hidden="true"></em>
+                <span class="fa fa-plus" aria-hidden="true"></span>
                 <span class="m-l5">Create new Role</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <em class="fa fa-search"></em>
+                <span class="fa fa-search"></span>
                 <input type="search" class="uui-search" placeholder="Search" ng-change="vm.search()" id="searchRole" ng-model="vm.searchText">
             </div>
         </div>
@@ -56,11 +56,11 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <em class="fa fa-ban"></em><span class="m-l5">Cancel</span>
+                <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
             </button>
             <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">Reset</button>
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-                <em class="fa fa-save"></em><span class="m-l5">Save</span>
+                <span class="fa fa-save"></span><span class="m-l5">Save</span>
             </button>
         </div>
     </div>
@@ -98,14 +98,14 @@
                                         ng-click="vm.edit(role)"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
-                                    <em class="fa fa-pencil"></em>
+                                    <span class="fa fa-pencil"></span>
                                     <span class="m-l5">Edit</span>
                                 </button>
                                 <button type="submit"
                                         ui-sref="entities.role-management.delete({id:role.id})"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
-                                    <em class="fa fa-trash"></em>
+                                    <span class="fa fa-trash"></span>
                                     <span class="m-l5">delete</span>
                                 </button>
                             </td>
