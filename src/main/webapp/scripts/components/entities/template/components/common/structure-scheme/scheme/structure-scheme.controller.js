@@ -98,11 +98,11 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
 
     function setStructure(structure, structureId) {
         if (structure) {
-            CalculationService.getImageForStructure(structure, vm.structureType).then(function(result) {
+            CalculationService.getImageForStructure(structure, vm.structureType).then(function(image) {
                 setRenderedStructure({
                     molfile: structure,
                     structureId: structureId,
-                    image: result.image
+                    image: image
                 });
             });
         } else {
