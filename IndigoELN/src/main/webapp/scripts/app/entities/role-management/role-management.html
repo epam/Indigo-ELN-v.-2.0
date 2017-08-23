@@ -3,13 +3,13 @@
     <div class="row m-b20">
         <div class="col-sm-6">
             <button class="btn btn-primary" ng-click="vm.create()">
-                <i class="fa fa-plus" aria-hidden="true"></i>
+                <span class="fa fa-plus" aria-hidden="true"></span>
                 <span class="m-l5">Create new Role</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <i class="fa fa-search"></i>
+                <span class="fa fa-search"></span>
                 <input type="search" class="uui-search" placeholder="Search" ng-change="vm.search()" id="searchRole" ng-model="vm.searchText">
             </div>
         </div>
@@ -56,11 +56,11 @@
         </div>
         <div class="panel-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal" ng-click="vm.clear()">
-                <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
             </button>
             <button type="button" class="btn btn-default m-l5" data-dismiss="modal" ng-click="vm.resetAuthorities()">Reset</button>
             <button type="submit" form="editForm" ng-disabled="editForm.$invalid || vm.isSaving" class="btn btn-primary m-l5">
-                <i class="fa fa-save"></i><span class="m-l5">Save</span>
+                <span class="fa fa-save"></span><span class="m-l5">Save</span>
             </button>
         </div>
     </div>
@@ -83,14 +83,12 @@
                     <table class="table table-striped authorities-table">
                         <thead>
                         <tr>
-                            <!--<th><p>Role name</p></th>-->
                             <th ng-repeat="authority in vm.authorities track by $index" uib-tooltip="{{authority.tooltip}}" tooltip-placement="top" tooltip-append-to-body="true"><p>{{authority.description}}</p></th>
                             <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr ng-repeat="role in vm.roles track by role.id">
-                            <!--<td><div class="role-name" uib-tooltip="{{role.name}}">{{role.name}}</div></td>-->
                             <td ng-repeat="authority in vm.authorities track by $index">
                                 <span ng-class="{'glyphicon glyphicon-ok-sign': vm.hasAuthority(role, authority)}"
                                              class="role-check-icon"></span>
@@ -100,14 +98,14 @@
                                         ng-click="vm.edit(role)"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
-                                    <i class="fa fa-pencil"></i>
+                                    <span class="fa fa-pencil"></span>
                                     <span class="m-l5">Edit</span>
                                 </button>
                                 <button type="submit"
                                         ui-sref="entities.role-management.delete({id:role.id})"
                                         ng-show="!role.system"
                                         class="btn btn-info btn-small">
-                                    <i class="fa fa-trash"></i>
+                                    <span class="fa fa-trash"></span>
                                     <span class="m-l5">delete</span>
                                 </button>
                             </td>

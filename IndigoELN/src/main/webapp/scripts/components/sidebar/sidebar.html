@@ -4,8 +4,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleBookmarksProjects(vm.myBookmarks)"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-bookmark"></i>
+                <span class="fa fa-angle-down arrow"></span>
+                <span class="fa fa-bookmark"></span>
                 <span>My Bookmarks</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.myBookmarks.projects.length">
@@ -30,14 +30,14 @@
                                        class="link-experiment"
                                     >
                                         <span uib-popover-template="vm.POPOVER_TEMPLATE" popover-placement="right" popover-class="sidebar-popover-basis" popover-is-open="vm.isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
-                                        <em class="experiment-status"
+                                        <span class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',
                                                       'fa fa-pencil-square-o': experiment.status == 'Signed',
                                                       'fa fa-paper-plane': experiment.status == 'Submitted',
                                                       'fa fa-archive': experiment.status == 'Archived',
                                                       'fa fa-minus-circle': experiment.status == 'Submit_Fail',
-                                                      'fa fa-file-o': experiment.status == 'Open'}"></em>
+                                                      'fa fa-file-o': experiment.status == 'Open'}"></span>
 
                                     </a>
 
@@ -53,8 +53,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleMyprojects(vm.allProjects, true); $event.stopPropagation();"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-sitemap"></i>
+                <span class="fa fa-angle-down arrow"></span>
+                <span class="fa fa-sitemap"></span>
                 <span>All Projects</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.allProjects.projects.length">
@@ -78,14 +78,14 @@
                                        ng-mouseleave="vm.experimentLeave()"
                                        class="link-experiment">
                                         <span uib-popover-template="vm.POPOVER_TEMPLATE" popover-class="sidebar-popover-basis" popover-placement="right" popover-is-open="vm.isOpen(experiment)" popover-append-to-body="true">{{experiment.name}}</span>
-                                        <em class="experiment-status"
+                                        <span class="experiment-status"
                                             ng-class="{'fa fa-check': experiment.status == 'Completed',
                                                       'fa fa-file-text-o': experiment.status == 'Signing',
                                                       'fa fa-pencil-square-o': experiment.status == 'Signed',
                                                       'fa fa-paper-plane': experiment.status == 'Submitted',
                                                       'fa fa-archive': experiment.status == 'Archived',
                                                       'fa fa-minus-circle': experiment.status == 'Submit_Fail',
-                                                      'fa fa-file-o': experiment.status == 'Open'}"></em>
+                                                      'fa fa-file-o': experiment.status == 'Open'}"></span>
                                     </a>
                                 </li>
                             </ul>
@@ -99,8 +99,8 @@
             class="sidebar-menu__section">
             <a ng-click="vm.toggleAdministration()"
                class="sidebar-menu__link-section">
-                <i class="fa fa-angle-down arrow"></i>
-                <i class="fa fa-cogs"></i>
+                <span class="fa fa-angle-down arrow"></span>
+                <span class="fa fa-cogs"></span>
                 <span>Administration</span>
             </a>
             <ul class="sidebar-menu__sub-menu animated" ng-if="vm.adminToggled">
