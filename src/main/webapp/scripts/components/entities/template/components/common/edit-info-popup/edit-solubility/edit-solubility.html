@@ -53,23 +53,23 @@
         <button class="btn btn-info"
                 type="button"
                 ng-click="vm.addSolvent()">
-            <i class="fa fa-plus"></i>
+            <span class="fa fa-plus"></span>
             <span class="m-l5">Add solvent</span>
         </button>
         <button class="btn btn-danger"
                 type="button"
                 ng-if="vm.solubility.data.length"
                 ng-click="vm.removeAll()">
-            <i class="fa fa-trash"></i>
+            <span class="fa fa-trash"></span>
             <span class="m-l5">Remove all</span>
         </button>
     </div>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
     </button>
     <button class="btn btn-primary" type="button" ng-click="vm.save()">
-        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5">Save</span>
     </button>
 </div>
