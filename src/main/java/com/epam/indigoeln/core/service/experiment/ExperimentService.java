@@ -22,6 +22,7 @@ import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.google.common.util.concurrent.Striped;
 import com.mongodb.DBRef;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
@@ -173,13 +174,21 @@ public class ExperimentService {
         experiment = experimentRepository.save(experiment);
 
         // add all users as VIEWER to notebook & project
-        experiment.getAccessList().forEach(up -> {
-            PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-            PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-        });
+        Boolean updateProject = experiment.getAccessList().stream()
+                .map(up -> {
+                    PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                    return PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                })
+                .reduce(false, Boolean::logicalOr);
+
         notebook.getExperiments().add(experiment);
-        notebookRepository.save(notebook);
-        projectRepository.save(project);
+        Notebook savedNotebook = notebookRepository.save(notebook);
+        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+
+        if (updateProject){
+            Project savedProject = projectRepository.save(project);
+            webSocketUtil.updateProject(user, savedProject);
+        }
 
         return new ExperimentDTO(experiment);
     }
@@ -237,7 +246,8 @@ public class ExperimentService {
 
         final Experiment savedNewVersion = experimentRepository.save(newVersion);
         notebook.getExperiments().add(savedNewVersion);
-        notebookRepository.save(notebook);
+        Notebook savedNotebook = notebookRepository.save(notebook);
+        webSocketUtil.updateNotebook(user, projectId, savedNotebook);
 
         return new ExperimentDTO(savedNewVersion);
     }
@@ -304,14 +314,28 @@ public class ExperimentService {
             Notebook notebook = Optional.ofNullable(notebookRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId))).
                     orElseThrow(() -> EntityNotFoundException.createWithNotebookId(notebookId));
             // add all users as VIEWER to project
-            experimentDTO.getAccessList().forEach(up -> {
-                PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-                PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
-            });
-            notebookRepository.save(notebook);
-            projectRepository.save(project);
+            Pair<Boolean, Boolean> update = experimentDTO.getAccessList().stream()
+                    .map(up -> {
+                        boolean updateNotebook = PermissionUtil.addUserPermissions(notebook.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                        boolean updateProject = PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS);
+                        return Pair.of(updateNotebook, updateProject);
+                    })
+                    .reduce(Pair.of(false, false), (pair1, pair2) -> {
+                        boolean updateNotebook = pair1.getLeft() || pair2.getLeft();
+                        boolean updateProject = pair1.getRight() || pair2.getRight();
+                        return Pair.of(updateNotebook, updateProject);
+                    });
 
             webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
+
+            if (update.getLeft()){
+                Notebook savedNotebook = notebookRepository.save(notebook);
+                webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+            }
+            if (update.getRight()){
+                Project savedProject = projectRepository.save(project);
+                webSocketUtil.updateProject(user, savedProject);
+            }
 
         } finally {
             lock.unlock();
