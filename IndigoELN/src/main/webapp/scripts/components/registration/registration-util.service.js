@@ -12,6 +12,54 @@ function registrationUtil(AppValues) {
         });
     };
 
+    var errors = [
+        {
+            message: 'Total Weight or Volume should be grater then zero',
+            test: function(batch) {
+                return !batch.totalWeight.value && !batch.totalVolume.value;
+            }
+        },
+        {
+            message: 'Compound Source is required',
+            test: function(batch) {
+                return !batch.source || !batch.source.name;
+            }
+        },
+        {
+            message: 'Structure is required',
+            test: function(batch) {
+                return !batch.structure || !batch.structure.image;
+            }
+        },
+        {
+            message: 'Source Detail is required',
+            test: function(batch) {
+                return !batch.sourceDetail || !batch.sourceDetail.name;
+            }
+        },
+        {
+            message: 'Stereocode is required',
+            test: function(batch) {
+                return !batch.stereoisomer || !batch.stereoisomer.name;
+            }
+        },
+        {
+            message: 'Salt EQ is required and must be grater then zero',
+            test: function(batch) {
+                if (batch.saltEq && batch.saltEq.value) {
+                    return false;
+                }
+                return batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value;
+            }
+        },
+        {
+            message: 'Structure comments is required',
+            test: function(batch) {
+                return batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments;
+            }
+        }
+    ];
+
     return {
         isRegistered: isRegistered,
         getNotFullForRegistrationBatches: getNotFullForRegistrationBatches
@@ -28,27 +76,12 @@ function registrationUtil(AppValues) {
                 nbkBatch: batch.fullNbkBatch, emptyFields: []
             };
 
-            if (!batch.totalWeight.value && !batch.totalVolume.value) {
-                notFullBatch.emptyFields.push('Total Weight or Volume should be grater then zero');
-            }
-            if (!batch.source || !batch.source.name) {
-                notFullBatch.emptyFields.push('Compound Source is required');
-            }
-            if (!batch.structure || !batch.structure.image) {
-                notFullBatch.emptyFields.push('Structure is required');
-            }
-            if (!batch.sourceDetail || !batch.sourceDetail.name) {
-                notFullBatch.emptyFields.push('Source Detail is required');
-            }
-            if (!batch.stereoisomer || !batch.stereoisomer.name) {
-                notFullBatch.emptyFields.push('Stereocode is required');
-            }
-            if (batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !(batch.saltEq && batch.saltEq.value)) {
-                notFullBatch.emptyFields.push('Salt EQ is required and must be grater then zero');
-            }
-            if (batch.stereoisomer && batch.stereoisomer.name && isStereoisomerNeedComment(batch.stereoisomer.name) && !batch.structureComments) {
-                notFullBatch.emptyFields.push('Structure comments is required');
-            }
+            _.forEach(errors, function(error) {
+                if (error.test(batch)) {
+                    notFullBatch.emptyFields.push(error.message);
+                }
+            });
+
             if (notFullBatch.emptyFields.length) {
                 notFullBatches.push(notFullBatch);
             }
