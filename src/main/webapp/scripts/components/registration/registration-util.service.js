@@ -46,10 +46,7 @@ function registrationUtil(AppValues) {
         {
             message: 'Salt EQ is required and must be grater then zero',
             test: function(batch) {
-                if (batch.saltEq && batch.saltEq.value) {
-                    return false;
-                }
-                return batch.saltCode && batch.saltCode.value && batch.saltCode.value !== AppValues.getDefaultSaltCode().value;
+                return _.get(batch.saltCode, 'value') && batch.saltCode.value !== AppValues.getDefaultSaltCode().value && !_.get(batch.saltEq, 'value');
             }
         },
         {
