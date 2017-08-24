@@ -69,14 +69,15 @@
     </form>
 
     <div class="btn-bottom-block tab-content-pad">
-        <div class="pull-left">
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
-                <span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>
-            </button>
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
-                <span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>
-            </button>
-        </div>
+        <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
+        <!--<div class="pull-left">-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
+                <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
+            <!--</button>-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
+                <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
+            <!--</button>-->
+        <!--</div>-->
         <button class="btn btn-info" type="button"
                 ng-disabled="!vm.isCreateChildAllowed || !vm.project.id"
                 ui-sref="entities.notebook-new({parentId:vm.project.id})">Create Notebook
