@@ -4,7 +4,7 @@
         .controller('indigoStoichTableController', indigoStoichTableController);
 
     /* @ngInject */
-    function indigoStoichTableController($scope, $rootScope, $http, $q, $uibModal, $log, $timeout, AppValues,
+    function indigoStoichTableController($scope, $rootScope, $q, $uibModal, $timeout, AppValues,
                                          AlertModal, notifyService, Dictionary, CalculationService, SearchService,
                                          RegistrationService, dialogService, StoichTableCache, stoichHelper) {
         var vm = this;
@@ -56,22 +56,13 @@
         }
 
         function noReactantsInStoic() {
-            var REACTANT = AppValues.getRxnRoleReactant().name;
-            var rxnRoleReactant = _.filter(getStoicReactants(), function(batch) {
-                return batch.rxnRole.name === REACTANT && batch.structure && batch.structure.molfile;
-            });
-
-            return rxnRoleReactant.length === 0;
-        }
-
-        function isAccessToOpen(batchesToSearch, infoReactants) {
-            return batchesToSearch.length || (infoReactants && infoReactants.length !== batchesToSearch.length);
+            return getReactantsWithMolfile(getStoicReactants()).length === 0;
         }
 
         function analyzeRxn() {
             getMissingReactionReactantsInStoic(reactionReactantsInfo).then(function(batchesToSearch) {
                 var schemeReactants = _.get(vm.model.reaction, 'infoReactants');
-                if (isAccessToOpen(batchesToSearch, schemeReactants)) {
+                if (batchesToSearch.length) {
                     $uibModal.open({
                         animation: true,
                         size: 'lg',
@@ -115,12 +106,7 @@
             }));
             CalculationService.combineReactionComponents(stoicReactantsMolfiles, intendedProductsMolfiles)
                 .then(function(result) {
-                    CalculationService.getImageForStructure(result.data.structure, 'reaction', function(image) {
-                        $rootScope.$broadcast('new-reaction-scheme', {
-                            image: image,
-                            molfile: result.data.structure
-                        });
-                    });
+                    $rootScope.$broadcast('new-reaction-scheme', result.data);
                 });
         }
 
@@ -491,53 +477,48 @@
         }
 
         function convertCompoundsToBatches(compounds) {
-            var deferred = $q.defer();
-            Dictionary.all(function(dicts) {
-                var result = _.map(compounds, function(c) {
-                    return {
-                        chemicalName: c.chemicalName,
-                        compoundId: c.compoundNo,
-                        conversationalBatchNumber: c.conversationalBatchNo,
-                        fullNbkBatch: c.batchNo,
-                        casNumber: c.casNo,
-                        structure: {
-                            structureType: 'molecule',
-                            molfile: c.structure
-                        },
-                        formula: c.formula,
-                        stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
-                        saltCode: _.find(saltCodeValues, function(sc) {
-                            return sc.regValue === c.saltCode;
-                        }),
-                        saltEq: {
-                            value: c.saltEquivs, entered: false
-                        },
-                        comments: c.comment
-                    };
+            return Dictionary.all().$promise
+                .then(function(dicts) {
+                    return _.map(compounds, function(c) {
+                        return {
+                            chemicalName: c.chemicalName,
+                            compoundId: c.compoundNo,
+                            conversationalBatchNumber: c.conversationalBatchNo,
+                            fullNbkBatch: c.batchNo,
+                            casNumber: c.casNo,
+                            structure: {
+                                structureType: 'molecule',
+                                molfile: c.structure
+                            },
+                            formula: c.formula,
+                            stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
+                            saltCode: _.find(saltCodeValues, function(sc) {
+                                return sc.regValue === c.saltCode;
+                            }),
+                            saltEq: {
+                                value: c.saltEquivs, entered: false
+                            },
+                            comments: c.comment
+                        };
+                    });
+                })
+                .then(function(result) {
+                    return $q.all(_.map(result, function(item) {
+                        return $q.all([
+                            CalculationService.getMoleculeInfo(item).then(function(molInfo) {
+                                item.formula = molInfo.molecularFormula;
+                                item.molWeight = item.molWeight || {};
+                                item.molWeight.value = molInfo.molecularWeight;
+                            }),
+                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule')
+                                .then(function(image) {
+                                    item.structure.image = image;
+                                })
+                        ]);
+                    })).then(function() {
+                        return result;
+                    });
                 });
-                var queries = [];
-                _.each(result, function(item) {
-                    queries.push(CalculationService.getMoleculeInfo(item));
-                    queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
-                });
-
-                $q.all(queries).then(function(data) {
-                    var i = 0;
-                    for (i = 0; i < result.length; i++) {
-                        var item = result[i];
-                        var molInfo = data[i];
-                        item.formula = molInfo.molecularFormula;
-                        item.molWeight = item.molWeight || {};
-                        item.molWeight.value = molInfo.molecularWeight;
-                    }
-                    for (i = 0; i < result.length; i++) {
-                        result[i].structure.image = data[result.length + i].image;
-                    }
-                    deferred.resolve(result);
-                });
-            });
-
-            return deferred.promise;
         }
 
         function alertCompoundWrongFormat() {
@@ -676,29 +657,26 @@
         }
 
         function getPrecursors() {
-            return _
-                .filter(vm.model.stoichTable.reactants, function(r) {
-                    return (r.compoundId || r.fullNbkBatch) && r.rxnRole && r.rxnRole.name === 'REACTANT';
-                })
-                .map(function(r) {
-                    return r.compoundId || r.fullNbkBatch;
-                }).join(', ');
+            return _.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
+                return r.compoundId || r.fullNbkBatch;
+            }).join(', ');
         }
 
-        function getReactantsWithStructure() {
-            var stoicReactants = [];
-            _.each(getStoicReactants(), function(item) {
-                if (_.find(item, AppValues.getRxnRoleReactant()) && item.structure) {
-                    stoicReactants.push(item);
-                }
-            });
+        function getReactantsWithMolfile(stoichReactants) {
+            return _.filter(stoichReactants, isReactant);
+        }
 
-            return stoicReactants;
+        function isReactant(item) {
+            return item.structure && item.structure.molfile && item.rxnRole.name === 'REACTANT';
+        }
+
+        function isReactantAlreadyInStoic(responces) {
+            return _.some(responces);
         }
 
         function getMissingReactionReactantsInStoic(reactantsInfo) {
-            var batchesToSearch = [];
-            var stoicReactants = getReactantsWithStructure();
+            var reactantsToSearch = [];
+            var stoicReactants = getReactantsWithMolfile(getStoicReactants());
 
             var allPromises = _.map(reactantsInfo, function(reactantInfo) {
                 var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
@@ -706,18 +684,14 @@
                 });
 
                 return $q.all(reactantsEqualityPromises).then(function(responces) {
-                    var isReactantAlreadyInStoic = _.some(responces, function(result) {
-                        return !!result.data;
-                    });
-
-                    if (!isReactantAlreadyInStoic) {
-                        batchesToSearch.push(reactantInfo);
+                    if (!isReactantAlreadyInStoic(responces)) {
+                        reactantsToSearch.push(reactantInfo);
                     }
                 });
             });
 
             return $q.all(allPromises).then(function() {
-                return batchesToSearch;
+                return reactantsToSearch;
             });
         }
     }

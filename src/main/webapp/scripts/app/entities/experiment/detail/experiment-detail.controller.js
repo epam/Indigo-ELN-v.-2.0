@@ -7,9 +7,8 @@
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        componentsUtils, autorecoveryCache) {
+                                        componentsUtils, autorecoveryCache, confirmationModal) {
         var vm = this;
-        var pageInfo;
         var tabName;
         var params;
         var isContentEditor;
@@ -18,6 +17,7 @@
         var originalExperiment;
         var updateRecovery;
         var isChanged;
+        var entityTitle;
 
         init();
 
@@ -27,7 +27,6 @@
             vm.isCollapsed = true;
             vm.loading = getPageInfo().then(function(response) {
                 initComponents(response.experiment);
-                pageInfo = response;
                 tabName = getExperimentName(response.notebook, response.experiment);
                 params = {
                     projectId: response.projectId,
@@ -38,27 +37,16 @@
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
 
-                var restoredExperiment = EntitiesCache.get($stateParams);
+                initExperiment(response).then(function() {
+                    updateOriginal(response.experiment);
+                    EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + response.experiment.name, $stateParams);
+                    initPermissions();
+                    FileUploaderCash.setFiles([]);
 
-                if (!restoredExperiment) {
-                    EntitiesCache.put($stateParams, response.experiment);
-                    vm.experiment = response.experiment;
-                } else {
-                    vm.experiment = restoredExperiment;
-                }
-
-                originalExperiment = angular.copy(response.experiment);
-
-                EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + vm.experiment.name, $stateParams);
-
-                initPermissions();
-                FileUploaderCash.setFiles([]);
-
-                if (response.experiment.version > 1 || !response.experiment.lastVersion) {
-                    tabName += ' v' + response.experiment.version;
-                }
-
-                toggleDirty(!!pageInfo.dirty);
+                    if (response.experiment.version > 1 || !response.experiment.lastVersion) {
+                        tabName += ' v' + response.experiment.version;
+                    }
+                });
             });
 
             // TODO: the Action drop up button should be disable in case of there is unsaved data.
@@ -78,7 +66,6 @@
             vm.onRestore = onRestore;
 
             EntitiesBrowser.setCurrentTabTitle(tabName, $stateParams);
-            EntitiesBrowser.setUpdateCurrentEntity(refresh);
             EntitiesBrowser.setSaveCurrentEntity(save);
             EntitiesBrowser.setEntityActions({
                 save: save,
@@ -89,6 +76,34 @@
             initEventListeners();
         }
 
+        function initExperiment(response) {
+            var restoredExperiment = EntitiesCache.get($stateParams);
+            entityTitle = response.notebook.name + ' ' + response.experiment.name;
+
+            if (!restoredExperiment) {
+                EntitiesCache.put($stateParams, response.experiment);
+                vm.experiment = response.experiment;
+            } else if (restoredExperiment.version === response.experiment.version) {
+                vm.experiment = restoredExperiment;
+            } else {
+                return confirmationModal
+                    .openEntityVersionsConflictConfirm(entityTitle)
+                    .then(
+                        function() {
+                            vm.onRestore(response.experiment, response.experiment.version);
+                        },
+                        function() {
+                            vm.onRestore(restoredExperiment, response.experiment.version);
+                        });
+            }
+
+            return $q.resolve();
+        }
+
+        function updateOriginal(newEntity) {
+            originalExperiment = angular.copy(newEntity);
+        }
+
         function initComponents(experiment) {
             componentsUtils.initComponents(
                 experiment.components,
@@ -96,8 +111,10 @@
             );
         }
 
-        function onRestore(storeData) {
+        function onRestore(storeData, lastVersion) {
+            var version = lastVersion || _.get(vm.experiment, 'version') || storeData.version;
             vm.experiment = storeData;
+            vm.experiment.version = version;
             EntitiesCache.put($stateParams, vm.experiment);
         }
 
@@ -175,7 +192,7 @@
                 .then(function(result) {
                     EntitiesCache.put($stateParams, result);
                     vm.experiment.version = result.version;
-                    originalExperiment = angular.copy(vm.experiment);
+                    updateOriginal(vm.experiment);
                 }, function() {
                     notifyService.error('Experiment is not saved due to server error!');
                 });
@@ -225,7 +242,7 @@
             vm.loading.then(function(result) {
                 notifyService.success('Experiment updated');
                 angular.extend(vm.experiment, result);
-                originalExperiment = angular.copy(vm.experiment);
+                updateOriginal(vm.experiment);
                 autorecoveryCache.hide($stateParams);
             }, function() {
                 notifyService.error('Experiment not refreshed due to server error!');
@@ -268,8 +285,27 @@
         }
 
         function initEventListeners() {
+            $scope.$on('entity-updated', function(event, data) {
+                vm.loading.then(function() {
+                    if (_.isEqual($stateParams, data.entity) && data.version > vm.experiment.version) {
+                        if (isChanged) {
+                            confirmationModal
+                                .openEntityVersionsConflictConfirm(entityTitle)
+                                .then(refresh, function() {
+                                    vm.experiment.version = data.version;
+                                });
+
+                            return;
+                        }
+                        refresh().then(function() {
+                            notifyService.info(entityTitle + ' has been changed by another user and reloaded');
+                        });
+                    }
+                });
+            });
+
             $scope.$on('ON_ENTITY_SAVE', function(event, data) {
-                if (data.tab.params === $stateParams) {
+                if (_.isEqual(data.tab.params, $stateParams)) {
                     save().then(data.defer.resolve);
                 }
             });

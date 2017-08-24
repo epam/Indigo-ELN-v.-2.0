@@ -15,7 +15,7 @@
                 <div class="panel-heading">Components</div>
                 <div class="panel-body panel-body-h">
                     <div class="search-field search-full">
-                        <i class="fa fa-search" ng-click="search()"></i>
+                        <span class="fa fa-search" ng-click="search()"></span>
                         <input type="search" class="uui-search" placeholder="Search by name or description"
                                id="searchRole" ng-model="search">
                     </div>
@@ -38,7 +38,7 @@
             <div class="panel panel-info">
                 <div class="panel-heading">
                     <button class="btn btn-default btn-small pull-right" ng-click="vm.addTab()">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        <span class="fa fa-plus" aria-hidden="true"></span>
                         <span class="m-l5">Create new tab</span>
                     </button>
                     Template Builder
@@ -50,24 +50,23 @@
                     </div>
                     <div class="list-group list-group-drug tab" ng-repeat="tab in vm.template.templateContent" >
                         <span class="list-group-item"  indigo-focus-on-create>
-                            <i class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></i>
+                            <span class="fa fa-trash pull-right" ng-click="vm.removeTab(tab)"></span>
                             <span editable-text="tab.name" e-form="tabName" ng-click="tabName.$show()" class="semi-b" ng-bind="tab.name">
-                                <i class="fa fa-pencil m-l5"></i>
+                                <span class="fa fa-pencil m-l5"></span>
                             </span>
-                            <!--<em class="fa fa-remove pull-right text-muted clickable" title="Remove" ng-click="removeTab(tab)"></em>-->
                         </span>
                         <div class="list-group" dragula='"components"' dragula-model='tab.components'>
                             <div class="no-draggable " ng-if="!tab.components.length">
                                 <div class="no-draggable">
                                     <h3 class="no-draggable text-muted drag-mess">
-                                        You can <b>drag & drop</b>
+                                        You can <strong>drag & drop</strong>
                                         components here.</h3>
                                 </div>
                             </div>
                             <a class="list-group-item draggable-component component"
                                ng-repeat="component in tab.components">
                                 <h5 class="draggable-component" ng-bind="component.name">
-                                    <em class="fa fa-remove pull-right text-muted" title="Remove" ng-click="vm.removeComponent(tab, component)"></em>
+                                    <span class="fa fa-remove pull-right text-muted" title="Remove" ng-click="vm.removeComponent(tab, component)"></span>
                                 </h5>
                                 <p class="draggable-component" ng-bind="component.desc"></p>
                             </a>
@@ -79,8 +78,8 @@
     </div>
         <div class="panel panel-info panel-info-collapse">
             <div class="panel-heading clickable" ng-init="vm.showPreview = false" ng-click="vm.showPreview = !vm.showPreview">
-                <em class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
-                    ng-click="vm.isCollapsed = !vm.isCollapsed"></em>
+                <span class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': !vm.isCollapsed, 'glyphicon-chevron-up': vm.isCollapsed}"
+                    ng-click="vm.isCollapsed = !vm.isCollapsed"></span>
                 Show Preview
             </div>
             <div class="preview-components panel-body panel-body-nopad" ng-if="vm.showPreview && vm.template.templateContent.length">
@@ -95,10 +94,10 @@
 
 <div class="btn-bottom-block tab-content-pad">
     <button ng-click="vm.save()" type="submit" class="btn btn-primary" ng-disabled="createTemplateForm.$invalid">
-        <i class="fa fa-save"></i><span class="m-l5">Save</span>
+        <span class="fa fa-save"></span><span class="m-l5">Save</span>
     </button>
     <button type="button" class="btn btn-default" ng-click="vm.close()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
     </button>
 </div>
 

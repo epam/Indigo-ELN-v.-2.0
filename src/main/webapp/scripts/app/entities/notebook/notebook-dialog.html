@@ -12,12 +12,12 @@
                         <button ui-sref=".permissions({projectId: vm.projectId, notebookId: vm.notebook.id})"
                                 class="btn btn-default btn-small"
                                 ng-disabled="!vm.isEditAllowed">
-                            <i class="fa fa-pencil"></i>
+                            <span class="fa fa-pencil"></span>
                             <span class="m-l5">Edit</span>
                         </button>
                         <button type="button" class="btn btn-default btn-small"
                                 ui-sref="entities.notebook-detail.permissions-view({projectId: vm.projectId, notebookId: vm.notebook.id})">
-                            <i class="fa fa-eye"></i><span class="m-l5">View Members</span>
+                            <span class="fa fa-eye"></span><span class="m-l5">View Members</span>
                         </button>
                     </div>
                 </div>
@@ -123,10 +123,10 @@
                 <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
             </a>
             <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
-                <i class="fa fa-undo"></i><span class="m-l5">Undo Action</span>
+                <span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>
             </button>
             <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
-                <i class="fa fa-redo"></i><span class="m-l5">Redo Action</span>
+                <span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>
             </button>
         </div>
         <button class="btn btn-info" type="button"
@@ -137,14 +137,14 @@
         <button type="submit" form="createNotebookForm"
                 ng-disabled="!vm.isEditAllowed || createNotebookForm.$invalid || vm.isSaving || !vm.isBtnSaveActive"
                 class="btn btn-primary">
-            <i class="fa fa-save"></i><span class="m-l5">Save</span>
+            <span class="fa fa-save"></span><span class="m-l5">Save</span>
         </button>
         <button class="btn btn-default" ng-click="vm.refresh()"
                 ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
-            <i class="fa fa-refresh"></i><span class="m-l5">Reset</span>
+            <span class="fa fa-refresh"></span><span class="m-l5">Reset</span>
         </button>
         <button type="button" class="btn btn-default" onclick="window.history.back()">
-            <i class="fa fa-mail-reply"></i><span class="m-l5">Back</span>
+            <span class="fa fa-mail-reply"></span><span class="m-l5">Back</span>
         </button>
     </div>
 </div>

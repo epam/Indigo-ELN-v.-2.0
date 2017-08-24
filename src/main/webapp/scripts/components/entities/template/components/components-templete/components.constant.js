@@ -52,16 +52,12 @@
                 id: 'attachments',
                 desc: 'Allows to manage attachment of any kind of file related to  this experiment'
             },
-            preferredCompoundsSummary: {
-                name: 'Preferred Compounds Summary',
+            preferredCompoundSummary: {
+                name: 'Preferred Compound Summary',
                 id: 'preferred-compounds-summary',
                 desc: 'Allows user to review, create and edit compounds details: Stereoisomer code, Comments, ect.' +
                 ' Virtual Compound Registration (if it is allowed) is also executed here.',
                 isBatch: true
-            },
-            // TODO: fix wrong name, now we have differrent names into templateContent and components of experiment
-            preferredCompoundSummary: {
-                id: 'preferred-compounds-summary'
             },
             preferredCompoundDetails: {
                 name: 'Preferred Compound  Details',

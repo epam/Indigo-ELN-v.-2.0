@@ -36,7 +36,6 @@ function calculationService($rootScope, $http, $q, AppValues,
         return calcData;
     }
 
-
     function getSaltConfig(reagent) {
         var saltCode = reagent.saltCode ? reagent.saltCode.value : null;
         var saltEq = reagent.saltEq ? reagent.saltEq.value : null;
@@ -147,7 +146,6 @@ function calculationService($rootScope, $http, $q, AppValues,
         return $q.resolve(reagent);
     }
 
-
     function recalculateStoich(calcData) {
         if (recalculatingStoich) {
             return;
@@ -242,7 +240,11 @@ function calculationService($rootScope, $http, $q, AppValues,
 
     function isMoleculesEqual(molecule1, molecule2) {
         var isEqual = _.isEqual(molecule1, molecule2);
-        return $q.when(isEqual || $http.put('api/calculations/molecule/equals', [molecule1, molecule2]));
+
+        return $q.when(isEqual || $http.put('api/calculations/molecule/equals', [molecule1, molecule2])
+                .then(function(response) {
+                    return response.data;
+                }));
     }
 
     function getSaltFormula(data) {

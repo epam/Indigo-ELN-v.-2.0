@@ -1,12 +1,10 @@
 <div class="form-group {{indigoClasses}}">
     <label>{{indigoLabel}}</label>
-    <!--<div class="col-xs-10">-->
     <input class="form-control"/>
     <div ng-show="ngModelCtrl.$invalid">
         <p class="help-block" ng-if="ngModelCtrl.$error.required"> This field is required. </p>
         <p class="help-block" ng-if="ngModelCtrl.$error.maxlength"> This field can\t be longer than
             {{indigoValidationMaxlength}} characters.</p>
         <p class="help-block" ng-if="ngModelCtrl.$error.pattern">{{indigoValidationPatternText}}</p>
-        <!-- </div> -->
     </div>
 </div>
