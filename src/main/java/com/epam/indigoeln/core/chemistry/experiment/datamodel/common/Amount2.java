@@ -1,5 +1,6 @@
 package com.epam.indigoeln.core.chemistry.experiment.datamodel.common;
 
+import com.Ostermiller.util.SignificantFigures;
 import com.epam.indigoeln.core.chemistry.domain.CeNAbstractModel;
 import com.epam.indigoeln.core.chemistry.experiment.common.interfaces.DeepClone;
 import com.epam.indigoeln.core.chemistry.experiment.common.interfaces.DeepCopy;
@@ -37,7 +38,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     private static final long serialVersionUID = 8301635693659209778L;
     private static final transient double DELTA_FIGS = 0.0000001;
     private static final transient int MAX_FIGS = 10;
-    private static final transient int ROUNDING_PREFERENCE = BigDecimal.ROUND_HALF_UP;
+    private final static transient int ROUNDING_PREFERENCE = BigDecimal.ROUND_HALF_UP;
     private StringBuilder value = new StringBuilder("0");
     // holds the defaultvalue
     private BigDecimal defaultValue = new BigDecimal("0");
@@ -156,8 +157,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             int index = val.indexOf('.');
             String fraction = val.substring(index, val.length());
             if (fraction.length() > 10) {
-                //SignificantFigures was removed here, lib org.ostermiller
-                nonZeroValue.append(val);
+                nonZeroValue.append(SignificantFigures.format(val, MAX_FIGS));
             } else {
                 nonZeroValue.append(val);
             }
@@ -205,8 +205,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         String result;
         if (sigDigitsSet && sigDigits > 0) {
             // Use this to allow for enteries like "60." to allow a setting of 2 sig figs.
-            //SignificantFigures was removed here, lib org.ostermiller
-            result = value.toString();
+            result = SignificantFigures.format(value.toString(), sigDigits);
             // Use this to keep scientific notiation out of the display.
             // vb 11/20 remove - do all formatting in SignificantFigures
         } else { // value is old school: pre sig figs.

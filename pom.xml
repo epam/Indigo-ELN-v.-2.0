@@ -276,6 +276,14 @@
             <version>${spring-security.version}</version>
         </dependency>
 
+        <!-- Chemistry calculation utils -->
+
+        <dependency>
+            <groupId>org.ostermiller</groupId>
+            <artifactId>utils</artifactId>
+            <version>1.07.00</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
