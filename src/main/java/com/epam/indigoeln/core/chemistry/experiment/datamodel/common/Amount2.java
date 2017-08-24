@@ -10,8 +10,11 @@ import com.epam.indigoeln.core.chemistry.experiment.common.units.UnitFactory2;
 import com.epam.indigoeln.core.chemistry.experiment.common.units.UnitType;
 import com.epam.indigoeln.core.chemistry.experiment.utils.CeNNumberUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static com.epam.indigoeln.core.util.EqualsUtil.doubleEqZero;
 
@@ -52,6 +55,8 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
     private int sigDigits = CeNNumberUtils.DEFAULT_SIG_DIGITS; // int holding the value's significant digits.
     // Specifies if the amount can be displayed
     private boolean isCanBeDisplayed = true;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Amount2.class);
 
 
     //////
@@ -157,6 +162,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
             int index = val.indexOf('.');
             String fraction = val.substring(index, val.length());
             if (fraction.length() > 10) {
+                LOGGER.warn("Invoke SignificantFigures.format() in trimRightJunk()",Arrays.toString(Thread.currentThread().getStackTrace()));
                 nonZeroValue.append(SignificantFigures.format(val, MAX_FIGS));
             } else {
                 nonZeroValue.append(val);
@@ -205,6 +211,7 @@ public class Amount2 extends CeNAbstractModel implements DeepClone, DeepCopy {
         String result;
         if (sigDigitsSet && sigDigits > 0) {
             // Use this to allow for enteries like "60." to allow a setting of 2 sig figs.
+            LOGGER.warn("Invoke SignificantFigures.format() in getValueForDisplay()",Arrays.toString(Thread.currentThread().getStackTrace()));
             result = SignificantFigures.format(value.toString(), sigDigits);
             // Use this to keep scientific notiation out of the display.
             // vb 11/20 remove - do all formatting in SignificantFigures
