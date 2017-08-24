@@ -6,14 +6,12 @@
     function pressEnter() {
         return {
             restrict: 'A',
-            scope: {
-                pressEnter: "="
-            },
-            link: function($scope, element){
+            link: function($scope, element, attrs){
                 element.on('keypress', function($event) {
                     if ($event.keyCode === 13) {
-                        $event.preventDefault();
-                        $scope.pressEnter();
+                        $scope.$apply(function(){
+                            $scope.$eval(attrs.pressEnter);
+                        });
                     }
                 });
             }

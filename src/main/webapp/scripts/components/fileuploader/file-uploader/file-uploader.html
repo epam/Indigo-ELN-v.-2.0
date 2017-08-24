@@ -10,7 +10,7 @@
             <div class="search-field m-t5">
                 <i class="fa fa-search" ng-click="vm.search()"></i>
                 <input type="search" class="uui-search" placeholder="File name" id="searchFile"
-                       ng-model="vm.searchText" press-enter="vm.search">
+                       ng-model="vm.searchText" press-enter="vm.search()">
             </div>
         </div>
     </div>
@@ -36,7 +36,7 @@
                         <span class="glyphicon glyphicon-download"></span>
                         <span class="m-l5">Download</span>
                     </a>
-                    <button type="submit"
+                    <button type="button"
                             ng-disabled="vm.indigoReadonly"
                             ng-click="vm.deleteFile(file)"
                             class="btn btn-info btn-small">
