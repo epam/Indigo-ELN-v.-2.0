@@ -32,16 +32,16 @@
                             type="button"
                             ng-click="vm.removeFromMyReagentList()"
                             ng-disabled="false">
-                        <i class="fa fa-trash"></i><span class="m-l5">Remove from My List</span>
+                        <span class="fa fa-trash"></span><span class="m-l5">Remove from My List</span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.addToStoichTable(vm.myReagentList)"
                             ng-disabled="false">
-                        <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
+                        <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
                     </button>
                     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                     </button>
                 </div>
             </div>
@@ -235,7 +235,7 @@
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()"
                                 ng-show="!vm.isSearchResultFound">
-                            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                         </button>
                     </div>
                 </div>
@@ -456,14 +456,14 @@
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
                                 ng-disabled="vm.loading || vm.searchResults.length == 0">
-                            <i class="fa fa-plus"></i><span class="m-l5">Add to My Reagent List</span>
+                            <span class="fa fa-plus"></span><span class="m-l5">Add to My Reagent List</span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
                                 ng-disabled="vm.loading || vm.searchResults.length == 0">
-                            <i class="fa fa-plus"></i><span class="m-l5">Add to Stoich. Table</span>
+                            <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-                            <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                            <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                         </button>
                     </div>
                 </div>

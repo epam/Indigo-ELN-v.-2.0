@@ -42,13 +42,13 @@
                             type="button"
                             ng-click="vm.addToStoichTable(searchResult)"
                             ng-disabled="!vm.model.selectedReactants.length">
-                        <i class="fa fa-trash"></i><span class="m-l5">Add to Stoich. Table</span>
+                        <span class="fa fa-trash"></span><span class="m-l5">Add to Stoich. Table</span>
                     </button>
                     <button class="btn btn-info"
                             type="button"
                             ng-click="vm.updateStoicAndExit(searchResult)"
                             ng-disabled="false">
-                        <i class="fa fa-plus"></i><span class="m-l5">Update Stoich and Exit</span>
+                        <span class="fa fa-plus"></span><span class="m-l5">Update Stoich and Exit</span>
                     </button>
                 </div>
             </div>
@@ -83,6 +83,6 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" type="button" ng-click="vm.cancel()">
-        <i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+        <span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
     </button>
 </div>
