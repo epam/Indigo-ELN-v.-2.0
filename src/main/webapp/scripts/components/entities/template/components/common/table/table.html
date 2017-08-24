@@ -14,7 +14,8 @@
                        placeholder="Search"
                        ng-change="vm.searchDebounce(vm.searchText)"
                        id="searchUser"
-                       ng-model="vm.searchText">
+                       ng-model="vm.searchText"
+                       press-enter="$event.preventDefault()">
             </div>
 
             <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body

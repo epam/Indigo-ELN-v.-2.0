@@ -10,7 +10,7 @@
                 element.on('keypress', function($event) {
                     if ($event.keyCode === 13) {
                         $scope.$apply(function(){
-                            $scope.$eval(attrs.pressEnter);
+                            $scope.$eval(attrs.pressEnter, {'$event': $event});
                         });
                     }
                 });
