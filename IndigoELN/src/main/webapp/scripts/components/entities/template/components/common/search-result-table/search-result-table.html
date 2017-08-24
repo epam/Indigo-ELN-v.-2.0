@@ -6,7 +6,6 @@
         <div class="t-item t-head">Molecular Formula</div>
         <div class="t-item t-head">Chemical Name</div>
         <div class="t-item t-head">Compound ID</div>
-        <!-- <th>Database</th> -->
     </div>
     <div class="search-table-body">
         <div ng-repeat="item in indigoTableContent | filter : indigoTableFilter track by $index" class="search-table-wrap">
@@ -27,14 +26,15 @@
                 <div class="search-table-popup" ng-if="item.structure.image && item.$$isCollapsed">
                     <img uib-popover-html="item.$$popoverTemplate" class="search-table-img" popover-title="{{item.fullNbkBatch}}" popover-trigger="mouseenter" popover-placement="left" ng-src="data:image/svg+xml;base64,{{item.structure.image}}" alt="Image is unavailable.">
                 </div>
-                <!-- <td>{{item.database}}</td> -->
             </div>
             <div uib-collapse="item.$$isCollapsed" class="search-table-row-details">
                 <div class="row" ng-if="!item.$$isCollapsed">
                     <div class="col-xs-6">
                         <div class="m-b20">
                             <span class="semi-b">Reagent Information</span>
-                            <button class="btn btn-default btn-small m-l5" type="button" ng-if="indigoEditableInfo" ng-click="editInfo(item)" ng-disabled="isEditMode"><i class="fa fa-pencil"></i><span class="m-l5">Edit</span>
+                            <button class="btn btn-default btn-small m-l5" type="button" ng-if="indigoEditableInfo"
+                                    ng-click="editInfo(item)" ng-disabled="isEditMode">
+                                <span class="fa fa-pencil"></span><span class="m-l5">Edit</span>
                             </button>
                         </div>
                         <div>
@@ -165,9 +165,11 @@
                                 </div>
                             </div>
                             <div class="btn-group" ng-if="isEditMode">
-                                <button class="btn btn-primary" type="button" ng-click="finishEdit()" ng-disabled="false"><i class="fa fa-save"></i><span class="m-l5">Save</span>
+                                <button class="btn btn-primary" type="button" ng-click="finishEdit()"
+                                        ng-disabled="false"><span class="fa fa-save"></span><span class="m-l5">Save</span>
                                 </button>
-                                <button class="btn btn-default" type="button" ng-click="cancelEdit($index)" ng-disabled="false"><i class="fa fa-ban"></i><span class="m-l5">Cancel</span>
+                                <button class="btn btn-default" type="button" ng-click="cancelEdit($index)"
+                                        ng-disabled="false"><span class="fa fa-ban"></span><span class="m-l5">Cancel</span>
                                 </button>
                             </div>
                         </div>

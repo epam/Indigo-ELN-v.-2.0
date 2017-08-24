@@ -18,7 +18,7 @@
                     <button type="button" class="btn btn-info btn-small"
                             ng-disabled="true"
                             ng-click="vm.registerVC()">
-                        <i class="fa fa-fl oppy-o"></i>
+                        <span class="fa fa-fl oppy-o"></span>
                         <span class="m-l5">Register VC</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small"
@@ -30,17 +30,17 @@
                     <button type="button" class="btn btn-info btn-small"
                             ng-disabled="vm.isReadonly"
                             ng-click="vm.addNewBatch()">
-                        <i class="fa fa-plus"></i>
+                        <span class="fa fa-plus"></span>
                         <span class="m-l5">Add</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small" ng-click="vm.deleteBatches()"
                             ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
-                        <i class="fa fa-trash"></i>
+                        <span class="fa fa-trash"></span>
                         <span class="m-l5">Delete</span>
                     </button>
                     <button type="button" class="btn btn-info btn-small" ng-click="vm.duplicateBatches()"
                             ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
-                        <i class="fa fa-trash"></i>
+                        <span class="fa fa-trash"></span>
                         <span class="m-l5">Duplicate</span>
                     </button>
                     <indigo-inline-loader promise="vm.batchOperation" on-status-changed="vm.onBatchOperationChanged(completed)"></indigo-inline-loader>
@@ -53,13 +53,13 @@
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.importSDFile()"
                         ng-disabled="vm.isReadonly || vm.isBatchLoading">
-                    <i class="fa fa-cloud-download"></i>
+                    <span class="fa fa-cloud-download"></span>
                     <span class="m-l5">Import</span>
                 </button>
                 <button type="button" class="btn btn-info btn-small"
                         ng-click="vm.exportSDFile()"
                         ng-disabled="vm.isReadonly || !vm.isHasCheckedRows()">
-                    <i class="fa fa-cloud-upload"></i>
+                    <span class="fa fa-cloud-upload"></span>
                     <span class="m-l5">Export</span>
                 </button>
             </div>

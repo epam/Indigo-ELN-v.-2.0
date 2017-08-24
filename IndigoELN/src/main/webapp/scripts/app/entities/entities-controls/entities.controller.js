@@ -3,8 +3,8 @@
         .module('indigoeln')
         .controller('EntitiesController', EntitiesController);
 
-    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, notifyService,
-                                dialogService, autorecoveryCache) {
+    function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, dialogService,
+                                autorecoveryCache, Project, Notebook, Experiment) {
         var vm = this;
 
         init();
@@ -31,40 +31,45 @@
             autorecoveryCache.remove(tab.params);
         }
 
-        function saveEntity(tab) {
-            var defer = $q.defer();
-            $scope.$broadcast('ON_ENTITY_SAVE', {
-                tab: tab,
-                defer: defer
-            });
+        // TODO: need to inject service by name but app does't have root elem
+        function getService(kind) {
+            var service;
+            switch (kind) {
+                case 'project':
+                    service = Project;
+                    break;
+                case 'notebook':
+                    service = Notebook;
+                    break;
+                case 'experiment':
+                    service = Experiment;
+                    break;
+                default:
+                    break;
+            }
 
-            return defer.promise;
+            return service;
         }
 
-        function onTabChanged(tab) {
-            if (!EntitiesBrowser.getUpdateCurrentEntityFunc()) {
-                return;
+        function saveEntity(tab) {
+            if (tab === vm.activeTab) {
+                var defer = $q.defer();
+                $scope.$broadcast('ON_ENTITY_SAVE', {
+                    tab: tab,
+                    defer: defer
+                });
+
+                return defer.promise;
             }
 
-            if (tab.dirty) {
-                AlertModal.alert('Warning', tab.name + ' ' + tab.$$title +
-                    ' has been changed by another user while you have not applied changes. ' +
-                    'You can Accept or Reject saved changes. ' +
-                    '"Accept" button reloads page to show saved data,' +
-                    ' "Reject" button leave entered data and allows you to save them.',
-                    null,
-                    function() {
-                        EntitiesBrowser.callUpdateCurrentEntity();
-                    },
-                    function() {
-                        EntitiesBrowser.callUpdateCurrentEntity(true);
-                    }, 'Accept', true, 'Reject'
-                );
+            var entity = EntitiesCache.get(tab.params);
+            if (entity) {
+                var service = getService(tab.kind);
 
-                return;
+                return service ? service.update(tab.params, entity).$promise : $q.resovle();
             }
-            notifyService.info(tab.name + ' ' + tab.$$title + ' has been changed by another user and reloaded');
-            EntitiesBrowser.callUpdateCurrentEntity();
+
+            return $q.resolve();
         }
 
         function openCloseDialog(editTabs) {
@@ -120,16 +125,6 @@
                 return EntitiesBrowser.getActiveTab();
             }, function(value) {
                 vm.activeTab = value;
-            });
-
-            $scope.$on('entity-updated', function(event, data) {
-                Principal.identity(true).then(function(user) {
-                    EntitiesBrowser.getTabByParams(data.entity).then(function(tab) {
-                        if (tab && user.id !== data.user) {
-                            onTabChanged(tab);
-                        }
-                    });
-                });
             });
         }
     }

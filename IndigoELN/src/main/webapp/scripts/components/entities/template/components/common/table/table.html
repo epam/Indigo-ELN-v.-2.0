@@ -5,10 +5,10 @@
         </div>
         <div ng-class="{'col-xs-8 text-right':vm.indigoLabel, 'col-xs-12 text-right':!vm.indigoLabel}"
              class="is-hidden">
-            <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info"> <b>{{vm.rowsForDisplay
-                .length}}</b>  of {{vm.indigoRows.length}} are shown </div>
+            <div ng-if="vm.rowsForDisplay.length < vm.indigoRows.length" class="search-info">
+                <strong>{{vm.rowsForDisplay.length}}</strong>  of {{vm.indigoRows.length}} are shown </div>
             <div class="search-field">
-                <i class="fa fa-search"></i>
+                <span class="fa fa-search"></span>
                 <input type="search"
                        class="uui-search"
                        placeholder="Search"

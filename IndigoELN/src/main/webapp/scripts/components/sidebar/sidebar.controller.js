@@ -542,12 +542,13 @@
                 _.each(experimentsMyprojectsTabStatus, function (status) {
                     if (status.isOpen) {
                         _.each(tabsOnScope.projects, function (project) {
+                            var agent;
+                            if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
+                                agent = needAll ? AllExperiments : Experiment;
+                            }
+
                             var index = _.findIndex(project.children, compareNames(status.name));
                             if (index > -1) {
-                                var agent;
-                                if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
-                                    agent = needAll ? AllExperiments : Experiment;
-                                }
                                 fun(agent, project.children[index], project);
                             }
                         });
