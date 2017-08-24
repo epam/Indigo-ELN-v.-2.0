@@ -19,7 +19,6 @@
             vm.deleteFile = deleteFile;
             vm.search = search;
 
-
             if (params.projectId) {
                 vm.loadAll();
             }

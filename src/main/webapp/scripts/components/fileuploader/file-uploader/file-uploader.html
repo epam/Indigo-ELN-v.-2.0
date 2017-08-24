@@ -1,15 +1,16 @@
 <div class="user-management">
     <div class="row m-b20">
         <div class="col-sm-6">
-            <button class="btn btn-primary" ng-disabled="vm.indigoReadonly" ng-click="vm.upload()">
+            <button type="button" class="btn btn-primary" ng-disabled="vm.indigoReadonly" ng-click="vm.upload()">
                 <span class="glyphicon glyphicon-flash"></span>
                 <span class="m-l5">Attach File</span>
             </button>
         </div>
         <div class="col-sm-6 text-right">
             <div class="search-field m-t5">
-                <span class="fa fa-search" ng-click="vm.search()"></span>
-                <input type="search" class="uui-search" placeholder="File name" id="searchFile" ng-model="vm.searchText">
+                <i class="fa fa-search" ng-click="vm.search()"></i>
+                <input type="search" class="uui-search" placeholder="File name" id="searchFile"
+                       press-enter="vm.search(); $event.preventDefault()" ng-model="vm.searchText">
             </div>
         </div>
     </div>
@@ -35,7 +36,7 @@
                         <span class="glyphicon glyphicon-download"></span>
                         <span class="m-l5">Download</span>
                     </a>
-                    <button type="submit"
+                    <button type="button"
                             ng-disabled="vm.indigoReadonly"
                             ng-click="vm.deleteFile(file)"
                             class="btn btn-info btn-small">
@@ -48,8 +49,8 @@
         </table>
     </div>
     <div class="text-center">
-    <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
-                    ng-change="vm.loadAll()"></uib-pagination>
+        <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
+                        ng-change="vm.loadAll()"></uib-pagination>
     </div>
 </div>
 
