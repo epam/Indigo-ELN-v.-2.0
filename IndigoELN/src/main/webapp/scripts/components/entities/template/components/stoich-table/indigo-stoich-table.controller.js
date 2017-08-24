@@ -477,53 +477,48 @@
         }
 
         function convertCompoundsToBatches(compounds) {
-            var deferred = $q.defer();
-            Dictionary.all(function(dicts) {
-                var result = _.map(compounds, function(c) {
-                    return {
-                        chemicalName: c.chemicalName,
-                        compoundId: c.compoundNo,
-                        conversationalBatchNumber: c.conversationalBatchNo,
-                        fullNbkBatch: c.batchNo,
-                        casNumber: c.casNo,
-                        structure: {
-                            structureType: 'molecule',
-                            molfile: c.structure
-                        },
-                        formula: c.formula,
-                        stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
-                        saltCode: _.find(saltCodeValues, function(sc) {
-                            return sc.regValue === c.saltCode;
-                        }),
-                        saltEq: {
-                            value: c.saltEquivs, entered: false
-                        },
-                        comments: c.comment
-                    };
+            return Dictionary.all().$promise
+                .then(function(dicts) {
+                    return _.map(compounds, function(c) {
+                        return {
+                            chemicalName: c.chemicalName,
+                            compoundId: c.compoundNo,
+                            conversationalBatchNumber: c.conversationalBatchNo,
+                            fullNbkBatch: c.batchNo,
+                            casNumber: c.casNo,
+                            structure: {
+                                structureType: 'molecule',
+                                molfile: c.structure
+                            },
+                            formula: c.formula,
+                            stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
+                            saltCode: _.find(saltCodeValues, function(sc) {
+                                return sc.regValue === c.saltCode;
+                            }),
+                            saltEq: {
+                                value: c.saltEquivs, entered: false
+                            },
+                            comments: c.comment
+                        };
+                    });
+                })
+                .then(function(result) {
+                    return $q.all(_.map(result, function(item) {
+                        return $q.all([
+                            CalculationService.getMoleculeInfo(item).then(function(molInfo) {
+                                item.formula = molInfo.molecularFormula;
+                                item.molWeight = item.molWeight || {};
+                                item.molWeight.value = molInfo.molecularWeight;
+                            }),
+                            CalculationService.getImageForStructure(item.structure.molfile, 'molecule')
+                                .then(function(image) {
+                                    item.structure.image = image;
+                                })
+                        ]);
+                    })).then(function() {
+                        return result;
+                    });
                 });
-                var queries = [];
-                _.each(result, function(item) {
-                    queries.push(CalculationService.getMoleculeInfo(item));
-                    queries.push(CalculationService.getImageForStructure(item.structure.molfile, 'molecule'));
-                });
-
-                $q.all(queries).then(function(data) {
-                    var i = 0;
-                    for (i = 0; i < result.length; i++) {
-                        var item = result[i];
-                        var molInfo = data[i];
-                        item.formula = molInfo.molecularFormula;
-                        item.molWeight = item.molWeight || {};
-                        item.molWeight.value = molInfo.molecularWeight;
-                    }
-                    for (i = 0; i < result.length; i++) {
-                        result[i].structure.image = data[result.length + i].image;
-                    }
-                    deferred.resolve(result);
-                });
-            });
-
-            return deferred.promise;
         }
 
         function alertCompoundWrongFormat() {

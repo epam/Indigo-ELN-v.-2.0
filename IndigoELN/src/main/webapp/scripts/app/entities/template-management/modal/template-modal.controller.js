@@ -25,17 +25,6 @@
                 vm.addTab();
             }
 
-            // TODO: remove whole object or remove multiple properties
-            var drag = dragulaService.options($scope, 'components', {
-                // removeOnSpill: true,
-                accepts: function() {
-                    return true;
-                },
-                moves: function(el, container, handle) {
-                    return !handle.classList.contains('no-draggable');
-                }
-            });
-
             dragulaService.options($scope, 'tabs', {
                 moves: function(el, container, handle) {
                     return !handle.classList.contains('draggable-component') && !handle.classList.contains('no-draggable');
@@ -52,7 +41,8 @@
                     $cont = $el.parents('[scroller]').eq(0),
                     top = $cont.scrollTop();
                 interval = setInterval(function() {
-                    $cont.scrollTop(top += up ? -3 : 3).attr('scrollTop', top);
+                    top += up ? -3 : 3;
+                    $cont.scrollTop(top).attr('scrollTop', top);
                 }, 10);
             });
 
