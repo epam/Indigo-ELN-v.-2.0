@@ -305,7 +305,7 @@
             });
 
             $scope.$on('ON_ENTITY_SAVE', function(event, data) {
-                if (data.tab.params === $stateParams) {
+                if (_.isEqual(data.tab.params, $stateParams)) {
                     save().then(data.defer.resolve);
                 }
             });
