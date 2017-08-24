@@ -122,12 +122,13 @@
                 <span class="m-l5" ng-show="!vm.isSummary">Show Notebook Content</span>
                 <span class="m-l5" ng-show="vm.isSummary">Hide Notebook Content</span>
             </a>
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">
-                <span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>
-            </button>
-            <button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">
-                <span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>
-            </button>
+            <!--TODO: Task EPMLSOPELN-532: Functionality is temporarily removed-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canUndo()" ng-click="vm.undoAction()">-->
+                <!--<span class="fa fa-undo"></span><span class="m-l5">Undo Action</span>-->
+            <!--</button>-->
+            <!--<button type="button" class="btn btn-default" ng-disabled="!vm.canRedo()" ng-click="vm.redoAction()">-->
+                <!--<span class="fa fa-redo"></span><span class="m-l5">Redo Action</span>-->
+            <!--</button>-->
         </div>
         <button class="btn btn-info" type="button"
                 ng-disabled="!vm.isCreateChildAllowed || !vm.notebook.id"
