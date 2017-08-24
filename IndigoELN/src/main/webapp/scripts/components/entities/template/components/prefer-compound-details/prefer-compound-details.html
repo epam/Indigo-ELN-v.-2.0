@@ -39,7 +39,8 @@
                 <div class="col-xs-12 text-right">
                     <div class="search-field">
                         <span class="fa fa-search"></span>
-                        <input type="search" class="uui-search" placeholder="Search" ng-change="search()" ng-model="searchText">
+                        <input type="search" class="uui-search" placeholder="Search" ng-change="search()"
+                               press-enter="$event.preventDefault()" ng-model="searchText">
                     </div>
                     <div class="btn-group btn-group-sm m-l10" uib-dropdown dropdown-append-to-body ng-if="!myHideColumnSettings">
                         <div id="show-hide-button" class="btn btn-info"
