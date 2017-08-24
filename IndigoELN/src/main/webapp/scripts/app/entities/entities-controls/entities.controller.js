@@ -4,7 +4,7 @@
         .controller('EntitiesController', EntitiesController);
 
     function EntitiesController($scope, EntitiesBrowser, $q, Principal, EntitiesCache, AlertModal, dialogService,
-                                autorecoveryCache) {
+                                autorecoveryCache, Project, Notebook, Experiment) {
         var vm = this;
 
         init();
@@ -31,14 +31,45 @@
             autorecoveryCache.remove(tab.params);
         }
 
-        function saveEntity(tab) {
-            var defer = $q.defer();
-            $scope.$broadcast('ON_ENTITY_SAVE', {
-                tab: tab,
-                defer: defer
-            });
+        // TODO: need to inject service by name but app does't have root elem
+        function getService(kind) {
+            var service;
+            switch (kind) {
+                case 'project':
+                    service = Project;
+                    break;
+                case 'notebook':
+                    service = Notebook;
+                    break;
+                case 'experiment':
+                    service = Experiment;
+                    break;
+                default:
+                    break;
+            }
 
-            return defer.promise;
+            return service;
+        }
+
+        function saveEntity(tab) {
+            if (tab === vm.activeTab) {
+                var defer = $q.defer();
+                $scope.$broadcast('ON_ENTITY_SAVE', {
+                    tab: tab,
+                    defer: defer
+                });
+
+                return defer.promise;
+            }
+
+            var entity = EntitiesCache.get(tab.params);
+            if (entity) {
+                var service = getService(tab.kind);
+
+                return service ? service.update(tab.params, entity).$promise : $q.resovle();
+            }
+
+            return $q.resolve();
         }
 
         function openCloseDialog(editTabs) {
