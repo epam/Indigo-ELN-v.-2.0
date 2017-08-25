@@ -1,9 +1,11 @@
 package com.epam.indigoeln.web.rest;
 
 import com.epam.indigoeln.IndigoRuntimeException;
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.print.HtmlWrapper;
 import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.print.PhantomJsService;
+import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.service.util.TempFileUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
@@ -36,6 +38,9 @@ public class PrintResource {
     private PhantomJsService phantomJsService;
     @Autowired
     private ITextPrintService iTextPrintService;
+
+    @Autowired
+    private UserService userService;
 
     @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
@@ -79,7 +84,8 @@ public class PrintResource {
                                     @ApiParam("experiment id") @PathVariable String experimentId,
                                     @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId, experimentId) + ".pdf";
-        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest);
+        User user = userService.getUserWithAuthorities();
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest, user);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
         return ResponseEntity.ok().headers(headers).body(bytes);
     }
@@ -93,7 +99,8 @@ public class PrintResource {
     public ResponseEntity<byte[]> createProjectPdf(@ApiParam("project id") @PathVariable String projectId,
                                                    @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId) + ".pdf";
-        byte[] bytes =  iTextPrintService.generateProjectPdf(projectId, printRequest);
+        User user = userService.getUserWithAuthorities();
+        byte[] bytes =  iTextPrintService.generateProjectPdf(projectId, printRequest, user);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
         return ResponseEntity.ok().headers(headers).body(bytes);
     }
@@ -108,7 +115,8 @@ public class PrintResource {
                                                     @ApiParam("notebook id") @PathVariable String notebookId,
                                                     @ApiParam("print params") PrintRequest printRequest) {
         String fileName = "report-" + SequenceIdUtil.buildFullId(projectId, notebookId) + ".pdf";
-        byte[] bytes = iTextPrintService.generateNotebookPdf(projectId, notebookId, printRequest);
+        User user = userService.getUserWithAuthorities();
+        byte[] bytes = iTextPrintService.generateNotebookPdf(projectId, notebookId, printRequest, user);
         HttpHeaders headers = HeaderUtil.createPdfPreviewHeaders(fileName);
         return ResponseEntity.ok().headers(headers).body(bytes);
     }
