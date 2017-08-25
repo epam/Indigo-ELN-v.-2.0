@@ -3,8 +3,8 @@ angular
     .constant('sdConstants', [
         {
             code: 'REGISTRATION_STATUS',
-            name: 'registrationStatus',
-            propName: 'registrationStatus'
+            name: '$$registrationStatus',
+            propName: '$$registrationStatus'
         },
         {
             code: 'CONVERSATIONAL_BATCH_NUMBER',

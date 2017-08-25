@@ -250,10 +250,10 @@
                 }
             },
             {
-                id: 'registrationStatus',
+                id: '$$registrationStatus',
                 name: 'Registration Status',
                 mark: function(batch) {
-                    return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
+                    return batch.$$registrationStatus ? ('batch-status status-' + batch.$$registrationStatus.toLowerCase()) : '';
                 }
             }
         ];

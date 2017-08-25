@@ -183,7 +183,7 @@
 
         function save() {
             if (!isChanged) {
-                return;
+                return $q.resolve();
             }
 
             initComponents(vm.experiment);

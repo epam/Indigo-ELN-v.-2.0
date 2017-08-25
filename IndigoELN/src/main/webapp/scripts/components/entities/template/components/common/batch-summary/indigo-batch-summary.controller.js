@@ -100,10 +100,10 @@
                     name: 'Nbk Batch #'
                 },
                 {
-                    id: 'registrationStatus',
+                    id: '$$registrationStatus',
                     name: 'Registration Status',
                     mark: function(batch) {
-                        return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
+                        return batch.$$registrationStatus ? ('batch-status status-' + batch.$$registrationStatus.toLowerCase()) : '';
                     }
                 },
                 {
@@ -684,7 +684,7 @@
                     id: 'registrationDate'
                 }).isVisible = val;
                 _.find(vm.columns, {
-                    id: 'registrationStatus'
+                    id: '$$registrationStatus'
                 }).isVisible = val;
             });
 
@@ -718,7 +718,7 @@
                     });
 
                     if (batch) {
-                        batch.registrationStatus = status.status;
+                        batch.$$registrationStatus = status.status;
                         batch.registrationDate = status.date;
                         if (status.compoundNumbers) {
                             batch.compoundId = status.compoundNumbers[fullNbkBatch];
