@@ -146,7 +146,9 @@
         function onRestore(storeData) {
             var version = vm.notebook.version;
             vm.notebook = storeData;
-            vm.notebook.version = version;
+            if (_.isDefined(version)) {
+                vm.notebook.version = version;
+            }
             EntitiesCache.put($stateParams, vm.notebook);
         }
 
@@ -262,6 +264,12 @@
 
         function refresh() {
             vm.hasError = false;
+            if (vm.stateData.isNew) {
+                vm.project = angular.copy(originalNotebook);
+
+                return $q.resolve();
+            }
+
             vm.loading = Notebook.get($stateParams).$promise.then(function(response) {
                 vm.notebook = response;
                 originalNotebook = angular.copy(vm.notebook);
