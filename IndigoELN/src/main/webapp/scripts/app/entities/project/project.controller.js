@@ -103,6 +103,7 @@
                         vm.project = result;
                         originalProject = angular.copy(vm.project);
                         EntitiesCache.put($stateParams, vm.project);
+                        EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
