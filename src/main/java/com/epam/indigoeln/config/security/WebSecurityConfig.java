@@ -156,7 +156,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
                 .and()
                 .authorizeRequests()
-                        // account resource
+                // account resource
                 .antMatchers(HttpMethod.GET, "/api/accounts/*").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/accounts/account/roles").hasAuthority(ROLE_EDITOR.name())
                 // experiment_file resource
@@ -244,7 +244,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/swagger-ui.html").authenticated()
                 .antMatchers("/indigoeln/v2/api-docs").authenticated()
 
-                .antMatchers("/websocket/**").authenticated();
+                .antMatchers("/websocket/**").authenticated()
+
+                //print
+                .antMatchers(HttpMethod.GET, "/api/print/project/*").hasAnyAuthority(PROJECT_READERS)
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*").hasAnyAuthority(NOTEBOOK_READERS)
+                .antMatchers(HttpMethod.GET, "/api/print/project/*/notebook/*/experiment/*").hasAnyAuthority(NOTEBOOK_READERS);
     }
 
     @Bean
@@ -261,7 +266,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new SessionExpirationFilter(sessionRegistry());
     }
 
-    private CookieCsrfTokenRepository cookieCsrfTokenRepository(){
+    private CookieCsrfTokenRepository cookieCsrfTokenRepository() {
         CookieCsrfTokenRepository cookieCsrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
         cookieCsrfTokenRepository.setCookieName(CookieConstants.CSRF_TOKEN);
         cookieCsrfTokenRepository.setHeaderName(CSRF_TOKEN_HEADER);
