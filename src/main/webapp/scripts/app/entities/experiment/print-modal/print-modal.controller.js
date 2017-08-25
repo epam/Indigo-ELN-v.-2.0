@@ -50,16 +50,9 @@
             }
         }
 
-        function mapComponentById(id) {
-            var key;
-            var component = _.find(Components, function(comp, ckey) {
-                key = ckey;
-
-                return comp.id === id;
-            });
-
+        function buildComponentItem(component) {
             return {
-                id: key,
+                id: component.field,
                 value: component ? component.name : 'Unknown'
             };
         }
@@ -68,12 +61,13 @@
             var tabs = _.get(experiment, 'template.templateContent');
             _.each(tabs, function(tab) {
                 _.each(tab.components, function(comp) {
-                    vm.components.push(mapComponentById(comp.id));
-                    if (comp.id === Components.attachments.id) {
-                        vm.hasAttachments = true;
+                    var component = _.find(Components, {id: comp.id});
+                    if (component.isPrint) {
+                        vm.components.push(buildComponentItem(component));
                     }
                 });
             });
+            vm.hasAttachments = _.has(vm.components, {id: 'attachments'});
         }
 
         function dismiss() {
