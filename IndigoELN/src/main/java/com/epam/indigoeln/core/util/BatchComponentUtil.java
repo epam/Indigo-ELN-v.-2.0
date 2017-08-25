@@ -2,14 +2,11 @@ package com.epam.indigoeln.core.util;
 
 import java.text.DecimalFormat;
 import java.text.Format;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import com.epam.indigoeln.core.model.Component;
 import com.epam.indigoeln.core.model.Notebook;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
@@ -29,7 +26,8 @@ public final class BatchComponentUtil {
     public static final String COMPONENT_FIELD_BATCHES = "batches";
     public static final String COMPONENT_FIELD_NBK_BATCH = "nbkBatch";
     public static final String COMPONENT_FIELD_FULL_NBK_BATCH = "fullNbkBatch";
-    
+    public static final String COMPONENT_FIELD_REGISTRATION_STATUS = "registrationStatus";
+
     public static final String REACTION_DETAILS = "reactionDetails";
     public static final String CONCEPT_DETAILS = "conceptDetails";
     public static final String REACTION = "reaction";
@@ -89,6 +87,19 @@ public final class BatchComponentUtil {
                collect(toList());
     }
 
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> retrieveBatchesFromClient(Collection<Component> components) {
+        Predicate<ComponentDTO> batchFilter = c -> PRODUCT_BATCH_SUMMARY.equals(c.getName()) &&
+                c.getContent() != null && c.getContent().containsField(COMPONENT_FIELD_BATCHES);
+
+        return components.stream()
+                .map(ComponentDTO::new)
+                .filter(batchFilter)
+                .map(component -> (List) component.getContent().get(COMPONENT_FIELD_BATCHES))
+                .flatMap(Collection::stream)
+                .map(o -> (Map<String, Object>) o)
+                .collect(toList());
+    }
 
     /**
      * Retrieve batch numbers list for all batches found in received components

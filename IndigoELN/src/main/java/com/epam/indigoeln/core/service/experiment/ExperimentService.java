@@ -12,6 +12,7 @@ import com.epam.indigoeln.core.service.exception.ConcurrencyException;
 import com.epam.indigoeln.core.service.exception.EntityNotFoundException;
 import com.epam.indigoeln.core.service.exception.OperationDeniedException;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
+import com.epam.indigoeln.core.util.BatchComponentUtil;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
@@ -30,6 +31,8 @@ import javax.validation.ValidationException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
+
+import static com.epam.indigoeln.core.util.BatchComponentUtil.*;
 
 @Service
 public class ExperimentService {
@@ -72,9 +75,9 @@ public class ExperimentService {
 
     public List<ExperimentDTO> getAllExperimentNotebookSummary(String projectId, String notebookId, User user) {
         Collection<Experiment> experiments = getAllExperiments(projectId, notebookId, PermissionUtil.isContentEditor(user) ? null : user);
-        return experiments.stream().sorted((e1,e2) -> {
+        return experiments.stream().sorted((e1, e2) -> {
             int i = e1.getName().compareTo(e2.getName());
-            if (i == 0){
+            if (i == 0) {
                 i = e1.getExperimentVersion() - e2.getExperimentVersion();
             }
             return i;
@@ -204,7 +207,9 @@ public class ExperimentService {
 
         notebook.getExperiments().stream()
                 .filter(e -> experimentName.equals(e.getName()) && ExperimentStatus.OPEN.equals(e.getStatus()))
-                .findAny().ifPresent((e) ->{throw OperationDeniedException.createVersionExperimentOperation(e.getId());});
+                .findAny().ifPresent((e) -> {
+            throw OperationDeniedException.createVersionExperimentOperation(e.getId());
+        });
 
         // Update previous version
         Experiment lastVersion = notebook.getExperiments().stream().filter(e -> e.isLastVersion() && experimentName.equals(e.getName()))
@@ -225,7 +230,7 @@ public class ExperimentService {
         newVersion.setId(id + "_" + newExperimentVersion);
         newVersion.setName(experimentName);
         newVersion.setAccessList(lastVersion.getAccessList());
-        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(),user);
+        PermissionUtil.addOwnerToAccessList(newVersion.getAccessList(), user);
         newVersion.setTemplate(lastVersion.getTemplate());
         newVersion.setStatus(ExperimentStatus.OPEN);
         final List<Component> components = lastVersion.getComponents();
@@ -250,7 +255,7 @@ public class ExperimentService {
             Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
-            if (experimentFromDB.getStatus() != ExperimentStatus.OPEN){
+            if (experimentFromDB.getStatus() != ExperimentStatus.OPEN) {
                 throw OperationDeniedException.createNotOpenExperimentUpdateOperation(experimentFromDB.getId());
             }
 
@@ -272,7 +277,7 @@ public class ExperimentService {
             Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
 
             //Check experiment version before component's saving
-            if (!experimentForSave.getVersion().equals(experimentFromDB.getVersion())){
+            if (!experimentForSave.getVersion().equals(experimentFromDB.getVersion())) {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), new IndigoRuntimeException());
             }
 
@@ -331,6 +336,7 @@ public class ExperimentService {
 
         List<Component> componentsForSave = new ArrayList<>();
         for (Component component : newComponents) {
+            updateRegistrationStatus(component, componentsFromDb);
             if (component.getId() != null) {
                 Optional<Component> existing = componentsFromDb.stream().filter(Objects::nonNull).filter(c -> c.getId().equals(component.getId())).findFirst();
                 if (existing.isPresent()) {
@@ -358,6 +364,43 @@ public class ExperimentService {
         return componentRepository.save(componentsForSave);
     }
 
+    private void updateRegistrationStatus(Component newComponent, List<Component> oldComponents) {
+        if (PRODUCT_BATCH_SUMMARY.equals(newComponent.getName())) {
+            List<Map<String, Object>> newBatches = BatchComponentUtil.retrieveBatchesFromClient(Collections.singletonList(newComponent));
+            List<Map<String, Object>> oldBatches = BatchComponentUtil.retrieveBatchesFromClient(oldComponents);
+
+            for (Map<String, Object> oldBatch : oldBatches) {
+                String status = (String) oldBatch.get(COMPONENT_FIELD_REGISTRATION_STATUS);
+                if (StringUtils.isNotBlank(status)) {
+                    updateBatch(oldBatch, newBatches);
+                }
+            }
+
+            newBatches.sort(((o1, o2) -> {
+                String num1 = (String) o1.get(COMPONENT_FIELD_NBK_BATCH);
+                String num2 = (String) o2.get(COMPONENT_FIELD_NBK_BATCH);
+                return num1.compareTo(num2);
+            }));
+            if (!newBatches.isEmpty()){
+                newComponent.getContent().put(COMPONENT_FIELD_BATCHES,newBatches);
+            }
+        }
+    }
+
+    private void updateBatch(Map<String, Object> oldBatch, List<Map<String, Object>> newBatches){
+        String nbkBatch = (String) oldBatch.get(COMPONENT_FIELD_NBK_BATCH);
+        Optional<Map<String, Object>> batch = newBatches.stream()
+                .filter(b -> b.get(COMPONENT_FIELD_NBK_BATCH) != null && b.get(COMPONENT_FIELD_NBK_BATCH).equals(nbkBatch))
+                .findAny();
+
+        if (batch.isPresent()){
+            Map<String, Object> newBatch = batch.get();
+            newBatch.clear();
+            newBatch.putAll(oldBatch);
+        }else {
+            newBatches.add(oldBatch);
+        }
+    }
     public void deleteExperiment(String id, String projectId, String notebookId) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, id))).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(id));
@@ -370,14 +413,14 @@ public class ExperimentService {
 
         //delete experiment components
         Optional.ofNullable(experiment.getComponents()).ifPresent(components ->
-                        componentRepository.deleteAllById(components.stream().map(Component::getId).collect(Collectors.toList()))
+                componentRepository.deleteAllById(components.stream().map(Component::getId).collect(Collectors.toList()))
         );
 
         fileRepository.delete(experiment.getFileIds());
         experimentRepository.delete(experiment);
     }
 
-    public Lock getLock(String projectId){
+    public Lock getLock(String projectId) {
         return locks.get(projectId);
     }
 }
