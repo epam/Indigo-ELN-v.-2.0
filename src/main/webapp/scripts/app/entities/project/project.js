@@ -21,6 +21,9 @@ angular
                         controllerAs: 'vm'
                     }
                 },
+                params: {
+                    isNewEntity: true
+                },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'PROJECT_CREATOR'],
                     pageTitle: 'indigoeln',
@@ -42,7 +45,12 @@ angular
                             Principal.hasAuthorityIdentitySafe('NOTEBOOK_CREATOR')
                         ]).then(function(results) {
                             return {
-                                project: {},
+                                project: {
+                                    name: '',
+                                    description: '',
+                                    keywords: '',
+                                    references: ''
+                                },
                                 identity: results[0],
                                 isContentEditor: results[1],
                                 hasEditAuthority: results[2],
