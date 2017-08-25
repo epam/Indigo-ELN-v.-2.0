@@ -1,5 +1,6 @@
-<div class="experiments" cg-busy="{promise: vm.loading, minDuration:700}" ng-show="vm.project.name">
-    <autorecovery kind="{{vm.stateData.tab.kind}}"
+<div class="experiments" cg-busy="{promise: vm.loading, minDuration:700}">
+    <autorecovery ng-show="vm.project.name"
+                  kind="{{vm.stateData.tab.kind}}"
                   name="{{vm.project.name}}"
                   on-restore="vm.onRestore(recoveryData)">
     </autorecovery>
