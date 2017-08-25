@@ -24,6 +24,9 @@ angular.module('indigoeln')
                         controllerAs: 'vm'
                     }
                 },
+                params: {
+                    isNewEntity: true
+                },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'NOTEBOOK_CREATOR'],
                     pageTitle: 'indigoeln',
@@ -46,7 +49,10 @@ angular.module('indigoeln')
                             Principal.hasAuthorityIdentitySafe('EXPERIMENT_CREATOR')
                         ]).then(function(results) {
                             deferred.resolve({
-                                notebook: {},
+                                notebook: {
+                                    description: '',
+                                    name: ''
+                                },
                                 identity: results[0],
                                 isContentEditor: results[1],
                                 hasEditAuthority: results[2],
