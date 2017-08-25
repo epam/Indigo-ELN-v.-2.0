@@ -66,6 +66,14 @@ function experiment($resource, PermissionManagement, $rootScope) {
 
             _.forEach(components, function(component) {
                 experiment.components[component.name] = component.content;
+
+                var batches = _.get(experiment.components[component.name], 'batches');
+
+                if (batches) {
+                    _.forEach(batches, function(batch) {
+                        batch.$$registrationStatus = batch.registrationStatus;
+                    });
+                }
             });
 
             return experiment;
