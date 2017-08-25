@@ -75,7 +75,10 @@
         function onRestore(storeData) {
             var version = vm.project.version;
             vm.project = storeData;
-            vm.project.version = version;
+
+            if (_.isDefined(version)) {
+                vm.project.version = version;
+            }
             EntitiesCache.put($stateParams, vm.project);
         }
 
@@ -103,6 +106,7 @@
                         vm.project = result;
                         originalProject = angular.copy(vm.project);
                         EntitiesCache.put($stateParams, vm.project);
+                        EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
                         onUpdateSuccess({
                             id: vm.project.id
                         });
@@ -113,6 +117,12 @@
         }
 
         function refresh() {
+            if (vm.stateData.isNew) {
+                vm.project = angular.copy(originalProject);
+
+                return $q.resolve();
+            }
+
             vm.loading = Project.get($stateParams).$promise
                 .then(function(result) {
                     angular.extend(vm.project, result);
@@ -190,8 +200,8 @@
 
             $scope.$watch('vm.project', function(newEntity) {
                 EntitiesBrowser.setCurrentEntity(vm.project);
-                var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalProject, newEntity);
-                toggleDirty(isDirty);
+                var isDirty = autorecoveryHelper.isEntityDirty(originalProject, newEntity);
+                toggleDirty(vm.stateData.isNew || isDirty);
                 updateRecovery(newEntity, isDirty);
             }, true);
 
