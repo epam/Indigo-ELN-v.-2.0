@@ -129,12 +129,18 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
     }
 
     private static List<AbstractPdfSection> preferredCompoundSummaryConverter(Pair<Component, Experiment> p) {
-        return MongoExt.of(p.getLeft()).map(content -> {
-            List<PreferredCompoundsRow> rows = content.streamObjects("compounds")
+        Optional<MongoExt> productBatchSummary = p.getRight().getComponents().stream()
+                .filter(component -> PRODUCT_BATCH_SUMMARY.equals(component.getName()))
+                .map(Component::getContent)
+                .map(MongoExt::of)
+                .findAny();
+
+        return productBatchSummary.map(content -> {
+            List<PreferredCompoundsRow> rows = content.streamObjects("batches")
                     .map(ExperimentPdfSectionsProvider::getPreferredCompoundsRow)
                     .toList();
-            return singletonList(new PreferedCompoundsSection(new PreferredCompoundsModel(rows)));
-        });
+            return singletonList(((AbstractPdfSection)new PreferedCompoundsSection(new PreferredCompoundsModel(rows))));
+        }).orElse(Collections.emptyList());
     }
 
     private static PreferredCompoundsRow getPreferredCompoundsRow(MongoExt compound) {
