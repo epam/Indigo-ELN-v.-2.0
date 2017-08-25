@@ -63,7 +63,7 @@ function registrationUtil(AppValues) {
     };
 
     function isRegistered(row) {
-        return row.registrationStatus === 'PASSED' || row.registrationStatus === 'IN_PROGRESS';
+        return row.$$registrationStatus === 'PASSED' || row.$$registrationStatus === 'IN_PROGRESS';
     }
 
     function getNotFullForRegistrationBatches(batches) {

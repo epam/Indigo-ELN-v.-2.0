@@ -225,7 +225,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         if (sdUnit) {
             batch.conversationalBatchNumber = null;
             batch.registrationDate = null;
-            batch.registrationStatus = null;
+            batch.$$registrationStatus = null;
 
             if (isSyncWithIntended) {
                 // to sync mapping of intended products with actual poducts
@@ -314,24 +314,19 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 return batch.fullNbkBatch;
             });
             if (batchNumbers.length) {
-                return saveAndRegister(batchNumbers, function() {
-                    batches.forEach(function(b) {
-                        b.registrationStatus = 'IN_PROGRESS'; // EPMLSOPELN-403
-                    });
-                });
+                return saveAndRegister(batchNumbers);
             }
             notifyService.warning('No Batches was selected for Registration');
         }
     }
 
-    function saveAndRegister(batchNumbers, success) {
-        EntitiesBrowser.saveCurrentEntity()
+    function saveAndRegister(batchNumbers) {
+        return EntitiesBrowser.saveCurrentEntity()
             .then(function() {
                 $timeout(function() {
                     RegistrationService.register({}, batchNumbers).$promise
                         .then(function() {
                             notifyService.success('Selected Batches successfully sent to Registration');
-                            success();
                         }, function() {
                             notifyService.error('ERROR! Selected Batches registration failed');
                         });
