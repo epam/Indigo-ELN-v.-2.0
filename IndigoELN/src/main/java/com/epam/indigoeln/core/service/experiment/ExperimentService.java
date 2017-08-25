@@ -250,6 +250,10 @@ public class ExperimentService {
             Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
+            if (experimentFromDB.getStatus() != ExperimentStatus.OPEN){
+                throw OperationDeniedException.createNotOpenExperimentUpdateOperation(experimentFromDB.getId());
+            }
+
             // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
             // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
             if (!PermissionUtil.isContentEditor(user)) {
