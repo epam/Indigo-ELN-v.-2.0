@@ -1,6 +1,7 @@
 package com.epam.indigoeln.bingodb.web;
 
 import com.epam.indigoeln.bingodb.config.IndigoProvider;
+import com.epam.indigoeln.bingodb.web.rest.dto.ErrorDTO;
 import com.epam.indigoeln.bingodb.web.rest.dto.ResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -41,10 +42,9 @@ public class StructureResourceTest {
         Assert.assertNotNull(rxnResponse.getStructures().get(0).getId());
         Assert.assertTrue(rxnResponse.getStructures().get(0).getId().startsWith("RXN"));
 
-        ResponseDTO badResponse = restTemplate.postForObject("/api/structures", "o_O", ResponseDTO.class);
+        ErrorDTO badResponse = restTemplate.postForObject("/api/structures", "o_O", ErrorDTO.class);
 
         Assert.assertEquals("Error processing request: Not a molecule or reaction", badResponse.getMessage());
-        Assert.assertNull(badResponse.getStructures());
     }
 
     @Test
@@ -53,10 +53,9 @@ public class StructureResourceTest {
 
         String id = molResponse.getStructures().get(0).getId();
 
-        ResponseEntity<ResponseDTO> badResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.PUT, new HttpEntity<>("o_O"), ResponseDTO.class);
+        ResponseEntity<ErrorDTO> badResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.PUT, new HttpEntity<>("o_O"), ErrorDTO.class);
 
         Assert.assertEquals("Error processing request: Not a molecule or reaction", badResponse.getBody().getMessage());
-        Assert.assertNull(badResponse.getBody().getStructures());
 
         ResponseEntity<ResponseDTO> updResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.PUT, new HttpEntity<>("CC>>CC"), ResponseDTO.class);
 
@@ -79,12 +78,12 @@ public class StructureResourceTest {
         Assert.assertEquals(HttpStatus.OK, delResponse.getStatusCode());
         Assert.assertNull(delResponse.getBody());
 
-        delResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.DELETE, HttpEntity.EMPTY, ResponseDTO.class);
-        Assert.assertTrue(StringUtils.contains(delResponse.getBody().getMessage(), "Error processing request"));
-        Assert.assertEquals("Error processing request: There is no object with this id", delResponse.getBody().getMessage());
+        ResponseEntity<ErrorDTO> badResponse = restTemplate.exchange("/api/structures/" + id, HttpMethod.DELETE, HttpEntity.EMPTY, ErrorDTO.class);
+        Assert.assertTrue(StringUtils.contains(badResponse.getBody().getMessage(), "Error processing request"));
+        Assert.assertEquals("Error processing request: There is no object with this id", badResponse.getBody().getMessage());
 
-        getResponse = restTemplate.getForObject("/api/structures/" + id, ResponseDTO.class);
-        Assert.assertTrue(StringUtils.contains(getResponse.getMessage(), "Error processing request"));
+        badResponse = restTemplate.getForEntity("/api/structures/" + id, ErrorDTO.class);
+        Assert.assertTrue(StringUtils.contains(badResponse.getBody().getMessage(), "Error processing request"));
     }
 
     @Test

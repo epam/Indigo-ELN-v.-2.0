@@ -1,6 +1,6 @@
 package com.epam.indigoeln.bingodb.web.rest.errors;
 
-import com.epam.indigoeln.bingodb.web.rest.dto.ResponseDTO;
+import com.epam.indigoeln.bingodb.web.rest.dto.ErrorDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -14,9 +14,9 @@ public class ExceptionAdvice {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAdvice.class);
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseDTO> handleException(Exception e) {
+    public ResponseEntity<ErrorDTO> handleException(Exception e) {
         String message = "Error processing request: " + e.getMessage();
         LOGGER.error(message, e);
-        return new ResponseEntity<>(new ResponseDTO(message), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new ErrorDTO(message), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
