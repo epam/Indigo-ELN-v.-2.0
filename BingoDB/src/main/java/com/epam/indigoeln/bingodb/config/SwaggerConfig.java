@@ -1,7 +1,9 @@
 package com.epam.indigoeln.bingodb.config;
 
+import com.google.common.base.Predicates;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -16,10 +18,14 @@ public class SwaggerConfig {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .apiInfo(new ApiInfo("BingoDB", "Simple chemical structure database", "1.0", "", ApiInfo.DEFAULT_CONTACT, "", ""))
+                .useDefaultResponseMessages(false)
+                .apiInfo(new ApiInfoBuilder()
+                        .title("BingoDB")
+                        .description("Simple chemical structure database")
+                        .build())
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
+                .paths(Predicates.not(PathSelectors.regex("/error")))
                 .build();
     }
 }
