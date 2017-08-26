@@ -32,7 +32,7 @@ public class StructureResource {
             @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
     })
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> insert(@ApiParam("New structure in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
+    public ResponseEntity<ResponseDTO> insert(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
         return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.insert(structure))));
     }
 
@@ -43,7 +43,7 @@ public class StructureResource {
     })
     @PutMapping(value = "{id}", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseDTO> update(@ApiParam("Structure ID") @PathVariable String id,
-                                              @ApiParam("New structure in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
+                                              @ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure) {
         return ResponseEntity.ok().body(new ResponseDTO(Collections.singletonList(bingoService.update(id, structure))));
     }
 

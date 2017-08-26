@@ -77,7 +77,7 @@ public class SearchResource {
             @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
     })
     @PostMapping(value = "reaction/exact", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionExact(@ApiParam("Reaction in Rxnfile/Smiles format") @RequestBody String structure,
+    public ResponseEntity<ResponseDTO> searchReactionExact(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
                                                            @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionExact(structure, options)));
     }
@@ -88,7 +88,7 @@ public class SearchResource {
             @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
     })
     @PostMapping(value = "reaction/substructure", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionSub(@ApiParam("Reaction in Rxnfile/Smiles format") @RequestBody String structure,
+    public ResponseEntity<ResponseDTO> searchReactionSub(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
                                                          @ApiParam("Search options") @RequestParam(required = false) String options) {
         return ResponseEntity.ok().body(new ResponseDTO(bingoService.searchReactionSub(structure, options)));
     }
@@ -99,7 +99,7 @@ public class SearchResource {
             @ApiResponse(code = HttpServletResponse.SC_INTERNAL_SERVER_ERROR, message = "Server error occurred", response = ErrorDTO.class)
     })
     @PostMapping(value = "reaction/similarity", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseDTO> searchReactionSimilarity(@ApiParam("Reaction in Rxnfile/Smiles format") @RequestBody String structure,
+    public ResponseEntity<ResponseDTO> searchReactionSimilarity(@ApiParam("Molecule or Reaction in Molfile/Rxnfile/Smiles format") @RequestBody String structure,
                                                                 @ApiParam("Similarity min") @RequestParam Float min,
                                                                 @ApiParam("Similarity max") @RequestParam Float max,
                                                                 @ApiParam("Similarity metric (default is 'tanimoto')") @RequestParam(required = false) String metric) {
