@@ -8,17 +8,19 @@
         <div class="t-item t-head">Compound ID</div>
     </div>
     <div class="search-table-body">
-        <div ng-repeat="item in indigoTableContent | filter : indigoTableFilter track by $index" class="search-table-wrap">
-            <div class="search-table-row" ng-class="{'search-table-row-highlight':item.$$isSelected}"  ng-click="item.$$isCollapsed = !item.$$isCollapsed">
+        <div ng-repeat="item in indigoTableContent | filter : indigoTableFilter as filteredTableContent track by $index"
+             class="search-table-wrap">
+            <div class="search-table-row" ng-class="{'search-table-row-highlight':item.$$isSelected}"
+                 ng-click="item.$$isCollapsed = !item.$$isCollapsed">
                 <a class="t-item">
                     <span ng-class="{'fa fa-angle-right':item.$$isCollapsed,
                               'fa fa-angle-down':!item.$$isCollapsed}">
                     </span>
                 </a>
-                <div class="t-item">
-                    <indigo-checkbox ng-if="!indigoSingleItemPerTab" ng-click="$event.stopPropagation()"
+                <div class="t-item" ng-click="$event.stopPropagation()">
+                    <indigo-checkbox ng-if="!indigoSingleItemPerTab"
                                      class="checkbox-inline" indigo-model="item.$$isSelected"
-                                     indigo-change="onSelectItems(item.$$isSelected)"></indigo-checkbox>
+                                     indigo-change="onSelectItems(filteredTableContent)"></indigo-checkbox>
                     <indigo-checkbox ng-if="indigoSingleItemPerTab" ng-click="$event.stopPropagation()" class="checkbox-inline" indigo-change="selectSingleItemtPerTab(indigoTab, item, $parent.$index, $index, !item.$$isSelected)" indigo-model="item.$$isSelected"></indigo-checkbox>
                 </div>
                 <div class="t-item">{{item.molWeight.value | round}}</div>
