@@ -15,7 +15,7 @@
                 indigoSingleItemPerTab: '=',
                 indigoTab: '=',
                 indigoSelectedItemsPerTab: '=',
-                selectedItemsCounter: '='
+                onChangeSelectedItems: '&'
             },
             controller: 'IndigoSearchResultTableController'
         };

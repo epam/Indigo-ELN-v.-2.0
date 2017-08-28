@@ -67,12 +67,12 @@ function formUtils($timeout) {
     function addOnChange(scope) {
         if (scope.indigoChange) {
             scope.indigoChangeAsync = function() {
-                $timeout(scope.indigoChange, 0, false);
+                $timeout(scope.indigoChange, 0);
             };
         }
         if (scope.indigoClick) {
             scope.indigoClickAsync = function() {
-                $timeout(scope.indigoClick, 0, false);
+                $timeout(scope.indigoClick, 0);
             };
         }
     }
