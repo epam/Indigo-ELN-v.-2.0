@@ -9,14 +9,15 @@ function componentsUtilsFactory(Principal, Components) {
     };
 
     function initComponents(components, templates) {
-        initExperimentDescription(components, isExistInTemplate(templates, 'experimentDescription'));
-        initConceptDetails(components, isExistInTemplate(templates, 'conceptDetails'));
-        initPreferredCompoundSummary(components, isExistInTemplate(templates, 'preferredCompoundSummary'));
-        initPreferredCompoundDetails(components, isExistInTemplate(templates, 'preferredCompoundDetails'));
-        initProductBatchDetails(components, isExistInTemplate(templates, 'productBatchDetails'));
-        initProductBatchSummary(components, isExistInTemplate(templates, 'productBatchSummary'));
-        initStoichTable(components, isExistInTemplate(templates, 'stoichTable'));
-        initReactionDetails(components, isExistInTemplate(templates, 'reactionDetails'));
+        initExperimentDescription(components, isExistInTemplate(templates, Components.experimentDescription.field));
+        initConceptDetails(components, isExistInTemplate(templates, Components.conceptDetails.field));
+        initPreferredCompoundSummary(components, isExistInTemplate(templates, Components.preferredCompoundSummary.field));
+        initPreferredCompoundDetails(components, isExistInTemplate(templates, Components.preferredCompoundDetails.field));
+        initProductBatchDetails(components, isExistInTemplate(templates, Components.productBatchDetails.field));
+        initProductBatchSummary(components, isExistInTemplate(templates, Components.productBatchSummary.field));
+        initStoichTable(components, isExistInTemplate(templates, Components.stoichTable.field));
+        initReactionDetails(components, isExistInTemplate(templates, Components.reactionDetails.field));
+        initReaction(components, isExistInTemplate(templates, Components.reaction.field));
     }
 
     function isExistInTemplate(templateContent, componentName) {
@@ -83,6 +84,18 @@ function componentsUtilsFactory(Principal, Components) {
                         batchOwner: [],
                         coAuthors: [],
                         experimentCreator: {name: Principal.getIdentity().fullName}
+                    }
+                });
+        }
+    }
+
+    function initReaction(components, isExist) {
+        if (isExist) {
+            _.defaultsDeep(
+                components, {
+                    reaction: {
+                        molfile: null,
+                        image: null
                     }
                 });
         }
