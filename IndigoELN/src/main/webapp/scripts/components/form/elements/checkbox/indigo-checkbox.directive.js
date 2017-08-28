@@ -18,7 +18,8 @@
                 indigoClick: '&',
                 indigoTooltip: '@',
                 indigoTooltipPlacement: '@',
-                isDirty: '='
+                isDirty: '=',
+                onSelectItem: '&'
             },
             compile: compile,
             templateUrl: 'scripts/components/form/elements/checkbox/checkbox.html'

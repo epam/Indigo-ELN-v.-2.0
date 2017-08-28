@@ -23,6 +23,10 @@
             $scope.isEditMode = false;
         };
 
+        $scope.onSelectItems = function(selected) {
+            selected ? $scope.selectedItemsCounter++ : $scope.selectedItemsCounter--;
+        };
+
         $scope.selectSingleItemtPerTab = function(tab, reactant, tabIndex, reactantIndex, isDeselected) {
             if (!isDeselected) {
                 // only one reactant can be selected from each tab
