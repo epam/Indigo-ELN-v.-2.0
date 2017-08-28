@@ -455,11 +455,11 @@
                     </div>
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
-                                ng-disabled="vm.loading || vm.searchResults.length == 0">
+                                ng-disabled="(vm.searchResults | selectedItemCounter).length == 0">
                             <span class="fa fa-plus"></span><span class="m-l5">Add to My Reagent List</span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
-                                ng-disabled="vm.loading || vm.searchResults.length == 0">
+                                ng-disabled="(vm.searchResults | selectedItemCounter).length == 0">
                             <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
