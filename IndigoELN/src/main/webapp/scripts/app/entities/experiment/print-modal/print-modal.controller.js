@@ -67,7 +67,7 @@
                     }
                 });
             });
-            vm.hasAttachments = _.has(vm.components, {id: 'attachments'});
+            vm.hasAttachments = !!_.find(vm.components, {id: 'attachments'});
         }
 
         function dismiss() {

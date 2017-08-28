@@ -97,7 +97,7 @@
 
         function save() {
             if (!isChanged) {
-                return;
+                return $q.resolve();
             }
 
             if (vm.project.id) {
