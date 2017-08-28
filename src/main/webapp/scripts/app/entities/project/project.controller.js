@@ -114,6 +114,8 @@
             } else {
                 vm.loading = Project.save(vm.project, onSaveSuccess, onSaveError).$promise;
             }
+
+            return vm.loading;
         }
 
         function refresh() {
