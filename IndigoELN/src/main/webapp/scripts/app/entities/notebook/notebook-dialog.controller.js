@@ -313,6 +313,7 @@
 
                 return vm.loading;
             }
+
             vm.loading = Notebook.save({
                 projectId: vm.projectId
             }, vm.notebook, onSaveSuccess, onSaveError).$promise;
