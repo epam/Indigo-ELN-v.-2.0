@@ -220,13 +220,14 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         if (stoichTable) {
             _.extend(batch, angular.copy(CalculationService.createBatch(stoichTable, true)));
         }
-        _.merge(batch, sdUnit);
+
+        _.extend(batch, sdUnit, {
+            conversationalBatchNumber: undefined,
+            registrationDate: undefined,
+            registrationStatus: undefined
+        });
 
         if (sdUnit) {
-            batch.conversationalBatchNumber = null;
-            batch.registrationDate = null;
-            batch.$$registrationStatus = null;
-
             if (isSyncWithIntended) {
                 // to sync mapping of intended products with actual poducts
                 batch.theoMoles = batch.mol;
