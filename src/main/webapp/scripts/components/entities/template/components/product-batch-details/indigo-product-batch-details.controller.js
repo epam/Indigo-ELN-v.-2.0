@@ -91,7 +91,9 @@
         }
 
         function registerBatch() {
-            vm.loading = ProductBatchSummaryOperations.registerBatches([vm.selectedBatch]);
+            vm.loading = vm.saveExperimentFn().then(function() {
+                return ProductBatchSummaryOperations.registerBatches([vm.selectedBatch]);
+            });
         }
 
         function importSDFile() {
