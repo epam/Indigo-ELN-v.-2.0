@@ -100,10 +100,10 @@
                     name: 'Nbk Batch #'
                 },
                 {
-                    id: '$$registrationStatus',
+                    id: 'registrationStatus',
                     name: 'Registration Status',
                     mark: function(batch) {
-                        return batch.$$registrationStatus ? ('batch-status status-' + batch.$$registrationStatus.toLowerCase()) : '';
+                        return batch.registrationStatus ? ('batch-status status-' + batch.registrationStatus.toLowerCase()) : '';
                     }
                 },
                 {
@@ -684,7 +684,7 @@
                     id: 'registrationDate'
                 }).isVisible = val;
                 _.find(vm.columns, {
-                    id: '$$registrationStatus'
+                    id: 'registrationStatus'
                 }).isVisible = val;
             });
 
@@ -709,25 +709,6 @@
                     return item.id === 'structure';
                 });
                 column.width = (500 * newVal) + 'px';
-            });
-
-            $scope.$on('batch-registration-status-changed', function(event, statuses) {
-                _.each(statuses, function(status, fullNbkBatch) {
-                    var batch = _.find(getProductBatches(), {
-                        fullNbkBatch: fullNbkBatch
-                    });
-
-                    if (batch) {
-                        batch.$$registrationStatus = status.status;
-                        batch.registrationDate = status.date;
-                        if (status.compoundNumbers) {
-                            batch.compoundId = status.compoundNumbers[fullNbkBatch];
-                        }
-                        if (status.conversationalBatchNumbers) {
-                            batch.conversationalBatchNumber = status.conversationalBatchNumbers[fullNbkBatch];
-                        }
-                    }
-                });
             });
         }
     }
