@@ -15,6 +15,8 @@
                 model: '=',
                 experiment: '=',
                 isReadonly: '=',
+                infoReactants: '=',
+                infoProducts: '=',
                 onChangedReactants: '&',
                 onChangedProducts: '&',
                 onPrecursorsChanged: '&',
