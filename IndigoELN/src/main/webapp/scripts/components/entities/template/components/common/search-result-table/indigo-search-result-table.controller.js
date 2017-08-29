@@ -7,7 +7,6 @@
     function IndigoSearchResultTableController($scope, $http, UserReagents, AppValues, $sce, CalculationService) {
         $scope.rxnValues = AppValues.getRxnValues();
         $scope.saltCodeValues = AppValues.getSaltCodeValues();
-
         $scope.editInfo = function(item) {
             $scope.itemBeforeEdit = angular.copy(item);
             $scope.isEditMode = true;
@@ -21,6 +20,10 @@
         $scope.cancelEdit = function(index) {
             $scope.indigoTableContent[index] = $scope.itemBeforeEdit;
             $scope.isEditMode = false;
+        };
+
+        $scope.onSelectItems = function(items) {
+            $scope.onChangeSelectedItems({items: _.filter(items, {$$isSelected: true})});
         };
 
         $scope.selectSingleItemtPerTab = function(tab, reactant, tabIndex, reactantIndex, isDeselected) {
