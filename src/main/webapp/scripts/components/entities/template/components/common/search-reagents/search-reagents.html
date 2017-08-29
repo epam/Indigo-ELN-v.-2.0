@@ -451,15 +451,16 @@
                     </div>
                     <div class="m-b20">
                         <indigo-search-result-table indigo-table-content="vm.searchResults"
-                                                    indigo-editable-info="false"></indigo-search-result-table>
+                                                    indigo-editable-info="false"
+                                                    on-change-selected-items="vm.selectedItems = items"></indigo-search-result-table>
                     </div>
                     <div class="btn-group pull-right">
                         <button class="btn btn-info" type="button" ng-click="vm.addToMyReagentList()"
-                                ng-disabled="vm.loading || vm.searchResults.length == 0">
+                                ng-disabled="!vm.selectedItems.length">
                             <span class="fa fa-plus"></span><span class="m-l5">Add to My Reagent List</span>
                         </button>
                         <button class="btn btn-info" type="button" ng-click="vm.addToStoichTable(vm.searchResults)"
-                                ng-disabled="vm.loading || vm.searchResults.length == 0">
+                                ng-disabled="!vm.selectedItems.length">
                             <span class="fa fa-plus"></span><span class="m-l5">Add to Stoich. Table</span>
                         </button>
                         <button class="btn btn-default" type="button" ng-click="vm.cancel()">
