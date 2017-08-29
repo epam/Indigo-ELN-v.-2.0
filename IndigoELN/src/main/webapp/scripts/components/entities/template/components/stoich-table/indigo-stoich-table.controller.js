@@ -16,7 +16,6 @@
         var rxnValues = AppValues.getRxnValues();
         var saltCodeValues = AppValues.getSaltCodeValues();
         var loadFactorUnits = AppValues.getLoadFactorUnits();
-        var reactionReactantsInfo;
         var ftimeout;
 
         vm.model = vm.model || {};
@@ -60,7 +59,7 @@
         }
 
         function analyzeRxn() {
-            getMissingReactionReactantsInStoic(reactionReactantsInfo).then(function(batchesToSearch) {
+            getMissingReactionReactantsInStoic(vm.infoReactants).then(function(batchesToSearch) {
                 var schemeReactants = _.get(vm.model.reaction, 'infoReactants');
                 if (batchesToSearch.length) {
                     $uibModal.open({
@@ -569,56 +568,28 @@
             });
         }
 
-        function getDefaultChemicalName(index) {
-            return 'P' + index;
-        }
-
-        function moleculeInfoResponseCallback(results, isIntended) {
-            if (!results || results.length === 0) {
-                return null;
-            }
-
-            return _.map(results, function(result, index) {
-                var batch = AppValues.getDefaultBatch();
-                batch.chemicalName = isIntended ? getDefaultChemicalName(index) : result.name;
-                batch.formula = result.molecularFormula;
-                batch.molWeight.value = result.molecularWeight;
-                batch.exactMass = result.exactMolecularWeight;
-                batch.structure = {
-                    image: result.image,
-                    molfile: result.molecule,
-                    structureType: 'molecule'
-                };
-
-                return batch;
-            });
-        }
-
         function getStructureImagesForIntendedProducts() {
             _.each(getIntendedProducts(), function(item) {
-                CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
-                    item.structure.image = image;
-                });
+                if (!item.structure.image) {
+                    CalculationService.getImageForStructure(item.structure.molfile, 'molecule', function(image) {
+                        item.structure.image = image;
+                    });
+                }
             });
         }
 
         function getReactionProductsAndReactants() {
-            var infoProducts = vm.model.reaction.infoProducts;
-            var infoReactants = vm.model.reaction.infoReactants;
-
-            if (infoProducts && infoProducts.length) {
-                setIntendedProducts(moleculeInfoResponseCallback(infoProducts, true));
+            if (vm.infoProducts && vm.infoProducts.length) {
+                setIntendedProducts(vm.infoProducts);
                 getStructureImagesForIntendedProducts();
-                reactionReactantsInfo = moleculeInfoResponseCallback(infoReactants);
             }
-            if (_.isEmpty(infoReactants)) {
-                setIntendedProducts(null);
-            }
+
             CalculationService.recalculateStoich();
         }
 
         function bindEvents() {
-            $scope.$on('REACTION_CHANGED', getReactionProductsAndReactants);
+            $scope.$watch('vm.infoProducts', getReactionProductsAndReactants);
+            // $scope.$watch('vm.infoReactants', updateReactants);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
                 _.each(stoichTable.products, function(batch) {
@@ -677,6 +648,10 @@
         function getMissingReactionReactantsInStoic(reactantsInfo) {
             var reactantsToSearch = [];
             var stoicReactants = getReactantsWithMolfile(getStoicReactants());
+
+            if (stoicReactants.length !== reactantsInfo.length) {
+                return $q.resolve(reactantsInfo);
+            }
 
             var allPromises = _.map(reactantsInfo, function(reactantInfo) {
                 var reactantsEqualityPromises = _.map(stoicReactants, function(stoicReactant) {
