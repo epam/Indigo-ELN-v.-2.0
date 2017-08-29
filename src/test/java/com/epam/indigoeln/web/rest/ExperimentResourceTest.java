@@ -3,12 +3,18 @@ package com.epam.indigoeln.web.rest;
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.Notebook;
+import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
+import com.epam.indigoeln.core.util.EqualsUtil;
 import com.epam.indigoeln.util.AuthUtil;
 import com.epam.indigoeln.web.rest.dto.ComponentDTO;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.util.PermissionUtil;
 import com.mongodb.BasicDBObject;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.xpath.operations.Equals;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -27,6 +33,9 @@ public class ExperimentResourceTest extends RestBase {
 
     @Autowired
     NotebookRepository notebookRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Test
     public void getExperiment() throws Exception {
@@ -152,6 +161,35 @@ public class ExperimentResourceTest extends RestBase {
         assertEquals(savedExperiment.getAuthor().getLogin(), result.getLastModifiedBy().getLogin());
         assertEquals(savedExperiment.getVersion(), result.getVersion());
 
+    }
+
+    @Test
+    public void versionExperiment() throws URISyntaxException {
+        Experiment lastVersion = experimentRepository.findOne("1-1-3");
+
+        RequestEntity<String> requestEntity = RequestEntity.post(new URI("/api/projects/1/notebooks/1/experiments/version"))
+                .header(HttpHeaders.COOKIE, cookie)
+                .header(CSRF_TOKEN_HEADER, csrfToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(lastVersion.getName());
+
+        ResponseEntity<ExperimentDTO> responseEntity = restTemplate.exchange(requestEntity, ExperimentDTO.class);
+
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+
+        ExperimentDTO result = responseEntity.getBody();
+
+        assertEquals("3_2", result.getId());
+        assertEquals(lastVersion.getName(), result.getName());
+        assertEquals(lastVersion.getAccessList().size(), result.getAccessList().size());
+        assertEquals(lastVersion.getTemplate(), result.getTemplate());
+        assertEquals(ExperimentStatus.OPEN, result.getStatus());
+        assertEquals(lastVersion.getComponents().size(), result.getComponents().size());
+        assertEquals(true, result.isLastVersion());
+        assertEquals(lastVersion.getExperimentVersion() + 1, result.getExperimentVersion());
+
+        Experiment updatedLastVersion = experimentRepository.findOne(lastVersion.getId());
+        assertEquals(false, updatedLastVersion.isLastVersion());
     }
 
 }

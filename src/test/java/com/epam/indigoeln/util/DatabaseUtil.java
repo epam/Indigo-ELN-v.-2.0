@@ -1,5 +1,6 @@
 package com.epam.indigoeln.util;
 
+import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
@@ -85,6 +86,12 @@ public class DatabaseUtil {
                     ExperimentDTO savedExperiment = experimentService.createExperiment(experimentDTO, savedProject.getId(), savedNotebook.getId(), admin);
                     experiments.add(savedExperiment);
                 }
+
+                ExperimentDTO expForComplete = experiments.get(2);
+                expForComplete.setStatus(ExperimentStatus.COMPLETED);
+                ExperimentDTO completed = experimentService.updateExperiment(savedProject.getId(), savedNotebook.getId(), expForComplete, admin);
+                experiments.set(2, completed);
+
                 NotebookDTO notebookWithVersion = notebookService.getNotebookById(savedProject.getId(), savedNotebook.getId(), admin);
                 notebookWithVersion.setExperiments(experiments);
                 NotebookDTO updateNotebook = notebookService.updateNotebook(notebookWithVersion, savedProject.getId(), admin);
@@ -96,7 +103,7 @@ public class DatabaseUtil {
         }
     }
 
-    public void dropDBs(){
+    public void dropDBs() {
         projectRepository.deleteAll();
         notebookRepository.deleteAll();
         experimentRepository.deleteAll();
