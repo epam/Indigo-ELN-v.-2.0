@@ -224,6 +224,7 @@
                     projectId: vm.projectId, notebookId: result.id
                 });
             });
+            EntitiesCache.removeByParams($stateParams);
         }
 
         function onSaveError(result) {
