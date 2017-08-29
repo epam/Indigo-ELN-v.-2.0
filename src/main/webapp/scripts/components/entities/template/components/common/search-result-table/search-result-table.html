@@ -21,7 +21,9 @@
                     <indigo-checkbox ng-if="!indigoSingleItemPerTab"
                                      class="checkbox-inline" indigo-model="item.$$isSelected"
                                      indigo-change="onSelectItems(filteredTableContent)"></indigo-checkbox>
-                    <indigo-checkbox ng-if="indigoSingleItemPerTab" ng-click="$event.stopPropagation()" class="checkbox-inline" indigo-change="selectSingleItemtPerTab(indigoTab, item, $parent.$index, $index, !item.$$isSelected)" indigo-model="item.$$isSelected"></indigo-checkbox>
+                    <indigo-checkbox ng-if="indigoSingleItemPerTab"
+                                     class="checkbox-inline" indigo-model="item.$$isSelected"
+                                     indigo-change="selectSingleItemtPerTab(indigoTab, item, $parent.$index, $index, !item.$$isSelected)" ></indigo-checkbox>
                 </div>
                 <div class="t-item">{{item.molWeight.value | round}}</div>
                 <div class="t-item">{{item.formula}}</div>

@@ -16,7 +16,6 @@ function SearchReagentsController($rootScope, $uibModalInstance, notifyService, 
         vm.model.databases = SearchService.getCatalogues();
         vm.myReagents = {};
 
-        vm.selectedItemsCounter = 0;
         vm.isActiveTab0 = activeTab === 0;
         vm.isActiveTab1 = activeTab === 1;
         vm.isSearchResultFound = false;
