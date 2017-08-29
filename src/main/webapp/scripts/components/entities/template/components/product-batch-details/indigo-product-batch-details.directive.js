@@ -20,6 +20,7 @@
                 reactants: '=',
                 reactantsTrigger: '=',
                 isReadonly: '=',
+                saveExperimentFn: '&',
                 batchOperation: '=',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
