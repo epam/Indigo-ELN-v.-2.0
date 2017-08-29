@@ -22,7 +22,7 @@
     }
 
     /* @ngInject */
-    function indigoReactionSchemeController($scope, $rootScope, CalculationService, $q, notifyService) {
+    function indigoReactionSchemeController($scope, $rootScope, CalculationService, $q, notifyService, AppValues) {
         var vm = this;
 
         init();
@@ -67,8 +67,8 @@
                 getInfo(vm.model.reaction.molReactants),
                 getInfo(vm.model.reaction.molProducts)
             ]).then(function(results) {
-                vm.model.reaction.infoReactants = results[0];
-                vm.model.reaction.infoProducts = results[1];
+                vm.model.reaction.infoReactants = moleculeInfoResponseCallback(results[0]);
+                vm.model.reaction.infoProducts = moleculeInfoResponseCallback(results[1], true);
                 $rootScope.$broadcast('REACTION_CHANGED', vm.model.reaction);
                 vm.onChanged();
             });
@@ -76,10 +76,35 @@
 
         function onChangedStructure(structure) {
             vm.loading = CalculationService.getReactionProductsAndReactants(structure.molfile).then(function(response) {
-                return updateReaction(response, structure);
+                return vm.model.reaction.molfile === structure.molfile ? $q.reject() : updateReaction(response, structure);
             });
 
             return vm.loading;
+        }
+
+        function moleculeInfoResponseCallback(results, isProduct) {
+            if (!results || results.length === 0) {
+                return null;
+            }
+
+            return _.map(results, function(result, index) {
+                var batch = AppValues.getDefaultBatch();
+                batch.chemicalName = isProduct ? getDefaultChemicalName(index) : result.name;
+                batch.formula = result.molecularFormula;
+                batch.molWeight.value = result.molecularWeight;
+                batch.exactMass = result.exactMolecularWeight;
+                batch.structure = {
+                    image: result.image,
+                    molfile: result.molecule,
+                    structureType: 'molecule'
+                };
+
+                return batch;
+            });
+        }
+
+        function getDefaultChemicalName(index) {
+            return 'P' + index;
         }
     }
 })();
