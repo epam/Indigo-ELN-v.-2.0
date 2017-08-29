@@ -146,7 +146,7 @@
         function onRestore(storeData) {
             var version = vm.notebook.version;
             vm.notebook = storeData;
-            if (_.isDefined(version)) {
+            if (angular.isDefined(version)) {
                 vm.notebook.version = version;
             }
             EntitiesCache.put($stateParams, vm.notebook);

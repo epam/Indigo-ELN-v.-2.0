@@ -37,7 +37,9 @@
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
 
-                initExperiment(response).then(function() {
+                entityTitle = response.notebook.name + ' ' + response.experiment.name;
+
+                initExperiment(response.experiment).then(function() {
                     updateOriginal(response.experiment);
                     EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + response.experiment.name, $stateParams);
                     initPermissions();
@@ -76,28 +78,38 @@
             initEventListeners();
         }
 
-        function initExperiment(response) {
+        /**
+         * Check the cached entity with responsed entity and show confirm modal if enities have conflicts
+         * @param experiment
+         * @param { Boolean } withoutCheckVersion is flag which need only understand by update registration status
+         * of batches by WS.
+         * @return {Promiss} resolve return the entity
+         */
+        function initExperiment(experiment, withoutCheckVersion) {
             var restoredExperiment = EntitiesCache.get($stateParams);
-            entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
-            if (!restoredExperiment) {
-                EntitiesCache.put($stateParams, response.experiment);
-                vm.experiment = response.experiment;
-            } else if (restoredExperiment.version === response.experiment.version) {
+            if (!restoredExperiment || withoutCheckVersion) {
+                EntitiesCache.put($stateParams, experiment);
+                vm.experiment = experiment;
+            } else if (restoredExperiment.version === experiment.version) {
                 vm.experiment = restoredExperiment;
             } else {
                 return confirmationModal
                     .openEntityVersionsConflictConfirm(entityTitle)
                     .then(
                         function() {
-                            vm.onRestore(response.experiment, response.experiment.version);
+                            vm.onRestore(experiment, experiment.version);
+
+                            return experiment;
                         },
                         function() {
-                            vm.onRestore(restoredExperiment, response.experiment.version);
+                            vm.onRestore(restoredExperiment, experiment.version);
+
+                            return restoredExperiment;
                         });
             }
 
-            return $q.resolve();
+            return $q.resolve(vm.experiment);
         }
 
         function updateOriginal(newEntity) {
@@ -186,12 +198,13 @@
                 return $q.resolve();
             }
 
+            // TODO: remove - dropped base
             initComponents(vm.experiment);
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
                     EntitiesCache.put($stateParams, result);
-                    vm.experiment.version = result.version;
+                    vm.experiment = result;
                     updateOriginal(vm.experiment);
                 }, function() {
                     notifyService.error('Experiment is not saved due to server error!');
@@ -237,11 +250,16 @@
             }
         }
 
+        function getExperiment() {
+            return Experiment
+                .get($stateParams)
+                .$promise;
+        }
+
         function refresh() {
-            vm.loading = Experiment.get($stateParams).$promise;
-            vm.loading.then(function(result) {
+            vm.loading = getExperiment().then(function(result) {
                 notifyService.success('Experiment updated');
-                angular.extend(vm.experiment, result);
+                vm.experiment = result;
                 updateOriginal(vm.experiment);
                 autorecoveryCache.hide($stateParams);
             }, function() {
@@ -345,6 +363,19 @@
                     vm.isBtnSaveActive = true;
                     // If put 0, then save button isn't activated
                 }, 10);
+            });
+
+            $scope.$on('batch-registration-status-changed', function(event, statuses) {
+                _.each(statuses, function(status, fullNbkBatch) {
+                    if (!_.find(vm.experiment.components.productBatchSummary.batches, {fullNbkBatch: fullNbkBatch})) {
+                        return;
+                    }
+
+                    notifyService.info('The Registration Status of batch #' + fullNbkBatch + ' is ' + status.status);
+                    vm.loading = getExperiment().then(function(experiment) {
+                        return initExperiment(experiment, true).then(updateOriginal);
+                    });
+                });
             });
         }
     }
