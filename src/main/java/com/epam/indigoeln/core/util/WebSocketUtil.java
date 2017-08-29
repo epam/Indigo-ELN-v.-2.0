@@ -17,7 +17,7 @@ public class WebSocketUtil {
     private final SimpMessagingTemplate template;
     private static final String PROJECT_ID = "projectId";
     private static final String NOTEBOOK_ID = "notebookId";
-    private static final String EXPERIMENT_ID = "";
+    private static final String EXPERIMENT_ID = "experimentId";
     private static final String ENTITY = "entity";
     private static final String USER = "user";
     private static final String VERSION = "version";
