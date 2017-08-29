@@ -25,7 +25,9 @@
             ' save-experiment-fn="vm.ComponentsCtrl.saveExperimentFn()"';
 
         var stoichTableAttributes = defaultAttributes +
-            ' on-precursors-changed="vm.ComponentsCtrl.onPrecursorsChanged(precursors)"';
+            ' on-precursors-changed="vm.ComponentsCtrl.onPrecursorsChanged(precursors)"' +
+            ' info-reactants="vm.ComponentsCtrl.model.reaction.infoReactants"' +
+            ' info-products="vm.ComponentsCtrl.model.reaction.infoProducts"';
 
         return {
             restrict: 'E',
