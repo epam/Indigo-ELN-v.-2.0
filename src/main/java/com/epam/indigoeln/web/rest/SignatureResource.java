@@ -88,7 +88,7 @@ public class SignatureResource {
             @ApiParam("Experiment id.") @RequestParam("experimentId") String experimentId,
             @ApiParam("Notebook id.") @RequestParam("notebookId") String notebookId,
             @ApiParam("Project id.") @RequestParam("projectId") String projectId,
-            @ApiParam("Print params.") @RequestParam PrintRequest printRequest) throws IOException {
+            @ApiParam("Print params.") PrintRequest printRequest) throws IOException {
 
         User user = userService.getUserWithAuthorities();
         byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest, user);
