@@ -4,11 +4,10 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components, EntitiesBrowser) {
+    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components,
+                                  EntitiesBrowser, checkedComponents) {
         var vm = this;
         var resource;
-        vm.dismiss = dismiss;
-        vm.confirmCompletion = confirmCompletion;
 
         init();
 
@@ -17,6 +16,9 @@
             vm.loading = resource.get($stateParams).$promise.then(function(entity) {
                 initCheckboxesForEntity(entity);
             });
+
+            vm.dismiss = dismiss;
+            vm.confirmCompletion = confirmCompletion;
         }
 
         function initService(kind) {
@@ -53,7 +55,8 @@
         function buildComponentItem(component) {
             return {
                 id: component.field,
-                value: component ? component.name : 'Unknown'
+                value: component ? component.name : 'Unknown',
+                isChecked: checkedComponents[component.field]
             };
         }
         // this will not work for compounds. Need to ask Backend to support it properly

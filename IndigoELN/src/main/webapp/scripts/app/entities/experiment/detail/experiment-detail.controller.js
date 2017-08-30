@@ -218,7 +218,9 @@
         }
 
         function completeExperimentAndSign() {
-            ExperimentUtil.completeExperimentAndSign(vm.experiment, params, vm.notebook.name);
+            ExperimentUtil.completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle).then(function() {
+                refresh(getExperiment());
+            });
         }
 
         function reopenExperiment() {
