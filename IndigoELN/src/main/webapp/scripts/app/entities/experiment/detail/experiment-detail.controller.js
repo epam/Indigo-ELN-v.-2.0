@@ -172,7 +172,7 @@
         }
 
         function setReadOnly() {
-            vm.isEditAllowed = ((isContentEditor || hasEditAuthority) && hasEditPermission) && vm.isStatusOpen;
+            vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission && vm.isStatusOpen);
         }
 
         function toggleDirty(isDirty) {
