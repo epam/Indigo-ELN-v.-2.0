@@ -83,7 +83,7 @@
          * @param experiment
          * @param { Boolean } withoutCheckVersion is flag which need only understand by update registration status
          * of batches by WS.
-         * @return {Promiss} resolve return the entity
+         * @return {Promise} resolve return the entity
          */
         function initExperiment(experiment, withoutCheckVersion) {
             var restoredExperiment = EntitiesCache.get($stateParams);
