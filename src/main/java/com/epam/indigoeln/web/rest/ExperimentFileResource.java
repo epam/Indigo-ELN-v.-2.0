@@ -17,15 +17,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -62,11 +57,10 @@ public class ExperimentFileResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all experiment files (with paging).", produces = "application/json")
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Identifier of the experiment to get files for.") @RequestParam String experimentId,
-            @ApiParam("Paging data.") Pageable pageable)
+            @ApiParam("Identifier of the experiment to get files for.") @RequestParam String experimentId)
             throws URISyntaxException {
         LOGGER.debug("REST request to get files's metadata for experiment: {}", experimentId);
-        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId, pageable);
+        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId);
         String urlParameter = "experimentId=" + experimentId;
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
