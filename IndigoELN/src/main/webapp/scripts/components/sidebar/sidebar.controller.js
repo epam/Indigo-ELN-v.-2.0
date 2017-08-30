@@ -387,7 +387,7 @@
         function updateTreeForExperiments(event, data) {
             var project = null,
                 notebook = null;
-            vm.projects = vm.myBookmarks.projects;
+            vm.projects = vm.myBookmarks.projects || vm.allProjects.projects;
             project = getTreeItemById(vm.projects, data.projectId);
             notebook = getTreeItemById(project.children, data.notebookId);
 
