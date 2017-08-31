@@ -13,6 +13,7 @@
 
         function init() {
             vm.page = 1;
+            vm.itemPerPage = 7;
             vm.loadAll = loadAll;
             vm.loadPage = loadPage;
             vm.upload = upload;
@@ -27,19 +28,21 @@
         function loadAll() {
             UploaderService.query({
                 projectId: params.projectId,
-                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId,
-                page: vm.page - 1,
-                size: 20
+                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId
             }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
-                vm.totalItems = headers('X-Total-Count');
                 vm.files = result;
+                makePages(vm.files);
             });
+        }
+
+        function makePages(files) {
+            vm.totalItems = files.length;
+            vm.filesPerPage = _.chunk(files, vm.itemPerPage);
         }
 
         function loadPage(page) {
             vm.page = page;
-            vm.loadAll();
         }
 
         function upload() {
@@ -64,7 +67,8 @@
                     }
                 }
             }).result.then(function(result) {
-                vm.files = _.union(vm.files, result);
+                vm.files = _.union(result, vm.files);
+                makePages(vm.files);
                 if (vm.files.length) {
                     vm.onChanged({files: vm.files});
                 }
@@ -90,22 +94,14 @@
                 }
             }).result.then(function(file) {
                 vm.files = _.without(vm.files, file);
+                makePages(vm.files);
                 FileUploaderCash.removeFile(file);
                 notifyService.success('File was successfully deleted');
             });
         }
 
         function search() {
-            UploaderService.query({
-                projectId: params.projectId,
-                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId,
-                page: vm.page - 1,
-                size: 5
-            }, function(result, headers) {
-                vm.links = ParseLinks.parse(headers('link'));
-                vm.totalItems = headers('X-Total-Count');
-                vm.files = $filter('filter')(result, vm.searchText);
-            });
+            makePages($filter('filter')(vm.files, vm.searchText));
         }
     }
 })();

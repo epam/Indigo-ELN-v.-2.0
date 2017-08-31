@@ -26,7 +26,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="file in vm.files track by file.id">
+            <tr ng-repeat="file in vm.filesPerPage[vm.page - 1] track by file.id">
                 <td ng-bind="file.filename"></td>
                 <td ng-bind="file.author.login  || file.author.firstName"></td>
                 <td ng-bind="file.length | prettyBytes"></td>
@@ -50,7 +50,7 @@
     </div>
     <div class="text-center">
         <uib-pagination class="pagination-sm" total-items="vm.totalItems" ng-model="vm.page"
-                        ng-change="vm.loadAll()"></uib-pagination>
+                        ng-change="vm.loadPage(vm.page)" items-per-page="vm.itemPerPage"></uib-pagination>
     </div>
 </div>
 
