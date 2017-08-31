@@ -14,6 +14,7 @@
                 template: '=',
                 isReadonly: '=',
                 model: '=',
+                users: '=',
                 experiment: '=',
                 experimentForm: '=',
                 saveExperimentFn: '&',

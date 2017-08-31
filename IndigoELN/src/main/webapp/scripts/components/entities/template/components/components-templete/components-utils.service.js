@@ -5,7 +5,8 @@ angular
 /* @ngInject */
 function componentsUtilsFactory(Principal, Components) {
     return {
-        initComponents: initComponents
+        initComponents: initComponents,
+        getUsersById: getUsersById
     };
 
     function initComponents(components, templates) {
@@ -40,7 +41,7 @@ function componentsUtilsFactory(Principal, Components) {
         if (isExist) {
             _.defaultsDeep(
                 components, {
-                    conceptDetails: {experimentCreator: {name: Principal.getIdentity().fullName}}
+                    conceptDetails: {experimentCreator: Principal.getIdentity().id}
                 }
             );
         }
@@ -83,7 +84,7 @@ function componentsUtilsFactory(Principal, Components) {
                     reactionDetails: {
                         batchOwner: [],
                         coAuthors: [],
-                        experimentCreator: {name: Principal.getIdentity().fullName}
+                        experimentCreator: Principal.getIdentity().id
                     }
                 });
         }
@@ -99,5 +100,11 @@ function componentsUtilsFactory(Principal, Components) {
                     }
                 });
         }
+    }
+
+    function getUsersById(ids, users) {
+        return _.map(ids, function(id) {
+            return _.find(users, {id: id});
+        });
     }
 }
