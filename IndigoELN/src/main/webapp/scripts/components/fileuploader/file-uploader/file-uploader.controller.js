@@ -4,7 +4,8 @@
         .controller('FileUploaderController', FileUploaderController);
 
     function FileUploaderController($uibModal, $filter, $stateParams, FileUploaderCash,
-                                    ParseLinks, notifyService, ProjectFileUploaderService, ExperimentFileUploaderService) {
+                                    ParseLinks, notifyService, ProjectFileUploaderService,
+                                    ExperimentFileUploaderService, $timeout) {
         var vm = this;
         var params = $stateParams;
         var UploaderService = params.experimentId ? ExperimentFileUploaderService : ProjectFileUploaderService;
@@ -12,13 +13,16 @@
         init();
 
         function init() {
-            vm.page = 1;
-            vm.itemPerPage = 7;
+            vm.pagination = {
+                page: 1,
+                pageSize: 10
+            };
+
             vm.loadAll = loadAll;
-            vm.loadPage = loadPage;
             vm.upload = upload;
             vm.deleteFile = deleteFile;
             vm.search = search;
+            vm.onPageChanged = onPageChanged;
 
             if (params.projectId) {
                 vm.loadAll();
@@ -32,17 +36,8 @@
             }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.files = result;
-                makePages(vm.files);
+                updateRowsForDisplay(vm.files);
             });
-        }
-
-        function makePages(files) {
-            vm.totalItems = files.length;
-            vm.filesPerPage = _.chunk(files, vm.itemPerPage);
-        }
-
-        function loadPage(page) {
-            vm.page = page;
         }
 
         function upload() {
@@ -68,7 +63,7 @@
                 }
             }).result.then(function(result) {
                 vm.files = _.union(result, vm.files);
-                makePages(vm.files);
+                updateRowsForDisplay(vm.files);
                 if (vm.files.length) {
                     vm.onChanged({files: vm.files});
                 }
@@ -94,14 +89,41 @@
                 }
             }).result.then(function(file) {
                 vm.files = _.without(vm.files, file);
-                makePages(vm.files);
+                updateRowsForDisplay(vm.files);
                 FileUploaderCash.removeFile(file);
                 notifyService.success('File was successfully deleted');
             });
         }
 
         function search() {
-            makePages($filter('filter')(vm.files, vm.searchText));
+            vm.filteredFiles = $filter('filter')(vm.files, vm.searchText);
+        }
+
+        function onPageChanged() {
+            updateRowsForDisplay(vm.rowsForDisplay);
+        }
+
+        function getSkipItems() {
+            return (vm.pagination.page - 1) * vm.pagination.pageSize;
+        }
+        function updateRowsForDisplay(rows) {
+            if (!rows || rows.length === 0) {
+                vm.limit = 0;
+                vm.rowsForDisplay = null;
+                return;
+            }
+            var skip = getSkipItems(rows);
+            if (skip >= rows.length) {
+                updateCurrentPage(rows);
+                skip = getSkipItems();
+            }
+            $timeout(function() {
+                vm.limit = skip + vm.pagination.pageSize;
+                vm.rowsForDisplay = rows;
+            });
+        }
+        function updateCurrentPage(rows) {
+            vm.pagination.page = _.ceil(rows.length / vm.pagination.pageSize);
         }
     }
 })();
