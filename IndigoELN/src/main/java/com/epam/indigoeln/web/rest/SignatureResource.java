@@ -6,18 +6,19 @@ import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
 import com.epam.indigoeln.core.service.exception.DocumentUploadException;
 import com.epam.indigoeln.core.service.experiment.ExperimentService;
+import com.epam.indigoeln.core.service.print.ITextPrintService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
+import com.epam.indigoeln.web.rest.dto.print.PrintRequest;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -30,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -49,6 +49,8 @@ public class SignatureResource {
     private UserService userService;
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ITextPrintService iTextPrintService;
 
     @ApiOperation(value = "Returns reasons.", produces = "application/json")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
@@ -86,11 +88,12 @@ public class SignatureResource {
             @ApiParam("Signature template.") @RequestParam("templateId") String templateId,
             @ApiParam("Experiment id.") @RequestParam("experimentId") String experimentId,
             @ApiParam("Notebook id.") @RequestParam("notebookId") String notebookId,
-            @ApiParam("Project id.") @RequestParam("projectId") String projectId) throws IOException {
+            @ApiParam("Project id.") @RequestParam("projectId") String projectId,
+            @ApiParam("Print params.") PrintRequest printRequest) throws IOException {
 
-        // upload file to indigo signature service
-        File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
-        String result = signatureService.uploadDocument(templateId, fileName, FileUtils.readFileToByteArray(file));
+        User user = userService.getUserWithAuthorities();
+        byte[] bytes = iTextPrintService.generateExperimentPdf(projectId, notebookId, experimentId, printRequest, user);
+        String result = signatureService.uploadDocument(templateId, fileName, bytes);
 
         // extract uploaded document id
         String documentId = objectMapper.readValue(result, JsonNode.class).get("id").asText();
@@ -99,8 +102,6 @@ public class SignatureResource {
             throw DocumentUploadException.createFailedUploading(experimentId);
         }
 
-        // set document id to experiment and update status
-        User user = userService.getUserWithAuthorities();
         ExperimentDTO experimentDto = experimentService.getExperiment(projectId, notebookId, experimentId, user);
         experimentDto.setDocumentId(documentId);
         experimentDto.setStatus(ExperimentStatus.SUBMITTED);
