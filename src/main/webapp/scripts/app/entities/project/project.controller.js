@@ -236,8 +236,7 @@
         }
 
         function onSaveSuccess(result) {
-            var tabName = $state.$current.data.tab.name;
-            EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
+            EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
             $timeout(function() {
                 $rootScope.$broadcast('project-created', {
                     id: result.id
@@ -246,6 +245,7 @@
                     projectId: result.id
                 });
             });
+            EntitiesCache.removeByParams($stateParams);
         }
 
         function onSaveError(result) {
