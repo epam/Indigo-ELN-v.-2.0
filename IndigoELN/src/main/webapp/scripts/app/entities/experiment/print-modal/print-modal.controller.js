@@ -5,7 +5,7 @@
 
     /* @ngInject */
     function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components,
-                                  EntitiesBrowser, checkedComponents) {
+                                  EntitiesBrowser, componentsUtils) {
         var vm = this;
         var resource;
 
@@ -55,20 +55,18 @@
         function buildComponentItem(component) {
             return {
                 id: component.field,
-                value: component ? component.name : 'Unknown',
-                isChecked: checkedComponents[component.field]
+                value: component ? component.name : 'Unknown'
             };
         }
+
         // this will not work for compounds. Need to ask Backend to support it properly
         function initFromTemplate(experiment) {
             var tabs = _.get(experiment, 'template.templateContent');
-            _.each(tabs, function(tab) {
-                _.each(tab.components, function(comp) {
-                    var component = _.find(Components, {id: comp.id});
-                    if (component.isPrint) {
-                        vm.components.push(buildComponentItem(component));
-                    }
-                });
+
+            _.each(componentsUtils.getComponentsFromTemplateContent(tabs), function(component) {
+                if (Components[component.field].isPrint) {
+                    vm.components.push(buildComponentItem(component));
+                }
             });
             vm.hasAttachments = !!_.find(vm.components, {id: 'attachments'});
         }
