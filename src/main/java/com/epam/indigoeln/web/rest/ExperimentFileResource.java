@@ -4,6 +4,7 @@ import com.epam.indigoeln.IndigoRuntimeException;
 import com.epam.indigoeln.core.model.User;
 import com.epam.indigoeln.core.service.file.FileService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.FileDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.epam.indigoeln.web.rest.util.PaginationUtil;
@@ -57,11 +58,13 @@ public class ExperimentFileResource {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns all experiment files (with paging).", produces = "application/json")
     public ResponseEntity<List<FileDTO>> getAllFiles(
-            @ApiParam("Identifier of the experiment to get files for.") @RequestParam String experimentId)
-            throws URISyntaxException {
-        LOGGER.debug("REST request to get files's metadata for experiment: {}", experimentId);
-        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(experimentId);
-        String urlParameter = "experimentId=" + experimentId;
+            @ApiParam("Project id") @RequestParam String experimentId,
+            @ApiParam("Notebook id") @RequestParam String notebookId,
+            @ApiParam("Experiment id") @RequestParam String projectId)throws URISyntaxException {
+        String fullId = SequenceIdUtil.buildFullId(projectId, notebookId, experimentId);
+        LOGGER.debug("REST request to get files's metadata for experiment: {}", fullId);
+        Page<GridFSDBFile> page = fileService.getAllFilesByExperimentId(fullId);
+        String urlParameter = "projectId=" + projectId + "&notebookId=" + notebookId + "&experimentId=" + experimentId;
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, URL_MAPPING + "?" + urlParameter);
         List<FileDTO> fileDTOs = page.getContent().stream().map(FileDTO::new).collect(Collectors.toList());
