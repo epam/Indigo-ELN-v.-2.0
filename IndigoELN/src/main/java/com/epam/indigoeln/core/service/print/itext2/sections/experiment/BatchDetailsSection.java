@@ -22,7 +22,7 @@ public class BatchDetailsSection extends BasePdfSectionWithSimpleTitle<BatchDeta
         PdfPTable table = TableFactory.createDefaultTable(headers, columnWidth, width, Element.ALIGN_LEFT);
 
         PdfPTableHelper pdfPTableHelper = new PdfPTableHelper(table);
-        pdfPTableHelper.addKeyValueCellsNoBold("Registered Date", FormatUtils.format(model.getRegistrationDate()));
+        pdfPTableHelper.addKeyValueCellsNoBold("Registered Date", FormatUtils.formatBatchDetails(model.getRegistrationDate()));
         pdfPTableHelper.addKeyValueCellsNoBold("Structure Comments", model.getStructureComments());
         pdfPTableHelper.addKeyValueCellsNoBold("Compound Source", model.getSource());
         pdfPTableHelper.addKeyValueCellsNoBold("Source Detail", model.getSourceDetail());
