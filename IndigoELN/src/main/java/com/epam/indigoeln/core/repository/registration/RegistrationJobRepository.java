@@ -1,7 +1,7 @@
 package com.epam.indigoeln.core.repository.registration;
 
 import com.epam.indigoeln.core.model.RegistrationJob;
-import com.epam.indigoeln.core.service.registration.RegistrationService;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -23,7 +23,7 @@ public class RegistrationJobRepository {
     public RegistrationJob findOneForCheck() {
         return mongoTemplate.findAndModify(
                 Query.query(Criteria.where("registrationStatus").is(RegistrationStatus.Status.IN_PROGRESS.toString())
-                        .and("handledBy").is(RegistrationService.getHostName())),
+                        .and("handledBy").is(WebSocketUtil.getHostName())),
                 Update.update("registrationStatus", RegistrationStatus.Status.IN_CHECK.toString()),
                 RegistrationJob.class);
     }

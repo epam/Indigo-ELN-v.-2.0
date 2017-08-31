@@ -2,6 +2,7 @@ package com.epam.indigoeln.core.repository.signature;
 
 import com.epam.indigoeln.core.model.ExperimentStatus;
 import com.epam.indigoeln.core.model.SignatureJob;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -22,7 +23,8 @@ public class SignatureJobRepository {
 
     public SignatureJob findOneForCheck() {
         return mongoTemplate.findAndModify(
-                Query.query(Criteria.where("experimentStatus").is(ExperimentStatus.SUBMITTED)),
+                Query.query(Criteria.where("experimentStatus").is(ExperimentStatus.SUBMITTED)
+                .and("handledBy").is(WebSocketUtil.getHostName())),
                 Update.update("experimentStatus", ExperimentStatus.IN_CHECK),
                 SignatureJob.class);
     }

@@ -9,6 +9,7 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
 import com.epam.indigoeln.core.util.SequenceIdUtil;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -111,6 +112,7 @@ public class SignatureResource {
         SignatureJob signatureJob = new SignatureJob();
         signatureJob.setExperimentId(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
         signatureJob.setExperimentStatus(ExperimentStatus.SUBMITTED);
+        signatureJob.setHandledBy(WebSocketUtil.getHostName());
         signatureJobRepository.save(signatureJob);
 
         return ResponseEntity.ok(result);

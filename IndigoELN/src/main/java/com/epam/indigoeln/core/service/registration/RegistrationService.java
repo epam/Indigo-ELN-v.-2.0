@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.registration.*;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -119,22 +118,13 @@ public class RegistrationService {
         registrationJob.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS);
         registrationJob.setRegistrationJobId(jobId);
         registrationJob.setRegistrationRepositoryId(id);
-        registrationJob.setHandledBy(getHostName());
+        registrationJob.setHandledBy(WebSocketUtil.getHostName());
 
         registrationJobRepository.save(registrationJob);
 
         template.convertAndSend("/topic/registration_status", fullBatchNumbers.stream().collect(Collectors.toMap(fbn -> fbn, fbn -> RegistrationStatus.inProgress())));
 
         return jobId;
-    }
-
-    public static String getHostName(){
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            LOGGER.trace("Error getting host name", e);
-            return "Unknown";
-        }
     }
 
     public RegistrationStatus getStatus(String id, String jobId) throws RegistrationException {
