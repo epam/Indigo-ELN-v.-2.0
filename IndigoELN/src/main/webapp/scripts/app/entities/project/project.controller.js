@@ -76,7 +76,7 @@
             var version = vm.project.version;
             vm.project = storeData;
 
-            if (_.isDefined(version)) {
+            if (angular.isDefined(version)) {
                 vm.project.version = version;
             }
             EntitiesCache.put($stateParams, vm.project);
@@ -124,6 +124,8 @@
 
                 return $q.resolve();
             }
+
+            console.log('vm.project.name', vm.project.name);
 
             vm.loading = Project.get($stateParams).$promise
                 .then(function(result) {
