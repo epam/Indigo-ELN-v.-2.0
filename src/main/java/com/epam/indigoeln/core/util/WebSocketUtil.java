@@ -4,10 +4,14 @@ import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.Notebook;
 import com.epam.indigoeln.core.model.Project;
 import com.epam.indigoeln.core.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +26,7 @@ public class WebSocketUtil {
     private static final String USER = "user";
     private static final String VERSION = "version";
     private static final String DESTINATION = "/topic/entity_updated";
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketUtil.class);
 
     @Autowired
     public WebSocketUtil(SimpMessagingTemplate template) {
@@ -59,5 +64,14 @@ public class WebSocketUtil {
         data.put(ENTITY, entity);
         data.put(VERSION, experiment.getVersion());
         template.convertAndSend(DESTINATION, data);
+    }
+
+    public static String getHostName(){
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            LOGGER.trace("Error getting host name", e);
+            return "Unknown";
+        }
     }
 }
