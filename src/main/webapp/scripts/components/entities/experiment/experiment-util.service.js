@@ -4,7 +4,7 @@ angular
 
 /* @ngInject */
 function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
-                        SignatureDocument) {
+                        SignatureDocument, componentsUtils) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -82,33 +82,26 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         return Experiment.update({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experimentForSave, function(result) {
-            onChangeStatusSuccess(result, 'Open');
-        }).$promise;
+        }, experimentForSave).$promise;
     }
 
     function completeExperiment(experiment, params, notebookName) {
-        var defer = $q.defer();
-        openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
+        return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
             experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
             var experimentForSave = _.extend({}, experiment, {
                 status: 'Completed'
             });
-            Experiment.update({
+
+            return Experiment.update({
                 projectId: params.projectId,
                 notebookId: params.notebookId
-            }, experimentForSave, function(result) {
-                onChangeStatusSuccess(result, 'Completed');
-                defer.resolve();
-            });
+            }, experimentForSave).$promise;
         });
-
-        return defer.promise;
     }
 
     function completeExperimentAndSign(experiment, params, notebookName, experimentTitle) {
         return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
-            return selectTemplate(experimentTitle, params);
+            return selectTemplate(experiment.template.templateContent, experimentTitle, params);
         });
     }
 
@@ -131,13 +124,7 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         });
     }
 
-    function onChangeStatusSuccess(result, status) {
-        var statuses = {};
-        statuses[result.fullId] = status;
-        $rootScope.$broadcast('experiment-status-changed', statuses);
-    }
-
-    function selectTemplate(filename, stateParams) {
+    function selectTemplate(componentTemplates, filename, stateParams) {
         return SignatureTemplates.query({})
             .$promise
             .then(function(result) {
@@ -156,9 +143,12 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                     .result
                     .then(function(template) {
                         if (template) {
+                            var templates = componentsUtils.getComponentsFromTemplateContent(componentTemplates);
+
                             return SignatureDocument.upload(
                                 {
-                                    fileName: filename,
+                                    fileName: filename + '.pdf',
+                                    components: getComponentsForPrint(templates),
                                     templateId: template.id,
                                     experimentId: stateParams.experimentId,
                                     notebookId: stateParams.notebookId,
@@ -169,6 +159,10 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
                         return $q.reject();
                     });
             });
+    }
+
+    function getComponentsForPrint(componentTemplates) {
+        return _.map(componentTemplates, 'field').join().replace('attachments', 'attachments&includeAttachments=true');
     }
 }
 
