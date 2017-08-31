@@ -12,6 +12,7 @@
                 model: '=',
                 experiment: '=',
                 isReadonly: '=',
+                users: '=',
                 onChanged: '&'
             },
             controller: IndigoConceptDetailsController,
@@ -20,7 +21,7 @@
         };
 
         /* @ngInject */
-        function IndigoConceptDetailsController($state, $q, Principal, Dictionary, Users, notifyService) {
+        function IndigoConceptDetailsController($state, $q, Dictionary, notifyService, componentsUtils) {
             var vm = this;
             var deferred;
 
@@ -30,12 +31,19 @@
             vm.onLinkedExperimentClick = onLinkedExperimentClick;
             vm.onAddLinkedExperiment = onAddLinkedExperiment;
             vm.getExperiments = getExperiments;
+            vm.updateIds = updateIds;
 
             init();
 
             function init() {
-                Users.get().then(function(dictionary) {
-                    vm.users = dictionary.words;
+                vm.experimentCreator = _.find(vm.users, {id: vm.model.conceptDetails.experimentCreator});
+                vm.coAuthors = componentsUtils.getUsersById(vm.model.conceptDetails.coAuthors, vm.users);
+                vm.designers = componentsUtils.getUsersById(vm.model.conceptDetails.designers, vm.users);
+            }
+
+            function updateIds(property, selectedValues) {
+                vm.model.conceptDetails[property] = _.map(selectedValues, function(value) {
+                    return value.id;
                 });
             }
 

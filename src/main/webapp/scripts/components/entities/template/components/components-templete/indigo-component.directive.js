@@ -6,6 +6,7 @@
     /* @ngInject */
     function indigoComponent($compile, Components) {
         var defaultAttributes = ' model="vm.ComponentsCtrl.model"' +
+            ' users="vm.ComponentsCtrl.users"' +
             ' reactants="vm.ComponentsCtrl.reactants"' +
             ' reactants-trigger="vm.ComponentsCtrl.reactantsTrigger"' +
             ' experiment="vm.ComponentsCtrl.experiment"' +
