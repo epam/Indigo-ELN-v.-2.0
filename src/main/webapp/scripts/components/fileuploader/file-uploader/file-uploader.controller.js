@@ -21,7 +21,7 @@
             vm.loadAll = loadAll;
             vm.upload = upload;
             vm.deleteFile = deleteFile;
-            vm.search = search;
+            vm.search = _.debounce(search, 300);
             vm.onPageChanged = onPageChanged;
 
             if (params.projectId) {
