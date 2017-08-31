@@ -32,7 +32,8 @@
         function loadAll() {
             UploaderService.query({
                 projectId: params.projectId,
-                experimentId: params.projectId + '-' + params.notebookId + '-' + params.experimentId
+                notebookId: params.notebookId,
+                experimentId: params.experimentId
             }, function(result, headers) {
                 vm.links = ParseLinks.parse(headers('link'));
                 vm.files = result;
