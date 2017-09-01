@@ -82,7 +82,6 @@
                                 return reactants.length ? reactants : schemeReactants;
                             },
                             onStoichRowsChanged: function() {
-                                // TODO: it imitates function expression of component
                                 return function(StoichRows) {
                                     $rootScope.$broadcast('stoich-rows-changed', StoichRows);
                                 };
