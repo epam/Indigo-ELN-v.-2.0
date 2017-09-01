@@ -150,7 +150,6 @@ function StructureSchemeController($scope, $q, $http, $uibModal, notifyService, 
                     return vm.structureModel.molfile;
                 },
                 editor: function() {
-                    // TODO: get editor name from user's settings; ketcher by default
                     return 'KETCHER';
                 }
             }
