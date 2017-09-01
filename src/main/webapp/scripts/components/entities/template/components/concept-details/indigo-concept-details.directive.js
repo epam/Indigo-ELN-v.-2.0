@@ -12,7 +12,6 @@
                 model: '=',
                 experiment: '=',
                 isReadonly: '=',
-                users: '=',
                 onChanged: '&'
             },
             controller: IndigoConceptDetailsController,
@@ -21,10 +20,10 @@
         };
 
         /* @ngInject */
-        function IndigoConceptDetailsController($state, $q, Dictionary, notifyService, componentsUtils) {
+        function IndigoConceptDetailsController($scope, $state, $q, Dictionary, notifyService, componentsUtils, Users) {
             var vm = this;
             var deferred;
-
+            var userPromise;
             vm.experiment = vm.experiment || {};
             vm.model = vm.model || {};
 
@@ -36,9 +35,32 @@
             init();
 
             function init() {
-                vm.experimentCreator = _.find(vm.users, {id: vm.model.conceptDetails.experimentCreator});
-                vm.coAuthors = componentsUtils.getUsersById(vm.model.conceptDetails.coAuthors, vm.users);
-                vm.designers = componentsUtils.getUsersById(vm.model.conceptDetails.designers, vm.users);
+                userPromise = Users.get().then(function(dictionary) {
+                    vm.users = dictionary.words;
+                });
+
+                bindEvents();
+            }
+
+            function bindEvents() {
+                $scope.$watch('vm.model.conceptDetails.experimentCreator', function() {
+                    userPromise.then(function() {
+                        vm.experimentCreator = _.find(vm.users, {id: vm.model.conceptDetails.experimentCreator});
+                    });
+                });
+
+                $scope.$watch('vm.model.conceptDetails.coAuthors', function() {
+                    userPromise.then(function() {
+                        vm.coAuthors = componentsUtils.getUsersById(vm.model.conceptDetails.coAuthors, vm.users);
+                    });
+
+                });
+
+                $scope.$watch('vm.model.conceptDetails.designers', function() {
+                    userPromise.then(function() {
+                        vm.designers = componentsUtils.getUsersById(vm.model.conceptDetails.designers, vm.users);
+                    });
+                });
             }
 
             function updateIds(property, selectedValues) {

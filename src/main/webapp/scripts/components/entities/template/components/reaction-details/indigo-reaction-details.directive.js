@@ -14,15 +14,15 @@
             scope: {
                 model: '=',
                 experiment: '=',
-                isReadonly: '=',
-                users: '='
+                isReadonly: '='
             }
         };
 
         /* @ngInject */
-        function indigoReactionDetailsController($state, $q, Dictionary, notifyService, componentsUtils) {
+        function indigoReactionDetailsController($scope, $state, $q, Dictionary, notifyService, componentsUtils, Users) {
             var vm = this;
             var deferred;
+            var userPromise;
 
             vm.model = vm.model || {};
             vm.model.reactionDetails = vm.model.reactionDetails || {};
@@ -35,9 +35,32 @@
             init();
 
             function init() {
-                vm.experimentCreator = _.find(vm.users, {id: vm.model.reactionDetails.experimentCreator});
-                vm.batchOwner = componentsUtils.getUsersById(vm.model.reactionDetails.batchOwner, vm.users);
-                vm.coAuthors = componentsUtils.getUsersById(vm.model.reactionDetails.coAuthors, vm.users);
+                userPromise = Users.get().then(function(dictionary) {
+                    vm.users = dictionary.words;
+                });
+
+                bindEvents();
+            }
+
+            function bindEvents() {
+                $scope.$watch('vm.model.reactionDetails.experimentCreator', function() {
+                    userPromise.then(function() {
+                        vm.experimentCreator = _.find(vm.users, {id: vm.model.reactionDetails.experimentCreator});
+                    });
+                });
+
+                $scope.$watch('vm.model.reactionDetails.batchOwner', function() {
+                    userPromise.then(function() {
+                        vm.batchOwner = componentsUtils.getUsersById(vm.model.reactionDetails.batchOwner, vm.users);
+                    });
+
+                });
+
+                $scope.$watch('vm.model.reactionDetails.coAuthors', function() {
+                    userPromise.then(function() {
+                        vm.coAuthors = componentsUtils.getUsersById(vm.model.reactionDetails.coAuthors, vm.users);
+                    });
+                });
             }
 
             function updateIds(property, selectedValues) {

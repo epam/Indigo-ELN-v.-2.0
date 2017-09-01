@@ -102,9 +102,17 @@ function componentsUtilsFactory(Principal, Components) {
         }
     }
 
-    function getUsersById(ids, users) {
-        return _.map(ids, function(id) {
-            return _.find(users, {id: id});
+    function getUsersById(ids, AllUsers) {
+        var users = [];
+        var tempIds = _.keyBy(ids);
+
+        _.every(AllUsers, function(user) {
+            if (tempIds[user.id]) {
+                users.push(user);
+            }
+            return users.length !== ids.length;
         });
+
+        return users;
     }
 }

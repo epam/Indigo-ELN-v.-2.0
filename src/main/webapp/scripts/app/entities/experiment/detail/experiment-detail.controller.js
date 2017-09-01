@@ -25,35 +25,28 @@
             updateRecovery = autorecoveryHelper.getUpdateRecoveryDebounce($stateParams);
             vm.stateData = $state.current.data;
             vm.isCollapsed = true;
+            vm.loading = getPageInfo().then(function(response) {
+                initComponents(response.experiment);
+                tabName = getExperimentName(response.notebook, response.experiment);
+                params = {
+                    projectId: response.projectId,
+                    notebookId: response.notebookId,
+                    experimentId: response.experimentId
+                };
+                isContentEditor = response.isContentEditor;
+                hasEditAuthority = response.hasEditAuthority;
+                vm.notebook = response.notebook;
+                entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
-            Users.get(true).then(function(dictionary) {
-                return dictionary.words;
-            }).then(function(users) {
-                vm.users = users;
-                vm.loading = getPageInfo().then(function(response) {
+                initExperiment(response.experiment).then(function() {
+                    updateOriginal(response.experiment);
+                    EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + response.experiment.name, $stateParams);
+                    initPermissions();
+                    FileUploaderCash.setFiles([]);
 
-                    initComponents(response.experiment);
-                    tabName = getExperimentName(response.notebook, response.experiment);
-                    params = {
-                        projectId: response.projectId,
-                        notebookId: response.notebookId,
-                        experimentId: response.experimentId
-                    };
-                    isContentEditor = response.isContentEditor;
-                    hasEditAuthority = response.hasEditAuthority;
-                    vm.notebook = response.notebook;
-                    entityTitle = response.notebook.name + ' ' + response.experiment.name;
-
-                    initExperiment(response.experiment).then(function() {
-                        updateOriginal(response.experiment);
-                        EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + response.experiment.name, $stateParams);
-                        initPermissions();
-                        FileUploaderCash.setFiles([]);
-
-                        if (response.experiment.version > 1 || !response.experiment.lastVersion) {
-                            tabName += ' v' + response.experiment.version;
-                        }
-                    });
+                    if (response.experiment.version > 1 || !response.experiment.lastVersion) {
+                        tabName += ' v' + response.experiment.version;
+                    }
                 });
             });
 
