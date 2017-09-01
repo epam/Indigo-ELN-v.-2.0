@@ -19,15 +19,14 @@
         };
 
         /* @ngInject */
-        function indigoEntitiesControlsController($state, EntitiesBrowser, modalHelper, ProjectsForSubCreation) {
+        function indigoEntitiesControlsController($state, EntitiesBrowser, modalHelper, ProjectsForSubCreation, appRoles) {
             var vm = this;
-
-            // TODO: move it ti file
-            vm.CONTENT_EDITOR = 'CONTENT_EDITOR';
-            vm.PROJECT_CREATOR = 'PROJECT_CREATOR';
-            vm.NOTEBOOK_CREATOR = 'NOTEBOOK_CREATOR';
-            vm.EXPERIMENT_CREATOR = 'EXPERIMENT_CREATOR';
-            vm.GLOBAL_SEARCH = 'GLOBAL_SEARCH';
+            
+            vm.CONTENT_EDITOR = appRoles.CONTENT_EDITOR;
+            vm.PROJECT_CREATOR = appRoles.PROJECT_CREATOR;
+            vm.NOTEBOOK_CREATOR = appRoles.NOTEBOOK_CREATOR;
+            vm.EXPERIMENT_CREATOR = appRoles.EXPERIMENT_CREATOR;
+            vm.GLOBAL_SEARCH = appRoles.GLOBAL_SEARCH;
             vm.PROJECT_CREATORS = [vm.CONTENT_EDITOR, vm.PROJECT_CREATOR].join(',');
             vm.NOTEBOOK_CREATORS = [vm.CONTENT_EDITOR, vm.NOTEBOOK_CREATOR].join(',');
             vm.EXPERIMENT_CREATORS = [vm.CONTENT_EDITOR, vm.EXPERIMENT_CREATOR].join(',');
