@@ -54,6 +54,16 @@ public class MongoExt {
                 : StreamEx.empty();
     }
 
+    public StreamEx<String> streamStrings(String field) {
+        BasicDBList array = Optional
+                .ofNullable(origin.get(field))
+                .map(BasicDBList.class::cast)
+                .orElse(null);
+        return Objects.nonNull(array)
+                ? StreamEx.of(array).select(String.class)
+                : StreamEx.empty();
+    }
+
     /**
      * example:
      * json: {array: [{field: "1"}, {field: "2"}, {field: "3"}]}

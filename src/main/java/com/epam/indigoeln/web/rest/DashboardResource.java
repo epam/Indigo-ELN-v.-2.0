@@ -6,6 +6,7 @@ import com.epam.indigoeln.core.model.*;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.notebook.NotebookRepository;
 import com.epam.indigoeln.core.repository.project.ProjectRepository;
+import com.epam.indigoeln.core.repository.user.UserRepository;
 import com.epam.indigoeln.core.service.print.itext2.utils.MongoExt;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
@@ -58,6 +59,8 @@ public class DashboardResource {
     private UserService userService;
     @Autowired
     private DashboardProperties dashboardProperties;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * GET  /dashboard -> Returns dashboard experiments
@@ -228,11 +231,14 @@ public class DashboardResource {
                 u -> new DashboardRowDTO.UserDTO(u.getFirstName(), u.getLastName())
         ).orElse(null));
 
-        List<String> coAuthors = experiment.getComponents().stream()
+        List<String> coAuthorsIds = experiment.getComponents().stream()
                 .filter(c -> REACTION_DETAILS.equals(c.getName()))
                 .map(MongoExt::of)
-                .flatMap(m -> m.streamObjects("coAuthors"))
-                .map(a -> a.getString("name"))
+                .flatMap(m -> m.streamStrings("coAuthors"))
+                .collect(Collectors.toList());
+
+        List<String> coAuthors = userRepository.findAll(coAuthorsIds)
+                .map(User::getFullName)
                 .collect(Collectors.toList());
 
         result.setCoAuthors(coAuthors);
