@@ -19,7 +19,7 @@
         };
 
         /* @ngInject */
-        function indigoReactionDetailsController($scope, $state, $q, Dictionary, notifyService, componentsUtils, Users) {
+        function indigoReactionDetailsController($scope, $state, $q, Dictionary, notifyService, Users) {
             var vm = this;
             var deferred;
             var userPromise;
@@ -51,22 +51,20 @@
 
                 $scope.$watch('vm.model.reactionDetails.batchOwner', function() {
                     userPromise.then(function() {
-                        vm.batchOwner = componentsUtils.getUsersById(vm.model.reactionDetails.batchOwner, vm.users);
+                        vm.batchOwner = Users.getUsersById(vm.model.reactionDetails.batchOwner);
                     });
 
                 });
 
                 $scope.$watch('vm.model.reactionDetails.coAuthors', function() {
                     userPromise.then(function() {
-                        vm.coAuthors = componentsUtils.getUsersById(vm.model.reactionDetails.coAuthors, vm.users);
+                        vm.coAuthors = Users.getUsersById(vm.model.reactionDetails.coAuthors);
                     });
                 });
             }
 
             function updateIds(property, selectedValues) {
-                vm.model.reactionDetails[property] = _.map(selectedValues, function(value) {
-                    return value.id;
-                });
+                vm.model.reactionDetails[property] = _.map(selectedValues, 'id');
             }
 
             function onLinkedExperimentClick(tag) {
