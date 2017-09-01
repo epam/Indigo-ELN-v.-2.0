@@ -14,6 +14,7 @@
                 indigoColumn: '=',
                 indigoRow: '=',
                 indigoRowIndex: '=',
+                isEditableField: '=',
                 isEditableColumn: '&',
                 toggleEditableColumn: '&',
                 setClosePrevious: '&',
