@@ -5,8 +5,7 @@ angular
 /* @ngInject */
 function componentsUtilsFactory(Principal, Components) {
     return {
-        initComponents: initComponents,
-        getUsersById: getUsersById
+        initComponents: initComponents
     };
 
     function initComponents(components, templates) {
@@ -100,19 +99,5 @@ function componentsUtilsFactory(Principal, Components) {
                     }
                 });
         }
-    }
-
-    function getUsersById(ids, AllUsers) {
-        var users = [];
-        var tempIds = _.keyBy(ids);
-
-        _.every(AllUsers, function(user) {
-            if (tempIds[user.id]) {
-                users.push(user);
-            }
-            return users.length !== ids.length;
-        });
-
-        return users;
     }
 }

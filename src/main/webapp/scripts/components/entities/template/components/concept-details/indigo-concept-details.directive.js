@@ -20,7 +20,7 @@
         };
 
         /* @ngInject */
-        function IndigoConceptDetailsController($scope, $state, $q, Dictionary, notifyService, componentsUtils, Users) {
+        function IndigoConceptDetailsController($scope, $state, $q, Dictionary, notifyService, Users) {
             var vm = this;
             var deferred;
             var userPromise;
@@ -51,22 +51,20 @@
 
                 $scope.$watch('vm.model.conceptDetails.coAuthors', function() {
                     userPromise.then(function() {
-                        vm.coAuthors = componentsUtils.getUsersById(vm.model.conceptDetails.coAuthors, vm.users);
+                        vm.coAuthors = Users.getUsersById(vm.model.conceptDetails.coAuthors);
                     });
 
                 });
 
                 $scope.$watch('vm.model.conceptDetails.designers', function() {
                     userPromise.then(function() {
-                        vm.designers = componentsUtils.getUsersById(vm.model.conceptDetails.designers, vm.users);
+                        vm.designers = Users.getUsersById(vm.model.conceptDetails.designers);
                     });
                 });
             }
 
             function updateIds(property, selectedValues) {
-                vm.model.conceptDetails[property] = _.map(selectedValues, function(value) {
-                    return value.id;
-                });
+                vm.model.conceptDetails[property] = _.map(selectedValues, 'id');
             }
 
             function onLinkedExperimentClick(tag) {
