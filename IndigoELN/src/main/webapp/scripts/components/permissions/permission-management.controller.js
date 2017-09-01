@@ -97,8 +97,6 @@
 
         function ok() {
             $uibModalInstance.close(vm.accessList);
-            // broadcast for activate save button on page
-            $rootScope.$broadcast('activate button', 0);
         }
 
         function clear() {
