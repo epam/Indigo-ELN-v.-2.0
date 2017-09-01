@@ -199,9 +199,6 @@
                 return $q.resolve();
             }
 
-            // TODO: remove - dropped base
-            initComponents(vm.experiment);
-
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
                     EntitiesCache.put($stateParams, result);
