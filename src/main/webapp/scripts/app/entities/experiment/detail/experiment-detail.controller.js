@@ -7,7 +7,7 @@
     function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        componentsUtils, autorecoveryCache, confirmationModal, Users) {
+                                        componentsUtils, autorecoveryCache, confirmationModal) {
         var vm = this;
         var tabName;
         var params;
