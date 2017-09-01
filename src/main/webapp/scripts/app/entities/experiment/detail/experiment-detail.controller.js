@@ -4,7 +4,7 @@
         .controller('ExperimentDetailController', ExperimentDetailController);
 
     /* @ngInject */
-    function ExperimentDetailController($scope, $state, $timeout, $stateParams, Experiment, ExperimentUtil,
+    function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
                                         componentsUtils, autorecoveryCache, confirmationModal) {
@@ -16,7 +16,6 @@
         var hasEditPermission;
         var originalExperiment;
         var updateRecovery;
-        var isChanged;
         var entityTitle;
 
         init();
@@ -50,8 +49,6 @@
                     }
                 });
             });
-
-            vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
 
             vm.save = save;
             vm.completeExperiment = completeExperiment;
@@ -177,15 +174,8 @@
         }
 
         function toggleDirty(isDirty) {
-            isChanged = _.isBoolean(isDirty) ? isDirty : !$scope.experimentForm.$dirty;
-
-            if (isChanged) {
-                $scope.experimentForm.$setDirty();
-            } else {
-                $scope.experimentForm.$setPristine();
-            }
-            vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-            EntitiesBrowser.changeDirtyTab($stateParams, isChanged);
+            vm.isEntityChanged = !!isDirty
+            EntitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
         }
 
         function getSaveService(experimentForSave) {
@@ -195,7 +185,7 @@
         }
 
         function save() {
-            if (!isChanged) {
+            if (!vm.isEntityChanged) {
                 return $q.resolve();
             }
 
@@ -252,7 +242,7 @@
         }
 
         function printExperiment() {
-            if ($scope.experimentForm.$dirty) {
+            if (vm.isEntityChanged) {
                 vm.save(vm.experiment).then(function() {
                     $state.go('entities.experiment-detail.print');
                 });
@@ -322,7 +312,7 @@
             $scope.$on('entity-updated', function(event, data) {
                 vm.loading.then(function() {
                     if (_.isEqual($stateParams, data.entity) && data.version > vm.experiment.version) {
-                        if (isChanged) {
+                        if (vm.isEntityChanged) {
                             confirmationModal
                                 .openEntityVersionsConflictConfirm(entityTitle)
                                 .then(refresh, function() {
@@ -353,14 +343,6 @@
                 }
             }, true);
 
-            $scope.$watch('experimentForm.$dirty', function() {
-                vm.isBtnSaveActive = $scope.experimentForm.$dirty;
-            }, true);
-
-            $scope.$watch('experimentForm', function() {
-                EntitiesBrowser.setCurrentForm($scope.experimentForm);
-            });
-
             $scope.$on('access-list-changed', function() {
                 vm.experiment.accessList = PermissionManagement.getAccessList();
             });
@@ -371,14 +353,6 @@
                     setStatus(experimentStatus);
                     setReadOnly();
                 }
-            });
-
-            // Activate save button when change permission
-            $scope.$on('activate button', function() {
-                $timeout(function() {
-                    vm.isBtnSaveActive = true;
-                    // If put 0, then save button isn't activated
-                }, 10);
             });
 
             $scope.$on('batch-registration-status-changed', function(event, statuses) {
