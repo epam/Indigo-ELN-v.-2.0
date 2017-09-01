@@ -217,14 +217,6 @@
             $scope.$on('access-list-changed', function() {
                 vm.project.accessList = PermissionManagement.getAccessList();
             });
-
-            // Activate save button when change permission
-            $scope.$on('activate button', function() {
-                // If put 0, then save button isn't activated
-                $timeout(function() {
-                    vm.isBtnSaveActive = true;
-                }, 10);
-            });
         }
 
         function onUpdateSuccess(result) {
