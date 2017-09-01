@@ -587,15 +587,6 @@
             return rowResult;
         }
 
-        userPromise.then(function() {
-            vm.batchOwner = Users.getUsersById(vm.model.reactionDetails.batchOwner);
-        });
-
-        Users.getUsersById(vm.model.reactionDetails.batchOwner).then(function(batchOwner) {
-            vm.batchOwner = batchOwner;
-        });
-
-
         function onRowSelected(row) {
             vm.onSelectBatch({batch: row});
         }
