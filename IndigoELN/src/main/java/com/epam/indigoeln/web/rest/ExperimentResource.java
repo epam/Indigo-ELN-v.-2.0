@@ -55,7 +55,7 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.", produces = "application/json")
+    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllExperimentsByPermissions(
@@ -82,7 +82,7 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments -> Returns all experiments of specified notebook for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.", produces = "application/json")
+    @ApiOperation(value = "Returns all experiments, or experiments for specified notebook, which author is current user.")
     @RequestMapping(value = "/notebook-summary", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllExperimentsForNotebookSummary(
@@ -102,7 +102,7 @@ public class ExperimentResource {
      * GET  /notebooks/:notebookId/experiments/all -> Returns all experiments of specified notebook
      * without checking for User permissions
      */
-    @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation", produces = "application/json")
+    @ApiOperation(value = "Returns all experiments of specified notebook for current user for tree representation")
     @RequestMapping(value = "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllExperiments(
@@ -119,7 +119,7 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id -> Returns experiment with specified id according to User permissions
      */
-    @ApiOperation(value = "Returns experiment with specified id according to User permissions.", produces = "application/json")
+    @ApiOperation(value = "Returns experiment with specified id according to User permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ExperimentDTO> getExperiment(
@@ -137,7 +137,7 @@ public class ExperimentResource {
     /**
      * GET  /experiments/:id/batch_number -> Returns batch_number
      */
-    @ApiOperation(value = "Returns batch number.", produces = "application/json")
+    @ApiOperation(value = "Returns batch number.")
     @RequestMapping(value = PATH_ID + "/batch_number", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> getNotebookBatchNumber(
@@ -155,7 +155,7 @@ public class ExperimentResource {
      * POST  /experiments?:notebookId -> Creates experiment with OWNER's permissions for current User
      * as child for specified Notebook
      */
-    @ApiOperation(value = "Creates experiment with OWNER's permissions for current user.", produces = "application/json")
+    @ApiOperation(value = "Creates experiment with OWNER's permissions for current user.")
     @RequestMapping(
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -177,7 +177,7 @@ public class ExperimentResource {
      * POST  /experiments/version?:notebookId -> Creates experiment version with OWNER's permissions for current User
      * as child for specified Notebook
      */
-    @ApiOperation(value = "Creates experiment version with OWNER's permissions for current user.", produces = "application/json")
+    @ApiOperation(value = "Creates experiment version with OWNER's permissions for current user.")
     @RequestMapping(
             path = "/version",
             method = RequestMethod.POST,
@@ -203,7 +203,7 @@ public class ExperimentResource {
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Updates experiment according to permissions.", produces = "application/json")
+    @ApiOperation(value = "Updates experiment according to permissions.")
     public ResponseEntity<ExperimentDTO> updateExperiment(
             @ApiParam("Experiment to update") @RequestBody ExperimentDTO experimentDTO,
             @ApiParam("Project id") @PathVariable String projectId,
@@ -219,7 +219,7 @@ public class ExperimentResource {
     /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
-    @ApiOperation(value = "Removes experiment.", produces = "application/json")
+    @ApiOperation(value = "Removes experiment.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity deleteExperiment(
             @ApiParam("Project id") @PathVariable String projectId,

@@ -21,7 +21,7 @@ public class SignatureJob implements Serializable {
 
     private ExperimentStatus experimentStatus;
     private String experimentId;
-    private String lastHandledBy;
+    private String handledBy;
 
     public String getId() {
         return id;
@@ -47,11 +47,11 @@ public class SignatureJob implements Serializable {
         this.experimentId = experimentId;
     }
 
-    public String getLastHandledBy() {
-        return lastHandledBy;
+    public String getHandledBy() {
+        return handledBy;
     }
 
-    public void setLastHandledBy(String lastHandledBy) {
-        this.lastHandledBy = lastHandledBy;
+    public void setHandledBy(String handledBy) {
+        this.handledBy = handledBy;
     }
 }

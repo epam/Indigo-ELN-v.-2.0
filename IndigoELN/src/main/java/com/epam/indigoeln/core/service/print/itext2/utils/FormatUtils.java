@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -32,10 +33,10 @@ public class FormatUtils {
                 .orElse("");
     }
 
-    public static String format(String date) {
-        if (!StringUtils.isBlank(date)) {
-            TemporalAccessor parse = BATCH_DETAILS_FORMATTER.parse(date);
-            return formatSafe(parse);
+    public static String formatBatchDetails(Date date) {
+        if (date != null) {
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+            return formatSafe(zonedDateTime);
         }
         return StringUtils.EMPTY;
     }

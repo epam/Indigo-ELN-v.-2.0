@@ -33,7 +33,7 @@ public class UserReagentsResource {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "Returns user favourite reagents.", produces = "application/json")
+    @ApiOperation(value = "Returns user favourite reagents.")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<BasicDBList> getUserReagents() {
         LOGGER.debug("REST request to get all user reagents");
@@ -45,7 +45,7 @@ public class UserReagentsResource {
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Saves user favourite reagents.", produces = "application/json")
+    @ApiOperation(value = "Saves user favourite reagents.")
     public ResponseEntity<Void> saveUserReagents(
             @ApiParam("Reagents list.") @RequestBody BasicDBList reagents) {
         LOGGER.debug("REST request to save user reagents: {}", reagents);

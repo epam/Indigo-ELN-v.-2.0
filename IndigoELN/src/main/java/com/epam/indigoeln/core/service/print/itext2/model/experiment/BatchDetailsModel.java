@@ -1,11 +1,13 @@
 package com.epam.indigoeln.core.service.print.itext2.model.experiment;
 
 import com.epam.indigoeln.core.service.print.itext2.model.common.SectionModel;
+
+import java.util.Date;
 import java.util.List;
 
 public class BatchDetailsModel implements SectionModel {
     private String fullNbkBatch;
-    private String registrationDate;
+    private Date registrationDate;
     private String structureComments;
     private String source;
     private String sourceDetail;
@@ -24,7 +26,7 @@ public class BatchDetailsModel implements SectionModel {
         return fullNbkBatch;
     }
 
-    public String getRegistrationDate() {
+    public Date getRegistrationDate() {
         return registrationDate;
     }
 
@@ -85,7 +87,7 @@ public class BatchDetailsModel implements SectionModel {
         return this;
     }
 
-    public BatchDetailsModel setRegistrationDate(String registrationDate) {
+    public BatchDetailsModel setRegistrationDate(Date registrationDate) {
         this.registrationDate = registrationDate;
         return this;
     }

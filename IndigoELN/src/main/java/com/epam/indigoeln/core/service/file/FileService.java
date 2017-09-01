@@ -13,11 +13,13 @@ import com.mongodb.gridfs.GridFSFile;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Optional;
 
 @Service
@@ -41,7 +43,11 @@ public class FileService {
     public Page<GridFSDBFile> getAllFilesByExperimentId(String experimentId) {
         Experiment experiment = Optional.ofNullable(experimentRepository.findOne(experimentId)).
                 orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
-        return fileRepository.findAll(experiment.getFileIds(), new PageRequest(0, experiment.getFileIds().size()));
+        if (experiment.getFileIds().isEmpty()){
+            return new PageImpl<>(Collections.emptyList());
+        }else {
+            return fileRepository.findAll(experiment.getFileIds(), new PageRequest(0, experiment.getFileIds().size()));
+        }
     }
 
     public GridFSDBFile getFileById(String id) {

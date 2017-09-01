@@ -38,20 +38,17 @@
                 vm.notebook = response.notebook;
                 entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
-                initExperiment(response.experiment).then(function() {
+                initExperiment(response.experiment).then(function(experiment) {
                     updateOriginal(response.experiment);
-                    EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + response.experiment.name, $stateParams);
+                    EntitiesBrowser.setCurrentTabTitle(vm.notebook.name + '-' + experiment.name, $stateParams);
                     initPermissions();
                     FileUploaderCash.setFiles([]);
 
-                    if (response.experiment.version > 1 || !response.experiment.lastVersion) {
-                        tabName += ' v' + response.experiment.version;
+                    if (experiment.version > 1 || !experiment.lastVersion) {
+                        tabName += ' v' + experiment.version;
                     }
                 });
             });
-
-            // TODO: the Action drop up button should be disable in case of there is unsaved data.
-            vm.statuses = ['Open', 'Completed', 'Submit_Fail', 'Submitted', 'Archived', 'Signing', 'Signed'];
 
             vm.isBtnSaveActive = EntitiesBrowser.getActiveTab().dirty;
 
@@ -82,7 +79,7 @@
          * @param experiment
          * @param { Boolean } withoutCheckVersion is flag which need only understand by update registration status
          * of batches by WS.
-         * @return {Promiss} resolve return the entity
+         * @return {Promise} resolve return the entity
          */
         function initExperiment(experiment, withoutCheckVersion) {
             var restoredExperiment = EntitiesCache.get($stateParams);
@@ -98,15 +95,19 @@
                     .then(
                         function() {
                             vm.onRestore(experiment, experiment.version);
+                            updateStatuses();
 
                             return experiment;
                         },
                         function() {
                             vm.onRestore(restoredExperiment, experiment.version);
+                            updateStatuses();
 
                             return restoredExperiment;
                         });
             }
+
+            updateStatuses();
 
             return $q.resolve(vm.experiment);
         }
@@ -171,7 +172,7 @@
         }
 
         function setReadOnly() {
-            vm.isEditAllowed = ((isContentEditor || hasEditAuthority) && hasEditPermission) && vm.isStatusOpen;
+            vm.isEditAllowed = isContentEditor || (hasEditAuthority && hasEditPermission && vm.isStatusOpen);
         }
 
         function toggleDirty(isDirty) {
@@ -212,31 +213,41 @@
             return vm.loading;
         }
 
+        function updateExperiment(experiment) {
+            vm.experiment = experiment;
+            postInitExperiment(vm.experiment);
+        }
+
         function completeExperiment() {
-            vm.loading = ExperimentUtil.completeExperiment(vm.experiment, params, vm.notebook.name);
+            vm.loading = ExperimentUtil
+                .completeExperiment(vm.experiment, params, vm.notebook.name)
+                .then(updateExperiment);
         }
 
         function completeExperimentAndSign() {
-            ExperimentUtil.completeExperimentAndSign(vm.experiment, params, vm.notebook.name);
+            vm.loading = ExperimentUtil
+                .completeExperimentAndSign(vm.experiment, params, vm.notebook.name, entityTitle)
+                .then(getExperiment)
+                .then(updateExperiment);
         }
 
         function reopenExperiment() {
-            vm.loading = ExperimentUtil.reopenExperiment(vm.experiment, params);
+            vm.loading = ExperimentUtil
+                .reopenExperiment(vm.experiment, params)
+                .then(updateExperiment);
         }
 
         function repeatExperiment() {
-            vm.loading = ExperimentUtil.repeatExperiment(vm.experiment, params);
+            vm.loading = ExperimentUtil
+                .repeatExperiment(vm.experiment, params)
+                .then(updateExperiment);
         }
 
         function versionExperiment() {
-            var original = vm.experiment;
-
-            vm.loading = ExperimentUtil.versionExperiment(vm.experiment, params);
-            vm.loading.then(function() {
-                Experiment.get($stateParams).$promise.then(function(result) {
-                    angular.extend(original, result);
-                });
-            });
+            vm.loading = ExperimentUtil
+                .versionExperiment(vm.experiment, params)
+                .then(getExperiment)
+                .then(updateExperiment);
         }
 
         function printExperiment() {
@@ -255,12 +266,17 @@
                 .$promise;
         }
 
+        function postInitExperiment(experiment) {
+            updateOriginal(experiment);
+            updateStatuses();
+            autorecoveryCache.hide($stateParams);
+        }
+
         function refresh() {
             vm.loading = getExperiment().then(function(result) {
                 notifyService.success('Experiment updated');
                 vm.experiment = result;
-                updateOriginal(vm.experiment);
-                autorecoveryCache.hide($stateParams);
+                postInitExperiment(vm.experiment);
             }, function() {
                 notifyService.error('Experiment not refreshed due to server error!');
             });

@@ -2,7 +2,6 @@ package com.epam.indigoeln.sheduler;
 
 import com.epam.indigoeln.core.model.Experiment;
 import com.epam.indigoeln.core.model.ExperimentStatus;
-import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.model.SignatureJob;
 import com.epam.indigoeln.core.repository.experiment.ExperimentRepository;
 import com.epam.indigoeln.core.repository.signature.SignatureJobRepository;
@@ -16,7 +15,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -67,23 +65,11 @@ public class ExperimentSignStatusCheckingJob {
                     LOGGER.error("Error executing experiment sign status checking job! Experiment = " + signatureJob.getExperimentId(), e);
                 }
             }
-
-            setLastHandledBy(signatureJob);
-
             signatureJobRepository.save(signatureJob);
         }
 
         if (!MapUtils.isEmpty(updatedExperimentStatuses)) {
             template.convertAndSend("/topic/experiment_status", updatedExperimentStatuses);
-        }
-    }
-
-    private void setLastHandledBy(SignatureJob signatureJob) {
-        try {
-            signatureJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
-        } catch (Exception e) {
-            signatureJob.setLastHandledBy("Unknown");
-            LOGGER.trace("Error getting host name", e);
         }
     }
 }

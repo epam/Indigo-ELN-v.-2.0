@@ -1,4 +1,4 @@
-(function () {
+(function() {
     angular
         .module('indigoeln')
         .controller('SidebarController', SidebarController);
@@ -65,7 +65,6 @@
             // restore BOOKMARKS tab
             restoreMyTabs(BOOKMARKS);
 
-
             if (admTabStatus) {
                 vm.adminToggled = admTabStatus.isOpen;
             }
@@ -76,16 +75,14 @@
 
             bindEvents();
 
-
         }
-
 
         function experimentEnter(experiment, notebook, project) {
             if (etimeout) {
                 $timeout.cancel(etimeout);
             }
             popExperiment = null;
-            etimeout = $timeout(function () {
+            etimeout = $timeout(function() {
                 if (experiment.components) {
                     popExperiment = experiment;
                     return;
@@ -94,14 +91,13 @@
                     experimentId: experiment.id,
                     notebookId: notebook.id,
                     projectId: project.id
-                }).$promise.then(function (data) {
+                }).$promise.then(function(data) {
                     popExperiment = experiment;
                     _.extend(experiment, data);
                     wrapName(experiment);
                 });
             }, 500);
         }
-
 
         function experimentLeave() {
             if (etimeout) {
@@ -115,13 +111,11 @@
             return experiment === popExperiment;
         }
 
-
         function getTreeItemById(items, itemId) {
-            return _.find(items, function (projectItem) {
+            return _.find(items, function(projectItem) {
                 return projectItem.id === itemId;
             });
         }
-
 
         function toggleAdministration() {
             vm.adminToggled = !vm.adminToggled;
@@ -182,7 +176,6 @@
                 type: 'experiment'
             });
         }
-
 
         function toggleProjects(parent, needAll, fun, file) {
             var initialProject = JSON.parse(localStorageService.get(file));
@@ -250,7 +243,6 @@
             }
         }
 
-
         function promiseToggleMyprojectsProject(agent, parent) {
             return promiseToggleProject(agent, parent, SIDEBAR_MYPROJECTS);
         }
@@ -276,7 +268,7 @@
         }
 
         function promiseToggleProject(agent, parent, file) {
-            return agent.query({}, function (result) {
+            return agent.query({}, function(result) {
                 if (result.length) {
                     parent.projects = result;
                     var data = {
@@ -290,7 +282,7 @@
         function promiseToggleNotebook(agent, project, file) {
             return agent.query({
                 projectId: project.id
-            }, function (result) {
+            }, function(result) {
                 project.children = result;
                 project.isOpen = true;
                 saveInStorage({
@@ -302,7 +294,7 @@
         function promiseToggleExperiment(agent, notebook, project, file, save) {
             return agent.query({
                 notebookId: notebook.id, projectId: project.id
-            }, function (result) {
+            }, function(result) {
                 notebook.children = result;
                 notebook.isOpen = true;
                 if (save) {
@@ -321,7 +313,7 @@
             }
             var initialValue = JSON.parse(localStorageService.get(file));
             if (initialValue) {
-                var index = _.findIndex(initialValue, function (item) {
+                var index = _.findIndex(initialValue, function(item) {
                     return item[field] === data[field];
                 });
                 if (index !== -1) {
@@ -348,10 +340,10 @@
                 notebooks = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_NOTEBOOKS));
                 experiments = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_EXPERIMENTS));
             }
-            _.forEach(notebooks, function (item) {
+            _.forEach(notebooks, function(item) {
                 item.isOpen = false;
             });
-            _.forEach(experiments, function (item) {
+            _.forEach(experiments, function(item) {
                 item.isOpen = false;
             });
             if (ls === BOOKMARKS) {
@@ -371,7 +363,7 @@
             } else {
                 experiments = JSON.parse(localStorageService.get(SIDEBAR_MYPROJECTS_EXPERIMENTS));
             }
-            _.forEach(experiments, function (item) {
+            _.forEach(experiments, function(item) {
                 if (item.projectId === id) {
                     item.isOpen = false;
                 }
@@ -383,56 +375,64 @@
             }
         }
 
-
         function updateTreeForExperiments(event, data) {
-            var project = null,
-                notebook = null;
-            vm.projects = vm.myBookmarks.projects;
-            project = getTreeItemById(vm.projects, data.projectId);
-            notebook = getTreeItemById(project.children, data.notebookId);
+            var myBookmarks = findProjectAndNotebookNodes(vm.myBookmarks.projects, data);
+            var allProjects = findProjectAndNotebookNodes(vm.allProjects.projects, data);
 
-            if (vm.projects && project && notebook) {
-                // find existing notebook and update children only
-                Experiment.query({
-                    notebookId: notebook.id, projectId: project.id
-                }, function (expResult) {
-                    notebook.children = expResult;
-                    project.isOpen = true;
-                    notebook.isOpen = true;
-                });
-                return;
+            if (myBookmarks) {
+                updateMyBookmarksTree(myBookmarks);
             }
-            // find and update projects
-            Project.query(function (result) {
-                vm.projects = result;
-                vm.myBookmarks.projects = result;
 
-                if (project && notebook) {
-                    project.isOpen = true;
-                    notebook.isOpen = true;
-                }
-            });
-
+            if (allProjects) {
+                updateAllProjectsTree(allProjects);
+            }
         }
 
+        function findProjectAndNotebookNodes(tree, data) {
+            var project = tree ? getTreeItemById(tree, data.projectId) : null;
+            var notebook = project ? getTreeItemById(project.children, data.notebookId) : null;
 
-        function updateNotebookName (event, data) {
-            vm.projects = vm.myBookmarks.projects;
-            var project = getTreeItemById(vm.projects, data.projectId);
+            return (project && notebook) ? {project: project, notebook: notebook} : null;
+        }
+
+        function updateNotebookChildren(nodes, experiments) {
+            nodes.notebook.children = experiments;
+            nodes.notebook.isOpen = true;
+            nodes.project.isOpen = true;
+        }
+
+        function updateMyBookmarksTree(myBookmarks) {
+            Experiment.query({
+                projectId: myBookmarks.project.id, notebookId: myBookmarks.notebook.id
+            }, function(experiments) {
+                updateNotebookChildren(myBookmarks, experiments);
+            });
+        }
+
+        function updateAllProjectsTree(allProjects) {
+            AllExperiments.query({
+                projectId: allProjects.project.id, notebookId: allProjects.notebook.id
+            }, function(experiments) {
+                updateNotebookChildren(allProjects, experiments);
+            });
+        }
+
+        function updateNotebookName(event, data) {
+            var project = getTreeItemById(vm.myBookmarks.projects, data.projectId);
             var notebook = getTreeItemById(project.children, data.notebook.id);
             notebook.name = data.notebook.name;
         }
 
         function updateExperiments(projects, callback) {
-            _.forEach(projects, function (project) {
-                _.forEach(project.children, function (notebook) {
+            _.forEach(projects, function(project) {
+                _.forEach(project.children, function(notebook) {
                     _.forEach(notebook.children, callback);
                 });
             });
         }
 
         function updateStatuses(statuses) {
-            var updStatus = function (experiment) {
+            var updStatus = function(experiment) {
                 var status = statuses[experiment.fullId];
                 if (status) {
                     experiment.status = status;
@@ -441,7 +441,6 @@
             updateExperiments(vm.myBookmarks.projects, updStatus);
             updateExperiments(vm.allProjects.projects, updStatus);
         }
-
 
         function restoreMyTabs(scope) {
             var firstLevelFile;
@@ -476,28 +475,27 @@
             if (firstLevelTab && firstLevelTab.isOpen) {
                 var agent = needAll ? AllProjects : Project;
                 firstLevelFun(agent, tabsOnScope, needAll).$promise
-                    .then(function () {
+                    .then(function() {
                         return findNotebookIndexesToOpen(secondLevelFile, tabsOnScope);
                     })
-                    .then(function (notebooksToOpen) {
+                    .then(function(notebooksToOpen) {
                         return addNotebooksToBeOpened(notebooksToOpen, secondLevelFun, tabsOnScope, needAll);
                     })
-                    .then(function (notebooks) {
+                    .then(function(notebooks) {
                         return openNotebooks(notebooks);
                     })
-                    .then(function () {
+                    .then(function() {
                         return openExperiments(thirdLevelFile, thirdLevelFun, tabsOnScope, needAll);
                     });
             }
         }
-
 
         function findNotebookIndexesToOpen(file, tabsOnScope) {
             var def = $q.defer();
             var secondLevelTab = JSON.parse(localStorageService.get(file));
             if (secondLevelTab) {
                 var notebooksToOpen = [];
-                _.each(secondLevelTab, function (status) {
+                _.each(secondLevelTab, function(status) {
                     if (status.isOpen) {
                         var index = _.findIndex(tabsOnScope.projects, compareIds(status.id));
                         if (index > -1) {
@@ -511,11 +509,10 @@
             return def.promise;
         }
 
-
         function addNotebooksToBeOpened(notebooksToOpen, fun, tabsOnScope, needAll) {
             var promises = [];
             var defer = $q.defer();
-            _.each(notebooksToOpen, function (notebookId) {
+            _.each(notebooksToOpen, function(notebookId) {
                 var agent;
                 if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'NOTEBOOK_READER'])) {
                     agent = needAll ? AllNotebooks : Notebook;
@@ -529,7 +526,7 @@
 
         function openNotebooks(notebooks) {
             var defer = $q.defer();
-            $q.all(notebooks).then(function () {
+            $q.all(notebooks).then(function() {
                     defer.resolve();
                 }
             );
@@ -539,9 +536,9 @@
         function openExperiments(file, fun, tabsOnScope, needAll) {
             var experimentsMyprojectsTabStatus = JSON.parse(localStorageService.get(file));
             if (experimentsMyprojectsTabStatus) {
-                _.each(experimentsMyprojectsTabStatus, function (status) {
+                _.each(experimentsMyprojectsTabStatus, function(status) {
                     if (status.isOpen) {
-                        _.each(tabsOnScope.projects, function (project) {
+                        _.each(tabsOnScope.projects, function(project) {
                             var agent;
                             if (Principal.hasAnyAuthority(['CONTENT_EDITOR', 'EXPERIMENT_READER'])) {
                                 agent = needAll ? AllExperiments : Experiment;
@@ -558,17 +555,16 @@
         }
 
         function compareNames(notebookName) {
-            return function (item) {
+            return function(item) {
                 return item.name === notebookName;
             };
         }
 
         function compareIds(notebookId) {
-            return function (item) {
+            return function(item) {
                 return item.id === notebookId;
             };
         }
-
 
         function extractParams(obj) {
             return {
@@ -577,7 +573,6 @@
                 experimentId: obj.experimentId
             };
         }
-
 
         function compactIds(params) {
             params = extractParams(params);
@@ -610,38 +605,35 @@
         }
 
         function bindEvents() {
-            $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams) {
+            $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams) {
                 vm.activeMenuItem = compactIds(toParams);
             });
 
             var events = [];
-            events.push($scope.$on('project-created', function () {
-                Project.query(function (result) {
-                    vm.projects = result;
+            events.push($scope.$on('project-created', function() {
+                Project.query(function(result) {
                     vm.myBookmarks.projects = result;
                 });
             }));
 
-            events.push($scope.$on('notebook-created', function (event, data) {
+            events.push($scope.$on('notebook-created', function(event, data) {
                 var project;
                 if (vm.myBookmarks.projects) {
                     // find  existing project and update children
                     project = getTreeItemById(vm.myBookmarks.projects, data.projectId);
-                    vm.projects = vm.myBookmarks.projects;
                     Notebook.query({
                         projectId: project.id
-                    }, function (notebookResult) {
+                    }, function(notebookResult) {
                         // fetch children only
                         project.children = notebookResult;
                         project.isOpen = true;
                     });
                 } else {
                     // otherwise fetch all projects
-                    Project.query(function (result) {
-                        vm.projects = result;
+                    Project.query(function(result) {
                         vm.myBookmarks.projects = result;
 
-                        project = getTreeItemById(vm.projects, data.projectId);
+                        project = getTreeItemById(vm.myBookmarks.projects, data.projectId);
                         if (project) {
                             project.isOpen = true;
                         }
@@ -651,17 +643,17 @@
 
             $scope.$on('notebook-changed', updateNotebookName);
 
-            events.push($scope.$on('experiment-created', function (event, data) {
+            events.push($scope.$on('experiment-created', function(event, data) {
                 updateTreeForExperiments(event, data);
             }));
 
-            events.push($scope.$on('experiment-status-changed', function (event, data) {
+            events.push($scope.$on('experiment-status-changed', function(event, data) {
                 updateStatuses(data);
             }));
 
-            events.push($scope.$on('experiment-updated', function (event, experiment) {
+            events.push($scope.$on('experiment-updated', function(event, experiment) {
                 if (experiment) {
-                    var updExp = function (exp) {
+                    var updExp = function(exp) {
                         if (exp.fullId === experiment.fullId) {
                             _.extend(exp, experiment);
                             wrapName(exp);
@@ -672,8 +664,8 @@
                 }
             }));
 
-            $scope.$on('$destroy', function () {
-                _.each(events, function (event) {
+            $scope.$on('$destroy', function() {
+                _.each(events, function(event) {
                     event();
                 });
             });
@@ -684,7 +676,6 @@
                 exp.name += ' v' + exp.experimentVersion;
             }
         }
-
 
     }
 })();

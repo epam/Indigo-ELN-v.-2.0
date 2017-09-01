@@ -76,7 +76,7 @@
             var version = vm.project.version;
             vm.project = storeData;
 
-            if (_.isDefined(version)) {
+            if (angular.isDefined(version)) {
                 vm.project.version = version;
             }
             EntitiesCache.put($stateParams, vm.project);
@@ -124,6 +124,8 @@
 
                 return $q.resolve();
             }
+
+            console.log('vm.project.name', vm.project.name);
 
             vm.loading = Project.get($stateParams).$promise
                 .then(function(result) {
@@ -236,8 +238,7 @@
         }
 
         function onSaveSuccess(result) {
-            var tabName = $state.$current.data.tab.name;
-            EntitiesBrowser.close(TabKeyUtils.getTabKeyFromName(tabName));
+            EntitiesBrowser.close(TabKeyUtils.getTabKeyFromParams($stateParams));
             $timeout(function() {
                 $rootScope.$broadcast('project-created', {
                     id: result.id
@@ -246,6 +247,7 @@
                     projectId: result.id
                 });
             });
+            EntitiesCache.removeByParams($stateParams);
         }
 
         function onSaveError(result) {

@@ -44,7 +44,7 @@ public class SearchResource {
     /**
      * GET /catalogue -> returns a list of search catalogues
      */
-    @ApiOperation(value = "Returns a list of search catalogues.", produces = "application/json")
+    @ApiOperation(value = "Returns a list of search catalogues.")
     @RequestMapping(
             value = "/catalogue",
             method = RequestMethod.GET,
@@ -57,7 +57,7 @@ public class SearchResource {
     /**
      * POST /batch -> find batch Components by specified criteria
      */
-    @ApiOperation(value = "Searches for batch components by specified criteria.", produces = "application/json")
+    @ApiOperation(value = "Searches for batch components by specified criteria.")
     @RequestMapping(
             value = "/batch",
             method = RequestMethod.POST,
@@ -73,7 +73,7 @@ public class SearchResource {
     /**
      * POST / -> find entities by specified criteria
      */
-    @ApiOperation(value = "Searches for entities by specified criteria.", produces = "application/json")
+    @ApiOperation(value = "Searches for entities by specified criteria.")
     @RequestMapping(
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)

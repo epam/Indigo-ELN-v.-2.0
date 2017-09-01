@@ -11,6 +11,7 @@ import com.epam.indigoeln.web.rest.dto.SDEntryDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
 import com.google.common.collect.ImmutableMap;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,8 +43,10 @@ public class SDResource {
     @Autowired
     private UserService userService;
 
+    @ApiOperation(value = "Imports sdf file.")
     @PostMapping(value = "/import", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Collection<SDEntryDTO>> importFile(@RequestParam MultipartFile file) throws IOException {
+    public ResponseEntity<Collection<SDEntryDTO>> importFile(
+            @ApiParam("File") @RequestParam MultipartFile file) throws IOException {
         try (InputStream is = file.getInputStream()) {
             try (Reader r = new InputStreamReader(is, StandardCharsets.UTF_8)) {
                 List<SDEntryDTO> result = sdService.parse(r)
@@ -63,8 +66,10 @@ public class SDResource {
         }
     }
 
+    @ApiOperation(value = "Exports sdf file.")
     @PostMapping(value = "/export", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Map> exportFile(@RequestBody List<SDExportItem> items) throws IOException {
+    public ResponseEntity<Map> exportFile(
+            @ApiParam("List of sdf items.") @RequestBody List<SDExportItem> items) throws IOException {
         try {
             SDFileInfo sdFileInfo = sdService.create(items);
 
@@ -81,6 +86,7 @@ public class SDResource {
         }
     }
 
+    @ApiOperation(value = "Download file.")
     @GetMapping(value = "/download", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> downloadFile(@ApiParam("File name") @PathParam("fileName") String fileName) throws IOException {
         File file = FileUtils.getFile(FileUtils.getTempDirectory(), fileName);
