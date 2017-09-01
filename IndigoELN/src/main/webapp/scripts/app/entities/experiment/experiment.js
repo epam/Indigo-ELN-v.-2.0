@@ -90,8 +90,8 @@ angular.module('indigoeln')
             .state('entities.experiment-detail.print', {
                 parent: 'entities.experiment-detail',
                 url: '/print',
-                onEnter: function(printModal) {
-                    printModal.showPopup();
+                onEnter: function(printModal, $stateParams) {
+                    printModal.showPopup($stateParams, 'Experiment');
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']
