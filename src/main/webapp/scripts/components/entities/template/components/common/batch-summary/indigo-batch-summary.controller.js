@@ -587,6 +587,15 @@
             return rowResult;
         }
 
+        userPromise.then(function() {
+            vm.batchOwner = Users.getUsersById(vm.model.reactionDetails.batchOwner);
+        });
+
+        Users.getUsersById(vm.model.reactionDetails.batchOwner).then(function(batchOwner) {
+            vm.batchOwner = batchOwner;
+        });
+
+
         function onRowSelected(row) {
             vm.onSelectBatch({batch: row});
         }
@@ -694,14 +703,6 @@
                 vm.onShowStructure({
                     isVisible: val
                 });
-            });
-
-            $scope.$on('product-batch-summary-recalculated', function(event, data) {
-                if (data.length === getProductBatches().length) {
-                    _.each(getProductBatches(), function(batch, i) {
-                        _.extend(batch, data[i]);
-                    });
-                }
             });
 
             $scope.$watch('vm.structureSize', function(newVal) {

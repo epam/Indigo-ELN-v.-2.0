@@ -28,14 +28,6 @@ function calculationService($rootScope, $http, $q, AppValues,
         recalculateStoichBasedOnBatch: recalculateStoichBasedOnBatch
     };
 
-    function initDataForStoichCalculation(data) {
-        var calcData = data || {};
-        calcData.stoichTable = StoichTableCache.getStoicTable();
-        calcData.actualProducts = ProductBatchSummaryCache.getProductBatchSummary();
-
-        return calcData;
-    }
-
     function getSaltConfig(reagent) {
         var saltCode = reagent.saltCode ? reagent.saltCode.value : null;
         var saltEq = reagent.saltEq ? reagent.saltEq.value : null;
@@ -108,7 +100,7 @@ function calculationService($rootScope, $http, $q, AppValues,
 
     function findLimiting(stoichTable) {
         return _.find(stoichTable.reactants, {
-            'limiting': true
+            limiting: true
         });
     }
 
@@ -146,39 +138,41 @@ function calculationService($rootScope, $http, $q, AppValues,
         return $q.resolve(reagent);
     }
 
-    function recalculateStoich(calcData) {
+    function recalculateStoich() {
         if (recalculatingStoich) {
             return;
         }
         recalculatingStoich = true;
-        var data = initDataForStoichCalculation(calcData);
+        var stoichTable = StoichTableCache.getStoicTable();
         var requestData = {
-            stoicBatches: setDefaultValues(data.stoichTable.reactants),
-            intendedProducts: setDefaultValues(data.stoichTable.products),
-            actualProducts: setDefaultValues(data.actualProducts)
+            stoicBatches: setDefaultValues(stoichTable.reactants),
+            intendedProducts: setDefaultValues(stoichTable.products),
+            actualProducts: ProductBatchSummaryCache.getProductBatchSummary()
         };
 
         return $http.put('api/calculations/stoich/calculate', requestData).then(function(result) {
-            $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
             recalculatingStoich = false;
+
+            return result.data;
         });
     }
 
     function recalculateStoichBasedOnBatch(calcData) {
-        var data = initDataForStoichCalculation(calcData);
+        var stoichTable = StoichTableCache.getStoicTable();
         var requestData = {
-            stoicBatches: setDefaultValues(data.stoichTable.reactants),
-            intendedProducts: setDefaultValues(data.stoichTable.products),
-            actualProducts: setDefaultValues(data.actualProducts),
-            changedBatchRowNumber: _.indexOf(data.stoichTable.reactants, data.row),
-            changedField: data.changedField || data.column,
-            molWeightChanged: data.molWeightChanged
+            stoicBatches: setDefaultValues(stoichTable.reactants),
+            intendedProducts: setDefaultValues(stoichTable.products),
+            actualProducts: setDefaultValues(ProductBatchSummaryCache.getProductBatchSummary()),
+            changedBatchRowNumber: _.indexOf(stoichTable.reactants, calcData.row),
+            changedField: calcData.changedField || calcData.column,
+            molWeightChanged: calcData.molWeightChanged
         };
 
         return $http.put('api/calculations/stoich/calculate/batch', requestData).then(function(result) {
-            $rootScope.$broadcast('product-batch-summary-recalculated', result.data.actualProducts);
             $rootScope.$broadcast('stoic-table-recalculated', result.data);
+
+            return result.data;
         });
     }
 
@@ -221,8 +215,9 @@ function calculationService($rootScope, $http, $q, AppValues,
 
     function resetValuesToDefault(values, batch) {
         var defaultBatch = AppValues.getDefaultBatch();
+
         _.each(values, function(value) {
-            batch[value] = angular.copy(defaultBatch[value]);
+            batch[value] = defaultBatch[value];
         });
     }
 

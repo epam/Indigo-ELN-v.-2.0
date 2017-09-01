@@ -73,10 +73,12 @@
         /* @ngInject */
         function indigoComponentsController($scope, ProductBatchSummaryOperations, ProductBatchSummaryCache) {
             var vm = this;
+            var precursors;
 
             init();
 
             function init() {
+                precursors = '';
                 vm.batches = null;
                 vm.batchesTrigger = 0;
                 vm.selectedBatch = null;
@@ -114,6 +116,15 @@
 
             function bindEvents() {
                 $scope.$watch('vm.model', updateModel);
+
+                $scope.$on('stoic-table-recalculated', function(event, data) {
+                    if (data.actualProducts.length === vm.batches.length) {
+                        _.each(vm.batches, function(batch, i) {
+                            batch.molWeight.value = data[i].molWeight.value;
+                            batch.theoMoles.value = data[i].theoMoles.value;
+                        });
+                    }
+                });
             }
 
             function updateSelectedBatch() {
@@ -153,6 +164,7 @@
             }
 
             function onAddedBatch(batch) {
+                batch.precursors = precursors;
                 vm.batches.push(batch);
                 vm.batchesTrigger++;
             }
@@ -162,7 +174,8 @@
                 vm.selectedBatchTrigger++;
             }
 
-            function onPrecursorsChanged(precursors) {
+            function onPrecursorsChanged(newPrecursors) {
+                precursors = newPrecursors;
                 $timeout(function() {
                     _.forEach(vm.batches, function(batch) {
                         batch.precursors = precursors;
