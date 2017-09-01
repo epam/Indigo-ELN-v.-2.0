@@ -36,7 +36,6 @@
                 isContentEditor = response.isContentEditor;
                 hasEditAuthority = response.hasEditAuthority;
                 vm.notebook = response.notebook;
-
                 entityTitle = response.notebook.name + ' ' + response.experiment.name;
 
                 initExperiment(response.experiment).then(function(experiment) {
