@@ -23,7 +23,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Map;
 
 @Api
@@ -42,7 +45,6 @@ public class PrintResource {
     @Autowired
     private UserService userService;
 
-    @ApiOperation(value = "Converts HTML printout to PDF.", produces = "application/json")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> createPdf(
@@ -51,7 +53,6 @@ public class PrintResource {
         return ResponseEntity.ok(ImmutableMap.of("fileName", fileName));
     }
 
-    @ApiOperation(value = "Returns file content by it's name.", produces = "application/json")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<byte[]> download(
@@ -73,7 +74,7 @@ public class PrintResource {
         }
     }
 
-    @ApiOperation(value = "Open experiment pdf preview", produces = "application/json")
+    @ApiOperation(value = "Open experiment pdf preview")
     @RequestMapping(
             method = RequestMethod.GET,
             path = "/project/{projectId}/notebook/{notebookId}/experiment/{experimentId}",
@@ -90,7 +91,7 @@ public class PrintResource {
         return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
-    @ApiOperation(value = "Open project pdf preview", produces = "application/json")
+    @ApiOperation(value = "Open project pdf preview")
     @RequestMapping(
             method = RequestMethod.GET,
             path = "/project/{projectId}",
@@ -105,7 +106,7 @@ public class PrintResource {
         return ResponseEntity.ok().headers(headers).body(bytes);
     }
 
-    @ApiOperation(value = "Open notebook pdf preview", produces = "application/json")
+    @ApiOperation(value = "Open notebook pdf preview")
     @RequestMapping(
             method = RequestMethod.GET,
             path = "/project/{projectId}/notebook/{notebookId}",

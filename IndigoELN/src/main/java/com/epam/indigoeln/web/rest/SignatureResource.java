@@ -52,35 +52,35 @@ public class SignatureResource {
     @Autowired
     private ITextPrintService iTextPrintService;
 
-    @ApiOperation(value = "Returns reasons.", produces = "application/json")
+    @ApiOperation(value = "Returns reasons.")
     @RequestMapping(value = "/reason", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getReasons() {
         return ResponseEntity.ok(signatureService.getReasons());
     }
 
-    @ApiOperation(value = "Returns statuses.", produces = "application/json")
+    @ApiOperation(value = "Returns statuses.")
     @RequestMapping(value = "/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getStatuses() {
         return ResponseEntity.ok(signatureService.getStatuses());
     }
 
-    @ApiOperation(value = "Returns final statuses.", produces = "application/json")
+    @ApiOperation(value = "Returns final statuses.")
     @RequestMapping(value = "/status/final", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getFinalStatus() {
         return ResponseEntity.ok(signatureService.getFinalStatus());
     }
 
-    @ApiOperation(value = "Returns templates.", produces = "application/json")
+    @ApiOperation(value = "Returns templates.")
     @RequestMapping(value = "/template", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getTemplates() {
         return ResponseEntity.ok(signatureService.getSignatureTemplates());
     }
 
-    @ApiOperation(value = "Sends document to signature.", produces = "application/json")
+    @ApiOperation(value = "Sends document to signature.")
     @RequestMapping(value = "/document", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadDocument(
@@ -119,7 +119,7 @@ public class SignatureResource {
         return ResponseEntity.ok(result);
     }
 
-    @ApiOperation(value = "Returns signature document info.", produces = "application/json")
+    @ApiOperation(value = "Returns signature document info.")
     @RequestMapping(value = "/document/info", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getDocumentInfo(
@@ -128,7 +128,7 @@ public class SignatureResource {
         return ResponseEntity.ok(signatureService.getDocumentInfo(documentId));
     }
 
-    @ApiOperation(value = "Returns signature documents info.", produces = "application/json")
+    @ApiOperation(value = "Returns signature documents info.")
     @RequestMapping(value = "/document/info", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocumentsInfo(
@@ -137,14 +137,14 @@ public class SignatureResource {
         return ResponseEntity.ok(signatureService.getDocumentsByIds(documentIds));
     }
 
-    @ApiOperation(value = "Returns all signature documents info.", produces = "application/json")
+    @ApiOperation(value = "Returns all signature documents info.")
     @RequestMapping(value = "/document", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<SignatureService.Document>> getDocuments() throws IOException {
         return ResponseEntity.ok(signatureService.getDocumentsByUser());
     }
 
-    @ApiOperation(value = "Returns signature document content.", produces = "application/json")
+    @ApiOperation(value = "Returns signature document content.")
     @RequestMapping(value = "/document/content", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> downloadDocument(

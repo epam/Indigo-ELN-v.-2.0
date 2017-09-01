@@ -48,7 +48,7 @@ public class NotebookResource {
      * GET  /notebooks?:projectId -> Returns all notebooks of specified project for <b>current user</b>
      * for tree representation according to his User permissions
      */
-    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation according to his permissions.", produces = "application/json")
+    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation according to his permissions.")
     @RequestMapping(
             value = PARENT_PATH_ID,
             method = RequestMethod.GET,
@@ -65,7 +65,7 @@ public class NotebookResource {
      * GET  /notebooks/all?:projectId -> Returns all notebooks of specified project
      * without checking for User permissions
      */
-    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.", produces = "application/json")
+    @ApiOperation(value = "Returns all notebooks of specified project for current user for tree representation.")
     @RequestMapping(value = PARENT_PATH_ID + "/all", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<TreeNodeDTO>> getAllNotebooks(
@@ -81,7 +81,7 @@ public class NotebookResource {
     /**
      * GET  /notebooks/permissions/user-removable -> Returns true if user can be removed from notebook without problems
      */
-    @ApiOperation(value = "Returns true if user can be removed from notebook without problems.", produces = "application/json")
+    @ApiOperation(value = "Returns true if user can be removed from notebook without problems.")
     @RequestMapping(value = "notebooks/permissions/user-removable", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map> isUserRemovable(
@@ -97,7 +97,7 @@ public class NotebookResource {
     /**
      * GET /notebooks/sub-creations -> Returns all notebooks available for experiment creation
      */
-    @ApiOperation(value = "Returns all notebooks available for experiment creation.", produces = "application/json")
+    @ApiOperation(value = "Returns all notebooks available for experiment creation.")
     @RequestMapping(value = "notebooks/sub-creations",method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ShortEntityDTO>> getNotebooksForExperimentCreation() {
@@ -109,7 +109,7 @@ public class NotebookResource {
     /**
      * GET  /notebooks/:id -> Returns notebook with specified id according to User permissions
      */
-    @ApiOperation(value = "Returns notebook by it's id according to permissions.", produces = "application/json")
+    @ApiOperation(value = "Returns notebook by it's id according to permissions.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<NotebookDTO> getNotebook(
@@ -128,7 +128,7 @@ public class NotebookResource {
      * POST  /notebooks?:projectId -> Creates notebook with OWNER's permissions for current User
      * as child for specified Project
      */
-    @ApiOperation(value = "Creates notebook with OWNER's permissions for current user.", produces = "application/json")
+    @ApiOperation(value = "Creates notebook with OWNER's permissions for current user.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -147,7 +147,7 @@ public class NotebookResource {
     /**
      * PUT  /notebooks/:id -> Updates notebook according to User permissions
      */
-    @ApiOperation(value = "Updates notebook according to permissions.", produces = "application/json")
+    @ApiOperation(value = "Updates notebook according to permissions.")
     @RequestMapping(value = PARENT_PATH_ID, method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -165,7 +165,7 @@ public class NotebookResource {
     /**
      * DELETE  /notebooks/:id -> Removes notebook with specified id
      */
-    @ApiOperation(value = "Removes notebook.", produces = "application/json")
+    @ApiOperation(value = "Removes notebook.")
     @RequestMapping(value = PATH_ID, method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteNotebook(
             @ApiParam("Project id") @PathVariable String projectId,
