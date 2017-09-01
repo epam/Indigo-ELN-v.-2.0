@@ -11,8 +11,6 @@
                 model: '=',
                 batches: '=',
                 isReadonly: '=',
-                // TODO: experimentName is not used
-                experimentName: '=',
                 isHideColumnSettings: '=',
                 structureSize: '=',
                 selectedBatch: '=',

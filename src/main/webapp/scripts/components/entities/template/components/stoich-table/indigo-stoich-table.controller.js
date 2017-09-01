@@ -463,18 +463,6 @@
             }, 500);
         }
 
-        // TODO: Maybe will be better if use importHelper.getWord?
-        function getWord(dicts, dictName, wordName) {
-            var dict = _.find(dicts, function(dict) {
-                return dict.name === dictName;
-            });
-            if (dict) {
-                return _.find(dict.words, function(word) {
-                    return word.name === wordName;
-                });
-            }
-        }
-
         function convertCompoundsToBatches(compounds) {
             return Dictionary.all().$promise
                 .then(function(dicts) {
@@ -490,7 +478,7 @@
                                 molfile: c.structure
                             },
                             formula: c.formula,
-                            stereoisomer: getWord(dicts, 'Stereoisomer Code', c.stereoisomerCode),
+                            stereoisomer:getWord('Stereoisomer Code', 'name', c.stereoisomerCode, dicts),
                             saltCode: _.find(saltCodeValues, function(sc) {
                                 return sc.regValue === c.saltCode;
                             }),
