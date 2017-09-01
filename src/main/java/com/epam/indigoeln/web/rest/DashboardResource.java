@@ -63,7 +63,7 @@ public class DashboardResource {
      * GET  /dashboard -> Returns dashboard experiments
      * 1. Experiments created by current user during one month which are in one of following statuses: 'Open', 'Completed'
      */
-    @ApiOperation(value = "Returns dashboard content.", produces = "application/json")
+    @ApiOperation(value = "Returns dashboard content.")
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<DashboardDTO> getDashboard() {

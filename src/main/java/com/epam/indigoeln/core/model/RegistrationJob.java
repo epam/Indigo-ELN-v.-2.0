@@ -23,7 +23,7 @@ public class RegistrationJob implements Serializable {
     private RegistrationStatus.Status registrationStatus;
     private String registrationJobId;
     private String registrationRepositoryId;
-    private String lastHandledBy;
+    private String handledBy;
 
     public String getId() {
         return id;
@@ -57,11 +57,11 @@ public class RegistrationJob implements Serializable {
         this.registrationRepositoryId = registrationRepositoryId;
     }
 
-    public String getLastHandledBy() {
-        return lastHandledBy;
+    public String getHandledBy() {
+        return handledBy;
     }
 
-    public void setLastHandledBy(String lastHandledBy) {
-        this.lastHandledBy = lastHandledBy;
+    public void setHandledBy(String handledBy) {
+        this.handledBy = handledBy;
     }
 }

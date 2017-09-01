@@ -3,7 +3,8 @@ angular
     .factory('ExperimentUtil', experimentUtil);
 
 /* @ngInject */
-function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement) {
+function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, PermissionManagement, SignatureTemplates,
+                        SignatureDocument, componentsUtils) {
     return {
         versionExperiment: versionExperiment,
         repeatExperiment: repeatExperiment,
@@ -35,7 +36,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
             $rootScope.$broadcast('experiment-updated', experiment);
         }).$promise;
     }
-
 
     function repeatExperiment(experiment, params) {
         experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
@@ -73,7 +73,6 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         }).$promise;
     }
 
-
     function reopenExperiment(experiment, params) {
         experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
         var experimentForSave = _.extend({}, experiment, {
@@ -83,40 +82,26 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         return Experiment.update({
             projectId: params.projectId,
             notebookId: params.notebookId
-        }, experimentForSave, function(result) {
-            onChangeStatusSuccess(result, 'Open');
-        }).$promise;
+        }, experimentForSave).$promise;
     }
 
-
     function completeExperiment(experiment, params, notebookName) {
-        var defer = $q.defer();
-        openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
+        return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
             experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
             var experimentForSave = _.extend({}, experiment, {
                 status: 'Completed'
             });
-            Experiment.update({
+
+            return Experiment.update({
                 projectId: params.projectId,
                 notebookId: params.notebookId
-            }, experimentForSave, function(result) {
-                onChangeStatusSuccess(result, 'Completed');
-                defer.resolve();
-            });
+            }, experimentForSave).$promise;
         });
-
-        return defer.promise;
     }
 
-
-    function completeExperimentAndSign(experiment, params, notebookName) {
-        openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
-            // show PDF preview
-            $state.go('experiment-preview-submit', {
-                experimentId: params.experimentId,
-                notebookId: params.notebookId,
-                projectId: params.projectId
-            });
+    function completeExperimentAndSign(experiment, params, notebookName, experimentTitle) {
+        return openCompleteConfirmationModal(experiment, notebookName).result.then(function() {
+            return selectTemplate(experiment.template.templateContent, experimentTitle, params);
         });
     }
 
@@ -139,10 +124,45 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
         });
     }
 
-    function onChangeStatusSuccess(result, status) {
-        var statuses = {};
-        statuses[result.fullId] = status;
-        $rootScope.$broadcast('experiment-status-changed', statuses);
+    function selectTemplate(componentTemplates, filename, stateParams) {
+        return SignatureTemplates.query({})
+            .$promise
+            .then(function(result) {
+                return $uibModal
+                    .open({
+                        animation: true,
+                        templateUrl: 'scripts/app/entities/experiment/select-signature-template-modal/experiment-select-signature-template-modal.html',
+                        controller: 'ExperimentSelectSignatureTemplateModalController',
+                        controllerAs: 'vm',
+                        resolve: {
+                            result: function() {
+                                return result;
+                            }
+                        }
+                    })
+                    .result
+                    .then(function(template) {
+                        if (template) {
+                            var templates = componentsUtils.getComponentsFromTemplateContent(componentTemplates);
+
+                            return SignatureDocument.upload(
+                                {
+                                    fileName: filename + '.pdf',
+                                    components: getComponentsForPrint(templates),
+                                    templateId: template.id,
+                                    experimentId: stateParams.experimentId,
+                                    notebookId: stateParams.notebookId,
+                                    projectId: stateParams.projectId
+                                }, {}).$promise;
+                        }
+
+                        return $q.reject();
+                    });
+            });
+    }
+
+    function getComponentsForPrint(componentTemplates) {
+        return _.map(componentTemplates, 'field').join().replace('attachments', 'attachments&includeAttachments=true');
     }
 }
 

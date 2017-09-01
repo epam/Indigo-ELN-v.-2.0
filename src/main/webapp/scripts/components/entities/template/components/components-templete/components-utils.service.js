@@ -5,27 +5,29 @@ angular
 /* @ngInject */
 function componentsUtilsFactory(Principal, Components) {
     return {
-        initComponents: initComponents
+        initComponents: initComponents,
+        getComponentsFromTemplateContent: getComponentsFromTemplateContent
     };
 
-    function initComponents(components, templates) {
-        initExperimentDescription(components, isExistInTemplate(templates, Components.experimentDescription.field));
-        initConceptDetails(components, isExistInTemplate(templates, Components.conceptDetails.field));
-        initPreferredCompoundSummary(components, isExistInTemplate(templates, Components.preferredCompoundSummary.field));
-        initPreferredCompoundDetails(components, isExistInTemplate(templates, Components.preferredCompoundDetails.field));
-        initProductBatchDetails(components, isExistInTemplate(templates, Components.productBatchDetails.field));
-        initProductBatchSummary(components, isExistInTemplate(templates, Components.productBatchSummary.field));
-        initStoichTable(components, isExistInTemplate(templates, Components.stoichTable.field));
-        initReactionDetails(components, isExistInTemplate(templates, Components.reactionDetails.field));
-        initReaction(components, isExistInTemplate(templates, Components.reaction.field));
+    function initComponents(components, componentTemplates) {
+        var templates = _.keyBy(getComponentsFromTemplateContent(componentTemplates), 'field');
+
+        initExperimentDescription(components, templates[Components.experimentDescription.field]);
+        initConceptDetails(components, templates[Components.conceptDetails.field]);
+        initPreferredCompoundSummary(components, templates[Components.preferredCompoundSummary.field]);
+        initPreferredCompoundDetails(components, templates[Components.preferredCompoundDetails.field]);
+        initProductBatchDetails(components, templates[Components.productBatchDetails.field]);
+        initProductBatchSummary(components, _.find(templates, {isBatch: true}));
+        initStoichTable(components, templates[Components.stoichTable.field]);
+        initReactionDetails(components, templates[Components.reactionDetails.field]);
+        initReaction(components, templates[Components.reaction.field]);
     }
 
-    function isExistInTemplate(templateContent, componentName) {
-        return _.some(templateContent, function(content) {
-            return _.find(content.components, function(component) {
-                return Components[componentName].id === component.id;
-            });
-        });
+    function getComponentsFromTemplateContent(componentTemplates) {
+        return _.chain(componentTemplates)
+            .map('components')
+            .flatten()
+            .value();
     }
 
     function initExperimentDescription(components, isExist) {
@@ -47,8 +49,15 @@ function componentsUtilsFactory(Principal, Components) {
     }
 
     function initPreferredCompoundSummary(components, isExist) {
-        if (isExist) {
-            _.defaultsDeep(components, {preferredCompoundSummary: {compounds: []}});
+        if (!isExist) {
+            return;
+        }
+        // migration, should be removed after dropped the database
+        if (!_.isEmpty(components.preferredCompoundSummary && components.preferredCompoundSummary.compounds) &&
+            _.isEmpty(components.productBatchSummary && components.productBatchSummary.batches)) {
+            _.set(components, 'productBatchSummary.batches', components.preferredCompoundSummary.compounds);
+
+            delete components.preferredCompoundSummary;
         }
     }
 

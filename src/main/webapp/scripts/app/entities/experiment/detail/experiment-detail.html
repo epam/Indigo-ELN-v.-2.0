@@ -67,7 +67,7 @@
                 <li role="menuitem" ng-click="vm.repeatExperiment()"><a>Repeat Experiment</a></li>
                 <li role="menuitem"><a ng-click="vm.printExperiment()">Print Experiment</a></li>
                 <li role="menuitem"
-                    ng-if="vm.experiment.lastVersion && (vm.isStatusComplete || vm.isStatusSubmitFail || vm.isStatusSubmitted || vm.isStatusArchieved || vm.isStatusSigning || vm.isStatusSigned)"
+                    ng-if="vm.experiment.lastVersion && !vm.isStatusOpen"
                     ng-click="vm.versionExperiment()"><a>Version Experiment</a></li>
                 <li role="menuitem" ng-if="vm.isStatusSubmitFail" ng-click="vm.completeExperimentAndSign()"><a href="#">Resubmit
                     for Signature</a></li>

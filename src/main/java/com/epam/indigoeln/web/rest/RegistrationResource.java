@@ -25,14 +25,14 @@ public class RegistrationResource {
     @Autowired
     private RegistrationService registrationService;
 
-    @ApiOperation(value = "Gets registration repositories info.", produces = "application/json")
+    @ApiOperation(value = "Gets registration repositories info.")
     @RequestMapping(value = "/info", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<RegistrationRepositoryInfo>> info() {
         return ResponseEntity.ok(registrationService.getRepositoriesInfo());
     }
 
-    @ApiOperation(value = "Registers batches.", produces = "application/json")
+    @ApiOperation(value = "Registers batches.")
     @RequestMapping(value = "/{repositoryId}/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String register(
@@ -42,7 +42,7 @@ public class RegistrationResource {
         return registrationService.register(id, Arrays.asList(fullBatchNumbers));
     }
 
-    @ApiOperation(value = "Registers batches.", produces = "application/json")
+    @ApiOperation(value = "Registers batches.")
     @RequestMapping(value = "/register", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public String register(@ApiParam("Batch numbers") @RequestBody String[] fullBatchNumbers
@@ -50,7 +50,7 @@ public class RegistrationResource {
         return registrationService.register(getRepositoryId(), Arrays.asList(fullBatchNumbers));
     }
 
-    @ApiOperation(value = "Returns registration status.", produces = "application/json")
+    @ApiOperation(value = "Returns registration status.")
     @RequestMapping(value = "/status", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public RegistrationStatus status(
@@ -60,7 +60,7 @@ public class RegistrationResource {
         return registrationService.getStatus(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
-    @ApiOperation(value = "Returns registration compounds.", produces = "application/json")
+    @ApiOperation(value = "Returns registration compounds.")
     @RequestMapping(value = "/compounds", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Compound> compoundsByJobId(
@@ -70,7 +70,7 @@ public class RegistrationResource {
         return registrationService.getRegisteredCompounds(StringUtils.isBlank(id) ? getRepositoryId() : id, jobId);
     }
 
-    @ApiOperation(value = "Returns compounds by their number.", produces = "application/json")
+    @ApiOperation(value = "Returns compounds by their number.")
     @RequestMapping(value = "/compounds/{compoundNo}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Compound> compoundsByCompoundNo(
@@ -80,7 +80,7 @@ public class RegistrationResource {
         return registrationService.getCompoundInfoByCompoundNo(StringUtils.isBlank(id) ? getRepositoryId() : id, compoundNo);
     }
 
-    @ApiOperation(value = "Searches for compounds by substructure.", produces = "application/json")
+    @ApiOperation(value = "Searches for compounds by substructure.")
     @RequestMapping(value = "/search/substructure", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSubstructure(
@@ -91,7 +91,7 @@ public class RegistrationResource {
         return ResponseEntity.ok(registrationService.searchSubstructure(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
     }
 
-    @ApiOperation(value = "Searches for compounds by similarity.", produces = "application/json")
+    @ApiOperation(value = "Searches for compounds by similarity.")
     @RequestMapping(value = "/search/similarity", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSimilarity(
@@ -102,7 +102,7 @@ public class RegistrationResource {
         return ResponseEntity.ok(registrationService.searchSimilarity(StringUtils.isBlank(id) ? getRepositoryId() : id, structure, searchOption));
     }
 
-    @ApiOperation(value = "Smarts search.", produces = "application/json")
+    @ApiOperation(value = "Smarts search.")
     @RequestMapping(value = "/search/smarts", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchSmarts(
@@ -112,7 +112,7 @@ public class RegistrationResource {
         return ResponseEntity.ok(registrationService.searchSmarts(StringUtils.isBlank(id) ? getRepositoryId() : id, structure));
     }
 
-    @ApiOperation(value = "Exact search.", produces = "application/json")
+    @ApiOperation(value = "Exact search.")
     @RequestMapping(value = "/search/exact", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Integer>> searchExact(

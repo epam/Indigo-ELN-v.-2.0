@@ -18,7 +18,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,9 +63,6 @@ public class BatchRegisterStatusCheckingJob {
                     }
 
                     registrationJob.setRegistrationStatus(status.getStatus());
-
-                    setLastHandledBy(registrationJob);
-
                     registrationJobRepository.save(registrationJob);
                 } catch (RegistrationException e) {
                     LOGGER.error("Error occurred while checking registration status, job id: " + jobId + ", repository id: " + repositoryId, e);
@@ -76,15 +72,6 @@ public class BatchRegisterStatusCheckingJob {
 
         if (!MapUtils.isEmpty(updatedBatchesStatuses)) {
             template.convertAndSend("/topic/registration_status", updatedBatchesStatuses);
-        }
-    }
-
-    private void setLastHandledBy(RegistrationJob registrationJob) {
-        try {
-            registrationJob.setLastHandledBy(InetAddress.getLocalHost().getCanonicalHostName());
-        } catch (Exception e) {
-            registrationJob.setLastHandledBy("Unknown");
-            LOGGER.trace("Error getting host name", e);
         }
     }
 }

@@ -78,7 +78,7 @@ public class PermissionUtil {
         }
     }
 
-    public static void addUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
+    public static boolean addUserPermissions(Set<UserPermission> accessList, User user, Set<String> permissions) {
         UserPermission userPermission = findPermissionsByUserId(accessList, user.getId());
         if (userPermission != null) {
             Set<String> existingPermissions = userPermission.getPermissions();
@@ -86,10 +86,11 @@ public class PermissionUtil {
                 existingPermissions = new HashSet<>();
                 userPermission.setPermissions(existingPermissions);
             }
-            existingPermissions.addAll(permissions);
+            return existingPermissions.addAll(permissions);
         } else {
             userPermission = new UserPermission(user, permissions);
             accessList.add(userPermission);
+            return true;
         }
     }
 

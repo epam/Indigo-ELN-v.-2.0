@@ -4,11 +4,10 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components, EntitiesBrowser) {
+    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components,
+                                  EntitiesBrowser, componentsUtils) {
         var vm = this;
         var resource;
-        vm.dismiss = dismiss;
-        vm.confirmCompletion = confirmCompletion;
 
         init();
 
@@ -17,6 +16,9 @@
             vm.loading = resource.get($stateParams).$promise.then(function(entity) {
                 initCheckboxesForEntity(entity);
             });
+
+            vm.dismiss = dismiss;
+            vm.confirmCompletion = confirmCompletion;
         }
 
         function initService(kind) {
@@ -56,16 +58,15 @@
                 value: component ? component.name : 'Unknown'
             };
         }
+
         // this will not work for compounds. Need to ask Backend to support it properly
         function initFromTemplate(experiment) {
             var tabs = _.get(experiment, 'template.templateContent');
-            _.each(tabs, function(tab) {
-                _.each(tab.components, function(comp) {
-                    var component = _.find(Components, {id: comp.id});
-                    if (component.isPrint) {
-                        vm.components.push(buildComponentItem(component));
-                    }
-                });
+
+            _.each(componentsUtils.getComponentsFromTemplateContent(tabs), function(component) {
+                if (Components[component.field].isPrint) {
+                    vm.components.push(buildComponentItem(component));
+                }
             });
             vm.hasAttachments = !!_.find(vm.components, {id: 'attachments'});
         }

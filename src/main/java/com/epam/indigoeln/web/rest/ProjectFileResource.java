@@ -23,11 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -61,7 +57,7 @@ public class ProjectFileResource {
      * <b>By default</b>: page = 0, size = 20 and no sort<br/>
      * <b>Available sort options</b>: filename, contentType, length, uploadDate
      */
-    @ApiOperation(value = "Returns all project files (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns all project files (with paging).")
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<FileDTO>> getAllFiles(
             @ApiParam("Identifier of the project to get files for.") @RequestParam String projectId,
@@ -84,7 +80,7 @@ public class ProjectFileResource {
     /**
      * POST  /project_files?projectId -> Saves file for specified project
      */
-    @ApiOperation(value = "Creates new file for the project.", produces = "application/json")
+    @ApiOperation(value = "Creates new file for the project.")
     @RequestMapping(method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FileDTO> saveFile(
@@ -108,7 +104,7 @@ public class ProjectFileResource {
     /**
      * GET  /project_files/:id -> Returns file with specified id
      */
-    @ApiOperation(value = "Returns project file by it's id.", produces = "application/json")
+    @ApiOperation(value = "Returns project file by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<InputStreamResource> getFile(
@@ -124,7 +120,7 @@ public class ProjectFileResource {
     /**
      * DELETE  /project_files/:id -> Removes file with specified id
      */
-    @ApiOperation(value = "Removes project file.", produces = "application/json")
+    @ApiOperation(value = "Removes project file.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteFile(
             @ApiParam("Project file id.") @PathVariable("id") String id

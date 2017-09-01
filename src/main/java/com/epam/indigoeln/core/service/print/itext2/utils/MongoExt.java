@@ -8,6 +8,7 @@ import com.mongodb.Function;
 import one.util.streamex.StreamEx;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -77,6 +78,10 @@ public class MongoExt {
     public MongoExt getObject(String field) {
         BasicDBObject object = (BasicDBObject) get(field);
         return MongoExt.of(object);
+    }
+
+    public Date getDate(String field){
+        return origin.getDate(field);
     }
 
     /**

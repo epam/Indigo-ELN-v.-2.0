@@ -34,7 +34,7 @@ public class CalculationResource {
     /**
      * PUT /molecule/info/ -> get calculated molecular fields
      */
-    @ApiOperation(value = "Gets calculated molecular fields.", produces = "application/json")
+    @ApiOperation(value = "Gets calculated molecular fields.")
     @RequestMapping(value = "/molecule/info",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +53,7 @@ public class CalculationResource {
     /**
      * PUT /molecule/chiral/ -> get is molecule chiral
      */
-    @ApiOperation(value = "Checks if molecule is chiral.", produces = "application/json")
+    @ApiOperation(value = "Checks if molecule is chiral.")
     @RequestMapping(value = "/molecule/chiral",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -66,7 +66,7 @@ public class CalculationResource {
     /**
      * PUT /molecule/empty/ -> get is molecule empty
      */
-    @ApiOperation(value = "Checks if molecule is empty.", produces = "application/json")
+    @ApiOperation(value = "Checks if molecule is empty.")
     @RequestMapping(value = "/molecule/empty",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE,
@@ -80,7 +80,7 @@ public class CalculationResource {
     /**
      * PUT /molecule/equals/ -> check, that all molecules has equal structure
      */
-    @ApiOperation(value = "Checks that all molecules have equal structure.", produces = "application/json")
+    @ApiOperation(value = "Checks that all molecules have equal structure.")
     @RequestMapping(value = "/molecule/equals",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,7 +93,7 @@ public class CalculationResource {
     /**
      * PUT /reaction/extract/ -> extract reaction components (structure, reactants and products)
      */
-    @ApiOperation(value = "Extracts reaction components (structure, reactants and products).", produces = "application/json")
+    @ApiOperation(value = "Extracts reaction components (structure, reactants and products).")
     @RequestMapping(value = "/reaction/extract",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -106,7 +106,7 @@ public class CalculationResource {
     /**
      * PUT /reaction/combine/ -> combine reaction components (structure, reactants and products)
      */
-    @ApiOperation(value = "Combine reaction components (structure, reactants and products.", produces = "application/json")
+    @ApiOperation(value = "Combine reaction components (structure, reactants and products.")
     @RequestMapping(value = "/reaction/combine",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -119,7 +119,7 @@ public class CalculationResource {
     /**
      * PUT /reaction/equals/ -> check, that all reactions has equal structure
      */
-    @ApiOperation(value = "Checks that all reactions have equal structure.", produces = "application/json")
+    @ApiOperation(value = "Checks that all reactions have equal structure.")
     @RequestMapping(value = "/reaction/equals",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -132,7 +132,7 @@ public class CalculationResource {
     /**
      * PUT /reaction/valid/ -> check, that reaction structure is valid
      */
-    @ApiOperation(value = "Checks that reaction structure is valid.", produces = "application/json")
+    @ApiOperation(value = "Checks that reaction structure is valid.")
     @RequestMapping(value = "/reaction/valid",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -149,40 +149,48 @@ public class CalculationResource {
     /**
      * PUT /stoich/calculate -> calcalate stoich table
      */
+    @ApiOperation(value = "Calculate stoichiometry table.")
     @RequestMapping(value = "/stoich/calculate",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StoicTableDTO> calculateStoicTable(@RequestBody StoicTableDTO stoicTableDTO) {
+    public ResponseEntity<StoicTableDTO> calculateStoicTable(
+            @ApiParam("Stoichiometry table") @RequestBody StoicTableDTO stoicTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateStoicTable(stoicTableDTO));
     }
 
     /**
      * PUT /stoich/calculate -> calcalate stoich table based on batch
      */
+    @ApiOperation(value = "Calculate stoichiometry table based on batch.")
     @RequestMapping(value = "/stoich/calculate/batch",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StoicTableDTO> calculateStoicTableBasedOnBatch(@RequestBody StoicTableDTO stoicTableDTO) {
+    public ResponseEntity<StoicTableDTO> calculateStoicTableBasedOnBatch(
+            @ApiParam("Stoichiometry table") @RequestBody StoicTableDTO stoicTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateStoicTableBasedOnBatch(stoicTableDTO));
     }
 
     /**
-     * PUT /product/calculate/batch -> calcalate batch from product batch summary table
+     * PUT /product/calculate/batch -> calculate batch from product batch summary table
      */
+    @ApiOperation(value = "Calculate batch from product batch summary table.")
     @RequestMapping(value = "/product/calculate/batch",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BasicBatchModel> calculateProductBatch(@RequestBody ProductTableDTO productTableDTO) {
+    public ResponseEntity<BasicBatchModel> calculateProductBatch(
+            @ApiParam("Batch from product table")@RequestBody ProductTableDTO productTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.calculateProductBatch(productTableDTO));
     }
 
     /**
      * PUT /product/calculate/batch/amounts -> calcalate batch batch amounts
      */
+    @ApiOperation(value = "Calculate batch batch amounts.")
     @RequestMapping(value = "/product/calculate/batch/amounts",
             method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<BasicBatchModel> recalculateBatchAmounts(@RequestBody ProductTableDTO productTableDTO) {
+    public ResponseEntity<BasicBatchModel> recalculateBatchAmounts(
+            @ApiParam("Batch from product table") @RequestBody ProductTableDTO productTableDTO) {
         return ResponseEntity.ok(stoicCalculationService.recalculateBatchAmounts(productTableDTO));
     }
 

@@ -268,7 +268,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")
                 .map(batch -> (AbstractPdfSection) new BatchDetailsSection(new BatchDetailsModel()
                         .setFullNbkBatch(batch.getString("fullNbkBatch"))
-                        .setRegistrationDate(batch.getString("registrationDate"))
+                        .setRegistrationDate(batch.getDate("registrationDate"))
                         .setStructureComments(batch.getString("structureComments"))
                         .setSource(batch.getString("source", "name"))
                         .setSourceDetail(batch.getString("sourceDetail", "name"))

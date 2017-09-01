@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.model.Compound;
 import com.epam.indigoeln.core.model.RegistrationJob;
 import com.epam.indigoeln.core.repository.component.ComponentRepository;
 import com.epam.indigoeln.core.repository.registration.*;
+import com.epam.indigoeln.core.util.WebSocketUtil;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import org.apache.commons.collections.CollectionUtils;
@@ -117,6 +118,7 @@ public class RegistrationService {
         registrationJob.setRegistrationStatus(RegistrationStatus.Status.IN_PROGRESS);
         registrationJob.setRegistrationJobId(jobId);
         registrationJob.setRegistrationRepositoryId(id);
+        registrationJob.setHandledBy(WebSocketUtil.getHostName());
 
         registrationJobRepository.save(registrationJob);
 
