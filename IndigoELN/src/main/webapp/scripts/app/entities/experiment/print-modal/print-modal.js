@@ -1,35 +1,35 @@
 angular.module('indigoeln')
-    .factory('printModal', function($rootScope, $stateParams, $state, $uibModal, $window, $httpParamSerializer) {
+    .factory('printModal', function($rootScope, $state, $uibModal, $window, $httpParamSerializer) {
         return {
             showPopup: showPopup
         };
 
-        function showPopup() {
+        function showPopup(params, resourceName) {
             $uibModal.open({
                 animation: true,
                 templateUrl: 'scripts/app/entities/experiment/print-modal/print-modal.html',
                 controller: 'PrintModalController',
-                controllerAs: 'vm'
-            }).result.then(function(result) {
-                //this won't work while response is not an object
-                // entity.print(angular.extend($stateParams, result)).$promise.then(function(data) {
-                //     //window.open("data:application/pdf," + escape(data));
-                // });
-
-                //This will go away when response of print service will be {response : 'pdfString'}
-                var qs = $httpParamSerializer(result);
-                var url = 'api/print/project/' + $stateParams.projectId;
-                if ($stateParams.notebookId) {
-                    url += '/notebook/' + $stateParams.notebookId;
+                controllerAs: 'vm',
+                resolve: {
+                    params: params,
+                    resource: [resourceName, function(resource) {
+                        return resource;
+                    }],
+                    resourceName: function() {
+                        return resourceName;
+                    }
                 }
-                if ($stateParams.experimentId) {
-                    url += '/experiment/' + $stateParams.experimentId;
+            }).result.then(function(result) {
+                var qs = $httpParamSerializer(result);
+                var url = 'api/print/project/' + params.projectId;
+                if (params.notebookId) {
+                    url += '/notebook/' + params.notebookId;
+                }
+                if (params.experimentId) {
+                    url += '/experiment/' + params.experimentId;
                 }
                 url += '?' + qs;
                 $window.open(url);
-                $state.go('^');
-            }, function() {
-                $state.go('^');
             });
         }
     });

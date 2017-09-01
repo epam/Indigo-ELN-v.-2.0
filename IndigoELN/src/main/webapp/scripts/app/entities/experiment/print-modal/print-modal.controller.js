@@ -4,16 +4,13 @@
         .controller('PrintModalController', PrintModalController);
 
     /* @ngInject */
-    function PrintModalController($uibModalInstance, $stateParams, Experiment, Notebook, Project, Components,
-                                  EntitiesBrowser, componentsUtils) {
+    function PrintModalController($uibModalInstance, params, resourceName, resource, Components, componentsUtils) {
         var vm = this;
-        var resource;
 
         init();
 
         function init() {
-            initService(EntitiesBrowser.getActiveTab().kind);
-            vm.loading = resource.get($stateParams).$promise.then(function(entity) {
+            vm.loading = resource.get(params).$promise.then(function(entity) {
                 initCheckboxesForEntity(entity);
             });
 
@@ -21,28 +18,10 @@
             vm.confirmCompletion = confirmCompletion;
         }
 
-        function initService(kind) {
-            switch (kind) {
-                case 'project':
-                    resource = Project;
-                    break;
-                case 'notebook':
-                    resource = Notebook;
-                    break;
-                case 'experiment':
-                    resource = Experiment;
-                    break;
-                default:
-                    break;
-            }
-
-            return resource;
-        }
-
         function initCheckboxesForEntity(entity) {
-            if (resource === Project) {
+            if (resourceName === 'Project') {
                 vm.hasAttachments = true;
-            } else if (resource === Notebook) {
+            } else if (resourceName === 'Notebook') {
                 vm.askContents = true;
             } else {
                 vm.hasAttachments = false;
