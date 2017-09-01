@@ -533,13 +533,11 @@
                     } else if (batches.length > 1) {
                         dialogService.structureValidation(batches, compoundId, function(selectedBatch) {
                             populateFetchedBatch(row, selectedBatch);
+                            vm.onPrecursorsChanged({precursors: getPrecursors()});
                         });
                     } else {
                         alertCompoundWrongFormat();
-
-                        return;
                     }
-                    vm.onPrecursorsChanged({precursors: getPrecursors()});
                 });
             });
         }
@@ -638,9 +636,9 @@
         }
 
         function getPrecursors() {
-            return _.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
+            return _.compact(_.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
                 return r.compoundId || r.fullNbkBatch;
-            }).join(', ');
+            })).join(', ');
         }
 
         function getReactantsWithMolfile(stoichReactants) {

@@ -120,8 +120,8 @@
                 $scope.$on('stoic-table-recalculated', function(event, data) {
                     if (data.actualProducts.length === vm.batches.length) {
                         _.each(vm.batches, function(batch, i) {
-                            batch.molWeight.value = data[i].molWeight.value;
-                            batch.theoMoles.value = data[i].theoMoles.value;
+                            batch.molWeight.value = data.actualProducts[i].molWeight.value;
+                            batch.theoMoles.value = data.actualProducts[i].theoMoles.value;
                         });
                     }
                 });
@@ -176,10 +176,8 @@
 
             function onPrecursorsChanged(newPrecursors) {
                 precursors = newPrecursors;
-                $timeout(function() {
-                    _.forEach(vm.batches, function(batch) {
-                        batch.precursors = precursors;
-                    });
+                _.forEach(vm.batches, function(batch) {
+                    batch.precursors = precursors;
                 });
             }
         }
