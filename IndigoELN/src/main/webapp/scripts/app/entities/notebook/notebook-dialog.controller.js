@@ -110,8 +110,8 @@
             $scope.$watch(function() {
                 return vm.notebook;
             }, function(newEntity) {
-                var isDirty = vm.stateData.isNew || autorecoveryHelper.isEntityDirty(originalNotebook, newEntity);
-                toggleDirty(isDirty);
+                var isDirty = autorecoveryHelper.isEntityDirty(originalNotebook, newEntity);
+                toggleDirty(vm.stateData.isNew || isDirty);
                 updateRecovery(newEntity, isDirty);
             }, true);
 
