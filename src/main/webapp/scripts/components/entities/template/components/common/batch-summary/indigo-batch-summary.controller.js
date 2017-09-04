@@ -229,8 +229,8 @@
                     realId: 'purity',
                     name: 'Purity',
                     type: 'string',
-                    onClick: function(data) {
-                        isEditable(data.row, '$$purity') ? editPurity(data.row) : null;
+                    onClick: function(data) {console.log(vm);
+                        editPurity(data.row);
                     },
                     actions: [{
                         name: 'Set value for Purity',
@@ -247,7 +247,7 @@
                     name: 'Melting Point',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$meltingPoint') ? editMeltingPoint(data.row) : null;
+                        editMeltingPoint(data.row);
                     },
                     actions: [{
                         name: 'Set value for Melting Point',
@@ -316,7 +316,7 @@
                     name: 'External Supplier',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$externalSupplier') ? editExternalSupplier(data.row) : null;
+                        editExternalSupplier(data.row);
                     },
                     actions: [{
                         name: 'Set value for External Supplier',
@@ -339,7 +339,7 @@
                     name: 'Health Hazards',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$healthHazards') ? editHealthHazards(data.row) : null;
+                        editHealthHazards(data.row);
                     },
                     actions: [{
                         name: 'Set value for Health Hazards',
@@ -377,7 +377,7 @@
                     name: 'Residual Solvents',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$residualSolvents') ? editResidualSolvents([data.row]) : null;
+                        editResidualSolvents([data.row]);
                     },
                     actions: [{
                         name: 'Set value for Residual Solvents',
@@ -393,7 +393,7 @@
                     name: 'Solubility in Solvents',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$solubility') ? editSolubility([data.row]) : null;
+                        editSolubility([data.row]);
                     },
                     actions: [{
                         name: 'Set value for Solubility in Solvents',
@@ -409,7 +409,7 @@
                     name: 'Storage Instructions',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$storageInstructions') ? editStorageInstructions([data.row]) : null;
+                        editStorageInstructions([data.row]);
                     },
                     actions: [{
                         name: 'Set value for Storage Instructions',
@@ -425,7 +425,7 @@
                     name: 'Handling Precautions',
                     type: 'string',
                     onClick: function(data) {
-                        isEditable(data.row, '$$handlingPrecautions') ? editHandlingPrecautions([data.row]) : null;
+                        editHandlingPrecautions([data.row]);
                     },
                     actions: [{
                         name: 'Set value for Handling Precautions',
