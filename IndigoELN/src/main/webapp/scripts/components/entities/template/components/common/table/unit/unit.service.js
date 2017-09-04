@@ -3,7 +3,7 @@ angular
     .factory('unitService', unitService);
 
 /* @ngInject */
-function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBrowser, $rootScope) {
+function unitService($uibModal, CalculationService, RegistrationUtil, $rootScope) {
     return {
         processColumns: processColumns
     };
@@ -62,7 +62,6 @@ function unitService($uibModal, CalculationService, RegistrationUtil, EntitiesBr
     }
 
     function setDirty() {
-        // TODO: SHOULD_BE_REMOVE
         $rootScope.$broadcast('SET_UNIT');
     }
 
