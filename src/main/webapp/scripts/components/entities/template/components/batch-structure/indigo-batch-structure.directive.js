@@ -55,7 +55,6 @@
             batch.molWeight = batch.molWeight || {};
             batch.molWeight.value = molInfo.molecularWeight;
 
-            // TODO: it doesn't recalculate stoich table
             CalculationService.recalculateStoich();
 
             return CalculationService.calculateProductBatch({

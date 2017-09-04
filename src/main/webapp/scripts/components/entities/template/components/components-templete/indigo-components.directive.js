@@ -101,7 +101,6 @@
 
             function updateModel() {
                 vm.batches = _.get(vm.model, 'productBatchSummary.batches') || [];
-                // TODO: should be removed
                 ProductBatchSummaryCache.setProductBatchSummary(vm.batches);
                 vm.batchesTrigger++;
 

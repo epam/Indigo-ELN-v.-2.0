@@ -34,8 +34,6 @@
                 formData: formData
             });
 
-            // FILTERS
-            // TODO: maximum permitted size 1048576 bytes
             uploader.filters.push({
                 name: 'customFilter',
                 fn: function() {

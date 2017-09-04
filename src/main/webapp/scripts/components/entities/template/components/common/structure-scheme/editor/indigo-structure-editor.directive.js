@@ -37,7 +37,6 @@
                     }
 
                     $timeout(function() {
-                        // TODO: Why the prolongation make only for svg tag?
                         $element.contents().find('svg').on('click', function() {
                             Auth.prolong();
                         });

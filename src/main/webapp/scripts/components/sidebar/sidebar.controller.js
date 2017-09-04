@@ -107,8 +107,7 @@
         }
 
         function isOpen(experiment) {
-            //TODO: we cant compare objects like this
-            return experiment === popExperiment;
+            return _.isEqual(experiment, popExperiment);
         }
 
         function getTreeItemById(items, itemId) {
