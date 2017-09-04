@@ -82,7 +82,6 @@
             });
         });
 
-
         // we use the SI gram unit as the base; this allows
         // us to convert between SI and English units
         unitConverter.addUnit('g', 'ounce', 28.3495231);
