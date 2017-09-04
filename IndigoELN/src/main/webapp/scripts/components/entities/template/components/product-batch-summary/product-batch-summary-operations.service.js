@@ -146,18 +146,22 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
     }
 
     function syncWithIntendedProducts() {
-        var syncingIntendedProducts = $q.defer();
         var batchesQueueToAdd = getIntendedNotInActual();
         var stoichTable = StoichTableCache.getStoicTable();
+
         if (stoichTable && stoichTable.products && stoichTable.products.length) {
             if (!batchesQueueToAdd.length) {
-                syncingIntendedProducts.resolve();
                 AlertModal.info('Product Batch Summary is synchronized', 'sm');
             } else {
+                _.forEach(batchesQueueToAdd, function(batch) {
+                    _.extend(AppValues.getDefaultBatch, batch);
+                });
+
                 return duplicateBatches(batchesQueueToAdd, true);
             }
         }
-        syncingIntendedProducts.resolve();
+
+        return $q.resolve([]);
     }
 
     function addNewBatch() {

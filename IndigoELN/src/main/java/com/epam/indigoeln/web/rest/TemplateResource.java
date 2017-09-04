@@ -37,7 +37,7 @@ public class TemplateResource {
     /**
      * GET /templates/:id -> get template by id
      */
-    @ApiOperation(value = "Returns template by it's id.", produces = "application/json")
+    @ApiOperation(value = "Returns template by it's id.")
     @RequestMapping(value = "/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TemplateDTO> getTemplate(
@@ -54,7 +54,7 @@ public class TemplateResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all templates (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns all templates (with paging).")
     public ResponseEntity<List<TemplateDTO>> getAllTemplates(
             @ApiParam("Paging data") Pageable pageable
         ) throws URISyntaxException {
@@ -77,7 +77,7 @@ public class TemplateResource {
      * @param templateDTO template for save
      * @return saved template item wrapped to ResponseEntity
      */
-    @ApiOperation(value = "Creates new template.", produces = "application/json")
+    @ApiOperation(value = "Creates new template.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -105,7 +105,7 @@ public class TemplateResource {
      * @param template template for save
      * @return saved template item wrapped to ResponseEntity
      */
-    @ApiOperation(value = "Updates existing template.", produces = "application/json")
+    @ApiOperation(value = "Updates existing template.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -132,7 +132,7 @@ public class TemplateResource {
      * @param id id of template
      * @return operation status Response Entity
      */
-    @ApiOperation(value = "Removes template.", produces = "application/json")
+    @ApiOperation(value = "Removes template.")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteTemplate(
             @ApiParam("Template id to delete") @PathVariable String id

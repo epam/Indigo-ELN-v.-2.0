@@ -75,7 +75,7 @@ public class UserResource {
      */
     @RequestMapping(method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Returns all users (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns all users (with paging).")
     public ResponseEntity<List<ManagedUserDTO>> getAllUsers(
             @ApiParam("Paging data.") Pageable pageable
         ) throws URISyntaxException {
@@ -92,7 +92,7 @@ public class UserResource {
      * GET  api/users/permission-management -> Returns users for Entity Permission Management
      * Don't use it for Authority-management operations!
      */
-    @ApiOperation(value = "Returns users for Entity Permission Management (with paging).", produces = "application/json")
+    @ApiOperation(value = "Returns users for Entity Permission Management (with paging).")
     @RequestMapping(value= "/permission-management", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<UserDTO>> getAllUsersWithAuthorities(
@@ -111,7 +111,7 @@ public class UserResource {
      * TODO Think about using UserDTO for all users, but ManagedUserDTO only for USER_EDITOR
      * GET  /users/:login -> Returns specified user.
      */
-    @ApiOperation(value = "Returns user by it's login.", produces = "application/json")
+    @ApiOperation(value = "Returns user by it's login.")
     @RequestMapping(value = "/{login:[_'.@a-z0-9-]+}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ManagedUserDTO> getUser(
@@ -130,7 +130,7 @@ public class UserResource {
      * The user needs to be activated on creation.
      * </p>
      */
-    @ApiOperation(value = "Creates user.", produces = "application/json")
+    @ApiOperation(value = "Creates user.")
     @RequestMapping(method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -148,7 +148,7 @@ public class UserResource {
     /**
      * PUT  /users -> Updates an existing User.
      */
-    @ApiOperation(value = "Updates user.", produces = "application/json")
+    @ApiOperation(value = "Updates user.")
     @RequestMapping(method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -166,7 +166,7 @@ public class UserResource {
     /**
      * DELETE  USER :login -> delete the "login" User.
      */
-    @ApiOperation(value = "Removes user.", produces = "application/json")
+    @ApiOperation(value = "Removes user.")
     @RequestMapping(value = "/{login}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteUser(
             @ApiParam("User login to delete") @PathVariable String login

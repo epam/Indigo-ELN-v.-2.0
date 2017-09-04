@@ -144,16 +144,17 @@ public class NotebookService {
         // add VIEWER's permissions for Project Author to notebook, if notebook creator is another User
         PermissionUtil.addProjectAuthorToAccessList(notebook.getAccessList(), project.getAuthor(), user);
 
-        saveNotebookAndHandleError(notebook);
+        Notebook savedNotebook = saveNotebookAndHandleError(notebook);
 
         // add all users as VIEWER to project
         notebook.getAccessList().forEach(up ->
                 PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
 
         project.getNotebooks().add(notebook);
-        projectRepository.save(project);
+        Project savedProject = projectRepository.save(project);
+        webSocketUtil.updateProject(user, savedProject);
 
-        return new NotebookDTO(notebook);
+        return new NotebookDTO(savedNotebook);
     }
 
     public NotebookDTO updateNotebook(NotebookDTO notebookDTO, String projectId, User user) {
@@ -199,11 +200,16 @@ public class NotebookService {
             Project project = Optional.ofNullable(projectRepository.findOne(projectId)).
                     orElseThrow(() -> EntityNotFoundException.createWithProjectId(projectId));
             // add all users as VIEWER to project
-            notebook.getAccessList().forEach(up ->
-                    PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS));
-            projectRepository.save(project);
+            Boolean updateProject = notebook.getAccessList().stream()
+                    .map(up -> PermissionUtil.addUserPermissions(project.getAccessList(), up.getUser(), UserPermission.VIEWER_PERMISSIONS))
+                    .reduce(false, Boolean::logicalOr);
 
             webSocketUtil.updateNotebook(user, projectId, savedNotebook);
+
+            if (updateProject){
+                Project savedProject = projectRepository.save(project);
+                webSocketUtil.updateProject(user, savedProject);
+            }
 
             return new NotebookDTO(savedNotebook);
         } finally {

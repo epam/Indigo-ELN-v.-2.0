@@ -42,7 +42,7 @@ function componentsUtilsFactory(Principal, Components) {
         if (isExist) {
             _.defaultsDeep(
                 components, {
-                    conceptDetails: {experimentCreator: {name: Principal.getIdentity().fullName}}
+                    conceptDetails: {experimentCreator: Principal.getIdentity().id}
                 }
             );
         }
@@ -92,7 +92,7 @@ function componentsUtilsFactory(Principal, Components) {
                     reactionDetails: {
                         batchOwner: [],
                         coAuthors: [],
-                        experimentCreator: {name: Principal.getIdentity().fullName}
+                        experimentCreator: Principal.getIdentity().id
                     }
                 });
         }
