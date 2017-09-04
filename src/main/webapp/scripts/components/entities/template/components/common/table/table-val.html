@@ -22,11 +22,11 @@
            ng-click="vm.isReadonly || vm.indigoColumn.onClick({model: vm.indigoRow[vm.indigoColumn.id], row: vm.indigoRow, column: vm.indigoColumn.id})">
             {{vm.indigoRow[vm.indigoColumn.realId].asString || '&mdash;'}}</a>
         <a ng-if="vm.isEmpty(vm.indigoRow[vm.indigoColumn.id], vm.indigoColumn) && !vm.indigoRow[vm.indigoColumn.id].readonly && vm.indigoColumn.type && vm.indigoColumn.type!== 'image' && vm.indigoColumn.type!== 'boolean' && vm.indigoColumn.type !== 'string'"
-           ng-click="vm.toggleEditable()">&mdash;</a>
+           ng-click="vm.isReadonly || vm.toggleEditable()">&mdash;</a>
         <a ng-if="vm.isEmpty(vm.indigoRow[vm.indigoColumn.id], vm.indigoColumn) && vm.indigoRow[vm.indigoColumn.id].readonly"
            class="not-editable"></a>
         <a ng-if="!vm.isEmpty(vm.indigoRow[vm.indigoColumn.id], vm.indigoColumn) && !vm.indigoRow[vm.indigoColumn.id].readonly && vm.indigoColumn.type && vm.indigoColumn.type!== 'image'&& vm.indigoColumn.type!== 'boolean'"
-           ng-click="vm.toggleEditable()">
+           ng-click="vm.isReadonly || vm.toggleEditable()">
             <span ng-if="vm.indigoColumn.type == 'input' && !vm.indigoColumn.hasStructurePopover"
                   ng-class="{'entered-value': vm.indigoRow[vm.indigoColumn.id].entered}">{{vm.indigoRow[vm.indigoColumn.id]}}</span>
             <span ng-if="vm.indigoColumn.type == 'input' && vm.indigoColumn.hasStructurePopover"

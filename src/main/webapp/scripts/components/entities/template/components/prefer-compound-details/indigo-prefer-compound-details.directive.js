@@ -61,7 +61,7 @@
             }
 
             function checkEditDisabled() {
-                return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch;
+                return vm.isReadonly || !vm.selectedBatch || !vm.selectedBatch.nbkBatch || vm.selectedBatch.registrationStatus;
             }
 
             function addNewBatch() {
