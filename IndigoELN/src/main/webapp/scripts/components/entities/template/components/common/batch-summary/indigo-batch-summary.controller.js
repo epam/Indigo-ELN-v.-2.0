@@ -229,7 +229,7 @@
                     realId: 'purity',
                     name: 'Purity',
                     type: 'string',
-                    onClick: function(data) {console.log(vm);
+                    onClick: function(data) {
                         editPurity(data.row);
                     },
                     actions: [{
