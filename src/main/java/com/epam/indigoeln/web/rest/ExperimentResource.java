@@ -217,6 +217,27 @@ public class ExperimentResource {
     }
 
     /**
+     * PUT  /experiments/:id -> reopen experiment according to User permissions
+     */
+    @RequestMapping(
+            value = "reopen",
+            method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Reopen experiment according to permissions.")
+    public ResponseEntity<ExperimentDTO> reopenExperiment(
+            @ApiParam("Experiment to reopen") @RequestBody ExperimentDTO experimentDTO,
+            @ApiParam("Project id") @PathVariable String projectId,
+            @ApiParam("Notebook id") @PathVariable String notebookId
+    ) {
+        LOGGER.debug("REST request to reopen experiment: {}", experimentDTO);
+        User user = userService.getUserWithAuthorities();
+        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, experimentDTO, user);
+        HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
+        return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
+    }
+
+    /**
      * DELETE  /experiments/:id -> Removes experiment with specified id
      */
     @ApiOperation(value = "Removes experiment.")

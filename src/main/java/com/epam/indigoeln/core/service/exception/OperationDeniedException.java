@@ -44,6 +44,10 @@ public class OperationDeniedException extends CustomParametrizedException {
         return new OperationDeniedException("The experiment doesn't have status Open and can't be updated", entityId);
     }
 
+    public static OperationDeniedException createExperimentReopenOperation(String entityId) {
+        return new OperationDeniedException("The open experiment can't be reopened", entityId);
+    }
+
     public static OperationDeniedException createNotebookSubEntityCreateOperation(String entityId) {
         return createSubEntityCreateOperation(entityId, "notebook");
     }
