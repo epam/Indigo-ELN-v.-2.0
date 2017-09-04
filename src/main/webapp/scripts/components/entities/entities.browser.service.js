@@ -131,7 +131,6 @@ function entitiesBrowser($q, $state, Principal, TabKeyUtils, localStorageService
     }
 
     function setActiveTab(tab) {
-        updateCurrentEntityFunction = null;
         saveCurrentEntityFunction = null;
         activeEntity = null;
         activeTab = tab;
