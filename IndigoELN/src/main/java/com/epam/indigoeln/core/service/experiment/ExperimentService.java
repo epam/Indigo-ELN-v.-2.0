@@ -265,30 +265,19 @@ public class ExperimentService {
             Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
                     orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
 
-            if (experimentFromDB.getStatus() != ExperimentStatus.OPEN) {
-                throw OperationDeniedException.createNotOpenExperimentUpdateOperation(experimentFromDB.getId());
-            }
-
             // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
             // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
-            if (!PermissionUtil.isContentEditor(user)) {
-                Notebook notebook = notebookRepository.findByExperimentId(experimentFromDB.getId());
-                if (notebook == null) {
-                    throw EntityNotFoundException.createWithNotebookChildId(experimentFromDB.getId());
-                }
-
-                if (!PermissionUtil.hasPermissions(user.getId(),
-                        notebook.getAccessList(), UserPermission.READ_ENTITY,
-                        experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
-                    throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
-                }
-            }
+            checkAccess(user, experimentFromDB);
 
             Experiment experimentForSave = dtoMapper.convertFromDTO(experimentDTO);
 
             //Check experiment version before component's saving
             if (!experimentForSave.getVersion().equals(experimentFromDB.getVersion())) {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), new IndigoRuntimeException());
+            }
+
+            if (experimentFromDB.getStatus() != ExperimentStatus.OPEN) {
+                throw OperationDeniedException.createNotOpenExperimentUpdateOperation(experimentFromDB.getId());
             }
 
             if (experimentDTO.getTemplate() != null) {
@@ -352,6 +341,57 @@ public class ExperimentService {
         return result;
     }
 
+    private void checkAccess(User user, Experiment experimentFromDB) {
+        if (!PermissionUtil.isContentEditor(user)) {
+            Notebook notebook = notebookRepository.findByExperimentId(experimentFromDB.getId());
+            if (notebook == null) {
+                throw EntityNotFoundException.createWithNotebookChildId(experimentFromDB.getId());
+            }
+
+            if (!PermissionUtil.hasPermissions(user.getId(),
+                    notebook.getAccessList(), UserPermission.READ_ENTITY,
+                    experimentFromDB.getAccessList(), UserPermission.UPDATE_ENTITY)) {
+                throw OperationDeniedException.createExperimentUpdateOperation(experimentFromDB.getId());
+            }
+        }
+    }
+
+    public ExperimentDTO reopenExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user){
+        Lock lock = locks.get(projectId);
+        ExperimentDTO result;
+        try {
+            lock.lock();
+            Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
+                    orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
+
+            // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
+            // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
+            checkAccess(user, experimentFromDB);
+
+            //Check experiment version before component's saving
+            if (!experimentDTO.getVersion().equals(experimentFromDB.getVersion())) {
+                throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), new IndigoRuntimeException());
+            }
+
+            if (experimentFromDB.getStatus() == ExperimentStatus.OPEN) {
+                throw OperationDeniedException.createExperimentReopenOperation(experimentFromDB.getId());
+            }
+
+            experimentFromDB.setStatus(ExperimentStatus.OPEN);
+
+            Experiment savedExperiment;
+            try {
+                savedExperiment = experimentRepository.save(experimentFromDB);
+            } catch (OptimisticLockingFailureException e) {
+                throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), e);
+            }
+            result = new ExperimentDTO(savedExperiment);
+            webSocketUtil.updateExperiment(user, projectId, notebookId, savedExperiment);
+        } finally {
+            lock.unlock();
+        }
+        return result;
+    }
     private List<Component> updateComponents(List<Component> oldComponents, List<Component> newComponents, String experimentId) {
 
         List<Component> componentsFromDb = oldComponents != null ? oldComponents : Collections.emptyList();
