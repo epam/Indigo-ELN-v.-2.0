@@ -356,20 +356,20 @@ public class ExperimentService {
         }
     }
 
-    public ExperimentDTO reopenExperiment(String projectId, String notebookId, ExperimentDTO experimentDTO, User user){
+    public ExperimentDTO reopenExperiment(String projectId, String notebookId, String experimentId, Long version, User user){
         Lock lock = locks.get(projectId);
         ExperimentDTO result;
         try {
             lock.lock();
-            Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentDTO.getId()))).
-                    orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentDTO.getId()));
+            Experiment experimentFromDB = Optional.ofNullable(experimentRepository.findOne(SequenceIdUtil.buildFullId(projectId, notebookId, experimentId))).
+                    orElseThrow(() -> EntityNotFoundException.createWithExperimentId(experimentId));
 
             // Check of EntityAccess (User must have "Read Entity" permission in notebook's access list and
             // "Update Entity" in experiment's access list, or must have CONTENT_EDITOR authority)
             checkAccess(user, experimentFromDB);
 
             //Check experiment version before component's saving
-            if (!experimentDTO.getVersion().equals(experimentFromDB.getVersion())) {
+            if (!version.equals(experimentFromDB.getVersion())) {
                 throw ConcurrencyException.createWithExperimentName(experimentFromDB.getName(), new IndigoRuntimeException());
             }
 
