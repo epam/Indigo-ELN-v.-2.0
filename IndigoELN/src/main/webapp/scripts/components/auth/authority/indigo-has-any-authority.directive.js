@@ -24,7 +24,6 @@
                     }
 
                     Principal.hasAnyAuthority(authorities).then(function(result) {
-                        // TODO: should remove element if hasn't access
                         $element.toggleClass('hidden', !result);
                     });
                 }
