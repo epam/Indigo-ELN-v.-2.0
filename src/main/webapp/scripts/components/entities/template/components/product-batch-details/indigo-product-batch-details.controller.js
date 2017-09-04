@@ -213,7 +213,7 @@
                 }
             },
             {
-                id: 'totlaMoles',
+                id: 'totalMoles',
                 name: 'Total Moles',
                 type: 'unit',
                 width: '150px',
