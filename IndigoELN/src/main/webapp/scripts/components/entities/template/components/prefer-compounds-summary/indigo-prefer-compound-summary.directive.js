@@ -18,7 +18,6 @@
                 isHideColumnSettings: '=',
                 isReadonly: '=',
                 batchOperation: '=',
-                onShowStructure: '&',
                 onAddedBatch: '&',
                 onSelectBatch: '&',
                 onRemoveBatches: '&',
@@ -37,12 +36,6 @@
             vm.model = vm.model || {};
             vm.experiment = vm.experiment || {};
             vm.structureSize = 0.3;
-
-            vm.showStructure = showStructure;
-
-            function showStructure(value) {
-                vm.isStructure = value;
-            }
         }
     }
 })();
