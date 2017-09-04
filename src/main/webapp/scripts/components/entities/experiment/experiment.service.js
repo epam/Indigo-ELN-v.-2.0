@@ -55,6 +55,10 @@ function experiment($resource, PermissionManagement, $rootScope) {
             print: {
                 method: 'GET',
                 url: 'api/print/project/:projectId/notebook/:notebookId/experiment/:experimentId'
+            },
+            reopen: {
+                method: 'PUT',
+                url: 'api/projects/:projectId/notebooks/:notebookId/experiments/:experimentId/reopen'
             }
         });
 

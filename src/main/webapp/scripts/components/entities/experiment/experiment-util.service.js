@@ -74,15 +74,11 @@ function experimentUtil($rootScope, $state, $uibModal, $q, Experiment, Permissio
     }
 
     function reopenExperiment(experiment, params) {
-        experiment.accessList = PermissionManagement.expandPermission(experiment.accessList);
-        var experimentForSave = _.extend({}, experiment, {
-            status: 'Open'
-        });
-
-        return Experiment.update({
+        return Experiment.reopen({
             projectId: params.projectId,
-            notebookId: params.notebookId
-        }, experimentForSave).$promise;
+            notebookId: params.notebookId,
+            experimentId: params.experimentId
+        }, experiment.version).$promise;
     }
 
     function completeExperiment(experiment, params, notebookName) {
