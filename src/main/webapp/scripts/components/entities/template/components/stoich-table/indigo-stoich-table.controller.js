@@ -597,7 +597,7 @@
 
         function bindEvents() {
             $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
-            // $scope.$watch('vm.infoReactants', updateReactants);
+            $scope.$watch('vm.infoReactants', updateReactants);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
                 _.each(stoichTable.products, function(batch) {
@@ -630,7 +630,10 @@
         }
 
         function updateReactants(reactants) {
-            setStoicReactants(_.union(getStoicReactants(), reactants));
+            if (reactants && getStoicReactants() && reactants.length === getStoicReactants().length) {
+                return;
+            }
+            setStoicReactants(_.unionWith(getStoicReactants(), reactants, angular.equals));
             vm.onPrecursorsChanged({precursors: getPrecursors()});
             CalculationService.recalculateStoich();
         }
