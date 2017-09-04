@@ -5,6 +5,7 @@ import com.epam.indigoeln.core.service.experiment.ExperimentService;
 import com.epam.indigoeln.core.service.sequenceid.SequenceIdService;
 import com.epam.indigoeln.core.service.signature.SignatureService;
 import com.epam.indigoeln.core.service.user.UserService;
+import com.epam.indigoeln.core.util.SequenceIdUtil;
 import com.epam.indigoeln.web.rest.dto.ExperimentDTO;
 import com.epam.indigoeln.web.rest.dto.TreeNodeDTO;
 import com.epam.indigoeln.web.rest.util.HeaderUtil;
@@ -220,19 +221,20 @@ public class ExperimentResource {
      * PUT  /experiments/:id -> reopen experiment according to User permissions
      */
     @RequestMapping(
-            value = "reopen",
+            value = PATH_ID + "/reopen",
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Reopen experiment according to permissions.")
     public ResponseEntity<ExperimentDTO> reopenExperiment(
-            @ApiParam("Experiment to reopen") @RequestBody ExperimentDTO experimentDTO,
+            @ApiParam("Experiment version") @RequestBody Long version,
             @ApiParam("Project id") @PathVariable String projectId,
-            @ApiParam("Notebook id") @PathVariable String notebookId
+            @ApiParam("Notebook id") @PathVariable String notebookId,
+            @ApiParam("Experiment id") @PathVariable String experimentId
     ) {
-        LOGGER.debug("REST request to reopen experiment: {}", experimentDTO);
+        LOGGER.debug("REST request to reopen experiment: {}", SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, experimentDTO, user);
+        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, experimentId, version, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
     }
