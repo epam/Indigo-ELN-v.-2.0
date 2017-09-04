@@ -173,7 +173,7 @@
         }
 
         function toggleDirty(isDirty) {
-            vm.isEntityChanged = !!isDirty
+            vm.isEntityChanged = !!isDirty;
             EntitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
         }
 
