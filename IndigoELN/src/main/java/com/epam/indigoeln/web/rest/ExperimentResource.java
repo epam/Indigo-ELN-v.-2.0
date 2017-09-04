@@ -230,11 +230,11 @@ public class ExperimentResource {
             @ApiParam("Experiment version") @RequestBody Long version,
             @ApiParam("Project id") @PathVariable String projectId,
             @ApiParam("Notebook id") @PathVariable String notebookId,
-            @ApiParam("Experiment id") @PathVariable String experimentId
+            @ApiParam("Experiment id") @PathVariable String id
     ) {
-        LOGGER.debug("REST request to reopen experiment: {}", SequenceIdUtil.buildFullId(projectId, notebookId, experimentId));
+        LOGGER.debug("REST request to reopen experiment: {}", SequenceIdUtil.buildFullId(projectId, notebookId, id));
         User user = userService.getUserWithAuthorities();
-        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, experimentId, version, user);
+        ExperimentDTO updatedExperimentDTO = experimentService.reopenExperiment(projectId, notebookId, id, version, user);
         HttpHeaders headers = HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, null);
         return ResponseEntity.ok().headers(headers).body(updatedExperimentDTO);
     }
