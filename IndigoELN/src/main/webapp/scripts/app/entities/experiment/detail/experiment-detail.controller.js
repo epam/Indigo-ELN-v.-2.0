@@ -7,7 +7,7 @@
     function ExperimentDetailController($scope, $state, $stateParams, Experiment, ExperimentUtil,
                                         PermissionManagement, FileUploaderCash, EntitiesBrowser, autorecoveryHelper,
                                         notifyService, EntitiesCache, $q, Principal, Notebook, Components,
-                                        componentsUtils, autorecoveryCache, confirmationModal) {
+                                        componentsUtils, autorecoveryCache, confirmationModal, entityHelper) {
         var vm = this;
         var tabName;
         var params;
@@ -82,7 +82,6 @@
             var restoredExperiment = EntitiesCache.get($stateParams);
 
             if (!restoredExperiment || withoutCheckVersion) {
-                EntitiesCache.put($stateParams, experiment);
                 vm.experiment = experiment;
             } else if (restoredExperiment.version === experiment.version) {
                 vm.experiment = restoredExperiment;
@@ -174,6 +173,9 @@
 
         function toggleDirty(isDirty) {
             vm.isEntityChanged = !!isDirty;
+            if (vm.isEntityChanged) {
+                EntitiesCache.put($stateParams, vm.experiment);
+            }
             EntitiesBrowser.changeDirtyTab($stateParams, vm.isEntityChanged);
         }
 
@@ -190,7 +192,6 @@
 
             vm.loading = getSaveService(_.extend({}, vm.experiment))
                 .then(function(result) {
-                    EntitiesCache.put($stateParams, result);
                     vm.experiment = result;
                     updateOriginal(vm.experiment);
                 }, function() {
@@ -307,20 +308,7 @@
         function initEventListeners() {
             $scope.$on('entity-updated', function(event, data) {
                 vm.loading.then(function() {
-                    if (_.isEqual($stateParams, data.entity) && data.version > vm.experiment.version) {
-                        if (vm.isEntityChanged) {
-                            confirmationModal
-                                .openEntityVersionsConflictConfirm(entityTitle)
-                                .then(refresh, function() {
-                                    vm.experiment.version = data.version;
-                                });
-
-                            return;
-                        }
-                        refresh().then(function() {
-                            notifyService.info(entityTitle + ' has been changed by another user and reloaded');
-                        });
-                    }
+                    entityHelper.checkVersion($stateParams, data, vm.experiment, entityTitle, vm.isEntityChanged, refresh);
                 });
             });
 

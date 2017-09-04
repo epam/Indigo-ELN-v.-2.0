@@ -6,7 +6,7 @@
     /* @ngInject */
     function ProjectController($scope, $rootScope, $state, Project, notifyService, PermissionManagement, FileUploaderCash,
                                pageInfo, EntitiesBrowser, $timeout, $stateParams, TabKeyUtils, autorecoveryHelper,
-                               autorecoveryCache, EntitiesCache, confirmationModal, $q) {
+                               autorecoveryCache, EntitiesCache, confirmationModal, $q, entityHelper) {
         var vm = this;
         var identity = pageInfo.identity;
         var isContentEditor = pageInfo.isContentEditor;
@@ -52,7 +52,6 @@
             if (!restoredEntity) {
                 pageInfo.project.author = pageInfo.project.author || identity;
                 pageInfo.project.accessList = pageInfo.project.accessList || PermissionManagement.getAuthorAccessList(identity);
-                EntitiesCache.put($stateParams, pageInfo.project);
                 vm.project = pageInfo.project;
             } else if (restoredEntity.version === pageInfo.project.version) {
                 vm.project = restoredEntity;
@@ -105,7 +104,6 @@
                     .then(function(result) {
                         vm.project = result;
                         originalProject = angular.copy(vm.project);
-                        EntitiesCache.put($stateParams, vm.project);
                         EntitiesBrowser.setCurrentTabTitle(vm.project.name, $stateParams);
                         onUpdateSuccess({
                             id: vm.project.id
@@ -169,6 +167,7 @@
 
             if (isChanged) {
                 $scope.createProjectForm.$setDirty();
+                EntitiesCache.put($stateParams, pageInfo.project);
             } else {
                 $scope.createProjectForm.$setPristine();
             }
@@ -179,20 +178,7 @@
         function initDirtyListener() {
             $scope.$on('entity-updated', function(event, data) {
                 vm.loading.then(function() {
-                    if (_.isEqual($stateParams, data.entity) && data.version > vm.project.version) {
-                        if (isChanged) {
-                            confirmationModal
-                                .openEntityVersionsConflictConfirm(entityTitle)
-                                .then(refresh, function() {
-                                    vm.project.version = data.version;
-                                });
-
-                            return;
-                        }
-                        refresh().then(function() {
-                            notifyService.info(entityTitle + ' has been changed by another user and reloaded');
-                        });
-                    }
+                    entityHelper.checkVersion($stateParams, data, vm.project, entityTitle, isChanged, refresh);
                 });
             });
 
