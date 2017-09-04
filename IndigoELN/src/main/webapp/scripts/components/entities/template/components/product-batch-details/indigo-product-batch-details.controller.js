@@ -213,7 +213,7 @@
                 }
             },
             {
-                id: 'mol',
+                id: 'totlaMoles',
                 name: 'Total Moles',
                 type: 'unit',
                 width: '150px',
@@ -260,15 +260,7 @@
             }
         ];
 
-        function setStoicTable(table) {
-            ProductBatchSummaryOperations.setStoicTable(table);
-        }
-
         function onRowSelected(batch) {
-            if (batch.stoichTable) {
-                setStoicTable(batch.stoichTable);
-            }
-
             vm.detailTable[0] = batch;
             vm.selectedBatch = batch;
             if (vm.selectControl.setSelection) {

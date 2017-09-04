@@ -13,7 +13,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         getSelectedNonEditableBatches: getSelectedNonEditableBatches,
         duplicateBatches: chainPromises(duplicateBatches),
         duplicateBatch: chainPromises(duplicateBatch),
-        setStoicTable: setStoicTable,
         getIntendedNotInActual: getIntendedNotInActual,
         syncWithIntendedProducts: syncWithIntendedProducts,
         addNewBatch: chainPromises(addNewBatch),
@@ -114,10 +113,6 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
         });
     }
 
-    function setStoicTable(_table) {
-        StoichTableCache.setStoicTable(_table);
-    }
-
     function getIntendedNotInActual() {
         var stoichTable = StoichTableCache.getStoicTable();
         if (stoichTable) {
@@ -154,7 +149,7 @@ function productBatchSummaryOperations($q, ProductBatchSummaryCache, Registratio
                 AlertModal.info('Product Batch Summary is synchronized', 'sm');
             } else {
                 _.forEach(batchesQueueToAdd, function(batch) {
-                    _.extend(AppValues.getDefaultBatch, batch);
+                    batch = _.extend(AppValues.getDefaultBatch(), batch);
                 });
 
                 return duplicateBatches(batchesQueueToAdd, true);
