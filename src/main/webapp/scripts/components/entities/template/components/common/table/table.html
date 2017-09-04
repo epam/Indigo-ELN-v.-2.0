@@ -92,7 +92,7 @@
                                       toggle-editable-column="vm.toggleEditable(column.id, $parent.$index)"
                                       close="vm.toggleEditable(null, null, null)"
                                       is-editable-column="vm.isEditable(column.id, $parent.$index)"
-                                      is-readonly="vm.isReadonly">
+                                      is-readonly="vm.isReadonly || row.registrationStatus">
                     </indigo-table-val>
                 </td>
             </tr>
