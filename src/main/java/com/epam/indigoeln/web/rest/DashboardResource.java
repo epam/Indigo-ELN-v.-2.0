@@ -237,7 +237,7 @@ public class DashboardResource {
                 .flatMap(m -> m.streamStrings("coAuthors"))
                 .collect(Collectors.toList());
 
-        List<String> coAuthors = userRepository.findAll(coAuthorsIds)
+        List<String> coAuthors = userRepository.findAll(coAuthorsIds).stream()
                 .map(User::getFullName)
                 .collect(Collectors.toList());
 
