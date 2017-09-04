@@ -106,7 +106,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 .setProjectAlias(content.getString("projectAliasName"))
                 .setLinkedExperiment(content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList())
                 .setLiteratureReference(content.getString("literature"))
-                .setCoauthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).map(User::getFullName).collect(Collectors.toList()))
+                .setCoauthors(userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
         )));
     }
 
@@ -117,8 +117,8 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
                 content.streamObjects("linkedExperiments").map(m -> m.getString("text")).toList(),
                 content.getString("codeAndName", "name"),
                 content.getString("keywords"),
-                userRepository.findAll(content.streamStrings("coAuthors").toList()).map(User::getFullName).collect(Collectors.toList()),
-                userRepository.findAll(content.streamStrings("designers").toList()).map(User::getFullName).collect(Collectors.toList())
+                userRepository.findAll(content.streamStrings("coAuthors").toList()).stream().map(User::getFullName).collect(Collectors.toList()),
+                userRepository.findAll(content.streamStrings("designers").toList()).stream().map(User::getFullName).collect(Collectors.toList())
         ))));
     }
 
@@ -203,7 +203,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).map(User::getFullName).collect(Collectors.toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
                 .findAny();
 
         List<BatchInformationRow> batchInfoRows = MongoExt.of(p.getLeft())
@@ -262,7 +262,7 @@ public final class ExperimentPdfSectionsProvider implements PdfSectionsProvider 
         Optional<List<String>> batchOwner = p.getRight().getComponents().stream()
                 .filter(component -> REACTION_DETAILS.equals(component.getName()))
                 .map(MongoExt::of)
-                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).map(User::getFullName).collect(Collectors.toList()))
+                .map(m -> userRepository.findAll(m.streamStrings("batchOwner").toList()).stream().map(User::getFullName).collect(Collectors.toList()))
                 .findAny();
 
         Optional<List<AbstractPdfSection>> sections = content.map(m -> m.streamObjects("batches")

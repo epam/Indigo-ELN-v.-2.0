@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Spring Data MongoDB repository for the User entity.
@@ -23,5 +23,5 @@ public interface UserRepository extends MongoRepository<User, String> {
     @Query(value = "{'roles': {'$ref': '" + Role.COLLECTION_NAME + "', '$id': ?0}}")
     Collection<User> findByRoleId(String roleId);
 
-    Stream<User> findAll(Collection<String> ids);
+    List<User> findAll(Iterable<String> ids);
 }
