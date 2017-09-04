@@ -112,8 +112,8 @@ angular.module('indigoeln')
             .state('entities.notebook-detail.print', {
                 parent: 'entities.notebook-detail',
                 url: '/print',
-                onEnter: function(printModal) {
-                    printModal.showPopup();
+                onEnter: function(printModal, $stateParams) {
+                    printModal.showPopup($stateParams, 'Notebook');
                 },
                 data: {
                     authorities: ['CONTENT_EDITOR', 'EXPERIMENT_READER', 'EXPERIMENT_CREATOR']

@@ -86,11 +86,11 @@
         </div>
 
         <button type="submit" form="experimentForm"
-                ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isBtnSaveActive"
+                ng-disabled="!vm.isEditAllowed || experimentForm.$invalid || !vm.isEntityChanged"
                 class="btn btn-primary">
             <span class="fa fa-save"></span><span class="m-l5"> Save</span>
         </button>
-        <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isEditAllowed || !vm.isBtnSaveActive">
+        <button class="btn btn-default" ng-click="vm.refresh()" ng-disabled="!vm.isEditAllowed || !vm.isEntityChanged">
             <span class="fa fa-refresh"></span><span class="m-l5">Reset</span>
         </button>
         <button class="btn btn-default" ng-click="window.history.back()">

@@ -82,10 +82,7 @@
                                 return reactants.length ? reactants : schemeReactants;
                             },
                             onStoichRowsChanged: function() {
-                                // TODO: it imitates function expression of component
-                                return function(StoichRows) {
-                                    $rootScope.$broadcast('stoich-rows-changed', StoichRows);
-                                };
+                                return updateReactants;
                             }
                         }
                     });
@@ -238,7 +235,7 @@
                     type: 'boolean',
                     onClick: function(data) {
                         CalculationService.setEntered(data);
-                        CalculationService.recalculateStoichBasedOnBatch(data);
+                        CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
                     }
                 },
                 {
@@ -393,7 +390,7 @@
                             if (column.id === 'rxnRole') {
                                 onRxnRoleChange(data);
                             }
-                            CalculationService.recalculateStoichBasedOnBatch(data);
+                            CalculationService.recalculateStoichBasedOnBatch(data).then(updateReactantsAndProducts);
                         }
                     });
                 } else if (_.includes(columnsToRecalculateSalt, column.id)) {
@@ -536,6 +533,7 @@
                     } else if (batches.length > 1) {
                         dialogService.structureValidation(batches, compoundId, function(selectedBatch) {
                             populateFetchedBatch(row, selectedBatch);
+                            vm.onPrecursorsChanged({precursors: getPrecursors()});
                         });
                     } else {
                         alertCompoundWrongFormat();
@@ -578,7 +576,17 @@
             });
         }
 
-        function getReactionProductsAndReactants() {
+        function isEqualsMolfiles(reaction) {
+            return _.some(reaction, function(reagent, index) {
+                return _.get(reagent.structure, 'molfile') === _.get(vm.model.stoichTable, 'products[' + index + '].structure.molfile');
+            });
+        }
+
+        function getReactionProductsAndReactants(reaction) {
+            if (!reaction || isEqualsMolfiles(reaction)) {
+                return;
+            }
+
             if (vm.infoProducts && vm.infoProducts.length) {
                 setIntendedProducts(vm.infoProducts);
                 getStructureImagesForIntendedProducts();
@@ -588,7 +596,7 @@
         }
 
         function bindEvents() {
-            $scope.$watch('vm.infoProducts', getReactionProductsAndReactants);
+            $scope.$watch('vm.infoProducts', getReactionProductsAndReactants, true);
             // $scope.$watch('vm.infoReactants', updateReactants);
 
             $scope.$watch('vm.model.stoichTable', function(stoichTable) {
@@ -599,38 +607,38 @@
                 });
                 vm.onChangedProducts({products: stoichTable.products});
                 StoichTableCache.setStoicTable(stoichTable);
-                vm.onPrecursorsChanged({precursors: getPrecursors()});
             }, true);
 
             $scope.$on('stoich-rows-changed', function(event, data) {
                 updateReactants(data);
             });
+        }
 
-            $scope.$on('stoic-table-recalculated', function(event, data) {
-                var newReactants = data.stoicBatches;
-                var newProducts = data.intendedProducts;
-                if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
-                    _.each(getStoicReactants(), function(reactant, i) {
-                        _.extend(reactant, newReactants[i]);
-                    });
-                }
-                if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
-                    _.each(getIntendedProducts(), function(product, i) {
-                        _.extend(product, newProducts[i]);
-                    });
-                }
-            });
+        function updateReactantsAndProducts(data) {
+            var newReactants = data.stoicBatches;
+            var newProducts = data.intendedProducts;
+            if (getStoicReactants() && newReactants.length === getStoicReactants().length) {
+                _.each(getStoicReactants(), function(reactant, i) {
+                    _.extend(reactant, newReactants[i]);
+                });
+            }
+            if (getIntendedProducts() && newProducts.length === getIntendedProducts().length) {
+                _.each(getIntendedProducts(), function(product, i) {
+                    _.extend(product, newProducts[i]);
+                });
+            }
         }
 
         function updateReactants(reactants) {
             setStoicReactants(_.union(getStoicReactants(), reactants));
+            vm.onPrecursorsChanged({precursors: getPrecursors()});
             CalculationService.recalculateStoich();
         }
 
         function getPrecursors() {
-            return _.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
+            return _.compact(_.map(getReactantsWithMolfile(getStoicReactants()), function(r) {
                 return r.compoundId || r.fullNbkBatch;
-            }).join(', ');
+            })).join(', ');
         }
 
         function getReactantsWithMolfile(stoichReactants) {

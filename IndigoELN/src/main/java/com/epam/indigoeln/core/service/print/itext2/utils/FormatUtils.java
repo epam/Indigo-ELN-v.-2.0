@@ -18,8 +18,6 @@ public class FormatUtils {
     private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter
             .ofPattern("MMM d, yyyy HH:mm:ss z")
             .withZone(ZoneId.systemDefault());
-    private static final DateTimeFormatter BATCH_DETAILS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-            .withZone(ZoneId.systemDefault());
     private static final String UNITS = "kMGTPE";
     private static final String SIZE_FORMAT = "%.2f %sB";
 

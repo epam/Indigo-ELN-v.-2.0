@@ -159,14 +159,6 @@
         }
 
         function bindEvents() {
-            $scope.$on('product-batch-summary-recalculated', function(event, data) {
-                if (data.length === getBatches().length) {
-                    _.each(getBatches(), function(batch, i) {
-                        _.extend(batch, data[i]);
-                    });
-                }
-            });
-
             $scope.$watch('vm.structureSize', function(newVal) {
                 var column = _.find(vm.columns, function(item) {
                     return item.id === 'structure';
